@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.util.MethodResolverNoSuchCtorExceptio
 
 /**
  * For use with high-availability and scale-out only, this class instructs the compiler that the serializer and de-serializer (serde)
- * is available using a default constructor or via a singleton-pattern-style static field named "INSTANCE".
+ * is available via a singleton-pattern-style static field named "INSTANCE" (preferred) or by has a default constructor.
  */
 public class SerdeProvisionByClass extends SerdeProvision {
     private final Class serdeClass;
@@ -42,17 +42,17 @@ public class SerdeProvisionByClass extends SerdeProvision {
 
     public DataInputOutputSerdeForge toForge() {
         try {
-            MethodResolver.resolveCtor(serdeClass, new Class[0]);
-            return new DataInputOutputSerdeForgeEmptyCtor(serdeClass);
-        } catch (MethodResolverNoSuchCtorException ex) {
-        }
-
-        try {
             serdeClass.getField("INSTANCE");
             return new DataInputOutputSerdeForgeSingleton(serdeClass);
         } catch (NoSuchFieldException e) {
         }
 
-        throw new EPException("Serde class '" + serdeClass.getName() + "' does not have a default constructor or singleton-style INSTANCE field");
+        try {
+            MethodResolver.resolveCtor(serdeClass, new Class[0]);
+            return new DataInputOutputSerdeForgeEmptyCtor(serdeClass);
+        } catch (MethodResolverNoSuchCtorException ex) {
+        }
+
+        throw new EPException("Serde class '" + serdeClass.getName() + "' does not have a singleton-style INSTANCE field or default constructor");
     }
 }

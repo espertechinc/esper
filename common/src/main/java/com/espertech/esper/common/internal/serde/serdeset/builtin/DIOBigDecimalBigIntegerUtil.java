@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class DIOSerdeBigDecimalBigInteger {
+public class DIOBigDecimalBigIntegerUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters

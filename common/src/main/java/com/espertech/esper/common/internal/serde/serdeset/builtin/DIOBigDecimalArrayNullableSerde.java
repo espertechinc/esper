@@ -39,7 +39,7 @@ public class DIOBigDecimalArrayNullableSerde implements DataInputOutputSerde<Big
         }
         output.writeInt(object.length);
         for (BigDecimal i : object) {
-            DIONullableBigDecimalSerde.INSTANCE.write(i, output);
+            DIOBigDecimalSerde.INSTANCE.write(i, output);
         }
     }
 
@@ -50,7 +50,7 @@ public class DIOBigDecimalArrayNullableSerde implements DataInputOutputSerde<Big
         }
         BigDecimal[] array = new BigDecimal[len];
         for (int i = 0; i < len; i++) {
-            array[i] = DIONullableBigDecimalSerde.INSTANCE.read(input);
+            array[i] = DIOBigDecimalSerde.INSTANCE.read(input);
         }
         return array;
     }

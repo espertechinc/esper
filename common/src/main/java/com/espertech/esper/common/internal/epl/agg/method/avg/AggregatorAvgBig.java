@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSerdeBigDecimalBigInteger;
+import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOBigDecimalBigIntegerUtil;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.type.MathContextCodegenField;
 import org.slf4j.Logger;
@@ -113,13 +113,13 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(writeLong(output, row, cnt))
-                .staticMethod(DIOSerdeBigDecimalBigInteger.class, "writeBigDec", rowDotRef(row, sum), output);
+                .staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigDec", rowDotRef(row, sum), output);
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(readLong(row, cnt, input))
-                .assignRef(rowDotRef(row, sum), staticMethod(DIOSerdeBigDecimalBigInteger.class, "readBigDec", input));
+                .assignRef(rowDotRef(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigDec", input));
     }
 
     /**

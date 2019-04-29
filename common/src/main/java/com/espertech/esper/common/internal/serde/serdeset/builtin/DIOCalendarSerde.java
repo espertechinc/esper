@@ -42,32 +42,24 @@ public class DIOCalendarSerde implements DataInputOutputSerde<Calendar> {
     }
 
     public static void writeCalendar(Calendar cal, DataOutput output) throws IOException {
+        if (cal == null) {
+            output.writeBoolean(true);
+            return;
+        }
+        output.writeBoolean(false);
         output.writeUTF(cal.getTimeZone().getID());
         output.writeLong(cal.getTimeInMillis());
     }
 
     public static Calendar readCalendar(DataInput input) throws IOException {
+        boolean isNull = input.readBoolean();
+        if (isNull) {
+            return null;
+        }
         String timeZoneId = input.readUTF();
         long millis = input.readLong();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
         cal.setTimeInMillis(millis);
         return cal;
-    }
-
-    public static void writeOptionalCalendar(Calendar cal, DataOutput output) throws IOException {
-        if (cal == null) {
-            output.writeBoolean(false);
-            return;
-        }
-        output.writeBoolean(true);
-        writeCalendar(cal, output);
-    }
-
-    public static Calendar readOptionalCalendar(DataInput input) throws IOException {
-        boolean exists = input.readBoolean();
-        if (!exists) {
-            return null;
-        }
-        return readCalendar(input);
     }
 }

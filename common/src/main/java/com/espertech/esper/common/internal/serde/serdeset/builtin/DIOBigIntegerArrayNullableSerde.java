@@ -47,7 +47,7 @@ public class DIOBigIntegerArrayNullableSerde implements DataInputOutputSerde<Big
         }
         output.writeInt(object.length);
         for (BigInteger i : object) {
-            DIONullableBigIntegerSerde.INSTANCE.write(i, output);
+            DIOBigIntegerSerde.INSTANCE.write(i, output);
         }
     }
 
@@ -58,7 +58,7 @@ public class DIOBigIntegerArrayNullableSerde implements DataInputOutputSerde<Big
         }
         BigInteger[] array = new BigInteger[len];
         for (int i = 0; i < len; i++) {
-            array[i] = DIONullableBigIntegerSerde.INSTANCE.read(input);
+            array[i] = DIOBigIntegerSerde.INSTANCE.read(input);
         }
         return array;
     }

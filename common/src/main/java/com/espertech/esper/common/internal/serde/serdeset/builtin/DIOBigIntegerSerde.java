@@ -16,43 +16,42 @@ import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class DIONullableBigDecimalSerde implements DataInputOutputSerde<BigDecimal> {
-    public final static DIONullableBigDecimalSerde INSTANCE = new DIONullableBigDecimalSerde();
+/**
+ * Binding for nullable boolean values.
+ */
+public class DIOBigIntegerSerde implements DataInputOutputSerde<BigInteger> {
+    public final static DIOBigIntegerSerde INSTANCE = new DIOBigIntegerSerde();
 
-    private DIONullableBigDecimalSerde() {
+    private DIOBigIntegerSerde() {
     }
 
-    public void write(BigDecimal object, DataOutput output, byte[] pageFullKey, EventBeanCollatedWriter writer) throws IOException {
+    public void write(BigInteger object, DataOutput output, byte[] pageFullKey, EventBeanCollatedWriter writer) throws IOException {
         write(object, output);
     }
 
-    public void write(BigDecimal bigDecimal, DataOutput stream) throws IOException {
-        boolean isNull = bigDecimal == null;
+    public void write(BigInteger bigInteger, DataOutput stream) throws IOException {
+        boolean isNull = bigInteger == null;
         stream.writeBoolean(isNull);
         if (!isNull) {
-            stream.writeInt(bigDecimal.scale());
-            DIOSerdeBigDecimalBigInteger.writeBigInt(bigDecimal.unscaledValue(), stream);
+            DIOBigDecimalBigIntegerUtil.writeBigInt(bigInteger, stream);
         }
     }
 
-    public BigDecimal read(DataInput input) throws IOException {
+    public BigInteger read(DataInput input) throws IOException {
         return readInternal(input);
     }
 
-    public BigDecimal read(DataInput input, byte[] resourceKey) throws IOException {
+    public BigInteger read(DataInput input, byte[] resourceKey) throws IOException {
         return readInternal(input);
     }
 
-    private BigDecimal readInternal(DataInput s) throws IOException {
-        boolean isNull = s.readBoolean();
+    private BigInteger readInternal(DataInput input) throws IOException {
+        boolean isNull = input.readBoolean();
         if (isNull) {
             return null;
         }
-        int scale = s.readInt();
-        BigInteger bigInt = DIOSerdeBigDecimalBigInteger.readBigInt(s);
-        return new BigDecimal(bigInt, scale);
+        return DIOBigDecimalBigIntegerUtil.readBigInt(input);
     }
 }

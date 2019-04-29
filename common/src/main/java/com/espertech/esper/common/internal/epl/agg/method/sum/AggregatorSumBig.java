@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSerdeBigDecimalBigInteger;
+import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOBigDecimalBigIntegerUtil;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.math.BigDecimal;
@@ -61,17 +61,17 @@ public class AggregatorSumBig extends AggregatorSumBase {
 
     protected void writeSum(CodegenExpressionRef row, CodegenExpressionRef output, CodegenMethod method, CodegenClassScope classScope) {
         if (sumType == BigInteger.class) {
-            method.getBlock().staticMethod(DIOSerdeBigDecimalBigInteger.class, "writeBigInt", rowDotRef(row, sum), output);
+            method.getBlock().staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigInt", rowDotRef(row, sum), output);
         } else {
-            method.getBlock().staticMethod(DIOSerdeBigDecimalBigInteger.class, "writeBigDec", rowDotRef(row, sum), output);
+            method.getBlock().staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigDec", rowDotRef(row, sum), output);
         }
     }
 
     protected void readSum(CodegenExpressionRef row, CodegenExpressionRef input, CodegenMethod method, CodegenClassScope classScope) {
         if (sumType == BigInteger.class) {
-            method.getBlock().assignRef(rowDotRef(row, sum), staticMethod(DIOSerdeBigDecimalBigInteger.class, "readBigInt", input));
+            method.getBlock().assignRef(rowDotRef(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigInt", input));
         } else {
-            method.getBlock().assignRef(rowDotRef(row, sum), staticMethod(DIOSerdeBigDecimalBigInteger.class, "readBigDec", input));
+            method.getBlock().assignRef(rowDotRef(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigDec", input));
         }
     }
 }

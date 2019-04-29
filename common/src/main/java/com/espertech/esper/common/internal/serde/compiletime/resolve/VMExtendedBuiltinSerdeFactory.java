@@ -21,10 +21,10 @@ import java.util.Date;
 public class VMExtendedBuiltinSerdeFactory {
     public static DataInputOutputSerde getSerde(Class type) {
         if (type == BigInteger.class) {
-            return DIONullableBigIntegerSerde.INSTANCE;
+            return DIOBigIntegerSerde.INSTANCE;
         }
         if (type == BigDecimal.class) {
-            return DIONullableBigDecimalSerde.INSTANCE;
+            return DIOBigDecimalSerde.INSTANCE;
         }
         if (type == Date.class) {
             return DIODateSerde.INSTANCE;

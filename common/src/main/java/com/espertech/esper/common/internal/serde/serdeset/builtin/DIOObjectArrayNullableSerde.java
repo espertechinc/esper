@@ -27,41 +27,33 @@ public class DIOObjectArrayNullableSerde implements DataInputOutputSerde<Object[
         this.componentBinding = componentBinding;
     }
 
-    public void write(Object[] object, DataOutput output) throws IOException {
-        writeInternal(object, output);
-    }
-
-    public Object[] read(DataInput input) throws IOException {
-        return readInternal(input);
-    }
-
     public void write(Object[] object, DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer) throws IOException {
-        writeInternal(object, output);
+        writeInternal(object, output, unitKey, writer);
     }
 
     public Object[] read(DataInput input, byte[] unitKey) throws IOException {
-        return readInternal(input);
+        return readInternal(input, unitKey);
     }
 
-    private void writeInternal(Object[] object, DataOutput output) throws IOException {
+    private void writeInternal(Object[] object, DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer) throws IOException {
         if (object == null) {
             output.writeInt(-1);
             return;
         }
         output.writeInt(object.length);
         for (Object i : object) {
-            componentBinding.write(i, output, null, null);
+            componentBinding.write(i, output, unitKey, writer);
         }
     }
 
-    private Object[] readInternal(DataInput input) throws IOException {
+    private Object[] readInternal(DataInput input, byte[] unitKey) throws IOException {
         int len = input.readInt();
         if (len == -1) {
             return null;
         }
         Object array = Array.newInstance(componentType, len);
         for (int i = 0; i < len; i++) {
-            Array.set(array, i, componentBinding.read(input, null));
+            Array.set(array, i, componentBinding.read(input, unitKey));
         }
         return (Object[]) array;
     }
