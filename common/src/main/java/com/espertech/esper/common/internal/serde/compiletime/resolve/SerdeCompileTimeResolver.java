@@ -28,4 +28,5 @@ public interface SerdeCompileTimeResolver {
     DataInputOutputSerdeForge serdeForIndexHashNonArray(Class propType, StatementRawInfo raw);
     DataInputOutputSerdeForge serdeForVariable(Class type, String variableName, StatementRawInfo raw);
     DataInputOutputSerdeForge serdeForEventTypeExternalProvider(BaseNestableEventType eventType, StatementRawInfo raw);
+    boolean isTargetHA();
 }

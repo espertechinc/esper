@@ -139,7 +139,7 @@ public class CompilerHelperModuleProvider {
         String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, moduleBytes, packageName, compileTimeServices);
 
         // create module XML
-        return new EPCompiledManifest(COMPILER_VERSION, moduleProviderClassName, null);
+        return new EPCompiledManifest(COMPILER_VERSION, moduleProviderClassName, null, compileTimeServices.getSerdeResolver().isTargetHA());
     }
 
     private static String compileModule(String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, List<String> statementClassNames, String moduleIdentPostfix, Map<String, byte[]> moduleBytes, String packageName, ModuleCompileTimeServices compileTimeServices) {

@@ -39,6 +39,11 @@ public class EPCompiledIOUtil {
     public final static String MANIFEST_QUERYPROVIDERCLASSNAME = "Esper-QueryProvider";
 
     /**
+     * Name of the attribute providing the flag whether the compiler targets high-availability.
+     */
+    public final static String MANIFEST_TARGETHA = "Esper-TargetHA";
+
+    /**
      * Write the compiled to a jar file. Overwrites the existing jar file.
      *
      * @param compiled compiled
@@ -52,6 +57,9 @@ public class EPCompiledIOUtil {
         manifest.getMainAttributes().put(new Attributes.Name(MANIFEST_COMPILER_VERSION), compiled.getManifest().getCompilerVersion());
         manifest.getMainAttributes().put(new Attributes.Name(MANIFEST_MODULEPROVIDERCLASSNAME), compiled.getManifest().getModuleProviderClassName());
         manifest.getMainAttributes().put(new Attributes.Name(MANIFEST_QUERYPROVIDERCLASSNAME), compiled.getManifest().getQueryProviderClassName());
+        if (compiled.getManifest().isTargetHA()) {
+            manifest.getMainAttributes().put(new Attributes.Name(MANIFEST_TARGETHA), "true");
+        }
 
         JarOutputStream target = new JarOutputStream(new FileOutputStream(file), manifest);
 
@@ -84,6 +92,8 @@ public class EPCompiledIOUtil {
         if (moduleProvider == null && queryProvider == null) {
             throw new IOException("Manifest is missing both " + MANIFEST_MODULEPROVIDERCLASSNAME + " and " + MANIFEST_QUERYPROVIDERCLASSNAME);
         }
+        String targetHAStr = getAttribute(attributes, MANIFEST_TARGETHA);
+        boolean targetHA = targetHAStr != null && Boolean.parseBoolean(targetHAStr);
 
         Map<String, byte[]> classes = new HashMap<>();
         try {
@@ -96,7 +106,7 @@ public class EPCompiledIOUtil {
             jarFile.close();
         }
 
-        return new EPCompiled(classes, new EPCompiledManifest(compilerVersion, moduleProvider, queryProvider));
+        return new EPCompiled(classes, new EPCompiledManifest(compilerVersion, moduleProvider, queryProvider, targetHA));
     }
 
     private static String getAttribute(Attributes attributes, String name) {

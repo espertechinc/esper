@@ -39,6 +39,7 @@ import com.espertech.esper.common.internal.context.util.EPStatementHandle;
 import com.espertech.esper.common.internal.context.util.StatementCPCacheService;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.declared.runtime.ExprDeclaredCollectorRuntime;
 import com.espertech.esper.common.internal.epl.index.base.IndexCollectorRuntime;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadata;
@@ -127,6 +128,13 @@ public class Deployer {
         ModuleProviderResult provider = ModuleProviderUtil.analyze(compiled, epRuntime.getServicesContext().getClasspathImportServiceRuntime());
         String moduleName = provider.getModuleProvider().getModuleName();
         EPServicesContext services = epRuntime.getServicesContext();
+
+        // verify manifest
+        try {
+            services.getEventSerdeFactory().verifyHADeployment(compiled.getManifest().isTargetHA());
+        } catch (ExprValidationException ex) {
+            throw new EPDeployException(ex.getMessage(), ex);
+        }
 
         // resolve external dependencies
         ModuleDependenciesRuntime moduleDependencies = provider.getModuleProvider().getModuleDependencies();

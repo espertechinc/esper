@@ -141,7 +141,7 @@ public class CompilerHelperFAFProvider {
         String fafProviderClassName = makeFAFProvider(queryMethodProviderClassName, classPostfix, moduleBytes, packageName, compileTimeServices);
 
         // create manifest
-        return new EPCompiledManifest(COMPILER_VERSION, null, fafProviderClassName);
+        return new EPCompiledManifest(COMPILER_VERSION, null, fafProviderClassName, false);
     }
 
     private static String makeFAFProvider(String queryMethodProviderClassName, String classPostfix, Map<String, byte[]> moduleBytes, String packageName, ModuleCompileTimeServices compileTimeServices) {

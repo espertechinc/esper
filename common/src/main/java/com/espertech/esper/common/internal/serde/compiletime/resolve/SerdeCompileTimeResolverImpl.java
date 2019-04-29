@@ -42,6 +42,10 @@ public class SerdeCompileTimeResolverImpl implements SerdeCompileTimeResolver {
         this.allowSerializationFallback = allowSerializationFallback;
     }
 
+    public boolean isTargetHA() {
+        return true;
+    }
+
     public DataInputOutputSerdeForge serdeForFilter(Class evaluationType, StatementRawInfo raw) {
         return serdeMayArray(evaluationType, new SerdeProviderAdditionalInfoFilter(raw));
     }

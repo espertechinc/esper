@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.serde.runtime.event;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.serde.serdeset.additional.DIOSerdeTreeMapEventsMayDeque;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOUnsupportedSerde;
 
@@ -21,6 +22,10 @@ public class EventSerdeFactoryDefault implements EventSerdeFactory {
     public final static EventSerdeFactoryDefault INSTANCE = new EventSerdeFactoryDefault();
 
     private EventSerdeFactoryDefault() {
+    }
+
+    public void verifyHADeployment(boolean targetHA) throws ExprValidationException {
+        // no verification required
     }
 
     public DataInputOutputSerde<EventBean> nullableEvent(EventType eventType) {

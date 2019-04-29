@@ -72,6 +72,10 @@ public class SerdeCompileTimeResolverNonHA implements SerdeCompileTimeResolver {
         return noop();
     }
 
+    public boolean isTargetHA() {
+        return false;
+    }
+
     private DataInputOutputSerdeForge noop() {
         return DataInputOutputSerdeForgeNotApplicable.INSTANCE;
     }

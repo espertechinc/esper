@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface DeploymentLifecycleService {
+
     void addDeployment(String deploymentId, DeploymentInternal deployment);
 
     String[] getDeploymentIds();
@@ -35,6 +36,8 @@ public interface DeploymentLifecycleService {
     CopyOnWriteArrayList<DeploymentStateListener> getListeners();
 
     void addStatementLifecycleListener(StatementListenerEventObserver observer);
+
     void removeStatementLifecycleListener(StatementListenerEventObserver observer);
+
     void dispatchStatementListenerEvent(StatementListenerEvent event);
 }

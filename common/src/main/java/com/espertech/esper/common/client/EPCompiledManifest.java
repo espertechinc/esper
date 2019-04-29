@@ -23,6 +23,7 @@ public class EPCompiledManifest implements Serializable {
     private final String compilerVersion;
     private final String moduleProviderClassName;
     private final String queryProviderClassName;
+    private final boolean targetHA;
 
     /**
      * Ctor.
@@ -30,11 +31,13 @@ public class EPCompiledManifest implements Serializable {
      * @param compilerVersion         compiler version
      * @param moduleProviderClassName class name of the class providing the module, or null for fire-and-forget query
      * @param queryProviderClassName  class name of the class providing the fire-and-forget query, or null when this is a module
+     * @param targetHA flag indicating whether the compiler targets high-availability
      */
-    public EPCompiledManifest(String compilerVersion, String moduleProviderClassName, String queryProviderClassName) {
+    public EPCompiledManifest(String compilerVersion, String moduleProviderClassName, String queryProviderClassName, boolean targetHA) {
         this.compilerVersion = compilerVersion;
         this.moduleProviderClassName = moduleProviderClassName;
         this.queryProviderClassName = queryProviderClassName;
+        this.targetHA = targetHA;
     }
 
     /**
@@ -65,6 +68,14 @@ public class EPCompiledManifest implements Serializable {
     }
 
     /**
+     * Returns flag indicating whether the compiler targets high-availability
+     * @return indicator
+     */
+    public boolean isTargetHA() {
+        return targetHA;
+    }
+
+    /**
      * Write the manifest to output.
      *
      * @param output output
@@ -74,6 +85,7 @@ public class EPCompiledManifest implements Serializable {
         output.writeUTF(compilerVersion);
         writeNullableString(moduleProviderClassName, output);
         writeNullableString(queryProviderClassName, output);
+        output.writeBoolean(targetHA);
     }
 
     /**
@@ -87,7 +99,8 @@ public class EPCompiledManifest implements Serializable {
         String compilerVersion = input.readUTF();
         String moduleClassName = readNullableString(input);
         String queryClassName = readNullableString(input);
-        return new EPCompiledManifest(compilerVersion, moduleClassName, queryClassName);
+        boolean targetHA = input.readBoolean();
+        return new EPCompiledManifest(compilerVersion, moduleClassName, queryClassName, targetHA);
     }
 
     private void writeNullableString(String value, DataOutput output) throws IOException {
