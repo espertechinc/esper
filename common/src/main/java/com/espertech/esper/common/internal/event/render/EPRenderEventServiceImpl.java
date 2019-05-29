@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.render;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.render.*;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 
 /**
  * Provider for rendering services of {@link EventBean} events.
@@ -26,6 +27,12 @@ public class EPRenderEventServiceImpl implements EPRenderEventService {
      * @return JSON format renderer
      */
     public JSONEventRenderer getJSONRenderer(EventType eventType, JSONRenderingOptions options) {
+        if (eventType instanceof JsonEventType) {
+            return JSONEventRendererJsonEventType.INSTANCE;
+        }
+        if (options == null) {
+            options = new JSONRenderingOptions();
+        }
         return new JSONRendererImpl(eventType, options);
     }
 
@@ -36,7 +43,7 @@ public class EPRenderEventServiceImpl implements EPRenderEventService {
      * @return JSON format renderer
      */
     public JSONEventRenderer getJSONRenderer(EventType eventType) {
-        return new JSONRendererImpl(eventType, new JSONRenderingOptions());
+        return getJSONRenderer(eventType, null);
     }
 
     /**

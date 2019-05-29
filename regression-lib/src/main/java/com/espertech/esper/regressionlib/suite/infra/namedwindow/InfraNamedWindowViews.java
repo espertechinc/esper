@@ -257,7 +257,7 @@ public class InfraNamedWindowViews {
     private static class InfraBeanContained implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                if (!rep.isAvroEvent()) {
+                if (!rep.isAvroOrJsonEvent()) {
                     tryAssertionBeanContained(env, rep);
                 }
             }

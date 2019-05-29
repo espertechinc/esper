@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.*;
 
@@ -28,6 +28,19 @@ public class EventInfraPropertyIndexedKeyExpr implements RegressionExecution {
         runAssertionMap(env);
         runAssertionWrapper(env);
         runAssertionBean(env);
+        runAssertionJson(env);
+    }
+
+    private void runAssertionJson(RegressionEnvironment env) {
+        env.compileDeploy("@public @buseventtype create json schema JsonSchema(indexed int[], mapped java.util.Map);\n" +
+            "@name('s0') select * from JsonSchema;\n").addListener("s0");
+        env.sendEventJson("{ \"indexed\": [1, 2], \"mapped\" : { \"keyOne\": 20 }}", "JsonSchema");
+        EventBean event = env.listener("s0").assertOneGetNewAndReset();
+
+        assertEquals(2, event.getEventType().getGetterIndexed("indexed").get(event, 1));
+        assertEquals(20, event.getEventType().getGetterMapped("mapped").get(event, "keyOne"));
+
+        env.undeployAll();
     }
 
     private void runAssertionBean(RegressionEnvironment env) {

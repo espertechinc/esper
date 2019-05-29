@@ -47,6 +47,10 @@ public class DIOPrimitiveByteArray2DimNullableSerde implements DataInputOutputSe
     }
 
     private void writeArray(byte[] array, DataOutput output) throws IOException {
+        if (array == null) {
+            output.writeInt(-1);
+            return;
+        }
         output.writeInt(array.length);
         for (byte i : array) {
             output.writeByte(i);
@@ -55,6 +59,9 @@ public class DIOPrimitiveByteArray2DimNullableSerde implements DataInputOutputSe
 
     private byte[] readArray(DataInput input) throws IOException {
         int len = input.readInt();
+        if (len == -1) {
+            return null;
+        }
         byte[] array = new byte[len];
         for (int i = 0; i < len; i++) {
             array[i] = input.readByte();

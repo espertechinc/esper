@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 public class CompilerHelperFAFQuery {
-    public static String compileQuery(FAFQueryMethodForge query, String classPostfix, String packageName, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
+    public static String compileQuery(FAFQueryMethodForge query, String classPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, compileTimeServices.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), statementFieldsClassName, compileTimeServices.isInstrumented());
 
         String queryMethodProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(FAFQueryMethodProvider.class, classPostfix);
         List<StmtClassForgeable> forgeablesQueryMethod = query.makeForgeables(queryMethodProviderClassName, classPostfix, packageScope);

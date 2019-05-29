@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
+import com.espertech.esper.common.internal.event.core.MappedEventBean;
 
 import java.util.Map;
 
@@ -44,6 +45,16 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
         return mapGetter.getMap((Map<String, Object>) value);
     }
 
+    public boolean handleNestedValueExists(Object value) {
+        if (!(value instanceof Map)) {
+            if (value instanceof EventBean) {
+                return mapGetter.isMapExistsProperty(((MappedEventBean) value).getProperties());
+            }
+            return false;
+        }
+        return mapGetter.isMapExistsProperty((Map<String, Object>) value);
+    }
+
     private CodegenMethod handleNestedValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
                 .ifNotInstanceOf("value", Map.class)
@@ -53,6 +64,17 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
                 .blockReturn(constantNull())
                 .declareVarWCast(Map.class, "map", "value")
                 .methodReturn(mapGetter.underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope));
+    }
+
+    private CodegenMethod handleNestedValueExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
+            .ifNotInstanceOf("value", Map.class)
+            .ifInstanceOf("value", EventBean.class)
+            .declareVarWCast(EventBean.class, "bean", "value")
+            .blockReturn(mapGetter.eventBeanExistsCodegen(ref("bean"), codegenMethodScope, codegenClassScope))
+            .blockReturn(constantFalse())
+            .declareVarWCast(Map.class, "map", "value")
+            .methodReturn(mapGetter.underlyingExistsCodegen(ref("map"), codegenMethodScope, codegenClassScope));
     }
 
     public Object handleNestedValueFragment(Object value) {
@@ -80,6 +102,10 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
 
     public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return localMethod(handleNestedValueCodegen(codegenMethodScope, codegenClassScope), name);
+    }
+
+    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(handleNestedValueExistsCodegen(codegenMethodScope, codegenClassScope), name);
     }
 
     public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

@@ -10,24 +10,15 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
-import java.util.Map;
-
 public class CompilableItemResult {
-    private final Map<String, byte[]> statementBytes;
     private final Throwable exception;
 
-    public CompilableItemResult(Map<String, byte[]> statementBytes) {
-        this.statementBytes = statementBytes;
+    public CompilableItemResult() {
         this.exception = null;
     }
 
     public CompilableItemResult(Throwable exception) {
         this.exception = exception;
-        this.statementBytes = null;
-    }
-
-    public Map<String, byte[]> getStatementBytes() {
-        return statementBytes;
     }
 
     public Throwable getException() {

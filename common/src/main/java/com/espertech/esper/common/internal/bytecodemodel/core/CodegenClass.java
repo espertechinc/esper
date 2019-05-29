@@ -21,14 +21,31 @@ public class CodegenClass {
     private final CodegenClassType classType;
     private final String packageName;
     private final String className;
-    private final Class interfaceImplemented;
+    private final CodegenClassInterfacesAndExtension supers = new CodegenClassInterfacesAndExtension();
     private final CodegenCtor optionalCtor;
     private final List<CodegenTypedParam> explicitMembers;
     private final CodegenClassMethods methods;
     private final List<CodegenInnerClass> innerClasses;
 
     public CodegenClass(CodegenClassType classType,
-                        Class interfaceClass,
+                        Class optionalInterfaceImplemented,
+                        String className,
+                        CodegenClassScope codegenClassScope,
+                        List<CodegenTypedParam> explicitMembers,
+                        CodegenCtor optionalCtor,
+                        CodegenClassMethods methods,
+                        List<CodegenInnerClass> innerClasses) {
+        this(classType, className, codegenClassScope, explicitMembers, optionalCtor, methods, innerClasses);
+        if (optionalInterfaceImplemented != null) {
+            if (optionalInterfaceImplemented.isInterface()) {
+                supers.addInterfaceImplemented(optionalInterfaceImplemented);
+            } else {
+                supers.setClassExtended(optionalInterfaceImplemented);
+            }
+        }
+    }
+
+    public CodegenClass(CodegenClassType classType,
                         String className,
                         CodegenClassScope codegenClassScope,
                         List<CodegenTypedParam> explicitMembers,
@@ -38,7 +55,6 @@ public class CodegenClass {
         this.classType = classType;
         this.packageName = codegenClassScope.getPackageScope().getPackageName();
         this.className = className;
-        this.interfaceImplemented = interfaceClass;
         this.explicitMembers = explicitMembers;
         this.optionalCtor = optionalCtor;
         this.methods = methods;
@@ -56,8 +72,8 @@ public class CodegenClass {
         return className;
     }
 
-    public Class getInterfaceImplemented() {
-        return interfaceImplemented;
+    public CodegenClassInterfacesAndExtension getSupers() {
+        return supers;
     }
 
     public List<CodegenTypedParam> getExplicitMembers() {
@@ -86,14 +102,14 @@ public class CodegenClass {
 
     public Set<Class> getReferencedClasses() {
         Set<Class> classes = new HashSet<>();
-        addReferencedClasses(interfaceImplemented, methods, classes);
+        addReferencedClasses(supers, methods, classes);
         addReferencedClasses(explicitMembers, classes);
         if (optionalCtor != null) {
             optionalCtor.mergeClasses(classes);
         }
 
         for (CodegenInnerClass inner : innerClasses) {
-            addReferencedClasses(inner.getInterfaceImplemented(), inner.getMethods(), classes);
+            addReferencedClasses(inner.getSupers(), inner.getMethods(), classes);
             addReferencedClasses(inner.getExplicitMembers(), classes);
             if (inner.getCtor() != null) {
                 inner.getCtor().mergeClasses(classes);
@@ -102,10 +118,8 @@ public class CodegenClass {
         return classes;
     }
 
-    private static void addReferencedClasses(Class interfaceImplemented, CodegenClassMethods methods, Set<Class> classes) {
-        if (interfaceImplemented != null) {
-            classes.add(interfaceImplemented);
-        }
+    private static void addReferencedClasses(CodegenClassInterfacesAndExtension supers, CodegenClassMethods methods, Set<Class> classes) {
+        supers.addReferenced(classes);
         for (CodegenMethodWGraph publicMethod : methods.getPublicMethods()) {
             publicMethod.mergeClasses(classes);
         }

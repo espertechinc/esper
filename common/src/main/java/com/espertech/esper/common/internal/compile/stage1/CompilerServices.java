@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.common.internal.compile.stage1;
 
+import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassType;
 import com.espertech.esper.common.internal.compile.stage1.spec.StatementSpecRaw;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapEnv;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileException;
+import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -23,4 +25,6 @@ public interface CompilerServices {
     String lexSampleSQL(String querySQL) throws ExprValidationException;
 
     ExprNode compileExpression(String expression, StatementCompileTimeServices services) throws ExprValidationException;
+
+    Class compileStandInClass(CodegenClassType classType, String classNameSimple, ModuleCompileTimeServices services);
 }

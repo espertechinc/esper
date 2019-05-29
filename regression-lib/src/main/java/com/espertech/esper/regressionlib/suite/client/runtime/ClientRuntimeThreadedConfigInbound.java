@@ -23,6 +23,7 @@ import com.espertech.esper.regressionlib.support.util.SupportListenerTimerHRes;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static junit.framework.TestCase.fail;
@@ -42,6 +43,7 @@ public class ClientRuntimeThreadedConfigInbound implements RegressionExecutionWi
         configuration.getCommon().addEventType("MyMap", new HashMap<>());
         configuration.getCommon().addEventType("SupportBean", SupportBean.class);
         configuration.getCommon().addImport(SupportStaticMethodLib.class.getName());
+        configuration.getCommon().addEventType("MyOA", new String[0], new Object[0]);
 
         ConfigurationCommonEventTypeXMLDOM xmlDOMEventTypeDesc = new ConfigurationCommonEventTypeXMLDOM();
         xmlDOMEventTypeDesc.setRootElementName("myevent");
@@ -84,25 +86,36 @@ public class ClientRuntimeThreadedConfigInbound implements RegressionExecutionWi
 
     private void runAssertionEventsProcessed(RegressionEnvironment env) {
 
-        SupportListenerTimerHRes listenerOne = new SupportListenerTimerHRes();
-        SupportListenerTimerHRes listenerTwo = new SupportListenerTimerHRes();
-        SupportListenerTimerHRes listenerThree = new SupportListenerTimerHRes();
-        env.compileDeploy("@name('s0') select SupportStaticMethodLib.sleep(100) from MyMap").statement("s0").addListener(listenerOne);
-        env.compileDeploy("@name('s1') select SupportStaticMethodLib.sleep(100) from SupportBean").statement("s1").addListener(listenerTwo);
-        env.compileDeploy("@name('s2') select SupportStaticMethodLib.sleep(100) from XMLType").statement("s2").addListener(listenerThree);
+        SupportListenerTimerHRes listenerMap = new SupportListenerTimerHRes();
+        SupportListenerTimerHRes listenerBean = new SupportListenerTimerHRes();
+        SupportListenerTimerHRes listenerXML = new SupportListenerTimerHRes();
+        SupportListenerTimerHRes listenerOA = new SupportListenerTimerHRes();
+        SupportListenerTimerHRes listenerJson = new SupportListenerTimerHRes();
+        env.compileDeploy("@name('s0') select SupportStaticMethodLib.sleep(100) from MyMap").statement("s0").addListener(listenerMap);
+        env.compileDeploy("@name('s1') select SupportStaticMethodLib.sleep(100) from SupportBean").statement("s1").addListener(listenerBean);
+        env.compileDeploy("@name('s2') select SupportStaticMethodLib.sleep(100) from XMLType").statement("s2").addListener(listenerXML);
+        env.compileDeploy("@name('s3') select SupportStaticMethodLib.sleep(100) from MyOA").statement("s3").addListener(listenerOA);
+        env.compileDeploy("@public @buseventtype create json schema JsonEvent();\n" +
+            "@name('s4') select SupportStaticMethodLib.sleep(100) from JsonEvent").statement("s4").addListener(listenerJson);
 
-        EventSender senderOne = env.eventService().getEventSender("MyMap");
-        EventSender senderTwo = env.eventService().getEventSender("SupportBean");
-        EventSender senderThree = env.eventService().getEventSender("XMLType");
+        EventSender senderMap = env.eventService().getEventSender("MyMap");
+        EventSender senderBean = env.eventService().getEventSender("SupportBean");
+        EventSender senderXML = env.eventService().getEventSender("XMLType");
+        EventSender senderOA = env.eventService().getEventSender("MyOA");
+        EventSender senderJson = env.eventService().getEventSender("JsonEvent");
 
         long start = System.nanoTime();
         for (int i = 0; i < 2; i++) {
             env.sendEventMap(new HashMap<String, Object>(), "MyMap");
-            senderOne.sendEvent(new HashMap<String, Object>());
+            senderMap.sendEvent(new HashMap<String, Object>());
             env.sendEventBean(new SupportBean());
-            senderTwo.sendEvent(new SupportBean());
+            senderBean.sendEvent(new SupportBean());
             env.sendEventXMLDOM(SupportXML.getDocument("<myevent/>"), "XMLType");
-            senderThree.sendEvent(SupportXML.getDocument("<myevent/>"));
+            senderXML.sendEvent(SupportXML.getDocument("<myevent/>"));
+            env.sendEventObjectArray(new Object[0], "MyOA");
+            senderOA.sendEvent(new Object[0]);
+            env.sendEventJson("{}", "JsonEvent");
+            senderJson.sendEvent("{}");
         }
         long end = System.nanoTime();
         long delta = (end - start) / 1000000;
@@ -113,9 +126,9 @@ public class ClientRuntimeThreadedConfigInbound implements RegressionExecutionWi
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        assertEquals(4, listenerOne.getNewEvents().size());
-        assertEquals(4, listenerTwo.getNewEvents().size());
-        assertEquals(4, listenerThree.getNewEvents().size());
+        for (SupportListenerTimerHRes listener : Arrays.asList(listenerMap, listenerBean, listenerXML, listenerOA, listenerJson)) {
+            assertEquals(4, listener.getNewEvents().size());
+        }
 
         EPRuntimeSPI spi = (EPRuntimeSPI) env.runtime();
         assertEquals(0, spi.getServicesContext().getThreadingService().getInboundQueue().size());

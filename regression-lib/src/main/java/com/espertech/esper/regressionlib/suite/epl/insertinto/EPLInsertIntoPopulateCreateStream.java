@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -76,6 +77,10 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
             GenericData.Record genericRecord = new GenericData.Record(record("name").fields().requiredString("nid").endRecord());
             genericRecord.put("nid", "n1");
             env.sendEventAvro(genericRecord, "Node");
+        } else if (type.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("nid", "n1");
+            env.sendEventJson(object.toString(), "Node");
         } else {
             fail();
         }
@@ -106,6 +111,9 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
         } else if (eventRepresentationEnum.isAvroEvent()) {
             env.sendEventAvro(makeEventAvro(10), "MyEvent");
             env.sendEventAvro(makeEventAvro(11), "MyEvent");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.sendEventJson("{\"myId\": 10}", "MyEvent");
+            env.sendEventJson("{\"myId\": 11}", "MyEvent");
         } else {
             fail();
         }
@@ -140,6 +148,8 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
             env.sendEventMap(makeEvent(1), "MyEvent");
         } else if (eventRepresentationEnum.isAvroEvent()) {
             env.sendEventAvro(makeEventAvro(1), "MyEvent");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.sendEventJson("{\"myId\": 1}", "MyEvent");
         } else {
             fail();
         }
@@ -151,7 +161,7 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
     }
 
     private static void assertCreateStreamTwo(EventRepresentationChoice eventRepresentationEnum, EventBean eventBean, EPStatement statement) {
-        if (eventRepresentationEnum.isAvroEvent()) {
+        if (eventRepresentationEnum.isAvroOrJsonEvent()) {
             assertEquals(1, eventBean.get("myEvent.myId"));
         } else {
             assertTrue(eventBean.get("myEvent") instanceof EventBean);

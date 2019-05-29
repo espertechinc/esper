@@ -190,6 +190,14 @@ public class StatementCompileTimeServices {
         return services.getConfiguration().getCompiler().getByteCode().isAttachPatternEPL();
     }
 
+    public String getPackageName() {
+        return services.getPackageName();
+    }
+
+    public ClassLoader getParentClassLoader() {
+        return services.getParentClassLoader();
+    }
+
     public SerdeEventTypeCompileTimeRegistry getSerdeEventTypeRegistry() {
         return services.getSerdeEventTypeRegistry();
     }

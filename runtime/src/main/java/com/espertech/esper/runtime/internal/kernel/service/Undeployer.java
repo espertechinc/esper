@@ -157,6 +157,8 @@ public class Undeployer {
         deleteFromEventTypeBus(services, deploymentTypes);
         deleteFromPathRegistries(services, deploymentId);
 
+        services.getClassLoaderParent().remove(deploymentId);
+
         if (InstrumentationHelper.ENABLED) {
             Instrumentation instrumentation = InstrumentationHelper.get();
             for (StatementContext ctx : reverted) {

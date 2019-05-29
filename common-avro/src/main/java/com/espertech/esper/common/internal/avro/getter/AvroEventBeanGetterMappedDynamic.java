@@ -82,7 +82,7 @@ public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter
     }
 
     public boolean isExistsPropertyAvro(GenericData.Record record) {
-        return isAvroFieldExists(record, propertyName);
+        return isExistsPropertyAvro(record, propertyName, key);
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -110,10 +110,26 @@ public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return staticMethod(this.getClass(), "isAvroFieldExists", underlyingExpression, constant(propertyName));
+        return staticMethod(this.getClass(), "isExistsPropertyAvro", underlyingExpression, constant(propertyName), constant(key));
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param record row
+     * @param propertyName property
+     * @param key key
+     * @return flag
+     */
+    public static boolean isExistsPropertyAvro(GenericData.Record record, String propertyName, String key) {
+        Object value = record.get(propertyName);
+        if (!(value instanceof Map)) {
+            return false;
+        }
+        return ((Map) value).containsKey(key);
+    }
+
 }

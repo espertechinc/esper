@@ -19,6 +19,8 @@ import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeSt
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.variant.VariantSpec;
@@ -40,4 +42,6 @@ public interface EventTypeFactory {
     EventType createXMLType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM detail, SchemaModel schemaModel, String representsFragmentOfProperty, String representsOriginalTypeName, BeanEventTypeFactory beanEventTypeFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeNameResolver eventTypeNameResolver);
 
     VariantEventType createVariant(EventTypeMetadata metadata, VariantSpec spec);
+
+    JsonEventType createJson(EventTypeMetadata metadata, LinkedHashMap<String, Object> properties, String[] superTypes, String startTimestampPropertyName, String endTimestampPropertyName, BeanEventTypeFactory beanEventTypeFactory, EventTypeNameResolver eventTypeNameResolver, JsonEventTypeDetail detail);
 }

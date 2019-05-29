@@ -78,7 +78,7 @@ public class AvroEventBeanGetterIndexedDynamic implements AvroEventPropertyGette
     }
 
     public boolean isExistsPropertyAvro(GenericData.Record record) {
-        return isAvroFieldExists(record, propertyName);
+        return isExistsPropertyAvro(record, propertyName, index);
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -106,10 +106,26 @@ public class AvroEventBeanGetterIndexedDynamic implements AvroEventPropertyGette
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return staticMethod(this.getClass(), "isAvroFieldExists", underlyingExpression, constant(propertyName));
+        return staticMethod(this.getClass(), "isExistsPropertyAvro", underlyingExpression, constant(propertyName), constant(index));
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param record row
+     * @param propertyName property
+     * @param index index
+     * @return flag
+     */
+    public static boolean isExistsPropertyAvro(GenericData.Record record, String propertyName, int index) {
+        Object value = record.get(propertyName);
+        if (!(value instanceof Collection)) {
+            return false;
+        }
+        Collection collection = (Collection) value;
+        return index < collection.size();
     }
 }

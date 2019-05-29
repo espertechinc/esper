@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -540,6 +541,13 @@ public class ContextHashSegmented {
             record.put("productId", productId);
             record.put("score", score);
             env.sendEventAvro(record, typeName);
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("userId", userId);
+            object.add("keyword", keyword);
+            object.add("productId", productId);
+            object.add("score", score);
+            env.sendEventJson(object.toString(), typeName);
         } else {
             fail();
         }

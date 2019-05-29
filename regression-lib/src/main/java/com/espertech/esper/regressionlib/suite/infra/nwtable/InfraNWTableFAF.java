@@ -19,12 +19,13 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResul
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.context.SupportHashCodeFuncGranularCRC32;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorByHashCode;
@@ -1088,6 +1089,14 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 record.put(key, value);
             }
             env.eventService().sendEventAvro(record, eventName);
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject event = new JsonObject();
+            for (String attribute : attributes) {
+                String key = attribute.split("=")[0];
+                String value = attribute.split("=")[1];
+                event.add(key, value);
+            }
+            env.eventService().sendEventJson(event.toString(), eventName);
         } else {
             fail();
         }

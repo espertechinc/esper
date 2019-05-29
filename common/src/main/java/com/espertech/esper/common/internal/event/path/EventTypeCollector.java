@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.path;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -32,6 +33,9 @@ public interface EventTypeCollector {
     void registerXML(EventTypeMetadata metadata, String representsFragmentOfProperty, String representsOriginalTypeName);
 
     void registerAvro(EventTypeMetadata metadata, String schemaJson);
+
+    void registerJson(EventTypeMetadata metadata, LinkedHashMap<String, Object> properties, String[] superTypes,
+                      String startTimestampPropertyName, String endTimestampPropertyName, JsonEventTypeDetail detail);
 
     void registerVariant(EventTypeMetadata metadata, EventType[] variants, boolean any);
 

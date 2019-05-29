@@ -50,12 +50,20 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
                 .methodReturn(exprDotMethod(ref("values"), "get", constant(key)));
     }
 
+    private CodegenMethod getAvroFieldExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
+            .declareVar(Map.class, "values", cast(Map.class, exprDotMethod(ref("record"), "get", constant(pos))))
+            .ifRefNullReturnFalse("values")
+            .methodReturn(exprDotMethod(ref("values"), "containsKey", constant(key)));
+    }
+
     public boolean isExistsProperty(EventBean eventBean) {
-        return true;
+        return isExistsPropertyAvro((GenericData.Record) eventBean.getUnderlying());
     }
 
     public boolean isExistsPropertyAvro(GenericData.Record record) {
-        return true;
+        Map values = (Map) record.get(pos);
+        return values == null ? false : values.containsKey(key);
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -71,7 +79,7 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -83,7 +91,7 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return localMethod(getAvroFieldExistsCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

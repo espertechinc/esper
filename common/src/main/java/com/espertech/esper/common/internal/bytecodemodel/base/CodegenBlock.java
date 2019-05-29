@@ -196,6 +196,12 @@ public class CodegenBlock {
         return this;
     }
 
+    public CodegenBlock superCtor(CodegenExpression... params) {
+        checkClosed();
+        statements.add(new CodegenStatementSuperCtor(params));
+        return this;
+    }
+
     public CodegenBlock assignRef(String ref, CodegenExpression assignment) {
         checkClosed();
         statements.add(new CodegenStatementAssignNamed(ref, assignment));
@@ -466,22 +472,27 @@ public class CodegenBlock {
         }
     }
 
-    public CodegenBlock[] switchBlockOfLength(String ref, int length, boolean withDefaultUnsupported) {
-        checkClosed();
-        int[] options = new int[length];
-        for (int i = 1; i < length; i++) {
-            options[i] = i;
+    public CodegenBlock[] switchBlockOfLength(String ref, int length, boolean blocksReturnValues) {
+        CodegenExpression[] expressions = new CodegenExpression[length];
+        for (int i = 0; i < length; i++) {
+            expressions[i] = constant(i);
         }
-        CodegenStatementSwitch switchStmt = new CodegenStatementSwitch(this, ref, options, withDefaultUnsupported);
-        statements.add(switchStmt);
-        return switchStmt.getBlocks();
+        return switchBlockExpressions(ref, expressions, blocksReturnValues, true).getBlocks();
     }
 
-    public CodegenBlock[] switchBlockOptions(String ref, int[] options, boolean withDefaultUnsupported) {
+    public CodegenBlock[] switchBlockOptions(String ref, int[] options, boolean blocksReturnValues) {
+        CodegenExpression[] expressions = new CodegenExpression[options.length];
+        for (int i = 0; i < expressions.length; i++) {
+            expressions[i] = constant(options[i]);
+        }
+        return switchBlockExpressions(ref, expressions, blocksReturnValues, true).getBlocks();
+    }
+
+    public CodegenStatementSwitch switchBlockExpressions(String ref, CodegenExpression[] expressions, boolean blocksReturnValues, boolean withDefaultUnsupported) {
         checkClosed();
-        CodegenStatementSwitch switchStmt = new CodegenStatementSwitch(this, ref, options, withDefaultUnsupported);
+        CodegenStatementSwitch switchStmt = new CodegenStatementSwitch(this, ref, expressions, blocksReturnValues, withDefaultUnsupported);
         statements.add(switchStmt);
-        return switchStmt.getBlocks();
+        return switchStmt;
     }
 
     public CodegenBlock apply(Consumer<CodegenBlock> consumer) {
@@ -517,6 +528,10 @@ public class CodegenBlock {
         checkClosed();
         statements.add(new CodegenStatementCommentFullLine(comment));
         return this;
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 
     private CodegenBlock whileOrDoLoop(CodegenExpression expression, boolean isWhile) {

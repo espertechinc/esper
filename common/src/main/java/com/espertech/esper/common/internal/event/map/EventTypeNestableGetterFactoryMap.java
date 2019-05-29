@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.property.DynamicProperty;
 import com.espertech.esper.common.internal.event.property.IndexedProperty;
 import com.espertech.esper.common.internal.event.property.MappedProperty;
 import com.espertech.esper.common.internal.event.property.Property;
@@ -25,7 +26,7 @@ import com.espertech.esper.common.internal.event.property.Property;
 import java.util.Map;
 
 public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGetterFactory {
-    public EventPropertyGetterSPI getPropertyProvidedGetter(Map<String, Object> nestableTypes, String propertyName, Property prop, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
+    public EventPropertyGetterSPI getPropertyDynamicGetter(Map<String, Object> nestableTypes, String propertyExpression, DynamicProperty prop, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
         return prop.getGetterMap(nestableTypes, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
@@ -61,7 +62,7 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return new MapArrayPropertyGetter(propertyNameAtomic, index, eventBeanTypedEventFactory, innerType);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedPOJO(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, Class componentType, BeanEventTypeFactory beanEventTypeFactory) {
+    public EventPropertyGetterSPI getGetterIndexedClassArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, Class componentType, BeanEventTypeFactory beanEventTypeFactory) {
         return new MapArrayPOJOEntryIndexedPropertyGetter(propertyNameAtomic, index, eventBeanTypedEventFactory, beanEventTypeFactory, componentType);
     }
 
@@ -112,5 +113,9 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
 
     public EventPropertyGetterSPI getGetterNestedPropertyProvidedGetterDynamic(Map<String, Object> nestableTypes, String propertyName, EventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
         return new MapNestedEntryPropertyGetterPropertyProvidedDynamic(propertyName, null, eventBeanTypedEventFactory, nestedGetter);
+    }
+
+    public EventPropertyGetterSPI getGetterRootedDynamicNested(Property prop, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
+        return prop.getGetterMap(null, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 }

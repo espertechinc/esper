@@ -25,6 +25,9 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.util.JsonEventObject;
+import com.espertech.esper.common.client.json.minimaljson.JsonArray;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
@@ -243,6 +246,11 @@ public class EPLOtherCreateSchema {
                 event.put("prop1", "v1");
                 event.put("prop2", 2);
                 env.sendEventAvro(event, "E1");
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                JsonObject object = new JsonObject();
+                object.add("prop1", "v1");
+                object.add("prop2", 2);
+                env.sendEventJson(object.toString(), "E1");
             } else {
                 fail();
             }
@@ -259,7 +267,7 @@ public class EPLOtherCreateSchema {
             env.undeployModuleContaining("s0");
 
             // test API-defined type
-            if (eventRepresentationEnum.isMapEvent() || eventRepresentationEnum.isObjectArrayEvent()) {
+            if (eventRepresentationEnum.isMapEvent() || eventRepresentationEnum.isObjectArrayEvent() || eventRepresentationEnum.isJsonEvent()) {
                 env.compileDeploy("create " + eventRepresentationEnum.getOutputTypeCreateSchemaName() + " schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
             } else {
                 env.compileDeploy("create avro schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
@@ -282,6 +290,10 @@ public class EPLOtherCreateSchema {
                 Assert.assertEquals(GenericData.Record.class, stmtThree.getEventType().getPropertyType("c"));
                 Assert.assertEquals(Collection.class, stmtThree.getEventType().getPropertyType("d"));
                 Assert.assertEquals(GenericData.Record.class, stmtThree.getEventType().getPropertyType("f"));
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(stmtThree.getEventType().getPropertyType("c"), JsonEventObject.class));
+                assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(stmtThree.getEventType().getPropertyType("d").getComponentType(), JsonEventObject.class));
+                assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(stmtThree.getEventType().getPropertyType("f"), JsonEventObject.class));
             } else {
                 fail();
             }
@@ -335,7 +347,7 @@ public class EPLOtherCreateSchema {
 
         private static void tryAssertionInvalid(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
             String expectedOne = !eventRepresentationEnum.isAvroEvent() ?
-                "Nestable type configuration encountered an unexpected property type name 'xxxx' for property 'col1', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type [" :
+                "Nestable type configuration encountered an unexpected property type name 'xxxx' for property 'col1', expected java.lang.Class or java.util.Map or the name of a previously-declared event type [" :
                 "Type definition encountered an unexpected property type name 'xxxx' for property 'col1', expected the name of a previously-declared Avro type";
             tryInvalidCompile(env, eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 xxxx)", expectedOne);
 
@@ -549,6 +561,13 @@ public class EPLOtherCreateSchema {
             event.put("col5", "abc");
             event.put("col6", 1);
             env.sendEventAvro(event, "MyEventType");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("col5", "abc");
+            object.add("col6", 1);
+            env.sendEventJson(object.toString(), "MyEventType");
+        } else {
+            fail();
         }
         EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), "col5,col6".split(","), new Object[]{"abc", 1});
 
@@ -618,6 +637,14 @@ public class EPLOtherCreateSchema {
             outerData.put("col1", innerData);
             outerData.put("col2", Arrays.asList(innerData, innerData));
             env.sendEventAvro(outerData, "MyOuterType");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonArray inn1 = new JsonArray().add("abc").add("def");
+            JsonArray inn2 = new JsonArray().add(1).add(2);
+            JsonObject inn = new JsonObject().add("inn1", inn1).add("inn2", inn2);
+            JsonObject outer = new JsonObject().add("col1", inn);
+            JsonArray col2 = new JsonArray().add(inn).add(inn);
+            outer.add("col2", col2);
+            env.sendEventJson(outer.toString(), "MyOuterType");
         } else {
             fail();
         }

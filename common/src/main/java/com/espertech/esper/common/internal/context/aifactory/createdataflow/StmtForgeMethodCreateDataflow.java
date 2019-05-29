@@ -48,6 +48,7 @@ import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
+import com.espertech.esper.common.internal.event.core.EventTypeForgablesPair;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
@@ -86,7 +87,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         DataFlowOpForgeCodegenEnv codegenEnv = new DataFlowOpForgeCodegenEnv(packageName, classPostfix);
 
-        DataflowDescForge dataflowForge = buildForge(createDataFlowDesc, codegenEnv, base, services);
+        DataflowDescForge dataflowForge = buildForge(createDataFlowDesc, codegenEnv, packageName, base, services);
 
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
@@ -100,6 +101,9 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
         List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : dataflowForge.getAdditionalForgables()) {
+            forgeables.add(additional.make(packageScope, classPostfix));
+        }
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
@@ -117,7 +121,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         List<ScheduleHandleCallbackProvider> scheduleds = new ArrayList<>();
 
         // add additional forgeables
-        for (StmtForgeMethodResult additional : dataflowForge.getAdditionalForgeables()) {
+        for (StmtForgeMethodResult additional : dataflowForge.getForgables()) {
             forgeables.addAll(0, additional.getForgeables());
             scheduleds.addAll(additional.getScheduleds());
         }
@@ -125,9 +129,11 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleds, namedWindowConsumers, filterBooleanExpr);
     }
 
-    private static DataflowDescForge buildForge(CreateDataFlowDesc desc, DataFlowOpForgeCodegenEnv codegenEnv, StatementBaseInfo base, StatementCompileTimeServices services) throws ExprValidationException {
+    private static DataflowDescForge buildForge(CreateDataFlowDesc desc, DataFlowOpForgeCodegenEnv codegenEnv, String packageName, StatementBaseInfo base, StatementCompileTimeServices services) throws ExprValidationException {
         // basic validation
         validate(desc);
+
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         // compile operator annotations
         Map<Integer, Annotation[]> operatorAnnotations = new HashMap<>();
@@ -144,7 +150,9 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         }
 
         // resolve types
-        Map<String, EventType> declaredTypes = resolveTypes(desc, base, services);
+        ResolveTypesResult resolveTypesResult = resolveTypes(desc, packageName, base, services);
+        Map<String, EventType> declaredTypes = resolveTypesResult.types;
+        additionalForgeables.addAll(resolveTypesResult.additionalForgeables);
 
         // resolve operator classes
         Map<Integer, OperatorMetadataDescriptor> operatorMetadata = resolveMetadata(desc, operatorAnnotations, base, services);
@@ -165,7 +173,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         }
 
         return new DataflowDescForge(desc.getGraphName(), declaredTypes, operatorMetadata, operatorBuildOrder,
-                operatorForges, initForgesResult.getLogicalChannels(), initForgesResult.getAdditionalForgeables());
+                operatorForges, initForgesResult.getLogicalChannels(), initForgesResult.forgables, additionalForgeables);
     }
 
     private static InitForgesResult determineChannelsInitForges(Map<Integer, DataFlowOperatorForge> operatorForges, Set<Integer> operatorBuildOrder, Map<Integer, Annotation[]> operatorAnnotations, Map<Integer, OperatorDependencyEntry> operatorDependencies, Map<Integer, OperatorMetadataDescriptor> operatorMetadata, Map<String, EventType> declaredTypes, CreateDataFlowDesc desc, DataFlowOpForgeCodegenEnv codegenEnv, StatementBaseInfo base, StatementCompileTimeServices services)
@@ -381,14 +389,17 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         return operatorClasses;
     }
 
-    private static Map<String, EventType> resolveTypes(CreateDataFlowDesc desc, StatementBaseInfo base, StatementCompileTimeServices services)
+    private static ResolveTypesResult resolveTypes(CreateDataFlowDesc desc, String packageName, StatementBaseInfo base, StatementCompileTimeServices services)
             throws ExprValidationException {
         Map<String, EventType> types = new HashMap<String, EventType>();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         for (CreateSchemaDesc spec : desc.getSchemas()) {
-            EventType eventType = EventTypeUtility.createNonVariantType(true, spec, base, services);
+            EventTypeForgablesPair forgablesPair = EventTypeUtility.createNonVariantType(true, spec, packageName, base, services);
+            additionalForgeables.addAll(forgablesPair.getAdditionalForgeables());
+            EventType eventType = forgablesPair.getEventType();
             types.put(spec.getSchemaName(), eventType);
         }
-        return types;
+        return new ResolveTypesResult(types, additionalForgeables);
     }
 
     private static void validate(CreateDataFlowDesc desc) throws ExprValidationException {
@@ -895,18 +906,36 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
 
     private static class InitForgesResult {
         private final List<LogicalChannel> logicalChannels;
-        private final List<StmtForgeMethodResult> additionalForgeables;
+        private final List<StmtForgeMethodResult> forgables;
 
-        public InitForgesResult(List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> additionalForgeables) {
+        public InitForgesResult(List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> forgables) {
             this.logicalChannels = logicalChannels;
-            this.additionalForgeables = additionalForgeables;
+            this.forgables = forgables;
         }
 
         public List<LogicalChannel> getLogicalChannels() {
             return logicalChannels;
         }
 
-        public List<StmtForgeMethodResult> getAdditionalForgeables() {
+        public List<StmtForgeMethodResult> getForgables() {
+            return forgables;
+        }
+    }
+
+    private static class ResolveTypesResult {
+        private final Map<String, EventType> types;
+        private final List<StmtClassForgeableFactory> additionalForgeables;
+
+        public ResolveTypesResult(Map<String, EventType> types, List<StmtClassForgeableFactory> additionalForgeables) {
+            this.types = types;
+            this.additionalForgeables = additionalForgeables;
+        }
+
+        public Map<String, EventType> getTypes() {
+            return types;
+        }
+
+        public List<StmtClassForgeableFactory> getAdditionalForgeables() {
             return additionalForgeables;
         }
     }

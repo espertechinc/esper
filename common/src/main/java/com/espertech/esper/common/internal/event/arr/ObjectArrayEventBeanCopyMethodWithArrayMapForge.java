@@ -28,13 +28,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class ObjectArrayEventBeanCopyMethodWithArrayMapForge implements EventBeanCopyMethodForge {
     private final ObjectArrayEventType eventType;
-    private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final int[] mapIndexes;
     private final int[] arrayIndexes;
 
-    public ObjectArrayEventBeanCopyMethodWithArrayMapForge(ObjectArrayEventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, Set<String> mapPropertiesToCopy, Set<String> arrayPropertiesToCopy, Map<String, Integer> propertiesIndexes) {
+    public ObjectArrayEventBeanCopyMethodWithArrayMapForge(ObjectArrayEventType eventType, Set<String> mapPropertiesToCopy, Set<String> arrayPropertiesToCopy, Map<String, Integer> propertiesIndexes) {
         this.eventType = eventType;
-        this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
 
         Set<Integer> mapIndexesToCopy = new HashSet<>();
         for (String prop : mapPropertiesToCopy) {

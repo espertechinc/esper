@@ -17,8 +17,8 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.events.SupportEventInfra;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
@@ -37,33 +37,40 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
     public final static String MAP_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "Map";
     public final static String OA_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "Avro";
+    public final static String JSON_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "Json";
 
     public void run(RegressionEnvironment env) {
+        RegressionPath path = new RegressionPath();
 
-        runAssertion(env, BEAN_TYPE.getSimpleName(), FBEAN, new MyIMEvent(new String[]{"v1", "v2"}, Collections.singletonMap("k1", "v1")));
+        runAssertion(env, BEAN_TYPE.getSimpleName(), FBEAN, new MyIMEvent(new String[]{"v1", "v2"}, Collections.singletonMap("k1", "v1")), path);
 
-        runAssertion(env, MAP_TYPENAME, FMAP, twoEntryMap("indexed", new String[]{"v1", "v2"}, "mapped", Collections.singletonMap("k1", "v1")));
+        runAssertion(env, MAP_TYPENAME, FMAP, twoEntryMap("indexed", new String[]{"v1", "v2"}, "mapped", Collections.singletonMap("k1", "v1")), path);
 
-        runAssertion(env, OA_TYPENAME, FOA, new Object[]{new String[]{"v1", "v2"}, Collections.singletonMap("k1", "v1")});
+        runAssertion(env, OA_TYPENAME, FOA, new Object[]{new String[]{"v1", "v2"}, Collections.singletonMap("k1", "v1")}, path);
 
         // Avro
         Schema avroSchema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
         GenericData.Record datum = new GenericData.Record(avroSchema);
         datum.put("indexed", Arrays.asList("v1", "v2"));
         datum.put("mapped", Collections.singletonMap("k1", "v1"));
-        runAssertion(env, AVRO_TYPENAME, FAVRO, datum);
+        runAssertion(env, AVRO_TYPENAME, FAVRO, datum, path);
+
+        // Json
+        env.compileDeploy("@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(indexed string[], mapped java.util.Map)", path);
+        String json = "{\"mapped\":{\"k1\":\"v1\"},\"indexed\":[\"v1\",\"v2\"]}";
+        runAssertion(env, JSON_TYPENAME, FJSON, json, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
                               String typename,
-                              SupportEventInfra.FunctionSendEvent send,
-                              Object underlying) {
+                              FunctionSendEvent send,
+                              Object underlying, RegressionPath path) {
 
         runAssertionTypeValidProp(env, typename, underlying);
         runAssertionTypeInvalidProp(env, typename);
 
         String stmtText = "@name('s0') select * from " + typename;
-        env.compileDeploy(stmtText).addListener("s0");
+        env.compileDeploy(stmtText, path).addListener("s0");
 
         send.apply(env, underlying, typename);
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
@@ -104,12 +111,13 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
         assertTrue(eventType.isProperty("indexed"));
         assertTrue(eventType.isProperty("indexed[0]"));
         assertEquals(Map.class, eventType.getPropertyType("mapped"));
-        assertEquals(underlying instanceof Map || underlying instanceof Object[] ? Object.class : String.class, eventType.getPropertyType("mapped('a')"));
+        boolean mappedReturnsObject = typeName.equals(MAP_TYPENAME) || typeName.equals(OA_TYPENAME) || typeName.equals(JSON_TYPENAME);
+        assertEquals(mappedReturnsObject ? Object.class : String.class, eventType.getPropertyType("mapped('a')"));
         assertEquals(underlying instanceof GenericData.Record ? Collection.class : String[].class, eventType.getPropertyType("indexed"));
         assertEquals(String.class, eventType.getPropertyType("indexed[0]"));
 
         assertEquals(new EventPropertyDescriptor("indexed", underlying instanceof GenericData.Record ? Collection.class : String[].class, String.class, false, false, true, false, false), eventType.getPropertyDescriptor("indexed"));
-        assertEquals(new EventPropertyDescriptor("mapped", Map.class, underlying instanceof Map || underlying instanceof Object[] ? Object.class : String.class, false, false, false, true, false), eventType.getPropertyDescriptor("mapped"));
+        assertEquals(new EventPropertyDescriptor("mapped", Map.class, mappedReturnsObject ? Object.class : String.class, false, false, false, true, false), eventType.getPropertyDescriptor("mapped"));
 
         assertNull(eventType.getFragmentType("indexed"));
         assertNull(eventType.getFragmentType("mapped"));

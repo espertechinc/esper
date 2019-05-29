@@ -221,6 +221,8 @@ public class NStreamQueryPlanBuilder {
      * @param historicalStreamIndexLists - index management, populated for the query plan
      * @param tablesPerStream            tables
      * @param streamJoinAnalysisResult   stream join analysis
+     * @param raw raw info
+     * @param serdeResolver serde resolver
      * @return NestedIterationNode with lookups attached underneath
      */
     protected static QueryPlanNodeForgeDesc createStreamPlan(int lookupStream, int[] bestChain, QueryGraphForge queryGraph,
@@ -270,6 +272,8 @@ public class NStreamQueryPlanBuilder {
      * @param typesPerStream         - event types for each stream
      * @param indexedStreamTableMeta table info
      * @param indexedStreamIsVDW     vdw indicators
+     * @param raw raw info
+     * @param serdeResolver serde resolver
      * @return plan for performing a lookup in a given table using one of the indexes supplied
      */
     public static TableLookupPlanDesc createLookupPlan(QueryGraphForge queryGraph, int currentLookupStream, int indexedStream,

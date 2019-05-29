@@ -443,6 +443,8 @@ public class EPLOtherSplitStream {
         } else if (eventRepresentationEnum.isAvroEvent()) {
             GenericData.Record event = new GenericData.Record(SchemaBuilder.record("name").fields().optionalInt("trigger").endRecord());
             env.sendEventAvro(event, "TypeTrigger");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.sendEventJson("{}", "TypeTrigger");
         } else {
             fail();
         }

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.events.SupportEventInfra;
 import com.espertech.esper.regressionlib.support.events.ValueWithExistsFlag;
@@ -39,6 +40,7 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
     public final static String MAP_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "Map";
     public final static String OA_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "Avro";
+    private final static String JSON_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "Json";
 
     @Override
     public boolean excludeWhenInstrumented() {
@@ -46,36 +48,36 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
     }
 
     public void run(RegressionEnvironment env) {
-
         final ValueWithExistsFlag[] notExists = multipleNotExists(4);
+        RegressionPath path = new RegressionPath();
 
         // Bean
         SupportBeanComplexProps bean = SupportBeanComplexProps.makeDefaultBean();
         Pair[] beanTests = new Pair[]{
             new Pair<>(bean, ValueWithExistsFlag.allExist(bean.getIndexed(0), bean.getIndexed(1), bean.getMapped("keyOne"), bean.getMapped("keyTwo")))
         };
-        runAssertion(env, SupportBeanComplexProps.class.getSimpleName(), FBEAN, null, beanTests, Object.class);
+        runAssertion(env, SupportBeanComplexProps.class.getSimpleName(), FBEAN, null, beanTests, Object.class, path);
 
         // Map
         Pair[] mapTests = new Pair[]{
             new Pair<>(Collections.singletonMap("somekey", "10"), notExists),
             new Pair<>(twoEntryMap("indexed", new int[]{1, 2}, "mapped", twoEntryMap("keyOne", 3, "keyTwo", 4)), ValueWithExistsFlag.allExist(1, 2, 3, 4)),
         };
-        runAssertion(env, MAP_TYPENAME, FMAP, null, mapTests, Object.class);
+        runAssertion(env, MAP_TYPENAME, FMAP, null, mapTests, Object.class, path);
 
         // Object-Array
         Pair[] oaTests = new Pair[]{
             new Pair<>(new Object[]{null, null}, notExists),
             new Pair<>(new Object[]{new int[]{1, 2}, twoEntryMap("keyOne", 3, "keyTwo", 4)}, ValueWithExistsFlag.allExist(1, 2, 3, 4)),
         };
-        runAssertion(env, OA_TYPENAME, FOA, null, oaTests, Object.class);
+        runAssertion(env, OA_TYPENAME, FOA, null, oaTests, Object.class, path);
 
         // XML
         Pair[] xmlTests = new Pair[]{
             new Pair<>("", notExists),
             new Pair<>("<indexed>1</indexed><indexed>2</indexed><mapped id=\"keyOne\">3</mapped><mapped id=\"keyTwo\">4</mapped>", ValueWithExistsFlag.allExist("1", "2", "3", "4"))
         };
-        runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class);
+        runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class, path);
 
         // Avro
         Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
@@ -87,15 +89,23 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
             new Pair<>(datumOne, notExists),
             new Pair<>(datumTwo, ValueWithExistsFlag.allExist(1, 2, 3, 4)),
         };
-        runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class);
+        runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class, path);
+
+        // Json
+        env.compileDeploy("@JsonSchema(dynamic=true) @public @buseventtype create json schema " + JSON_TYPENAME + "()", path);
+        Pair[] jsonTests = new Pair[]{
+            new Pair<>("{}", notExists),
+            new Pair<>("{\"mapped\":{\"keyOne\":\"3\",\"keyTwo\":\"4\"},\"indexed\":[\"1\",\"2\"]}", ValueWithExistsFlag.allExist("1", "2", "3", "4"))
+        };
+        runAssertion(env, JSON_TYPENAME, FJSON, null, jsonTests, Object.class, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
                               String typename,
-                              SupportEventInfra.FunctionSendEvent send,
+                              FunctionSendEvent send,
                               Function<Object, Object> optionalValueConversion,
                               Pair[] tests,
-                              Class expectedPropertyType) {
+                              Class expectedPropertyType, RegressionPath path) {
 
         String stmtText = "@name('s0') select " +
             "indexed[0]? as indexed1, " +
@@ -107,7 +117,7 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
             "mapped('keyTwo')? as mapped2,  " +
             "exists(mapped('keyTwo')?) as exists_mapped2  " +
             "from " + typename;
-        env.compileDeploy(stmtText).addListener("s0");
+        env.compileDeploy(stmtText, path).addListener("s0");
 
         String[] propertyNames = "indexed1,indexed2,mapped1,mapped2".split(",");
         EventType eventType = env.statement("s0").getEventType();

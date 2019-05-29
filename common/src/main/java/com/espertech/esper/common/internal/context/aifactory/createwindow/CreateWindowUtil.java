@@ -28,16 +28,16 @@ import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompil
 import com.espertech.esper.common.internal.compile.stage2.StreamSpecCompiler;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.avro.AvroSchemaEventType;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
-import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
-import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.event.core.NativeEventType;
-import com.espertech.esper.common.internal.event.core.WrapperEventTypeUtil;
+import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.util.EventRepresentationUtil;
 
@@ -52,7 +52,7 @@ public class CreateWindowUtil {
     // It creates a new event type representing the window type and a sets the type selected on the filter stream spec.
     protected static CreateWindowCompileResult handleCreateWindow(StatementBaseInfo base,
                                                                   StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
 
         CreateWindowDesc createWindowDesc = base.getStatementSpec().getRaw().getCreateWindowDesc();
         List<ColumnDesc> columns = createWindowDesc.getColumns();
@@ -103,6 +103,7 @@ public class CreateWindowUtil {
         boolean isOnlyWildcard = base.getStatementSpec().getRaw().getSelectClauseSpec().isOnlyWildcard();
         boolean isWildcard = base.getStatementSpec().getRaw().getSelectClauseSpec().isUsingWildcard();
         NameAccessModifier namedWindowVisibility = services.getModuleVisibilityRules().getAccessModifierNamedWindow(base, typeName);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         try {
             if (isWildcard && !isOnlyWildcard) {
                 EventTypeMetadata metadata = new EventTypeMetadata(typeName, base.getModuleName(), EventTypeTypeClass.NAMED_WINDOW, EventTypeApplicationType.WRAPPER, namedWindowVisibility, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
@@ -121,6 +122,10 @@ public class CreateWindowUtil {
                         targetType = BaseNestableEventUtil.makeOATypeCompileTime(metadata.apply(EventTypeApplicationType.OBJECTARR), compiledProperties, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
                     } else if (representation == EventUnderlyingType.AVRO) {
                         targetType = services.getEventTypeAvroHandler().newEventTypeFromNormalized(metadata.apply(EventTypeApplicationType.AVRO), services.getEventTypeCompileTimeResolver(), services.getBeanEventTypeFactoryPrivate().getEventBeanTypedEventFactory(), compiledProperties, base.getStatementRawInfo().getAnnotations(), null, null, null, base.getStatementName());
+                    } else if (representation == EventUnderlyingType.JSON) {
+                        EventTypeForgablesPair pair = JsonEventTypeUtility.makeJsonTypeCompileTimeNewType(metadata.apply(EventTypeApplicationType.JSON), compiledProperties, null, null, base.getStatementRawInfo(), services);
+                        targetType = pair.getEventType();
+                        additionalForgeables.addAll(pair.getAdditionalForgeables());
                     } else {
                         throw new IllegalStateException("Unrecognized representation " + representation);
                     }
@@ -139,6 +144,9 @@ public class CreateWindowUtil {
                         ConfigurationCommonEventTypeAvro avro = new ConfigurationCommonEventTypeAvro();
                         avro.setAvroSchema(avroSchemaEventType.getSchema());
                         targetType = services.getEventTypeAvroHandler().newEventTypeFromSchema(metadata.apply(EventTypeApplicationType.AVRO), services.getBeanEventTypeFactoryPrivate().getEventBeanTypedEventFactory(), avro, null, null);
+                    } else if (selectFromType instanceof JsonEventType) {
+                        JsonEventType jsonType = (JsonEventType) selectFromType;
+                        targetType = JsonEventTypeUtility.makeJsonTypeCompileTimeExistingType(metadata.apply(EventTypeApplicationType.JSON), jsonType, services);
                     } else if (selectFromType instanceof MapEventType) {
                         MapEventType mapType = (MapEventType) selectFromType;
                         targetType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(EventTypeApplicationType.MAP), mapType.getTypes(), null, null, mapType.getStartTimestampPropertyName(), mapType.getEndTimestampPropertyName(), services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
@@ -156,11 +164,11 @@ public class CreateWindowUtil {
         }
 
         FilterSpecCompiled filter = new FilterSpecCompiled(targetType, typeName, new List[0], null);
-        return new CreateWindowCompileResult(filter, newSelectClauseSpecRaw, optionalSelectFrom == null ? null : optionalSelectFrom.getEventType());
+        return new CreateWindowCompileResult(filter, newSelectClauseSpecRaw, optionalSelectFrom == null ? null : optionalSelectFrom.getEventType(), additionalForgeables);
     }
 
     private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectFromInfo selectFromInfo, StatementBaseInfo base, StatementCompileTimeServices compileTimeServices)
-            throws ExprValidationException {
+        throws ExprValidationException {
         List<NamedWindowSelectedProps> selectProps = new LinkedList<NamedWindowSelectedProps>();
         StreamTypeService streams = new StreamTypeServiceImpl(new EventType[]{selectFromInfo.getEventType()}, new String[]{"stream_0"}, new boolean[]{false}, false, false);
 

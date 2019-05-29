@@ -12,17 +12,20 @@ package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Map;
 import java.util.Set;
 
 public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
     private final String ref;
-    private final int[] options;
+    private final CodegenExpression[] options;
     private final CodegenBlock[] blocks;
+    private final CodegenBlock defaultBlock;
     private final boolean blocksReturnValues;
+    private final boolean withDefaultUnsupported;
 
-    public CodegenStatementSwitch(CodegenBlock parent, String ref, int[] options, boolean blocksReturnValues) {
+    public CodegenStatementSwitch(CodegenBlock parent, String ref, CodegenExpression[] options, boolean blocksReturnValues, boolean withDefaultUnsupported) {
         super(parent);
         this.ref = ref;
         this.options = options;
@@ -31,10 +34,16 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
             blocks[i] = new CodegenBlock(this);
         }
         this.blocksReturnValues = blocksReturnValues;
+        this.withDefaultUnsupported = withDefaultUnsupported;
+        this.defaultBlock = new CodegenBlock(this);
     }
 
     public CodegenBlock[] getBlocks() {
         return blocks;
+    }
+
+    public CodegenBlock getDefaultBlock() {
+        return defaultBlock;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
@@ -42,7 +51,9 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
 
         for (int i = 0; i < options.length; i++) {
             indent.indent(builder, level + 1);
-            builder.append("case ").append(options[i]).append(": {\n");
+            builder.append("case ");
+            options[i].render(builder, imports, isInnerClass);
+            builder.append(": {\n");
             blocks[i].render(builder, imports, isInnerClass, level + 2, indent);
 
             if (!blocksReturnValues) {
@@ -54,8 +65,13 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
             builder.append("}\n");
         }
 
-        indent.indent(builder, level + 1);
-        builder.append("default: throw new UnsupportedOperationException();\n");
+        builder.append("default: ");
+        if (withDefaultUnsupported) {
+            indent.indent(builder, level + 1);
+            builder.append("throw new UnsupportedOperationException();\n");
+        } else {
+            defaultBlock.render(builder, imports, isInnerClass, level + 2, indent);
+        }
 
         indent.indent(builder, level);
         builder.append("}\n");
@@ -64,6 +80,9 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
     public void mergeClasses(Set<Class> classes) {
         for (int i = 0; i < blocks.length; i++) {
             blocks[i].mergeClasses(classes);
+        }
+        for (int i = 0; i < options.length; i++) {
+            options[i].mergeClasses(classes);
         }
     }
 }

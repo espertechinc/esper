@@ -14,9 +14,10 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.generic.GenericData;
 
 import java.util.ArrayList;
@@ -41,6 +42,9 @@ public class EPLJoinEventRepresentation {
 
     private static class EPLJoinJoinEventRepresentations implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("@public @buseventtype create json schema S0_JSON(id String, p00 int);\n" +
+                "@public @buseventtype create json schema S1_JSON(id String, p00 int);\n", path);
             AtomicInteger milestone = new AtomicInteger();
 
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
@@ -48,19 +52,21 @@ public class EPLJoinEventRepresentation {
                 String s1Type = "S1_" + rep.getUndName();
                 String eplOne = "select S0.id as S0_id, S1.id as S1_id, S0.p00 as S0_p00, S1.p00 as S1_p00 from " + s0Type + "#keepall as S0, " +
                     s1Type + "#keepall as S1 where S0.id = S1.id";
-                tryJoinAssertion(env, eplOne, rep, "S0_id,S1_id,S0_p00,S1_p00", milestone);
+                tryJoinAssertion(env, eplOne, rep, "S0_id,S1_id,S0_p00,S1_p00", milestone, path);
             }
 
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
                 String s0Type = "S0_" + rep.getUndName();
                 String s1Type = "S1_" + rep.getUndName();
                 String eplTwo = "select * from " + s0Type + "#keepall as S0, " + s1Type + "#keepall as S1 where S0.id = S1.id";
-                tryJoinAssertion(env, eplTwo, rep, "S0.id,S1.id,S0.p00,S1.p00", milestone);
+                tryJoinAssertion(env, eplTwo, rep, "S0.id,S1.id,S0.p00,S1.p00", milestone, path);
             }
+
+            env.undeployAll();
         }
 
-        private static void tryJoinAssertion(RegressionEnvironment env, String epl, EventRepresentationChoice rep, String columnNames, AtomicInteger milestone) {
-            env.compileDeployAddListenerMile("@name('s0')" + rep.getAnnotationText() + epl, "s0", milestone.getAndIncrement());
+        private static void tryJoinAssertion(RegressionEnvironment env, String epl, EventRepresentationChoice rep, String columnNames, AtomicInteger milestone, RegressionPath path) {
+            env.compileDeploy("@name('s0')" + rep.getAnnotationText() + epl, path).addListener("s0").milestoneInc(milestone);
 
             String s0Name = "S0_" + rep.getUndName();
             String s1Name = "S1_" + rep.getUndName();
@@ -77,7 +83,7 @@ public class EPLJoinEventRepresentation {
             sendRepEvent(env, rep, s0Name, "c", 4);
             assertFalse(env.listener("s0").isInvoked());
 
-            env.undeployAll();
+            env.undeployModuleContaining("s0");
         }
     }
 
@@ -136,6 +142,9 @@ public class EPLJoinEventRepresentation {
             theEvent.put("id", id);
             theEvent.put("p00", p00);
             env.sendEventAvro(theEvent, name);
+        } else if (rep.isJsonEvent()) {
+            String json = "{\"id\": \"" + id + "\", \"p00\": " + p00 + "}";
+            env.eventService().sendEventJson(json, name);
         } else {
             fail();
         }

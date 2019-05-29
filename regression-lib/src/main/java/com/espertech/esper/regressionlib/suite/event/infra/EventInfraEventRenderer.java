@@ -16,7 +16,7 @@ import com.espertech.esper.common.client.render.XMLEventRenderer;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.events.SupportEventInfra;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
@@ -32,10 +32,13 @@ public class EventInfraEventRenderer implements RegressionExecution {
     public final static String MAP_TYPENAME = "EventInfraEventRendererMap";
     public final static String OA_TYPENAME = "EventInfraEventRendererOA";
     public final static String AVRO_TYPENAME = "EventInfraEventRendererAvro";
+    public final static String JSON_TYPENAME = "EventInfraEventRendererJson";
 
     public void run(RegressionEnvironment env) {
+        RegressionPath path = new RegressionPath();
+
         // Bean
-        runAssertion(env, BEAN_TYPE.getSimpleName(), FBEAN, new MyEvent(1, "abc", new MyInsideEvent(10)));
+        runAssertion(env, BEAN_TYPE.getSimpleName(), FBEAN, new MyEvent(1, "abc", new MyInsideEvent(10)), path);
 
         // Map
         Map<String, Object> mapInner = new HashMap();
@@ -44,16 +47,16 @@ public class EventInfraEventRenderer implements RegressionExecution {
         topInner.put("myInt", 1);
         topInner.put("myString", "abc");
         topInner.put("nested", mapInner);
-        runAssertion(env, MAP_TYPENAME, FMAP, topInner);
+        runAssertion(env, MAP_TYPENAME, FMAP, topInner, path);
 
         // Object-array
         Object[] oaInner = new Object[]{10};
         Object[] oaTop = new Object[]{1, "abc", oaInner};
-        runAssertion(env, OA_TYPENAME, FOA, oaTop);
+        runAssertion(env, OA_TYPENAME, FOA, oaTop, path);
 
         // XML
         String xml = "<myevent myInt=\"1\" myString=\"abc\"><nested myInsideInt=\"10\"/></myevent>";
-        runAssertion(env, XML_TYPENAME, FXML, xml);
+        runAssertion(env, XML_TYPENAME, FXML, xml, path);
 
         // Avro
         Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
@@ -64,12 +67,25 @@ public class EventInfraEventRenderer implements RegressionExecution {
         avro.put("myInt", 1);
         avro.put("myString", "abc");
         avro.put("nested", avroInner);
-        runAssertion(env, AVRO_TYPENAME, FAVRO, avro);
+        runAssertion(env, AVRO_TYPENAME, FAVRO, avro, path);
+
+        // Json
+        String schemas = "create json schema Nested(myInsideInt int);\n" +
+            "@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(myInt int, myString string, nested Nested)";
+        env.compileDeploy(schemas, path);
+        String json = "{\n" +
+            "  \"myInt\": 1,\n" +
+            "  \"myString\": \"abc\",\n" +
+            "  \"nested\": {\n" +
+            "    \"myInsideInt\": 10\n" +
+            "  }\n" +
+            "}";
+        runAssertion(env, JSON_TYPENAME, FJSON, json, path);
     }
 
-    private void runAssertion(RegressionEnvironment env, String typename, SupportEventInfra.FunctionSendEvent send, Object event) {
+    private void runAssertion(RegressionEnvironment env, String typename, FunctionSendEvent send, Object event, RegressionPath path) {
         String epl = "@name('s0') select * from " + typename;
-        env.compileDeploy(epl).addListener("s0");
+        env.compileDeploy(epl, path).addListener("s0");
         send.apply(env, event, typename);
 
         EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();

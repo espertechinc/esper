@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplA;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplB;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplC;
@@ -39,6 +40,7 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
     public final static String MAP_TYPENAME = EventInfraPropertyDynamicSimple.class.getSimpleName() + "Map";
     public final static String OA_TYPENAME = EventInfraPropertyDynamicSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicSimple.class.getSimpleName() + "Avro";
+    public final static String JSON_TYPENAME = EventInfraPropertyDynamicSimple.class.getSimpleName() + "Json";
 
     @Override
     public boolean excludeWhenInstrumented() {
@@ -46,13 +48,15 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
     }
 
     public void run(RegressionEnvironment env) {
+        RegressionPath path = new RegressionPath();
+
         // Bean
         Pair[] beanTests = new Pair[]{
             new Pair<>(new SupportMarkerImplA("e1"), exists("e1")),
             new Pair<>(new SupportMarkerImplB(1), exists(1)),
             new Pair<>(new SupportMarkerImplC(), notExists())
         };
-        runAssertion(env, SupportMarkerInterface.class.getSimpleName(), FBEAN, null, beanTests, Object.class);
+        runAssertion(env, SupportMarkerInterface.class.getSimpleName(), FBEAN, null, beanTests, Object.class, path);
 
         // Map
         Pair[] mapTests = new Pair[]{
@@ -60,7 +64,7 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
             new Pair<>(Collections.singletonMap("id", "abc"), exists("abc")),
             new Pair<>(Collections.singletonMap("id", 10), exists(10)),
         };
-        runAssertion(env, MAP_TYPENAME, FMAP, null, mapTests, Object.class);
+        runAssertion(env, MAP_TYPENAME, FMAP, null, mapTests, Object.class, path);
 
         // Object-Array
         Pair[] oaTests = new Pair[]{
@@ -68,7 +72,7 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
             new Pair<>(new Object[]{2, "abc"}, exists("abc")),
             new Pair<>(new Object[]{3, 10}, exists(10)),
         };
-        runAssertion(env, OA_TYPENAME, FOA, null, oaTests, Object.class);
+        runAssertion(env, OA_TYPENAME, FOA, null, oaTests, Object.class, path);
 
         // XML
         Pair[] xmlTests = new Pair[]{
@@ -76,7 +80,7 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
             new Pair<>("<id>10</id>", exists("10")),
             new Pair<>("<id>abc</id>", exists("abc")),
         };
-        runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class);
+        runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class, path);
 
         // Avro
         Schema avroSchema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
@@ -90,18 +94,28 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
             new Pair<>(datumOne, exists(101)),
             new Pair<>(datumTwo, exists(null))
         };
-        runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class);
+        runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class, path);
+
+        // Json
+        env.compileDeploy("@JsonSchema(dynamic=true) @public @buseventtype create json schema " + JSON_TYPENAME + "()", path);
+        Pair[] jsonTests = new Pair[]{
+            new Pair<>("{}", notExists()),
+            new Pair<>("{\"id\": 10}", exists(10)),
+            new Pair<>("{\"id\": \"abc\"}", exists("abc"))
+        };
+        runAssertion(env, JSON_TYPENAME, FJSON, null, jsonTests, Object.class, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
                               String typename,
-                              SupportEventInfra.FunctionSendEvent send,
+                              FunctionSendEvent send,
                               Function<Object, Object> optionalValueConversion,
                               Pair[] tests,
-                              Class expectedPropertyType) {
+                              Class expectedPropertyType,
+                              RegressionPath path) {
 
         String stmtText = "@name('s0') select id? as myid, exists(id?) as exists_myid from " + typename;
-        env.compileDeploy(stmtText).addListener("s0");
+        env.compileDeploy(stmtText, path).addListener("s0");
 
         assertEquals(expectedPropertyType, env.statement("s0").getEventType().getPropertyType("myid"));
         assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("exists_myid"));

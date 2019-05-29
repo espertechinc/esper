@@ -11,6 +11,7 @@
 package com.espertech.esper.compiler.internal.util;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.annotation.Name;
 import com.espertech.esper.common.client.util.StatementType;
@@ -55,6 +56,7 @@ import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowCompi
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.script.core.ScriptValidationPrecompileUtil;
 import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerSubselectAndDeclaredDot;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
@@ -75,7 +77,6 @@ public class CompilerHelperStatementProvider {
                                       String optionalModuleName,
                                       String moduleIdentPostfix,
                                       int statementNumber,
-                                      String packageName,
                                       Set<String> statementNames,
                                       StatementCompileTimeServices compileTimeServices,
                                       CompilerOptions compilerOptions)
@@ -202,7 +203,7 @@ public class CompilerHelperStatementProvider {
 
             // add forgeables from filter-related processing i.e. multikeys
             for (StmtClassForgeableFactory additional : compiledDesc.getAdditionalForgeables()) {
-                CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, false);
+                CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, false);
                 forgeables.add(additional.make(packageScope, classPostfix));
             }
 
@@ -210,7 +211,7 @@ public class CompilerHelperStatementProvider {
             List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
             List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
             List<FilterSpecParamExprNodeForge> filterBooleanExpressions = new ArrayList<>();
-            StmtForgeMethodResult result = forgeMethod.make(packageName, classPostfix, compileTimeServices);
+            StmtForgeMethodResult result = forgeMethod.make(compileTimeServices.getPackageName(), classPostfix, compileTimeServices);
             forgeables.addAll(result.getForgeables());
             verifyForgeables(forgeables);
 
@@ -257,8 +258,17 @@ public class CompilerHelperStatementProvider {
             // Stage 5 - sort to make the "fields" class first and all the rest later
             classes.sort((o1, o2) -> Integer.compare(o1.getClassType().getSortCode(), o2.getClassType().getSortCode()));
 
-            String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, StatementProvider.class, classPostfix);
-            return new CompilableItem(statementProviderClassName, classes);
+            // We are making sure JsonEventType receives the underlying class itself
+            CompilableItemPostCompileLatch postCompile = CompilableItemPostCompileLatchDefault.INSTANCE;
+            for (EventType eventType : compileTimeServices.getEventTypeCompileTimeRegistry().getNewTypesAdded()) {
+                if (eventType instanceof JsonEventType) {
+                    postCompile = new CompilableItemPostCompileLatchJson(compileTimeServices.getEventTypeCompileTimeRegistry().getNewTypesAdded(), compileTimeServices.getParentClassLoader());
+                    break;
+                }
+            }
+
+            String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), StatementProvider.class, classPostfix);
+            return new CompilableItem(statementProviderClassName, classes, postCompile);
         } catch (StatementSpecCompileException ex) {
             throw ex;
         } catch (ExprValidationException ex) {

@@ -67,7 +67,9 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
 
     private StmtForgeMethodResult build(String packageName, String classPostfix, StatementCompileTimeServices services) throws ExprValidationException {
 
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         CreateWindowCompileResult compileResult = CreateWindowUtil.handleCreateWindow(base, services);
+        additionalForgeables.addAll(compileResult.getAdditionalForgeables());
         EventType namedWindowType = compileResult.getFilterSpecCompiled().getFilterForEventType();
 
         // view must be non-empty list
@@ -86,6 +88,8 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         List<ViewSpec> viewSpecs = createWindowDesc.getViewSpecs();
         ViewFactoryForgeArgs viewArgs = new ViewFactoryForgeArgs(0, false, -1, createWindowDesc.getStreamSpecOptions(), createWindowDesc.getWindowName(), base.getStatementRawInfo(), services);
         ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(viewSpecs.toArray(new ViewSpec[viewSpecs.size()]), viewArgs, namedWindowType);
+        additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
+
         List<ViewFactoryForge> viewForges = viewForgeDesc.getForges();
         List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>();
         ViewFactoryForgeUtil.determineViewSchedules(viewForges, schedules);
@@ -140,7 +144,7 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
 
-        for (StmtClassForgeableFactory additional : viewForgeDesc.getMultikeyForges()) {
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
             forgeables.add(additional.make(packageScope, classPostfix));
         }
 

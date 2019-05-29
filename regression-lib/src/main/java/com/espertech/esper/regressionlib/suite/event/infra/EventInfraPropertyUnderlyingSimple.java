@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -21,6 +22,7 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanSimple;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
@@ -43,30 +45,37 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
     public final static String MAP_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "Map";
     public final static String OA_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "Avro";
+    public final static String JSON_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "Json";
 
     private static final Logger log = LoggerFactory.getLogger(EventInfraPropertyUnderlyingSimple.class);
 
     public void run(RegressionEnvironment env) {
+        RegressionPath path = new RegressionPath();
+        env.compileDeploy("@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(myInt int, myString string)", path);
+
         Pair<String, FunctionSendEventIntString>[] pairs = new Pair[]{
             new Pair<>(MAP_TYPENAME, FMAP),
             new Pair<>(OA_TYPENAME, FOA),
             new Pair<>(BEAN_TYPENAME, FBEAN),
             new Pair<>(XML_TYPENAME, FXML),
-            new Pair<>(AVRO_TYPENAME, FAVRO)
+            new Pair<>(AVRO_TYPENAME, FAVRO),
+            new Pair<>(JSON_TYPENAME, FJSON)
         };
 
         for (Pair<String, FunctionSendEventIntString> pair : pairs) {
             log.info("Asserting type " + pair.getFirst());
-            runAssertionPassUnderlying(env, pair.getFirst(), pair.getSecond());
-            runAssertionPropertiesWGetter(env, pair.getFirst(), pair.getSecond());
-            runAssertionTypeValidProp(env, pair.getFirst(), pair.getSecond() == FMAP || pair.getSecond() == FXML || pair.getSecond() == FOA || pair.getSecond() == FAVRO);
+            runAssertionPassUnderlying(env, pair.getFirst(), pair.getSecond(), path);
+            runAssertionPropertiesWGetter(env, pair.getFirst(), pair.getSecond(), path);
+            runAssertionTypeValidProp(env, pair.getFirst(), pair.getSecond() != FBEAN);
             runAssertionTypeInvalidProp(env, pair.getFirst(), pair.getSecond() == FXML);
         }
+
+        env.undeployAll();
     }
 
-    private void runAssertionPassUnderlying(RegressionEnvironment env, String typename, FunctionSendEventIntString send) {
+    private void runAssertionPassUnderlying(RegressionEnvironment env, String typename, FunctionSendEventIntString send, RegressionPath path) {
         String epl = "@name('s0') select * from " + typename;
-        env.compileDeploy(epl).addListener("s0");
+        env.compileDeploy(epl, path).addListener("s0");
 
         String[] fields = "myInt,myString".split(",");
 
@@ -77,20 +86,24 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
 
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
         SupportEventTypeAssertionUtil.assertConsistency(event);
-        assertEquals(eventOne, event.getUnderlying());
+        if (!typename.equals(JSON_TYPENAME)) {
+            assertEquals(eventOne, event.getUnderlying());
+        }
         EPAssertionUtil.assertProps(event, fields, new Object[]{3, "some string"});
 
         Object eventTwo = send.apply(env, 4, "other string");
         event = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(eventTwo, event.getUnderlying());
+        if (!typename.equals(JSON_TYPENAME)) {
+            assertEquals(eventTwo, event.getUnderlying());
+        }
         EPAssertionUtil.assertProps(event, fields, new Object[]{4, "other string"});
 
-        env.undeployAll();
+        env.undeployModuleContaining("s0");
     }
 
-    private void runAssertionPropertiesWGetter(RegressionEnvironment env, String typename, FunctionSendEventIntString send) {
+    private void runAssertionPropertiesWGetter(RegressionEnvironment env, String typename, FunctionSendEventIntString send, RegressionPath path) {
         String epl = "@name('s0') select myInt, exists(myInt) as exists_myInt, myString, exists(myString) as exists_myString from " + typename;
-        env.compileDeploy(epl).addListener("s0");
+        env.compileDeploy(epl, path).addListener("s0");
 
         String[] fields = "myInt,exists_myInt,myString,exists_myString".split(",");
 
@@ -110,7 +123,7 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
         event = env.listener("s0").assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(event, fields, new Object[]{4, true, "other string", true});
 
-        env.undeployAll();
+        env.undeployModuleContaining("s0");
     }
 
     private void runAssertionEventInvalidProp(EventBean event) {
@@ -121,7 +134,9 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
     }
 
     private void runAssertionTypeValidProp(RegressionEnvironment env, String typeName, boolean boxed) {
-        EventType eventType = env.runtime().getEventTypeService().getEventTypePreconfigured(typeName);
+        EventType eventType = !typeName.equals(JSON_TYPENAME) ?
+            env.runtime().getEventTypeService().getEventTypePreconfigured(typeName) :
+            env.runtime().getEventTypeService().getEventType(env.deploymentId("schema"), typeName);
 
         Object[][] expectedType = new Object[][]{{"myInt", boxed ? Integer.class : int.class, null, null}, {"myString", String.class, null, null}};
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, eventType, SupportEventTypeAssertionEnum.getSetWithFragment());
@@ -201,5 +216,14 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
         datum.put("myString", b);
         env.sendEventAvro(datum, AVRO_TYPENAME);
         return datum;
+    };
+
+    private static final FunctionSendEventIntString FJSON = (env, a, b) -> {
+        JsonObject object = new JsonObject();
+        object.add("myInt", a);
+        object.add("myString", b);
+        String json = object.toString();
+        env.sendEventJson(json, JSON_TYPENAME);
+        return json;
     };
 }

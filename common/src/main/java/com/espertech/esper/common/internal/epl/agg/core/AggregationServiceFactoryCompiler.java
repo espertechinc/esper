@@ -208,7 +208,6 @@ public class AggregationServiceFactoryCompiler {
         CodegenStackGenerator.recursiveBuildStack(readMethod, "read", methods);
 
         CodegenInnerClass innerClass = new CodegenInnerClass(classNameSerde, DataInputOutputSerde.class, ctor, Collections.emptyList(), methods);
-        innerClass.setInterfaceGenericClass(classNameRow);
         innerClasses.add(innerClass);
     }
 

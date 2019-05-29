@@ -45,7 +45,9 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetterSPI {
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
-        return true;
+        GenericData.Record und = (GenericData.Record) eventBean.getUnderlying();
+        Object inner = und.get(posTop);
+        return inner instanceof GenericData.Record;
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -73,7 +75,7 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -85,7 +87,7 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return localMethod(existsCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -108,5 +110,12 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetterSPI {
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .ifRefNullReturnNull("inner")
                 .methodReturn(exprDotMethod(ref("inner"), "get", constant(posInner)));
+    }
+
+    private CodegenMethod existsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
+            .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
+            .ifRefNullReturnFalse("inner")
+            .methodReturn(constantTrue());
     }
 }

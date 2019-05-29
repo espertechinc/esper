@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.context.compile.ContextCompileTimeReg
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeResolver;
 import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.context.module.ModuleDependenciesCompileTime;
+import com.espertech.esper.common.internal.context.util.ParentClassLoader;
 import com.espertech.esper.common.internal.epl.dataflow.core.DataFlowCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolver;
@@ -61,6 +62,7 @@ public class ModuleCompileTimeServices {
     private final ModuleAccessModifierService moduleVisibilityRules;
     private final NamedWindowCompileTimeResolver namedWindowCompileTimeResolver;
     private final NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry;
+    private final ParentClassLoader parentClassLoader;
     private final PatternObjectResolutionService patternObjectResolutionService;
     private final ScriptCompileTimeRegistry scriptCompileTimeRegistry;
     private final ScriptCompileTimeResolver scriptCompileTimeResolver;
@@ -75,7 +77,8 @@ public class ModuleCompileTimeServices {
 
     private final DataFlowCompileTimeRegistry dataFlowCompileTimeRegistry = new DataFlowCompileTimeRegistry();
 
-    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
+    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, ParentClassLoader parentClassLoader, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
+        this.parentClassLoader = parentClassLoader;
         this.compilerServices = compilerServices;
         this.configuration = configuration;
         this.contextCompileTimeRegistry = contextCompileTimeRegistry;
@@ -109,6 +112,7 @@ public class ModuleCompileTimeServices {
     }
 
     public ModuleCompileTimeServices() {
+        this.parentClassLoader = null;
         this.compilerServices = null;
         this.configuration = null;
         this.contextCompileTimeRegistry = null;
@@ -211,6 +215,14 @@ public class ModuleCompileTimeServices {
 
     public NamedWindowCompileTimeRegistry getNamedWindowCompileTimeRegistry() {
         return namedWindowCompileTimeRegistry;
+    }
+
+    public String getPackageName() {
+        return "generated";
+    }
+
+    public ParentClassLoader getParentClassLoader() {
+        return parentClassLoader;
     }
 
     public PatternObjectResolutionService getPatternObjectResolutionService() {

@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
+import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.common.internal.event.xml.XMLEventBean;
 import org.w3c.dom.Node;
@@ -40,6 +41,10 @@ public class EventBeanTypedEventFactoryCompileTime implements EventBeanTypedEven
 
     public EventBean adapterForTypedDOM(Node value, EventType eventType) {
         return new XMLEventBean(value, eventType);
+    }
+
+    public EventBean adapterForTypedJson(Object underlying, EventType eventType) {
+        return new JsonEventBean(underlying, eventType);
     }
 
     public EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType) {

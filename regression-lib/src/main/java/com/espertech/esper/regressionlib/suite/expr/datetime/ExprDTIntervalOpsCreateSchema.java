@@ -58,28 +58,28 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
             DateTime.parseDefaultMSec(startB), DateTime.parseDefaultMSec(endB));
 
         // test Map type Calendar-type timestamps
-        if (!eventRepresentationEnum.isAvroEvent()) {
+        if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.util.Calendar",
                 DateTime.parseDefaultCal(startA), DateTime.parseDefaultCal(endA),
                 DateTime.parseDefaultCal(startB), DateTime.parseDefaultCal(endB));
         }
 
         // test Map type Date-type timestamps
-        if (!eventRepresentationEnum.isAvroEvent()) {
+        if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.util.Date",
                 DateTime.parseDefaultDate(startA), DateTime.parseDefaultDate(endA),
                 DateTime.parseDefaultDate(startB), DateTime.parseDefaultDate(endB));
         }
 
         // test Map type LocalDateTime-type timestamps
-        if (!eventRepresentationEnum.isAvroEvent()) {
+        if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.time.LocalDateTime",
                 DateTime.parseDefaultLocalDateTime(startA), DateTime.parseDefaultLocalDateTime(endA),
                 DateTime.parseDefaultLocalDateTime(startB), DateTime.parseDefaultLocalDateTime(endB));
         }
 
         // test Map type ZonedDateTime-type timestamps
-        if (!eventRepresentationEnum.isAvroEvent()) {
+        if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.time.ZonedDateTime",
                 DateTime.parseDefaultZonedDateTime(startA), DateTime.parseDefaultZonedDateTime(endA),
                 DateTime.parseDefaultZonedDateTime(startB), DateTime.parseDefaultZonedDateTime(endB));
@@ -112,6 +112,9 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
             record.put("startts", startTs);
             record.put("endts", endTs);
             env.eventService().sendEventAvro(record, typeName);
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            String json = "{\"startts\": \"" + startTs + "\", \"endts\": \"" + endTs + "\"}";
+            env.eventService().sendEventJson(json, typeName);
         } else {
             throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }

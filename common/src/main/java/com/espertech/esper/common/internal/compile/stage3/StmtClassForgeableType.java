@@ -17,5 +17,8 @@ public enum StmtClassForgeableType {
     RSPPROVIDER,
     OPVPROVIDER,
     FAF,
-    MULTIKEY;
+    MULTIKEY,
+    JSONEVENT,
+    JSONDELEGATE,
+    JSONDELEGATEFACTORY;
 }

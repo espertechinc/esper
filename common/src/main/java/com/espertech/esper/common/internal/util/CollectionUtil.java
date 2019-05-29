@@ -524,6 +524,58 @@ public class CollectionUtil {
         return dq;
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param array array
+     * @param index index
+     * @return null or array value
+     */
+    public static Object arrayValueAtIndex(Object array, int index) {
+        if (array == null) {
+            return null;
+        }
+        if (Array.getLength(array) <= index) {
+            return null;
+        }
+        return Array.get(array, index);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param array array
+     * @param index index
+     * @return null or array value
+     */
+    public static boolean arrayExistsAtIndex(Object array, int index) {
+        if (array == null) {
+            return false;
+        }
+        return Array.getLength(array) > index;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param map map
+     * @param key key
+     * @return null or map value for key
+     */
+    public static Object mapValueForKey(Map<String, Object> map, String key) {
+        return map == null ? null : map.get(key);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param map map
+     * @param key key
+     * @return contains-key or false for null-map
+     */
+    public static boolean mapExistsForKey(Map<String, Object> map, String key) {
+        if (map == null) {
+            return false;
+        }
+        return map.containsKey(key);
+    }
+
     public static CodegenExpression arrayToCollectionAllowNullCodegen(CodegenMethodScope codegenMethodScope, Class arrayType, CodegenExpression array, CodegenClassScope codegenClassScope) {
         if (!arrayType.isArray()) {
             throw new IllegalArgumentException("Expected array type and received " + arrayType);

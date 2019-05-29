@@ -14,16 +14,18 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.EventTypeException;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_G;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplA;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
@@ -34,26 +36,33 @@ public class EventInfraEventSender implements RegressionExecution {
     public final static String MAP_TYPENAME = "EventInfraEventSenderMap";
     public final static String OA_TYPENAME = "EventInfraEventSenderOA";
     public final static String AVRO_TYPENAME = "EventInfraEventSenderAvro";
+    public final static String JSON_TYPENAME = "EventInfraEventSenderJson";
 
     public void run(RegressionEnvironment env) {
+        RegressionPath path = new RegressionPath();
+
         // Bean
-        runAssertionSuccess(env, "SupportBean", new SupportBean());
+        runAssertionSendEvent(env, path, "SupportBean", new SupportBean());
         runAssertionInvalid(env, "SupportBean", new SupportBean_G("G1"),
             "Event object of type " + SupportBean_G.class.getName() + " does not equal, extend or implement the type " + SupportBean.class.getName() + " of event type 'SupportBean'");
-        runAssertionSuccess(env, "SupportMarkerInterface", new SupportMarkerImplA("Q2"), new SupportBean_G("Q3"));
+        runAssertionSendEvent(env, path, "SupportMarkerInterface", new SupportMarkerImplA("Q2"), new SupportBean_G("Q3"));
+        runAssertionRouteEvent(env, path, "SupportBean", new SupportBean());
 
         // Map
-        runAssertionSuccess(env, MAP_TYPENAME, new HashMap());
+        runAssertionSendEvent(env, path, MAP_TYPENAME, new HashMap());
+        runAssertionRouteEvent(env, path, MAP_TYPENAME, new HashMap());
         runAssertionInvalid(env, MAP_TYPENAME, new SupportBean(),
             "Unexpected event object of type " + SupportBean.class.getName() + ", expected java.util.Map");
 
         // Object-Array
-        runAssertionSuccess(env, OA_TYPENAME, new Object[]{});
+        runAssertionSendEvent(env, path, OA_TYPENAME, new Object[]{});
+        runAssertionRouteEvent(env, path, OA_TYPENAME, new Object[]{});
         runAssertionInvalid(env, OA_TYPENAME, new SupportBean(),
             "Unexpected event object of type " + SupportBean.class.getName() + ", expected Object[]");
 
         // XML
-        runAssertionSuccess(env, XML_TYPENAME, SupportXML.getDocument("<myevent/>").getDocumentElement());
+        runAssertionSendEvent(env, path, XML_TYPENAME, SupportXML.getDocument("<myevent/>").getDocumentElement());
+        runAssertionRouteEvent(env, path, XML_TYPENAME, SupportXML.getDocument("<myevent/>").getDocumentElement());
         runAssertionInvalid(env, XML_TYPENAME, new SupportBean(),
             "Unexpected event object type '" + SupportBean.class.getName() + "' encountered, please supply a org.w3c.dom.Document or Element node");
         runAssertionInvalid(env, XML_TYPENAME, SupportXML.getDocument("<xxxx/>"),
@@ -61,9 +70,18 @@ public class EventInfraEventSender implements RegressionExecution {
 
         // Avro
         Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
-        runAssertionSuccess(env, AVRO_TYPENAME, new GenericData.Record(schema));
+        runAssertionSendEvent(env, path, AVRO_TYPENAME, new GenericData.Record(schema));
+        runAssertionRouteEvent(env, path, AVRO_TYPENAME, new GenericData.Record(schema));
         runAssertionInvalid(env, AVRO_TYPENAME, new SupportBean(),
             "Unexpected event object type '" + SupportBean.class.getName() + "' encountered, please supply a GenericData.Record");
+
+        // Json
+        String schemas = "@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "()";
+        env.compileDeploy(schemas, path);
+        runAssertionSendEvent(env, path, JSON_TYPENAME, "{}");
+        runAssertionRouteEvent(env, path, JSON_TYPENAME, "{}");
+        runAssertionInvalid(env, JSON_TYPENAME, new SupportBean(),
+            "Unexpected event object of type '" + SupportBean.class.getName() + "', expected a Json-formatted string-type value");
 
         // No such type
         try {
@@ -85,20 +103,50 @@ public class EventInfraEventSender implements RegressionExecution {
         env.undeployAll();
     }
 
-    private void runAssertionSuccess(RegressionEnvironment env,
-                                     String typename,
-                                     Object... correctUnderlyings) {
+    private void runAssertionRouteEvent(RegressionEnvironment env,
+                                        RegressionPath path,
+                                        String typename,
+                                        Object underlying) {
 
         String stmtText = "@name('s0') select * from " + typename;
-        env.compileDeploy(stmtText).addListener("s0");
+        env.compileDeploy(stmtText, path).addListener("s0");
+
+        EventSender sender = env.eventService().getEventSender(typename);
+        env.compileDeploy("@public @buseventtype create schema TriggerEvent();\n" +
+            "@name('trigger') select * from TriggerEvent;\n");
+        env.statement("trigger").addListener((newData, oldData, stmt, runtime) -> {
+            sender.routeEvent(underlying);
+        });
+
+        env.sendEventMap(Collections.emptyMap(), "TriggerEvent");
+        assertUnderlying(env, typename, underlying);
+
+        env.undeployModuleContaining("s0").undeployModuleContaining("trigger");
+    }
+
+    private void runAssertionSendEvent(RegressionEnvironment env,
+                                       RegressionPath path,
+                                       String typename,
+                                       Object... correctUnderlyings) {
+
+        String stmtText = "@name('s0') select * from " + typename;
+        env.compileDeploy(stmtText, path).addListener("s0");
 
         EventSender sender = env.eventService().getEventSender(typename);
         for (Object underlying : correctUnderlyings) {
             sender.sendEvent(underlying);
-            assertSame(underlying, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            assertUnderlying(env, typename, underlying);
         }
 
-        env.undeployAll();
+        env.undeployModuleContaining("s0");
+    }
+
+    private void assertUnderlying(RegressionEnvironment env, String typename, Object underlying) {
+        if (typename.equals(JSON_TYPENAME)) {
+            assertNotNull(env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+        } else {
+            assertSame(underlying, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+        }
     }
 
     private void runAssertionInvalid(RegressionEnvironment env,
@@ -110,6 +158,13 @@ public class EventInfraEventSender implements RegressionExecution {
 
         try {
             sender.sendEvent(incorrectUnderlying);
+            fail();
+        } catch (EPException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, message);
+        }
+
+        try {
+            sender.routeEvent(incorrectUnderlying);
             fail();
         } catch (EPException ex) {
             SupportMessageAssertUtil.assertMessage(ex, message);

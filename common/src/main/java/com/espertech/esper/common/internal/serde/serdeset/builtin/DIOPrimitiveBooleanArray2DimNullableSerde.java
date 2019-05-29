@@ -47,6 +47,10 @@ public class DIOPrimitiveBooleanArray2DimNullableSerde implements DataInputOutpu
     }
 
     private void writeArray(boolean[] array, DataOutput output) throws IOException {
+        if (array == null) {
+            output.writeInt(-1);
+            return;
+        }
         output.writeInt(array.length);
         for (boolean i : array) {
             output.writeBoolean(i);
@@ -55,6 +59,9 @@ public class DIOPrimitiveBooleanArray2DimNullableSerde implements DataInputOutpu
 
     private boolean[] readArray(DataInput input) throws IOException {
         int len = input.readInt();
+        if (len == -1) {
+            return null;
+        }
         boolean[] array = new boolean[len];
         for (int i = 0; i < len; i++) {
             array[i] = input.readBoolean();

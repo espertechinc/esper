@@ -70,8 +70,8 @@ public class HistoricalStreamIndexListForge {
      * Get the strategies to use for polling from a given stream.
      *
      * @param streamViewStreamNum the stream providing the polling events
-     * @param raw
-     * @param serdeResolver
+     * @param raw raw info
+     * @param serdeResolver resolver
      * @return looking and indexing strategy
      */
     public JoinSetComposerPrototypeHistoricalDesc getStrategy(int streamViewStreamNum, StatementRawInfo raw, SerdeCompileTimeResolver serdeResolver) {

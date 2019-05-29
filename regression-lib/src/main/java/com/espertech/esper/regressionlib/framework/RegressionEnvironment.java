@@ -109,6 +109,8 @@ public interface RegressionEnvironment {
 
     RegressionEnvironment sendEventAvro(GenericData.Record theEvent, String typeName);
 
+    RegressionEnvironment sendEventJson(String json, String typeName);
+
     RegressionEnvironment advanceTime(long msec);
 
     RegressionEnvironment advanceTimeSpan(long msec);

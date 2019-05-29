@@ -17,10 +17,12 @@ import java.util.List;
 public class CompilableItem {
     private final String providerClassName;
     private final List<CodegenClass> classes;
+    private final CompilableItemPostCompileLatch postCompileLatch;
 
-    public CompilableItem(String providerClassName, List<CodegenClass> classes) {
+    public CompilableItem(String providerClassName, List<CodegenClass> classes, CompilableItemPostCompileLatch postCompileLatch) {
         this.providerClassName = providerClassName;
         this.classes = classes;
+        this.postCompileLatch = postCompileLatch;
     }
 
     public String getProviderClassName() {
@@ -29,5 +31,9 @@ public class CompilableItem {
 
     public List<CodegenClass> getClasses() {
         return classes;
+    }
+
+    public CompilableItemPostCompileLatch getPostCompileLatch() {
+        return postCompileLatch;
     }
 }

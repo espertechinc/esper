@@ -37,6 +37,10 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionAndOr(false, first, second, more);
     }
 
+    public static CodegenExpression concat(CodegenExpression... stringExpressions) {
+        return new CodegenExpressionConcat(stringExpressions);
+    }
+
     public static CodegenExpressionExprDotName exprDotName(CodegenExpression left, String name) {
         return new CodegenExpressionExprDotName(left, name);
     }
@@ -106,6 +110,10 @@ public class CodegenExpressionBuilder {
     }
 
     public static CodegenExpression castUnderlying(Class clazz, CodegenExpression expression) {
+        return new CodegenExpressionCastUnderlying(clazz, expression);
+    }
+
+    public static CodegenExpression castUnderlying(String clazz, CodegenExpression expression) {
         return new CodegenExpressionCastUnderlying(clazz, expression);
     }
 

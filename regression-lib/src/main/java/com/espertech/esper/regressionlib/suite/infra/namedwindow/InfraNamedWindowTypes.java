@@ -86,6 +86,8 @@ public class InfraNamedWindowTypes {
                 theEvent.put("col1", 10);
                 theEvent.put("col2", 11);
                 env.eventService().sendEventAvro(theEvent, "SchemaOne");
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                env.eventService().sendEventJson("{\"col1\": 10, \"col2\": 11}", "SchemaOne");
             } else {
                 fail();
             }
@@ -259,6 +261,8 @@ public class InfraNamedWindowTypes {
                 GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("EventTypeOne")));
                 theEvent.put("hsi", 10);
                 env.eventService().sendEventAvro(theEvent, "EventTypeOne");
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                env.eventService().sendEventJson("{\"hsi\": 10}", "EventTypeOne");
             } else {
                 fail();
             }

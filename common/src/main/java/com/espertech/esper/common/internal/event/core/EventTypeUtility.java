@@ -12,10 +12,7 @@ package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
-import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeAvro;
-import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeMap;
-import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeObjectArray;
-import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeWithSupertype;
+import com.espertech.esper.common.client.configuration.common.*;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
@@ -35,6 +32,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ColumnDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateSchemaDesc;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
@@ -47,9 +45,14 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.core.PropertyHelper;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerBeanForge;
+import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerJsonForge;
 import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerMapForge;
 import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerObjectArrayForge;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
+import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.event.json.core.JsonEventObjectBase;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventPropertyGetter;
 import com.espertech.esper.common.internal.event.map.MapEventType;
@@ -67,6 +70,8 @@ import org.w3c.dom.Node;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 
@@ -120,6 +125,9 @@ public class EventTypeUtility {
         if (type instanceof AvroSchemaEventType) {
             return eventTypeAvroHandler.getEventBeanFactory(type, factory);
         }
+        if (type instanceof JsonEventType) {
+            return new EventBeanFactoryJson((JsonEventType) type, factory);
+        }
         throw new IllegalArgumentException("Cannot create event bean factory for event type '" + type.getName() + "': " + type.getClass().getName() + " is not a recognized event type or supported wrap event type");
     }
 
@@ -158,6 +166,10 @@ public class EventTypeUtility {
         if (eventType instanceof AvroSchemaEventType) {
             AvroSchemaEventType avroSchemaEventType = (AvroSchemaEventType) eventType;
             return avroHandler.getEventBeanManufacturer(avroSchemaEventType, properties);
+        }
+        if (eventType instanceof JsonEventType) {
+            JsonEventType jsonEventType = (JsonEventType) eventType;
+            return new EventBeanManufacturerJsonForge(jsonEventType, properties);
         }
         return null;
     }
@@ -375,6 +387,10 @@ public class EventTypeUtility {
                 if (!(type instanceof AvroSchemaEventType)) {
                     throw new EventAdapterException("Supertype by name '" + superName + "' is not an Avro type, expected a Avro event type as a supertype");
                 }
+            } else if (representation == EventUnderlyingType.JSON) {
+                if (!(type instanceof JsonEventType)) {
+                    throw new EventAdapterException("Supertype by name '" + superName + "' is not a Json type, expected a Json event type as a supertype");
+                }
             } else {
                 throw new IllegalStateException("Unrecognized enum " + representation);
             }
@@ -487,6 +503,14 @@ public class EventTypeUtility {
             // expected
         }
 
+        String lowercase = typeName.toLowerCase(Locale.ENGLISH);
+        if (lowercase.equals("biginteger")) {
+            return JavaClassHelper.getArrayType(BigInteger.class, classIdent.getArrayDimensions());
+        }
+        if (lowercase.equals("bigdecimal")) {
+            return JavaClassHelper.getArrayType(BigDecimal.class, classIdent.getArrayDimensions());
+        }
+
         // resolve from classpath when not found
         if (resolved == null) {
             try {
@@ -503,7 +527,7 @@ public class EventTypeUtility {
 
         // Event types fall into here
         if (classIdent.getArrayDimensions() > 1) {
-            throw new EPException("Two-dimension array not supported");
+            throw new EPException("Two-dimensional arrays are not supported for event-types (cannot find class '" + classIdent.getClassIdentifier() + "')");
         }
         if (classIdent.getArrayDimensions() == 1) {
             return column.getType() + "[]";
@@ -807,7 +831,7 @@ public class EventTypeUtility {
                 EventType eventType = ((TypeBeanOrUnderlying) entry.getValue()).getEventType();
                 if (!(eventType instanceof BaseNestableEventType)) {
                     throw new EPException("Nestable type configuration encountered an unexpected property type name '"
-                        + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+                        + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
                 }
 
                 Class underlyingType = eventType.getUnderlyingType();
@@ -826,7 +850,7 @@ public class EventTypeUtility {
                 EventType eventType = ((TypeBeanOrUnderlying[]) entry.getValue())[0].getEventType();
                 if (!(eventType instanceof BaseNestableEventType) && !(eventType instanceof BeanEventType)) {
                     throw new EPException("Nestable type configuration encountered an unexpected property type name '"
-                        + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+                        + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
                 }
 
                 Class underlyingType = eventType.getUnderlyingType();
@@ -853,7 +877,7 @@ public class EventTypeUtility {
     private static void generateExceptionNestedProp(String name, Object value) throws EPException {
         String clazzName = (value == null) ? "null" : value.getClass().getSimpleName();
         throw new EPException("Nestable type configuration encountered an unexpected property type of '"
-            + clazzName + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+            + clazzName + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
     }
 
     public static Class getNestablePropertyType(String propertyName,
@@ -1041,7 +1065,8 @@ public class EventTypeUtility {
         if (index == -1) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (prop instanceof DynamicProperty) {
-                EventPropertyGetterSPI getterDyn = factory.getPropertyProvidedGetter(nestableTypes, propertyName, prop, eventBeanTypedEventFactory, beanEventTypeFactory);
+                DynamicProperty dynamicProperty = (DynamicProperty) prop;
+                EventPropertyGetterSPI getterDyn = factory.getPropertyDynamicGetter(nestableTypes, propertyName, dynamicProperty, eventBeanTypedEventFactory, beanEventTypeFactory);
                 propertyGetterCache.put(propertyName, getterDyn);
                 return getterDyn;
             } else if (prop instanceof IndexedProperty) {
@@ -1080,7 +1105,7 @@ public class EventTypeUtility {
 
                 // its an array
                 Class componentType = ((Class) type).getComponentType();
-                EventPropertyGetterSPI indexedGetter = factory.getGetterIndexedPOJO(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventBeanTypedEventFactory, componentType, beanEventTypeFactory);
+                EventPropertyGetterSPI indexedGetter = factory.getGetterIndexedClassArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventBeanTypedEventFactory, componentType, beanEventTypeFactory);
                 propertyGetterCache.put(propertyName, indexedGetter);
                 return indexedGetter;
             } else if (prop instanceof MappedProperty) {
@@ -1167,7 +1192,7 @@ public class EventTypeUtility {
                 if (isRootedDynamic) {
                     Property prop = PropertyParser.parseAndWalk(propertyNested, true);
                     if (!isObjectArray) {
-                        EventPropertyGetterSPI getterNested = prop.getGetterMap(null, eventBeanTypedEventFactory, beanEventTypeFactory);
+                        EventPropertyGetterSPI getterNested = factory.getGetterRootedDynamicNested(prop, eventBeanTypedEventFactory, beanEventTypeFactory);
                         EventPropertyGetterSPI dynamicGetter = factory.getGetterNestedPropertyProvidedGetterDynamic(nestableTypes, propertyMap, getterNested, eventBeanTypedEventFactory);
                         propertyGetterCache.put(propertyName, dynamicGetter);
                         return dynamicGetter;
@@ -1393,6 +1418,9 @@ public class EventTypeUtility {
         if (eventType instanceof AvroSchemaEventType) {
             return EventBeanTypedEventFactory.ADAPTERFORTYPEDAVRO;
         }
+        if (eventType instanceof JsonEventType) {
+            return EventBeanTypedEventFactory.ADAPTERFORTYPEDJSON;
+        }
         if (eventType instanceof WrapperEventType) {
             return EventBeanTypedEventFactory.ADAPTERFORTYPEDWRAPPER;
         }
@@ -1443,6 +1471,12 @@ public class EventTypeUtility {
     public static void validateTypeMap(String eventTypeName, EventType type) {
         if (!(type instanceof MapEventType)) {
             throw new EPException(getMessageExpecting(eventTypeName, type, "Map-type"));
+        }
+    }
+
+    public static void validateTypeJson(String eventTypeName, EventType type) {
+        if (!(type instanceof JsonEventType)) {
+            throw new EPException(getMessageExpecting(eventTypeName, type, "Json-type"));
         }
     }
 
@@ -1497,6 +1531,9 @@ public class EventTypeUtility {
             } else if (theEvent.getEventType() instanceof AvroSchemaEventType && targetType instanceof AvroSchemaEventType) {
                 Object convertedGenericRecord = eventTypeAvroHandler.convertEvent(theEvent, (AvroSchemaEventType) targetType);
                 converted = eventAdapterService.adapterForTypedAvro(convertedGenericRecord, targetType);
+            } else if ((theEvent.getEventType() instanceof JsonEventType) && (targetType instanceof JsonEventType)) {
+                Object und = convertJsonEvents((JsonEventBean) theEvent, (JsonEventType) targetType);
+                converted = eventAdapterService.adapterForTypedJson(und, targetType);
             } else {
                 throw new EPException("Unknown event type " + theEvent.getEventType());
             }
@@ -1506,7 +1543,26 @@ public class EventTypeUtility {
         return convertedArray;
     }
 
-    public static EventType createNonVariantType(boolean isAnonymous, CreateSchemaDesc spec, StatementBaseInfo base, StatementCompileTimeServices services)
+    private static Object convertJsonEvents(JsonEventBean theEvent, JsonEventType targetType) {
+        JsonEventObjectBase target;
+        try {
+            target = (JsonEventObjectBase) targetType.getUnderlyingType().newInstance();
+        } catch (Exception e) {
+            throw new EPException("Failed to allocate instance of Json event: " + e.getMessage(), e);
+        }
+        JsonEventObjectBase source = (JsonEventObjectBase) theEvent.getUnderlying();
+        for (Map.Entry<String, Object> entry : targetType.getTypes().entrySet()) {
+            int targetNum = target.getNativeNum(entry.getKey());
+            int sourceNum = source.getNativeNum(entry.getKey());
+            if (targetNum == -1) {
+                continue;
+            }
+            target.setNativeValue(targetNum, source.getNativeValue(sourceNum));
+        }
+        return target;
+    }
+
+    public static EventTypeForgablesPair createNonVariantType(boolean isAnonymous, CreateSchemaDesc spec, String packageName, StatementBaseInfo base, StatementCompileTimeServices services)
         throws ExprValidationException {
         if (spec.getAssignedType() == CreateSchemaDesc.AssignedType.VARIANT) {
             throw new IllegalStateException("Variant type is not allowed in this context");
@@ -1525,6 +1581,7 @@ public class EventTypeUtility {
         }
 
         EventType eventType;
+        List<StmtClassForgeableFactory> additionalForgeables = Collections.emptyList();
         if (spec.getTypes().isEmpty()) {
             EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(annotations, services.getConfiguration(), spec.getAssignedType());
             Map<String, Object> typing = EventTypeUtility.buildType(spec.getColumns(), spec.getCopyFrom(), services.getClasspathImportServiceCompileTime(), services.getEventTypeCompileTimeResolver());
@@ -1537,13 +1594,15 @@ public class EventTypeUtility {
                 config = new ConfigurationCommonEventTypeObjectArray();
             } else if (representation == EventUnderlyingType.AVRO) {
                 config = new ConfigurationCommonEventTypeAvro();
+            } else if (representation == EventUnderlyingType.JSON) {
+                config = new ConfigurationCommonEventTypeJson();
             } else {
                 throw new IllegalStateException("Unrecognized representation '" + representation + "'");
             }
 
             if (spec.getInherits() != null) {
                 config.getSuperTypes().addAll(spec.getInherits());
-                if (spec.getInherits().size() > 1 && representation == EventUnderlyingType.OBJECTARRAY) {
+                if (spec.getInherits().size() > 1 && (representation == EventUnderlyingType.OBJECTARRAY || representation == EventUnderlyingType.JSON)) {
                     throw new ExprValidationException(ConfigurationCommonEventTypeObjectArray.SINGLE_SUPERTYPE_MSG);
                 }
             }
@@ -1563,6 +1622,12 @@ public class EventTypeUtility {
                 Pair<EventType[], Set<EventType>> avroSuperTypes = EventTypeUtility.getSuperTypesDepthFirst(config.getSuperTypes(), EventUnderlyingType.AVRO, services.getEventTypeCompileTimeResolver());
                 EventTypeMetadata metadata = metadataFunc.apply(EventTypeApplicationType.AVRO);
                 eventType = services.getEventTypeAvroHandler().newEventTypeFromNormalized(metadata, services.getEventTypeCompileTimeResolver(), services.getBeanEventTypeFactoryPrivate().getEventBeanTypedEventFactory(), compiledTyping, annotations, (ConfigurationCommonEventTypeAvro) config, avroSuperTypes.getFirst(), avroSuperTypes.getSecond(), base.getStatementName());
+            } else if (representation == EventUnderlyingType.JSON) {
+                Pair<EventType[], Set<EventType>> st = EventTypeUtility.getSuperTypesDepthFirst(config.getSuperTypes(), EventUnderlyingType.JSON, services.getEventTypeCompileTimeResolver());
+                EventTypeMetadata metadata = metadataFunc.apply(EventTypeApplicationType.JSON);
+                EventTypeForgablesPair desc = JsonEventTypeUtility.makeJsonTypeCompileTimeNewType(metadata, compiledTyping, st, config, base.getStatementRawInfo(), services);
+                eventType = desc.getEventType();
+                additionalForgeables = desc.getAdditionalForgeables();
             } else {
                 throw new IllegalStateException("Unrecognized representation " + representation);
             }
@@ -1589,8 +1654,9 @@ public class EventTypeUtility {
         }
 
         services.getEventTypeCompileTimeRegistry().newType(eventType);
-        return eventType;
+        return new EventTypeForgablesPair(eventType, additionalForgeables);
     }
+
 
     private static boolean allowPopulate(EventTypeSPI typeSPI) {
         EventTypeMetadata metadata = typeSPI.getMetadata();
@@ -1751,4 +1817,5 @@ public class EventTypeUtility {
             return eventTypeAvroHandler.adapterForTypeAvro(underlying, eventType);
         }
     }
+
 }

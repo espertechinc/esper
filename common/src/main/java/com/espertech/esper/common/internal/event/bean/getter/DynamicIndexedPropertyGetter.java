@@ -10,7 +10,9 @@
  */
 package com.espertech.esper.common.internal.event.bean.getter;
 
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
@@ -25,8 +27,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.localMethod;
 
 /**
  * Getter for a dynamic indexed property (syntax field.indexed[0]?), using vanilla reflection.
@@ -58,6 +60,24 @@ public class DynamicIndexedPropertyGetter extends DynamicPropertyGetterBase {
     protected CodegenExpression callCodegen(CodegenExpressionRef desc, CodegenExpressionRef object, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenExpressionField params = codegenClassScope.addFieldUnshared(true, Object[].class, constant(parameters));
         return staticMethod(DynamicIndexedPropertyGetter.class, "dynamicIndexedPropertyGet", desc, object, params, constant(index));
+    }
+
+    public boolean isExistsProperty(EventBean eventBean) {
+        DynamicPropertyDescriptor desc = getPopulateCache(cache, this, eventBean.getUnderlying(), eventBeanTypedEventFactory);
+        if (desc.getMethod() == null) {
+            return false;
+        }
+        return dynamicIndexedPropertyExists(desc, eventBean.getUnderlying(), index);
+    }
+
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
+        CodegenExpression memberCache = codegenClassScope.addOrGetFieldSharable(sharableCode);
+        CodegenMethod method = parent.makeChild(boolean.class, DynamicPropertyGetterBase.class, codegenClassScope).addParam(Object.class, "object");
+        method.getBlock()
+            .declareVar(DynamicPropertyDescriptor.class, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
+            .ifCondition(equalsNull(exprDotMethod(ref("desc"), "getMethod"))).blockReturn(constantFalse())
+            .methodReturn(staticMethod(DynamicIndexedPropertyGetter.class, "dynamicIndexedPropertyExists", ref("desc"), ref("object"), constant(index)));
+        return localMethod(method, underlyingExpression);
     }
 
     /**
@@ -119,4 +139,36 @@ public class DynamicIndexedPropertyGetter extends DynamicPropertyGetterBase {
         }
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param descriptor descriptor
+     * @param underlying target
+     * @param index      idx
+     * @return null or method
+     */
+    public static boolean dynamicIndexedPropertyExists(DynamicPropertyDescriptor descriptor, Object underlying, int index) {
+        try {
+            if (descriptor.isHasParameters()) {
+                return true;
+            } else {
+                Object array = descriptor.getMethod().invoke(underlying, null);
+                if (array == null) {
+                    return false;
+                }
+                if (Array.getLength(array) <= index) {
+                    return false;
+                }
+                return true;
+            }
+        } catch (ClassCastException e) {
+            throw PropertyUtility.getMismatchException(descriptor.getMethod(), underlying, e);
+        } catch (InvocationTargetException e) {
+            throw PropertyUtility.getInvocationTargetException(descriptor.getMethod(), e);
+        } catch (IllegalArgumentException e) {
+            throw PropertyUtility.getIllegalArgumentException(descriptor.getMethod(), e);
+        } catch (IllegalAccessException e) {
+            throw PropertyUtility.getIllegalAccessException(descriptor.getMethod(), e);
+        }
+    }
 }

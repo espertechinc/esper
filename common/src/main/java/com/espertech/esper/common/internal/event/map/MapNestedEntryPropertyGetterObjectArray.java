@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
+import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 import com.espertech.esper.common.internal.event.util.CodegenLegoPropertyBeanOrUnd;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.localMethod;
@@ -44,6 +45,16 @@ public class MapNestedEntryPropertyGetterObjectArray extends MapNestedEntryPrope
         return arrayGetter.getObjectArray((Object[]) value);
     }
 
+    public boolean handleNestedValueExists(Object value) {
+        if (!(value instanceof Object[])) {
+            if (value instanceof EventBean) {
+                return arrayGetter.isObjectArrayExistsProperty(((ObjectArrayBackedEventBean) value).getProperties());
+            }
+            return false;
+        }
+        return arrayGetter.isObjectArrayExistsProperty((Object[]) value);
+    }
+
     public Object handleNestedValueFragment(Object value) {
         if (!(value instanceof Object[])) {
             if (value instanceof EventBean) {
@@ -59,6 +70,11 @@ public class MapNestedEntryPropertyGetterObjectArray extends MapNestedEntryPrope
 
     public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMethod method = CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, this.getClass());
+        return localMethod(method, name);
+    }
+
+    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethod method = CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS, this.getClass());
         return localMethod(method, name);
     }
 

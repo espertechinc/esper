@@ -13,14 +13,15 @@ package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import org.apache.avro.generic.GenericData;
 
 import java.util.*;
@@ -240,6 +241,8 @@ public class InfraNamedWindowOnMerge {
             theEvent.put("in1", in1);
             theEvent.put("in2", in2);
             env.eventService().sendEventAvro(theEvent, "MyEvent");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.eventService().sendEventJson("{\"in1\": \"" + in1 + "\", \"in2\": " + in2 + "}", "MyEvent");
         } else {
             fail();
         }
@@ -316,7 +319,13 @@ public class InfraNamedWindowOnMerge {
             theEvent.put("deletedFlag", deletedFlag);
             env.eventService().sendEventAvro(theEvent, "OrderEvent");
         } else {
-            fail();
+            JsonObject object = new JsonObject();
+            object.add("orderId", orderId);
+            object.add("productId", productId);
+            object.add("price", price);
+            object.add("quantity", quantity);
+            object.add("deletedFlag", deletedFlag);
+            env.eventService().sendEventJson(object.toString(), "OrderEvent");
         }
     }
 

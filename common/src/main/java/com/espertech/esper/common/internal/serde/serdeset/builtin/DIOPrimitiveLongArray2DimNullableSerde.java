@@ -47,6 +47,10 @@ public class DIOPrimitiveLongArray2DimNullableSerde implements DataInputOutputSe
     }
 
     private void writeArray(long[] array, DataOutput output) throws IOException {
+        if (array == null) {
+            output.writeInt(-1);
+            return;
+        }
         output.writeInt(array.length);
         for (long i : array) {
             output.writeLong(i);
@@ -55,6 +59,9 @@ public class DIOPrimitiveLongArray2DimNullableSerde implements DataInputOutputSe
 
     private long[] readArray(DataInput input) throws IOException {
         int len = input.readInt();
+        if (len == -1) {
+            return null;
+        }
         long[] array = new long[len];
         for (int i = 0; i < len; i++) {
             array[i] = input.readLong();

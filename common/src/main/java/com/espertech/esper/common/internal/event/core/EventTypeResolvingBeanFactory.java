@@ -25,4 +25,6 @@ public interface EventTypeResolvingBeanFactory {
     EventBean adapterForXMLDOM(org.w3c.dom.Node node, String eventTypeName);
 
     EventBean adapterForAvro(Object avroGenericDataDotRecord, String eventTypeName);
+
+    EventBean adapterForJson(String json, String eventTypeName);
 }

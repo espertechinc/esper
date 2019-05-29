@@ -35,6 +35,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         execs.add(new EPLInsertIntoTypableNewOperatorDocSample());
         execs.add(new EPLInsertIntoTypableAndCaseNew(EventRepresentationChoice.MAP));
         execs.add(new EPLInsertIntoTypableAndCaseNew(EventRepresentationChoice.ARRAY));
+        execs.add(new EPLInsertIntoTypableAndCaseNew(EventRepresentationChoice.JSON));
         execs.add(new EPLInsertIntoInvalid());
         execs.add(new EPLInsertIntoEnumerationSubquery());
         return execs;

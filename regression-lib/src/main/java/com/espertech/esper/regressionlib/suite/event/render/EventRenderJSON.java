@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.regressionlib.suite.event.render;
 
+import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.render.JSONEventRenderer;
 import com.espertech.esper.common.internal.event.render.OutputValueRendererJSONString;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 
 import java.util.*;
@@ -29,7 +31,35 @@ public class EventRenderJSON {
         execs.add(new EventRenderMapAndNestedArray());
         execs.add(new EventRenderEmptyMap());
         execs.add(new EventRenderEnquote());
+        execs.add(new EventRenderJsonEventType());
         return execs;
+    }
+
+    private static class EventRenderJsonEventType implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create json schema MyJsonEvent(p0 string, p1 int);\n" +
+                "@name('s0') select * from MyJsonEvent#keepall;\n";
+            env.compileDeploy(epl).addListener("s0");
+            env.sendEventJson(new JsonObject().add("p0", "abc").add("p1", 10).toString(), "MyJsonEvent");
+
+            String expected = "{\"p0\":\"abc\",\"p1\":10}";
+            String expectedWithTitle = "{\"thetitle\":{\"p0\":\"abc\",\"p1\":10}}";
+            EventBean event = env.statement("s0").iterator().next();
+
+            String result = env.runtime().getRenderEventService().renderJSON("thetitle", event);
+            assertEquals(expectedWithTitle, result);
+
+            result = env.runtime().getRenderEventService().renderJSON("thetitle", event);
+            assertEquals(expectedWithTitle, result);
+
+            JSONEventRenderer renderer = env.runtime().getRenderEventService().getJSONRenderer(env.statement("s0").getEventType());
+            result = renderer.render("thetitle", event);
+            assertEquals(expectedWithTitle, result);
+            result = renderer.render(event);
+            assertEquals(expected, result);
+
+            env.undeployAll();
+        }
     }
 
     private static class EventRenderRenderSimple implements RegressionExecution {

@@ -201,7 +201,8 @@ public interface EPRuntime {
     Map<String, Object> getConfigurationTransient();
 
     /**
-     * Returns a path object for use by the compiler that represents the EPL objects deployed into the runtime.
+     * Returns a path object for use by the compiler that represents a snapshot of the EPL objects deployed into the runtime
+     * at the time of this call. The EPL objects deployed after a call to this method are not included.
      *
      * @return path
      */

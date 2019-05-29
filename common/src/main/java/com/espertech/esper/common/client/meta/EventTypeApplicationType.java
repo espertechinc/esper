@@ -40,6 +40,11 @@ public enum EventTypeApplicationType {
     AVRO,
 
     /**
+     * Json type.
+     */
+    JSON,
+
+    /**
      * Wrapper type.
      */
     WRAPPER,

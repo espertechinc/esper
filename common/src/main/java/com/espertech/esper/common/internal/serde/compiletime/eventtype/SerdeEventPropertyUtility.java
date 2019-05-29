@@ -15,6 +15,10 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.event.core.TypeBeanOrUnderlying;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.event.json.serde.DIOJsonAnyValueSerde;
+import com.espertech.esper.common.internal.event.json.serde.DIOJsonArraySerde;
+import com.espertech.esper.common.internal.event.json.serde.DIOJsonObjectSerde;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.*;
 import com.espertech.esper.common.internal.serde.serdeset.additional.DIOMapPropertySerde;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSkipSerde;
@@ -30,18 +34,35 @@ import static com.espertech.esper.common.internal.context.aifactory.createtable.
 import static com.espertech.esper.common.internal.event.core.EventTypeUtility.resolveTypeCodegenGivenResolver;
 
 public class SerdeEventPropertyUtility {
-    public static SerdeEventPropertyDesc forgeForEventProperty(String eventTypeName, String propertyName, Object propertyType, StatementRawInfo raw, SerdeCompileTimeResolver resolver) {
+    public static SerdeEventPropertyDesc forgeForEventProperty(EventType eventTypeSerde, String propertyName, Object propertyType, StatementRawInfo raw, SerdeCompileTimeResolver resolver) {
 
         DataInputOutputSerdeForge forge;
         if (propertyType == null) {
             return new SerdeEventPropertyDesc(new DataInputOutputSerdeForgeSingleton(DIOSkipSerde.class), Collections.emptySet());
         }
         if (propertyType instanceof Class) {
+
+            // handle special Json catch-all types
+            if (eventTypeSerde instanceof JsonEventType) {
+                forge = null;
+                if (propertyType == Map.class) {
+                    forge = new DataInputOutputSerdeForgeSingleton(DIOJsonObjectSerde.class);
+                } else if (propertyType == Object[].class) {
+                    forge = new DataInputOutputSerdeForgeSingleton(DIOJsonArraySerde.class);
+                } else if (propertyType == Object.class) {
+                    forge = new DataInputOutputSerdeForgeSingleton(DIOJsonAnyValueSerde.class);
+                }
+                if (forge != null) {
+                    return new SerdeEventPropertyDesc(forge, Collections.emptySet());
+                }
+            }
+
+            // handle all Class-type properties
             Class typedProperty = (Class) propertyType;
             if (typedProperty == Object.class && propertyName.equals(INTERNAL_RESERVED_PROPERTY)) {
                 forge = new DataInputOutputSerdeForgeSingleton(DIOSkipSerde.class); // for expression data window or others that include transient references in the field
             } else {
-                forge = resolver.serdeForEventProperty(typedProperty, eventTypeName, propertyName, raw);
+                forge = resolver.serdeForEventProperty(typedProperty, eventTypeSerde.getName(), propertyName, raw);
             }
             return new SerdeEventPropertyDesc(forge, Collections.emptySet());
         }
@@ -85,7 +106,7 @@ public class SerdeEventPropertyUtility {
                         entry.setValue(clazz);
                     }
                 }
-                SerdeEventPropertyDesc desc = forgeForEventProperty(eventTypeName, entry.getKey(), entry.getValue(), raw, resolver);
+                SerdeEventPropertyDesc desc = forgeForEventProperty(eventTypeSerde, entry.getKey(), entry.getValue(), raw, resolver);
                 nestedTypes.addAll(desc.getNestedTypes());
                 serdes[index] = desc.getForge();
                 index++;
@@ -96,7 +117,7 @@ public class SerdeEventPropertyUtility {
             forge = new DataInputOutputSerdeForgeParameterized(DIOMapPropertySerde.class.getName(), functions);
             return new SerdeEventPropertyDesc(forge, nestedTypes);
         } else {
-            throw new EPException("Failed to determine serde for unrecognized property value type '" + propertyType + "' for property '" + propertyName + "' of type '" + eventTypeName + "'");
+            throw new EPException("Failed to determine serde for unrecognized property value type '" + propertyType + "' for property '" + propertyName + "' of type '" + eventTypeSerde.getName() + "'");
         }
     }
 }

@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -78,7 +79,7 @@ public class InfraNWTableOnMerge {
         execs.add(new InfraFlow(false));
 
         for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-            if (rep != EventRepresentationChoice.AVRO) {
+            if (!rep.isAvroOrJsonEvent()) {
                 execs.add(new InfraInnerTypeAndVariable(true, rep));
                 execs.add(new InfraInnerTypeAndVariable(false, rep));
             }
@@ -1078,6 +1079,8 @@ public class InfraNWTableOnMerge {
                 record.put("name", name);
                 record.put("value", value);
                 env.eventService().sendEventAvro(record, typeName);
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                env.eventService().sendEventJson(new JsonObject().add("name", name).add("value", value).toString(), typeName);
             } else {
                 fail();
             }
@@ -1168,6 +1171,10 @@ public class InfraNWTableOnMerge {
             record.put("col1", col1);
             record.put("col2", innerRecord);
             env.eventService().sendEventAvro(record, "MyEventSchema");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject inner = new JsonObject().add("in1", col2in1).add("in2", col2in2);
+            JsonObject outer = new JsonObject().add("col1", col1).add("col2", inner);
+            env.eventService().sendEventJson(outer.toString(), "MyEventSchema");
         } else {
             fail();
         }

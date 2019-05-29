@@ -30,7 +30,7 @@ public interface EventPropertyGetter extends EventPropertyValueGetter {
      * @param eventBean is the event to check if the dynamic property exists
      * @return indictor whether the property exists, always true for non-dynamic (default) properties
      */
-    public boolean isExistsProperty(EventBean eventBean);
+    boolean isExistsProperty(EventBean eventBean);
 
     /**
      * Returns {@link EventBean} or array of {@link EventBean} for a property name or property expression.
@@ -49,5 +49,5 @@ public interface EventPropertyGetter extends EventPropertyValueGetter {
      * @return the value of a property as an EventBean or array of EventBean
      * @throws PropertyAccessException - if there is no property of the specified name, or the property cannot be accessed
      */
-    public Object getFragment(EventBean eventBean) throws PropertyAccessException;
+    Object getFragment(EventBean eventBean) throws PropertyAccessException;
 }

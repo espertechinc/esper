@@ -47,8 +47,8 @@ public class VMBasicBuiltinSerdeFactory {
         addBoxed(Float.class, DIONullableFloatSerde.INSTANCE);
         addBoxed(Double.class, DIONullableDoubleSerde.INSTANCE);
 
-        addBoxed(String[].class, DIOBoxedStringArrayNullableSerde.INSTANCE);
-        addBoxed(CharSequence[].class, DIOBoxedStringArrayNullableSerde.INSTANCE);
+        addBoxed(String[].class, DIOStringArrayNullableSerde.INSTANCE);
+        addBoxed(CharSequence[].class, DIOStringArrayNullableSerde.INSTANCE);
         addBoxed(Character[].class, DIOBoxedCharacterArrayNullableSerde.INSTANCE);
         addBoxed(Boolean[].class, DIOBoxedBooleanArrayNullableSerde.INSTANCE);
         addBoxed(Byte[].class, DIOBoxedByteArrayNullableSerde.INSTANCE);
@@ -76,8 +76,21 @@ public class VMBasicBuiltinSerdeFactory {
         addBoxed(float[][].class, DIOPrimitiveFloatArray2DimNullableSerde.INSTANCE);
         addBoxed(double[][].class, DIOPrimitiveDoubleArray2DimNullableSerde.INSTANCE);
 
+        addBoxed(String[][].class, DIOStringArray2DimNullableSerde.INSTANCE);
+        addBoxed(CharSequence[][].class, DIOStringArray2DimNullableSerde.INSTANCE);
+        addBoxed(Character[][].class, DIOBoxedCharacterArray2DimNullableSerde.INSTANCE);
+        addBoxed(Boolean[][].class, DIOBoxedBooleanArray2DimNullableSerde.INSTANCE);
+        addBoxed(Byte[][].class, DIOBoxedByteArray2DimNullableSerde.INSTANCE);
+        addBoxed(Short[][].class, DIOBoxedShortArray2DimNullableSerde.INSTANCE);
+        addBoxed(Integer[][].class, DIOBoxedIntegerArray2DimNullableSerde.INSTANCE);
+        addBoxed(Long[][].class, DIOBoxedLongArray2DimNullableSerde.INSTANCE);
+        addBoxed(Float[][].class, DIOBoxedFloatArray2DimNullableSerde.INSTANCE);
+        addBoxed(Double[][].class, DIOBoxedDoubleArray2DimNullableSerde.INSTANCE);
+
         addBoxed(BigInteger[].class, DIOBigIntegerArrayNullableSerde.INSTANCE);
         addBoxed(BigDecimal[].class, DIOBigDecimalArrayNullableSerde.INSTANCE);
+        addBoxed(BigInteger[][].class, DIOBigIntegerArray2DimNullableSerde.INSTANCE);
+        addBoxed(BigDecimal[][].class, DIOBigDecimalArray2DimNullableSerde.INSTANCE);
     }
 
     private static void addPrimitive(Class cls, DataInputOutputSerde serde) {

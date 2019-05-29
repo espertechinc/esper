@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.client.runtime;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -53,8 +54,10 @@ public class ClientRuntimeListener {
                     "@name('oa') select * from " + OA_TYPENAME + ";\n" +
                     "@name('xml') select * from " + XML_TYPENAME + ";\n" +
                     "@name('avro') select * from " + AVRO_TYPENAME + ";\n" +
+                    "@public @buseventtype create json schema JsonEvent(ident string);\n" +
+                    "@name('json') select * from JsonEvent;\n" +
                     "@name('trigger') select * from SupportBean;";
-            env.compileDeploy(epl).addListener("map").addListener("oa").addListener("xml").addListener("avro").addListener("bean");
+            env.compileDeploy(epl).addListener("map").addListener("oa").addListener("xml").addListener("avro").addListener("bean").addListener("json");
 
             env.statement("trigger").addListener(new UpdateListener() {
                 public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPRuntime runtime) {
@@ -72,11 +75,13 @@ public class ClientRuntimeListener {
                     GenericData.Record datum = new GenericData.Record(avroSchema);
                     datum.put("ident", ident);
                     processEvent.routeEventAvro(datum, AVRO_TYPENAME);
+
+                    processEvent.routeEventJson(new JsonObject().add("ident", ident).toString(), "JsonEvent");
                 }
             });
 
             env.sendEventBean(new SupportBean("xy", -1));
-            for (String name : "map,bean,oa,xml,avro".split(",")) {
+            for (String name : "map,bean,oa,xml,avro,json".split(",")) {
                 SupportListener listener = env.listener(name);
                 assertTrue("failed for " + name, listener.isInvoked());
                 assertEquals("xy", env.listener(name).assertOneGetNewAndReset().get("ident"));

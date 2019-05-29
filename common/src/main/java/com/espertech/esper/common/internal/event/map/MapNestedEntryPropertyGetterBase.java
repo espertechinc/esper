@@ -45,9 +45,13 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
 
     public abstract Object handleNestedValue(Object value);
 
+    public abstract boolean handleNestedValueExists(Object value);
+
     public abstract Object handleNestedValueFragment(Object value);
 
     public abstract CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+
+    public abstract CodegenExpression handleNestedValueExistsCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 
     public abstract CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 
@@ -66,8 +70,19 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
                 .methodReturn(handleNestedValueCodegen(ref("value"), codegenMethodScope, codegenClassScope));
     }
 
+    private CodegenMethod getMapExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
+            .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+            .ifRefNullReturnFalse("value")
+            .methodReturn(handleNestedValueExistsCodegen(ref("value"), codegenMethodScope, codegenClassScope));
+    }
+
     public boolean isMapExistsProperty(Map<String, Object> map) {
-        return true; // Property exists as the property is not dynamic (unchecked)
+        Object value = map.get(propertyMap);
+        if (value == null) {
+            return false;
+        }
+        return handleNestedValueExists(value);
     }
 
     public Object get(EventBean obj) {
@@ -75,7 +90,7 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
-        return true; // Property exists as the property is not dynamic (unchecked)
+        return isMapExistsProperty((Map<String, Object>) eventBean.getUnderlying());
     }
 
     public Object getFragment(EventBean obj) {
@@ -99,7 +114,7 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -111,7 +126,7 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return localMethod(getMapExistsCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

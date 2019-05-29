@@ -12,6 +12,8 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonArray;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -134,6 +136,8 @@ public class ExprCoreTypeOf {
             GenericData.Record record = new GenericData.Record(SchemaBuilder.record("EventOne").fields().requiredString("key").endRecord());
             record.put("key", "value");
             env.sendEventAvro(record, "EventOne");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventOne");
         } else {
             fail();
         }
@@ -147,6 +151,8 @@ public class ExprCoreTypeOf {
             GenericData.Record record = new GenericData.Record(SchemaBuilder.record("EventTwo").fields().requiredString("key").endRecord());
             record.put("key", "value");
             env.sendEventAvro(record, "EventTwo");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventTwo");
         } else {
             fail();
         }
@@ -180,6 +186,9 @@ public class ExprCoreTypeOf {
             eventTwo.put("key", "value");
             env.sendEventAvro(eventOne, "EventOne");
             env.sendEventAvro(eventTwo, "EventTwo");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventOne");
+            env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventTwo");
         } else {
             fail();
         }
@@ -203,6 +212,8 @@ public class ExprCoreTypeOf {
         } else if (eventRepresentationEnum.isAvroEvent()) {
             Schema schema = SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventType(deploymentId, "MySchema"));
             env.sendEventAvro(new GenericData.Record(schema), "MySchema");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            env.sendEventJson("{}", "MySchema");
         } else {
             fail();
         }
@@ -220,6 +231,9 @@ public class ExprCoreTypeOf {
             GenericData.Record event = new GenericData.Record(mySchema);
             event.put("inside", new GenericData.Record(innerSchema));
             env.sendEventAvro(event, "MySchema");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject theEvent = new JsonObject().add("inside", new JsonObject());
+            env.sendEventJson(theEvent.toString(), "MySchema");
         } else {
             fail();
         }
@@ -236,6 +250,9 @@ public class ExprCoreTypeOf {
             GenericData.Record event = new GenericData.Record(mySchema);
             event.put("insidearr", Collections.emptyList());
             env.sendEventAvro(event, "MySchema");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject theEvent = new JsonObject().add("insidearr", new JsonArray().add(new JsonObject()));
+            env.sendEventJson(theEvent.toString(), "MySchema");
         } else {
             fail();
         }

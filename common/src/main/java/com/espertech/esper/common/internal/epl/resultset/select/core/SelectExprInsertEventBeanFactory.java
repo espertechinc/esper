@@ -33,6 +33,7 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerCtorForge;
 import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManufacturerUtil;
 import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.util.*;
@@ -60,32 +61,40 @@ public class SelectExprInsertEventBeanFactory {
                                                                       String statementName,
                                                                       ClasspathImportServiceCompileTime classpathImportService,
                                                                       EventTypeAvroHandler eventTypeAvroHandler)
-            throws ExprValidationException {
+        throws ExprValidationException {
+
         // handle single-column coercion to underlying, i.e. "insert into MapDefinedEvent select doSomethingReturnMap() from MyEvent"
         if (expressionReturnTypes.length == 1 &&
-                expressionReturnTypes[0] instanceof Class &&
-                (eventType instanceof BaseNestableEventType || eventType instanceof AvroSchemaEventType) &&
-                JavaClassHelper.isSubclassOrImplementsInterface((Class) expressionReturnTypes[0], eventType.getUnderlyingType()) &&
-                insertIntoDesc.getColumnNames().isEmpty() &&
-                columnNamesAsProvided[0] == null) {
+            expressionReturnTypes[0] instanceof Class &&
+            insertIntoDesc.getColumnNames().isEmpty() &&
+            columnNamesAsProvided[0] == null) {
 
-            if (eventType instanceof MapEventType) {
-                return new SelectExprInsertNativeExpressionCoerceMap(eventType, forges[0]);
-            } else if (eventType instanceof ObjectArrayEventType) {
-                return new SelectExprInsertNativeExpressionCoerceObjectArray(eventType, forges[0]);
-            } else if (eventType instanceof AvroSchemaEventType) {
-                return new SelectExprInsertNativeExpressionCoerceAvro(eventType, forges[0]);
-            } else {
-                throw new IllegalStateException("Unrecognied event type " + eventType);
+            Class resultType = (Class) expressionReturnTypes[0];
+            boolean compatible = (eventType instanceof BaseNestableEventType || eventType instanceof AvroSchemaEventType) &&
+                JavaClassHelper.isSubclassOrImplementsInterface(resultType, eventType.getUnderlyingType());
+            compatible = compatible | (eventType instanceof JsonEventType && resultType == String.class);
+
+            if (compatible) {
+                if (eventType instanceof MapEventType) {
+                    return new SelectExprInsertNativeExpressionCoerceMap(eventType, forges[0]);
+                } else if (eventType instanceof ObjectArrayEventType) {
+                    return new SelectExprInsertNativeExpressionCoerceObjectArray(eventType, forges[0]);
+                } else if (eventType instanceof AvroSchemaEventType) {
+                    return new SelectExprInsertNativeExpressionCoerceAvro(eventType, forges[0]);
+                } else if (eventType instanceof JsonEventType) {
+                    return new SelectExprInsertNativeExpressionCoerceJson(eventType, forges[0]);
+                } else {
+                    throw new IllegalStateException("Unrecognied event type " + eventType);
+                }
             }
         }
 
         // handle special case where the target type has no properties and there is a single "null" value selected
         if (eventType.getPropertyDescriptors().length == 0 &&
-                columnNames.length == 1 &&
-                columnNames[0].equals("null") &&
-                expressionReturnTypes[0] == null &&
-                !isUsingWildcard) {
+            columnNames.length == 1 &&
+            columnNames[0].equals("null") &&
+            expressionReturnTypes[0] == null &&
+            !isUsingWildcard) {
 
             EventBeanManufacturerForge eventManufacturer;
             try {
@@ -124,7 +133,7 @@ public class SelectExprInsertEventBeanFactory {
     public static SelectExprProcessorForge getInsertUnderlyingJoinWildcard(EventType eventType, String[] streamNames, EventType[] streamTypes,
                                                                            ClasspathImportServiceCompileTime classpathImportService, String statementName,
                                                                            EventTypeAvroHandler eventTypeAvroHandler)
-            throws ExprValidationException {
+        throws ExprValidationException {
         Set<WriteablePropertyDescriptor> writableProps = EventTypeUtility.getWriteableProperties(eventType, false, false);
         boolean isEligible = checkEligible(eventType, writableProps, false);
         if (!isEligible) {
@@ -173,7 +182,7 @@ public class SelectExprInsertEventBeanFactory {
     }
 
     private static SelectExprProcessorForge initializeSetterManufactor(EventType eventType, Set<WriteablePropertyDescriptor> writables, boolean isUsingWildcard, StreamTypeService typeService, ExprForge[] expressionForges, String[] columnNames, Object[] expressionReturnTypes, String statementName, ClasspathImportServiceCompileTime classpathImportService, EventTypeAvroHandler eventTypeAvroHandler)
-            throws ExprValidationException {
+        throws ExprValidationException {
         TypeWidenerCustomizer typeWidenerCustomizer = eventTypeAvroHandler.getTypeWidenerCustomizer(eventType);
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<ExprForge> forgesList = new ArrayList<>();
@@ -219,9 +228,9 @@ public class SelectExprInsertEventBeanFactory {
 
                             public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
                                 CodegenMethod method = codegenMethodScope.makeChild(Object.class, TypeWidenerSPI.class, codegenClassScope).addParam(Object.class, "input").getBlock()
-                                        .ifCondition(instanceOf(ref("input"), EventBean.class))
-                                        .blockReturn(exprDotMethod(cast(EventBean.class, ref("input")), "getUnderlying"))
-                                        .methodReturn(ref("input"));
+                                    .ifCondition(instanceOf(ref("input"), EventBean.class))
+                                    .blockReturn(exprDotMethod(cast(EventBean.class, ref("input")), "getUnderlying"))
+                                    .methodReturn(ref("input"));
                                 return localMethodBuild(method).pass(expression).call();
                             }
                         };
@@ -254,10 +263,10 @@ public class SelectExprInsertEventBeanFactory {
                     forge = new ExprForgeStreamWithInner(inner, componentReturnType);
                 } else if (!(columnType instanceof Class)) {
                     String message = "Invalid assignment of column '" + columnNames[i] +
-                            "' of type '" + columnType +
-                            "' to event property '" + desc.getPropertyName() +
-                            "' typed as '" + desc.getType().getName() +
-                            "', column and parameter types mismatch";
+                        "' of type '" + columnType +
+                        "' to event property '" + desc.getPropertyName() +
+                        "' typed as '" + desc.getType().getName() +
+                        "', column and parameter types mismatch";
                     throw new ExprValidationException(message);
                 } else {
                     try {
@@ -273,7 +282,7 @@ public class SelectExprInsertEventBeanFactory {
 
             if (selectedWritable == null) {
                 String message = "Column '" + columnNames[i] +
-                        "' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?)";
+                    "' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?)";
                 throw new ExprValidationException(message);
             }
 
@@ -315,7 +324,7 @@ public class SelectExprInsertEventBeanFactory {
 
                 if (selectedWritable == null) {
                     String message = "Event property '" + eventPropDescriptor.getPropertyName() +
-                            "' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?)";
+                        "' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?)";
                     throw new ExprValidationException(message);
                 }
 
@@ -337,11 +346,15 @@ public class SelectExprInsertEventBeanFactory {
             throw new ExprValidationException(e.getMessage(), e);
         }
 
+        if (eventManufacturer == null) {
+            return null;
+        }
+
         return new SelectExprInsertNativeWidening(eventType, eventManufacturer, exprForges, wideners);
     }
 
     private static SelectExprProcessorForge initializeCtorInjection(BeanEventType beanEventType, ExprForge[] forges, Object[] expressionReturnTypes, ClasspathImportServiceCompileTime classpathImportService)
-            throws ExprValidationException {
+        throws ExprValidationException {
 
         Pair<Constructor, ExprForge[]> pair = InstanceManufacturerUtil.getManufacturer(beanEventType.getUnderlyingType(), classpathImportService, forges, expressionReturnTypes);
         EventBeanManufacturerCtorForge eventManufacturer = new EventBeanManufacturerCtorForge(pair.getFirst(), beanEventType);
@@ -349,7 +362,7 @@ public class SelectExprInsertEventBeanFactory {
     }
 
     private static SelectExprProcessorForge initializeJoinWildcardInternal(EventType eventType, Set<WriteablePropertyDescriptor> writables, String[] streamNames, EventType[] streamTypes, String statementName, ClasspathImportServiceCompileTime classpathImportService, EventTypeAvroHandler eventTypeAvroHandler)
-            throws ExprValidationException {
+        throws ExprValidationException {
         TypeWidenerCustomizer typeWidenerCustomizer = eventTypeAvroHandler.getTypeWidenerCustomizer(eventType);
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<ExprForge> forgesList = new ArrayList<>();
@@ -376,7 +389,7 @@ public class SelectExprInsertEventBeanFactory {
 
             if (selectedWritable == null) {
                 String message = "Stream underlying object for stream '" + streamNames[i] +
-                        "' could not be assigned to any of the properties of the underlying type (missing column names, event property or setter method?)";
+                    "' could not be assigned to any of the properties of the underlying type (missing column names, event property or setter method?)";
                 throw new ExprValidationException(message);
             }
 
@@ -431,8 +444,8 @@ public class SelectExprInsertEventBeanFactory {
                 expr = cast(Map.class, expr);
             }
             methodNode.getBlock().declareVar(Map.class, "result", expr)
-                    .ifRefNullReturnNull("result")
-                    .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedMap", ref("result"), resultEventType));
+                .ifRefNullReturnNull("result")
+                .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedMap", ref("result"), resultEventType));
             return methodNode;
         }
     }
@@ -445,9 +458,9 @@ public class SelectExprInsertEventBeanFactory {
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             methodNode.getBlock()
-                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
-                    .ifRefNullReturnNull("result")
-                    .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedAvro", ref("result"), resultEventType));
+                .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
+                .ifRefNullReturnNull("result")
+                .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedAvro", ref("result"), resultEventType));
             return methodNode;
         }
     }
@@ -460,9 +473,26 @@ public class SelectExprInsertEventBeanFactory {
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             methodNode.getBlock()
-                    .declareVar(Object[].class, "result", exprForge.evaluateCodegen(Object[].class, methodNode, exprSymbol, codegenClassScope))
-                    .ifRefNullReturnNull("result")
-                    .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedObjectArray", ref("result"), resultEventType));
+                .declareVar(Object[].class, "result", exprForge.evaluateCodegen(Object[].class, methodNode, exprSymbol, codegenClassScope))
+                .ifRefNullReturnNull("result")
+                .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedObjectArray", ref("result"), resultEventType));
+            return methodNode;
+        }
+    }
+
+    public static class SelectExprInsertNativeExpressionCoerceJson extends SelectExprInsertNativeExpressionCoerceBase {
+
+        protected SelectExprInsertNativeExpressionCoerceJson(EventType eventType, ExprForge exprForge) {
+            super(eventType, exprForge);
+        }
+
+        public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+            methodNode.getBlock()
+                .declareVar(String.class, "result", exprForge.evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
+                .ifRefNullReturnNull("result")
+                .declareVar(Object.class, "und", exprDotMethod(cast(JsonEventType.class, resultEventType), "parse", ref("result")))
+                .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedJson", ref("und"), resultEventType));
             return methodNode;
         }
     }
@@ -475,9 +505,9 @@ public class SelectExprInsertEventBeanFactory {
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             methodNode.getBlock()
-                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
-                    .ifRefNullReturnNull("result")
-                    .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedBean", ref("result"), resultEventType));
+                .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
+                .ifRefNullReturnNull("result")
+                .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedBean", ref("result"), resultEventType));
             return methodNode;
         }
     }
@@ -512,7 +542,7 @@ public class SelectExprInsertEventBeanFactory {
             CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, eventManufacturer.make(codegenMethodScope, codegenClassScope));
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(exprForges.length)));
+                .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
                 CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i].getEvaluationType(), exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 if (wideners[i] == null) {
@@ -522,8 +552,8 @@ public class SelectExprInsertEventBeanFactory {
                     block.declareVar(exprForges[i].getEvaluationType(), refname, expression);
                     if (!exprForges[i].getEvaluationType().isPrimitive()) {
                         block.ifRefNotNull(refname)
-                                .assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), methodNode, codegenClassScope))
-                                .blockEnd();
+                            .assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), methodNode, codegenClassScope))
+                            .blockEnd();
                     } else {
                         block.assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), methodNode, codegenClassScope));
                     }
@@ -544,7 +574,7 @@ public class SelectExprInsertEventBeanFactory {
             CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, eventManufacturer.make(codegenMethodScope, codegenClassScope));
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(exprForges.length)));
+                .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
                 CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 block.assignArrayElement("values", constant(i), expression);
@@ -605,9 +635,9 @@ public class SelectExprInsertEventBeanFactory {
             CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, ExprForgeJoinWildcard.class, codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
-                    .declareVar(EventBean.class, "bean", arrayAtIndex(refEPS, constant(streamNum)))
-                    .ifRefNullReturnNull("bean")
-                    .methodReturn(cast(returnType, exprDotUnderlying(ref("bean"))));
+                .declareVar(EventBean.class, "bean", arrayAtIndex(refEPS, constant(streamNum)))
+                .ifRefNullReturnNull("bean")
+                .methodReturn(cast(returnType, exprDotUnderlying(ref("bean"))));
             return localMethod(methodNode);
         }
 
@@ -651,9 +681,9 @@ public class SelectExprInsertEventBeanFactory {
 
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
-                    .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(streamNumEval)))
-                    .ifRefNullReturnNull("theEvent")
-                    .methodReturn(cast(returnType, exprDotUnderlying(ref("theEvent"))));
+                .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(streamNumEval)))
+                .ifRefNullReturnNull("theEvent")
+                .methodReturn(cast(returnType, exprDotUnderlying(ref("theEvent"))));
             return localMethod(methodNode);
         }
 
@@ -702,13 +732,13 @@ public class SelectExprInsertEventBeanFactory {
 
 
             methodNode.getBlock()
-                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, inner.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
-                    .ifRefNullReturnNull("events")
-                    .declareVar(arrayType, "values", newArrayByLength(componentReturnType, arrayLength(ref("events"))))
-                    .forLoopIntSimple("i", arrayLength(ref("events")))
-                    .assignArrayElement("values", ref("i"), cast(componentReturnType, exprDotUnderlying(arrayAtIndex(ref("events"), ref("i")))))
-                    .blockEnd()
-                    .methodReturn(ref("values"));
+                .declareVar(EventBean[].class, "events", cast(EventBean[].class, inner.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
+                .ifRefNullReturnNull("events")
+                .declareVar(arrayType, "values", newArrayByLength(componentReturnType, arrayLength(ref("events"))))
+                .forLoopIntSimple("i", arrayLength(ref("events")))
+                .assignArrayElement("values", ref("i"), cast(componentReturnType, exprDotUnderlying(arrayAtIndex(ref("events"), ref("i")))))
+                .blockEnd()
+                .methodReturn(ref("values"));
             return localMethod(methodNode);
         }
 
@@ -745,10 +775,10 @@ public class SelectExprInsertEventBeanFactory {
             CodegenMethod methodNode = codegenMethodScope.makeChild(Object.class, ExprForgeStreamWithGetter.class, codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
-                    .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(0)))
-                    .ifRefNotNull("theEvent")
-                    .blockReturn(getter.eventBeanGetCodegen(ref("theEvent"), methodNode, codegenClassScope))
-                    .methodReturn(constantNull());
+                .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(0)))
+                .ifRefNotNull("theEvent")
+                .blockReturn(getter.eventBeanGetCodegen(ref("theEvent"), methodNode, codegenClassScope))
+                .methodReturn(constantNull());
             return localMethod(methodNode);
         }
 

@@ -66,8 +66,17 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
                 .methodReturn(nested.underlyingGetCodegen(ref("inner"), codegenMethodScope, codegenClassScope));
     }
 
+    private CodegenMethod existsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
+            .declareVar(GenericData.Record.class, "inner", staticMethod(this.getClass(), "getAtIndex", ref("record"), constant(posTop), constant(index)))
+            .ifRefNullReturnFalse("inner")
+            .methodReturn(nested.underlyingExistsCodegen(ref("inner"), codegenMethodScope, codegenClassScope));
+    }
+
     public boolean isExistsProperty(EventBean eventBean) {
-        return true;
+        GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
+        Collection values = (Collection) record.get(posTop);
+        return AvroEventBeanGetterIndexed.getAvroIndexedExists(values, index);
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -94,7 +103,7 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -106,7 +115,7 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return localMethod(existsCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

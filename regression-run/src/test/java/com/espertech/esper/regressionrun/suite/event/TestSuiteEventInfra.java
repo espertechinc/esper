@@ -55,10 +55,6 @@ public class TestSuiteEventInfra extends TestCase {
         RegressionRunner.run(session, new EventInfraPropertyMappedIndexed());
     }
 
-    public void testEventInfraPropertyDynamicNonSimple() {
-        RegressionRunner.run(session, new EventInfraPropertyDynamicNonSimple());
-    }
-
     public void testEventInfraPropertyDynamicSimple() {
         RegressionRunner.run(session, new EventInfraPropertyDynamicSimple());
     }
@@ -67,24 +63,28 @@ public class TestSuiteEventInfra extends TestCase {
         RegressionRunner.run(session, new EventInfraPropertyNestedSimple());
     }
 
+    public void testEventInfraPropertyDynamicNonSimple() {
+        RegressionRunner.run(session, new EventInfraPropertyDynamicNonSimple());
+    }
+
     public void testEventInfraPropertyNestedIndexed() {
         RegressionRunner.run(session, new EventInfraPropertyNestedIndexed());
     }
 
-    public void testEventInfraPropertyNestedDynamic() {
-        RegressionRunner.run(session, new EventInfraPropertyNestedDynamic());
+    public void testEventInfraPropertyDynamicNested() {
+        RegressionRunner.run(session, new EventInfraPropertyDynamicNested());
     }
 
-    public void testEventInfraPropertyNestedDynamicRootedSimple() {
-        RegressionRunner.run(session, new EventInfraPropertyNestedDynamicRootedSimple());
+    public void testEventInfraPropertyDynamicNestedRootedSimple() {
+        RegressionRunner.run(session, new EventInfraPropertyDynamicNestedRootedSimple());
     }
 
-    public void testEventInfraPropertyNestedDynamicDeep() {
-        RegressionRunner.run(session, new EventInfraPropertyNestedDynamicDeep());
+    public void testEventInfraPropertyDynamicNestedDeep() {
+        RegressionRunner.run(session, new EventInfraPropertyDynamicNestedDeep());
     }
 
-    public void testEventInfraPropertyNestedDynamicRootedNonSimple() {
-        RegressionRunner.run(session, new EventInfraPropertyNestedDynamicRootedNonSimple());
+    public void testEventInfraPropertyDynamicNestedRootedNonSimple() {
+        RegressionRunner.run(session, new EventInfraPropertyDynamicNestedRootedNonSimple());
     }
 
     public void testEventInfraEventRenderer() {
@@ -99,12 +99,96 @@ public class TestSuiteEventInfra extends TestCase {
         RegressionRunner.run(session, new EventInfraSuperType());
     }
 
+    public void testEventInfraPropertyIndexedKeyExpr() {
+        RegressionRunner.run(session, new EventInfraPropertyIndexedKeyExpr());
+    }
+
+    public void testEventInfraManufacturer() {
+        RegressionRunner.run(session, new EventInfraManufacturer());
+    }
+
     public void testEventInfraPropertyAccessPerformance() {
         RegressionRunner.run(session, new EventInfraPropertyAccessPerformance());
     }
 
-    public void testEventInfraPropertyIndexedKeyExpr() {
-        RegressionRunner.run(session, new EventInfraPropertyIndexedKeyExpr());
+    public void testEventInfraGetterSimpleNoFragment() {
+        RegressionRunner.run(session, new EventInfraGetterSimpleNoFragment());
+    }
+
+    public void testEventInfraGetterSimpleFragment() {
+        RegressionRunner.run(session, new EventInfraGetterSimpleFragment());
+    }
+
+    public void testEventInfraGetterMapped() {
+        RegressionRunner.run(session, new EventInfraGetterMapped());
+    }
+
+    public void testEventInfraGetterIndexed() {
+        RegressionRunner.run(session, new EventInfraGetterIndexed());
+    }
+
+    public void testEventInfraGetterDynamicIndexed() {
+        RegressionRunner.run(session, new EventInfraGetterDynamicIndexed());
+    }
+
+    public void testEventInfraGetterDynamicIndexexPropertyPredefined() {
+        RegressionRunner.run(session, new EventInfraGetterDynamicIndexexPropertyPredefined());
+    }
+
+    public void testEventInfraGetterDynamicSimplePropertyPredefined() {
+        RegressionRunner.run(session, new EventInfraGetterDynamicSimplePropertyPredefined());
+    }
+
+    public void testEventInfraGetterDynamicMapped() {
+        RegressionRunner.run(session, new EventInfraGetterDynamicMapped());
+    }
+
+    public void testEventInfraGetterDynamicSimple() {
+        RegressionRunner.run(session, new EventInfraGetterDynamicSimple());
+    }
+
+    public void testEventInfraGetterDynamicNested() {
+        RegressionRunner.run(session, new EventInfraGetterDynamicNested());
+    }
+
+    public void testEventInfraGetterNestedSimpleNoFragment() {
+        RegressionRunner.run(session, new EventInfraGetterNestedSimple());
+    }
+
+    public void testEventInfraGetterNestedArrayNoFragment() {
+        RegressionRunner.run(session, new EventInfraGetterNestedArray());
+    }
+
+    public void testEventInfraGetterNestedSimpleDeep() {
+        RegressionRunner.run(session, new EventInfraGetterNestedSimpleDeep());
+    }
+
+    public void testEventInfraGetterDynamicNestedDeep() {
+        RegressionRunner.run(session, new EventInfraGetterDynamicNestedDeep());
+    }
+
+    public void testEventInfraContainedSimple() {
+        RegressionRunner.run(session, new EventInfraContainedSimple());
+    }
+
+    public void testEventInfraContainedIndexedWithIndex() {
+        RegressionRunner.run(session, new EventInfraContainedIndexedWithIndex());
+    }
+
+    public void testEventInfraContainedNested() {
+        RegressionRunner.run(session, new EventInfraContainedNested());
+    }
+
+    public void testEventInfraContainedNestedArray() {
+        RegressionRunner.run(session, new EventInfraContainedNestedArray());
+    }
+
+    public void testEventInfraPropertyIndexedRuntimeIndex() {
+        RegressionRunner.run(session, new EventInfraPropertyIndexedRuntimeIndex());
+    }
+
+    public void testEventInfraPropertyMappedRuntimeKey() {
+        RegressionRunner.run(session, new EventInfraPropertyMappedRuntimeKey());
     }
 
     private static void configure(Configuration configuration) {
@@ -129,6 +213,23 @@ public class TestSuiteEventInfra extends TestCase {
         configureNestedSimple(configuration);
         configureUnderlyingSimple(configuration);
         configureSuperType(configuration);
+        configureManufacturerTypes(configuration);
+        configureGetterTypes(configuration);
+    }
+
+    private static void configureGetterTypes(Configuration configuration) {
+        ConfigurationCommonEventTypeXMLDOM eventTypeMeta = new ConfigurationCommonEventTypeXMLDOM();
+        eventTypeMeta.setRootElementName(EventInfraGetterSimpleNoFragment.XMLTYPENAME);
+        String schema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<xs:schema targetNamespace=\"http://www.espertech.com/schema/esper\" elementFormDefault=\"qualified\" xmlns:esper=\"http://www.espertech.com/schema/esper\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+            "\t<xs:element name=\"" + EventInfraGetterSimpleNoFragment.XMLTYPENAME + "\">\n" +
+            "\t\t<xs:complexType>\n" +
+            "\t\t\t<xs:attribute name=\"property\" type=\"xs:string\" use=\"required\"/>\n" +
+            "\t\t</xs:complexType>\n" +
+            "\t</xs:element>\n" +
+            "</xs:schema>\n";
+        eventTypeMeta.setSchemaText(schema);
+        configuration.getCommon().addEventType(EventInfraGetterSimpleNoFragment.XMLTYPENAME, eventTypeMeta);
     }
 
     private static void configureSuperType(Configuration configuration) {
@@ -391,19 +492,19 @@ public class TestSuiteEventInfra extends TestCase {
     }
 
     private static void configuredNestedDynamicRootedSimple(Configuration configuration) {
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicRootedSimple.MAP_TYPENAME, Collections.emptyMap());
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedRootedSimple.MAP_TYPENAME, Collections.emptyMap());
 
-        String type_2 = EventInfraPropertyNestedDynamicRootedSimple.OA_TYPENAME + "_2";
+        String type_2 = EventInfraPropertyDynamicNestedRootedSimple.OA_TYPENAME + "_2";
         String[] names_2 = {"nestedNestedValue"};
         Object[] types_2 = {Object.class};
         configuration.getCommon().addEventType(type_2, names_2, types_2);
-        String type_1 = EventInfraPropertyNestedDynamicRootedSimple.OA_TYPENAME + "_1";
+        String type_1 = EventInfraPropertyDynamicNestedRootedSimple.OA_TYPENAME + "_1";
         String[] names_1 = {"nestedValue", "nestedNested"};
         Object[] types_1 = {Object.class, type_2};
         configuration.getCommon().addEventType(type_1, names_1, types_1);
         String[] names = {"simpleProperty", "nested"};
         Object[] types = {Object.class, type_1};
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicRootedSimple.OA_TYPENAME, names, types);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedRootedSimple.OA_TYPENAME, names, types);
 
         ConfigurationCommonEventTypeXMLDOM eventTypeMeta = new ConfigurationCommonEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("myevent");
@@ -415,34 +516,34 @@ public class TestSuiteEventInfra extends TestCase {
             "\t</xs:element>\n" +
             "</xs:schema>\n";
         eventTypeMeta.setSchemaText(schema);
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicRootedSimple.XML_TYPENAME, eventTypeMeta);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedRootedSimple.XML_TYPENAME, eventTypeMeta);
 
-        Schema s3 = SchemaBuilder.record(EventInfraPropertyNestedDynamicRootedSimple.AVRO_TYPENAME + "_3").fields()
+        Schema s3 = SchemaBuilder.record(EventInfraPropertyDynamicNestedRootedSimple.AVRO_TYPENAME + "_3").fields()
             .optionalInt("nestedNestedValue")
             .endRecord();
-        Schema s2 = SchemaBuilder.record(EventInfraPropertyNestedDynamicRootedSimple.AVRO_TYPENAME + "_2").fields()
+        Schema s2 = SchemaBuilder.record(EventInfraPropertyDynamicNestedRootedSimple.AVRO_TYPENAME + "_2").fields()
             .optionalInt("nestedValue")
             .name("nestedNested").type().unionOf()
             .intType().and().type(s3).endUnion().noDefault()
             .endRecord();
-        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyNestedDynamicRootedSimple.AVRO_TYPENAME + "_1").fields()
+        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyDynamicNestedRootedSimple.AVRO_TYPENAME + "_1").fields()
             .name("simpleProperty").type().unionOf().intType().and().stringType().endUnion().noDefault()
             .name("nested").type().unionOf().intType().and().type(s2).endUnion().noDefault()
             .endRecord();
 
-        configuration.getCommon().addEventTypeAvro(EventInfraPropertyNestedDynamicRootedSimple.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
+        configuration.getCommon().addEventTypeAvro(EventInfraPropertyDynamicNestedRootedSimple.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
     }
 
     private static void configureNestedDynamicRootedNonSimple(Configuration configuration) {
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicRootedNonSimple.MAP_TYPENAME, Collections.emptyMap());
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedRootedNonSimple.MAP_TYPENAME, Collections.emptyMap());
 
-        String nestedName = EventInfraPropertyNestedDynamicRootedNonSimple.OA_TYPENAME + "_1";
+        String nestedName = EventInfraPropertyDynamicNestedRootedNonSimple.OA_TYPENAME + "_1";
         String[] namesNested = {"indexed", "mapped", "arrayProperty", "mapProperty"};
         Object[] typesNested = {int[].class, Map.class, int[].class, Map.class};
         configuration.getCommon().addEventType(nestedName, namesNested, typesNested);
         String[] names = {"someprop", "item"};
         Object[] types = {String.class, nestedName};
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicRootedNonSimple.OA_TYPENAME, names, types);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedRootedNonSimple.OA_TYPENAME, names, types);
 
         ConfigurationCommonEventTypeXMLDOM eventTypeMeta = new ConfigurationCommonEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("myevent");
@@ -454,37 +555,37 @@ public class TestSuiteEventInfra extends TestCase {
             "\t</xs:element>\n" +
             "</xs:schema>\n";
         eventTypeMeta.setSchemaText(schema);
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicRootedNonSimple.XML_TYPENAME, eventTypeMeta);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedRootedNonSimple.XML_TYPENAME, eventTypeMeta);
 
-        Schema s1 = SchemaBuilder.record(EventInfraPropertyNestedDynamicRootedNonSimple.AVRO_TYPENAME + "_1").fields()
+        Schema s1 = SchemaBuilder.record(EventInfraPropertyDynamicNestedRootedNonSimple.AVRO_TYPENAME + "_1").fields()
             .name("indexed").type().unionOf().nullType().and().intType().and().array().items().intType().endUnion().noDefault()
             .name("mapped").type().unionOf().nullType().and().intType().and().map().values().intType().endUnion().noDefault()
             .endRecord();
-        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyNestedDynamicRootedNonSimple.AVRO_TYPENAME).fields()
+        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyDynamicNestedRootedNonSimple.AVRO_TYPENAME).fields()
             .name("item").type().unionOf().intType().and().type(s1).endUnion().noDefault()
             .endRecord();
-        configuration.getCommon().addEventTypeAvro(EventInfraPropertyNestedDynamicRootedNonSimple.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
+        configuration.getCommon().addEventTypeAvro(EventInfraPropertyDynamicNestedRootedNonSimple.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
     }
 
     private static void configureNestedDynamicDeep(Configuration configuration) {
         Map<String, Object> top = Collections.singletonMap("item", Map.class);
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicDeep.MAP_TYPENAME, top);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedDeep.MAP_TYPENAME, top);
 
-        String type_3 = EventInfraPropertyNestedDynamicDeep.OA_TYPENAME + "_3";
+        String type_3 = EventInfraPropertyDynamicNestedDeep.OA_TYPENAME + "_3";
         String[] names_3 = {"nestedNestedValue"};
         Object[] types_3 = {Object.class};
         configuration.getCommon().addEventType(type_3, names_3, types_3);
-        String type_2 = EventInfraPropertyNestedDynamicDeep.OA_TYPENAME + "_2";
+        String type_2 = EventInfraPropertyDynamicNestedDeep.OA_TYPENAME + "_2";
         String[] names_2 = {"nestedNested", "nestedValue"};
         Object[] types_2 = {type_3, Object.class};
         configuration.getCommon().addEventType(type_2, names_2, types_2);
-        String type_1 = EventInfraPropertyNestedDynamicDeep.OA_TYPENAME + "_1";
+        String type_1 = EventInfraPropertyDynamicNestedDeep.OA_TYPENAME + "_1";
         String[] names_1 = {"nested"};
         Object[] types_1 = {type_2};
         configuration.getCommon().addEventType(type_1, names_1, types_1);
         String[] names = {"item"};
         Object[] types = {type_1};
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicDeep.OA_TYPENAME, names, types);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedDeep.OA_TYPENAME, names, types);
 
         ConfigurationCommonEventTypeXMLDOM eventTypeMeta = new ConfigurationCommonEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("myevent");
@@ -503,22 +604,22 @@ public class TestSuiteEventInfra extends TestCase {
             "\t</xs:element>\n" +
             "</xs:schema>\n";
         eventTypeMeta.setSchemaText(schema);
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamicDeep.XML_TYPENAME, eventTypeMeta);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNestedDeep.XML_TYPENAME, eventTypeMeta);
 
-        Schema s3 = SchemaBuilder.record(EventInfraPropertyNestedDynamicDeep.AVRO_TYPENAME + "_3").fields()
+        Schema s3 = SchemaBuilder.record(EventInfraPropertyDynamicNestedDeep.AVRO_TYPENAME + "_3").fields()
             .optionalInt("nestedNestedValue")
             .endRecord();
-        Schema s2 = SchemaBuilder.record(EventInfraPropertyNestedDynamicDeep.AVRO_TYPENAME + "_2").fields()
+        Schema s2 = SchemaBuilder.record(EventInfraPropertyDynamicNestedDeep.AVRO_TYPENAME + "_2").fields()
             .optionalInt("nestedValue")
             .name("nestedNested").type().unionOf()
             .intType().and().type(s3).endUnion().noDefault()
             .endRecord();
-        Schema s1 = SchemaBuilder.record(EventInfraPropertyNestedDynamicDeep.AVRO_TYPENAME + "_1").fields()
+        Schema s1 = SchemaBuilder.record(EventInfraPropertyDynamicNestedDeep.AVRO_TYPENAME + "_1").fields()
             .name("nested").type().unionOf()
             .intType().and().type(s2).endUnion().noDefault()
             .endRecord();
-        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyNestedDynamicDeep.AVRO_TYPENAME).fields().name("item").type(s1).noDefault().endRecord();
-        configuration.getCommon().addEventTypeAvro(EventInfraPropertyNestedDynamicDeep.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
+        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyDynamicNestedDeep.AVRO_TYPENAME).fields().name("item").type(s1).noDefault().endRecord();
+        configuration.getCommon().addEventTypeAvro(EventInfraPropertyDynamicNestedDeep.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
     }
 
     private static void configureNestedDynamic(Configuration configuration) {
@@ -539,16 +640,16 @@ public class TestSuiteEventInfra extends TestCase {
             "\t</xs:element>\n" +
             "</xs:schema>\n";
         eventTypeMeta.setSchemaText(schema);
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamic.XML_TYPENAME, eventTypeMeta);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNested.XML_TYPENAME, eventTypeMeta);
 
         Map<String, Object> top = Collections.singletonMap("item", Map.class);
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamic.MAP_TYPENAME, top);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNested.MAP_TYPENAME, top);
 
         String[] names = {"item"};
         Object[] types = {Object.class};
-        configuration.getCommon().addEventType(EventInfraPropertyNestedDynamic.OA_TYPENAME, names, types);
+        configuration.getCommon().addEventType(EventInfraPropertyDynamicNested.OA_TYPENAME, names, types);
 
-        Schema s1 = SchemaBuilder.record(EventInfraPropertyNestedDynamic.AVRO_TYPENAME + "_1").fields()
+        Schema s1 = SchemaBuilder.record(EventInfraPropertyDynamicNested.AVRO_TYPENAME + "_1").fields()
             .name("id").type().unionOf()
             .intBuilder().endInt()
             .and()
@@ -557,8 +658,8 @@ public class TestSuiteEventInfra extends TestCase {
             .nullType()
             .endUnion().noDefault()
             .endRecord();
-        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyNestedDynamic.AVRO_TYPENAME).fields().name("item").type(s1).noDefault().endRecord();
-        configuration.getCommon().addEventTypeAvro(EventInfraPropertyNestedDynamic.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
+        Schema avroSchema = SchemaBuilder.record(EventInfraPropertyDynamicNested.AVRO_TYPENAME).fields().name("item").type(s1).noDefault().endRecord();
+        configuration.getCommon().addEventTypeAvro(EventInfraPropertyDynamicNested.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
     }
 
     private static void configureMappedIndexed(Configuration configuration) {
@@ -703,4 +804,28 @@ public class TestSuiteEventInfra extends TestCase {
             .endRecord();
         configuration.getCommon().addEventTypeAvro(EventInfraEventRenderer.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(eventInfraEventRenderSchema));
     }
+
+    private static void configureManufacturerTypes(Configuration configuration) {
+        ConfigurationCommonEventTypeXMLDOM myXMLEventConfig = new ConfigurationCommonEventTypeXMLDOM();
+        myXMLEventConfig.setRootElementName("myevent");
+        String schema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<xs:schema targetNamespace=\"http://www.espertech.com/schema/esper\" elementFormDefault=\"qualified\" xmlns:esper=\"http://www.espertech.com/schema/esper\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+            "\t<xs:element name=\"myevent\">\n" +
+            "\t\t<xs:complexType>\n" +
+            "\t\t\t<xs:attribute name=\"p0\" type=\"xs:string\" use=\"required\"/>\n" +
+            "\t\t\t<xs:attribute name=\"p1\" type=\"xs:int\" use=\"required\"/>\n" +
+            "\t\t</xs:complexType>\n" +
+            "\t</xs:element>\n" +
+            "</xs:schema>\n";
+        myXMLEventConfig.setSchemaText(schema);
+        configuration.getCommon().addEventType(EventInfraManufacturer.XML_TYPENAME, myXMLEventConfig);
+
+        Schema avroSchema = SchemaBuilder.record(EventInfraManufacturer.AVRO_TYPENAME)
+            .fields()
+            .name("p1").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
+            .name("p2").type().intType().noDefault()
+            .endRecord();
+        configuration.getCommon().addEventTypeAvro(EventInfraManufacturer.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
+    }
+
 }

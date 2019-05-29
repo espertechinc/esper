@@ -23,6 +23,7 @@ public interface EventBeanTypedEventFactory {
     String ADAPTERFORTYPEDDOM = "adapterForTypedDOM";
     String ADAPTERFORTYPEDAVRO = "adapterForTypedAvro";
     String ADAPTERFORTYPEDWRAPPER = "adapterForTypedWrapper";
+    String ADAPTERFORTYPEDJSON = "adapterForTypedJson";
 
     MappedEventBean adapterForTypedMap(Map<String, Object> value, EventType eventType);
 
@@ -35,4 +36,6 @@ public interface EventBeanTypedEventFactory {
     EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType);
 
     EventBean adapterForTypedWrapper(EventBean decoratedUnderlying, Map<String, Object> map, EventType wrapperEventType);
+
+    EventBean adapterForTypedJson(Object underlying, EventType eventType);
 }

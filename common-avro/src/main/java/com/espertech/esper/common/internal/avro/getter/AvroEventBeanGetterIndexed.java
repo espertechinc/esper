@@ -54,6 +54,20 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
         return values.toArray()[index];
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param values coll
+     * @param index  index
+     * @return value
+     */
+    public static boolean getAvroIndexedExists(Collection values, int index) {
+        if (values == null) {
+            return false;
+        }
+        return values.size() > index;
+    }
+
     public AvroEventBeanGetterIndexed(int pos, int index, EventType fragmentEventType, EventBeanTypedEventFactory eventAdapterService) {
         this.pos = pos;
         this.index = index;
@@ -73,11 +87,12 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
-        return true;
+        return isExistsPropertyAvro((GenericData.Record) eventBean.getUnderlying());
     }
 
     public boolean isExistsPropertyAvro(GenericData.Record record) {
-        return true;
+        Collection values = (Collection) record.get(pos);
+        return getAvroIndexedExists(values, index);
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -109,7 +124,7 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -122,7 +137,8 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        CodegenExpression values = cast(Collection.class, exprDotMethod(underlyingExpression, "get", constant(pos)));
+        return staticMethod(this.getClass(), "getAvroIndexedExists", values, constant(index));
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
+import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.common.internal.event.xml.XMLEventBean;
 import org.w3c.dom.Node;
@@ -50,5 +51,9 @@ public class EventBeanTypedEventFactoryRuntime implements EventBeanTypedEventFac
 
     public EventBean adapterForTypedWrapper(EventBean decoratedUnderlying, Map<String, Object> map, EventType wrapperEventType) {
         return new WrapperEventBean(decoratedUnderlying, map, wrapperEventType);
+    }
+
+    public EventBean adapterForTypedJson(Object underlying, EventType eventType) {
+        return new JsonEventBean(underlying, eventType);
     }
 }

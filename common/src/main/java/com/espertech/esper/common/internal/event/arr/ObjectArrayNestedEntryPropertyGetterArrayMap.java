@@ -49,7 +49,7 @@ public class ObjectArrayNestedEntryPropertyGetterArrayMap extends ObjectArrayNes
     }
 
     public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression refName, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return BaseNestableEventUtil.handleNestedValueArrayWithMapExistsCode(index, getter, refName, codegenMethodScope, codegenClassScope, eventBeanTypedEventFactory, fragmentType, this.getClass());
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapExistsCode(index, getter, refName, codegenMethodScope, codegenClassScope, this.getClass());
     }
 
     public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression refName, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

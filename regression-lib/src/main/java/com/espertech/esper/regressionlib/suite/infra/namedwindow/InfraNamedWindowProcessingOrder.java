@@ -70,6 +70,8 @@ public class InfraNamedWindowProcessingOrder {
                 env.sendEventMap(new HashMap<String, Object>(), "StartValueEvent");
             } else if (eventRepresentationEnum.isAvroEvent()) {
                 env.eventService().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "StartValueEvent");
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                env.eventService().sendEventJson("{}", "StartValueEvent");
             } else {
                 fail();
             }
@@ -82,6 +84,8 @@ public class InfraNamedWindowProcessingOrder {
                 env.sendEventMap(new HashMap<String, Object>(), "TestInputEvent");
             } else if (eventRepresentationEnum.isAvroEvent()) {
                 env.eventService().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "TestInputEvent");
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                env.eventService().sendEventJson("{}", "TestInputEvent");
             } else {
                 fail();
             }

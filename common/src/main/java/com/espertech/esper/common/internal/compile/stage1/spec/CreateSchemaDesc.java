@@ -113,6 +113,7 @@ public class CreateSchemaDesc implements Serializable {
         MAP,
         OBJECTARRAY,
         AVRO,
+        JSON,
         NONE;
 
         public CreateSchemaClauseTypeDef mapToSoda() {
@@ -124,6 +125,8 @@ public class CreateSchemaDesc implements Serializable {
                 return CreateSchemaClauseTypeDef.OBJECTARRAY;
             } else if (this == AVRO) {
                 return CreateSchemaClauseTypeDef.AVRO;
+            } else if (this == JSON) {
+                return CreateSchemaClauseTypeDef.JSON;
             } else {
                 return CreateSchemaClauseTypeDef.NONE;
             }
@@ -143,6 +146,9 @@ public class CreateSchemaDesc implements Serializable {
             if (lower.equals("objectarray")) {
                 return OBJECTARRAY;
             }
+            if (lower.equals("json")) {
+                return JSON;
+            }
             throw new EPException("Expected 'variant', 'map' or 'objectarray' keyword after create-schema clause but encountered '" + keywordNodeText + "'");
         }
 
@@ -158,6 +164,9 @@ public class CreateSchemaDesc implements Serializable {
             }
             if (CreateSchemaClauseTypeDef.AVRO == typeDefinition) {
                 return AVRO;
+            }
+            if (CreateSchemaClauseTypeDef.JSON == typeDefinition) {
+                return JSON;
             }
             return VARIANT;
         }

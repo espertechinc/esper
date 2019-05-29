@@ -32,8 +32,7 @@ public class JaninoCompiler {
 
     protected static void compile(CodegenClass clazz, Map<String, byte[]> classes, ModuleCompileTimeServices compileTimeServices) {
         boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
-        ClassLoader classLoader = compileTimeServices.getClasspathImportServiceCompileTime().getClassLoader();
-        compile(clazz, classes, withCodeLogging, classLoader);
+        compile(clazz, classes, withCodeLogging, compileTimeServices.getParentClassLoader());
     }
 
     private static void compile(CodegenClass clazz, Map<String, byte[]> classes, boolean withCodeLogging, ClassLoader classLoader) {

@@ -38,11 +38,11 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     protected String[] propertyNames;       // Cache an array of property names so not to construct one frequently
     protected EventPropertyDescriptor[] propertyDescriptors;
 
-    protected final Map<String, PropertySetDescriptorItem> propertyItems;
+    protected Map<String, PropertySetDescriptorItem> propertyItems;
     protected Map<String, EventPropertyGetterSPI> propertyGetterCache; // Mapping of all property names and getters
 
     // Nestable definition of Map contents is here
-    protected Map<String, Object> nestableTypes;  // Deep definition of the map-type, containing nested maps and objects
+    protected final Map<String, Object> nestableTypes;  // Deep definition of the map-type, containing nested maps and objects
 
     protected String startTimestampPropertyName;
     protected String endTimestampPropertyName;
@@ -71,6 +71,8 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         this.metadata = metadata;
         this.getterFactory = getterFactory;
         this.beanEventTypeFactory = beanEventTypeFactory;
+        this.startTimestampPropertyName = startTimestampPropertyName;
+        this.endTimestampPropertyName = endTimestampPropertyName;
 
         this.optionalSuperTypes = optionalSuperTypes;
         if (optionalDeepSupertypes == null) {

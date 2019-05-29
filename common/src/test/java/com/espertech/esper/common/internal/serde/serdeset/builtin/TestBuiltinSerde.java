@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 
 public class TestBuiltinSerde extends TestCase {
     public void testSerde() throws IOException {
@@ -64,7 +67,7 @@ public class TestBuiltinSerde extends TestCase {
         assertSerdeWNull(DIONullableIntegerSerde.INSTANCE, 12);
         assertSerdeWNull(DIONullableLongSerde.INSTANCE, 13L);
         assertSerdeWNull(DIONullableShortSerde.INSTANCE, (short) 14);
-        assertSerdeWNull(DIONullableStringSerde.INSTANCE, "abc");
+        assertSerdeWNull(DIOStringSerde.INSTANCE, "abc");
 
         assertSerdeWNull(DIOBigDecimalSerde.INSTANCE, BigDecimal.TEN);
         assertSerdeWNull(DIOBigIntegerSerde.INSTANCE, BigInteger.TEN);
@@ -75,6 +78,8 @@ public class TestBuiltinSerde extends TestCase {
 
         assertSerdeWNull(DIOBigDecimalArrayNullableSerde.INSTANCE, new BigDecimal[]{BigDecimal.ONE, BigDecimal.valueOf(10)});
         assertSerdeWNull(DIOBigIntegerArrayNullableSerde.INSTANCE, new BigInteger[] {BigInteger.ONE, BigInteger.valueOf(10)});
+        assertSerdeWNull(DIOBigDecimalArray2DimNullableSerde.INSTANCE, new BigDecimal[][] {{BigDecimal.ONE, BigDecimal.valueOf(10)}, null, {null}});
+        assertSerdeWNull(DIOBigIntegerArray2DimNullableSerde.INSTANCE, new BigInteger[][] {{BigInteger.ONE, BigInteger.valueOf(10)}, null, {null}});
 
         assertSerdeWNull(DIOBoxedBooleanArrayNullableSerde.INSTANCE, new Boolean[] {true, null, false});
         assertSerdeWNull(DIOBoxedByteArrayNullableSerde.INSTANCE, new Byte[] {1, null, 0x2});
@@ -84,7 +89,17 @@ public class TestBuiltinSerde extends TestCase {
         assertSerdeWNull(DIOBoxedIntegerArrayNullableSerde.INSTANCE, new Integer[] {1, null, 2});
         assertSerdeWNull(DIOBoxedLongArrayNullableSerde.INSTANCE, new Long[] {1L, null, 2L});
         assertSerdeWNull(DIOBoxedShortArrayNullableSerde.INSTANCE, new Short[] {1, null, 2});
-        assertSerdeWNull(DIOBoxedStringArrayNullableSerde.INSTANCE, new String[] {"A", null, "B"});
+        assertSerdeWNull(DIOStringArrayNullableSerde.INSTANCE, new String[] {"A", null, "B"});
+
+        assertSerdeWNull(DIOBoxedBooleanArray2DimNullableSerde.INSTANCE, new Boolean[][] {{true, null, false}, null, {true}});
+        assertSerdeWNull(DIOBoxedByteArray2DimNullableSerde.INSTANCE, new Byte[][] {{1, null, 0x2}, null, {0x3}});
+        assertSerdeWNull(DIOBoxedCharacterArray2DimNullableSerde.INSTANCE, new Character[][] {{1, null, 2}, null, {1}});
+        assertSerdeWNull(DIOBoxedDoubleArray2DimNullableSerde.INSTANCE, new Double[][] {{1d, null, 2d}, null, {3d}});
+        assertSerdeWNull(DIOBoxedFloatArray2DimNullableSerde.INSTANCE, new Float[][] {{1f, null, 2f}, null, {3f}});
+        assertSerdeWNull(DIOBoxedIntegerArray2DimNullableSerde.INSTANCE, new Integer[][] {{1, null, 2}, null, {3}});
+        assertSerdeWNull(DIOBoxedLongArray2DimNullableSerde.INSTANCE, new Long[][] {{1L, null, 2L}, null, {3L}});
+        assertSerdeWNull(DIOBoxedShortArray2DimNullableSerde.INSTANCE, new Short[][] {{1, null, 2}, null, {0x3}});
+        assertSerdeWNull(DIOStringArray2DimNullableSerde.INSTANCE, new String[][] {{"A", null, "B"}, null, {}, {"a"}});
 
         assertSerdeWNull(DIOCalendarArrayNullableSerde.INSTANCE, new Calendar[] {Calendar.getInstance(), null});
         assertSerdeWNull(DIODateArrayNullableSerde.INSTANCE, new Date[] {new Date(), null});
@@ -92,7 +107,7 @@ public class TestBuiltinSerde extends TestCase {
         assertSerde(DIOSkipSerde.INSTANCE, null);
         assertSerdeWNull(DIOSerializableObjectSerde.INSTANCE, new SupportBean());
 
-        assertSerdeWNull(new DIOObjectArrayNullableSerde(SupportBean.class, DIOSerializableObjectSerde.INSTANCE), new SupportBean[] {new SupportBean(), null});
+        assertSerdeWNull(new DIONullableObjectArraySerde(SupportBean.class, DIOSerializableObjectSerde.INSTANCE), new SupportBean[] {new SupportBean(), null});
         assertSerde(new DIOSetSerde(DIOIntegerSerde.INSTANCE), new HashSet<>(Arrays.asList(1, 2)));
 
     }

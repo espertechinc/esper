@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.bean.getter;
 
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -51,6 +52,14 @@ public class DynamicSimplePropertyGetter extends DynamicPropertyGetterBase {
 
     protected CodegenExpression determineMethodCodegen(CodegenExpressionRef clazz, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         return staticMethod(this.getClass(), "dynamicSimplePropertyDetermineMethod", constant(getterMethodName), constant(isMethodName), clazz);
+    }
+
+    public boolean isExistsProperty(EventBean eventBean) {
+        return cacheAndExists(cache, this, eventBean.getUnderlying(), eventBeanTypedEventFactory);
+    }
+
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return cacheAndExistsCodegen(underlyingExpression, codegenMethodScope, codegenClassScope);
     }
 
     /**

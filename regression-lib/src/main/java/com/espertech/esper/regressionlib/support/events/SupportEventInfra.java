@@ -78,6 +78,10 @@ public class SupportEventInfra {
         env.sendEventAvro(record, name);
     };
 
+    public static final FunctionSendEvent FJSON = (env, event, name) -> {
+        env.sendEventJson((String) event, name);
+    };
+
     @FunctionalInterface
     public static interface FunctionSendEventWType {
         public void apply(RegressionEnvironment env, Object value, String typeName);
@@ -99,6 +103,10 @@ public class SupportEventInfra {
         GenericData.Record record = (GenericData.Record) event;
         GenericData.get().validate(record.getSchema(), record);
         env.sendEventAvro(record, typeName);
+    };
+
+    public static final FunctionSendEventWType FJSONWTYPE = (env, event, typeName) -> {
+        env.sendEventJson((String) event, typeName);
     };
 
     public static final FunctionSendEvent FXML = (env, event, name) -> {

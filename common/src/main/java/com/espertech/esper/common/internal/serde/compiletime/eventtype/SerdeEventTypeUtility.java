@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.event.avro.AvroSchemaEventType;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventType;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.xml.BaseXMLEventType;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
@@ -97,8 +98,16 @@ public class SerdeEventTypeUtility {
     }
 
     private static SerdeAndForgeables planBaseNestable(BaseNestableEventType eventType, StatementRawInfo raw, SerdeCompileTimeResolver resolver) {
-        String uuid = generateClassNameUUID();
-        String className = generateClassNameWithUUID(DataInputOutputSerde.class, eventType.getMetadata().getName(), uuid);
+        String className;
+        if (eventType instanceof JsonEventType) {
+            String classNameFull = ((JsonEventType) eventType).getDetail().getSerdeClassName();
+            int lastDotIndex = classNameFull.lastIndexOf('.');
+            className = lastDotIndex == -1 ? classNameFull : classNameFull.substring(lastDotIndex + 1);
+
+        } else {
+            String uuid = generateClassNameUUID();
+            className = generateClassNameWithUUID(DataInputOutputSerde.class, eventType.getMetadata().getName(), uuid);
+        }
 
         DataInputOutputSerdeForge optionalApplicationSerde = resolver.serdeForEventTypeExternalProvider(eventType, raw);
         if (optionalApplicationSerde != null) {
@@ -108,7 +117,7 @@ public class SerdeEventTypeUtility {
         DataInputOutputSerdeForge[] forges = new DataInputOutputSerdeForge[eventType.getTypes().size()];
         int count = 0;
         for (Map.Entry<String, Object> property : eventType.getTypes().entrySet()) {
-            SerdeEventPropertyDesc desc = forgeForEventProperty(eventType.getMetadata().getName(), property.getKey(), property.getValue(), raw, resolver);
+            SerdeEventPropertyDesc desc = forgeForEventProperty(eventType, property.getKey(), property.getValue(), raw, resolver);
             forges[count] = desc.getForge();
             count++;
         }

@@ -34,7 +34,7 @@ public class TestSuiteInfraNWTable extends TestCase {
         session = null;
     }
 
-    public void testInfraNWTableInfraFAF() {
+    public void testInfraNWTableFAF() {
         RegressionRunner.run(session, InfraNWTableFAF.executions());
     }
 

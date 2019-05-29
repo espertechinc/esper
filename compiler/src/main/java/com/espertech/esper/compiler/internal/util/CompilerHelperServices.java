@@ -32,6 +32,7 @@ import com.espertech.esper.common.internal.compile.stage3.ModuleAccessModifierSe
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.common.internal.context.compile.*;
 import com.espertech.esper.common.internal.context.module.*;
+import com.espertech.esper.common.internal.context.util.ParentClassLoader;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCollectorCompileTime;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolver;
@@ -77,13 +78,16 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
 import com.espertech.esper.common.internal.event.eventtyperepo.*;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
-import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactoryDefault;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistryImpl;
-import com.espertech.esper.common.internal.serde.compiletime.resolve.*;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolverImpl;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolverNonHA;
+import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactoryDefault;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -116,6 +120,7 @@ public class CompilerHelperServices {
 
         // imports
         ClasspathImportServiceCompileTime classpathImportServiceCompileTime = makeClasspathImportService(configuration);
+        ParentClassLoader classLoaderParent = new ParentClassLoader(classpathImportServiceCompileTime.getClassLoader());
 
         // resolve pre-configured bean event types, make bean-stem service
         Map<String, Class> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configuration.getCommon().getEventTypeNames(), classpathImportServiceCompileTime);
@@ -149,6 +154,8 @@ public class CompilerHelperServices {
                 pathScript.mergeFrom(impl.getScriptPathRegistry());
                 eventTypeRepositoryPreconfigured.mergeFrom(impl.getEventTypePreconfigured());
                 variableRepositoryPreconfigured.mergeFrom(impl.getVariablePreconfigured());
+
+                JsonEventTypeUtility.addJsonUnderlyingClass(pathEventTypes, classLoaderParent);
             }
         }
 
@@ -169,18 +176,19 @@ public class CompilerHelperServices {
 
         for (EPCompiled unit : path.getCompileds()) {
             deploymentNumber++;
-            ModuleProviderResult provider = ModuleProviderUtil.analyze(unit, classpathImportServiceCompileTime);
+            ModuleProviderResult provider = ModuleProviderUtil.analyze(unit, classLoaderParent);
             String unitModuleName = provider.getModuleProvider().getModuleName();
 
             // initialize event types
-            Map<String, EventType> moduleTypes = new HashMap<>();
+            Map<String, EventType> moduleTypes = new LinkedHashMap<>();
             EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleTypes, pathEventTypes, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate, EventSerdeFactoryDefault.INSTANCE);
-            EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, beanEventTypeFactoryPrivate, EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService, eventTypeResolver, xmlFragmentEventTypeFactory, eventTypeAvroHandler, EventBeanTypedEventFactoryCompileTime.INSTANCE);
+            EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, beanEventTypeFactoryPrivate, provider.getClassLoader(), EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService, eventTypeResolver, xmlFragmentEventTypeFactory, eventTypeAvroHandler, EventBeanTypedEventFactoryCompileTime.INSTANCE);
             try {
                 provider.getModuleProvider().initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
             } catch (Throwable e) {
                 throw new EPException(e);
             }
+            JsonEventTypeUtility.addJsonUnderlyingClass(moduleTypes, classLoaderParent, null);
 
             // initialize named windows
             Map<String, NamedWindowMetaData> moduleNamedWindows = new HashMap<>();
@@ -340,12 +348,7 @@ public class CompilerHelperServices {
         SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry = new SerdeEventTypeCompileTimeRegistryImpl(targetHA);
         SerdeCompileTimeResolver serdeResolver = targetHA ? makeSerdeResolver(configuration.getCompiler().getSerde(), configuration.getCommon().getTransientConfiguration()) : SerdeCompileTimeResolverNonHA.INSTANCE;
 
-        return new ModuleCompileTimeServices(compilerServices, configuration,
-            contextCompileTimeRegistry, contextCompileTimeResolver,
-            beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime,
-            exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler,
-            eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured,
-            indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry,
+        return new ModuleCompileTimeServices(compilerServices, configuration, contextCompileTimeRegistry, contextCompileTimeResolver, beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime, exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler, eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured, indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry, classLoaderParent,
             patternResolutionService, scriptCompileTimeRegistry, scriptCompileTimeResolver, serdeEventTypeRegistry, serdeResolver,
             tableCompileTimeRegistry, tableCompileTimeResolver, variableCompileTimeRegistry, variableCompileTimeResolver, viewResolutionService, xmlFragmentEventTypeFactory);
     }

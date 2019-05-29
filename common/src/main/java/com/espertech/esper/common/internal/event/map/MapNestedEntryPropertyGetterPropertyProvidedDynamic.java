@@ -49,6 +49,16 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
         return null;
     }
 
+    public boolean handleNestedValueExists(Object value) {
+        if (!(value instanceof Map)) {
+            return false;
+        }
+        if (nestedGetter instanceof MapEventPropertyGetter) {
+            return ((MapEventPropertyGetter) nestedGetter).isMapExistsProperty((Map<String, Object>) value);
+        }
+        return false;
+    }
+
     private CodegenMethod handleNestedValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
                 .ifRefNotTypeReturnConst("value", Map.class, "null");
@@ -56,6 +66,15 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
             return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingGetCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
         }
         return block.methodReturn(constantNull());
+    }
+
+    private CodegenMethod handleNestedValueExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
+            .ifRefNotTypeReturnConst("value", Map.class, false);
+        if (nestedGetter instanceof MapEventPropertyGetter) {
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
+        }
+        return block.methodReturn(constantFalse());
     }
 
     private boolean isExistsProperty(Map map) {
@@ -86,6 +105,10 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
 
     public CodegenExpression handleNestedValueCodegen(CodegenExpression valueExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return localMethod(handleNestedValueCodegen(codegenMethodScope, codegenClassScope), valueExpression);
+    }
+
+    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression valueExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(handleNestedValueExistsCodegen(codegenMethodScope, codegenClassScope), valueExpression);
     }
 
     public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

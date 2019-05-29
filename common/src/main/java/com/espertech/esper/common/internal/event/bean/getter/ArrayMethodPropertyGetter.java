@@ -22,9 +22,9 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndIndexed;
 import com.espertech.esper.common.internal.event.util.PropertyUtility;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -58,10 +58,22 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
     private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
         try {
             Object value = method.invoke(object, (Object[]) null);
-            if (Array.getLength(value) <= index) {
-                return null;
-            }
-            return Array.get(value, index);
+            return CollectionUtil.arrayValueAtIndex(value, index);
+        } catch (ClassCastException e) {
+            throw PropertyUtility.getMismatchException(method, object, e);
+        } catch (InvocationTargetException e) {
+            throw PropertyUtility.getInvocationTargetException(method, e);
+        } catch (IllegalAccessException e) {
+            throw PropertyUtility.getIllegalAccessException(method, e);
+        } catch (IllegalArgumentException e) {
+            throw PropertyUtility.getIllegalArgumentException(method, e);
+        }
+    }
+
+    private boolean getBeanPropInternalExists(Object object, int index) throws PropertyAccessException {
+        try {
+            Object value = method.invoke(object, (Object[]) null);
+            return CollectionUtil.arrayExistsAtIndex(value, index);
         } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
         } catch (InvocationTargetException e) {
@@ -76,8 +88,17 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
     protected static CodegenMethod getBeanPropInternalCode(CodegenMethodScope codegenMethodScope, Method method, CodegenClassScope codegenClassScope) {
         return codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayMethodPropertyGetter.class, codegenClassScope).addParam(method.getDeclaringClass(), "obj").addParam(int.class, "index").getBlock()
                 .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
+                .ifRefNullReturnNull("array")
                 .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), null)
                 .methodReturn(arrayAtIndex(ref("array"), ref("index")));
+    }
+
+    protected static CodegenMethod getBeanPropInternalExistsCode(CodegenMethodScope codegenMethodScope, Method method, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, ArrayMethodPropertyGetter.class, codegenClassScope).addParam(method.getDeclaringClass(), "obj").addParam(int.class, "index").getBlock()
+            .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
+            .ifRefNullReturnFalse("array")
+            .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), false)
+            .methodReturn(constantTrue());
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -96,7 +117,8 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
-        return true; // Property exists as the property is not dynamic (unchecked)
+        Object underlying = eventBean.getUnderlying();
+        return getBeanPropInternalExists(underlying, index);
     }
 
     public Class getBeanPropType() {
@@ -120,7 +142,7 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return localMethod(getBeanPropInternalExistsCode(codegenMethodScope, method, codegenClassScope), underlyingExpression, constant(index));
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {

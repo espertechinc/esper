@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.serde.compiletime.resolve;
 
 import com.espertech.esper.common.client.serde.*;
-import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOObjectArrayNullableSerde;
+import com.espertech.esper.common.internal.serde.serdeset.builtin.DIONullableObjectArraySerde;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSerializableObjectSerde;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -39,7 +39,7 @@ public class SerdeCompileTimeResolverUtil {
             if (type.isArray()) {
                 SerdeProvision componentSerde = determineSerdeFromProviders(type.getComponentType(), serdeProviders, additionalInfo);
                 if (componentSerde != null) {
-                    return new SerdeProvisionParameterized(DIOObjectArrayNullableSerde.class,
+                    return new SerdeProvisionParameterized(DIONullableObjectArraySerde.class,
                         vars -> constant(type.getComponentType()),
                         vars -> componentSerde.toForge().codegen(vars.getMethod(), vars.getScope(), vars.getOptionalEventTypeResolver()));
                 }

@@ -52,7 +52,7 @@ public class ObjectArrayEventType extends BaseNestableEventType {
         if (pair.getMapProperties().isEmpty() && pair.getArrayProperties().isEmpty()) {
             return new ObjectArrayEventBeanCopyMethodForge(this, beanEventTypeFactory.getEventBeanTypedEventFactory());
         } else {
-            return new ObjectArrayEventBeanCopyMethodWithArrayMapForge(this, beanEventTypeFactory.getEventBeanTypedEventFactory(), pair.getMapProperties(), pair.getArrayProperties(), getPropertiesIndexes());
+            return new ObjectArrayEventBeanCopyMethodWithArrayMapForge(this, pair.getMapProperties(), pair.getArrayProperties(), getPropertiesIndexes());
         }
     }
 
@@ -155,58 +155,6 @@ public class ObjectArrayEventType extends BaseNestableEventType {
         }
     }
 
-    private void initializeWriters() {
-        List<EventPropertyDescriptor> writeableProps = new ArrayList<EventPropertyDescriptor>();
-        Map<String, Pair<EventPropertyDescriptor, ObjectArrayEventBeanPropertyWriter>> propertWritersMap = new HashMap<String, Pair<EventPropertyDescriptor, ObjectArrayEventBeanPropertyWriter>>();
-        for (EventPropertyDescriptor prop : propertyDescriptors) {
-            writeableProps.add(prop);
-            final String propertyName = prop.getPropertyName();
-            Integer index = getPropertiesIndexes().get(prop.getPropertyName());
-            if (index == null) {
-                continue;
-            }
-            ObjectArrayEventBeanPropertyWriter eventPropertyWriter = new ObjectArrayEventBeanPropertyWriter(index);
-            propertWritersMap.put(propertyName, new Pair<EventPropertyDescriptor, ObjectArrayEventBeanPropertyWriter>(prop, eventPropertyWriter));
-        }
-
-        propertyWriters = propertWritersMap;
-        writablePropertyDescriptors = writeableProps.toArray(new EventPropertyDescriptor[writeableProps.size()]);
-    }
-
-    private static EventTypeNestableGetterFactory getGetterFactory(String eventTypeName, Map<String, Object> propertyTypes, EventType[] optionalSupertypes) {
-        Map<String, Integer> indexPerProperty = new HashMap<String, Integer>();
-
-        int index = 0;
-        if (optionalSupertypes != null) {
-            for (EventType superType : optionalSupertypes) {
-                ObjectArrayEventType objectArraySuperType = (ObjectArrayEventType) superType;
-                for (String propertyName : objectArraySuperType.getPropertyNames()) {
-                    if (indexPerProperty.containsKey(propertyName)) {
-                        continue;
-                    }
-                    indexPerProperty.put(propertyName, index);
-                    index++;
-                }
-            }
-        }
-
-        for (Map.Entry<String, Object> entry : propertyTypes.entrySet()) {
-            indexPerProperty.put(entry.getKey(), index);
-            index++;
-        }
-        return new EventTypeNestableGetterFactoryObjectArray(eventTypeName, indexPerProperty);
-    }
-
-    private static int findMax(Map<String, Integer> indexPerProperty) {
-        int max = -1;
-        for (Map.Entry<String, Integer> entry : indexPerProperty.entrySet()) {
-            if (entry.getValue() > max) {
-                max = entry.getValue();
-            }
-        }
-        return max;
-    }
-
     public static Object[] convertEvent(EventBean theEvent, ObjectArrayEventType targetType) {
         Map<String, Integer> indexesTarget = targetType.getPropertiesIndexes();
         Map<String, Integer> indexesSource = ((ObjectArrayEventType) theEvent.getEventType()).getPropertiesIndexes();
@@ -250,5 +198,47 @@ public class ObjectArrayEventType extends BaseNestableEventType {
         }
 
         return true;
+    }
+
+    private void initializeWriters() {
+        List<EventPropertyDescriptor> writeableProps = new ArrayList<EventPropertyDescriptor>();
+        Map<String, Pair<EventPropertyDescriptor, ObjectArrayEventBeanPropertyWriter>> propertWritersMap = new HashMap<String, Pair<EventPropertyDescriptor, ObjectArrayEventBeanPropertyWriter>>();
+        for (EventPropertyDescriptor prop : propertyDescriptors) {
+            writeableProps.add(prop);
+            final String propertyName = prop.getPropertyName();
+            Integer index = getPropertiesIndexes().get(prop.getPropertyName());
+            if (index == null) {
+                continue;
+            }
+            ObjectArrayEventBeanPropertyWriter eventPropertyWriter = new ObjectArrayEventBeanPropertyWriter(index);
+            propertWritersMap.put(propertyName, new Pair<EventPropertyDescriptor, ObjectArrayEventBeanPropertyWriter>(prop, eventPropertyWriter));
+        }
+
+        propertyWriters = propertWritersMap;
+        writablePropertyDescriptors = writeableProps.toArray(new EventPropertyDescriptor[writeableProps.size()]);
+    }
+
+    private static EventTypeNestableGetterFactory getGetterFactory(String eventTypeName, Map<String, Object> propertyTypes, EventType[] optionalSupertypes) {
+        Map<String, Integer> indexPerProperty = new HashMap<String, Integer>();
+
+        int index = 0;
+        if (optionalSupertypes != null) {
+            for (EventType superType : optionalSupertypes) {
+                ObjectArrayEventType objectArraySuperType = (ObjectArrayEventType) superType;
+                for (String propertyName : objectArraySuperType.getPropertyNames()) {
+                    if (indexPerProperty.containsKey(propertyName)) {
+                        continue;
+                    }
+                    indexPerProperty.put(propertyName, index);
+                    index++;
+                }
+            }
+        }
+
+        for (Map.Entry<String, Object> entry : propertyTypes.entrySet()) {
+            indexPerProperty.put(entry.getKey(), index);
+            index++;
+        }
+        return new EventTypeNestableGetterFactoryObjectArray(eventTypeName, indexPerProperty);
     }
 }

@@ -143,6 +143,11 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return this;
     }
 
+    public RegressionEnvironment sendEventJson(String json, String typeName) {
+        runtime.getEventService().sendEventJson(json, typeName);
+        return this;
+    }
+
     public RegressionEnvironment addListener(String statementName) {
         return null;
     }

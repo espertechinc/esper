@@ -13,21 +13,21 @@ package com.espertech.esper.compiler.internal.util;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 public class CompileCallable implements Callable<CompilableItemResult> {
     private final CompilableItem compilableItem;
     private final ModuleCompileTimeServices compileTimeServices;
     private final Semaphore semaphore;
-    private final Map<String, byte[]> statementBytes = new HashMap<>();
+    private final ConcurrentHashMap<String, byte[]> statementBytes;
 
-    CompileCallable(CompilableItem compilableItem, ModuleCompileTimeServices compileTimeServices, Semaphore semaphore) {
+    CompileCallable(CompilableItem compilableItem, ModuleCompileTimeServices compileTimeServices, Semaphore semaphore, ConcurrentHashMap<String, byte[]> statementBytes) {
         this.compilableItem = compilableItem;
         this.compileTimeServices = compileTimeServices;
         this.semaphore = semaphore;
+        this.statementBytes = statementBytes;
     }
 
     public CompilableItemResult call() throws Exception {
@@ -39,8 +39,9 @@ public class CompileCallable implements Callable<CompilableItemResult> {
             return new CompilableItemResult(t);
         } finally {
             semaphore.release();
+            compilableItem.getPostCompileLatch().completed(statementBytes);
         }
 
-        return new CompilableItemResult(statementBytes);
+        return new CompilableItemResult();
     }
 }

@@ -36,10 +36,7 @@ import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementServiceImpl;
 import com.espertech.esper.common.internal.context.mgr.ContextServiceFactory;
 import com.espertech.esper.common.internal.context.module.RuntimeExtensionServices;
-import com.espertech.esper.common.internal.context.util.InternalEventRouterImpl;
-import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLockFactory;
-import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLockFactoryImpl;
-import com.espertech.esper.common.internal.context.util.StatementContextResolver;
+import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryService;
 import com.espertech.esper.common.internal.epl.dataflow.core.EPDataFlowServiceImpl;
 import com.espertech.esper.common.internal.epl.dataflow.filtersvcadapter.DataFlowFilterServiceAdapter;
@@ -328,18 +325,20 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         EPRenderEventServiceImpl eventRenderer = new EPRenderEventServiceImpl();
         EventSerdeFactory eventSerdeFactory = makeEventSerdeFactory(epServicesHA.getRuntimeExtensionServices());
         EventTypeSerdeRepository eventTypeSerdeRepository = makeEventTypeSerdeRepository(eventTypeRepositoryPreconfigured, eventTypePathRegistry);
+        ParentClassLoader classLoaderParent = new ParentClassLoader(classpathImportServiceRuntime.getClassLoader());
 
         return new EPServicesContext(aggregationServiceFactoryService,
                 beanEventTypeFactoryPrivate,
                 beanEventTypeStemService,
                 ClassForNameProviderDefault.INSTANCE,
+                classLoaderParent,
                 configs,
                 contextManagementService,
                 pathContextRegistry,
                 contextServiceFactory,
                 dataflowService,
                 dataFlowFilterServiceAdapter,
-            databaseConfigServiceRuntime,
+                databaseConfigServiceRuntime,
                 deploymentLifecycleService,
                 dispatchService,
                 runtimeEnvContext,

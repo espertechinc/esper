@@ -17,6 +17,9 @@ import com.espertech.esper.common.client.hook.expr.EPLScriptContext;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.core.AvroEventType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroArrayEvent;
+import com.espertech.esper.regressionlib.support.bean.SupportJsonArrayEvent;
+import com.espertech.esper.common.client.json.util.JsonEventObject;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -256,6 +259,19 @@ public class EPLContainedEventSplitExpr {
             env.sendEventBean(new SupportAvroArrayEvent(rows));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
             env.undeployAll();
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationText() + " select * from SupportJsonArrayEvent[someJsonArray@type(WordEvent)]";
+            env.compileDeploy(stmtText, path).addListener("s0");
+            assertEquals("WordEvent", env.statement("s0").getEventType().getName());
+
+            String[] rows = new String[3];
+            String[] words = "this,is,avro".split(",");
+            for (int i = 0; i < words.length; i++) {
+                rows[i] = "{ \"word\": \"" + words[i] + "\"}";
+            }
+            env.sendEventBean(new SupportJsonArrayEvent(rows));
+            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
+            env.undeployAll();
         } else {
             throw new IllegalArgumentException("Unrecognized enum " + eventRepresentationEnum);
         }
@@ -278,6 +294,9 @@ public class EPLContainedEventSplitExpr {
         } else if (eventRepresentationEnum.isAvroEvent()) {
             tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' underlying type " + JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME + " cannot be assigned a value of type");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
+                "Event type 'WordEvent' requires string-type array and cannot be assigned from value of type " + JavaClassHelper.getClassNameFullyQualPretty(SupportBean[].class));
         } else {
             fail();
         }
@@ -299,6 +318,10 @@ public class EPLContainedEventSplitExpr {
             GenericData.Record record = new GenericData.Record(schema);
             record.put("sentence", sentence);
             env.sendEventAvro(record, "MySentenceEvent");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("sentence", sentence);
+            env.sendEventJson(object.toString(), "MySentenceEvent");
         } else {
             throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }
@@ -368,7 +391,6 @@ public class EPLContainedEventSplitExpr {
         return maps.toArray(new Map[maps.size()]);
     }
 
-
     public static SupportBean[] invalidSentenceMethod(String sentence) {
         return null;
     }
@@ -396,6 +418,29 @@ public class EPLContainedEventSplitExpr {
 
     public static GenericData.Record[] splitSentenceBeanMethodReturnAvro(GenericData.Record sentenceEvent) {
         return splitSentenceMethodReturnAvro((String) sentenceEvent.get("sentence"));
+    }
+
+    public static String[] splitWordMethodReturnJson(String word) {
+        List<String> strings = new ArrayList<>();
+        for (int i = 0; i < word.length(); i++) {
+            String c = Character.toString(word.charAt(i));
+            strings.add("{ \"char\": \"" + c + "\"}");
+        }
+        return strings.toArray(new String[0]);
+
+    }
+
+    public static String[] splitSentenceMethodReturnJson(String sentence) {
+        String[] words = sentence.split(" ");
+        String[] events = new String[words.length];
+        for (int i = 0; i < words.length; i++) {
+            events[i] = "{ \"word\": \"" + words[i] + "\"}";
+        }
+        return events;
+    }
+
+    public static String[] splitSentenceBeanMethodReturnJson(JsonEventObject sentenceEvent) {
+        return splitSentenceMethodReturnJson((String) sentenceEvent.get("sentence"));
     }
 
     public static class AvroArrayEvent {

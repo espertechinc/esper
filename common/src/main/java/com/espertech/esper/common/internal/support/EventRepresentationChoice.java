@@ -25,18 +25,21 @@ public enum EventRepresentationChoice {
     ARRAY(EventUnderlyingType.OBJECTARRAY, "@EventRepresentation('objectarray')", " objectarray"),
     MAP(EventUnderlyingType.MAP, "@EventRepresentation('map')", " map"),
     AVRO(EventUnderlyingType.AVRO, "@EventRepresentation('avro')", " avro"),
+    JSON(EventUnderlyingType.JSON, "@EventRepresentation('json')", " json"),
     DEFAULT(EventUnderlyingType.getDefault(), "", "");
 
     private final EventUnderlyingType eventRepresentation;
     private final String annotationText;
     private final String outputTypeCreateSchemaName;
     private final String outputTypeClassName;
+    private final Class outputTypeClass;
 
     EventRepresentationChoice(EventUnderlyingType eventRepresentation, String annotationText, String outputTypeCreateSchemaName) {
         this.eventRepresentation = eventRepresentation;
         this.annotationText = annotationText;
         this.outputTypeCreateSchemaName = outputTypeCreateSchemaName;
         this.outputTypeClassName = eventRepresentation.getUnderlyingClassName();
+        this.outputTypeClass = eventRepresentation.getUnderlyingClass();
     }
 
     public String getUndName() {
@@ -56,7 +59,7 @@ public enum EventRepresentationChoice {
         JavaClassHelper.getSuper(representationType, supers);
         supers.add(representationType);
         for (Class clazz : supers) {
-            if (clazz.getName().equals(outputTypeClassName)) {
+            if (clazz.getName().equals(outputTypeClassName) || (outputTypeClass != null && JavaClassHelper.isSubclassOrImplementsInterface(clazz, outputTypeClass))) {
                 return true;
             }
         }
@@ -89,11 +92,18 @@ public enum EventRepresentationChoice {
         if (this == AVRO) {
             part.addValue("avro");
         }
+        if (this == JSON) {
+            part.addValue("json");
+        }
         model.setAnnotations(Collections.singletonList(part));
     }
 
     public boolean isAvroEvent() {
         return this == AVRO;
+    }
+
+    public boolean isAvroOrJsonEvent() {
+        return this == AVRO || this == JSON;
     }
 
     public static EventRepresentationChoice getEngineDefault(Configuration configuration) {
@@ -104,5 +114,9 @@ public enum EventRepresentationChoice {
             return AVRO;
         }
         return MAP;
+    }
+
+    public boolean isJsonEvent() {
+        return this == JSON;
     }
 }

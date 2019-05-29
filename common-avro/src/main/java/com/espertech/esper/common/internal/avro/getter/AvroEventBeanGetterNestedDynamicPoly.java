@@ -52,6 +52,12 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
                 .methodReturn(conditional(equalsNull(ref("inner")), constantNull(), getter.underlyingGetCodegen(ref("inner"), codegenMethodScope, codegenClassScope)));
     }
 
+    private CodegenMethod existsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
+            .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(fieldTop))))
+            .methodReturn(conditional(equalsNull(ref("inner")), constantFalse(), getter.underlyingExistsCodegen(ref("inner"), codegenMethodScope, codegenClassScope)));
+    }
+
     private boolean isExistsProperty(GenericData.Record record) {
         Schema.Field field = record.getSchema().getField(fieldTop);
         if (field == null) {
@@ -62,15 +68,6 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
             return false;
         }
         return getter.isExistsPropertyAvro((GenericData.Record) inner);
-    }
-
-    private CodegenMethod isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
-                .declareVar(Schema.Field.class, "field", exprDotMethodChain(ref("record")).add("getSchema").add("getField", constant(fieldTop)))
-                .ifRefNullReturnFalse("field")
-                .declareVar(Object.class, "inner", exprDotMethod(ref("record"), "get", constant(fieldTop)))
-                .ifRefNotTypeReturnConst("inner", GenericData.Record.class, false)
-                .methodReturn(getter.underlyingExistsCodegen(cast(GenericData.Record.class, ref("inner")), codegenMethodScope, codegenClassScope));
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -94,7 +91,7 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(isExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
+        return localMethod(existsCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

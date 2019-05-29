@@ -49,6 +49,7 @@ public class SelectExprProcessorFactory {
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         SelectExprProcessorWInsertTarget synthetic = getProcessorInternal(args, insertIntoDesc);
+        additionalForgeables.addAll(synthetic.getAdditionalForgeables());
 
         // plan serdes for variant event types
         if (synthetic.getInsertIntoTargetType() instanceof VariantEventType ||
@@ -136,8 +137,9 @@ public class SelectExprProcessorFactory {
             // For joins
             if (args.getTypeService().getStreamNames().length > 1 && (!(insertIntoTarget instanceof VariantEventType))) {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");
-                SelectExprProcessorForge forge = SelectExprJoinWildcardProcessorFactory.create(args, insertIntoDesc, eventTypeName -> eventTypeName);
-                return new SelectExprProcessorWInsertTarget(forge, null);
+                SelectExprProcessorForgeWForgables pair = SelectExprJoinWildcardProcessorFactory.create(args, insertIntoDesc, eventTypeName -> eventTypeName);
+                SelectExprProcessorForge forge = pair.getForge();
+                return new SelectExprProcessorWInsertTarget(forge, null, pair.getAdditionalForgeables());
             } else if (insertIntoDesc == null) {
                 // Single-table selects with no insert-into
                 // don't need extra processing
@@ -146,11 +148,11 @@ public class SelectExprProcessorFactory {
                     TableMetaData table = args.getTableCompileTimeResolver().resolveTableFromEventType(args.getTypeService().getEventTypes()[0]);
                     if (table != null) {
                         SelectExprProcessorForge forge = new SelectEvalWildcardTable(table);
-                        return new SelectExprProcessorWInsertTarget(forge, null);
+                        return new SelectExprProcessorWInsertTarget(forge, null, Collections.emptyList());
                     }
                 }
                 SelectExprProcessorForge forge = new SelectEvalWildcardNonJoin(args.getTypeService().getEventTypes()[0]);
-                return new SelectExprProcessorWInsertTarget(forge, null);
+                return new SelectExprProcessorWInsertTarget(forge, null, Collections.emptyList());
             }
         }
 

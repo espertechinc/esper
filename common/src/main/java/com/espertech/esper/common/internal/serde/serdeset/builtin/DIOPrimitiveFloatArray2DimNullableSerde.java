@@ -47,6 +47,10 @@ public class DIOPrimitiveFloatArray2DimNullableSerde implements DataInputOutputS
     }
 
     private void writeArray(float[] array, DataOutput output) throws IOException {
+        if (array == null) {
+            output.writeInt(-1);
+            return;
+        }
         output.writeInt(array.length);
         for (float i : array) {
             output.writeFloat(i);
@@ -55,6 +59,9 @@ public class DIOPrimitiveFloatArray2DimNullableSerde implements DataInputOutputS
 
     private float[] readArray(DataInput input) throws IOException {
         int len = input.readInt();
+        if (len == -1) {
+            return null;
+        }
         float[] array = new float[len];
         for (int i = 0; i < len; i++) {
             array[i] = input.readFloat();

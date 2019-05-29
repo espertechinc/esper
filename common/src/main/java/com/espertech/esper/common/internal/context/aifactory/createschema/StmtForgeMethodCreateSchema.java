@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
+import com.espertech.esper.common.internal.event.core.EventTypeForgablesPair;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.variant.VariantSpec;
@@ -54,12 +55,12 @@ public class StmtForgeMethodCreateSchema implements StmtForgeMethod {
         }
 
         EPLValidationUtil.validateTableExists(services.getTableCompileTimeResolver(), spec.getSchemaName());
-        EventType eventType = handleCreateSchema(spec, services);
+        EventTypeForgablesPair eventTypeForgablesPair = handleCreateSchema(spec, packageName, services);
 
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
-        StatementAgentInstanceFactoryCreateSchemaForge forge = new StatementAgentInstanceFactoryCreateSchemaForge(eventType);
+        StatementAgentInstanceFactoryCreateSchemaForge forge = new StatementAgentInstanceFactoryCreateSchemaForge(eventTypeForgablesPair.getEventType());
         StmtClassForgeableAIFactoryProviderCreateSchema aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateSchema(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
@@ -69,27 +70,29 @@ public class StmtForgeMethodCreateSchema implements StmtForgeMethod {
         StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
         List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : eventTypeForgablesPair.getAdditionalForgeables()) {
+            forgeables.add(additional.make(packageScope, classPostfix));
+        }
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
         return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    private EventType handleCreateSchema(CreateSchemaDesc spec, StatementCompileTimeServices services)
+    private EventTypeForgablesPair handleCreateSchema(CreateSchemaDesc spec, String packageName, StatementCompileTimeServices services)
             throws ExprValidationException {
 
-        EventType eventType;
-
+        EventTypeForgablesPair pair;
         try {
             if (spec.getAssignedType() != CreateSchemaDesc.AssignedType.VARIANT) {
-                eventType = EventTypeUtility.createNonVariantType(false, spec, base, services);
+                pair = EventTypeUtility.createNonVariantType(false, spec, packageName, base, services);
             } else {
-                eventType = handleVariantType(spec, services);
+                EventType eventType = handleVariantType(spec, services);
+                pair = new EventTypeForgablesPair(eventType, Collections.emptyList());
             }
         } catch (RuntimeException ex) {
             throw new ExprValidationException(ex.getMessage(), ex);
         }
-
-        return eventType;
+        return pair;
     }
 
     private EventType handleVariantType(CreateSchemaDesc spec, StatementCompileTimeServices services) throws ExprValidationException {

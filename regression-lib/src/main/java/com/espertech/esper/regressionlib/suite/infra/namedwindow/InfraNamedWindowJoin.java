@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -271,6 +272,11 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 theEvent.put("product", product);
                 theEvent.put("size", size);
                 env.eventService().sendEventAvro(theEvent, "Product");
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                JsonObject object = new JsonObject();
+                object.add("product", product);
+                object.add("size", size);
+                env.eventService().sendEventJson(object.toString(), "Product");
             } else {
                 fail();
             }
@@ -289,6 +295,11 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 theEvent.put("portfolio", portfolio);
                 theEvent.put("product", product);
                 env.eventService().sendEventAvro(theEvent, "Portfolio");
+            } else if (eventRepresentationEnum.isJsonEvent()) {
+                JsonObject object = new JsonObject();
+                object.add("portfolio", portfolio);
+                object.add("product", product);
+                env.eventService().sendEventJson(object.toString(), "Portfolio");
             } else {
                 fail();
             }

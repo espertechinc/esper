@@ -62,7 +62,7 @@ public class VMExtendedBuiltinSerdeFactory {
                 return DIOPrimitiveDoubleArrayNullableSerde.INSTANCE;
             }
             if (componentType == String.class) {
-                return DIOBoxedStringArrayNullableSerde.INSTANCE;
+                return DIOStringArrayNullableSerde.INSTANCE;
             }
             if (componentType == Character.class) {
                 return DIOBoxedCharacterArrayNullableSerde.INSTANCE;

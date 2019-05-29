@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.event.bean.getter.BaseNativePropertyG
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.Map;
 
@@ -54,6 +55,12 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), ref("index")));
     }
 
+    private CodegenMethod existsMapInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").addParam(int.class, "index").getBlock()
+            .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+            .methodReturn(staticMethod(CollectionUtil.class, "arrayExistsAtIndex", ref("value"), ref("index")));
+    }
+
     public boolean isMapExistsProperty(Map<String, Object> map) {
         return map.containsKey(propertyMap);
     }
@@ -69,7 +76,8 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
 
     public boolean isExistsProperty(EventBean eventBean) {
         Map map = BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean);
-        return map.containsKey(propertyMap);
+        Object array = map.get(propertyMap);
+        return CollectionUtil.arrayExistsAtIndex(array, index);
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -85,7 +93,7 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return exprDotMethod(underlyingExpression, "containsKey", constant(propertyMap));
+        return localMethod(existsMapInternalCodegen(codegenMethodScope, codegenClassScope), underlyingExpression, constant(index));
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {

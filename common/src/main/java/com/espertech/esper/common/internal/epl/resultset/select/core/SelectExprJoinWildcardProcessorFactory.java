@@ -20,7 +20,9 @@ import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateSchemaDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.InsertIntoDesc;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalJoinWildcardProcessorJson;
 import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalJoinWildcardProcessorMap;
 import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalJoinWildcardProcessorObjectArray;
 import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalJoinWildcardProcessorTableRows;
@@ -29,19 +31,27 @@ import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.avro.AvroSchemaEventType;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
+import com.espertech.esper.common.internal.event.core.EventTypeForgablesPair;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.util.EventRepresentationUtil;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.espertech.esper.common.client.meta.EventTypeApplicationType.*;
+
 public class SelectExprJoinWildcardProcessorFactory {
-    public static SelectExprProcessorForge create(SelectProcessorArgs args, InsertIntoDesc insertIntoDesc, Function<String, String> eventTypeNamePostfix) throws ExprValidationException {
+    public static SelectExprProcessorForgeWForgables create(SelectProcessorArgs args, InsertIntoDesc insertIntoDesc, Function<String, String> eventTypeNamePostfix) throws ExprValidationException {
         String[] streamNames = args.getTypeService().getStreamNames();
         EventType[] streamTypes = args.getTypeService().getEventTypes();
         String moduleName = args.getModuleName();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         if ((streamNames.length < 2) || (streamTypes.length < 2) || (streamNames.length != streamTypes.length)) {
             throw new IllegalArgumentException("Stream names and types parameter length is invalid, expected use of this class is for join statements");
         }
@@ -79,12 +89,16 @@ public class SelectExprJoinWildcardProcessorFactory {
                 Function<EventTypeApplicationType, EventTypeMetadata> metadata = apptype -> new EventTypeMetadata(eventTypeName, moduleName, EventTypeTypeClass.STREAM, apptype, visibility, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
                 if (representation == EventUnderlyingType.MAP) {
                     Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(selectProperties);
-                    resultEventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(EventTypeApplicationType.MAP), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
+                    resultEventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(MAP), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
                 } else if (representation == EventUnderlyingType.OBJECTARRAY) {
                     Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(selectProperties);
-                    resultEventType = BaseNestableEventUtil.makeOATypeCompileTime(metadata.apply(EventTypeApplicationType.OBJECTARR), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
+                    resultEventType = BaseNestableEventUtil.makeOATypeCompileTime(metadata.apply(OBJECTARR), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
                 } else if (representation == EventUnderlyingType.AVRO) {
-                    resultEventType = args.getEventTypeAvroHandler().newEventTypeFromNormalized(metadata.apply(EventTypeApplicationType.AVRO), args.getEventTypeCompileTimeResolver(), EventBeanTypedEventFactoryCompileTime.INSTANCE, selectProperties, args.getAnnotations(), null, null, null, args.getStatementName());
+                    resultEventType = args.getEventTypeAvroHandler().newEventTypeFromNormalized(metadata.apply(AVRO), args.getEventTypeCompileTimeResolver(), EventBeanTypedEventFactoryCompileTime.INSTANCE, selectProperties, args.getAnnotations(), null, null, null, args.getStatementName());
+                } else if (representation == EventUnderlyingType.JSON) {
+                    EventTypeForgablesPair pair = JsonEventTypeUtility.makeJsonTypeCompileTimeNewType(metadata.apply(JSON), selectProperties, null, null, args.getStatementRawInfo(), args.getCompileTimeServices());
+                    resultEventType = pair.getEventType();
+                    additionalForgeables.addAll(pair.getAdditionalForgeables());
                 } else {
                     throw new IllegalStateException("Unrecognized code " + representation);
                 }
@@ -94,11 +108,15 @@ public class SelectExprJoinWildcardProcessorFactory {
                 Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(selectProperties);
                 Function<EventTypeApplicationType, EventTypeMetadata> metadata = type -> new EventTypeMetadata(eventTypeName, moduleName, EventTypeTypeClass.STATEMENTOUT, type, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
                 if (representation == EventUnderlyingType.MAP) {
-                    resultEventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(EventTypeApplicationType.MAP), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
+                    resultEventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(MAP), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
                 } else if (representation == EventUnderlyingType.OBJECTARRAY) {
-                    resultEventType = BaseNestableEventUtil.makeOATypeCompileTime(metadata.apply(EventTypeApplicationType.OBJECTARR), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
+                    resultEventType = BaseNestableEventUtil.makeOATypeCompileTime(metadata.apply(OBJECTARR), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
                 } else if (representation == EventUnderlyingType.AVRO) {
-                    resultEventType = args.getEventTypeAvroHandler().newEventTypeFromNormalized(metadata.apply(EventTypeApplicationType.AVRO), args.getEventTypeCompileTimeResolver(), args.getBeanEventTypeFactoryPrivate().getEventBeanTypedEventFactory(), selectProperties, args.getAnnotations(), null, null, null, args.getStatementName());
+                    resultEventType = args.getEventTypeAvroHandler().newEventTypeFromNormalized(metadata.apply(AVRO), args.getEventTypeCompileTimeResolver(), args.getBeanEventTypeFactoryPrivate().getEventBeanTypedEventFactory(), selectProperties, args.getAnnotations(), null, null, null, args.getStatementName());
+                } else if (representation == EventUnderlyingType.JSON) {
+                    EventTypeForgablesPair pair = JsonEventTypeUtility.makeJsonTypeCompileTimeNewType(metadata.apply(JSON), propertyTypes, null, null, args.getStatementRawInfo(), args.getCompileTimeServices());
+                    resultEventType = pair.getEventType();
+                    additionalForgeables.addAll(pair.getAdditionalForgeables());
                 } else {
                     throw new IllegalStateException("Unrecognized enum " + representation);
                 }
@@ -114,12 +132,15 @@ public class SelectExprJoinWildcardProcessorFactory {
                 processor = new SelectEvalJoinWildcardProcessorMap(streamNames, resultEventType);
             } else if (resultEventType instanceof AvroSchemaEventType) {
                 processor = args.getEventTypeAvroHandler().getOutputFactory().makeJoinWildcard(streamNames, resultEventType);
+            } else if (resultEventType instanceof JsonEventType) {
+                processor = new SelectEvalJoinWildcardProcessorJson(streamNames, (JsonEventType) resultEventType);
             }
         }
 
         if (!hasTables) {
-            return processor;
+            return new SelectExprProcessorForgeWForgables(processor, additionalForgeables);
         }
-        return new SelectEvalJoinWildcardProcessorTableRows(streamTypes, processor, args.getTableCompileTimeResolver());
+        processor = new SelectEvalJoinWildcardProcessorTableRows(streamTypes, processor, args.getTableCompileTimeResolver());
+        return new SelectExprProcessorForgeWForgables(processor, additionalForgeables);
     }
 }

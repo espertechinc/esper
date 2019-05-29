@@ -138,7 +138,7 @@ public class BaseNestableEventUtil {
 
     private static EPException makeUnexpectedTypeException(String propertyTypeName, String propertyName) {
         return new EPException("Nestable type configuration encountered an unexpected property type name '"
-                + propertyTypeName + "' for property '" + propertyName + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+                + propertyTypeName + "' for property '" + propertyName + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
     }
 
     public static Map<String, Object> checkedCastUnderlyingMap(EventBean theEvent) throws PropertyAccessException {
@@ -294,7 +294,7 @@ public class BaseNestableEventUtil {
         return getter.isMapExistsProperty((Map<String, Object>) valueMap);
     }
 
-    public static CodegenExpression handleNestedValueArrayWithMapExistsCode(int index, MapEventPropertyGetter getter, CodegenExpression ref, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventType fragmentType, Class generator) {
+    public static CodegenExpression handleNestedValueArrayWithMapExistsCode(int index, MapEventPropertyGetter getter, CodegenExpression ref, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, Class generator) {
         CodegenMethod method = CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, Map.class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS, generator);
         return localMethod(method, staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndex", ref, constant(index)));
     }

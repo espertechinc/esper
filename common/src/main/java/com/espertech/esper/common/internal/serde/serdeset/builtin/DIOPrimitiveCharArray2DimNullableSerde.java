@@ -47,6 +47,10 @@ public class DIOPrimitiveCharArray2DimNullableSerde implements DataInputOutputSe
     }
 
     private void writeArray(char[] array, DataOutput output) throws IOException {
+        if (array == null) {
+            output.writeInt(-1);
+            return;
+        }
         output.writeInt(array.length);
         for (char i : array) {
             output.writeChar(i);
@@ -55,6 +59,9 @@ public class DIOPrimitiveCharArray2DimNullableSerde implements DataInputOutputSe
 
     private char[] readArray(DataInput input) throws IOException {
         int len = input.readInt();
+        if (len == -1) {
+            return null;
+        }
         char[] array = new char[len];
         for (int i = 0; i < len; i++) {
             array[i] = input.readChar();

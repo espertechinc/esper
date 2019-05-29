@@ -263,4 +263,5 @@ public interface EventType {
      * @return type metadata
      */
     public EventTypeMetadata getMetadata();
+
 }

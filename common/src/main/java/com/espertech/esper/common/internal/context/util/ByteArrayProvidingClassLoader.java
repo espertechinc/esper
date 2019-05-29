@@ -30,4 +30,8 @@ public class ByteArrayProvidingClassLoader extends ClassLoader {
             return super.defineClass(name, data, 0, data.length, this.getClass().getProtectionDomain());
         }
     }
+
+    public Map<String, byte[]> getClasses() {
+        return classes;
+    }
 }

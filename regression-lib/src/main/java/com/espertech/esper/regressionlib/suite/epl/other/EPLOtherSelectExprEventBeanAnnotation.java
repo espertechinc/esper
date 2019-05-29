@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -113,12 +114,19 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             "c1 as f4, " +
             "c1.lastOf().col1 as f5 " +
             "from DStream", path).addListener("s0");
+        env.compileDeploy("@name('s1') select * from MyEvent", path).addListener("s1");
 
         Object eventOne = sendEvent(env, rep, "E1");
+        if (rep.isJsonEvent()) {
+            eventOne = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
+        }
         assertTrue(((Map) env.listener("insert").assertOneGetNewAndReset().getUnderlying()).get("c0") instanceof EventBean);
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventOne, "E1", new Object[]{eventOne}, "E1", new Object[]{eventOne}, "E1"});
 
         Object eventTwo = sendEvent(env, rep, "E2");
+        if (rep.isJsonEvent()) {
+            eventTwo = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
+        }
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
 
         // test SODA
@@ -150,13 +158,16 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             Object[] event = new Object[]{value};
             env.sendEventObjectArray(event, "MyEvent");
             eventOne = event;
-
         } else if (rep.isAvroEvent()) {
             Schema schema = SupportAvroUtil.getAvroSchema(env.statement("schema").getEventType());
             GenericData.Record event = new GenericData.Record(schema);
             event.put("col1", value);
             env.sendEventAvro(event, "MyEvent");
             eventOne = event;
+        } else if (rep.isJsonEvent()) {
+            JsonObject object = new JsonObject().add("col1", value);
+            env.sendEventJson(object.toString(), "MyEvent");
+            eventOne = object.toString();
         } else {
             throw new IllegalStateException();
         }

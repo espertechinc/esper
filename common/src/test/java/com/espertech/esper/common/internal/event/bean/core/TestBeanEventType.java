@@ -186,12 +186,7 @@ public class TestBeanEventType extends TestCase {
     }
 
     private static void tryInvalidIsProperty(BeanEventType type, String property) {
-        try {
-            type.getPropertyType(property);
-            fail();
-        } catch (PropertyAccessException ex) {
-            // expected
-        }
+        assertNull(type.getPropertyType(property));
     }
 
     private static void runTest(List<PropTestDesc> tests, BeanEventType eventType, EventBean eventBean) {

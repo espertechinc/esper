@@ -37,4 +37,33 @@
     <suppress files="SupportBean_IntAlphabetic.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="SupportBean_StringAlphabetic.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="EventInfraSuperType.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="Json.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonArray.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonHandler.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonLiteral.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonNumber.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonObject.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonParser.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonString.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonValue.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonWriter.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="Location.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="Member.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="ParseException.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="PrettyPrint.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="WriterConfig.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="WritingBuffer.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonArray_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonLiteral_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonNumber_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonObject_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonParser_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonString_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonValue_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="JsonWriter_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="Json_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="ParseException_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="PrettyPrint_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="TestUtil.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="WritingBuffer_Test.java" checks="[a-zA-Z0-9]*"/>  
 </suppressions>

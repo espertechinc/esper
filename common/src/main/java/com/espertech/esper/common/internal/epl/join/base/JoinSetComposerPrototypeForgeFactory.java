@@ -372,6 +372,8 @@ public class JoinSetComposerPrototypeForgeFactory {
      * @param streamViewType      the event type of the stream looking up in indexes
      * @param polledViewStreamNum the stream number of the historical that is indexed
      * @param streamViewStreamNum the stream number of the historical that is looking up
+     * @param raw raw info
+     * @param serdeResolver serde resolver
      * @return indexing and lookup strategy pair
      */
     public static JoinSetComposerPrototypeHistoricalDesc determineIndexing(QueryGraphForge queryGraph,

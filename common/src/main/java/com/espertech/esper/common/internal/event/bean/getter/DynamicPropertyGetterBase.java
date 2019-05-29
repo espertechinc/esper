@@ -34,10 +34,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Base class for getters for a dynamic property (syntax field.inner?), caches methods to use for classes.
  */
 public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGetter {
-    private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
-    private final BeanEventTypeFactory beanEventTypeFactory;
-    private final CopyOnWriteArrayList<DynamicPropertyDescriptor> cache;
-    private final CodegenFieldSharable sharableCode = new CodegenFieldSharable() {
+    protected final EventBeanTypedEventFactory eventBeanTypedEventFactory;
+    protected final BeanEventTypeFactory beanEventTypeFactory;
+    protected final CopyOnWriteArrayList<DynamicPropertyDescriptor> cache;
+    protected final CodegenFieldSharable sharableCode = new CodegenFieldSharable() {
         public Class type() {
             return CopyOnWriteArrayList.class;
         }
@@ -113,7 +113,7 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
         return true;
     }
 
-    private CodegenExpression cacheAndExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
+    protected CodegenExpression cacheAndExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenExpression memberCache = codegenClassScope.addOrGetFieldSharable(sharableCode);
         CodegenMethod method = parent.makeChild(boolean.class, DynamicPropertyGetterBase.class, codegenClassScope).addParam(Object.class, "object");
         method.getBlock()
@@ -145,10 +145,6 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
         return cacheAndCall(cache, this, event.getUnderlying(), eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
-    public boolean isExistsProperty(EventBean eventBean) {
-        return cacheAndExists(cache, this, eventBean.getUnderlying(), eventBeanTypedEventFactory);
-    }
-
     public Class getBeanPropType() {
         return Object.class;
     }
@@ -169,10 +165,6 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
         return cacheAndCallCodegen(underlyingExpression, codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return cacheAndExistsCodegen(underlyingExpression, codegenMethodScope, codegenClassScope);
-    }
-
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
@@ -182,7 +174,7 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
         return BaseNativePropertyGetter.getFragmentDynamic(result, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
-    private static DynamicPropertyDescriptor getPopulateCache(CopyOnWriteArrayList<DynamicPropertyDescriptor> cache, DynamicPropertyGetterBase dynamicPropertyGetterBase, Object obj, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+    protected static DynamicPropertyDescriptor getPopulateCache(CopyOnWriteArrayList<DynamicPropertyDescriptor> cache, DynamicPropertyGetterBase dynamicPropertyGetterBase, Object obj, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
         DynamicPropertyDescriptor desc = dynamicPropertyCacheCheck(cache, obj);
         if (desc != null) {
             return desc;
@@ -204,7 +196,7 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
         }
     }
 
-    private CodegenExpression getPopulateCacheCodegen(CodegenExpression memberCache, CodegenExpressionRef object, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
+    protected CodegenExpression getPopulateCacheCodegen(CodegenExpression memberCache, CodegenExpressionRef object, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenMethod method = parent.makeChild(DynamicPropertyDescriptor.class, DynamicPropertyGetterBase.class, codegenClassScope).addParam(CopyOnWriteArrayList.class, "cache").addParam(Object.class, "obj");
         method.getBlock()
                 .declareVar(DynamicPropertyDescriptor.class, "desc", staticMethod(DynamicPropertyGetterBase.class, "dynamicPropertyCacheCheck", ref("cache"), ref("obj")))

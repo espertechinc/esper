@@ -20,7 +20,6 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndIndexed;
-import com.espertech.esper.common.internal.event.util.PropertyUtility;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -46,23 +45,7 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
     }
 
     public Object getBeanProp(Object object) throws PropertyAccessException {
-        return getBeanPropInternal(object, index);
-    }
-
-    private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
-        try {
-            Object value = field.get(object);
-            if (Array.getLength(value) <= index) {
-                return null;
-            }
-            return Array.get(value, index);
-        } catch (ClassCastException e) {
-            throw PropertyUtility.getMismatchException(field, object, e);
-        } catch (IllegalAccessException e) {
-            throw PropertyUtility.getIllegalAccessException(field, e);
-        } catch (IllegalArgumentException e) {
-            throw PropertyUtility.getIllegalArgumentException(field, e);
-        }
+        return BeanFieldGetterHelper.getFieldArray(field, object, index);
     }
 
     private CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -81,7 +64,7 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
     }
 
     public Object get(EventBean eventBean, int index) throws PropertyAccessException {
-        return getBeanPropInternal(eventBean.getUnderlying(), index);
+        return BeanFieldGetterHelper.getFieldArray(field, eventBean.getUnderlying(), index);
     }
 
     public Class getBeanPropType() {

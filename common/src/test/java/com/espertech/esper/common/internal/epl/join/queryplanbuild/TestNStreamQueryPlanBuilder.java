@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.join.queryplanbuild;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNodeImpl;
@@ -44,11 +43,11 @@ public class TestNStreamQueryPlanBuilder extends TestCase {
 
     public void setUp() {
         typesPerStream = new EventType[]{
-                SupportEventTypeFactory.createBeanType(SupportBean_S0.class),
-                SupportEventTypeFactory.createBeanType(SupportBean_S1.class),
-                SupportEventTypeFactory.createBeanType(SupportBean_S2.class),
-                SupportEventTypeFactory.createBeanType(SupportBean_S3.class),
-                SupportEventTypeFactory.createBeanType(SupportBean_S4.class)
+            SupportEventTypeFactory.createBeanType(SupportBean_S0.class),
+            SupportEventTypeFactory.createBeanType(SupportBean_S1.class),
+            SupportEventTypeFactory.createBeanType(SupportBean_S2.class),
+            SupportEventTypeFactory.createBeanType(SupportBean_S3.class),
+            SupportEventTypeFactory.createBeanType(SupportBean_S4.class)
         };
 
         queryGraph = new QueryGraphForge(5, null, false);
@@ -63,8 +62,7 @@ public class TestNStreamQueryPlanBuilder extends TestCase {
 
     public void testBuild() {
         QueryPlanForgeDesc plan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream, new HistoricalViewableDesc(6), dependencyGraph, null, false, new String[queryGraph.getNumStreams()][][], new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5), null, SerdeCompileTimeResolverNonHA.INSTANCE);
-
-        log.debug(".testBuild plan=" + plan.getForge());
+        log.debug(".testBuild plan=" + plan);
     }
 
     public void testCreateStreamPlan() {

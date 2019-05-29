@@ -49,6 +49,7 @@ import com.espertech.esper.common.internal.event.core.BaseNestableEventType;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.core.TypeBeanOrUnderlying;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
@@ -63,6 +64,7 @@ import com.espertech.esper.compiler.client.EPCompileExceptionSyntaxItem;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -73,11 +75,10 @@ public class CompilerHelperModuleProvider {
     private final static int NUM_STATEMENT_NAMES_PER_BATCH = 1000;
 
     protected static EPCompiled compile(List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions) throws EPCompileException {
-        String packageName = "generated";
-        Map<String, byte[]> moduleBytes = new HashMap<>();
+        ConcurrentHashMap<String, byte[]> moduleBytes = new ConcurrentHashMap<>();
         EPCompiledManifest manifest;
         try {
-            manifest = compileToBytes(moduleBytes, compilables, optionalModuleName, moduleProperties, compileTimeServices, compilerOptions, packageName);
+            manifest = compileToBytes(moduleBytes, compilables, optionalModuleName, moduleProperties, compileTimeServices, compilerOptions);
         } catch (EPCompileException ex) {
             throw ex;
         } catch (Throwable t) {
@@ -86,7 +87,7 @@ public class CompilerHelperModuleProvider {
         return new EPCompiled(moduleBytes, manifest);
     }
 
-    private static EPCompiledManifest compileToBytes(Map<String, byte[]> moduleBytes, List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions, String packageName) throws EPCompileException, IOException {
+    private static EPCompiledManifest compileToBytes(ConcurrentHashMap<String, byte[]> moduleBytes, List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions) throws EPCompileException, IOException {
         String moduleAssignedName = optionalModuleName == null ? UUID.randomUUID().toString() : optionalModuleName;
         String moduleIdentPostfix = IdentifierUtil.getIdentifierMayStartNumeric(moduleAssignedName);
 
@@ -104,15 +105,22 @@ public class CompilerHelperModuleProvider {
 
                 try {
                     StatementCompileTimeServices statementCompileTimeServices = new StatementCompileTimeServices(statementNumber, compileTimeServices);
-                    CompilableItem compilableItem = compileItem(compilable, optionalModuleName, moduleIdentPostfix, statementNumber, packageName, statementNames, statementCompileTimeServices, compilerOptions);
+                    CompilableItem compilableItem = compileItem(compilable, optionalModuleName, moduleIdentPostfix, statementNumber, statementNames, statementCompileTimeServices, compilerOptions);
                     className = compilableItem.getProviderClassName();
+
                     compilerPool.submit(statementNumber, compilableItem);
+
+                    // there can be a post-compile step, which may block submitting further compilables
+                    compilableItem.getPostCompileLatch().awaitAndRun();
                 } catch (StatementSpecCompileException ex) {
                     if (ex instanceof StatementSpecCompileSyntaxException) {
                         exception = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
                     } else {
                         exception = new EPCompileExceptionItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
                     }
+                    exceptions.add(exception);
+                } catch (RuntimeException ex) {
+                    exception = new EPCompileExceptionItem(ex.getMessage(), ex, compilable.toEPL(), compilable.lineNumber());
                     exceptions.add(exception);
                 }
 
@@ -136,15 +144,15 @@ public class CompilerHelperModuleProvider {
         compilerPool.shutdownCollectResults();
 
         // compile module resource
-        String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, moduleBytes, packageName, compileTimeServices);
+        String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, moduleBytes, compileTimeServices);
 
         // create module XML
         return new EPCompiledManifest(COMPILER_VERSION, moduleProviderClassName, null, compileTimeServices.getSerdeResolver().isTargetHA());
     }
 
-    private static String compileModule(String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, List<String> statementClassNames, String moduleIdentPostfix, Map<String, byte[]> moduleBytes, String packageName, ModuleCompileTimeServices compileTimeServices) {
+    private static String compileModule(String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, List<String> statementClassNames, String moduleIdentPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) {
         // write code to create an implementation of StatementResource
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, compileTimeServices.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented());
         String moduleClassName = CodeGenerationIDGenerator.generateClassNameSimple(ModuleProvider.class, moduleIdentPostfix);
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, moduleClassName);
         CodegenClassMethods methods = new CodegenClassMethods();
@@ -241,7 +249,7 @@ public class CompilerHelperModuleProvider {
         CodegenClass clazz = new CodegenClass(CodegenClassType.MODULEPROVIDER, ModuleProvider.class, moduleClassName, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
         JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
 
-        return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, ModuleProvider.class, moduleIdentPostfix);
+        return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), ModuleProvider.class, moduleIdentPostfix);
     }
 
     private static void makeStatementsMethod(CodegenMethod statementsMethod, List<String> statementClassNames, CodegenClassScope classScope) {
@@ -382,7 +390,20 @@ public class CompilerHelperModuleProvider {
         // metadata
         method.getBlock().declareVar(EventTypeMetadata.class, "metadata", eventType.getMetadata().toExpression());
 
-        if (eventType instanceof BaseNestableEventType) {
+        if (eventType instanceof JsonEventType) {
+            JsonEventType jsonEventType = (JsonEventType) eventType;
+            method.getBlock().declareVar(LinkedHashMap.class, "props", localMethod(makePropsCodegen(jsonEventType.getTypes(), method, symbols, classScope, () -> jsonEventType.getDeepSuperTypes())));
+            String[] superTypeNames = null;
+            if (jsonEventType.getSuperTypes() != null && jsonEventType.getSuperTypes().length > 0) {
+                superTypeNames = new String[jsonEventType.getSuperTypes().length];
+                for (int i = 0; i < jsonEventType.getSuperTypes().length; i++) {
+                    superTypeNames[i] = jsonEventType.getSuperTypes()[i].getName();
+                }
+            }
+            CodegenExpression detailExpr = jsonEventType.getDetail().toExpression(method, classScope);
+            method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerJson", ref("metadata"), ref("props"),
+                constant(superTypeNames), constant(jsonEventType.getStartTimestampPropertyName()), constant(jsonEventType.getEndTimestampPropertyName()), detailExpr));
+        } else if (eventType instanceof BaseNestableEventType) {
             BaseNestableEventType baseNestable = (BaseNestableEventType) eventType;
             method.getBlock().declareVar(LinkedHashMap.class, "props", localMethod(makePropsCodegen(baseNestable.getTypes(), method, symbols, classScope, () -> baseNestable.getDeepSuperTypes())));
             String registerMethodName = eventType instanceof MapEventType ? "registerMap" : "registerObjectArray";

@@ -12,10 +12,13 @@ package com.espertech.esper.regressionlib.support.epl;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
+import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
+import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
@@ -320,6 +323,13 @@ public class SupportStaticMethodLib {
         upd.put("one", val1);
         upd.put("two", "|" + val2 + "|");
         return upd;
+    }
+
+    public static String convertEventJson(JsonEventObject row) {
+        String val1 = row.get("one").toString();
+        String val2 = row.get("two").toString();
+        JsonObject json = new JsonObject().add("one", val1).add("two", "|" + val2 + "|");
+        return json.toString();
     }
 
     public static SupportBean convertEvent(SupportMarketDataBean bean) {

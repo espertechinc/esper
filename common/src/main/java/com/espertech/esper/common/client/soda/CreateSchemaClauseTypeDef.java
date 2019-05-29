@@ -38,6 +38,11 @@ public enum CreateSchemaClauseTypeDef implements Serializable {
     AVRO,
 
     /**
+     * Json-array underlying type.
+     */
+    JSON,
+
+    /**
      * Undefined (system default) underlying type.
      */
     NONE;
@@ -56,6 +61,8 @@ public enum CreateSchemaClauseTypeDef implements Serializable {
             writer.write(" objectarray");
         } else if (this == AVRO) {
             writer.write(" avro");
+        } else if (this == JSON) {
+            writer.write(" json");
         }
     }
 }

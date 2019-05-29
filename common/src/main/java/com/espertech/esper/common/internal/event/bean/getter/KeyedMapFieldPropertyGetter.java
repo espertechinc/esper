@@ -20,7 +20,6 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndMapped;
-import com.espertech.esper.common.internal.event.util.PropertyUtility;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
@@ -42,28 +41,11 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
     }
 
     public Object get(EventBean eventBean, String mapKey) throws PropertyAccessException {
-        return getBeanPropInternal(eventBean.getUnderlying(), mapKey);
+        return BeanFieldGetterHelper.getFieldMap(field, eventBean.getUnderlying(), mapKey);
     }
 
     public Object getBeanProp(Object object) throws PropertyAccessException {
-        return getBeanPropInternal(object, key);
-    }
-
-    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException {
-        try {
-            Object result = field.get(object);
-            if (!(result instanceof Map)) {
-                return null;
-            }
-            Map resultMap = (Map) result;
-            return resultMap.get(key);
-        } catch (ClassCastException e) {
-            throw PropertyUtility.getMismatchException(field, object, e);
-        } catch (IllegalAccessException e) {
-            throw PropertyUtility.getIllegalAccessException(field, e);
-        } catch (IllegalArgumentException e) {
-            throw PropertyUtility.getIllegalArgumentException(field, e);
-        }
+        return BeanFieldGetterHelper.getFieldMap(field, object, key);
     }
 
     private CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {

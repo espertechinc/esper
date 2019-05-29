@@ -20,6 +20,9 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.json.core.EventTypeNestableGetterFactoryJson;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.variant.VariantSpec;
@@ -71,5 +74,14 @@ public class EventTypeFactoryImpl implements EventTypeFactory {
 
     public VariantEventType createVariant(EventTypeMetadata metadata, VariantSpec spec) {
         return new VariantEventType(metadata, spec);
+    }
+
+    public JsonEventType createJson(EventTypeMetadata metadata, LinkedHashMap<String, Object> properties, String[] superTypes, String startTimestampPropertyName, String endTimestampPropertyName, BeanEventTypeFactory beanEventTypeFactory, EventTypeNameResolver eventTypeNameResolver, JsonEventTypeDetail detail) {
+        Pair<EventType[], Set<EventType>> st = EventTypeUtility.getSuperTypesDepthFirst(superTypes, EventUnderlyingType.JSON, eventTypeNameResolver);
+        properties = BaseNestableEventUtil.resolvePropertyTypes(properties, eventTypeNameResolver);
+        EventTypeNestableGetterFactoryJson getterFactoryJson = new EventTypeNestableGetterFactoryJson(detail);
+        // We use a null-stand-in class as the actual underlying class is provided later
+        return new JsonEventType(metadata, properties,
+            st.getFirst(), st.getSecond(), startTimestampPropertyName, endTimestampPropertyName, getterFactoryJson, beanEventTypeFactory, detail, null);
     }
 }

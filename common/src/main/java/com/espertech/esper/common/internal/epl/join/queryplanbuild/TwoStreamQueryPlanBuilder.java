@@ -34,6 +34,7 @@ public class TwoStreamQueryPlanBuilder {
      * @param optionalOuterJoinType    - outer join type, null if not an outer join
      * @param typesPerStream           - event types for each stream
      * @param streamJoinAnalysisResult stream join analysis
+     * @param raw raw info
      * @return query plan
      */
     public static QueryPlanForgeDesc build(EventType[] typesPerStream, QueryGraphForge queryGraph, OuterJoinType optionalOuterJoinType, StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult, StatementRawInfo raw) {

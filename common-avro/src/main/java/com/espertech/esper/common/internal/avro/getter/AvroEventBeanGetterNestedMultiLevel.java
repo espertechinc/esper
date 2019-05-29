@@ -56,6 +56,29 @@ public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetterS
         return inner.get(path[path.length - 1]);
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param record record
+     * @param top    top index
+     * @param path   path of indexes
+     * @return value
+     * @throws PropertyAccessException property access problem
+     */
+    public static boolean existsRecordValueTopWPath(GenericData.Record record, int top, int[] path) throws PropertyAccessException {
+        GenericData.Record inner = (GenericData.Record) record.get(top);
+        if (inner == null) {
+            return false;
+        }
+        for (int i = 0; i < path.length - 1; i++) {
+            inner = (GenericData.Record) inner.get(path[i]);
+            if (inner == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public AvroEventBeanGetterNestedMultiLevel(int top, int[] path, EventType fragmentEventType, EventBeanTypedEventFactory eventAdapterService) {
         this.top = top;
         this.path = path;
@@ -68,7 +91,7 @@ public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetterS
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
-        return true;
+        return existsRecordValueTopWPath((GenericData.Record) eventBean.getUnderlying(), top, path);
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -96,7 +119,7 @@ public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetterS
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -108,7 +131,7 @@ public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetterS
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return staticMethod(AvroEventBeanGetterNestedMultiLevel.class, "existsRecordValueTopWPath", underlyingExpression, constant(top), constant(path));
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

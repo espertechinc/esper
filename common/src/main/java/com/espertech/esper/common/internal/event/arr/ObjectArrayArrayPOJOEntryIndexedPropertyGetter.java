@@ -19,9 +19,9 @@ import com.espertech.esper.common.internal.event.bean.getter.BaseNativePropertyG
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 
 /**
  * A getter that works on arrays residing within a Map as an event property.
@@ -62,7 +62,7 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
 
     public boolean isExistsProperty(EventBean eventBean) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
-        return array.length > index;
+        return CollectionUtil.arrayExistsAtIndex(array[propertyIndex], index);
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -78,7 +78,7 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return relational(arrayLength(underlyingExpression), GT, constant(index));
+        return staticMethod(CollectionUtil.class, "arrayExistsAtIndex", arrayAtIndex(underlyingExpression, constant(propertyIndex)), constant(index));
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {

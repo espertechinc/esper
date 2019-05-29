@@ -26,5 +26,5 @@ public interface EventPropertyValueGetter {
      * @return value of property in event
      * @throws PropertyAccessException to indicate that property access failed
      */
-    public Object get(EventBean eventBean) throws PropertyAccessException;
+    Object get(EventBean eventBean) throws PropertyAccessException;
 }

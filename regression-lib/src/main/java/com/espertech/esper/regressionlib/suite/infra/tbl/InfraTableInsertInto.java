@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -351,6 +352,10 @@ public class InfraTableInsertInto {
             theEvent.put("p0", "a");
             theEvent.put("p1", "b");
             env.eventService().sendEventAvro(theEvent, "MySchema");
+        } else if (rep.isJsonEvent()) {
+            env.eventService().sendEventJson(new JsonObject().add("p0", "a").add("p1", "b").toString(), "MySchema");
+        } else {
+            fail();
         }
         EPAssertionUtil.assertProps(env.iterator("create").next(), "p0,p1".split(","), new Object[]{"a", "b"});
         env.undeployAll();

@@ -207,6 +207,7 @@ public class TestSuiteEPLInsertInto extends TestCase {
         configuration.getCompiler().addPlugInSingleRowFunction("generateMap", EPLInsertIntoTransposeStream.class.getName(), "localGenerateMap");
         configuration.getCompiler().addPlugInSingleRowFunction("generateOA", EPLInsertIntoTransposeStream.class.getName(), "localGenerateOA");
         configuration.getCompiler().addPlugInSingleRowFunction("generateAvro", EPLInsertIntoTransposeStream.class.getName(), "localGenerateAvro");
+        configuration.getCompiler().addPlugInSingleRowFunction("generateJson", EPLInsertIntoTransposeStream.class.getName(), "localGenerateJson");
         configuration.getCompiler().addPlugInSingleRowFunction("custom", SupportStaticMethodLib.class.getName(), "makeSupportBean");
         configuration.getCompiler().addPlugInSingleRowFunction("customOne", SupportStaticMethodLib.class.getName(), "makeSupportBean");
         configuration.getCompiler().addPlugInSingleRowFunction("customTwo", SupportStaticMethodLib.class.getName(), "makeSupportBeanNumeric");

@@ -406,6 +406,9 @@ public class SupportEventTypeAssertionUtil {
                 SupportEventTypeAssertionEnum assertion = assertions[i];
                 Object expected = expectedArr[propNum][i];
                 Object value = assertion.getExtractor().extract(prop, eventType);
+                if (expected == Object[].class && ((Class) value).isArray() && !((Class) value).getComponentType().isPrimitive()) {
+                    continue;
+                }
                 ScopeTestHelper.assertEquals(message + " at assertion " + assertion, expected, value);
             }
         }

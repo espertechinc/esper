@@ -17,6 +17,8 @@ import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepository;
+import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.common.internal.event.xml.XMLEventBean;
 import org.w3c.dom.Document;
@@ -63,6 +65,14 @@ public class EventTypeResolvingBeanFactoryImpl implements EventTypeResolvingBean
         EventType type = eventTypeRepository.getTypeByName(eventTypeName);
         EventTypeUtility.validateTypeAvro(eventTypeName, type);
         return avroHandler.adapterForTypeAvro(avroGenericDataDotRecord, type);
+    }
+
+    public EventBean adapterForJson(String json, String eventTypeName) {
+        EventType type = eventTypeRepository.getTypeByName(eventTypeName);
+        EventTypeUtility.validateTypeJson(eventTypeName, type);
+        JsonEventType jsonEventType = (JsonEventType) type;
+        Object underlying = jsonEventType.parse(json);
+        return new JsonEventBean(underlying, type);
     }
 
     public static Node getXMLNodeFromDocument(org.w3c.dom.Node node) {

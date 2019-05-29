@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.compile.stage3.StmtForgeMethodResult;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperatorForge;
@@ -35,16 +36,18 @@ public class DataflowDescForge {
     private final Set<Integer> operatorBuildOrder;
     private final Map<Integer, DataFlowOperatorForge> operatorFactories;
     private final List<LogicalChannel> logicalChannels;
-    private final List<StmtForgeMethodResult> additionalForgeables;
+    private final List<StmtForgeMethodResult> forgables;
+    private final List<StmtClassForgeableFactory> additionalForgables;
 
-    public DataflowDescForge(String dataflowName, Map<String, EventType> declaredTypes, Map<Integer, OperatorMetadataDescriptor> operatorMetadata, Set<Integer> operatorBuildOrder, Map<Integer, DataFlowOperatorForge> operatorFactories, List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> additionalForgeables) {
+    public DataflowDescForge(String dataflowName, Map<String, EventType> declaredTypes, Map<Integer, OperatorMetadataDescriptor> operatorMetadata, Set<Integer> operatorBuildOrder, Map<Integer, DataFlowOperatorForge> operatorFactories, List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> forgables, List<StmtClassForgeableFactory> additionalForgables) {
         this.dataflowName = dataflowName;
         this.declaredTypes = declaredTypes;
         this.operatorMetadata = operatorMetadata;
         this.operatorBuildOrder = operatorBuildOrder;
         this.operatorFactories = operatorFactories;
         this.logicalChannels = logicalChannels;
-        this.additionalForgeables = additionalForgeables;
+        this.forgables = forgables;
+        this.additionalForgables = additionalForgables;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -65,8 +68,12 @@ public class DataflowDescForge {
         return operatorFactories;
     }
 
-    public List<StmtForgeMethodResult> getAdditionalForgeables() {
-        return additionalForgeables;
+    public List<StmtForgeMethodResult> getForgables() {
+        return forgables;
+    }
+
+    public List<StmtClassForgeableFactory> getAdditionalForgables() {
+        return additionalForgables;
     }
 
     private static CodegenExpression makeOpChannels(List<LogicalChannel> logicalChannels, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

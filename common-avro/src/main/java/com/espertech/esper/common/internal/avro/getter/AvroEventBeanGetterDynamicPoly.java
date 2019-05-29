@@ -39,7 +39,7 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
-        return true;
+        return isExistsPropertyAvro((GenericData.Record) eventBean.getUnderlying());
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
@@ -59,7 +59,7 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -71,7 +71,7 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return localMethod(getAvroFieldValuePolyExistsCodegen(codegenMethodScope, codegenClassScope, getters), underlyingExpression);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

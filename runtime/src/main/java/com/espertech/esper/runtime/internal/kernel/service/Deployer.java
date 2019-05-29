@@ -61,6 +61,7 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableCollectorIm
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryRuntime;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
@@ -125,7 +126,7 @@ public class Deployer {
                                                  StatementUserObjectRuntimeOption userObjectResolverRuntime,
                                                  StatementSubstitutionParameterOption substitutionParameterResolver,
                                                  EPRuntimeSPI epRuntime) throws PathException, EPDeployException {
-        ModuleProviderResult provider = ModuleProviderUtil.analyze(compiled, epRuntime.getServicesContext().getClasspathImportServiceRuntime());
+        ModuleProviderResult provider = ModuleProviderUtil.analyze(compiled, epRuntime.getServicesContext().getClassLoaderParent());
         String moduleName = provider.getModuleProvider().getModuleName();
         EPServicesContext services = epRuntime.getServicesContext();
 
@@ -144,14 +145,15 @@ public class Deployer {
         BeanEventTypeFactoryPrivate beanEventTypeFactory = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(services.getEventTypeAvroHandler()), services.getEventTypeFactory(), services.getBeanEventTypeStemService());
 
         // initialize module event types
-        Map<String, EventType> moduleEventTypes = new HashMap<>();
+        Map<String, EventType> moduleEventTypes = new LinkedHashMap<>();
         EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleEventTypes, services.getEventTypePathRegistry(), services.getEventTypeRepositoryBus(), services.getBeanEventTypeFactoryPrivate(), services.getEventSerdeFactory());
-        EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleEventTypes, beanEventTypeFactory, services.getEventTypeFactory(), services.getBeanEventTypeStemService(), eventTypeResolver, services.getXmlFragmentEventTypeFactory(), services.getEventTypeAvroHandler(), services.getEventBeanTypedEventFactory());
+        EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleEventTypes, beanEventTypeFactory, provider.getClassLoader(), services.getEventTypeFactory(), services.getBeanEventTypeStemService(), eventTypeResolver, services.getXmlFragmentEventTypeFactory(), services.getEventTypeAvroHandler(), services.getEventBeanTypedEventFactory());
         try {
             provider.getModuleProvider().initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
         } catch (Throwable e) {
             throw new EPException(e);
         }
+        JsonEventTypeUtility.addJsonUnderlyingClass(moduleEventTypes, services.getClassLoaderParent(), deploymentId);
 
         // initialize module named windows
         Map<String, NamedWindowMetaData> moduleNamedWindows = new HashMap<>();

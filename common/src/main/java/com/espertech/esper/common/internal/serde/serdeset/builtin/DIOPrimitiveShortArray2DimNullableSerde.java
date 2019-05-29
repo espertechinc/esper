@@ -47,6 +47,10 @@ public class DIOPrimitiveShortArray2DimNullableSerde implements DataInputOutputS
     }
 
     private void writeArray(short[] array, DataOutput output) throws IOException {
+        if (array == null) {
+            output.writeInt(-1);
+            return;
+        }
         output.writeInt(array.length);
         for (short i : array) {
             output.writeShort(i);
@@ -55,6 +59,9 @@ public class DIOPrimitiveShortArray2DimNullableSerde implements DataInputOutputS
 
     private short[] readArray(DataInput input) throws IOException {
         int len = input.readInt();
+        if (len == -1) {
+            return null;
+        }
         short[] array = new short[len];
         for (int i = 0; i < len; i++) {
             array[i] = input.readShort();

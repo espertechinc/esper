@@ -52,7 +52,7 @@ public class TestSuiteEventMapWConfig extends TestCase {
         // invalid property
         tryInvalidConfigure(config -> {
             config.getCommon().addEventType("InvalidMap", Collections.singletonMap("key", "XXX"));
-        }, "Nestable type configuration encountered an unexpected property type name 'XXX' for property 'key', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+        }, "Nestable type configuration encountered an unexpected property type name 'XXX' for property 'key', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
 
         // invalid key
         final Map<String, Object> invalid = EventMapCore.makeMap(new Object[][]{{new Integer(5), null}});
@@ -63,7 +63,7 @@ public class TestSuiteEventMapWConfig extends TestCase {
         final Map<String, Object> invalidTwo = EventMapCore.makeMap(new Object[][]{{"abc", new SupportBean()}});
         tryInvalidConfigure(config -> {
             config.getCommon().addEventType("InvalidMap", invalidTwo);
-        }, "Nestable type configuration encountered an unexpected property type name 'SupportBean(null, 0)' for property 'abc', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+        }, "Nestable type configuration encountered an unexpected property type name 'SupportBean(null, 0)' for property 'abc', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
     }
 
     private void tryInvalidConfigure(Consumer<Configuration> configurer, String expected) {

@@ -423,7 +423,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         for (int i = 1; i < internalEventType.getPropertyNames().length; i++) {
             String propertyName = internalEventType.getPropertyNames()[i];
             Object propertyType = internalEventType.getTypes().get(propertyName);
-            SerdeEventPropertyDesc desc = SerdeEventPropertyUtility.forgeForEventProperty(tableName, propertyName, propertyType, statementRawInfo, services.getSerdeResolver());
+            SerdeEventPropertyDesc desc = SerdeEventPropertyUtility.forgeForEventProperty(publicEventType, propertyName, propertyType, statementRawInfo, services.getSerdeResolver());
             propertyForges[i - 1] = desc.getForge();
 
             // plan serdes for nested types

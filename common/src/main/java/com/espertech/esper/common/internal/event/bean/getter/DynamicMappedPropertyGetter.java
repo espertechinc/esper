@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.common.internal.event.bean.getter;
 
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
@@ -26,8 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for a dynamic mapped property (syntax field.mapped('key')?), using vanilla reflection.
@@ -57,6 +58,25 @@ public class DynamicMappedPropertyGetter extends DynamicPropertyGetterBase {
     protected CodegenExpression callCodegen(CodegenExpressionRef desc, CodegenExpressionRef object, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenExpressionField params = codegenClassScope.addFieldUnshared(true, Object[].class, constant(parameters));
         return staticMethod(DynamicMappedPropertyGetter.class, "dynamicMappedPropertyGet", desc, object, params);
+    }
+
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
+        CodegenExpression memberCache = codegenClassScope.addOrGetFieldSharable(sharableCode);
+        CodegenMethod method = parent.makeChild(boolean.class, DynamicPropertyGetterBase.class, codegenClassScope).addParam(Object.class, "object");
+        method.getBlock()
+            .declareVar(DynamicPropertyDescriptor.class, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
+            .ifCondition(equalsNull(exprDotMethod(ref("desc"), "getMethod"))).blockReturn(constantFalse())
+            .methodReturn(staticMethod(DynamicMappedPropertyGetter.class, "dynamicMappedPropertyExists", ref("desc"), ref("object"), constant(parameters[0])));
+        return localMethod(method, underlyingExpression);
+
+    }
+
+    public boolean isExistsProperty(EventBean eventBean) {
+        DynamicPropertyDescriptor desc = getPopulateCache(cache, this, eventBean.getUnderlying(), eventBeanTypedEventFactory);
+        if (desc.getMethod() == null) {
+            return false;
+        }
+        return dynamicMappedPropertyExists(desc, eventBean.getUnderlying(), (String) parameters[0]);
     }
 
     /**
@@ -104,6 +124,37 @@ public class DynamicMappedPropertyGetter extends DynamicPropertyGetterBase {
                     return map.get(parameters[0]);
                 }
                 return null;
+            }
+        } catch (ClassCastException e) {
+            throw PropertyUtility.getMismatchException(descriptor.getMethod(), underlying, e);
+        } catch (InvocationTargetException e) {
+            throw PropertyUtility.getInvocationTargetException(descriptor.getMethod(), e);
+        } catch (IllegalArgumentException e) {
+            throw PropertyUtility.getIllegalArgumentException(descriptor.getMethod(), e);
+        } catch (IllegalAccessException e) {
+            throw PropertyUtility.getIllegalAccessException(descriptor.getMethod(), e);
+        }
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param descriptor descriptor
+     * @param underlying target
+     * @param key key
+     * @return value
+     */
+    public static boolean dynamicMappedPropertyExists(DynamicPropertyDescriptor descriptor, Object underlying, String key) {
+        try {
+            if (descriptor.isHasParameters()) {
+                return true;
+            } else {
+                Object result = descriptor.getMethod().invoke(underlying, null);
+                if ((result instanceof Map) && (result != null)) {
+                    Map map = (Map) result;
+                    return map.containsKey(key);
+                }
+                return false;
             }
         } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(descriptor.getMethod(), underlying, e);

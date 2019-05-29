@@ -13,11 +13,10 @@ package com.espertech.esper.common.internal.context.module;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
-import com.espertech.esper.common.internal.settings.ClasspathImportService;
 
 public class ModuleProviderUtil {
-    public static ModuleProviderResult analyze(EPCompiled compiled, ClasspathImportService classpathImportService) {
-        ByteArrayProvidingClassLoader classLoader = new ByteArrayProvidingClassLoader(compiled.getClasses(), classpathImportService.getClassLoader());
+    public static ModuleProviderResult analyze(EPCompiled compiled, ClassLoader classLoaderParent) {
+        ByteArrayProvidingClassLoader classLoader = new ByteArrayProvidingClassLoader(compiled.getClasses(), classLoaderParent);
         String resourceClassName = compiled.getManifest().getModuleProviderClassName();
 
         // load module resource class

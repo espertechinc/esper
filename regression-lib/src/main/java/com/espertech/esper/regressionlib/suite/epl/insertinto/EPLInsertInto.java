@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
@@ -408,19 +409,29 @@ public class EPLInsertInto {
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.ARRAY);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.MAP);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.AVRO);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.JSON);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, true, null);
 
             // Map
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.ARRAY);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.MAP);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.AVRO);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.JSON);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, true, null);
 
             // Avro
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.ARRAY);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.MAP);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.AVRO);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.JSON);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, true, null);
+
+            // Json
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.ARRAY);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.MAP);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.AVRO);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.JSON);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, true, null);
         }
     }
 
@@ -680,8 +691,13 @@ public class EPLInsertInto {
         assertEquals(2, listener.getLastNewData()[0].getEventType().getPropertyNames().length);
         assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s0"));
         assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s1"));
-        assertSame(eventS0, listener.getLastNewData()[0].get("s0"));
-        assertSame(eventS1, listener.getLastNewData()[0].get("s1"));
+        if (eventS0 instanceof String) {
+            assertEquals(eventS0, listener.getLastNewData()[0].get("s0").toString());
+            assertEquals(eventS1, listener.getLastNewData()[0].get("s1").toString());
+        } else {
+            assertSame(eventS0, listener.getLastNewData()[0].get("s0"));
+            assertSame(eventS1, listener.getLastNewData()[0].get("s1"));
+        }
         assertTrue(rep == null || rep.matchesClass(listener.getLastNewData()[0].getUnderlying().getClass()));
     }
 
@@ -699,6 +715,9 @@ public class EPLInsertInto {
         } else if (rep.isAvroEvent()) {
             schema = "@name('schema1') create avro schema S0 as (theString string);\n" +
                 "@name('schema2') create avro schema S1 as (id string);\n";
+        } else if (rep.isJsonEvent()) {
+            schema = "@name('schema1') create json schema S0 as (theString string);\n" +
+                "@name('schema2') create json schema S1 as (id string);\n";
         } else {
             schema = null;
             fail();
@@ -731,6 +750,11 @@ public class EPLInsertInto {
             theEvent.put("id", "myId");
             eventS1 = theEvent;
             env.sendEventAvro(theEvent, "S1");
+        } else if (rep.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("id", "myId");
+            eventS1 = object.toString();
+            env.sendEventJson((String) eventS1, "S1");
         } else {
             throw new IllegalArgumentException();
         }
@@ -750,6 +774,11 @@ public class EPLInsertInto {
             theEvent.put("theString", "myId");
             eventS0 = theEvent;
             env.sendEventAvro(theEvent, "S0");
+        } else if (rep.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("theString", "myId");
+            eventS0 = object.toString();
+            env.sendEventJson((String) eventS0, "S0");
         } else {
             throw new IllegalArgumentException();
         }
@@ -810,12 +839,15 @@ public class EPLInsertInto {
             record.put("p0", "a");
             record.put("p1", 10);
             env.sendEventAvro(record, "SourceSchema");
+        } else if (sourceType.isJsonEvent()) {
+            env.sendEventJson("{\"p0\": \"a\", \"p1\": 10}", "SourceSchema");
         } else {
             fail();
         }
 
         // assert
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1,c0".split(","), new Object[]{"a", 10, null});
+        EventBean event = env.listener("s0").assertOneGetNewAndReset();
+        EPAssertionUtil.assertProps(event, "p0,p1,c0".split(","), new Object[]{"a", 10, null});
 
         env.undeployAll();
     }

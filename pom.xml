@@ -25,6 +25,7 @@
 		<mysql-connector-java.version>5.1.28</mysql-connector-java.version>
 		<avro.version>1.8.2</avro.version>
 		<janino.version>3.0.10</janino.version>
+		<mockito.version>1.10.19</mockito.version>
 		<rootPath>${basedir}</rootPath>
 	</properties>
 	<licenses>

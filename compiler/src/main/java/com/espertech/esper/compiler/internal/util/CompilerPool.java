@@ -15,18 +15,17 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.compiler.client.EPCompileException;
 
-import java.util.Map;
 import java.util.concurrent.*;
 
 class CompilerPool {
     private final ModuleCompileTimeServices compileTimeServices;
-    private final Map<String, byte[]> moduleBytes;
+    private final ConcurrentHashMap<String, byte[]> moduleBytes;
 
     private ExecutorService compilerThreadPool;
     private Future<CompilableItemResult>[] futures;
     private Semaphore semaphore;
 
-    CompilerPool(int size, ModuleCompileTimeServices compileTimeServices, Map<String, byte[]> moduleBytes) {
+    CompilerPool(int size, ModuleCompileTimeServices compileTimeServices, ConcurrentHashMap<String, byte[]> moduleBytes) {
         this.compileTimeServices = compileTimeServices;
         this.moduleBytes = moduleBytes;
 
@@ -44,13 +43,17 @@ class CompilerPool {
     void submit(int statementNumber, CompilableItem item) throws InterruptedException {
         // no thread pool, compile right there
         if (compilerThreadPool == null) {
-            for (CodegenClass clazz : item.getClasses()) {
-                JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
+            try {
+                for (CodegenClass clazz : item.getClasses()) {
+                    JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
+                }
+            } finally {
+                item.getPostCompileLatch().completed(moduleBytes);
             }
             return;
         }
 
-        CompileCallable callable = new CompileCallable(item, compileTimeServices, semaphore);
+        CompileCallable callable = new CompileCallable(item, compileTimeServices, semaphore, moduleBytes);
         semaphore.acquire();
         futures[statementNumber] = compilerThreadPool.submit(callable);
     }
@@ -77,7 +80,6 @@ class CompilerPool {
             if (result.getException() != null) {
                 throw new EPCompileException(result.getException().getMessage(), result.getException());
             }
-            moduleBytes.putAll(result.getStatementBytes());
         }
     }
 

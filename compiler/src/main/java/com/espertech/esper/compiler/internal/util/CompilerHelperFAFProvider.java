@@ -87,7 +87,6 @@ public class CompilerHelperFAFProvider {
         StatementSpecCompiled specCompiled = compiledDesc.getCompiled();
         FireAndForgetSpec fafSpec = specCompiled.getRaw().getFireAndForgetSpec();
 
-        String packageName = "generated";
         Map<String, byte[]> moduleBytes = new HashMap<>();
         EPCompiledManifest manifest;
         String classPostfix = IdentifierUtil.getIdentifierMayStartNumeric(statementName);
@@ -111,7 +110,7 @@ public class CompilerHelperFAFProvider {
         verifySubstitutionParams(raw.getSubstitutionParameters());
 
         try {
-            manifest = compileToBytes(query, classPostfix, packageName, moduleBytes, args.getOptions(), services);
+            manifest = compileToBytes(query, classPostfix, moduleBytes, args.getOptions(), services);
         } catch (EPCompileException ex) {
             throw ex;
         } catch (Throwable t) {
@@ -121,11 +120,11 @@ public class CompilerHelperFAFProvider {
         return new EPCompiled(moduleBytes, manifest);
     }
 
-    private static EPCompiledManifest compileToBytes(FAFQueryMethodForge query, String classPostfix, String packageName, Map<String, byte[]> moduleBytes, CompilerOptions compilerOptions, ModuleCompileTimeServices compileTimeServices) throws EPCompileException {
+    private static EPCompiledManifest compileToBytes(FAFQueryMethodForge query, String classPostfix, Map<String, byte[]> moduleBytes, CompilerOptions compilerOptions, ModuleCompileTimeServices compileTimeServices) throws EPCompileException {
 
         String queryMethodProviderClassName;
         try {
-            queryMethodProviderClassName = CompilerHelperFAFQuery.compileQuery(query, classPostfix, packageName, moduleBytes, compileTimeServices);
+            queryMethodProviderClassName = CompilerHelperFAFQuery.compileQuery(query, classPostfix, moduleBytes, compileTimeServices);
         } catch (StatementSpecCompileException ex) {
             EPCompileExceptionItem first;
             if (ex instanceof StatementSpecCompileSyntaxException) {
@@ -138,14 +137,14 @@ public class CompilerHelperFAFProvider {
         }
 
         // compile query provider
-        String fafProviderClassName = makeFAFProvider(queryMethodProviderClassName, classPostfix, moduleBytes, packageName, compileTimeServices);
+        String fafProviderClassName = makeFAFProvider(queryMethodProviderClassName, classPostfix, moduleBytes, compileTimeServices);
 
         // create manifest
         return new EPCompiledManifest(COMPILER_VERSION, null, fafProviderClassName, false);
     }
 
-    private static String makeFAFProvider(String queryMethodProviderClassName, String classPostfix, Map<String, byte[]> moduleBytes, String packageName, ModuleCompileTimeServices compileTimeServices) {
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, compileTimeServices.isInstrumented());
+    private static String makeFAFProvider(String queryMethodProviderClassName, String classPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) {
+        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented());
         String fafProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(FAFProvider.class, classPostfix);
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, fafProviderClassName);
         CodegenClassMethods methods = new CodegenClassMethods();
@@ -172,6 +171,6 @@ public class CompilerHelperFAFProvider {
         CodegenClass clazz = new CodegenClass(CodegenClassType.FAFPROVIDER, FAFProvider.class, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
         JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
 
-        return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, FAFProvider.class, classPostfix);
+        return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), FAFProvider.class, classPostfix);
     }
 }

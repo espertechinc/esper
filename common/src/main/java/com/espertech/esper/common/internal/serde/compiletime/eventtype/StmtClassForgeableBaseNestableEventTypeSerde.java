@@ -18,10 +18,16 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScop
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableType;
+import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventType;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
+import com.espertech.esper.common.internal.event.json.compiletime.StmtClassForgeableJsonUnderlying;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.event.json.serde.DIOJsonObjectSerde;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
@@ -98,40 +104,93 @@ public class StmtClassForgeableBaseNestableEventTypeSerde implements StmtClassFo
 
     private void makeWriteMethod(CodegenMethod writeMethod) {
         String[] propertyNames = eventType.getPropertyNames();
-        boolean map = eventType instanceof MapEventType;
 
-        if (map) {
+        if (eventType instanceof MapEventType) {
             writeMethod.getBlock().declareVar(Map.class, "map", cast(Map.class, ref(OBJECT_NAME)));
-        } else {
+        } else if (eventType instanceof ObjectArrayEventType) {
             writeMethod.getBlock().declareVar(Object[].class, "oa", cast(Object[].class, ref(OBJECT_NAME)));
+        } else if (eventType instanceof JsonEventType) {
+            JsonEventType jsonEventType = (JsonEventType) eventType;
+            writeMethod.getBlock().declareVar(jsonEventType.getUnderlyingType(), "json", cast(jsonEventType.getUnderlyingType(), ref(OBJECT_NAME)));
+        } else {
+            throw new IllegalStateException("Unrecognized event type " + eventType);
         }
 
         for (int i = 0; i < forges.length; i++) {
             CodegenExpression serde = ref("s" + i);
-            CodegenExpression get = map ? exprDotMethod(ref("map"), "get", constant(propertyNames[i])) : arrayAtIndex(ref("oa"), constant(i));
+            CodegenExpression get;
+
+            if (eventType instanceof MapEventType) {
+                get = exprDotMethod(ref("map"), "get", constant(propertyNames[i]));
+            } else if (eventType instanceof ObjectArrayEventType) {
+                get = arrayAtIndex(ref("oa"), constant(i));
+            } else {
+                JsonEventType jsonEventType = (JsonEventType) eventType;
+                String property = eventType.getPropertyNames()[i];
+                JsonUnderlyingField field = jsonEventType.getDetail().getFieldDescriptors().get(property);
+                if (field == null) {
+                    throw new IllegalStateException("Unrecognized json event property " + property);
+                }
+                get = ref("json." + field.getFieldName());
+            }
+
             writeMethod.getBlock().exprDotMethod(serde, "write", get, ref(OUTPUT_NAME), ref(UNITKEY_NAME), ref(WRITER_NAME));
+        }
+
+        if (eventType instanceof JsonEventType) {
+            JsonEventType jsonEventType = (JsonEventType) eventType;
+            if (jsonEventType.getDetail().isDynamic()) {
+                CodegenExpression get = ref("json." + StmtClassForgeableJsonUnderlying.DYNAMIC_PROP_FIELD);
+                writeMethod.getBlock().exprDotMethod(publicConstValue(DIOJsonObjectSerde.class, "INSTANCE"), "write", get, ref(OUTPUT_NAME), ref(UNITKEY_NAME), ref(WRITER_NAME));
+            }
         }
     }
 
     private void makeReadMethod(CodegenMethod readMethod) {
         String[] propertyNames = eventType.getPropertyNames();
-        boolean map = eventType instanceof MapEventType;
+        CodegenExpressionRef underlyingRef;
 
-        if (map) {
+        if (eventType instanceof MapEventType) {
             readMethod.getBlock().declareVar(Map.class, "map", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(forges.length))));
-        } else {
+            underlyingRef = ref("map");
+        } else if (eventType instanceof ObjectArrayEventType) {
             readMethod.getBlock().declareVar(Object[].class, "oa", newArrayByLength(Object.class, constant(forges.length)));
+            underlyingRef = ref("oa");
+        } else if (eventType instanceof JsonEventType) {
+            JsonEventType jsonEventType = (JsonEventType) eventType;
+            readMethod.getBlock().declareVar(jsonEventType.getUnderlyingType(), "json", newInstance(jsonEventType.getUnderlyingType()));
+            underlyingRef = ref("json");
+        } else {
+            throw new IllegalStateException("Unrecognized event type " + eventType);
         }
 
         for (int i = 0; i < forges.length; i++) {
             CodegenExpression serde = ref("s" + i);
             CodegenExpression read = exprDotMethod(serde, "read", ref(INPUT_NAME), ref(UNITKEY_NAME));
-            if (map) {
+
+            if (eventType instanceof MapEventType) {
                 readMethod.getBlock().exprDotMethod(ref("map"), "put", constant(propertyNames[i]), read);
-            } else {
+            } else if (eventType instanceof ObjectArrayEventType) {
                 readMethod.getBlock().assignArrayElement(ref("oa"), constant(i), read);
+            } else {
+                JsonEventType jsonEventType = (JsonEventType) eventType;
+                String property = eventType.getPropertyNames()[i];
+                JsonUnderlyingField field = jsonEventType.getDetail().getFieldDescriptors().get(property);
+                if (field == null) {
+                    throw new IllegalStateException("Unrecognized json event property " + property);
+                }
+                readMethod.getBlock().assignRef(ref("json." + field.getFieldName()), cast(field.getPropertyType(), read));
             }
         }
-        readMethod.getBlock().methodReturn(map ? ref("map") : ref("oa"));
+
+        if (eventType instanceof JsonEventType) {
+            JsonEventType jsonEventType = (JsonEventType) eventType;
+            if (jsonEventType.getDetail().isDynamic()) {
+                CodegenExpression read = exprDotMethod(publicConstValue(DIOJsonObjectSerde.class, "INSTANCE"), "read", ref(INPUT_NAME), ref(UNITKEY_NAME));
+                readMethod.getBlock().assignRef(ref("json." + StmtClassForgeableJsonUnderlying.DYNAMIC_PROP_FIELD), read);
+            }
+        }
+
+        readMethod.getBlock().methodReturn(underlyingRef);
     }
 }

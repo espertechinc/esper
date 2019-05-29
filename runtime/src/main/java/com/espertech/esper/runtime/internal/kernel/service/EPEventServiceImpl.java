@@ -28,6 +28,8 @@ import com.espertech.esper.common.internal.event.avro.EventSenderAvro;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.core.EventSenderBean;
 import com.espertech.esper.common.internal.event.core.NaturalEventBean;
+import com.espertech.esper.common.internal.event.json.compiletime.EventSenderJsonImpl;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.EventSenderMap;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapped;
@@ -221,6 +223,23 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
             services.getThreadingService().submitInbound(new InboundUnitSendAvro(avroGenericDataDotRecord, avroEventTypeName, this));
         } else {
             EventBean eventBean = wrapEventAvro(avroGenericDataDotRecord, avroEventTypeName);
+            processWrappedEvent(eventBean);
+        }
+    }
+
+    public void sendEventJson(String json, String jsonEventTypeName) {
+        if (json == null) {
+            throw new IllegalArgumentException("Invalid null event object");
+        }
+
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
+            log.debug(".sendEventJson Processing event " + json);
+        }
+
+        if (inboundThreading) {
+            services.getThreadingService().submitInbound(new InboundUnitSendJson(json, jsonEventTypeName, this));
+        } else {
+            EventBean eventBean = wrapEventJson(json, jsonEventTypeName);
             processWrappedEvent(eventBean);
         }
     }
@@ -1175,6 +1194,10 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         return services.getEventTypeResolvingBeanFactory().adapterForAvro(avroGenericDataDotRecord, eventTypeName);
     }
 
+    private EventBean wrapEventJson(String json, String eventTypeName) {
+        return services.getEventTypeResolvingBeanFactory().adapterForJson(json, eventTypeName);
+    }
+
     public void routeEventMap(Map<String, Object> map, String eventTypeName) {
         if (map == null) {
             throw new IllegalArgumentException("Invalid null event object");
@@ -1215,6 +1238,13 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         routeEventInternal(theEvent);
     }
 
+    public void routeEventJson(String json, String eventTypeName) {
+        if (json == null) {
+            throw new IllegalArgumentException("Invalid null event object");
+        }
+        EventBean theEvent = services.getEventTypeResolvingBeanFactory().adapterForJson(json, eventTypeName);
+        routeEventInternal(theEvent);
+    }
 
     public EventSender getEventSender(String eventTypeName) throws EventTypeException {
         EventType eventType = services.getEventTypeRepositoryBus().getTypeByName(eventTypeName);
@@ -1238,6 +1268,9 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
         if (eventType instanceof AvroSchemaEventType) {
             return new EventSenderAvro(this, eventType, services.getEventBeanTypedEventFactory(), threadingService);
+        }
+        if (eventType instanceof JsonEventType) {
+            return new EventSenderJsonImpl(this, (JsonEventType) eventType, services.getEventBeanTypedEventFactory(), threadingService);
         }
 
         throw new EventTypeException("An event sender for event type named '" + eventTypeName + "' could not be created as the type is not known");

@@ -35,12 +35,20 @@ public class MapNestedEntryPropertyGetterArrayMap extends MapNestedEntryProperty
         return BaseNestableEventUtil.handleNestedValueArrayWithMap(value, index, getter);
     }
 
+    public boolean handleNestedValueExists(Object value) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapExists(value, index, getter);
+    }
+
     public Object handleNestedValueFragment(Object value) {
         return BaseNestableEventUtil.handleBNNestedValueArrayWithMapFragment(value, index, getter, eventBeanTypedEventFactory, fragmentType);
     }
 
     public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return BaseNestableEventUtil.handleNestedValueArrayWithMapCode(index, getter, name, codegenMethodScope, codegenClassScope, this.getClass());
+    }
+
+    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapExistsCode(index, getter, name, codegenMethodScope, codegenClassScope, this.getClass());
     }
 
     public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.client.util;
 
+import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Map;
@@ -31,19 +32,28 @@ public enum EventUnderlyingType {
     /**
      * Event representation is Avro (GenericData.Record).
      */
-    AVRO;
+    AVRO,
 
-    private final static String OA_TYPE_NAME = Object[].class.getName();
-    private final static String MAP_TYPE_NAME = Map.class.getName();
+    /**
+     * Event representation is Json with underlying generation.
+     */
+    JSON;
+
     private final static String AVRO_TYPE_NAME = JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME;
 
     static {
-        OBJECTARRAY.underlyingClassName = OA_TYPE_NAME;
-        MAP.underlyingClassName = MAP_TYPE_NAME;
+        OBJECTARRAY.underlyingClass = Object[].class;
+        OBJECTARRAY.underlyingClassName = Object[].class.getName();
+        MAP.underlyingClass = Map.class;
+        MAP.underlyingClassName = MAP.underlyingClass.getName();
         AVRO.underlyingClassName = AVRO_TYPE_NAME;
+        AVRO.underlyingClass = null;
+        JSON.underlyingClass = JsonEventObject.class;
+        JSON.underlyingClassName = JsonEventObject.class.getName();
     }
 
     private String underlyingClassName;
+    private Class underlyingClass;
 
     /**
      * Returns the default underlying type.
@@ -61,5 +71,14 @@ public enum EventUnderlyingType {
      */
     public String getUnderlyingClassName() {
         return underlyingClassName;
+    }
+
+    /**
+     * Returns the class of the default underlying type.
+     *
+     * @return default underlying type class
+     */
+    public Class getUnderlyingClass() {
+        return underlyingClass;
     }
 }

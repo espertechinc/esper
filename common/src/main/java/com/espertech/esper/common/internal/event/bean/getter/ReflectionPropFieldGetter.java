@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
-import com.espertech.esper.common.internal.event.util.PropertyUtility;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
@@ -37,13 +36,7 @@ public final class ReflectionPropFieldGetter extends BaseNativePropertyGetter im
     }
 
     public Object getBeanProp(Object object) throws PropertyAccessException {
-        try {
-            return field.get(object);
-        } catch (IllegalArgumentException e) {
-            throw PropertyUtility.getIllegalArgumentException(field, e);
-        } catch (IllegalAccessException e) {
-            throw PropertyUtility.getIllegalAccessException(field, e);
-        }
+        return BeanFieldGetterHelper.getFieldSimple(field, object);
     }
 
     public boolean isBeanExistsProperty(Object object) {

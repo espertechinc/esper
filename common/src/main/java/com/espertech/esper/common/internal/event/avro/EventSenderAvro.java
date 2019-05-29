@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.internal.event.avro;
 
-import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.EventType;
@@ -55,9 +54,6 @@ public class EventSenderAvro implements EventSender {
     }
 
     public void routeEvent(Object theEvent) {
-        if (!(theEvent.getClass().isArray())) {
-            throw new EPException("Unexpected event object of type " + theEvent.getClass().getName() + ", expected Object[]");
-        }
         EventBean eventBean = eventBeanTypedEventFactory.adapterForTypedAvro(theEvent, eventType);
         runtimeEventSender.routeEventBean(eventBean);
     }

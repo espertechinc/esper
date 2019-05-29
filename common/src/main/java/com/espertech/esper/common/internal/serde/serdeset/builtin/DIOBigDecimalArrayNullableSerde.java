@@ -32,6 +32,14 @@ public class DIOBigDecimalArrayNullableSerde implements DataInputOutputSerde<Big
         return readInternal(input);
     }
 
+    public void write(BigDecimal[] object, DataOutput output) throws IOException {
+        writeInternal(object, output);
+    }
+
+    public BigDecimal[] read(DataInput input) throws IOException {
+        return readInternal(input);
+    }
+
     private void writeInternal(BigDecimal[] object, DataOutput output) throws IOException {
         if (object == null) {
             output.writeInt(-1);

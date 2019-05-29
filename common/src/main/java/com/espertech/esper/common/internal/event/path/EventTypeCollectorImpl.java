@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariantStream;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -25,6 +26,8 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactory;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.property.Property;
 import com.espertech.esper.common.internal.event.property.PropertyParser;
@@ -36,6 +39,7 @@ import java.util.*;
 public class EventTypeCollectorImpl implements EventTypeCollector {
     private final Map<String, EventType> moduleEventTypes;
     private final BeanEventTypeFactory beanEventTypeFactory;
+    private final ByteArrayProvidingClassLoader classLoader;
     private final EventTypeFactory eventTypeFactory;
     private final BeanEventTypeStemService beanEventTypeStemService;
     private final EventTypeNameResolver eventTypeNameResolver;
@@ -44,9 +48,10 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final List<EventTypeCollectedSerde> serdes = new ArrayList<>();
 
-    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, ByteArrayProvidingClassLoader classLoader, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
         this.moduleEventTypes = moduleEventTypes;
         this.beanEventTypeFactory = beanEventTypeFactory;
+        this.classLoader = classLoader;
         this.eventTypeFactory = eventTypeFactory;
         this.beanEventTypeStemService = beanEventTypeStemService;
         this.eventTypeNameResolver = eventTypeNameResolver;
@@ -74,6 +79,12 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
     public void registerBean(EventTypeMetadata metadata, Class clazz, String startTimestampName, String endTimestampName, EventType[] superTypes, Set<EventType> deepSuperTypes) {
         BeanEventTypeStem stem = beanEventTypeStemService.getCreateStem(clazz, null);
         BeanEventType eventType = eventTypeFactory.createBeanType(stem, metadata, beanEventTypeFactory, superTypes, deepSuperTypes, startTimestampName, endTimestampName);
+        handleRegister(eventType);
+    }
+
+    public void registerJson(EventTypeMetadata metadata, LinkedHashMap<String, Object> properties, String[] superTypes, String startTimestampPropertyName, String endTimestampPropertyName, JsonEventTypeDetail detail) {
+        JsonEventType eventType = eventTypeFactory.createJson(metadata, properties, superTypes, startTimestampPropertyName, endTimestampPropertyName, beanEventTypeFactory, eventTypeNameResolver, detail);
+        eventType.initialize(classLoader);
         handleRegister(eventType);
     }
 

@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.EPCompileException;
@@ -39,7 +40,7 @@ public class EPLInsertIntoTransposeStream {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new EPLInsertIntoTransposeCreateSchemaPOJO());
-        execs.add(new EPLInsertIntoTransposeMapAndObjectArray());
+        execs.add(new EPLInsertIntoTransposeMapAndObjectArrayAndOthers());
         execs.add(new EPLInsertIntoTransposeFunctionToStreamWithProps());
         execs.add(new EPLInsertIntoTransposeFunctionToStream());
         execs.add(new EPLInsertIntoTransposeSingleColumnInsert());
@@ -69,7 +70,7 @@ public class EPLInsertIntoTransposeStream {
         }
     }
 
-    private static class EPLInsertIntoTransposeMapAndObjectArray implements RegressionExecution {
+    private static class EPLInsertIntoTransposeMapAndObjectArrayAndOthers implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
                 runTransposeMapAndObjectArray(env, rep);
@@ -89,6 +90,8 @@ public class EPLInsertIntoTransposeStream {
                 generateFunction = "generateMap";
             } else if (representation.isAvroEvent()) {
                 generateFunction = "generateAvro";
+            } else if (representation.isJsonEvent()) {
+                generateFunction = "generateJson";
             } else {
                 throw new IllegalStateException("Unrecognized code " + representation);
             }
@@ -325,6 +328,13 @@ public class EPLInsertIntoTransposeStream {
         record.put("p0", string);
         record.put("p1", intPrimitive);
         return record;
+    }
+
+    public static String localGenerateJson(String string, int intPrimitive) {
+        JsonObject object = new JsonObject();
+        object.add("p0", string);
+        object.add("p1", intPrimitive);
+        return object.toString();
     }
 
     private static Map<String, Object> makeMap(Object[][] entries) {

@@ -53,6 +53,7 @@ public class OutputStrategyUtil {
      * @param resultSetProcessor    processor
      * @param parentView            view
      * @param distinct              flag
+     * @param distinctKeyGetter getter
      * @return iterator
      */
     public static Iterator<EventBean> getIterator(JoinExecutionStrategy joinExecutionStrategy, ResultSetProcessor resultSetProcessor, Viewable parentView, boolean distinct, EventPropertyValueGetter distinctKeyGetter) {

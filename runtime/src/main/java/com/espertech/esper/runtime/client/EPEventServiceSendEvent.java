@@ -89,4 +89,17 @@ public interface EPEventServiceSendEvent {
      * @throws EPException is thrown when the processing of the event lead to an error
      */
     void sendEventAvro(Object avroGenericDataDotRecord, String avroEventTypeName);
+
+    /**
+     * Send an event represented by a String JSON to the runtime.
+     * <p>
+     * Use the route method for sending events into the runtime from within UpdateListener code,
+     * to avoid the possibility of a stack overflow due to nested calls to sendEvent
+     * (except with the outbound-threading configuration), see {@link EPEventServiceRouteEvent#routeEventJson(String, String)}}).
+     *
+     * @param json is the event to sent to the runtime
+     * @param jsonEventTypeName        event type name
+     * @throws EPException is thrown when the processing of the event lead to an error, including for Json parsing problems
+     */
+    void sendEventJson(String json, String jsonEventTypeName);
 }

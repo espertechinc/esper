@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -112,6 +113,11 @@ public class EPLInsertIntoPopulateUndStreamSelect {
             env.sendEventObjectArray(new Object[]{123, "abc"}, "A");
         } else if (rep.isAvroEvent()) {
             env.sendEventAvro(makeAvro(env, 123, "abc"), "A");
+        } else if (rep.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("myint", 123);
+            object.add("mystr", "abc");
+            env.sendEventJson(object.toString(), "A");
         } else {
             fail();
         }
@@ -126,6 +132,13 @@ public class EPLInsertIntoPopulateUndStreamSelect {
             env.sendEventObjectArray(new Object[]{456, "def"}, "A");
         } else if (rep.isAvroEvent()) {
             env.sendEventAvro(makeAvro(env, 456, "def"), "A");
+        } else if (rep.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("myint", 456);
+            object.add("mystr", "def");
+            env.sendEventJson(object.toString(), "A");
+        } else {
+            fail();
         }
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "myint,mystr,addprop".split(","), new Object[]{456, "def", 1});
 
@@ -194,6 +207,13 @@ public class EPLInsertIntoPopulateUndStreamSelect {
             event.put("myint", 123);
             event.put("mystr", "abc");
             env.sendEventAvro(event, "Src");
+        } else if (rep.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("myint", 123);
+            object.add("mystr", "abc");
+            env.sendEventJson(object.toString(), "Src");
+        } else {
+            fail();
         }
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), expected);
         env.undeployModuleContaining("s0");

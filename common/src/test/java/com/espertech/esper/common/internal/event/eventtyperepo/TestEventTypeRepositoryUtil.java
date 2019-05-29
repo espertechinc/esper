@@ -30,6 +30,6 @@ public class TestEventTypeRepositoryUtil extends TestCase {
         configs.put("b_sub", config);
 
         List<String> result = EventTypeRepositoryUtil.getCreationOrder(setOne, setTwo, configs);
-        assertEquals("[a, b_super, b_sub, y]", result.toString());
+        assertEquals("[a, b_super, y, b_sub]", result.toString());
     }
 }

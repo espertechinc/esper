@@ -415,6 +415,8 @@ public class AnnotationUtil {
             return newInstance(AnnotationPublic.class);
         } else if (annotation instanceof BusEventType) {
             return newInstance(AnnotationBusEventType.class);
+        } else if (annotation instanceof JsonSchema) {
+            return newInstance(AnnotationJsonSchema.class, constant(((JsonSchema) annotation).dynamic()));
         } else if (annotation.annotationType().getPackage().equals(Name.class.getPackage())) {
             throw new IllegalStateException("Unrecognized annotation residing in the '" + Name.class.getPackage() + " package having type" + annotation.annotationType().getName());
         } else {

@@ -11,14 +11,19 @@
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+
+import java.util.List;
 
 public class SelectExprProcessorWInsertTarget {
     private final SelectExprProcessorForge forge;
     private final EventType insertIntoTargetType;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public SelectExprProcessorWInsertTarget(SelectExprProcessorForge forge, EventType insertIntoTargetType) {
+    public SelectExprProcessorWInsertTarget(SelectExprProcessorForge forge, EventType insertIntoTargetType, List<StmtClassForgeableFactory> additionalForgeables) {
         this.forge = forge;
         this.insertIntoTargetType = insertIntoTargetType;
+        this.additionalForgeables = additionalForgeables;
     }
 
     public SelectExprProcessorForge getForge() {
@@ -27,5 +32,9 @@ public class SelectExprProcessorWInsertTarget {
 
     public EventType getInsertIntoTargetType() {
         return insertIntoTargetType;
+    }
+
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }

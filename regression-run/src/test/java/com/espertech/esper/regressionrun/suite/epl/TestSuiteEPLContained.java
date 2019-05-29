@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.epl;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.internal.avro.support.SupportAvroArrayEvent;
+import com.espertech.esper.regressionlib.support.bean.SupportJsonArrayEvent;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.epl.contained.*;
@@ -63,7 +64,7 @@ public class TestSuiteEPLContained extends TestCase {
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, OrderBean.class, BookDesc.class, SentenceEvent.class,
             SupportStringBeanWithArray.class, SupportBeanArrayCollMap.class, SupportObjectArrayEvent.class,
-            SupportCollectionEvent.class, SupportResponseEvent.class, SupportAvroArrayEvent.class}) {
+            SupportCollectionEvent.class, SupportResponseEvent.class, SupportAvroArrayEvent.class, SupportJsonArrayEvent.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 
@@ -82,6 +83,8 @@ public class TestSuiteEPLContained extends TestCase {
                     methods = "splitSentenceMethodReturnMap,splitSentenceBeanMethodReturnMap,splitWordMethodReturnMap".split(",");
                 } else if (rep.isAvroEvent()) {
                     methods = "splitSentenceMethodReturnAvro,splitSentenceBeanMethodReturnAvro,splitWordMethodReturnAvro".split(",");
+                } else if (rep.isJsonEvent()) {
+                    methods = "splitSentenceMethodReturnJson,splitSentenceBeanMethodReturnJson,splitWordMethodReturnJson".split(",");
                 } else {
                     throw new IllegalStateException("Unrecognized enum " + rep);
                 }

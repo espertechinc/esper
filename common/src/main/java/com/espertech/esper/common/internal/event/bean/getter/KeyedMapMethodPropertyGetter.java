@@ -69,11 +69,37 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         }
     }
 
+    public boolean getBeanPropExistsInternal(Object object, Object key) throws PropertyAccessException {
+        try {
+            Object result = method.invoke(object, (Object[]) null);
+            if (!(result instanceof Map)) {
+                return false;
+            }
+            Map resultMap = (Map) result;
+            return resultMap.containsKey(key);
+        } catch (ClassCastException e) {
+            throw PropertyUtility.getMismatchException(method, object, e);
+        } catch (InvocationTargetException e) {
+            throw PropertyUtility.getInvocationTargetException(method, e);
+        } catch (IllegalAccessException e) {
+            throw PropertyUtility.getIllegalAccessException(method, e);
+        } catch (IllegalArgumentException e) {
+            throw PropertyUtility.getIllegalArgumentException(method, e);
+        }
+    }
+
     static CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method, CodegenClassScope codegenClassScope) throws PropertyAccessException {
         return codegenMethodScope.makeChild(beanPropType, KeyedMapMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(Object.class, "key").getBlock()
                 .declareVar(method.getReturnType(), "result", exprDotMethod(ref("object"), method.getName()))
                 .ifRefNotTypeReturnConst("result", Map.class, null)
                 .methodReturn(cast(beanPropType, exprDotMethod(cast(Map.class, ref("result")), "get", ref("key"))));
+    }
+
+    static CodegenMethod getBeanPropExistsInternalCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method, CodegenClassScope codegenClassScope) throws PropertyAccessException {
+        return codegenMethodScope.makeChild(boolean.class, KeyedMapMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(Object.class, "key").getBlock()
+            .declareVar(method.getReturnType(), "result", exprDotMethod(ref("object"), method.getName()))
+            .ifRefNotTypeReturnConst("result", Map.class, false)
+            .methodReturn(exprDotMethod(cast(Map.class, ref("result")), "containsKey", ref("key")));
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -92,7 +118,8 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
-        return true; // Property exists as the property is not dynamic (unchecked)
+        Object underlying = eventBean.getUnderlying();
+        return getBeanPropExistsInternal(underlying, key);
     }
 
     public Class getBeanPropType() {
@@ -108,7 +135,7 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return underlyingExistsCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -116,7 +143,7 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return constantTrue();
+        return localMethod(getBeanPropExistsInternalCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method, codegenClassScope), underlyingExpression, constant(key));
     }
 
     public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {

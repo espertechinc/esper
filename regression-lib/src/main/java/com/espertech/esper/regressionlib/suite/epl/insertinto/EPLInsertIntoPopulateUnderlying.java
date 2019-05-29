@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -458,6 +459,9 @@ public class EPLInsertIntoPopulateUnderlying {
     private static class EPLInsertIntoCharSequenceCompat implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+                if (rep.isJsonEvent()) {
+                    continue; // Json doesn't allow CharSequence
+                }
                 RegressionPath path = new RegressionPath();
                 env.compileDeploy("create " + rep.getOutputTypeCreateSchemaName() + " schema ConcreteType as (value java.lang.CharSequence)", path);
                 env.compileDeploy("insert into ConcreteType select \"Test\" as value from SupportBean", path);
@@ -595,7 +599,7 @@ public class EPLInsertIntoPopulateUnderlying {
             startEventOne = (EventBean) outMap.get("startEvent");
             endEventOne = ((EventBean[]) outMap.get("endEvent"))[0];
             endEventTwo = ((EventBean[]) outMap.get("endEvent"))[1];
-        } else if (eventRepresentationEnum.isAvroEvent()) {
+        } else if (eventRepresentationEnum.isAvroEvent() || eventRepresentationEnum.isJsonEvent()) {
             EventBean received = env.listener("s0").assertOneGetNewAndReset();
             startEventOne = (EventBean) received.getFragment("startEvent");
             EventBean[] endEvents = (EventBean[]) received.getFragment("endEvent");
@@ -657,6 +661,11 @@ public class EPLInsertIntoPopulateUnderlying {
             record.put("id", id);
             record.put("val", val);
             env.sendEventAvro(record, "EventTwo");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("id", id);
+            object.add("val", val);
+            env.sendEventJson(object.toString(), "EventTwo");
         } else {
             fail();
         }
@@ -674,6 +683,10 @@ public class EPLInsertIntoPopulateUnderlying {
             GenericData.Record record = new GenericData.Record(schema);
             record.put("id", id);
             env.sendEventAvro(record, "EventOne");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonObject object = new JsonObject();
+            object.add("id", id);
+            env.sendEventJson(object.toString(), "EventOne");
         } else {
             fail();
         }

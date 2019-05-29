@@ -74,7 +74,7 @@ public class CodegenClassGenerator {
 
         CodeGenerationUtil.packagedecl(builder, clazz.getPackageName());
         CodeGenerationUtil.importsdecl(builder, imports.keySet());
-        CodeGenerationUtil.classimplements(builder, clazz.getClassName(), clazz.getInterfaceImplemented(), null, true, false, imports);
+        CodeGenerationUtil.classimplements(builder, clazz.getClassName(), clazz.getSupers(), true, false, imports);
 
         // members
         generateCodeMembers(builder, clazz.getExplicitMembers(), clazz.getOptionalCtor(), imports, 1);
@@ -89,7 +89,7 @@ public class CodegenClassGenerator {
         for (CodegenInnerClass inner : clazz.getInnerClasses()) {
             builder.append("\n");
             INDENT.indent(builder, 1);
-            CodeGenerationUtil.classimplements(builder, inner.getClassName(), inner.getInterfaceImplemented(), inner.getInterfaceGenericClass(), false, true, imports);
+            CodeGenerationUtil.classimplements(builder, inner.getClassName(), inner.getSupers(), true, true, imports);
 
             generateCodeMembers(builder, inner.getExplicitMembers(), inner.getCtor(), imports, 2);
 
@@ -169,6 +169,9 @@ public class CodegenClassGenerator {
         }
         for (CodegenTypedParam param : explicitMembers) {
             INDENT.indent(builder, indent);
+            if (param.isPublic()) {
+                builder.append("public ");
+            }
             if (!param.isPublic() && param.isFinal()) {
                 builder.append("final ");
             }

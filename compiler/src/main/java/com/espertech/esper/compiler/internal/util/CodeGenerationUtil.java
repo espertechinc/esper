@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassInterfacesAndExtension;
 import com.espertech.esper.common.internal.util.FileUtil;
 
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodeGenerationUtil {
     static void packagedecl(StringBuilder builder, String packageName) {
@@ -35,7 +34,7 @@ public class CodeGenerationUtil {
         }
     }
 
-    static void classimplements(StringBuilder builder, String classname, Class implementedInterface, String implementedInterfaceGeneric, boolean isPublic, boolean isStatic, Map<Class, String> imports) {
+    static void classimplements(StringBuilder builder, String classname, CodegenClassInterfacesAndExtension supers, boolean isPublic, boolean isStatic, Map<Class, String> imports) {
         if (isPublic) {
             builder.append("public ");
         }
@@ -44,17 +43,7 @@ public class CodeGenerationUtil {
         }
         builder.append("class ");
         builder.append(classname);
-        if (implementedInterface != null) {
-            if (implementedInterface.isInterface()) {
-                builder.append(" implements ");
-            } else {
-                builder.append(" extends ");
-            }
-            appendClassName(builder, implementedInterface, null, imports);
-            if (implementedInterfaceGeneric != null) {
-                builder.append("<").append(implementedInterfaceGeneric).append(">");
-            }
-        }
+        supers.render(builder, imports);
         builder.append(" {\n");
     }
 

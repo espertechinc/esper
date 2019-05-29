@@ -73,6 +73,10 @@ public class TestSuiteEventBean extends TestCase {
         RegressionRunner.run(session, EventBeanPropertyResolutionFragment.executions());
     }
 
+    public void testEventBeanPropertyAccessPerformance() {
+        RegressionRunner.run(session, new EventBeanPropertyAccessPerformance());
+    }
+
     private static void configure(Configuration configuration) {
         ConfigurationCommonEventTypeBean myLegacyNestedEvent = new ConfigurationCommonEventTypeBean();
         myLegacyNestedEvent.setAccessorStyle(AccessorStyle.EXPLICIT);

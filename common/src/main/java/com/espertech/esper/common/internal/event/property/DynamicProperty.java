@@ -13,5 +13,5 @@ package com.espertech.esper.common.internal.event.property;
 /**
  * Marker interface for dynamic properties.
  */
-public interface DynamicProperty {
+public interface DynamicProperty extends Property {
 }

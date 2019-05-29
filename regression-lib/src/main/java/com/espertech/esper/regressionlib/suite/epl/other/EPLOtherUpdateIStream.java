@@ -19,6 +19,8 @@ import com.espertech.esper.common.client.soda.UpdateClause;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
+import com.espertech.esper.common.client.json.minimaljson.JsonArray;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -65,8 +67,8 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateUnprioritizedOrder());
         execs.add(new EPLOtherUpdateListenerDeliveryMultiupdate());
         execs.add(new EPLOtherUpdateListenerDeliveryMultiupdateMixed());
-        execs.add(new EPLOtherUpdateMapIndexProps());
         execs.add(new EPLOtherUpdateSubqueryMultikeyWArray());
+        execs.add(new EPLOtherUpdateMapIndexProps());
         return execs;
     }
 
@@ -815,6 +817,11 @@ public class EPLOtherUpdateIStream {
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
             env.sendEventAvro(event, "MyInfraTypeWithMapProp");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonArray myarray = new JsonArray().add(0).add(0).add(0).add(0).add(0);
+            JsonObject mymap = new JsonObject();
+            JsonObject event = new JsonObject().add("myarray", myarray).add("mymap", mymap);
+            env.sendEventJson(event.toString(), "MyInfraTypeWithMapProp");
         } else {
             fail();
         }
@@ -842,6 +849,11 @@ public class EPLOtherUpdateIStream {
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
             env.sendEventAvro(event, "MyNWInfraTypeWithMapProp");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonArray myarray = new JsonArray().add(0).add(0).add(0).add(0).add(0);
+            JsonObject mymap = new JsonObject();
+            JsonObject event = new JsonObject().add("myarray", myarray).add("mymap", mymap);
+            env.sendEventJson(event.toString(), "MyNWInfraTypeWithMapProp");
         } else {
             fail();
         }
@@ -864,6 +876,10 @@ public class EPLOtherUpdateIStream {
             event.put("myarray", Arrays.asList(0, 0));
             event.put("mymap", null);
             env.sendEventAvro(event, "MyNWInfraTypeWithMapProp");
+        } else if (eventRepresentationEnum.isJsonEvent()) {
+            JsonArray myarray = new JsonArray().add(0).add(0);
+            JsonObject event = new JsonObject().add("myarray", myarray);
+            env.sendEventJson(event.toString(), "MyNWInfraTypeWithMapProp");
         } else {
             fail();
         }

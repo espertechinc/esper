@@ -62,7 +62,11 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
-        return true; // Property exists as the property is not dynamic (unchecked)
+        Object value = array[propertyIndex];
+        if (value == null) {
+            return false;
+        }
+        return handleNestedValueExists(value);
     }
 
     public Object get(EventBean obj) {

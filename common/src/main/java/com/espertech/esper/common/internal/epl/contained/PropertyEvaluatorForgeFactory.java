@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.epl.resultset.select.core.SelectProce
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 
@@ -40,7 +41,7 @@ public class PropertyEvaluatorForgeFactory {
                                                        String optionalSourceStreamName,
                                                        StatementRawInfo rawInfo,
                                                        StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         int length = spec.getAtoms().size();
         ContainedEventEvalForge[] containedEventForges = new ContainedEventEvalForge[length];
         FragmentEventType[] fragmentEventTypes = new FragmentEventType[length];
@@ -94,7 +95,7 @@ public class PropertyEvaluatorForgeFactory {
                 // determine result type
                 if (atom.getOptionalResultEventType() == null) {
                     throw new ExprValidationException("Missing @type(name) declaration providing the event type name of the return type for expression '" +
-                            ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "'");
+                        ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "'");
                 }
                 streamEventType = services.getEventTypeCompileTimeResolver().getTypeByName(atom.getOptionalResultEventType());
                 if (streamEventType == null) {
@@ -104,8 +105,9 @@ public class PropertyEvaluatorForgeFactory {
 
                 // when the expression returns an array, allow array values to become the column of the single-column event type
                 if (returnType.isArray() &&
-                        streamEventType.getPropertyNames().length == 1 &&
-                        JavaClassHelper.isSubclassOrImplementsInterface(JavaClassHelper.getBoxedType(returnType.getComponentType()), JavaClassHelper.getBoxedType(streamEventType.getPropertyType(streamEventType.getPropertyNames()[0])))) {
+                    streamEventType.getPropertyNames().length == 1 &&
+                    !(streamEventType instanceof JsonEventType) && // since json string-array should not become itself the property
+                    JavaClassHelper.isSubclassOrImplementsInterface(JavaClassHelper.getBoxedType(returnType.getComponentType()), JavaClassHelper.getBoxedType(streamEventType.getPropertyType(streamEventType.getPropertyNames()[0])))) {
                     Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(streamEventType, false, false);
                     if (writables != null && !writables.isEmpty()) {
                         try {
@@ -118,14 +120,20 @@ public class PropertyEvaluatorForgeFactory {
                         throw new ExprValidationException("Event type '" + streamEventType.getName() + "' cannot be written to");
                     }
                 } else if (returnType.isArray() &&
-                        returnType.getComponentType() == EventBean.class) {
+                    returnType.getComponentType() == EventBean.class) {
                     containedEventEval = new ContainedEventEvalEventBeanArrayForge(validatedExprNode.getForge());
                 } else {
                     // check expression result type against eventtype expected underlying type
                     if (returnType.isArray()) {
-                        if (!JavaClassHelper.isSubclassOrImplementsInterface(returnType.getComponentType(), streamEventType.getUnderlyingType())) {
-                            throw new ExprValidationException("Event type '" + streamEventType.getName() + "' underlying type " + streamEventType.getUnderlyingType().getName() +
+                        if (!(streamEventType instanceof JsonEventType)) {
+                            if (!JavaClassHelper.isSubclassOrImplementsInterface(returnType.getComponentType(), streamEventType.getUnderlyingType())) {
+                                throw new ExprValidationException("Event type '" + streamEventType.getName() + "' underlying type " + streamEventType.getUnderlyingType().getName() +
                                     " cannot be assigned a value of type " + JavaClassHelper.getClassNameFullyQualPretty(returnType));
+                            }
+                        } else {
+                            if (returnType.getComponentType() != String.class) {
+                                throw new ExprValidationException("Event type '" + streamEventType.getName() + "' requires string-type array and cannot be assigned from value of type " + JavaClassHelper.getClassNameFullyQualPretty(returnType));
+                            }
                         }
                     } else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class)) {
                         // fine, assumed to return the right type
@@ -230,7 +238,7 @@ public class PropertyEvaluatorForgeFactory {
 
             SelectClauseElementCompiled[] cumulativeSelectArr = cumulativeSelectClause.toArray(new SelectClauseElementCompiled[cumulativeSelectClause.size()]);
             SelectProcessorArgs args = new SelectProcessorArgs(cumulativeSelectArr, null, false, null, null, streamTypeService,
-                    null, false, rawInfo.getAnnotations(), rawInfo, services);
+                null, false, rawInfo.getAnnotations(), rawInfo, services);
             SelectExprProcessorDescriptor selectExprDesc = SelectExprProcessorFactory.getProcessor(args, null, false);
 
             return new PropertyEvaluatorSelectForge(selectExprDesc, accumulative);
