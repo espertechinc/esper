@@ -75,7 +75,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
     public CodegenExpression evaluateEventGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprEnumerationGivenEventSymbol symbols, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope);
         methodNode.getBlock()
-                .ifRefNullReturnNull(symbols.getAddEvent(methodNode))
+                .ifNullReturnNull(symbols.getAddEvent(methodNode))
                 .methodReturn(codegenEvaluateInternal(symbols.getAddEvent(methodNode), method -> symbols.getAddExprEvalCtx(method), methodNode, codegenClassScope));
         return localMethod(methodNode);
     }

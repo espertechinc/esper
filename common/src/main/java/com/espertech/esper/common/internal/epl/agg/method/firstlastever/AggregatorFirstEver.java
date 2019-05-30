@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
@@ -36,8 +37,8 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
  * Aggregator for the very first value.
  */
 public class AggregatorFirstEver extends AggregatorMethodWDistinctWFilterWValueBase {
-    private final CodegenExpressionRef isSet;
-    private final CodegenExpressionRef firstValue;
+    private final CodegenExpressionMember isSet;
+    private final CodegenExpressionMember firstValue;
     private final CodegenExpressionField serde;
 
     public AggregatorFirstEver(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, Class childType, DataInputOutputSerdeForge serde) {
@@ -74,12 +75,12 @@ public class AggregatorFirstEver extends AggregatorMethodWDistinctWFilterWValueB
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().apply(writeBoolean(output, row, isSet))
-                .expression(writeNullable(rowDotRef(row, firstValue), serde, output, unitKey, writer, classScope));
+                .expression(writeNullable(rowDotMember(row, firstValue), serde, output, unitKey, writer, classScope));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().apply(readBoolean(row, isSet, input))
-                .assignRef(rowDotRef(row, firstValue), readNullable(serde, input, unitKey, classScope));
+                .assignRef(rowDotMember(row, firstValue), readNullable(serde, input, unitKey, classScope));
     }
 
     private Consumer<CodegenBlock> enterConsumer(CodegenExpression value) {

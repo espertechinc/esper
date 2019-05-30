@@ -152,7 +152,7 @@ public class EventBeanUpdateHelperForge {
 
             if (!types[i].isPrimitive() && updateItem.isNotNullableField()) {
                 method.getBlock()
-                        .ifRefNull(ref)
+                        .ifNull(ref)
                         .staticMethod(EventBeanUpdateHelperForge.class, "logWarnWhenNullAndNotNullable", constant(updateItem.getOptionalPropertyName()))
                         .ifElse()
                         .expression(updateItem.getOptionalWriter().writeCodegen(assigned, ref("und"), ref("target"), method, classScope))

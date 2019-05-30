@@ -66,7 +66,7 @@ public class PropertyDotEventSingleForge implements ExprEnumerationForge, ExprEn
     public CodegenExpression evaluateEventGetEventBeanCodegen(CodegenMethodScope parent, ExprEnumerationGivenEventSymbol symbols, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = parent.makeChild(EventBean.class, PropertyDotEventSingleForge.class, codegenClassScope);
         methodNode.getBlock()
-                .ifRefNullReturnNull(symbols.getAddEvent(methodNode))
+                .ifNullReturnNull(symbols.getAddEvent(methodNode))
                 .methodReturn(cast(EventBean.class, getter.eventBeanFragmentCodegen(symbols.getAddEvent(methodNode), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }

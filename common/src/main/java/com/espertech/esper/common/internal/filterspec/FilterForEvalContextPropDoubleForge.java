@@ -38,7 +38,7 @@ public class FilterForEvalContextPropDoubleForge implements FilterSpecParamFilte
 
         method.getBlock()
                 .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
-                .ifRefNullReturnNull(ref("props"))
+                .ifNullReturnNull(ref("props"))
                 .declareVar(Object.class, "result", getter.eventBeanGetCodegen(ref("props"), method, classScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(cast(Number.class, ref("result")), "doubleValue"));

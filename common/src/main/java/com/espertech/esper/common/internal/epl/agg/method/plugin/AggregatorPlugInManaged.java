@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -27,11 +28,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 public class AggregatorPlugInManaged extends AggregatorMethodWDistinctWFilterWValueBase {
 
-    protected CodegenExpressionRef plugin;
+    protected CodegenExpressionMember plugin;
     private final AggregationFunctionModeManaged mode;
 
     public AggregatorPlugInManaged(AggregationForgeFactoryPlugin factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, AggregationFunctionModeManaged mode) {
@@ -67,13 +68,13 @@ public class AggregatorPlugInManaged extends AggregatorMethodWDistinctWFilterWVa
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         if (mode.isHasHA()) {
-            method.getBlock().staticMethod(mode.getSerde(), "write", output, rowDotRef(row, plugin));
+            method.getBlock().staticMethod(mode.getSerde(), "write", output, rowDotMember(row, plugin));
         }
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         if (mode.isHasHA()) {
-            method.getBlock().assignRef(rowDotRef(row, plugin), staticMethod(mode.getSerde(), "read", input));
+            method.getBlock().assignRef(rowDotMember(row, plugin), staticMethod(mode.getSerde(), "read", input));
         }
     }
 

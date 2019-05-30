@@ -54,6 +54,6 @@ public class AggregationAccessorForgePlugin implements AggregationAccessorForge 
             InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationAccessorFactory();
             accessorField = classScope.addFieldUnshared(true, AggregationMultiFunctionAccessor.class, exprDotMethod(injectionStrategy.getInitializationExpression(classScope), "newAccessor", constantNull()));
         }
-        method.getBlock().methodReturn(exprDotMethod(accessorField, getterMethod, refCol("state", column), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(accessorField, getterMethod, memberCol("state", column), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 }

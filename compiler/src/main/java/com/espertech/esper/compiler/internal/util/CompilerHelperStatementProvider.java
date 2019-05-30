@@ -255,7 +255,10 @@ public class CompilerHelperStatementProvider {
                 classes.add(clazz);
             }
 
-            // Stage 5 - sort to make the "fields" class first and all the rest later
+            // Stage 5 - refactor methods to make sure the constant pool does not grow too large for any given class
+            CompilerHelperRefactorToStaticMethods.refactorMethods(classes, compileTimeServices.getConfiguration().getCompiler().getByteCode().getMaxMethodsPerClass());
+
+            // Stage 6 - sort to make the "fields" class first and all the rest later
             classes.sort((o1, o2) -> Integer.compare(o1.getClassType().getSortCode(), o2.getClassType().getSortCode()));
 
             // We are making sure JsonEventType receives the underlying class itself

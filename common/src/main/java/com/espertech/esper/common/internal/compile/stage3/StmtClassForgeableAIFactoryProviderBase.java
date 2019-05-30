@@ -53,7 +53,7 @@ public abstract class StmtClassForgeableAIFactoryProviderBase implements StmtCla
         if (packageScope.getFieldsClassNameOptional() != null) {
             codegenCtor.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "init", EPStatementInitServices.REF);
         }
-        codegenCtor.getBlock().assignRef(MEMBERNAME_STATEMENTAIFACTORY, localMethod(codegenConstructorInit(codegenCtor, classScope), SAIFFInitializeSymbol.REF_STMTINITSVC));
+        codegenCtor.getBlock().assignMember(MEMBERNAME_STATEMENTAIFACTORY, localMethod(codegenConstructorInit(codegenCtor, classScope), SAIFFInitializeSymbol.REF_STMTINITSVC));
 
         CodegenMethod getFactoryMethod = CodegenMethod.makeParentNode(StatementAgentInstanceFactory.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_STATEMENTAIFACTORY));

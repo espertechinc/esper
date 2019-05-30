@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.codegen;
 
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class ResultSetProcessorCodegenNames {
     public final static String NAME_AGENTINSTANCECONTEXT = "agentInstanceContext";
-    public final static String NAME_SELECTEXPRPROCESSOR_MEMBER = "o.selectExprProcessor";
-    public final static String NAME_SELECTEXPRPROCESSOR_ARRAY = "o.selectExprProcessorArray";
     public final static String NAME_SELECTEXPRPROCESSOR = "selectExprProcessor";
     public final static String NAME_AGGREGATIONSVC = "aggregationService";
     public final static String NAME_ORDERBYPROCESSOR = "orderByProcessor";
@@ -31,15 +30,19 @@ public class ResultSetProcessorCodegenNames {
     public final static String NAME_JOINEVENTSSET = "joinEventsSet";
     public final static String NAME_RESULTSETVISITOR = "visitor";
     public final static String NAME_HAVINGEVALUATOR_ARRAYNONMEMBER = "havingEvaluatorArray";
-    public final static String NAME_HAVINGEVALUATOR_ARRAY_MEMBER = "o." + NAME_HAVINGEVALUATOR_ARRAYNONMEMBER;
 
-    public final static CodegenExpressionRef REF_AGENTINSTANCECONTEXT = new CodegenExpressionRef(NAME_AGENTINSTANCECONTEXT);
-    public final static CodegenExpressionRef REF_SELECTEXPRPROCESSOR = new CodegenExpressionRef(NAME_SELECTEXPRPROCESSOR_MEMBER);
-    public final static CodegenExpressionRef REF_SELECTEXPRPROCESSOR_ARRAY = new CodegenExpressionRef(NAME_SELECTEXPRPROCESSOR_ARRAY);
-    public final static CodegenExpressionRef REF_HAVINGEVALUATOR_ARRAY = new CodegenExpressionRef(NAME_HAVINGEVALUATOR_ARRAY_MEMBER);
-    public final static CodegenExpressionRef REF_SELECTEXPRNONMEMBER = new CodegenExpressionRef(NAME_SELECTEXPRPROCESSOR);
-    public final static CodegenExpressionRef REF_AGGREGATIONSVC = new CodegenExpressionRef(NAME_AGGREGATIONSVC);
-    public final static CodegenExpressionRef REF_ORDERBYPROCESSOR = new CodegenExpressionRef(NAME_ORDERBYPROCESSOR);
+    private final static String NAME_SELECTEXPRPROCESSOR_MEMBER = "o.selectExprProcessor";
+    private final static String NAME_HAVINGEVALUATOR_ARRAY_MEMBER = "o." + NAME_HAVINGEVALUATOR_ARRAYNONMEMBER;
+    private final static String NAME_SELECTEXPRPROCESSOR_ARRAY = "o.selectExprProcessorArray";
+
+    public final static CodegenExpressionMember MEMBER_AGENTINSTANCECONTEXT = new CodegenExpressionMember(NAME_AGENTINSTANCECONTEXT);
+    public final static CodegenExpressionMember MEMBER_SELECTEXPRPROCESSOR = new CodegenExpressionMember(NAME_SELECTEXPRPROCESSOR_MEMBER);
+    public final static CodegenExpressionMember MEMBER_SELECTEXPRPROCESSOR_ARRAY = new CodegenExpressionMember(NAME_SELECTEXPRPROCESSOR_ARRAY);
+    public final static CodegenExpressionMember MEMBER_HAVINGEVALUATOR_ARRAY = new CodegenExpressionMember(NAME_HAVINGEVALUATOR_ARRAY_MEMBER);
+    public final static CodegenExpressionMember MEMBER_SELECTEXPRNONMEMBER = new CodegenExpressionMember(NAME_SELECTEXPRPROCESSOR);
+    public final static CodegenExpressionMember MEMBER_AGGREGATIONSVC = new CodegenExpressionMember(NAME_AGGREGATIONSVC);
+    public final static CodegenExpressionMember MEMBER_ORDERBYPROCESSOR = new CodegenExpressionMember(NAME_ORDERBYPROCESSOR);
+
     public final static CodegenExpressionRef REF_NEWDATA = ref(NAME_NEWDATA);
     public final static CodegenExpressionRef REF_OLDDATA = ref(NAME_OLDDATA);
     public final static CodegenExpressionRef REF_ISSYNTHESIZE = ref(NAME_ISSYNTHESIZE);

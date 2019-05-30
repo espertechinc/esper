@@ -14,25 +14,32 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementAssignNamed extends CodegenStatementBase {
-    private final String ref;
+    private final CodegenExpression lhs;
     private final CodegenExpression assignment;
 
-    public CodegenStatementAssignNamed(String ref, CodegenExpression assignment) {
-        this.ref = ref;
+    public CodegenStatementAssignNamed(CodegenExpression lhs, CodegenExpression assignment) {
         if (assignment == null) {
             throw new IllegalArgumentException("Assignment not provided");
         }
+        this.lhs = lhs;
         this.assignment = assignment;
     }
 
     public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        builder.append(ref).append("=");
+        lhs.render(builder, imports, isInnerClass);
+        builder.append("=");
         assignment.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {
         assignment.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(lhs);
+        consumer.accept(assignment);
     }
 }

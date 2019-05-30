@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterBase;
@@ -31,7 +32,7 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.writeLong;
 
 public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
-    private final CodegenExpressionRef cnt;
+    private final CodegenExpressionMember cnt;
     private final boolean isEver;
 
     public AggregatorCount(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, boolean isEver) {

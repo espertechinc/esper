@@ -169,9 +169,9 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
     }
 
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
-        instance.getMethods().addMethod(SelectExprProcessor.class, "getSelectExprProcessor", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_SELECTEXPRPROCESSOR));
-        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGGREGATIONSVC));
-        instance.getMethods().addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
+        instance.getMethods().addMethod(SelectExprProcessor.class, "getSelectExprProcessor", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_SELECTEXPRPROCESSOR));
+        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGGREGATIONSVC));
+        instance.getMethods().addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGENTINSTANCECONTEXT));
         instance.getMethods().addMethod(boolean.class, "hasHavingClause", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(constant(optionalHavingNode != null)));
         instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
         ResultSetProcessorUtil.evaluateHavingClauseCodegen(optionalHavingNode, classScope, instance);
@@ -188,10 +188,10 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
             CodegenExpression groupKeySerde = getMultiKeyClassRef().getExprMKSerde(classScope.getPackageScope().getInitMethod(), classScope);
             CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(typesPerStream[0], EPStatementInitServices.REF));
             instance.getServiceCtor().getBlock().assignRef(NAME_GROUPREPS, exprDotMethod(factory, "makeRSRowPerGroupUnboundGroupRep",
-                constant(groupKeyTypes), groupKeySerde, eventType, REF_AGENTINSTANCECONTEXT))
-                .exprDotMethod(REF_AGGREGATIONSVC, "setRemovedCallback", ref(NAME_GROUPREPS));
+                constant(groupKeyTypes), groupKeySerde, eventType, MEMBER_AGENTINSTANCECONTEXT))
+                .exprDotMethod(MEMBER_AGGREGATIONSVC, "setRemovedCallback", member(NAME_GROUPREPS));
         } else {
-            instance.getServiceCtor().getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setRemovedCallback", ref("this"));
+            instance.getServiceCtor().getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "setRemovedCallback", ref("this"));
         }
     }
 

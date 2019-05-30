@@ -46,7 +46,7 @@ public class SubselectForgeNREqualsIn extends SubselectForgeNREqualsInBase {
             if (filterEval != null) {
                 CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(foreach, filterEval.getEvaluationType(), filterEval.evaluateCodegen(Boolean.class, method, symbols, classScope));
             }
-            foreach.ifRefNullReturnNull(left);
+            foreach.ifNullReturnNull(left);
 
             Class valueRightType;
             if (selectEval != null) {

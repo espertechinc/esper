@@ -54,7 +54,7 @@ public class StmtClassForgeableStmtProvider implements StmtClassForgeable {
         // ctor
         CodegenCtor ctor = new CodegenCtor(this.getClass(), includeDebugSymbols, Collections.emptyList());
         CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, statementProviderClassName);
-        ctor.getBlock().assignRef(MEMBERNAME_INFORMATION, statementInformationals.make(ctor, classScope));
+        ctor.getBlock().assignMember(MEMBERNAME_INFORMATION, statementInformationals.make(ctor, classScope));
 
         CodegenMethod initializeMethod = makeInitialize(classScope);
         CodegenMethod getStatementAIFactoryProviderMethod = makeGetStatementAIFactoryProvider(classScope);
@@ -79,7 +79,7 @@ public class StmtClassForgeableStmtProvider implements StmtClassForgeable {
 
     private CodegenMethod makeInitialize(CodegenClassScope classScope) {
         CodegenMethod method = CodegenMethod.makeParentNode(void.class, StmtClassForgeableStmtProvider.class, classScope).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
-        method.getBlock().assignRef(MEMBERNAME_FACTORY_PROVIDER, newInstance(statementAIFactoryClassName, REF_STMTINITSVC));
+        method.getBlock().assignMember(MEMBERNAME_FACTORY_PROVIDER, newInstance(statementAIFactoryClassName, REF_STMTINITSVC));
         return method;
     }
 

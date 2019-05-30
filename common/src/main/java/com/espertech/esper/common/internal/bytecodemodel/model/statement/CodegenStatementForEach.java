@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
@@ -52,5 +53,10 @@ public class CodegenStatementForEach extends CodegenStatementWBlockBase {
         classes.add(type);
         block.mergeClasses(classes);
         target.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(target);
+        block.traverseExpressions(consumer);
     }
 }

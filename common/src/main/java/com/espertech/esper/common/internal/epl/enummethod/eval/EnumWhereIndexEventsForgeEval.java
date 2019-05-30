@@ -88,7 +88,7 @@ public class EnumWhereIndexEventsForgeEval implements EnumEval {
                 .declareVar(Object[].class, "props", exprDotMethod(ref("indexEvent"), "getProperties"))
                 .declareVar(int.class, "count", constant(-1));
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .increment("count")
+                .incrementRef("count")
                 .assignArrayElement("props", constant(0), ref("count"))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"));
         CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));

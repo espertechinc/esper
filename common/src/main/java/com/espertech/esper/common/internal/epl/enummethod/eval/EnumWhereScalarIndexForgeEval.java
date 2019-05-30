@@ -93,7 +93,7 @@ public class EnumWhereScalarIndexForgeEval implements EnumEval {
                 .declareVar(Object[].class, "indexProps", exprDotMethod(ref("indexEvent"), "getProperties"))
                 .declareVar(int.class, "count", constant(-1));
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .increment("count")
+                .incrementRef("count")
                 .assignArrayElement("evalProps", constant(0), ref("next"))
                 .assignArrayElement("indexProps", constant(0), ref("count"));
         CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));

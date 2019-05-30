@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -25,8 +26,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class AggregatorCodegenUtil {
 
-    public static CodegenExpression rowDotRef(CodegenExpressionRef row, CodegenExpressionRef ref) {
-        return ref(row.getRef() + "." + ref.getRef());
+    public static CodegenExpression rowDotMember(CodegenExpressionRef row, CodegenExpressionMember member) {
+        return member(row.getRef() + "." + member.getRef());
     }
 
     public static CodegenExpression writeNullable(CodegenExpression value, CodegenExpressionField serde, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenClassScope classScope) {
@@ -46,43 +47,43 @@ public class AggregatorCodegenUtil {
         method.getBlock().ifCondition(not(ref("pass"))).blockReturnNoValue();
     }
 
-    public static Consumer<CodegenBlock> writeBoolean(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionRef ref) {
-        return block -> block.exprDotMethod(output, "writeBoolean", rowDotRef(row, ref));
+    public static Consumer<CodegenBlock> writeBoolean(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionMember member) {
+        return block -> block.exprDotMethod(output, "writeBoolean", rowDotMember(row, member));
     }
 
-    public static Consumer<CodegenBlock> readBoolean(CodegenExpressionRef row, CodegenExpressionRef ref, CodegenExpression input) {
-        return block -> block.assignRef(rowDotRef(row, ref), exprDotMethod(input, "readBoolean"));
+    public static Consumer<CodegenBlock> readBoolean(CodegenExpressionRef row, CodegenExpressionMember member, CodegenExpression input) {
+        return block -> block.assignRef(rowDotMember(row, member), exprDotMethod(input, "readBoolean"));
     }
 
-    public static Consumer<CodegenBlock> writeLong(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionRef ref) {
-        return block -> block.exprDotMethod(output, "writeLong", rowDotRef(row, ref));
+    public static Consumer<CodegenBlock> writeLong(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionMember member) {
+        return block -> block.exprDotMethod(output, "writeLong", rowDotMember(row, member));
     }
 
-    public static Consumer<CodegenBlock> readLong(CodegenExpressionRef row, CodegenExpressionRef ref, CodegenExpression input) {
-        return block -> block.assignRef(rowDotRef(row, ref), exprDotMethod(input, "readLong"));
+    public static Consumer<CodegenBlock> readLong(CodegenExpressionRef row, CodegenExpressionMember member, CodegenExpression input) {
+        return block -> block.assignRef(rowDotMember(row, member), exprDotMethod(input, "readLong"));
     }
 
-    public static Consumer<CodegenBlock> writeDouble(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionRef ref) {
-        return block -> block.exprDotMethod(output, "writeDouble", rowDotRef(row, ref));
+    public static Consumer<CodegenBlock> writeDouble(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionMember member) {
+        return block -> block.exprDotMethod(output, "writeDouble", rowDotMember(row, member));
     }
 
-    public static Consumer<CodegenBlock> readDouble(CodegenExpressionRef row, CodegenExpressionRef ref, CodegenExpression input) {
-        return block -> block.assignRef(rowDotRef(row, ref), exprDotMethod(input, "readDouble"));
+    public static Consumer<CodegenBlock> readDouble(CodegenExpressionRef row, CodegenExpressionMember member, CodegenExpression input) {
+        return block -> block.assignRef(rowDotMember(row, member), exprDotMethod(input, "readDouble"));
     }
 
-    public static Consumer<CodegenBlock> writeInt(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionRef ref) {
-        return block -> block.exprDotMethod(output, "writeInt", rowDotRef(row, ref));
+    public static Consumer<CodegenBlock> writeInt(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionMember member) {
+        return block -> block.exprDotMethod(output, "writeInt", rowDotMember(row, member));
     }
 
-    public static Consumer<CodegenBlock> readInt(CodegenExpressionRef row, CodegenExpressionRef ref, CodegenExpression input) {
-        return block -> block.assignRef(rowDotRef(row, ref), exprDotMethod(input, "readInt"));
+    public static Consumer<CodegenBlock> readInt(CodegenExpressionRef row, CodegenExpressionMember member, CodegenExpression input) {
+        return block -> block.assignRef(rowDotMember(row, member), exprDotMethod(input, "readInt"));
     }
 
-    public static Consumer<CodegenBlock> writeFloat(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionRef ref) {
-        return block -> block.exprDotMethod(output, "writeFloat", rowDotRef(row, ref));
+    public static Consumer<CodegenBlock> writeFloat(CodegenExpressionRef output, CodegenExpressionRef row, CodegenExpressionMember member) {
+        return block -> block.exprDotMethod(output, "writeFloat", rowDotMember(row, member));
     }
 
-    public static Consumer<CodegenBlock> readFloat(CodegenExpressionRef row, CodegenExpressionRef ref, CodegenExpression input) {
-        return block -> block.assignRef(rowDotRef(row, ref), exprDotMethod(input, "readFloat"));
+    public static Consumer<CodegenBlock> readFloat(CodegenExpressionRef row, CodegenExpressionMember member, CodegenExpression input) {
+        return block -> block.assignRef(rowDotMember(row, member), exprDotMethod(input, "readFloat"));
     }
 }

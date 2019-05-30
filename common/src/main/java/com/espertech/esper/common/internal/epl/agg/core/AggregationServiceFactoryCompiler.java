@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRefWCol;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMemberWCol;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -277,7 +277,7 @@ public class AggregationServiceFactoryCompiler {
             CodegenStackGenerator.recursiveBuildStack(methodEntry.getValue(), methodEntry.getKey(), innerMethods);
         }
 
-        for (Map.Entry<CodegenExpressionRefWCol, Class> entry : membersColumnized.getMembers().entrySet()) {
+        for (Map.Entry<CodegenExpressionMemberWCol, Class> entry : membersColumnized.getMembers().entrySet()) {
             rowMembers.add(new CodegenTypedParam(entry.getValue(), entry.getKey().getRef(), false, true));
         }
 
@@ -293,7 +293,7 @@ public class AggregationServiceFactoryCompiler {
         }
 
         CodegenExpressionRef value = ref("value");
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength("column", methodFactories.length, true);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("column"), methodFactories.length, true);
         for (int i = 0; i < methodFactories.length; i++) {
             AggregationForgeFactory factory = methodFactories[i];
             Class[] evaluationTypes = ExprNodeUtilityQuery.getExprResultTypes(factory.getAggregationExpression().getPositionalParams());
@@ -321,7 +321,7 @@ public class AggregationServiceFactoryCompiler {
             colums[i] = offset + i;
         }
 
-        CodegenBlock[] blocks = method.getBlock().switchBlockOptions("column", colums, true);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOptions(ref("column"), colums, true);
         for (int i = 0; i < accessStateFactories.length; i++) {
             AggregationStateFactoryForge stateFactoryForge = accessStateFactories[i];
             AggregatorAccess aggregator = stateFactoryForge.getAggregator();
@@ -349,7 +349,7 @@ public class AggregationServiceFactoryCompiler {
             colums[i] = offset + i;
         }
 
-        CodegenBlock[] blocks = method.getBlock().switchBlockOptions("column", colums, true);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOptions(ref("column"), colums, true);
         for (int i = 0; i < colums.length; i++) {
             AggregationStateFactoryForge stateFactoryForge = accessStateFactories[i];
             CodegenExpression expr = stateFactoryForge.codegenGetAccessTableState(i + offset, method, classScope);
@@ -412,7 +412,7 @@ public class AggregationServiceFactoryCompiler {
             }
         }
 
-        CodegenBlock[] blocks = parent.getBlock().switchBlockOfLength("column", count, true);
+        CodegenBlock[] blocks = parent.getBlock().switchBlockOfLength(ref("column"), count, true);
         count = 0;
         for (CodegenMethod getValue : methods) {
             blocks[count++].blockReturn(localMethod(getValue, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));

@@ -80,6 +80,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(EventTypeBusModifier.NONBUS, byteCode.getBusModifierEventType());
         assertEquals(8, byteCode.getThreadPoolCompilerNumThreads());
         assertNull(byteCode.getThreadPoolCompilerCapacity());
+        assertEquals(16*1024, byteCode.getMaxMethodsPerClass());
         assertEquals(StreamSelector.ISTREAM_ONLY, compiler.getStreamSelection().getDefaultStreamSelector());
         assertFalse(compiler.getLanguage().isSortUsingCollator());
         assertFalse(compiler.getExpression().isIntegerDivision());
@@ -483,6 +484,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(EventTypeBusModifier.BUS, byteCode.getBusModifierEventType());
         assertEquals(1234, byteCode.getThreadPoolCompilerNumThreads());
         assertEquals(4321, (int) byteCode.getThreadPoolCompilerCapacity());
+        assertEquals(5555, byteCode.getMaxMethodsPerClass());
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, compiler.getStreamSelection().getDefaultStreamSelector());
 
         assertEquals(100, compiler.getExecution().getFilterServiceMaxFilterWidth());

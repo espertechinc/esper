@@ -54,7 +54,7 @@ public class ExprEvalUnderlyingEvaluator implements ExprEvaluator, ExprForge {
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(resultType, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        methodNode.getBlock().ifRefNullReturnNull(refEPS)
+        methodNode.getBlock().ifNullReturnNull(refEPS)
                 .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(cast(requiredType, exprDotMethod(ref("event"), "getUnderlying")));

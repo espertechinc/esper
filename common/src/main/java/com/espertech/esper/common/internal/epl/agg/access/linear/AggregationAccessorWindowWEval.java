@@ -41,7 +41,7 @@ public class AggregationAccessorWindowWEval {
                 .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
                 .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
                 .assignArrayElement(ref("array"), ref("count"), localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), constantNull()))
-                .increment("count")
+                .incrementRef("count")
                 .blockEnd()
                 .methodReturn(ref("array"));
     }

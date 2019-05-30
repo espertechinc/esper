@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 
 /**
  * Result set processor prototype for the simplest case: no aggregation functions used in the select clause, and no group-by.
@@ -105,7 +105,7 @@ public class ResultSetProcessorSimpleForge implements ResultSetProcessorFactoryF
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
         instance.getMethods().addMethod(boolean.class, "hasHavingClause", Collections.emptyList(), ResultSetProcessorSimple.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(optionalHavingNode != null)));
         ResultSetProcessorUtil.evaluateHavingClauseCodegen(optionalHavingNode, classScope, instance);
-        instance.getMethods().addMethod(ExprEvaluatorContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
+        instance.getMethods().addMethod(ExprEvaluatorContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGENTINSTANCECONTEXT));
     }
 
     public void processViewResultCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenExpressionExprDotMethodChain implements CodegenExpression {
     private final CodegenExpression expression;
@@ -40,6 +41,13 @@ public class CodegenExpressionExprDotMethodChain implements CodegenExpression {
         expression.mergeClasses(classes);
         for (CodegenChainElement element : chain) {
             element.mergeClasses(classes);
+        }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(expression);
+        for (CodegenChainElement element : chain) {
+            element.traverseExpressions(consumer);
         }
     }
 }

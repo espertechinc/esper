@@ -34,9 +34,9 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
-import static com.espertech.esper.common.internal.epl.agg.groupby.AggregationServiceGroupByForge.REF_AGGREGATORSPERGROUP;
+import static com.espertech.esper.common.internal.epl.agg.groupby.AggregationServiceGroupByForge.MEMBER_AGGREGATORSPERGROUP;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 
 /**
  * Implementation for handling aggregation with grouping by group-keys.
@@ -67,8 +67,8 @@ public class AggSvcGroupByReclaimAgedImpl {
         explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.class, REF_EVALUATIONFUNCTIONFREQUENCY.getRef()));
         ctor.getBlock().assignRef(REF_CURRENTMAXAGE, constant(DEFAULT_MAX_AGE_MSEC))
                 .assignRef(REF_CURRENTRECLAIMFREQUENCY, constant(DEFAULT_MAX_AGE_MSEC))
-                .assignRef(REF_EVALUATORFUNCTIONMAXAGE, exprDotMethod(maxAgeFactory, "make", REF_AGENTINSTANCECONTEXT))
-                .assignRef(REF_EVALUATIONFUNCTIONFREQUENCY, exprDotMethod(frequencyFactory, "make", REF_AGENTINSTANCECONTEXT));
+                .assignRef(REF_EVALUATORFUNCTIONMAXAGE, exprDotMethod(maxAgeFactory, "make", MEMBER_AGENTINSTANCECONTEXT))
+                .assignRef(REF_EVALUATIONFUNCTIONFREQUENCY, exprDotMethod(frequencyFactory, "make", MEMBER_AGENTINSTANCECONTEXT));
     }
 
     public static void applyEnterCodegenSweep(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
@@ -100,14 +100,14 @@ public class AggSvcGroupByReclaimAgedImpl {
     private static CodegenMethod sweepCodegen(CodegenMethodScope parent, CodegenClassScope classScope, AggregationClassNames classNames) {
         CodegenMethod method = parent.makeChild(void.class, AggSvcGroupByReclaimAgedImpl.class, classScope).addParam(long.class, "currentTime").addParam(long.class, REF_CURRENTMAXAGE.getRef());
         method.getBlock().declareVar(ArrayDeque.class, "removed", newInstance(ArrayDeque.class))
-                .forEach(Map.Entry.class, "entry", exprDotMethod(REF_AGGREGATORSPERGROUP, "entrySet"))
+                .forEach(Map.Entry.class, "entry", exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "entrySet"))
                 .declareVar(long.class, "age", op(ref("currentTime"), "-", exprDotMethod(cast(classNames.getRowTop(), exprDotMethod(ref("entry"), "getValue")), "getLastUpdateTime")))
                 .ifCondition(relational(ref("age"), GT, REF_CURRENTMAXAGE))
                 .exprDotMethod(ref("removed"), "add", exprDotMethod(ref("entry"), "getKey"))
                 .blockEnd()
                 .blockEnd()
                 .forEach(Object.class, "key", ref("removed"))
-                .exprDotMethod(REF_AGGREGATORSPERGROUP, "remove", ref("key"))
+                .exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "remove", ref("key"))
                 .exprDotMethod(REF_REMOVEDCALLBACK, "removedAggregationGroupKey", ref("key"));
         return method;
     }

@@ -29,8 +29,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGGREGATIONSVC;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGGREGATIONSVC;
 
 /**
  * Result set processor prototype for the case: aggregation functions used in the select clause, and no group-by,
@@ -100,8 +100,8 @@ public class ResultSetProcessorRowForAllForge implements ResultSetProcessorFacto
     }
 
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
-        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGGREGATIONSVC));
-        instance.getMethods().addMethod(ExprEvaluatorContext.class, "getExprEvaluatorContext", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
+        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGGREGATIONSVC));
+        instance.getMethods().addMethod(ExprEvaluatorContext.class, "getExprEvaluatorContext", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGENTINSTANCECONTEXT));
         instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream())));
         ResultSetProcessorUtil.evaluateHavingClauseCodegen(optionalHavingNode, classScope, instance);
         ResultSetProcessorRowForAllImpl.getSelectListEventsAsArrayCodegen(this, classScope, instance);

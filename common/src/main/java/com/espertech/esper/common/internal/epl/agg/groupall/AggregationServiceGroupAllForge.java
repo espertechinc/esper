@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
@@ -36,7 +36,7 @@ import static com.espertech.esper.common.internal.metrics.instrumentation.Instru
  * Aggregation service for use when only first/last/window aggregation functions are used an none other.
  */
 public class AggregationServiceGroupAllForge implements AggregationServiceFactoryForgeWMethodGen {
-    private final static CodegenExpressionRef REF_ROW = new CodegenExpressionRef("row");
+    private final static CodegenExpressionMember MEMBER_ROW = member("row");
 
     protected final AggregationRowStateForgeDesc rowStateDesc;
 
@@ -65,29 +65,29 @@ public class AggregationServiceGroupAllForge implements AggregationServiceFactor
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
-        explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), REF_ROW.getRef()));
-        ctor.getBlock().assignRef(REF_ROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()));
+        explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), MEMBER_ROW.getRef()));
+        ctor.getBlock().assignRef(MEMBER_ROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()));
     }
 
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_ROW, "getValue", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_ROW, "getValue", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void getEventBeanCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_ROW, "getEventBean", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_ROW, "getEventBean", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void applyEnterCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods, AggregationClassNames classNames) {
         method.getBlock()
                 .apply(instblock(classScope, "qAggregationUngroupedApplyEnterLeave", constantTrue(), constant(rowStateDesc.getNumMethods()), constant(rowStateDesc.getNumAccess())))
-                .exprDotMethod(REF_ROW, "applyEnter", REF_EPS, REF_EXPREVALCONTEXT)
+                .exprDotMethod(MEMBER_ROW, "applyEnter", REF_EPS, REF_EXPREVALCONTEXT)
                 .apply(instblock(classScope, "aAggregationUngroupedApplyEnterLeave", constantTrue()));
     }
 
     public void applyLeaveCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods, AggregationClassNames classNames) {
         method.getBlock()
                 .apply(instblock(classScope, "qAggregationUngroupedApplyEnterLeave", constantFalse(), constant(rowStateDesc.getNumMethods()), constant(rowStateDesc.getNumAccess())))
-                .exprDotMethod(REF_ROW, "applyLeave", REF_EPS, REF_EXPREVALCONTEXT)
+                .exprDotMethod(MEMBER_ROW, "applyLeave", REF_EPS, REF_EXPREVALCONTEXT)
                 .apply(instblock(classScope, "aAggregationUngroupedApplyEnterLeave", constantFalse()));
     }
 
@@ -104,19 +104,19 @@ public class AggregationServiceGroupAllForge implements AggregationServiceFactor
     }
 
     public void clearResultsCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(REF_ROW, "clear");
+        method.getBlock().exprDotMethod(MEMBER_ROW, "clear");
     }
 
     public void getCollectionScalarCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_ROW, "getCollectionScalar", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_ROW, "getCollectionScalar", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void getCollectionOfEventsCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_ROW, "getCollectionOfEvents", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_ROW, "getCollectionOfEvents", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void acceptCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitAggregations", constant(1), REF_ROW);
+        method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitAggregations", constant(1), MEMBER_ROW);
     }
 
     public void getGroupKeysCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -142,6 +142,6 @@ public class AggregationServiceGroupAllForge implements AggregationServiceFactor
     }
 
     public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(REF_ROW);
+        method.getBlock().methodReturn(MEMBER_ROW);
     }
 }

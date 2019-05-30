@@ -240,7 +240,7 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(NAME_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "generated", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
                         .assignRef("result", newInstance(ArrayDeque.class, arrayLength(ref("events"))))
@@ -256,11 +256,11 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNullReturnNull("result")
                     .declareVar(EventBean[].class, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
                     .declareVar(EventBean[][].class, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
-                    .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
+                    .methodReturn(exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC));
         };
 
         return instance.getMethods().addMethod(EventBean[].class, "getSelectEventsHavingWithOrderBy",
-                CodegenNamedParam.from(AggregationService.class, REF_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(AggregationService.class, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -324,7 +324,7 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "generated", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
                         .assignRef("result", newInstance(ArrayDeque.class, arrayLength(ref("events")))).blockEnd()
@@ -451,7 +451,7 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "generated", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
                         .assignRef("result", newInstance(ArrayDeque.class, exprDotMethod(ref("events"), "size"))).blockEnd()
@@ -525,7 +525,7 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .ifCondition(equalsNull(ref("result")))
                         .assignRef("result", newInstance(ArrayDeque.class, exprDotMethod(ref("events"), "size")))
@@ -538,11 +538,11 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNullReturnNull("result")
                     .declareVar(EventBean[].class, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
                     .declareVar(EventBean[][].class, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
-                    .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
+                    .methodReturn(exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC));
         };
 
         return instance.getMethods().addMethod(EventBean[].class, "getSelectJoinEventsHavingWithOrderBy",
-                CodegenNamedParam.from(AggregationService.class, REF_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(AggregationService.class, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -610,7 +610,7 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"));
             }
@@ -653,10 +653,10 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"))
-                        .exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKey", REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+                        .exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
         };
 
@@ -693,7 +693,7 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"));
             }
@@ -733,10 +733,10 @@ public class ResultSetProcessorUtil {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"))
-                        .exprDotMethod(ref("sortKeys"), "add", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKey", REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+                        .exprDotMethod(ref("sortKeys"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
         };
 
@@ -819,34 +819,34 @@ public class ResultSetProcessorUtil {
         if (!hasHaving) {
             if (selectRStream) {
                 if (!hasOrderBy) {
-                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constant(false), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constant(false), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
                 } else {
-                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
                 }
             }
 
             if (!hasOrderBy) {
-                method.getBlock().assignRef("selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             } else {
-                method.getBlock().assignRef("selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             }
         } else {
             if (selectRStream) {
                 if (!hasOrderBy) {
                     CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingCodegen(classScope, instance);
-                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
                 } else {
                     CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingWithOrderByCodegen(classScope, instance);
-                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", localMethod(select, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
                 }
             }
 
             if (!hasOrderBy) {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingCodegen(classScope, instance);
-                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingWithOrderByCodegen(classScope, instance);
-                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", localMethod(select, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             }
         }
 
@@ -860,34 +860,34 @@ public class ResultSetProcessorUtil {
         if (!hasHaving) {
             if (selectRStream) {
                 if (!hasOrderBy) {
-                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
                 } else {
-                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, constantNull(), REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, constantNull(), MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
                 }
             }
 
             if (!hasOrderBy) {
-                method.getBlock().assignRef("selectNewEvents ", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents ", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             } else {
-                method.getBlock().assignRef("selectNewEvents ", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, constantNull(), REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents ", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, constantNull(), MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             }
         } else {
             if (selectRStream) {
                 if (!hasOrderBy) {
                     CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingCodegen(classScope, instance);
-                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
                 } else {
                     CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderByCodegen(classScope, instance);
-                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", localMethod(select, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT));
                 }
             }
 
             if (!hasOrderBy) {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingCodegen(classScope, instance);
-                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderByCodegen(classScope, instance);
-                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", localMethod(select, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
             }
         }
 
@@ -958,7 +958,7 @@ public class ResultSetProcessorUtil {
         }
 
         if (hasOrderBy) {
-            block.assignRef(events.getRef(), exprDotMethod(REF_ORDERBYPROCESSOR, "sortWGroupKeys", events, currentGenerators, keys, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC));
+            block.assignRef(events.getRef(), exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWGroupKeys", events, currentGenerators, keys, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC));
         }
 
         block.methodReturn(events);
@@ -1002,10 +1002,10 @@ public class ResultSetProcessorUtil {
 
         if (hasOrderBy) {
             block.declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, newEventsSortKey))
-                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                    .assignRef("newEventsArr", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), MEMBER_AGENTINSTANCECONTEXT));
             if (selectRStream) {
                 block.declareVar(Object[].class, "sortKeysOld", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, oldEventsSortKey))
-                        .assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("sortKeysOld"), REF_AGENTINSTANCECONTEXT));
+                        .assignRef("oldEventsArr", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("sortKeysOld"), MEMBER_AGENTINSTANCECONTEXT));
             }
         }
 

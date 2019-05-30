@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementIfConditionBlock {
     private final CodegenExpression condition;
@@ -46,5 +47,10 @@ public class CodegenStatementIfConditionBlock {
         block.render(builder, imports, isInnerClass, level + 1, indent);
         indent.indent(builder, level);
         builder.append("}");
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(condition);
+        block.traverseExpressions(consumer);
     }
 }

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
@@ -36,9 +37,9 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
  * Standard deviation always generates double-typed numbers.
  */
 public class AggregatorStddev extends AggregatorMethodWDistinctWFilterWValueBase {
-    private CodegenExpressionRef mean;
-    private CodegenExpressionRef qn;
-    private CodegenExpressionRef cnt;
+    private CodegenExpressionMember mean;
+    private CodegenExpressionMember qn;
+    private CodegenExpressionMember cnt;
 
     public AggregatorStddev(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);

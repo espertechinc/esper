@@ -12,11 +12,14 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public interface CodegenExpression {
     void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass);
 
     void mergeClasses(Set<Class> classes);
+
+    void traverseExpressions(Consumer<CodegenExpression> consumer);
 
     static void assertNonNullArgs(CodegenExpression[] params) {
         for (int i = 0; i < params.length; i++) {

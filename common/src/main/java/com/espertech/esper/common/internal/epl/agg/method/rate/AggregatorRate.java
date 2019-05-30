@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -32,10 +33,10 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 public class AggregatorRate extends AggregatorMethodWDistinctWFilterBase {
 
     protected AggregationForgeFactoryRate factory;
-    protected CodegenExpressionRef accumulator;
-    protected CodegenExpressionRef latest;
-    protected CodegenExpressionRef oldest;
-    protected CodegenExpressionRef isSet;
+    protected CodegenExpressionMember accumulator;
+    protected CodegenExpressionMember latest;
+    protected CodegenExpressionMember oldest;
+    protected CodegenExpressionMember isSet;
 
     public AggregatorRate(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);

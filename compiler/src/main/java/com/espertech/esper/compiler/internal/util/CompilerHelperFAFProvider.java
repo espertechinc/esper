@@ -154,7 +154,7 @@ public class CompilerHelperFAFProvider {
 
         // initialize-query
         CodegenMethod initializeQueryMethod = CodegenMethod.makeParentNode(void.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
-        initializeQueryMethod.getBlock().assignRef(MEMBERNAME_QUERY_METHOD_PROVIDER, newInstance(queryMethodProviderClassName, EPStatementInitServices.REF));
+        initializeQueryMethod.getBlock().assignMember(MEMBERNAME_QUERY_METHOD_PROVIDER, newInstance(queryMethodProviderClassName, EPStatementInitServices.REF));
 
         // get-execute
         CodegenMethod getQueryMethodProviderMethod = CodegenMethod.makeParentNode(FAFQueryMethodProvider.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);

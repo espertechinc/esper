@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenExpressionAndOr implements CodegenExpression {
     private final boolean isAnd;
@@ -50,5 +51,11 @@ public class CodegenExpressionAndOr implements CodegenExpression {
                 expr.mergeClasses(classes);
             }
         }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(first);
+        consumer.accept(second);
+        CodegenExpressionBuilder.traverseMultiple(optionalMore, consumer);
     }
 }

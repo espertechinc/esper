@@ -51,7 +51,7 @@ public class AggregationAccessorSortedTable implements AggregationAccessorForge 
             .whileLoop(exprDotMethod(ref("it"), "hasNext"))
             .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
             .assignArrayElement(ref("array"), ref("count"), exprDotMethod(eventToPublic, "convertToUnd", ref("bean"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
-            .increment("count")
+            .incrementRef("count")
             .blockEnd()
             .methodReturn(ref("array"));
     }

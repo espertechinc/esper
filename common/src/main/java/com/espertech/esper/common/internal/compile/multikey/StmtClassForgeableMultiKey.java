@@ -151,7 +151,7 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
         }
         */
 
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength("num", length, true);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("num"), length, true);
         for (int i = 0; i < length; i++) {
             blocks[i].blockReturn(ref("k" + i));
         }

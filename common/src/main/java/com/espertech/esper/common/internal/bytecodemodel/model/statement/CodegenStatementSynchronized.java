@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementSynchronized extends CodegenStatementWBlockBase {
     private CodegenExpression expression;
@@ -46,5 +47,10 @@ public class CodegenStatementSynchronized extends CodegenStatementWBlockBase {
         }
         block = new CodegenBlock(this);
         return block;
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(expression);
+        block.traverseExpressions(consumer);
     }
 }

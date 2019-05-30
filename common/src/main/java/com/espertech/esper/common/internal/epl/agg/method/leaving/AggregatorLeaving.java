@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.agg.method.leaving;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -26,7 +27,7 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 
 public class AggregatorLeaving implements AggregatorMethod {
     private final AggregationForgeFactoryLeaving factory;
-    private final CodegenExpressionRef leaving;
+    private final CodegenExpressionMember leaving;
 
     public AggregatorLeaving(AggregationForgeFactoryLeaving factory, int col, CodegenMemberCol membersColumnized) {
         this.factory = factory;

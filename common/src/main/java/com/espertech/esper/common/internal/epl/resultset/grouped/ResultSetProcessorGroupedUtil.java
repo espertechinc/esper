@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_ISNEWDATA;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 public class ResultSetProcessorGroupedUtil {
@@ -111,7 +111,7 @@ public class ResultSetProcessorGroupedUtil {
             if (optionalMultiKeyClasses != null && optionalMultiKeyClasses.getClassNameMK() != null) {
                 CodegenMethod method = MultiKeyCodegen.codegenMethod(groupKeyExpressions, optionalMultiKeyClasses, methodNode, classScope);
                 methodNode.getBlock()
-                    .declareVar(Object.class, "key", localMethod(method, REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))
+                    .declareVar(Object.class, "key", localMethod(method, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
                     .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
                     .methodReturn(ref("key"));
                 return;
@@ -123,7 +123,7 @@ public class ResultSetProcessorGroupedUtil {
 
             CodegenMethod expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[0].getForge(), methodNode, classScope);
             methodNode.getBlock()
-                    .declareVar(Object.class, "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))
+                    .declareVar(Object.class, "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
                     .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
                     .methodReturn(ref("key"));
         };
@@ -153,7 +153,7 @@ public class ResultSetProcessorGroupedUtil {
                     .declareVar(int.class, "count", constant(0))
                     .forEach(MultiKeyArrayOfKeys.class, "eventsPerStream", ref("resultSet"))
                     .assignArrayElement("keys", ref("count"), localMethod(generateGroupKeySingle, cast(EventBean[].class, exprDotMethod(ref("eventsPerStream"), "getArray")), REF_ISNEWDATA))
-                    .increment("count")
+                    .incrementRef("count")
                     .blockEnd()
                     .methodReturn(ref("keys"));
         };

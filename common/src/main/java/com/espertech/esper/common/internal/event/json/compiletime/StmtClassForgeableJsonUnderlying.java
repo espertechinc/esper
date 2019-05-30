@@ -193,7 +193,7 @@ public class StmtClassForgeableJsonUnderlying implements StmtClassForgeable {
             expressions[field.getPropertyNumber() - numFieldsSupertype] = constant(property.getKey());
         }
 
-        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions("name", expressions, true, false);
+        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions(ref("name"), expressions, true, false);
         for (int i = 0; i < switchStmt.getBlocks().length; i++) {
             switchStmt.getBlocks()[i].blockReturn(constant(numFieldsSupertype + i));
         }
@@ -208,7 +208,7 @@ public class StmtClassForgeableJsonUnderlying implements StmtClassForgeable {
         }
 
         CodegenExpression[] cases = getCasesNumberNtoM();
-        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions("num", cases, true, false);
+        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions(ref("num"), cases, true, false);
         makeNoSuchElementDefault(switchStmt, ref("num"));
         int index = 0;
         for (Map.Entry<String, Object> property : propertiesThisType.entrySet()) {
@@ -227,7 +227,7 @@ public class StmtClassForgeableJsonUnderlying implements StmtClassForgeable {
         }
 
         CodegenExpression[] cases = getCasesNumberNtoM();
-        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions("num", cases, false, false);
+        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions(ref("num"), cases, false, false);
         makeNoSuchElementDefault(switchStmt, ref("num"));
         CodegenBlock[] blocks = switchStmt.getBlocks();
 
@@ -284,7 +284,7 @@ public class StmtClassForgeableJsonUnderlying implements StmtClassForgeable {
         }
 
         CodegenExpression[] cases = getCasesNumberNtoM();
-        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions("num", cases, true, false);
+        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions(ref("num"), cases, true, false);
         makeNoSuchElementDefault(switchStmt, ref("num"));
 
         int index = 0;
@@ -303,7 +303,7 @@ public class StmtClassForgeableJsonUnderlying implements StmtClassForgeable {
         }
 
         CodegenExpression[] cases = getCasesNumberNtoM();
-        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions("num", cases, true, false);
+        CodegenStatementSwitch switchStmt = method.getBlock().switchBlockExpressions(ref("num"), cases, true, false);
         makeNoSuchElementDefault(switchStmt, ref("num"));
 
         int index = 0;

@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class CodegenStatementIf extends CodegenStatementWBlockBase {
     private List<CodegenStatementIfConditionBlock> blocks = new ArrayList<CodegenStatementIfConditionBlock>();
@@ -79,6 +80,15 @@ public class CodegenStatementIf extends CodegenStatementWBlockBase {
         }
         if (optionalElse != null) {
             optionalElse.mergeClasses(classes);
+        }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        for (CodegenStatementIfConditionBlock pair : blocks) {
+            pair.traverseExpressions(consumer);
+        }
+        if (optionalElse != null) {
+            optionalElse.traverseExpressions(consumer);
         }
     }
 }

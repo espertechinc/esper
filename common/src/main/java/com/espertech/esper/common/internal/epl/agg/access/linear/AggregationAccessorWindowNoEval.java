@@ -36,7 +36,7 @@ public class AggregationAccessorWindowNoEval {
                 .whileLoop(exprDotMethod(ref("it"), "hasNext"))
                 .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
                 .assignArrayElement(ref("array"), ref("count"), cast(forge.getComponentType(), exprDotUnderlying(ref("bean"))))
-                .increment("count")
+                .incrementRef("count")
                 .blockEnd()
                 .methodReturn(ref("array"));
     }

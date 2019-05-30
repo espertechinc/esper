@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
@@ -65,6 +66,12 @@ public class CodegenStatementDeclareVar extends CodegenStatementBase {
         }
         if (optionalInitializer != null) {
             optionalInitializer.mergeClasses(classes);
+        }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        if (optionalInitializer != null) {
+            consumer.accept(optionalInitializer);
         }
     }
 }

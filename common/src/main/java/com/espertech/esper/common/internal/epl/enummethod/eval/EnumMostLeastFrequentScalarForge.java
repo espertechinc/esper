@@ -73,7 +73,7 @@ public class EnumMostLeastFrequentScalarForge extends EnumForgeBase implements E
                 .ifCondition(equalsNull(ref("existing")))
                 .assignRef("existing", constant(1))
                 .ifElse()
-                .increment("existing")
+                .incrementRef("existing")
                 .blockEnd()
                 .exprDotMethod(ref("items"), "put", ref("next"), ref("existing"));
         CodegenMethod method = block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(isMostFrequent))));

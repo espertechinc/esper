@@ -11,12 +11,13 @@
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.mergeClassesExpressions;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.renderExpressions;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenStatementSuperCtor extends CodegenStatementBase {
     private final CodegenExpression[] params;
@@ -33,5 +34,9 @@ public class CodegenStatementSuperCtor extends CodegenStatementBase {
 
     public void mergeClasses(Set<Class> classes) {
         mergeClassesExpressions(classes, params);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        CodegenExpressionBuilder.traverseMultiple(params, consumer);
     }
 }

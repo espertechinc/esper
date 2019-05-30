@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil.renderConstant;
 
@@ -36,5 +37,9 @@ public class CodegenStatementIfConditionReturnConst extends CodegenStatementBase
 
     public void mergeClasses(Set<Class> classes) {
         condition.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(condition);
     }
 }

@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelp
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClassUtil.getComponentTypeOutermost;
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClassUtil.getNumberOfDimensions;
@@ -43,5 +44,9 @@ public class CodegenExpressionNewArrayByLength implements CodegenExpression {
     public void mergeClasses(Set<Class> classes) {
         classes.add(component);
         expression.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(expression);
     }
 }

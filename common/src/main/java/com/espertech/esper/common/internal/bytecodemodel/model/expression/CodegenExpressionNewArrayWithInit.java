@@ -14,7 +14,9 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelp
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.traverseMultiple;
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClassUtil.getComponentTypeOutermost;
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClassUtil.getNumberOfDimensions;
 
@@ -46,5 +48,9 @@ public class CodegenExpressionNewArrayWithInit implements CodegenExpression {
         for (CodegenExpression expression : expressions) {
             expression.mergeClasses(classes);
         }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        traverseMultiple(expressions, consumer);
     }
 }

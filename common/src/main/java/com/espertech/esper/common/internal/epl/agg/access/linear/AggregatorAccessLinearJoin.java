@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.ArrayEventIterator;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
@@ -33,7 +34,7 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GE;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.LINKEDHASHMAPEVENTSANDINT;
 import static com.espertech.esper.common.internal.util.CollectionUtil.METHOD_TOARRAYEVENTS;
 
@@ -43,8 +44,8 @@ import static com.espertech.esper.common.internal.util.CollectionUtil.METHOD_TOA
 public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase implements AggregatorAccessLinear {
 
     private final AggregationStateLinearForge forge;
-    private final CodegenExpressionRef refSet;
-    private final CodegenExpressionRef array;
+    private final CodegenExpressionMember refSet;
+    private final CodegenExpressionMember array;
 
     public AggregatorAccessLinearJoin(AggregationStateLinearForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
         super(optionalFilter);
@@ -76,11 +77,11 @@ public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase impl
     }
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(getSerde(classScope), "write", rowDotRef(row, refSet), output, unitKey, writer);
+        method.getBlock().exprDotMethod(getSerde(classScope), "write", rowDotMember(row, refSet), output, unitKey, writer);
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotRef(row, refSet), cast(LinkedHashMap.class, exprDotMethod(getSerde(classScope), "read", input, unitKey)));
+        method.getBlock().assignRef(rowDotMember(row, refSet), cast(LinkedHashMap.class, exprDotMethod(getSerde(classScope), "read", input, unitKey)));
     }
 
     public CodegenExpression getFirstNthValueCodegen(CodegenExpressionRef index, CodegenMethod parentMethod, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
@@ -125,7 +126,7 @@ public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase impl
     public CodegenExpression iteratorCodegen(CodegenClassScope classScope, CodegenMethod parentMethod, CodegenNamedMethods namedMethods) {
         CodegenMethod initArray = initArrayCodegen(namedMethods, classScope);
         CodegenMethod method = parentMethod.makeChildWithScope(Iterator.class, AggregatorAccessLinearJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        method.getBlock().ifRefNull(array)
+        method.getBlock().ifNull(array)
                 .localMethod(initArray)
                 .blockEnd()
                 .methodReturn(newInstance(ArrayEventIterator.class, array));
@@ -135,7 +136,7 @@ public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase impl
     public CodegenExpression collectionReadOnlyCodegen(CodegenMethod parentMethod, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenMethod initArray = initArrayCodegen(namedMethods, classScope);
         CodegenMethod method = parentMethod.makeChildWithScope(Collection.class, AggregatorAccessLinearJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        method.getBlock().ifRefNull(array)
+        method.getBlock().ifNull(array)
                 .localMethod(initArray)
                 .blockEnd()
                 .methodReturn(staticMethod(Arrays.class, "asList", array));
@@ -153,7 +154,7 @@ public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase impl
                 .ifRefNull("value")
                 .exprDotMethod(refSet, "put", ref("theEvent"), constant(1))
                 .blockReturnNoValue()
-                .increment("value")
+                .incrementRef("value")
                 .exprDotMethod(refSet, "put", ref("theEvent"), ref("value"));
         return method;
     }
@@ -166,7 +167,7 @@ public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase impl
                 .ifCondition(equalsIdentity(ref("value"), constant(1)))
                 .exprDotMethod(refSet, "remove", ref("theEvent"))
                 .blockReturnNoValue()
-                .decrement("value")
+                .decrementRef("value")
                 .exprDotMethod(refSet, "put", ref("theEvent"), ref("value"));
         return method;
     }

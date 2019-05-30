@@ -59,7 +59,7 @@ public class CodegenSubstitutionParamEntry {
         }
 
         method.getBlock().declareVar(int.class, "zidx", op(ref("index"), "-", constant(1)));
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength("zidx", fields.size(), false);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("zidx"), fields.size(), false);
         for (int i = 0; i < blocks.length; i++) {
             CodegenSubstitutionParamEntry param = fields.get(i);
             blocks[i].assignRef(field(param.getField()), cast(JavaClassHelper.getBoxedType(param.getType()), ref("value")));

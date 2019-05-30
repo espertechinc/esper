@@ -48,7 +48,7 @@ public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
         param.addMethod("getFilterValue", getFilterValue);
         getFilterValue.getBlock()
                 .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
-                .ifRefNullReturnNull(ref("props"))
+                .ifNullReturnNull(ref("props"))
                 .declareVar(Object.class, "result", getter.eventBeanGetCodegen(ref("props"), method, classScope));
         if (numberCoercer != null) {
             getFilterValue.getBlock().assignRef("result", numberCoercer.coerceCodegenMayNullBoxed(cast(Number.class, ref("result")), Number.class, method, classScope));

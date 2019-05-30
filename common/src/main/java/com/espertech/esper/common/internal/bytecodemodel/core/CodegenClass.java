@@ -92,6 +92,10 @@ public class CodegenClass {
         return innerClasses;
     }
 
+    public void addInnerClass(CodegenInnerClass innerClass) {
+        innerClasses.add(innerClass);
+    }
+
     public CodegenCtor getOptionalCtor() {
         return optionalCtor;
     }
@@ -116,6 +120,12 @@ public class CodegenClass {
             }
         }
         return classes;
+    }
+
+    public String toString() {
+        return "CodegenClass{" +
+            "className='" + className + '\'' +
+            '}';
     }
 
     private static void addReferencedClasses(CodegenClassInterfacesAndExtension supers, CodegenClassMethods methods, Set<Class> classes) {

@@ -45,7 +45,7 @@ public class FilterForEvalContextPropStringForge implements FilterSpecParamFilte
 
         method.getBlock()
                 .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
-                .ifRefNullReturnNull(ref("props"))
+                .ifNullReturnNull(ref("props"))
                 .methodReturn(getter.eventBeanGetCodegen(ref("props"), method, classScope));
 
         return localMethod(method, GET_FILTER_VALUE_REFS);

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenExpressionNoOp implements CodegenExpression {
     public final static CodegenExpressionNoOp INSTANCE = new CodegenExpressionNoOp();
@@ -24,5 +25,8 @@ public class CodegenExpressionNoOp implements CodegenExpression {
     }
 
     public void mergeClasses(Set<Class> classes) {
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
     }
 }

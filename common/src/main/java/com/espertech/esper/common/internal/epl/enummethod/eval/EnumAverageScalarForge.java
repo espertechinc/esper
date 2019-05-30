@@ -59,7 +59,7 @@ public class EnumAverageScalarForge extends EnumForgeBase implements EnumEval {
                 .declareVar(int.class, "count", constant(0))
                 .forEach(Number.class, "num", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifRefNull("num").blockContinue()
-                .increment("count")
+                .incrementRef("count")
                 .assignRef("sum", op(ref("sum"), "+", exprDotMethod(ref("num"), "doubleValue")))
                 .blockEnd()
                 .ifCondition(equalsIdentity(ref("count"), constant(0))).blockReturn(constantNull())

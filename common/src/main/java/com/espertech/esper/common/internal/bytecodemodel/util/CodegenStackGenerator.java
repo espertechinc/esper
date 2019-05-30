@@ -10,15 +10,11 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.util;
 
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 import java.util.*;
-
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class CodegenStackGenerator {
 
@@ -32,7 +28,7 @@ public class CodegenStackGenerator {
 
         if (!(methodNode instanceof CodegenCtor)) {
             CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), methodNode.getReturnTypeName(), methodNode.getLocalParams(), methodNode.getAdditionalDebugInfo());
-            CodegenMethodWGraph method = new CodegenMethodWGraph(name, footprint, methodNode.getBlock(), true, methodNode.getThrown()).setStatic(methodNode.isStatic());
+            CodegenMethodWGraph method = new CodegenMethodWGraph(name, footprint, methodNode.getBlock(), true, methodNode.getThrown(), methodNode).setStatic(methodNode.isStatic());
             methodNode.setAssignedMethod(method);
             methods.getPublicMethods().add(method);
         }
@@ -69,7 +65,7 @@ public class CodegenStackGenerator {
 
         String name = "m" + privateMethods.size();
         CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), methodNode.getReturnTypeName(), paramset, methodNode.getAdditionalDebugInfo());
-        CodegenMethodWGraph method = new CodegenMethodWGraph(name, footprint, methodNode.getBlock(), false, methodNode.getThrown()).setStatic(isStatic);
+        CodegenMethodWGraph method = new CodegenMethodWGraph(name, footprint, methodNode.getBlock(), false, methodNode.getThrown(), methodNode).setStatic(isStatic);
         methodNode.setAssignedMethod(method);
         privateMethods.add(method);
 
@@ -94,14 +90,5 @@ public class CodegenStackGenerator {
         for (CodegenMethod child : node.getChildren()) {
             recursiveGetNamesPassed(child, names);
         }
-    }
-
-    public static void makeSetter(String className, String memberName, List<CodegenTypedParam> members, CodegenClassMethods methods, CodegenClassScope classScope) {
-        members.add(new CodegenTypedParam(className, memberName));
-
-        CodegenMethod method = CodegenMethod.makeParentNode(void.class, CodegenStackGenerator.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(className, "p");
-        method.getBlock().assignRef(memberName, ref("p"));
-        String setterMethodName = "set" + memberName.substring(0, 1).toUpperCase(Locale.ENGLISH) + memberName.substring(1);
-        recursiveBuildStack(method, setterMethodName, methods);
     }
 }

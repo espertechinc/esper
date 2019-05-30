@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethod
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -43,12 +43,12 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
  * Implementation for handling aggregation with grouping by group-keys.
  */
 public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeWMethodGen {
-    private final static CodegenExpressionRef REF_AGGREGATORSPERGROUP = ref("aggregatorsPerGroup");
-    private final static CodegenExpressionRef REF_AGGREGATORTOPGROUP = ref("aggregatorTopGroup");
-    private final static CodegenExpressionRef REF_CURRENTROW = ref("currentRow");
-    private final static CodegenExpressionRef REF_CURRENTGROUPKEY = ref("currentGroupKey");
-    private final static CodegenExpressionRef REF_HASREMOVEDKEY = ref("hasRemovedKey");
-    private final static CodegenExpressionRef REF_REMOVEDKEYS = ref("removedKeys");
+    private final static CodegenExpressionMember MEMBER_AGGREGATORSPERGROUP = member("aggregatorsPerGroup");
+    private final static CodegenExpressionMember MEMBER_AGGREGATORTOPGROUP = member("aggregatorTopGroup");
+    private final static CodegenExpressionMember MEMBER_CURRENTROW = member("currentRow");
+    private final static CodegenExpressionMember MEMBER_CURRENTGROUPKEY = member("currentGroupKey");
+    private final static CodegenExpressionMember MEMBER_HASREMOVEDKEY = member("hasRemovedKey");
+    private final static CodegenExpressionMember MEMBER_REMOVEDKEYS = member("removedKeys");
 
     protected final AggregationRowStateForgeDesc rowStateForgeDesc;
     protected final AggregationGroupByRollupDescForge rollupDesc;
@@ -84,38 +84,38 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
-        explicitMembers.add(new CodegenTypedParam(Map[].class, REF_AGGREGATORSPERGROUP.getRef()));
-        explicitMembers.add(new CodegenTypedParam(List[].class, REF_REMOVEDKEYS.getRef()));
-        ctor.getBlock().assignRef(REF_AGGREGATORSPERGROUP, newArrayByLength(Map.class, constant(rollupDesc.getNumLevelsAggregation())))
-                .assignRef(REF_REMOVEDKEYS, newArrayByLength(List.class, constant(rollupDesc.getNumLevelsAggregation())));
+        explicitMembers.add(new CodegenTypedParam(Map[].class, MEMBER_AGGREGATORSPERGROUP.getRef()));
+        explicitMembers.add(new CodegenTypedParam(List[].class, MEMBER_REMOVEDKEYS.getRef()));
+        ctor.getBlock().assignRef(MEMBER_AGGREGATORSPERGROUP, newArrayByLength(Map.class, constant(rollupDesc.getNumLevelsAggregation())))
+                .assignRef(MEMBER_REMOVEDKEYS, newArrayByLength(List.class, constant(rollupDesc.getNumLevelsAggregation())));
         for (int i = 0; i < rollupDesc.getNumLevelsAggregation(); i++) {
-            ctor.getBlock().assignArrayElement(REF_AGGREGATORSPERGROUP, constant(i), newInstance(HashMap.class));
-            ctor.getBlock().assignArrayElement(REF_REMOVEDKEYS, constant(i), newInstance(ArrayList.class, constant(4)));
+            ctor.getBlock().assignArrayElement(MEMBER_AGGREGATORSPERGROUP, constant(i), newInstance(HashMap.class));
+            ctor.getBlock().assignArrayElement(MEMBER_REMOVEDKEYS, constant(i), newInstance(ArrayList.class, constant(4)));
         }
 
-        explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), REF_AGGREGATORTOPGROUP.getRef()));
-        ctor.getBlock().assignRef(REF_AGGREGATORTOPGROUP, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
-                .exprDotMethod(REF_AGGREGATORTOPGROUP, "decreaseRefcount");
+        explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), MEMBER_AGGREGATORTOPGROUP.getRef()));
+        ctor.getBlock().assignRef(MEMBER_AGGREGATORTOPGROUP, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
+                .exprDotMethod(MEMBER_AGGREGATORTOPGROUP, "decreaseRefcount");
 
-        explicitMembers.add(new CodegenTypedParam(AggregationRow.class, REF_CURRENTROW.getRef()));
-        explicitMembers.add(new CodegenTypedParam(Object.class, REF_CURRENTGROUPKEY.getRef()));
-        explicitMembers.add(new CodegenTypedParam(boolean.class, REF_HASREMOVEDKEY.getRef()));
+        explicitMembers.add(new CodegenTypedParam(AggregationRow.class, MEMBER_CURRENTROW.getRef()));
+        explicitMembers.add(new CodegenTypedParam(Object.class, MEMBER_CURRENTGROUPKEY.getRef()));
+        explicitMembers.add(new CodegenTypedParam(boolean.class, MEMBER_HASREMOVEDKEY.getRef()));
     }
 
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_CURRENTROW, "getValue", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_CURRENTROW, "getValue", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void getCollectionOfEventsCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_CURRENTROW, "getCollectionOfEvents", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_CURRENTROW, "getCollectionOfEvents", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void getEventBeanCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_CURRENTROW, "getEventBean", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_CURRENTROW, "getEventBean", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void getCollectionScalarCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(exprDotMethod(REF_CURRENTROW, "getCollectionScalar", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+        method.getBlock().methodReturn(exprDotMethod(MEMBER_CURRENTROW, "getCollectionScalar", REF_COLUMN, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }
 
     public void applyEnterCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods, AggregationClassNames classNames) {
@@ -136,25 +136,25 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
 
     public void setCurrentAccessCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
         method.getBlock().ifCondition(exprDotMethod(AggregationServiceCodegenNames.REF_ROLLUPLEVEL, "isAggregationTop"))
-                .assignRef(REF_CURRENTROW, REF_AGGREGATORTOPGROUP)
+                .assignRef(MEMBER_CURRENTROW, MEMBER_AGGREGATORTOPGROUP)
                 .ifElse()
-                .assignRef(REF_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, exprDotMethod(AggregationServiceCodegenNames.REF_ROLLUPLEVEL, "getAggregationOffset")), "get", AggregationServiceCodegenNames.REF_GROUPKEY)))
-                .ifCondition(equalsNull(REF_CURRENTROW))
-                .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
+                .assignRef(MEMBER_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, exprDotMethod(AggregationServiceCodegenNames.REF_ROLLUPLEVEL, "getAggregationOffset")), "get", AggregationServiceCodegenNames.REF_GROUPKEY)))
+                .ifCondition(equalsNull(MEMBER_CURRENTROW))
+                .assignRef(MEMBER_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
                 .blockEnd()
                 .blockEnd()
-                .assignRef(REF_CURRENTGROUPKEY, AggregationServiceCodegenNames.REF_GROUPKEY);
+                .assignRef(MEMBER_CURRENTGROUPKEY, AggregationServiceCodegenNames.REF_GROUPKEY);
     }
 
     public void clearResultsCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(REF_AGGREGATORTOPGROUP, "clear");
+        method.getBlock().exprDotMethod(MEMBER_AGGREGATORTOPGROUP, "clear");
         for (int i = 0; i < rollupDesc.getNumLevelsAggregation(); i++) {
-            method.getBlock().exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, constant(i)), "clear");
+            method.getBlock().exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, constant(i)), "clear");
         }
     }
 
     public void acceptCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitAggregations", getGroupKeyCountCodegen(method, classScope), REF_AGGREGATORSPERGROUP, REF_AGGREGATORTOPGROUP);
+        method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitAggregations", getGroupKeyCountCodegen(method, classScope), MEMBER_AGGREGATORSPERGROUP, MEMBER_AGGREGATORTOPGROUP);
     }
 
     public void getGroupKeysCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -162,17 +162,17 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
     }
 
     public void getGroupKeyCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().methodReturn(REF_CURRENTGROUPKEY);
+        method.getBlock().methodReturn(MEMBER_CURRENTGROUPKEY);
     }
 
     public void acceptGroupDetailCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitGrouped", getGroupKeyCountCodegen(method, classScope))
-                .forEach(Map.class, "anAggregatorsPerGroup", REF_AGGREGATORSPERGROUP)
+                .forEach(Map.class, "anAggregatorsPerGroup", MEMBER_AGGREGATORSPERGROUP)
                 .forEach(Map.Entry.class, "entry", exprDotMethod(ref("anAggregatorsPerGroup"), "entrySet"))
                 .exprDotMethod(REF_AGGVISITOR, "visitGroup", exprDotMethod(ref("entry"), "getKey"), exprDotMethod(ref("entry"), "getValue"))
                 .blockEnd()
                 .blockEnd()
-                .exprDotMethod(REF_AGGVISITOR, "visitGroup", publicConstValue(CollectionUtil.class, "OBJECTARRAY_EMPTY"), REF_AGGREGATORTOPGROUP);
+                .exprDotMethod(REF_AGGVISITOR, "visitGroup", publicConstValue(CollectionUtil.class, "OBJECTARRAY_EMPTY"), MEMBER_AGGREGATORTOPGROUP);
     }
 
     public void isGroupedCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -188,14 +188,14 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
     }
 
     public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        method.getBlock().methodReturn(REF_CURRENTROW);
+        method.getBlock().methodReturn(MEMBER_CURRENTROW);
     }
 
     private CodegenExpression getGroupKeyCountCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(int.class, AggSvcGroupByRollupForge.class, classScope);
         method.getBlock().declareVar(int.class, "size", constant(1));
         for (int i = 0; i < rollupDesc.getNumLevelsAggregation(); i++) {
-            method.getBlock().assignCompound("size", "+", exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, constant(i)), "size"));
+            method.getBlock().assignCompound("size", "+", exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, constant(i)), "size"));
         }
         method.getBlock().methodReturn(ref("size"));
         return localMethod(method);
@@ -213,32 +213,32 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
             method.getBlock().declareVar(Object.class, groupKeyName, arrayAtIndex(ref("groupKeyPerLevel"), constant(i)));
 
             if (level.isAggregationTop()) {
-                method.getBlock().assignRef(REF_CURRENTROW, REF_AGGREGATORTOPGROUP)
-                        .exprDotMethod(REF_CURRENTROW, enter ? "increaseRefcount" : "decreaseRefcount");
+                method.getBlock().assignRef(MEMBER_CURRENTROW, MEMBER_AGGREGATORTOPGROUP)
+                        .exprDotMethod(MEMBER_CURRENTROW, enter ? "increaseRefcount" : "decreaseRefcount");
             } else {
                 if (enter) {
-                    method.getBlock().assignRef(REF_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "get", ref(groupKeyName))))
-                            .ifCondition(equalsNull(REF_CURRENTROW))
-                            .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
-                            .exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "put", ref(groupKeyName), REF_CURRENTROW)
+                    method.getBlock().assignRef(MEMBER_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "get", ref(groupKeyName))))
+                            .ifCondition(equalsNull(MEMBER_CURRENTROW))
+                            .assignRef(MEMBER_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
+                            .exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "put", ref(groupKeyName), MEMBER_CURRENTROW)
                             .blockEnd()
-                            .exprDotMethod(REF_CURRENTROW, "increaseRefcount");
+                            .exprDotMethod(MEMBER_CURRENTROW, "increaseRefcount");
                 } else {
-                    method.getBlock().assignRef(REF_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "get", ref(groupKeyName))))
-                            .ifCondition(equalsNull(REF_CURRENTROW))
-                            .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
-                            .exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "put", ref(groupKeyName), REF_CURRENTROW)
+                    method.getBlock().assignRef(MEMBER_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "get", ref(groupKeyName))))
+                            .ifCondition(equalsNull(MEMBER_CURRENTROW))
+                            .assignRef(MEMBER_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
+                            .exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, constant(level.getAggregationOffset())), "put", ref(groupKeyName), MEMBER_CURRENTROW)
                             .blockEnd()
-                            .exprDotMethod(REF_CURRENTROW, "decreaseRefcount");
+                            .exprDotMethod(MEMBER_CURRENTROW, "decreaseRefcount");
                 }
             }
-            method.getBlock().exprDotMethod(REF_CURRENTROW, enter ? "applyEnter" : "applyLeave", REF_EPS, REF_EXPREVALCONTEXT);
+            method.getBlock().exprDotMethod(MEMBER_CURRENTROW, enter ? "applyEnter" : "applyLeave", REF_EPS, REF_EXPREVALCONTEXT);
 
             if (!enter && !level.isAggregationTop()) {
-                CodegenBlock ifCanDelete = method.getBlock().ifCondition(relational(exprDotMethod(REF_CURRENTROW, "getRefcount"), LE, constant(0)));
-                ifCanDelete.assignRef(REF_HASREMOVEDKEY, constantTrue());
+                CodegenBlock ifCanDelete = method.getBlock().ifCondition(relational(exprDotMethod(MEMBER_CURRENTROW, "getRefcount"), LE, constant(0)));
+                ifCanDelete.assignRef(MEMBER_HASREMOVEDKEY, constantTrue());
                 if (!level.isAggregationTop()) {
-                    CodegenExpression removedKeyForLevel = arrayAtIndex(REF_REMOVEDKEYS, constant(level.getAggregationOffset()));
+                    CodegenExpression removedKeyForLevel = arrayAtIndex(MEMBER_REMOVEDKEYS, constant(level.getAggregationOffset()));
                     ifCanDelete.exprDotMethod(removedKeyForLevel, "add", ref(groupKeyName));
                 }
             }
@@ -247,16 +247,16 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
 
     private CodegenMethod handleRemovedKeysCodegen(CodegenMethod scope, CodegenClassScope classScope) {
         CodegenMethod method = scope.makeChild(void.class, this.getClass(), classScope);
-        method.getBlock().ifCondition(not(REF_HASREMOVEDKEY))
+        method.getBlock().ifCondition(not(MEMBER_HASREMOVEDKEY))
                 .blockReturnNoValue()
-                .assignRef(REF_HASREMOVEDKEY, constantFalse())
-                .forLoopIntSimple("i", arrayLength(REF_REMOVEDKEYS))
-                .ifCondition(exprDotMethod(arrayAtIndex(REF_REMOVEDKEYS, ref("i")), "isEmpty"))
+                .assignRef(MEMBER_HASREMOVEDKEY, constantFalse())
+                .forLoopIntSimple("i", arrayLength(MEMBER_REMOVEDKEYS))
+                .ifCondition(exprDotMethod(arrayAtIndex(MEMBER_REMOVEDKEYS, ref("i")), "isEmpty"))
                 .blockContinue()
-                .forEach(Object.class, "removedKey", arrayAtIndex(REF_REMOVEDKEYS, ref("i")))
-                .exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, ref("i")), "remove", ref("removedKey"))
+                .forEach(Object.class, "removedKey", arrayAtIndex(MEMBER_REMOVEDKEYS, ref("i")))
+                .exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERGROUP, ref("i")), "remove", ref("removedKey"))
                 .blockEnd()
-                .exprDotMethod(arrayAtIndex(REF_REMOVEDKEYS, ref("i")), "clear");
+                .exprDotMethod(arrayAtIndex(MEMBER_REMOVEDKEYS, ref("i")), "clear");
         return method;
     }
 }

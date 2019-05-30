@@ -76,7 +76,7 @@ public class EnumCountOfSelectorScalarForgeEval implements EnumEval {
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(ref("props"), constant(0), ref("next"));
         CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));
-        forEach.increment("count");
+        forEach.incrementRef("count");
         block.methodReturn(ref("count"));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenExpressionRef implements CodegenExpression {
     protected final String ref;
@@ -42,5 +43,8 @@ public class CodegenExpressionRef implements CodegenExpression {
 
     public int hashCode() {
         return ref.hashCode();
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
     }
 }

@@ -54,7 +54,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.annotation.AnnotationUtil.makeAnnotations;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 
 public class StatementInformationalsCompileTime {
     private final String statementNameCompileTime;
@@ -262,10 +262,10 @@ public class StatementInformationalsCompileTime {
         anonymousClass.addMethod("activated", activated);
         activated.getBlock().methodReturn(constantTrue());
 
-        CodegenMethod view = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(EventBean[].class, "newData").addParam(EventBean[].class, "oldData").addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef()).addParam(ViewFactory.class, "viewFactory");
+        CodegenMethod view = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(EventBean[].class, "newData").addParam(EventBean[].class, "oldData").addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef()).addParam(ViewFactory.class, "viewFactory");
         anonymousClass.addMethod("view", view);
         if (AuditEnum.VIEW.getAudit(annotations) != null) {
-            view.getBlock().staticMethod(AuditPath.class, "auditView", ref("newData"), ref("oldData"), REF_AGENTINSTANCECONTEXT, ref("viewFactory"));
+            view.getBlock().staticMethod(AuditPath.class, "auditView", ref("newData"), ref("oldData"), MEMBER_AGENTINSTANCECONTEXT, ref("viewFactory"));
         }
 
         CodegenMethod streamOne = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(EventBean.class, "event").addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef()).addParam(String.class, "filterText");
@@ -277,16 +277,16 @@ public class StatementInformationalsCompileTime {
             streamTwo.getBlock().staticMethod(AuditPath.class, "auditStream", ref("newData"), ref("oldData"), REF_EXPREVALCONTEXT, ref("filterText"));
         }
 
-        CodegenMethod scheduleAdd = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(long.class, "time").addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef()).addParam(ScheduleHandle.class, "scheduleHandle").addParam(ScheduleObjectType.class, "type").addParam(String.class, "name");
-        CodegenMethod scheduleRemove = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef()).addParam(ScheduleHandle.class, "scheduleHandle").addParam(ScheduleObjectType.class, "type").addParam(String.class, "name");
-        CodegenMethod scheduleFire = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef()).addParam(ScheduleObjectType.class, "type").addParam(String.class, "name");
+        CodegenMethod scheduleAdd = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(long.class, "time").addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef()).addParam(ScheduleHandle.class, "scheduleHandle").addParam(ScheduleObjectType.class, "type").addParam(String.class, "name");
+        CodegenMethod scheduleRemove = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef()).addParam(ScheduleHandle.class, "scheduleHandle").addParam(ScheduleObjectType.class, "type").addParam(String.class, "name");
+        CodegenMethod scheduleFire = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef()).addParam(ScheduleObjectType.class, "type").addParam(String.class, "name");
         anonymousClass.addMethod("scheduleAdd", scheduleAdd);
         anonymousClass.addMethod("scheduleRemove", scheduleRemove);
         anonymousClass.addMethod("scheduleFire", scheduleFire);
         if (AuditEnum.SCHEDULE.getAudit(annotations) != null) {
-            scheduleAdd.getBlock().staticMethod(AuditPath.class, "auditScheduleAdd", ref("time"), REF_AGENTINSTANCECONTEXT, ref("scheduleHandle"), ref("type"), ref("name"));
-            scheduleRemove.getBlock().staticMethod(AuditPath.class, "auditScheduleRemove", REF_AGENTINSTANCECONTEXT, ref("scheduleHandle"), ref("type"), ref("name"));
-            scheduleFire.getBlock().staticMethod(AuditPath.class, "auditScheduleFire", REF_AGENTINSTANCECONTEXT, ref("type"), ref("name"));
+            scheduleAdd.getBlock().staticMethod(AuditPath.class, "auditScheduleAdd", ref("time"), MEMBER_AGENTINSTANCECONTEXT, ref("scheduleHandle"), ref("type"), ref("name"));
+            scheduleRemove.getBlock().staticMethod(AuditPath.class, "auditScheduleRemove", MEMBER_AGENTINSTANCECONTEXT, ref("scheduleHandle"), ref("type"), ref("name"));
+            scheduleFire.getBlock().staticMethod(AuditPath.class, "auditScheduleFire", MEMBER_AGENTINSTANCECONTEXT, ref("type"), ref("name"));
         }
 
         CodegenMethod property = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(Object.class, "value").addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef());
@@ -312,14 +312,14 @@ public class StatementInformationalsCompileTime {
         anonymousClass.addMethod("patternTrue", patternTrue);
         anonymousClass.addMethod("patternFalse", patternFalse);
         if (AuditEnum.PATTERN.getAudit(annotations) != null) {
-            patternTrue.getBlock().staticMethod(AuditPath.class, "auditPatternTrue", ref("factoryNode"), ref("from"), ref("matchEvent"), ref("isQuitted"), REF_AGENTINSTANCECONTEXT);
-            patternFalse.getBlock().staticMethod(AuditPath.class, "auditPatternFalse", ref("factoryNode"), ref("from"), REF_AGENTINSTANCECONTEXT);
+            patternTrue.getBlock().staticMethod(AuditPath.class, "auditPatternTrue", ref("factoryNode"), ref("from"), ref("matchEvent"), ref("isQuitted"), MEMBER_AGENTINSTANCECONTEXT);
+            patternFalse.getBlock().staticMethod(AuditPath.class, "auditPatternFalse", ref("factoryNode"), ref("from"), MEMBER_AGENTINSTANCECONTEXT);
         }
 
         CodegenMethod patternInstance = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(boolean.class, "increase").addParam(EvalFactoryNode.class, "factoryNode").addParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT);
         anonymousClass.addMethod("patternInstance", patternInstance);
         if (AuditEnum.PATTERNINSTANCES.getAudit(annotations) != null) {
-            patternInstance.getBlock().staticMethod(AuditPath.class, "auditPatternInstance", ref("increase"), ref("factoryNode"), REF_AGENTINSTANCECONTEXT);
+            patternInstance.getBlock().staticMethod(AuditPath.class, "auditPatternInstance", ref("increase"), ref("factoryNode"), MEMBER_AGENTINSTANCECONTEXT);
         }
 
         CodegenMethod exprdef = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(Object.class, "value").addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef());
@@ -328,28 +328,28 @@ public class StatementInformationalsCompileTime {
             exprdef.getBlock().staticMethod(AuditPath.class, "auditExprDef", ref("name"), ref("value"), REF_EXPREVALCONTEXT);
         }
 
-        CodegenMethod dataflowTransition = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(String.class, "instance").addParam(EPDataFlowState.class, "state").addParam(EPDataFlowState.class, "newState").addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef());
+        CodegenMethod dataflowTransition = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(String.class, "instance").addParam(EPDataFlowState.class, "state").addParam(EPDataFlowState.class, "newState").addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef());
         anonymousClass.addMethod("dataflowTransition", dataflowTransition);
         if (AuditEnum.DATAFLOW_TRANSITION.getAudit(annotations) != null) {
-            dataflowTransition.getBlock().staticMethod(AuditPath.class, "auditDataflowTransition", ref("name"), ref("instance"), ref("state"), ref("newState"), REF_AGENTINSTANCECONTEXT);
+            dataflowTransition.getBlock().staticMethod(AuditPath.class, "auditDataflowTransition", ref("name"), ref("instance"), ref("state"), ref("newState"), MEMBER_AGENTINSTANCECONTEXT);
         }
 
-        CodegenMethod dataflowSource = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(String.class, "instance").addParam(String.class, "operatorName").addParam(int.class, "operatorNum").addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef());
+        CodegenMethod dataflowSource = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(String.class, "instance").addParam(String.class, "operatorName").addParam(int.class, "operatorNum").addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef());
         anonymousClass.addMethod("dataflowSource", dataflowSource);
         if (AuditEnum.DATAFLOW_SOURCE.getAudit(annotations) != null) {
-            dataflowSource.getBlock().staticMethod(AuditPath.class, "auditDataflowSource", ref("name"), ref("instance"), ref("operatorName"), ref("operatorNum"), REF_AGENTINSTANCECONTEXT);
+            dataflowSource.getBlock().staticMethod(AuditPath.class, "auditDataflowSource", ref("name"), ref("instance"), ref("operatorName"), ref("operatorNum"), MEMBER_AGENTINSTANCECONTEXT);
         }
 
-        CodegenMethod dataflowOp = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(String.class, "instance").addParam(String.class, "operatorName").addParam(int.class, "operatorNum").addParam(Object[].class, "params").addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef());
+        CodegenMethod dataflowOp = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(String.class, "name").addParam(String.class, "instance").addParam(String.class, "operatorName").addParam(int.class, "operatorNum").addParam(Object[].class, "params").addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef());
         anonymousClass.addMethod("dataflowOp", dataflowOp);
         if (AuditEnum.DATAFLOW_OP.getAudit(annotations) != null) {
-            dataflowOp.getBlock().staticMethod(AuditPath.class, "auditDataflowOp", ref("name"), ref("instance"), ref("operatorName"), ref("operatorNum"), ref("params"), REF_AGENTINSTANCECONTEXT);
+            dataflowOp.getBlock().staticMethod(AuditPath.class, "auditDataflowOp", ref("name"), ref("instance"), ref("operatorName"), ref("operatorNum"), ref("params"), MEMBER_AGENTINSTANCECONTEXT);
         }
 
-        CodegenMethod contextPartition = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(boolean.class, "allocate").addParam(AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef());
+        CodegenMethod contextPartition = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(boolean.class, "allocate").addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef());
         anonymousClass.addMethod("contextPartition", contextPartition);
         if (AuditEnum.CONTEXTPARTITION.getAudit(annotations) != null) {
-            contextPartition.getBlock().staticMethod(AuditPath.class, "auditContextPartition", ref("allocate"), REF_AGENTINSTANCECONTEXT);
+            contextPartition.getBlock().staticMethod(AuditPath.class, "auditContextPartition", ref("allocate"), MEMBER_AGENTINSTANCECONTEXT);
         }
 
         return anonymousClass;

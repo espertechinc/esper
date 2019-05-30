@@ -16,18 +16,19 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
-    private final String ref;
+    private final CodegenExpression switchExpression;
     private final CodegenExpression[] options;
     private final CodegenBlock[] blocks;
     private final CodegenBlock defaultBlock;
     private final boolean blocksReturnValues;
     private final boolean withDefaultUnsupported;
 
-    public CodegenStatementSwitch(CodegenBlock parent, String ref, CodegenExpression[] options, boolean blocksReturnValues, boolean withDefaultUnsupported) {
+    public CodegenStatementSwitch(CodegenBlock parent, CodegenExpression switchExpression, CodegenExpression[] options, boolean blocksReturnValues, boolean withDefaultUnsupported) {
         super(parent);
-        this.ref = ref;
+        this.switchExpression = switchExpression;
         this.options = options;
         blocks = new CodegenBlock[options.length];
         for (int i = 0; i < options.length; i++) {
@@ -47,7 +48,9 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
-        builder.append("switch(").append(ref).append(") {\n");
+        builder.append("switch(");
+        switchExpression.render(builder, imports, isInnerClass);
+        builder.append(") {\n");
 
         for (int i = 0; i < options.length; i++) {
             indent.indent(builder, level + 1);
@@ -78,11 +81,28 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
     }
 
     public void mergeClasses(Set<Class> classes) {
+        switchExpression.mergeClasses(classes);
         for (int i = 0; i < blocks.length; i++) {
             blocks[i].mergeClasses(classes);
         }
         for (int i = 0; i < options.length; i++) {
             options[i].mergeClasses(classes);
+        }
+        if (defaultBlock != null) {
+            defaultBlock.mergeClasses(classes);
+        }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(switchExpression);
+        for (int i = 0; i < blocks.length; i++) {
+            blocks[i].traverseExpressions(consumer);
+        }
+        for (int i = 0; i < options.length; i++) {
+            consumer.accept(options[i]);
+        }
+        if (defaultBlock != null) {
+            defaultBlock.traverseExpressions(consumer);
         }
     }
 }

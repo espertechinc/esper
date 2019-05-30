@@ -33,9 +33,9 @@ public class ResultSetProcessorHandThrough {
     static void processJoinResultCodegen(ResultSetProcessorHandThroughFactoryForge prototype, CodegenMethod method) {
         CodegenExpression oldEvents = constantNull();
         if (prototype.isSelectRStream()) {
-            oldEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUJOIN, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constant(false), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT);
+            oldEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUJOIN, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constant(false), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT);
         }
-        CodegenExpression newEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUJOIN, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT);
+        CodegenExpression newEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUJOIN, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT);
 
         method.getBlock()
                 .declareVar(EventBean[].class, "selectOldEvents", oldEvents)
@@ -46,9 +46,9 @@ public class ResultSetProcessorHandThrough {
     static void processViewResultCodegen(ResultSetProcessorHandThroughFactoryForge prototype, CodegenMethod method) {
         CodegenExpression oldEvents = constantNull();
         if (prototype.isSelectRStream()) {
-            oldEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUVIEW, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constant(false), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT);
+            oldEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUVIEW, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constant(false), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT);
         }
-        CodegenExpression newEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUVIEW, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT);
+        CodegenExpression newEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUVIEW, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT);
 
         method.getBlock()
                 .declareVar(EventBean[].class, "selectOldEvents", oldEvents)

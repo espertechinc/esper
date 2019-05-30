@@ -62,17 +62,17 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
             return;
         }
 
-        CodegenBlock ifChild = method.getBlock().ifCondition(notEqualsNull(REF_CHILD));
+        CodegenBlock ifChild = method.getBlock().ifCondition(notEqualsNull(MEMBER_CHILD));
 
         CodegenBlock ifResultNotNull = ifChild.ifRefNotNull("newOldEvents");
         CodegenBlock ifPairHasData = ifResultNotNull.ifCondition(or(notEqualsNull(exprDotMethod(ref("newOldEvents"), "getFirst")), notEqualsNull(exprDotMethod(ref("newOldEvents"), "getSecond"))));
-        ifPairHasData.exprDotMethod(REF_CHILD, "newResult", ref("newOldEvents"))
+        ifPairHasData.exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"))
                 .ifElseIf(and(equalsNull(ref("newData")), equalsNull(ref("oldData"))))
-                .exprDotMethod(REF_CHILD, "newResult", ref("newOldEvents"));
+                .exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"));
 
         CodegenBlock ifResultNull = ifResultNotNull.ifElse();
         ifResultNull.ifCondition(and(equalsNull(ref("newData")), equalsNull(ref("oldData"))))
-                .exprDotMethod(REF_CHILD, "newResult", ref("newOldEvents"))
+                .exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"))
                 .blockEnd()
                 .blockEnd()
                 .apply(instblock(classScope, "aOutputProcessNonBuffered"));
@@ -91,9 +91,9 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
             method.getBlock().expression(localMethod(postProcess.postProcessCodegenMayNullMayForce(classScope, method), constantFalse(), ref("newOldEvents")));
         } else {
             CodegenBlock ifPairHasData = method.getBlock().ifCondition(or(notEqualsNull(exprDotMethod(ref("newOldEvents"), "getFirst")), notEqualsNull(exprDotMethod(ref("newOldEvents"), "getSecond"))));
-            ifPairHasData.exprDotMethod(REF_CHILD, "newResult", ref("newOldEvents"))
+            ifPairHasData.exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"))
                     .ifElseIf(and(equalsNull(ref("newData")), equalsNull(ref("oldData"))))
-                    .exprDotMethod(REF_CHILD, "newResult", ref("newOldEvents"));
+                    .exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"));
         }
 
         method.getBlock().apply(instblock(classScope, "aOutputProcessNonBufferedJoin"));
@@ -108,8 +108,8 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
 
     private void generateRSPCall(String rspMethod, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .declareVar(boolean.class, "isGenerateSynthetic", exprDotMethod(ref("o." + NAME_STATEMENTRESULTSVC), "isMakeSynthetic"))
-                .declareVar(boolean.class, "isGenerateNatural", exprDotMethod(ref("o." + NAME_STATEMENTRESULTSVC), "isMakeNatural"))
+                .declareVar(boolean.class, "isGenerateSynthetic", exprDotMethod(member("o." + NAME_STATEMENTRESULTSVC), "isMakeSynthetic"))
+                .declareVar(boolean.class, "isGenerateNatural", exprDotMethod(member("o." + NAME_STATEMENTRESULTSVC), "isMakeNatural"))
                 .declareVar(UniformPair.class, EventBean[].class, "newOldEvents", exprDotMethod(ref(NAME_RESULTSETPROCESSOR), rspMethod, REF_NEWDATA, REF_OLDDATA, ref("isGenerateSynthetic")))
                 .ifCondition(and(not(ref("isGenerateSynthetic")), not(ref("isGenerateNatural")))).blockReturnNoValue();
     }

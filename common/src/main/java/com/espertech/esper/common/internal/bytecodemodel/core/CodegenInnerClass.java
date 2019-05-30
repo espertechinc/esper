@@ -56,4 +56,10 @@ public class CodegenInnerClass {
     public List<CodegenTypedParam> getExplicitMembers() {
         return explicitMembers;
     }
+
+    public String toString() {
+        return "CodegenInnerClass{" +
+            "className='" + className + '\'' +
+            '}';
+    }
 }

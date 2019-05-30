@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenField;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenExpressionField implements CodegenExpression {
     private final CodegenField field;
@@ -31,5 +32,8 @@ public class CodegenExpressionField implements CodegenExpression {
 
     public void mergeClasses(Set<Class> classes) {
         field.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
     }
 }

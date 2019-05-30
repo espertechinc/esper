@@ -42,7 +42,7 @@ import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.NAME_RESULTSETPROCESSOR;
-import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.REF_RESULTSETPROCESSOR;
+import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.MEMBER_RESULTSETPROCESSOR;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
 
 public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable {
@@ -96,7 +96,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
                 SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
                 CodegenMethod init = providerCtor.makeChildWithScope(OutputProcessViewFactory.class, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
                 spec.provideCodegen(init, symbols, classScope);
-                providerCtor.getBlock().assignRef(MEMBERNAME_OPVFACTORY, localMethod(init, EPStatementInitServices.REF));
+                providerCtor.getBlock().assignMember(MEMBERNAME_OPVFACTORY, localMethod(init, EPStatementInitServices.REF));
             }
 
             // make get-factory method
@@ -126,7 +126,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
         CodegenMethod makeViewMethod = CodegenMethod.makeParentNode(OutputProcessView.class, StmtClassForgeableOPVFactoryProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(ResultSetProcessor.class, NAME_RESULTSETPROCESSOR)
                 .addParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT);
-        makeViewMethod.getBlock().methodReturn(CodegenExpressionBuilder.newInstance(CLASSNAME_OUTPUTPROCESSVIEW, ref("o"), REF_RESULTSETPROCESSOR, REF_AGENTINSTANCECONTEXT));
+        makeViewMethod.getBlock().methodReturn(CodegenExpressionBuilder.newInstance(CLASSNAME_OUTPUTPROCESSVIEW, ref("o"), MEMBER_RESULTSETPROCESSOR, MEMBER_AGENTINSTANCECONTEXT));
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(makeViewMethod, "makeView", methods);
 
@@ -136,8 +136,8 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
         CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_OUTPUTPROCESSVIEWFACTORY, OutputProcessViewFactory.class, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
 
-        providerCtor.getBlock().assignRef(MEMBERNAME_OPVFACTORY, CodegenExpressionBuilder.newInstance(CLASSNAME_OUTPUTPROCESSVIEWFACTORY, ref("this")))
-                .assignRef(MEMBERNAME_STATEMENTRESULTSVC, exprDotMethod(EPStatementInitServices.REF, EPStatementInitServices.GETSTATEMENTRESULTSERVICE));
+        providerCtor.getBlock().assignMember(MEMBERNAME_OPVFACTORY, CodegenExpressionBuilder.newInstance(CLASSNAME_OUTPUTPROCESSVIEWFACTORY, ref("this")))
+                .assignMember(MEMBERNAME_STATEMENTRESULTSVC, exprDotMethod(EPStatementInitServices.REF, EPStatementInitServices.GETSTATEMENTRESULTSERVICE));
     }
 
     private static void makeOPV(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> factoryExplicitMembers, CodegenCtor factoryCtor, String classNameParent, OutputProcessViewFactoryForge forge, int numStreams) {
@@ -152,7 +152,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
 
         // Get-Result-Type Method
         CodegenMethod getEventTypeMethod = CodegenMethod.makeParentNode(EventType.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        getEventTypeMethod.getBlock().methodReturn(exprDotMethod(ref(NAME_RESULTSETPROCESSOR), "getResultEventType"));
+        getEventTypeMethod.getBlock().methodReturn(exprDotMethod(member(NAME_RESULTSETPROCESSOR), "getResultEventType"));
 
         // Process-View-Result Method
         CodegenMethod updateMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)

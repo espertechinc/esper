@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethod
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
@@ -40,10 +40,10 @@ import static com.espertech.esper.common.internal.metrics.instrumentation.Instru
 
 public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWMethodGen {
 
-    private final static CodegenExpressionRef REF_CURRENTROW = new CodegenExpressionRef("currentRow");
-    private final static CodegenExpressionRef REF_AGGREGATORSTOPLEVEL = new CodegenExpressionRef("aggregatorsTopLevel");
-    private final static CodegenExpressionRef REF_AGGREGATORSPERLEVELANDGROUP = new CodegenExpressionRef("aggregatorsPerLevelAndGroup");
-    private final static CodegenExpressionRef REF_REMOVEDKEYS = ref("removedKeys");
+    private final static CodegenExpressionMember MEMBER_CURRENTROW = member("currentRow");
+    private final static CodegenExpressionMember MEMBER_AGGREGATORSTOPLEVEL = member("aggregatorsTopLevel");
+    private final static CodegenExpressionMember MEMBER_AGGREGATORSPERLEVELANDGROUP = member("aggregatorsPerLevelAndGroup");
+    private final static CodegenExpressionMember MEMBER_REMOVEDKEYS = member("removedKeys");
 
     protected final boolean hasGroupBy;
     protected final AggregationLocalGroupByPlanForge localGroupByPlan;
@@ -121,19 +121,19 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
-        explicitMembers.add(new CodegenTypedParam(Map[].class, REF_AGGREGATORSPERLEVELANDGROUP.getRef()));
-        ctor.getBlock().assignRef(REF_AGGREGATORSPERLEVELANDGROUP, newArrayByLength(Map.class, constant(localGroupByPlan.getAllLevelsForges().length)));
+        explicitMembers.add(new CodegenTypedParam(Map[].class, MEMBER_AGGREGATORSPERLEVELANDGROUP.getRef()));
+        ctor.getBlock().assignRef(MEMBER_AGGREGATORSPERLEVELANDGROUP, newArrayByLength(Map.class, constant(localGroupByPlan.getAllLevelsForges().length)));
         for (int i = 0; i < localGroupByPlan.getAllLevelsForges().length; i++) {
-            ctor.getBlock().assignArrayElement(REF_AGGREGATORSPERLEVELANDGROUP, constant(i), newInstance(HashMap.class));
+            ctor.getBlock().assignArrayElement(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(i), newInstance(HashMap.class));
         }
 
-        explicitMembers.add(new CodegenTypedParam(AggregationRow.class, REF_AGGREGATORSTOPLEVEL.getRef()));
+        explicitMembers.add(new CodegenTypedParam(AggregationRow.class, MEMBER_AGGREGATORSTOPLEVEL.getRef()));
         if (hasGroupBy) {
-            explicitMembers.add(new CodegenTypedParam(AggregationRow.class, REF_CURRENTROW.getRef()));
+            explicitMembers.add(new CodegenTypedParam(AggregationRow.class, MEMBER_CURRENTROW.getRef()));
         }
 
-        explicitMembers.add(new CodegenTypedParam(List.class, REF_REMOVEDKEYS.getRef()));
-        ctor.getBlock().assignRef(REF_REMOVEDKEYS, newInstance(ArrayList.class));
+        explicitMembers.add(new CodegenTypedParam(List.class, MEMBER_REMOVEDKEYS.getRef()));
+        ctor.getBlock().assignRef(MEMBER_REMOVEDKEYS, newInstance(ArrayList.class));
     }
 
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
@@ -197,22 +197,22 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
                     indexDefault = i;
                 }
             }
-            method.getBlock().assignRef(REF_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(0)), "get", AggregationServiceCodegenNames.REF_GROUPKEY)))
-                .ifCondition(equalsNull(REF_CURRENTROW))
-                .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowPerLevel(indexDefault)));
+            method.getBlock().assignRef(MEMBER_CURRENTROW, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(0)), "get", AggregationServiceCodegenNames.REF_GROUPKEY)))
+                .ifCondition(equalsNull(MEMBER_CURRENTROW))
+                .assignRef(MEMBER_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowPerLevel(indexDefault)));
         }
     }
 
     public void clearResultsCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().ifCondition(notEqualsNull(REF_AGGREGATORSTOPLEVEL))
-            .exprDotMethod(REF_AGGREGATORSTOPLEVEL, "clear");
+        method.getBlock().ifCondition(notEqualsNull(MEMBER_AGGREGATORSTOPLEVEL))
+            .exprDotMethod(MEMBER_AGGREGATORSTOPLEVEL, "clear");
         for (int i = 0; i < localGroupByPlan.getAllLevelsForges().length; i++) {
-            method.getBlock().exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(i)), "clear");
+            method.getBlock().exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(i)), "clear");
         }
     }
 
     public void acceptCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitAggregations", getNumGroupsCodegen(method, classScope), REF_AGGREGATORSTOPLEVEL, REF_AGGREGATORSPERLEVELANDGROUP);
+        method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitAggregations", getNumGroupsCodegen(method, classScope), MEMBER_AGGREGATORSTOPLEVEL, MEMBER_AGGREGATORSPERLEVELANDGROUP);
     }
 
     public void getGroupKeysCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -225,11 +225,11 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
 
     public void acceptGroupDetailCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitGrouped", getNumGroupsCodegen(method, classScope))
-            .ifCondition(notEqualsNull(REF_AGGREGATORSTOPLEVEL))
-            .exprDotMethod(REF_AGGVISITOR, "visitGroup", constantNull(), REF_AGGREGATORSTOPLEVEL);
+            .ifCondition(notEqualsNull(MEMBER_AGGREGATORSTOPLEVEL))
+            .exprDotMethod(REF_AGGVISITOR, "visitGroup", constantNull(), MEMBER_AGGREGATORSTOPLEVEL);
 
         for (int i = 0; i < localGroupByPlan.getAllLevelsForges().length; i++) {
-            method.getBlock().forEach(Map.Entry.class, "entry", exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(i)), "entrySet"))
+            method.getBlock().forEach(Map.Entry.class, "entry", exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(i)), "entrySet"))
                 .exprDotMethod(REF_AGGVISITOR, "visitGroup", exprDotMethod(ref("entry"), "getKey"), exprDotMethod(ref("entry"), "getValue"));
         }
     }
@@ -245,9 +245,9 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
     private CodegenExpression getNumGroupsCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(int.class, this.getClass(), classScope);
         method.getBlock().declareVar(int.class, "size", constant(0))
-            .ifCondition(notEqualsNull(REF_AGGREGATORSTOPLEVEL)).increment("size").blockEnd();
+            .ifCondition(notEqualsNull(MEMBER_AGGREGATORSTOPLEVEL)).incrementRef("size").blockEnd();
         for (int i = 0; i < localGroupByPlan.getAllLevelsForges().length; i++) {
-            method.getBlock().assignCompound("size", "+", exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(i)), "size"));
+            method.getBlock().assignCompound("size", "+", exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(i)), "size"));
         }
         method.getBlock().methodReturn(ref("size"));
         return localMethod(method);
@@ -259,10 +259,10 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
         }
 
         if (localGroupByPlan.getOptionalLevelTopForge() != null) {
-            method.getBlock().ifCondition(equalsNull(REF_AGGREGATORSTOPLEVEL))
-                .assignRef(REF_AGGREGATORSTOPLEVEL, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
+            method.getBlock().ifCondition(equalsNull(MEMBER_AGGREGATORSTOPLEVEL))
+                .assignRef(MEMBER_AGGREGATORSTOPLEVEL, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
                 .blockEnd()
-                .exprDotMethod(REF_AGGREGATORSTOPLEVEL, enter ? "applyEnter" : "applyLeave", REF_EPS, REF_EXPREVALCONTEXT);
+                .exprDotMethod(MEMBER_AGGREGATORSTOPLEVEL, enter ? "applyEnter" : "applyLeave", REF_EPS, REF_EXPREVALCONTEXT);
         }
 
         for (int levelNum = 0; levelNum < localGroupByPlan.getAllLevelsForges().length; levelNum++) {
@@ -273,17 +273,17 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
             String rowName = "row_" + levelNum;
             CodegenExpression groupKeyExp = hasGroupBy && level.isDefaultLevel() ? AggregationServiceCodegenNames.REF_GROUPKEY : localMethod(AggregationServiceCodegenUtil.computeMultiKeyCodegen(levelNum, partitionForges, level.getPartitionMKClasses(), classScope, namedMethods), REF_EPS, constantTrue(), REF_EXPREVALCONTEXT);
             method.getBlock().declareVar(Object.class, groupKeyName, groupKeyExp)
-                .declareVar(AggregationRow.class, rowName, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(levelNum)), "get", ref(groupKeyName))))
+                .declareVar(AggregationRow.class, rowName, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(levelNum)), "get", ref(groupKeyName))))
                 .ifCondition(equalsNull(ref(rowName)))
                 .assignRef(rowName, CodegenExpressionBuilder.newInstance(classNames.getRowPerLevel(levelNum)))
-                .exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(levelNum)), "put", ref(groupKeyName), ref(rowName))
+                .exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(levelNum)), "put", ref(groupKeyName), ref(rowName))
                 .blockEnd()
                 .exprDotMethod(ref(rowName), enter ? "increaseRefcount" : "decreaseRefcount")
                 .exprDotMethod(ref(rowName), enter ? "applyEnter" : "applyLeave", REF_EPS, REF_EXPREVALCONTEXT);
 
             if (!enter) {
                 method.getBlock().ifCondition(relational(exprDotMethod(ref(rowName), "getRefcount"), LE, constant(0)))
-                    .exprDotMethod(REF_REMOVEDKEYS, "add", newInstance(AggSvcLocalGroupLevelKeyPair.class, constant(levelNum), ref(groupKeyName)));
+                    .exprDotMethod(MEMBER_REMOVEDKEYS, "add", newInstance(AggSvcLocalGroupLevelKeyPair.class, constant(levelNum), ref(groupKeyName)));
             }
         }
     }
@@ -316,23 +316,23 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
     private void getterCodegen(String methodName, CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         AggregationCodegenRowLevelDesc rowLevelDesc = getRowLevelDesc();
 
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(AggregationServiceCodegenNames.NAME_COLUMN, localGroupByPlan.getColumnsForges().length, true);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(AggregationServiceCodegenNames.REF_COLUMN, localGroupByPlan.getColumnsForges().length, true);
         for (int i = 0; i < blocks.length; i++) {
             AggregationLocalGroupByColumnForge col = localGroupByPlan.getColumnsForges()[i];
 
             if (hasGroupBy && col.isDefaultGroupLevel()) {
                 AggregationCodegenRowDetailDesc levelDesc = rowLevelDesc.getOptionalAdditionalRows()[col.getLevelNum()];
                 int num = getRowFieldNum(col, levelDesc);
-                blocks[i].blockReturn(exprDotMethod(REF_CURRENTROW, methodName, constant(num), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+                blocks[i].blockReturn(exprDotMethod(MEMBER_CURRENTROW, methodName, constant(num), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             } else if (col.getLevelNum() == -1) {
                 AggregationCodegenRowDetailDesc levelDesc = rowLevelDesc.getOptionalTopRow();
                 int num = getRowFieldNum(col, levelDesc);
-                blocks[i].blockReturn(exprDotMethod(REF_AGGREGATORSTOPLEVEL, methodName, constant(num), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+                blocks[i].blockReturn(exprDotMethod(MEMBER_AGGREGATORSTOPLEVEL, methodName, constant(num), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             } else {
                 AggregationCodegenRowDetailDesc levelDesc = rowLevelDesc.getOptionalAdditionalRows()[col.getLevelNum()];
                 int num = getRowFieldNum(col, levelDesc);
                 blocks[i].declareVar(Object.class, "groupByKey", localMethod(AggregationServiceCodegenUtil.computeMultiKeyCodegen(col.getLevelNum(), col.getPartitionForges(), levelDesc.getMultiKeyClassRef(), classScope, namedMethods), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
-                    .declareVar(AggregationRow.class, "row", cast(AggregationRow.class, exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(col.getLevelNum())), "get", ref("groupByKey"))))
+                    .declareVar(AggregationRow.class, "row", cast(AggregationRow.class, exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(col.getLevelNum())), "get", ref("groupByKey"))))
                     .blockReturn(exprDotMethod(ref("row"), methodName, constant(num), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
         }
@@ -344,11 +344,11 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
 
     private CodegenMethod handleRemovedKeysCodegen(CodegenMethod scope, CodegenClassScope classScope) {
         CodegenMethod method = scope.makeChild(void.class, this.getClass(), classScope);
-        method.getBlock().ifCondition(not(exprDotMethod(REF_REMOVEDKEYS, "isEmpty")))
-            .forEach(AggSvcLocalGroupLevelKeyPair.class, "removedKey", REF_REMOVEDKEYS)
-            .exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, exprDotMethod(ref("removedKey"), "getLevel")), "remove", exprDotMethod(ref("removedKey"), "getKey"))
+        method.getBlock().ifCondition(not(exprDotMethod(MEMBER_REMOVEDKEYS, "isEmpty")))
+            .forEach(AggSvcLocalGroupLevelKeyPair.class, "removedKey", MEMBER_REMOVEDKEYS)
+            .exprDotMethod(arrayAtIndex(MEMBER_AGGREGATORSPERLEVELANDGROUP, exprDotMethod(ref("removedKey"), "getLevel")), "remove", exprDotMethod(ref("removedKey"), "getKey"))
             .blockEnd()
-            .exprDotMethod(REF_REMOVEDKEYS, "clear");
+            .exprDotMethod(MEMBER_REMOVEDKEYS, "clear");
         return method;
     }
 }

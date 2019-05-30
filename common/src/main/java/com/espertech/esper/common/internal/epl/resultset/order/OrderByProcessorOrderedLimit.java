@@ -20,8 +20,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_ISNEWDATA;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGGREGATIONSVC;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGGREGATIONSVC;
 import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorOrderedLimitForge.REF_ROWLIMITPROCESSOR;
 
@@ -40,16 +40,16 @@ public class OrderByProcessorOrderedLimit {
 
         method.getBlock().exprDotMethod(REF_ROWLIMITPROCESSOR, "determineCurrentLimit")
                 .ifCondition(and(limit1, offset0, haveOutgoing))
-                .declareVar(EventBean.class, "minmax", localMethod(determineLocalMinMax, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC))
+                .declareVar(EventBean.class, "minmax", localMethod(determineLocalMinMax, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC))
                 .blockReturn(newArrayWithInit(EventBean.class, ref("minmax")))
-                .declareVar(EventBean[].class, "sorted", localMethod(sortPlain, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC))
+                .declareVar(EventBean[].class, "sorted", localMethod(sortPlain, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC))
                 .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "applyLimit", ref("sorted")));
     }
 
     public static void sortRollupCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenMethod sortRollup = method.makeChild(EventBean[].class, OrderByProcessorOrderedLimit.class, classScope).addParam(SORTROLLUP_PARAMS);
         OrderByProcessorImpl.sortRollupCodegen(forge.getOrderByProcessorForge(), sortRollup, classScope, namedMethods);
-        method.getBlock().declareVar(EventBean[].class, "sorted", localMethod(sortRollup, REF_OUTGOINGEVENTS, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC))
+        method.getBlock().declareVar(EventBean[].class, "sorted", localMethod(sortRollup, REF_OUTGOINGEVENTS, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC))
                 .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "determineLimitAndApply", ref("sorted")));
     }
 
@@ -57,7 +57,7 @@ public class OrderByProcessorOrderedLimit {
         CodegenMethod sortWGroupKeys = method.makeChild(EventBean[].class, OrderByProcessorOrderedLimit.class, classScope).addParam(SORTWGROUPKEYS_PARAMS);
         OrderByProcessorImpl.sortWGroupKeysCodegen(forge.getOrderByProcessorForge(), sortWGroupKeys, classScope, namedMethods);
 
-        method.getBlock().declareVar(EventBean[].class, "sorted", localMethod(sortWGroupKeys, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ORDERGROUPBYKEYS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC))
+        method.getBlock().declareVar(EventBean[].class, "sorted", localMethod(sortWGroupKeys, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ORDERGROUPBYKEYS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC))
                 .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "determineLimitAndApply", ref("sorted")));
     }
 

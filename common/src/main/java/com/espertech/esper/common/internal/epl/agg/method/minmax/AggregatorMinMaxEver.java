@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -39,7 +40,7 @@ import static com.espertech.esper.common.internal.epl.expression.core.MinMaxType
 public class AggregatorMinMaxEver extends AggregatorMethodWDistinctWFilterWValueBase {
 
     private final AggregationForgeFactoryMinMax factory;
-    private final CodegenExpressionRef currentMinMax;
+    private final CodegenExpressionMember currentMinMax;
     private final CodegenExpressionField serde;
 
     public AggregatorMinMaxEver(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, DataInputOutputSerdeForge serde) {
@@ -84,11 +85,11 @@ public class AggregatorMinMaxEver extends AggregatorMethodWDistinctWFilterWValue
     }
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().expression(writeNullable(rowDotRef(row, currentMinMax), serde, output, unitKey, writer, classScope));
+        method.getBlock().expression(writeNullable(rowDotMember(row, currentMinMax), serde, output, unitKey, writer, classScope));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotRef(row, currentMinMax), cast(Comparable.class, readNullable(serde, input, unitKey, classScope)));
+        method.getBlock().assignRef(rowDotMember(row, currentMinMax), cast(Comparable.class, readNullable(serde, input, unitKey, classScope)));
     }
 
     private Consumer<CodegenBlock> enterConsumer(CodegenExpression valueComparableTyped) {

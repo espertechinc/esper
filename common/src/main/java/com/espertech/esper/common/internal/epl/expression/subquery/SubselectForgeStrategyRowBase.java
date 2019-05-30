@@ -80,7 +80,7 @@ public abstract class SubselectForgeStrategyRowBase implements SubselectForgeRow
             CodegenBlock foreachEvent = method.getBlock().forEach(EventBean.class, "event", symbols.getAddMatchingEvents(method));
             {
                 foreachEvent
-                        .increment("index")
+                        .incrementRef("index")
                         .assignArrayElement(REF_EVENTS_SHIFTED, constant(0), ref("event"))
                         .declareVar(Object[].class, "results", newArrayByLength(Object.class, constant(subselect.selectClause.length)))
                         .assignArrayElement("rows", ref("index"), ref("results"));

@@ -45,7 +45,7 @@ public class FilterForEvalContextPropForge implements FilterSpecParamInValueForg
 
         method.getBlock()
                 .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
-                .ifRefNullReturnNull(ref("props"))
+                .ifNullReturnNull(ref("props"))
                 .declareVar(Object.class, "result", getter.eventBeanGetCodegen(ref("props"), method, classScope));
         if (numberCoercer != null) {
             method.getBlock().assignRef("result", numberCoercer.coerceCodegenMayNullBoxed(cast(Number.class, ref("result")), Number.class, method, classScope));

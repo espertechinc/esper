@@ -12,22 +12,39 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
-public class CodegenExpressionIncrementDecrementRef implements CodegenExpression {
+public class CodegenExpressionMember implements CodegenExpression {
+    protected final String ref;
 
-    private final CodegenExpressionRef ref;
-    private final boolean increment;
-
-    public CodegenExpressionIncrementDecrementRef(CodegenExpressionRef ref, boolean increment) {
+    public CodegenExpressionMember(String ref) {
         this.ref = ref;
-        this.increment = increment;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        ref.render(builder, imports, isInnerClass);
-        builder.append(increment ? "++" : "--");
+        builder.append(ref);
     }
 
     public void mergeClasses(Set<Class> classes) {
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+    }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CodegenExpressionMember that = (CodegenExpressionMember) o;
+
+        return ref.equals(that.ref);
+    }
+
+    public int hashCode() {
+        return ref.hashCode();
     }
 }

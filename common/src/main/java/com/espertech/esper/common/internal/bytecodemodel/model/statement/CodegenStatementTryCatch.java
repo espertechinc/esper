@@ -12,11 +12,13 @@ package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
@@ -88,6 +90,16 @@ public class CodegenStatementTryCatch extends CodegenStatementWBlockBase {
         }
         if (finallyBlock != null) {
             finallyBlock.mergeClasses(classes);
+        }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        tryBlock.traverseExpressions(consumer);
+        for (CodegenStatementTryCatchCatchBlock pair : catchBlocks) {
+            pair.traverseExpressions(consumer);
+        }
+        if (finallyBlock != null) {
+            finallyBlock.traverseExpressions(consumer);
         }
     }
 }

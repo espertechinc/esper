@@ -44,7 +44,7 @@ public class AggregationAccessorSortedNonTable implements AggregationAccessorFor
             .whileLoop(exprDotMethod(ref("it"), "hasNext"))
             .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
             .assignArrayElement(ref("array"), ref("count"), cast(componentType, exprDotUnderlying(ref("bean"))))
-            .increment("count")
+            .incrementRef("count")
             .blockEnd()
             .methodReturn(ref("array"));
     }

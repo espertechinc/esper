@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethod
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenFieldSharableComparator;
 import com.espertech.esper.common.internal.collection.RefCountedSetAtomicInteger;
@@ -47,11 +48,11 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
 public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase implements AggregatorAccessSorted {
 
     protected final AggregationStateSortedForge forge;
-    protected final CodegenExpressionRef sorted;
+    protected final CodegenExpressionMember sorted;
     protected final CodegenExpressionField sortedSerde;
-    protected final CodegenExpressionRef size;
+    protected final CodegenExpressionMember size;
     protected final CodegenExpressionField comparator;
-    protected final CodegenExpressionRef joinRefs;
+    protected final CodegenExpressionMember joinRefs;
     protected final CodegenExpressionField joinRefsSerde;
 
     public AggregatorAccessSortedImpl(boolean join, AggregationStateSortedForge forge, int col, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
@@ -160,24 +161,24 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
             .apply(writeInt(output, row, size))
-            .exprDotMethod(sortedSerde, "write", rowDotRef(row, sorted), output, unitKey, writer);
+            .exprDotMethod(sortedSerde, "write", rowDotMember(row, sorted), output, unitKey, writer);
         if (joinRefs != null) {
-            method.getBlock().exprDotMethod(joinRefsSerde, "write", rowDotRef(row, joinRefs), output, unitKey, writer);
+            method.getBlock().exprDotMethod(joinRefsSerde, "write", rowDotMember(row, joinRefs), output, unitKey, writer);
         }
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock()
             .apply(readInt(row, size, input))
-            .assignRef(rowDotRef(row, sorted), newInstance(TreeMap.class, comparator))
-            .exprDotMethod(sortedSerde, "read", rowDotRef(row, sorted), input, unitKey);
+            .assignRef(rowDotMember(row, sorted), newInstance(TreeMap.class, comparator))
+            .exprDotMethod(sortedSerde, "read", rowDotMember(row, sorted), input, unitKey);
         if (joinRefs != null) {
-            method.getBlock().assignRef(rowDotRef(row, joinRefs), cast(RefCountedSetAtomicInteger.class, exprDotMethod(joinRefsSerde, "read", input, unitKey)));
+            method.getBlock().assignRef(rowDotMember(row, joinRefs), cast(RefCountedSetAtomicInteger.class, exprDotMethod(joinRefsSerde, "read", input, unitKey)));
         }
     }
 
-    private static CodegenMethod getComparableWMultiKeyCodegen(ExprNode[] criteria, CodegenExpressionRef ref, CodegenNamedMethods namedMethods, CodegenClassScope classScope) {
-        String methodName = "getComparable_" + ref.getRef();
+    private static CodegenMethod getComparableWMultiKeyCodegen(ExprNode[] criteria, CodegenExpressionMember member, CodegenNamedMethods namedMethods, CodegenClassScope classScope) {
+        String methodName = "getComparable_" + member.getRef();
         Consumer<CodegenMethod> code = method -> {
             if (criteria.length == 1) {
                 method.getBlock().methodReturn(localMethod(CodegenLegoMethodExpression.codegenExpression(criteria[0].getForge(), method, classScope), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
@@ -246,8 +247,8 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
         CodegenMethod method = parent.makeChild(AggregationStateSorted.class, AggregatorAccessSortedImpl.class, classScope);
         method.getBlock()
             .declareVar(AggregationStateSorted.class, "state", newInstance(AggregationStateSorted.class))
-            .exprDotMethod(ref("state"), "setSize", refCol("size", column))
-            .exprDotMethod(ref("state"), "setSorted", refCol("sorted", column))
+            .exprDotMethod(ref("state"), "setSize", memberCol("size", column))
+            .exprDotMethod(ref("state"), "setSorted", memberCol("sorted", column))
             .methodReturn(ref("state"));
         return localMethod(method);
     }

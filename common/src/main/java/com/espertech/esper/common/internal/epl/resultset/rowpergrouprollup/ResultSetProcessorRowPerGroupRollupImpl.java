@@ -74,7 +74,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 .declareVar(Object[][].class, "newDataMultiKey", localMethod(generateGroupKeysJoin, REF_NEWDATA, ref(NAME_EVENTPERGROUPBUFJOIN), constantTrue()))
                 .declareVar(Object[][].class, "oldDataMultiKey", localMethod(generateGroupKeysJoin, REF_OLDDATA, ref(NAME_EVENTPERGROUPBUFJOIN), constantFalse()))
                 .declareVar(EventBean[].class, "selectOldEvents", forge.isSelectRStream() ? localMethod(generateOutputEventsJoin, ref(NAME_EVENTPERGROUPBUFJOIN), constantFalse(), REF_ISSYNTHESIZE) : constantNull())
-                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGJOINRESULTKEYEDJOIN, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"))
+                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGJOINRESULTKEYEDJOIN, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"))
                 .declareVar(EventBean[].class, "selectNewEvents", localMethod(generateOutputEventsJoin, ref(NAME_EVENTPERGROUPBUFJOIN), constantTrue(), REF_ISSYNTHESIZE))
                 .methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("selectNewEvents"), ref("selectOldEvents")));
     }
@@ -90,7 +90,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 .declareVar(Object[][].class, "oldDataMultiKey", localMethod(generateGroupKeysView, REF_OLDDATA, ref(NAME_EVENTPERGROUPBUFVIEW), constantFalse()))
                 .declareVar(EventBean[].class, "selectOldEvents", forge.isSelectRStream() ? localMethod(generateOutputEventsView, ref(NAME_EVENTPERGROUPBUFVIEW), constantFalse(), REF_ISSYNTHESIZE) : constantNull())
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
-                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"), ref("eventsPerStream"))
+                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"), ref("eventsPerStream"))
                 .declareVar(EventBean[].class, "selectNewEvents", localMethod(generateOutputEventsView, ref(NAME_EVENTPERGROUPBUFVIEW), constantTrue(), REF_ISSYNTHESIZE))
                 .methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("selectNewEvents"), ref("selectOldEvents")));
     }
@@ -99,7 +99,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         if (!instance.hasMember(memberName)) {
             CodegenMethod init = method.makeChild(LinkedHashMap[].class, ResultSetProcessorRowPerGroupRollupImpl.class, classScope);
             instance.addMember(memberName, LinkedHashMap[].class);
-            instance.getServiceCtor().getBlock().assignRef(memberName, localMethod(init));
+            instance.getServiceCtor().getBlock().assignMember(memberName, localMethod(init));
             int levelCount = forge.getGroupByRollupDesc().getLevels().length;
             init.getBlock().declareVar(LinkedHashMap[].class, memberName, newArrayByLength(LinkedHashMap.class, constant(levelCount)))
                     .forLoopIntSimple("i", constant(levelCount))
@@ -122,15 +122,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forEvents = forLevels.forEach(Map.Entry.class, "entry", exprDotMethod(arrayAtIndex(ref("keysAndEvents"), exprDotMethod(ref("level"), "getLevelNumber")), "entrySet"));
                     forEvents.declareVar(Object.class, "groupKey", exprDotMethod(ref("entry"), "getKey"))
-                            .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
+                            .exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
                             .assignArrayElement(ref("eventsPerStream"), constant(0), cast(EventBean.class, exprDotMethod(ref("entry"), "getValue")));
 
                     if (forge.getPerLevelForges().getOptionalHavingForges() != null) {
-                        CodegenExpression having = arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
-                        forEvents.ifCondition(not(exprDotMethod(having, "evaluateHaving", REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))).blockContinue();
+                        CodegenExpression having = arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
+                        forEvents.ifCondition(not(exprDotMethod(having, "evaluateHaving", REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))).blockContinue();
                     }
 
-                    forEvents.exprDotMethod(ref("events"), "add", exprDotMethod(arrayAtIndex(REF_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    forEvents.exprDotMethod(ref("events"), "add", exprDotMethod(arrayAtIndex(MEMBER_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
 
                     if (forge.isSorting()) {
                         forEvents.declareVar(EventBean[].class, "currentEventsPerStream", newArrayWithInit(EventBean.class, cast(EventBean.class, exprDotMethod(ref("entry"), "getValue"))))
@@ -143,7 +143,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     .declareVar(EventBean[].class, "outgoing", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")));
             if (forge.isSorting()) {
                 methodNode.getBlock().ifCondition(relational(arrayLength(ref("outgoing")), GT, constant(1)))
-                        .blockReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortRollup", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC));
+                        .blockReturn(exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortRollup", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC));
             }
             methodNode.getBlock().methodReturn(ref("outgoing"));
         };
@@ -164,15 +164,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forEvents = forLevels.forEach(Map.Entry.class, "entry", exprDotMethod(arrayAtIndex(ref("eventPairs"), exprDotMethod(ref("level"), "getLevelNumber")), "entrySet"));
                     forEvents.declareVar(Object.class, "groupKey", exprDotMethod(ref("entry"), "getKey"))
-                            .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
+                            .exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
                             .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("entry"), "getValue")));
 
                     if (forge.getPerLevelForges().getOptionalHavingForges() != null) {
-                        CodegenExpression having = arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
-                        forEvents.ifCondition(not(exprDotMethod(having, "evaluateHaving", REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))).blockContinue();
+                        CodegenExpression having = arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
+                        forEvents.ifCondition(not(exprDotMethod(having, "evaluateHaving", REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))).blockContinue();
                     }
 
-                    forEvents.exprDotMethod(ref("events"), "add", exprDotMethod(arrayAtIndex(REF_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    forEvents.exprDotMethod(ref("events"), "add", exprDotMethod(arrayAtIndex(MEMBER_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
 
                     if (forge.isSorting()) {
                         forEvents.exprDotMethod(ref("currentGenerators"), "add", newInstance(GroupByRollupKey.class, ref("eventsPerStream"), ref("level"), ref("groupKey")));
@@ -184,7 +184,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     .declareVar(EventBean[].class, "outgoing", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")));
             if (forge.isSorting()) {
                 methodNode.getBlock().ifCondition(relational(arrayLength(ref("outgoing")), GT, constant(1)))
-                        .blockReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortRollup", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC));
+                        .blockReturn(exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortRollup", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC));
             }
             methodNode.getBlock().methodReturn(ref("outgoing"));
         };
@@ -199,7 +199,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             return;
         }
 
-        method.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "clearResults", REF_AGENTINSTANCECONTEXT)
+        method.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_AGENTINSTANCECONTEXT)
                 .declareVar(Iterator.class, "it", exprDotMethod(REF_VIEWABLE, "iterator"))
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
                 .declareVar(Object[].class, "groupKeys", newArrayByLength(Object.class, constant(forge.getGroupByRollupDesc().getLevels().length)))
@@ -212,12 +212,12 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     .declareVar(Object.class, "subkey", exprDotMethod(arrayAtIndex(ref("levels"), ref("j")), "computeSubkey", ref("groupKeyComplete")))
                     .assignArrayElement("groupKeys", ref("j"), ref("subkey"))
                     .blockEnd()
-                    .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeys"), REF_AGENTINSTANCECONTEXT)
+                    .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeys"), MEMBER_AGENTINSTANCECONTEXT)
                     .blockEnd();
         }
 
         method.getBlock().declareVar(ArrayDeque.class, "deque", staticMethod(ResultSetProcessorUtil.class, METHOD_ITERATORTODEQUE, localMethod(obtainIteratorCodegen(forge, classScope, method, instance), REF_VIEWABLE)))
-                .exprDotMethod(REF_AGGREGATIONSVC, "clearResults", REF_AGENTINSTANCECONTEXT)
+                .exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_AGENTINSTANCECONTEXT)
                 .methodReturn(exprDotMethod(ref("deque"), "iterator"));
     }
 
@@ -250,7 +250,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     static void clearMethodCodegen(CodegenMethod method) {
-        method.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "clearResults", REF_AGENTINSTANCECONTEXT);
+        method.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_AGENTINSTANCECONTEXT);
     }
 
     public static void processOutputLimitedJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
@@ -285,13 +285,13 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
     static void acceptHelperVisitorCodegen(CodegenMethod method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
-            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTLASTHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", member(NAME_OUTPUTLASTHELPER));
         }
         if (instance.hasMember(NAME_OUTPUTALLHELPER)) {
-            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTALLHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", member(NAME_OUTPUTALLHELPER));
         }
         if (instance.hasMember(NAME_OUTPUTFIRSTHELPERS)) {
-            method.getBlock().forEach(ResultSetProcessorGroupedOutputFirstHelper.class, "helper", ref(NAME_OUTPUTFIRSTHELPERS))
+            method.getBlock().forEach(ResultSetProcessorGroupedOutputFirstHelper.class, "helper", member(NAME_OUTPUTFIRSTHELPERS))
                     .exprDotMethod(REF_RESULTSETVISITOR, "visit", ref("helper"));
         }
     }
@@ -368,7 +368,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"));
                         }
-                        forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
 
                     CodegenBlock ifOldApplyAgg = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -381,7 +381,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"));
                         }
-                        forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
 
                     CodegenBlock ifNewFirst = forEach.ifCondition(notEqualsNull(ref("newData")));
@@ -392,15 +392,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         {
                             CodegenBlock eachlvl = forNewFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
-                                    .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
-                                    .ifCondition(not(exprDotMethod(arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantTrue(), REF_AGENTINSTANCECONTEXT))).blockContinue()
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
+                                    .ifCondition(not(exprDotMethod(arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantTrue(), MEMBER_AGENTINSTANCECONTEXT))).blockContinue()
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(1), constant(0)));
                             CodegenBlock passBlock = eachlvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
                     }
@@ -413,15 +413,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         {
                             CodegenBlock eachlvl = forOldFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
-                                    .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
-                                    .ifCondition(not(exprDotMethod(arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantFalse(), REF_AGENTINSTANCECONTEXT))).blockContinue()
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
+                                    .ifCondition(not(exprDotMethod(arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantFalse(), MEMBER_AGENTINSTANCECONTEXT))).blockContinue()
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(0), constant(1)));
                             CodegenBlock passBlock = eachlvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
                     }
@@ -466,16 +466,16 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                             CodegenBlock forLvl = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"))
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(1), constant(0)));
                             CodegenBlock passBlock = forLvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
-                        forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
 
                     CodegenBlock ifOldApplyAgg = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -487,16 +487,16 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                             CodegenBlock forLvl = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"))
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(0), constant(1)));
                             CodegenBlock passBlock = forLvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
-                        forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
                 }
             }
@@ -539,7 +539,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"));
                         }
-                        forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
 
                     CodegenBlock ifOldApplyAgg = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -552,7 +552,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"));
                         }
-                        forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
 
                     CodegenBlock ifNewFirst = forEach.ifCondition(notEqualsNull(ref("newData")));
@@ -563,15 +563,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         {
                             CodegenBlock eachlvl = forNewFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
-                                    .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
-                                    .ifCondition(not(exprDotMethod(arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantTrue(), REF_AGENTINSTANCECONTEXT))).blockContinue()
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
+                                    .ifCondition(not(exprDotMethod(arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantTrue(), MEMBER_AGENTINSTANCECONTEXT))).blockContinue()
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(1), constant(0)));
                             CodegenBlock passBlock = eachlvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
                     }
@@ -584,15 +584,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         {
                             CodegenBlock eachlvl = forOldFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
-                                    .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
-                                    .ifCondition(not(exprDotMethod(arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantFalse(), REF_AGENTINSTANCECONTEXT))).blockContinue()
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"))
+                                    .ifCondition(not(exprDotMethod(arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), constantFalse(), MEMBER_AGENTINSTANCECONTEXT))).blockContinue()
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(0), constant(1)));
                             CodegenBlock passBlock = eachlvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
                     }
@@ -637,16 +637,16 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                             CodegenBlock forLvl = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"))
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(1), constant(0)));
                             CodegenBlock passBlock = forLvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
-                        forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
 
                     CodegenBlock ifOldApplyAgg = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -658,16 +658,16 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                             CodegenBlock forLvl = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
                                     .assignArrayElement(ref("groupKeysPerLevel"), levelNumber, ref("groupKey"))
-                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(ref(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), REF_AGENTINSTANCECONTEXT, outputFactory))
+                                    .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(arrayAtIndex(member(NAME_OUTPUTFIRSTHELPERS), levelNumber), "getOrAllocate", ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT, outputFactory))
                                     .declareVar(boolean.class, "pass", exprDotMethod(ref("outputStateGroup"), "updateOutputCondition", constant(0), constant(1)));
                             CodegenBlock passBlock = forLvl.ifCondition(ref("pass"));
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .increment("count");
+                                        .incrementRef("count");
                             }
                         }
-                        forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                        forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                     }
                 }
             }
@@ -700,7 +700,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 forEach.localMethod(generateOutputBatchedCollectView, ref(NAME_EVENTPERGROUPBUFVIEW), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"), ref("eventsPerStream"));
             }
 
-            forEach.staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT, ref("newData"), ref("newDataMultiKey"), ref("oldData"), ref("oldDataMultiKey"), ref("eventsPerStream"))
+            forEach.staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, ref("newData"), ref("newDataMultiKey"), ref("oldData"), ref("oldDataMultiKey"), ref("eventsPerStream"))
                     .localMethod(generateOutputBatchedCollectView, ref(NAME_EVENTPERGROUPBUFVIEW), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), ref("eventsPerStream"));
         }
 
@@ -726,7 +726,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 forEach.localMethod(generateOutputBatchedCollectJoin, ref(NAME_EVENTPERGROUPBUFJOIN), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"));
             }
 
-            forEach.staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGJOINRESULTKEYEDJOIN, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT, ref("newData"), ref("newDataMultiKey"), ref("oldData"), ref("oldDataMultiKey"))
+            forEach.staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGJOINRESULTKEYEDJOIN, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, ref("newData"), ref("newDataMultiKey"), ref("oldData"), ref("oldDataMultiKey"))
                     .localMethod(generateOutputBatchedCollectJoin, ref(NAME_EVENTPERGROUPBUFJOIN), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"));
         }
 
@@ -755,17 +755,17 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
     static CodegenMethod generateOutputBatchedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenClassScope classScope) {
         Consumer<CodegenMethod> code = methodNode -> {
-            methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"));
+            methodNode.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"));
 
             if (forge.getPerLevelForges().getOptionalHavingForges() != null) {
-                methodNode.getBlock().ifCondition(not(exprDotMethod(arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))).blockReturnNoValue();
+                methodNode.getBlock().ifCondition(not(exprDotMethod(arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber")), "evaluateHaving", ref("eventsPerStream"), REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))).blockReturnNoValue();
             }
 
-            CodegenExpression selectExprProcessor = arrayAtIndex(REF_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
-            methodNode.getBlock().exprDotMethod(ref("resultEvents"), "add", exprDotMethod(selectExprProcessor, "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+            CodegenExpression selectExprProcessor = arrayAtIndex(MEMBER_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
+            methodNode.getBlock().exprDotMethod(ref("resultEvents"), "add", exprDotMethod(selectExprProcessor, "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
 
             if (forge.isSorting()) {
-                methodNode.getBlock().exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKeyRollup", ref("eventsPerStream"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, ref("level")));
+                methodNode.getBlock().exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKeyRollup", ref("eventsPerStream"), REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT, ref("level")));
             }
         };
         return instance.getMethods().addMethod(void.class, "generateOutputBatched",
@@ -775,15 +775,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
     static void generateOutputBatchedMapUnsortedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenClassScope classScope) {
         Consumer<CodegenMethod> code = methodNode -> {
-            methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"));
+            methodNode.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(MEMBER_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"));
 
             if (forge.getPerLevelForges().getOptionalHavingForges() != null) {
-                CodegenExpression having = arrayAtIndex(REF_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
-                methodNode.getBlock().ifCondition(not(exprDotMethod(having, "evaluateHaving", REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))).blockReturnNoValue();
+                CodegenExpression having = arrayAtIndex(MEMBER_HAVINGEVALUATOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
+                methodNode.getBlock().ifCondition(not(exprDotMethod(having, "evaluateHaving", REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))).blockReturnNoValue();
             }
 
-            CodegenExpression selectExprProcessor = arrayAtIndex(REF_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
-            methodNode.getBlock().exprDotMethod(ref("resultEvents"), "put", ref("mk"), exprDotMethod(selectExprProcessor, "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+            CodegenExpression selectExprProcessor = arrayAtIndex(MEMBER_SELECTEXPRPROCESSOR_ARRAY, exprDotMethod(ref("level"), "getLevelNumber"));
+            methodNode.getBlock().exprDotMethod(ref("resultEvents"), "put", ref("mk"), exprDotMethod(selectExprProcessor, "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
         };
 
         instance.getMethods().addMethod(void.class, "generateOutputBatchedMapUnsorted",
@@ -829,10 +829,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
 
                 CodegenBlock ifOld = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -847,10 +847,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
             }
         }
@@ -895,10 +895,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
 
                 CodegenBlock ifOld = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -913,10 +913,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
             }
         }
@@ -940,7 +940,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     .declareVar(Map.class, "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
                     .forEach(Map.Entry.class, "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
                     .localMethod(generateOutputBatchedGivenArray, constantFalse(), exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("entry"), "getValue")), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                    .increment("count");
+                    .incrementRef("count");
         }
 
         {
@@ -963,10 +963,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
 
                 CodegenBlock ifOld = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -981,10 +981,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
             }
         }
@@ -1008,7 +1008,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     .declareVar(Map.class, "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
                     .forEach(Map.Entry.class, "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
                     .localMethod(generateOutputBatchedGivenArray, constantFalse(), exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("entry"), "getValue")), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                    .increment("count");
+                    .incrementRef("count");
         }
 
         {
@@ -1031,10 +1031,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forNew.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
 
                 CodegenBlock ifOld = forEach.ifCondition(notEqualsNull(ref("oldData")));
@@ -1049,10 +1049,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .increment("count");
+                                    .incrementRef("count");
                         }
                     }
-                    forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
+                    forOld.exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), MEMBER_AGENTINSTANCECONTEXT);
                 }
             }
         }
@@ -1140,7 +1140,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     .declareVar(int.class, "count", constant(-1));
             {
                 CodegenBlock forLoop = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "eventrow", ref("events"));
-                forLoop.increment("count")
+                forLoop.incrementRef("count")
                         .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("eventrow"), "getArray")))
                         .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), REF_ISNEWDATA))
                         .assignArrayElement("result", ref("count"), newArrayByLength(Object.class, arrayLength(ref("levels"))));
@@ -1169,7 +1169,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
             if (forge.isSelectRStream()) {
                 methodNode.getBlock().ifCondition(relational(ref("oldEventCount"), GT, constant(0)))
-                        .declareVar(EventsAndSortKeysPair.class, "pair", staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_GETOLDEVENTSSORTKEYS, ref("oldEventCount"), ref(NAME_RSTREAMEVENTSORTARRAYBUF), REF_ORDERBYPROCESSOR, exprDotMethod(ref("this"), "getGroupByRollupDesc")))
+                        .declareVar(EventsAndSortKeysPair.class, "pair", staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_GETOLDEVENTSSORTKEYS, ref("oldEventCount"), ref(NAME_RSTREAMEVENTSORTARRAYBUF), MEMBER_ORDERBYPROCESSOR, exprDotMethod(ref("this"), "getGroupByRollupDesc")))
                         .assignRef("oldEventsArr", exprDotMethod(ref("pair"), "getEvents"))
                         .assignRef("oldEventSortKeys", exprDotMethod(ref("pair"), "getSortKeys"));
             }
@@ -1185,9 +1185,9 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             methodNode.getBlock().declareVar(EventBean[].class, "newEventsArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYEVENTS, ref("newEvents")));
             if (forge.isSorting()) {
                 methodNode.getBlock().declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, ref("newEventsSortKey")))
-                        .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                        .assignRef("newEventsArr", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), MEMBER_AGENTINSTANCECONTEXT));
                 if (forge.isSelectRStream()) {
-                    methodNode.getBlock().assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("oldEventSortKeys"), REF_AGENTINSTANCECONTEXT));
+                    methodNode.getBlock().assignRef("oldEventsArr", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("oldEventSortKeys"), MEMBER_AGENTINSTANCECONTEXT));
                 }
             }
 
@@ -1209,7 +1209,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 ifNew.forEach(EventBean.class, "aNewData", REF_NEWDATA)
                         .assignArrayElement("eventsPerStream", constant(0), ref("aNewData"))
                         .declareVar(Object[].class, "keys", localMethod(generateGroupKeysRow, ref("eventsPerStream"), constantTrue()))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("keys"), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("keys"), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
         {
@@ -1218,7 +1218,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 ifOld.forEach(EventBean.class, "anOldData", REF_OLDDATA)
                         .assignArrayElement("eventsPerStream", constant(0), ref("anOldData"))
                         .declareVar(Object[].class, "keys", localMethod(generateGroupKeysRow, ref("eventsPerStream"), constantFalse()))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("keys"), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("keys"), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
     }
@@ -1233,7 +1233,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 ifNew.forEach(MultiKeyArrayOfKeys.class, "mk", REF_NEWDATA)
                         .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("mk"), "getArray")))
                         .declareVar(Object[].class, "keys", localMethod(generateGroupKeysRow, ref("eventsPerStream"), constantTrue()))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("keys"), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("keys"), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
         {
@@ -1242,7 +1242,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 ifOld.forEach(MultiKeyArrayOfKeys.class, "mk", REF_OLDDATA)
                         .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("mk"), "getArray")))
                         .declareVar(Object[].class, "keys", localMethod(generateGroupKeysRow, ref("eventsPerStream"), constantFalse()))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("keys"), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("keys"), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
     }
@@ -1253,12 +1253,12 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
         if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
             instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorRowPerGroupRollupOutputAllHelper.class);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupAll", REF_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes));
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupAll", MEMBER_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes));
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
             instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorRowPerGroupRollupOutputLastHelper.class);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupLast", REF_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes));
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupLast", MEMBER_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes));
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }
 
@@ -1268,9 +1268,9 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
     static void continueOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenMethod method) {
         if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTALLHELPER), "outputView", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTALLHELPER), "outputView", REF_ISSYNTHESIZE));
         } else if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "outputView", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTLASTHELPER), "outputView", REF_ISSYNTHESIZE));
         } else {
             method.getBlock().methodReturn(constantNull());
         }
@@ -1278,9 +1278,9 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
     public static void continueOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenMethod method) {
         if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTALLHELPER), "outputJoin", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTALLHELPER), "outputJoin", REF_ISSYNTHESIZE));
         } else if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "outputJoin", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTLASTHELPER), "outputJoin", REF_ISSYNTHESIZE));
         } else {
             method.getBlock().methodReturn(constantNull());
         }
@@ -1288,14 +1288,14 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
     static void stopMethodCodegenBound(CodegenMethod method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "destroy");
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), "destroy");
         }
         if (instance.hasMember(NAME_OUTPUTFIRSTHELPERS)) {
-            method.getBlock().forEach(ResultSetProcessorGroupedOutputFirstHelper.class, "helper", ref(NAME_OUTPUTFIRSTHELPERS))
+            method.getBlock().forEach(ResultSetProcessorGroupedOutputFirstHelper.class, "helper", member(NAME_OUTPUTFIRSTHELPERS))
                     .exprDotMethod(ref("helper"), "destroy");
         }
         if (instance.hasMember(NAME_OUTPUTALLHELPER)) {
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTALLHELPER), "destroy");
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), "destroy");
         }
     }
 
@@ -1331,7 +1331,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
             instance.addMember(NAME_OUTPUTFIRSTHELPERS, ResultSetProcessorGroupedOutputFirstHelper[].class);
             instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPERS, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, "initializeOutputFirstHelpers", factory,
-                    REF_AGENTINSTANCECONTEXT, constant(forge.getGroupKeyTypes()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), outputConditionFactory));
+                MEMBER_AGENTINSTANCECONTEXT, constant(forge.getGroupKeyTypes()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), outputConditionFactory));
         }
     }
 }

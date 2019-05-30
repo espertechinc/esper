@@ -86,7 +86,7 @@ public class FilterForEvalEventPropDoubleForge implements FilterSpecParamFilterF
 
         method.getBlock()
                 .declareVar(EventBean.class, "event", exprDotMethod(ref("matchedEvents"), "getMatchingEventByTag", constant(resultEventAsName)))
-                .ifRefNull(ref("event")).blockThrow(newInstance(IllegalStateException.class, constant("Matching event named '" + resultEventAsName + "' not found in event result set")))
+                .ifNull(ref("event")).blockThrow(newInstance(IllegalStateException.class, constant("Matching event named '" + resultEventAsName + "' not found in event result set")))
                 .declareVar(Number.class, "value", cast(Number.class, get))
                 .ifRefNull("value").blockReturn(constantNull())
                 .methodReturn(exprDotMethod(ref("value"), "doubleValue"));

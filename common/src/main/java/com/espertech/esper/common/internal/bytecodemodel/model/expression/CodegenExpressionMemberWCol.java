@@ -13,20 +13,40 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 import java.util.Map;
 import java.util.Set;
 
-public class CodegenExpressionIncrementDecrementName implements CodegenExpression {
+public class CodegenExpressionMemberWCol extends CodegenExpressionMember {
+    private final int col;
 
-    private final String ref;
-    private final boolean increment;
-
-    public CodegenExpressionIncrementDecrementName(String ref, boolean increment) {
-        this.ref = ref;
-        this.increment = increment;
+    public CodegenExpressionMemberWCol(String ref, int col) {
+        super(ref);
+        this.col = col;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        builder.append(ref).append(increment ? "++" : "--");
+        super.render(builder, imports, isInnerClass);
+        builder.append(col);
     }
 
     public void mergeClasses(Set<Class> classes) {
+    }
+
+    @Override
+    public String getRef() {
+        return ref + col;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        CodegenExpressionMemberWCol that = (CodegenExpressionMemberWCol) o;
+
+        return col == that.col;
+    }
+
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + col;
+        return result;
     }
 }

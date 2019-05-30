@@ -12,9 +12,9 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.mergeClassesExpressions;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.renderExpressions;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenExpressionExprDotMethod implements CodegenExpression {
     private final CodegenExpression expression;
@@ -51,5 +51,10 @@ public class CodegenExpressionExprDotMethod implements CodegenExpression {
     public void mergeClasses(Set<Class> classes) {
         expression.mergeClasses(classes);
         mergeClassesExpressions(classes, params);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(expression);
+        traverseMultiple(params, consumer);
     }
 }

@@ -11,16 +11,17 @@
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
-public class CodegenStatementIfRefNullReturnNull implements CodegenStatement {
+public class CodegenStatementIfNullReturnNull implements CodegenStatement {
 
-    private final CodegenExpressionRef ref;
+    private final CodegenExpression ref;
 
-    public CodegenStatementIfRefNullReturnNull(CodegenExpressionRef ref) {
+    public CodegenStatementIfNullReturnNull(CodegenExpression ref) {
         this.ref = ref;
     }
 
@@ -31,5 +32,9 @@ public class CodegenStatementIfRefNullReturnNull implements CodegenStatement {
     }
 
     public void mergeClasses(Set<Class> classes) {
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(ref);
     }
 }

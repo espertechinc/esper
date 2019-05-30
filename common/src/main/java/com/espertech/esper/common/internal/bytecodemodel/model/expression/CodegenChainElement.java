@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.traverseMultiple;
 
 public class CodegenChainElement {
     private final String method;
@@ -48,5 +51,9 @@ public class CodegenChainElement {
                 param.mergeClasses(classes);
             }
         }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        traverseMultiple(optionalParams, consumer);
     }
 }

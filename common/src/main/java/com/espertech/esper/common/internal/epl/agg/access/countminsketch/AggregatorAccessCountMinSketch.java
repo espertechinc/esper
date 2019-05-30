@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregatorAccess;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggState;
@@ -25,14 +26,14 @@ import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSke
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 /**
  * Implementation of access function for single-stream (not joins).
  */
 public class AggregatorAccessCountMinSketch implements AggregatorAccess {
     private final AggregationStateCountMinSketchForge forge;
-    private final CodegenExpressionRef state;
+    private final CodegenExpressionMember state;
     private CodegenExpressionField spec;
 
     public AggregatorAccessCountMinSketch(AggregationStateCountMinSketchForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
@@ -55,14 +56,14 @@ public class AggregatorAccessCountMinSketch implements AggregatorAccess {
     }
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().expression(staticMethod(AggregationStateSerdeCountMinSketch.class, "writeCountMinSketch", output, rowDotRef(row, state)));
+        method.getBlock().expression(staticMethod(AggregationStateSerdeCountMinSketch.class, "writeCountMinSketch", output, rowDotMember(row, state)));
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotRef(row, state), staticMethod(AggregationStateSerdeCountMinSketch.class, "readCountMinSketch", input, spec));
+        method.getBlock().assignRef(rowDotMember(row, state), staticMethod(AggregationStateSerdeCountMinSketch.class, "readCountMinSketch", input, spec));
     }
 
     public static CodegenExpression codegenGetAccessTableState(int column, CodegenMethodScope parent, CodegenClassScope classScope) {
-        return refCol("state", column);
+        return memberCol("state", column);
     }
 }

@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethod
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenFieldSharableComparator;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
@@ -37,7 +38,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenFieldSharableComparator.CodegenSharableSerdeName.COMPARATOROBJECTARRAYNONHASHABLE;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassArrayTyped.CodegenSharableSerdeName.OBJECTARRAYMAYNULLNULL;
 import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE;
@@ -48,9 +49,9 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
  */
 public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterBase implements AggregatorAccessSorted {
     private final AggregationStateMinMaxByEverForge forge;
-    private final CodegenExpressionRef currentMinMaxBean;
+    private final CodegenExpressionMember currentMinMaxBean;
     private final CodegenExpressionField currentMinMaxBeanSerde;
-    private final CodegenExpressionRef currentMinMax;
+    private final CodegenExpressionMember currentMinMax;
     private final CodegenExpressionField currentMinMaxSerde;
     private final CodegenExpressionField comparator;
 
@@ -87,14 +88,14 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-            .exprDotMethod(currentMinMaxSerde, "write", rowDotRef(row, currentMinMax), output, unitKey, writer)
-            .exprDotMethod(currentMinMaxBeanSerde, "write", rowDotRef(row, currentMinMaxBean), output, unitKey, writer);
+            .exprDotMethod(currentMinMaxSerde, "write", rowDotMember(row, currentMinMax), output, unitKey, writer)
+            .exprDotMethod(currentMinMaxBeanSerde, "write", rowDotMember(row, currentMinMaxBean), output, unitKey, writer);
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock()
-            .assignRef(rowDotRef(row, currentMinMax), cast(Object.class, exprDotMethod(currentMinMaxSerde, "read", input, unitKey)))
-            .assignRef(rowDotRef(row, currentMinMaxBean), cast(EventBean.class, exprDotMethod(currentMinMaxBeanSerde, "read", input, unitKey)));
+            .assignRef(rowDotMember(row, currentMinMax), cast(Object.class, exprDotMethod(currentMinMaxSerde, "read", input, unitKey)))
+            .assignRef(rowDotMember(row, currentMinMaxBean), cast(EventBean.class, exprDotMethod(currentMinMaxBeanSerde, "read", input, unitKey)));
     }
 
     public CodegenExpression getFirstValueCodegen(CodegenClassScope classScope, CodegenMethod method) {
@@ -143,8 +144,8 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
         return methodNode;
     }
 
-    private static CodegenMethod getComparableWObjectArrayKeyCodegen(ExprNode[] criteria, CodegenExpressionRef ref, CodegenNamedMethods namedMethods, CodegenClassScope classScope) {
-        String methodName = "getComparable_" + ref.getRef();
+    private static CodegenMethod getComparableWObjectArrayKeyCodegen(ExprNode[] criteria, CodegenExpressionMember member, CodegenNamedMethods namedMethods, CodegenClassScope classScope) {
+        String methodName = "getComparable_" + member.getRef();
         Consumer<CodegenMethod> code = method -> {
             if (criteria.length == 1) {
                 method.getBlock().methodReturn(localMethod(CodegenLegoMethodExpression.codegenExpression(criteria[0].getForge(), method, classScope), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
@@ -168,7 +169,7 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
 
     public static CodegenExpression codegenGetAccessTableState(int column, CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(EventBean.class, AggregatorAccessSortedMinMaxByEver.class, classScope);
-        method.getBlock().methodReturn(refCol("currentMinMaxBean", column));
+        method.getBlock().methodReturn(memberCol("currentMinMaxBean", column));
         return localMethod(method);
     }
 }

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementWhileOrDo extends CodegenStatementWBlockBase {
     private final CodegenExpression condition;
@@ -55,5 +56,10 @@ public class CodegenStatementWhileOrDo extends CodegenStatementWBlockBase {
     public void mergeClasses(Set<Class> classes) {
         block.mergeClasses(classes);
         condition.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        block.traverseExpressions(consumer);
+        consumer.accept(condition);
     }
 }

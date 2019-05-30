@@ -24,4 +24,8 @@ public class CodegenClassMethods {
     public List<CodegenMethodWGraph> getPrivateMethods() {
         return privateMethods;
     }
+
+    public int size() {
+        return publicMethods.size() + privateMethods.size();
+    }
 }

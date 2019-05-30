@@ -86,7 +86,7 @@ public class FilterForEvalEventPropForge implements FilterSpecParamInValueForge 
 
         method.getBlock()
                 .declareVar(EventBean.class, "event", exprDotMethod(ref("matchedEvents"), "getMatchingEventByTag", constant(resultEventAsName)))
-                .ifRefNull(ref("event")).blockThrow(newInstance(IllegalStateException.class, constant("Matching event named '" + resultEventAsName + "' not found in event result set")))
+                .ifNull(ref("event")).blockThrow(newInstance(IllegalStateException.class, constant("Matching event named '" + resultEventAsName + "' not found in event result set")))
                 .declareVar(Object.class, "value", get);
 
         if (isMustCoerce) {

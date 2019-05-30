@@ -71,7 +71,7 @@ public class StmtClassForgeableQueryMethodProvider implements StmtClassForgeable
             CodegenMethod makeMethod = providerCtor.makeChildWithScope(FAFQueryMethod.class, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
             providerCtor.getBlock()
                     .staticMethod(packageScope.getFieldsClassNameOptional(), "init", EPStatementInitServices.REF)
-                    .assignRef(MEMBERNAME_QUERYMETHOD, localMethod(makeMethod, EPStatementInitServices.REF));
+                    .assignMember(MEMBERNAME_QUERYMETHOD, localMethod(makeMethod, EPStatementInitServices.REF));
             forge.makeMethod(makeMethod, symbols, classScope);
 
             // make provider methods

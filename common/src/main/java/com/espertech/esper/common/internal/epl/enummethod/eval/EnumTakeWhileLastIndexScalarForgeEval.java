@@ -118,9 +118,9 @@ public class EnumTakeWhileLastIndexScalarForgeEval implements EnumEval {
         block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class))
                 .declareVar(Object[].class, "all", staticMethod(EnumTakeWhileLastIndexScalarForgeEval.class, METHOD_TAKEWHILELASTSCALARTOARRAY, EnumForgeCodegenNames.REF_ENUMCOLL))
                 .declareVar(int.class, "index", constant(0));
-        CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrement("i"))
+        CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrementRef("i"))
                 .assignArrayElement("evalProps", constant(0), arrayAtIndex(ref("all"), ref("i")))
-                .assignArrayElement("indexProps", constant(0), increment("index"));
+                .assignArrayElement("indexProps", constant(0), incrementRef("index"));
         CodegenLegoBooleanExpression.codegenBreakIfNotNullAndNotPass(forEach, forge.innerExpression.getEvaluationType(), innerValue);
         forEach.expression(exprDotMethod(ref("result"), "addFirst", arrayAtIndex(ref("all"), ref("i"))));
         block.methodReturn(ref("result"));

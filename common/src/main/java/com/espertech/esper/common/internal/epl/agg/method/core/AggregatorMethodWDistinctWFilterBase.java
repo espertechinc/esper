@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.RefCountedSet;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
@@ -27,10 +28,10 @@ import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSha
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 public abstract class AggregatorMethodWDistinctWFilterBase implements AggregatorMethod {
-    protected final CodegenExpressionRef distinct;
+    protected final CodegenExpressionMember distinct;
     protected final Class optionalDistinctValueType;
     protected final boolean hasFilter; // this flag can be true and "optionalFilter" can still be null when declaring a table column
     protected final ExprNode optionalFilter;
@@ -122,14 +123,14 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
 
     public final void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
-            method.getBlock().exprDotMethod(distinctSerde, "write", rowDotRef(row, distinct), output, unitKey, writer);
+            method.getBlock().exprDotMethod(distinctSerde, "write", rowDotMember(row, distinct), output, unitKey, writer);
         }
         writeWODistinct(row, col, output, unitKey, writer, method, classScope);
     }
 
     public final void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
-            method.getBlock().assignRef(rowDotRef(row, distinct), cast(RefCountedSet.class, exprDotMethod(distinctSerde, "read", input, unitKey)));
+            method.getBlock().assignRef(rowDotMember(row, distinct), cast(RefCountedSet.class, exprDotMethod(distinctSerde, "read", input, unitKey)));
         }
         readWODistinct(row, col, input, unitKey, method, classScope);
     }

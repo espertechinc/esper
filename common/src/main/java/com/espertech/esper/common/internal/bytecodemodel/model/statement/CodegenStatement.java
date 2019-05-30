@@ -11,12 +11,16 @@
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public interface CodegenStatement {
     void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent);
 
     void mergeClasses(Set<Class> classes);
+
+    void traverseExpressions(Consumer<CodegenExpression> consumer);
 }

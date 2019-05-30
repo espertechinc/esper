@@ -11,9 +11,11 @@
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementIfRefNullReturnFalse implements CodegenStatement {
 
@@ -28,5 +30,8 @@ public class CodegenStatementIfRefNullReturnFalse implements CodegenStatement {
     }
 
     public void mergeClasses(Set<Class> classes) {
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
     }
 }

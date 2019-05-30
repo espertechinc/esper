@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -31,7 +32,7 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GE;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.LISTEVENTS;
 
 /**
@@ -39,7 +40,7 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
  */
 public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase implements AggregatorAccessLinear {
     private final AggregationStateLinearForge forge;
-    private final CodegenExpressionRef events;
+    private final CodegenExpressionMember events;
 
     public AggregatorAccessLinearNonJoin(AggregationStateLinearForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
         super(optionalFilter);
@@ -111,11 +112,11 @@ public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase i
     }
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(getSerde(classScope), "write", rowDotRef(row, events), output, unitKey, writer);
+        method.getBlock().exprDotMethod(getSerde(classScope), "write", rowDotMember(row, events), output, unitKey, writer);
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotRef(row, events), cast(List.class, exprDotMethod(getSerde(classScope), "read", input, unitKey)));
+        method.getBlock().assignRef(rowDotMember(row, events), cast(List.class, exprDotMethod(getSerde(classScope), "read", input, unitKey)));
     }
 
     private CodegenExpressionField getSerde(CodegenClassScope classScope) {

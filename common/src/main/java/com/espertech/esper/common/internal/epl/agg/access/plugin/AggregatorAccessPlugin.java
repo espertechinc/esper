@@ -21,17 +21,18 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 public class AggregatorAccessPlugin extends AggregatorAccessWFilterBase {
 
-    private final CodegenExpressionRef state;
+    private final CodegenExpressionMember state;
     private final AggregationMultiFunctionStateModeManaged mode;
 
     public AggregatorAccessPlugin(int col, boolean join, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter, AggregationMultiFunctionStateModeManaged mode) {
@@ -58,17 +59,17 @@ public class AggregatorAccessPlugin extends AggregatorAccessWFilterBase {
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef ref, CodegenExpressionRef unitKey, CodegenExpressionRef output, CodegenMethod method, CodegenClassScope classScope) {
         if (mode.isHasHA()) {
-            method.getBlock().expression(staticMethod(mode.getSerde(), "write", output, rowDotRef(row, state)));
+            method.getBlock().expression(staticMethod(mode.getSerde(), "write", output, rowDotMember(row, state)));
         }
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         if (mode.isHasHA()) {
-            method.getBlock().assignRef(rowDotRef(row, state), staticMethod(mode.getSerde(), "read", input));
+            method.getBlock().assignRef(rowDotMember(row, state), staticMethod(mode.getSerde(), "read", input));
         }
     }
 
     public static CodegenExpression codegenGetAccessTableState(int column) {
-        return refCol("state", column);
+        return memberCol("state", column);
     }
 }

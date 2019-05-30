@@ -74,7 +74,7 @@ public class EnumAverageEventsForgeEval implements EnumEval {
         if (!innerType.isPrimitive()) {
             forEach.ifRefNull("num").blockContinue();
         }
-        forEach.increment("count")
+        forEach.incrementRef("count")
                 .assignRef("sum", op(ref("sum"), "+", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(ref("num"), innerType)))
                 .blockEnd();
         block.ifCondition(equalsIdentity(ref("count"), constant(0))).blockReturn(constantNull())

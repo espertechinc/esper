@@ -22,8 +22,8 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_ISNEWDATA;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGGREGATIONSVC;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGGREGATIONSVC;
 
 public class OrderByProcessorCodegenNames {
     final static String CLASSNAME_ORDERBYPROCESSORFACTORY = "OrderProcFactory";
@@ -45,7 +45,7 @@ public class OrderByProcessorCodegenNames {
             EventBean[][].class, REF_GENERATINGEVENTS.getRef(),
             boolean.class, REF_ISNEWDATA.getRef(),
             ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(),
-            AggregationService.class, REF_AGGREGATIONSVC.getRef());
+            AggregationService.class, MEMBER_AGGREGATIONSVC.getRef());
 
     final static List<CodegenNamedParam> SORTWGROUPKEYS_PARAMS = CodegenNamedParam.from(
             EventBean[].class, REF_OUTGOINGEVENTS.getRef(),
@@ -53,14 +53,14 @@ public class OrderByProcessorCodegenNames {
             Object[].class, REF_ORDERGROUPBYKEYS.getRef(),
             boolean.class, REF_ISNEWDATA.getRef(),
             ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(),
-            AggregationService.class, REF_AGGREGATIONSVC.getRef());
+            AggregationService.class, MEMBER_AGGREGATIONSVC.getRef());
 
     final static List<CodegenNamedParam> SORTROLLUP_PARAMS = CodegenNamedParam.from(
             EventBean[].class, REF_OUTGOINGEVENTS.getRef(),
             List.class, REF_ORDERCURRENTGENERATORS.getRef(),
             boolean.class, REF_ISNEWDATA.getRef(),
-            AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef(),
-            AggregationService.class, REF_AGGREGATIONSVC.getRef());
+            AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef(),
+            AggregationService.class, MEMBER_AGGREGATIONSVC.getRef());
 
     final static List<CodegenNamedParam> SORTTWOKEYS_PARAMS = CodegenNamedParam.from(
             EventBean.class, REF_ORDERFIRSTEVENT.getRef(),

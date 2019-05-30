@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.SortedDoubleVector;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
@@ -29,10 +30,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 public class AggregatorMedian extends AggregatorMethodWDistinctWFilterWValueBase {
-    protected CodegenExpressionRef vector;
+    protected CodegenExpressionMember vector;
 
     public AggregatorMedian(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
@@ -66,12 +67,12 @@ public class AggregatorMedian extends AggregatorMethodWDistinctWFilterWValueBase
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .staticMethod(this.getClass(), "writePoints", output, rowDotRef(row, vector));
+                .staticMethod(this.getClass(), "writePoints", output, rowDotMember(row, vector));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .assignRef(rowDotRef(row, vector), staticMethod(this.getClass(), "readPoints", input));
+                .assignRef(rowDotMember(row, vector), staticMethod(this.getClass(), "readPoints", input));
     }
 
     /**

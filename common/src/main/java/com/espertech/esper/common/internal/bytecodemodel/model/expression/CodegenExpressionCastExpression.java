@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
@@ -55,5 +56,9 @@ public class CodegenExpressionCastExpression implements CodegenExpression {
             classes.add(clazz);
         }
         expression.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(expression);
     }
 }

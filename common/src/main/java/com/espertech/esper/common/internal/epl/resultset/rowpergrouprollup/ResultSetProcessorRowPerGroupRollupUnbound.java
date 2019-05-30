@@ -47,14 +47,14 @@ public class ResultSetProcessorRowPerGroupRollupUnbound {
                 .declareVar(Object[][].class, "newDataMultiKey", localMethod(generateGroupKeysView, REF_NEWDATA, exprDotMethod(ref(NAME_UNBOUNDHELPER), "getBuffer"), constantTrue()))
                 .declareVar(Object[][].class, "oldDataMultiKey", localMethod(generateGroupKeysView, REF_OLDDATA, exprDotMethod(ref(NAME_UNBOUNDHELPER), "getBuffer"), constantFalse()))
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
-                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"), ref("eventsPerStream"));
+                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"), ref("eventsPerStream"));
     }
 
     static void processViewResultUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
         CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType[].class, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
         instance.addMember(NAME_UNBOUNDHELPER, ResultSetProcessorRowPerGroupRollupUnboundHelper.class);
-        instance.getServiceCtor().getBlock().assignRef(NAME_UNBOUNDHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupSnapshotUnbound", REF_AGENTINSTANCECONTEXT, ref("this"),
+        instance.getServiceCtor().getBlock().assignRef(NAME_UNBOUNDHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupSnapshotUnbound", MEMBER_AGENTINSTANCECONTEXT, ref("this"),
                 constant(forge.getGroupKeyTypes()), constant(forge.getNumStreams()), eventTypes));
 
         CodegenMethod generateGroupKeysView = generateGroupKeysViewCodegen(forge, classScope, instance);
@@ -65,7 +65,7 @@ public class ResultSetProcessorRowPerGroupRollupUnbound {
                 .declareVar(Object[][].class, "oldDataMultiKey", localMethod(generateGroupKeysView, REF_OLDDATA, exprDotMethod(ref(NAME_UNBOUNDHELPER), "getBuffer"), constantFalse()))
                 .declareVar(EventBean[].class, "selectOldEvents", forge.isSelectRStream() ? localMethod(generateOutputEventsView, exprDotMethod(ref(NAME_UNBOUNDHELPER), "getBuffer"), constantFalse(), REF_ISSYNTHESIZE) : constantNull())
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
-                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"), ref("eventsPerStream"))
+                .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGVIEWRESULTKEYEDVIEW, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, ref("newDataMultiKey"), REF_OLDDATA, ref("oldDataMultiKey"), ref("eventsPerStream"))
                 .declareVar(EventBean[].class, "selectNewEvents", localMethod(generateOutputEventsView, exprDotMethod(ref(NAME_UNBOUNDHELPER), "getBuffer"), constantTrue(), REF_ISSYNTHESIZE))
                 .methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("selectNewEvents"), ref("selectOldEvents")));
     }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenExpressionAssign implements CodegenExpression {
     private final CodegenExpression lhs;
@@ -31,5 +32,10 @@ public class CodegenExpressionAssign implements CodegenExpression {
     public void mergeClasses(Set<Class> classes) {
         lhs.mergeClasses(classes);
         rhs.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(lhs);
+        consumer.accept(rhs);
     }
 }

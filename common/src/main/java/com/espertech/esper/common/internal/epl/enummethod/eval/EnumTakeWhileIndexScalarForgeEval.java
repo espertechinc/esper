@@ -117,7 +117,7 @@ public class EnumTakeWhileIndexScalarForgeEval implements EnumEval {
                 .declareVar(int.class, "count", constant(-1));
 
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .increment("count")
+                .incrementRef("count")
                 .assignArrayElement("evalProps", constant(0), ref("next"))
                 .assignArrayElement("indexProps", constant(0), ref("count"));
         CodegenLegoBooleanExpression.codegenBreakIfNotNullAndNotPass(forEach, forge.innerExpression.getEvaluationType(), innerValue);

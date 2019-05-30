@@ -12,12 +12,14 @@ package com.espertech.esper.common.internal.bytecodemodel.base;
 
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenMethodWGraph;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenMethod implements CodegenMethodScope {
     private final Class returnType;
@@ -34,6 +36,7 @@ public class CodegenMethod implements CodegenMethodScope {
 
     private Set<String> deepParameters;
     private CodegenMethodWGraph assignedMethod;
+    private String assignedProviderClassName;
 
     protected CodegenMethod(Class returnType, String returnTypeName, Class generator, CodegenSymbolProvider optionalSymbolProvider, CodegenScope env) {
         if (generator == null) {
@@ -124,6 +127,10 @@ public class CodegenMethod implements CodegenMethodScope {
         }
     }
 
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        block.traverseExpressions(consumer);
+    }
+
     public CodegenSymbolProvider getOptionalSymbolProvider() {
         return optionalSymbolProvider;
     }
@@ -208,6 +215,10 @@ public class CodegenMethod implements CodegenMethodScope {
         this.assignedMethod = assignedMethod;
     }
 
+    public void setAssignedProviderClassName(String assignedProviderClassName) {
+        this.assignedProviderClassName = assignedProviderClassName;
+    }
+
     public CodegenMethod setStatic(boolean aStatic) {
         isStatic = aStatic;
         return this;
@@ -215,6 +226,14 @@ public class CodegenMethod implements CodegenMethodScope {
 
     public boolean isStatic() {
         return isStatic;
+    }
+
+    public String getAssignedProviderClassName() {
+        return assignedProviderClassName;
+    }
+
+    public String toString() {
+        return assignedMethod == null ? "CodegenMethod" : ("CodegenMethod{name=" + assignedMethod.getName() + "}");
     }
 
     private String getGeneratorDetail(Class generator) {

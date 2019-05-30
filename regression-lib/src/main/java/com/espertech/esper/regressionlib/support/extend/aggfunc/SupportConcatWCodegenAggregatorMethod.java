@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.support.extend.aggfunc;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodFactoryContext;
@@ -22,7 +23,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class SupportConcatWCodegenAggregatorMethod implements AggregatorMethod {
 
-    private final CodegenExpressionRef builder;
+    private final CodegenExpressionMember builder;
 
     public SupportConcatWCodegenAggregatorMethod(AggregatorMethodFactoryContext context) {
         builder = context.getMembersColumnized().addMember(context.getCol(), StringBuilder.class, "buf");

@@ -96,7 +96,7 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
                 .ifCondition(equalsNull(ref("existing")))
                 .assignRef("existing", constant(1))
                 .ifElse()
-                .increment("existing")
+                .incrementRef("existing")
                 .blockEnd()
                 .exprDotMethod(ref("items"), "put", ref("item"), ref("existing"));
         block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));

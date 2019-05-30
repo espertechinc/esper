@@ -10,16 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.output.core;
 
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.member;
 
 public class OutputProcessViewCodegenNames {
     public final static String NAME_RESULTSETPROCESSOR = "resultSetProcessor";
     public final static String NAME_STATEMENTRESULTSVC = "statementResultService";
     public final static String NAME_PARENTVIEW = "parentView";
     public final static String NAME_JOINEXECSTRATEGY = "joinExecutionStrategy";
-    public final static CodegenExpressionRef REF_CHILD = ref("child");
-
-    public final static CodegenExpressionRef REF_RESULTSETPROCESSOR = new CodegenExpressionRef(NAME_RESULTSETPROCESSOR);
+    public final static CodegenExpressionMember MEMBER_CHILD = member("child");
+    public final static CodegenExpressionMember MEMBER_RESULTSETPROCESSOR = member(NAME_RESULTSETPROCESSOR);
 }

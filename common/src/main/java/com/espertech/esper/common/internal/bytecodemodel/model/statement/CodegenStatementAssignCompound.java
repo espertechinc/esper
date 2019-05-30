@@ -11,25 +11,25 @@
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementAssignCompound extends CodegenStatementBase {
 
-    private final CodegenExpressionRef expressionRef;
+    private final CodegenExpression lhs;
     private final String operator;
     private final CodegenExpression assignment;
 
-    public CodegenStatementAssignCompound(CodegenExpressionRef expressionRef, String operator, CodegenExpression assignment) {
-        this.expressionRef = expressionRef;
+    public CodegenStatementAssignCompound(CodegenExpression lhs, String operator, CodegenExpression assignment) {
+        this.lhs = lhs;
         this.operator = operator;
         this.assignment = assignment;
     }
 
     public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        expressionRef.render(builder, imports, isInnerClass);
+        lhs.render(builder, imports, isInnerClass);
         builder.append(operator);
         builder.append("=");
         assignment.render(builder, imports, isInnerClass);
@@ -37,5 +37,10 @@ public class CodegenStatementAssignCompound extends CodegenStatementBase {
 
     public void mergeClasses(Set<Class> classes) {
         assignment.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(lhs);
+        consumer.accept(assignment);
     }
 }

@@ -24,8 +24,8 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.REF_CHILD;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.MEMBER_CHILD;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 
 public class OutputStrategyPostProcessForge {
     private final boolean isRouted;
@@ -58,7 +58,7 @@ public class OutputStrategyPostProcessForge {
     public CodegenMethod postProcessCodegenMayNullMayForce(CodegenClassScope classScope, CodegenMethodScope parent) {
         CodegenMethod method = parent.makeChild(void.class, OutputStrategyPostProcessForge.class, classScope).addParam(boolean.class, "forceUpdate").addParam(UniformPair.class, "result");
 
-        CodegenBlock ifChild = method.getBlock().ifCondition(notEqualsNull(REF_CHILD));
+        CodegenBlock ifChild = method.getBlock().ifCondition(notEqualsNull(MEMBER_CHILD));
 
         // handle non-null
         CodegenBlock ifResultNotNull = ifChild.ifRefNotNull("result");
@@ -72,25 +72,25 @@ public class OutputStrategyPostProcessForge {
         }
         if (selectStreamSelector == SelectClauseStreamSelectorEnum.RSTREAM_ONLY) {
             ifResultNotNull.ifCondition(notEqualsNull(exprDotMethod(ref("result"), "getSecond")))
-                    .exprDotMethod(REF_CHILD, "newResult", newInstance(UniformPair.class, exprDotMethod(ref("result"), "getSecond"), constantNull()))
+                    .exprDotMethod(MEMBER_CHILD, "newResult", newInstance(UniformPair.class, exprDotMethod(ref("result"), "getSecond"), constantNull()))
                     .ifElseIf(ref("forceUpdate"))
-                    .exprDotMethod(REF_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
+                    .exprDotMethod(MEMBER_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
         } else if (selectStreamSelector == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH) {
             ifResultNotNull.ifCondition(or(notEqualsNull(exprDotMethod(ref("result"), "getFirst")), notEqualsNull(exprDotMethod(ref("result"), "getSecond"))))
-                    .exprDotMethod(REF_CHILD, "newResult", ref("result"))
+                    .exprDotMethod(MEMBER_CHILD, "newResult", ref("result"))
                     .ifElseIf(ref("forceUpdate"))
-                    .exprDotMethod(REF_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
+                    .exprDotMethod(MEMBER_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
         } else {
             ifResultNotNull.ifCondition(notEqualsNull(exprDotMethod(ref("result"), "getFirst")))
-                    .exprDotMethod(REF_CHILD, "newResult", newInstance(UniformPair.class, exprDotMethod(ref("result"), "getFirst"), constantNull()))
+                    .exprDotMethod(MEMBER_CHILD, "newResult", newInstance(UniformPair.class, exprDotMethod(ref("result"), "getFirst"), constantNull()))
                     .ifElseIf(ref("forceUpdate"))
-                    .exprDotMethod(REF_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
+                    .exprDotMethod(MEMBER_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
         }
 
         // handle null-result (force-update)
         CodegenBlock ifResultNull = ifResultNotNull.ifElse();
         ifResultNull.ifCondition(ref("forceUpdate"))
-                .exprDotMethod(REF_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
+                .exprDotMethod(MEMBER_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
 
         return method;
     }
@@ -102,9 +102,9 @@ public class OutputStrategyPostProcessForge {
                 .forEach(EventBean.class, "routed", ref("events"));
 
         if (audit) {
-            forEach.expression(exprDotMethodChain(ref(NAME_AGENTINSTANCECONTEXT)).add("getAuditProvider").add("insert", ref("routed"), ref(NAME_AGENTINSTANCECONTEXT)));
+            forEach.expression(exprDotMethodChain(MEMBER_AGENTINSTANCECONTEXT).add("getAuditProvider").add("insert", ref("routed"), MEMBER_AGENTINSTANCECONTEXT));
         }
-        forEach.expression(exprDotMethodChain(ref(NAME_AGENTINSTANCECONTEXT)).add("getInternalEventRouter").add("route", ref("routed"), ref(NAME_AGENTINSTANCECONTEXT), constant(routeToFront)));
+        forEach.expression(exprDotMethodChain(MEMBER_AGENTINSTANCECONTEXT).add("getInternalEventRouter").add("route", ref("routed"), MEMBER_AGENTINSTANCECONTEXT, constant(routeToFront)));
 
         return method;
     }

@@ -11,8 +11,10 @@
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementTryCatchCatchBlock {
     private final Class ex;
@@ -40,5 +42,9 @@ public class CodegenStatementTryCatchCatchBlock {
     void mergeClasses(Set<Class> classes) {
         classes.add(ex);
         block.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        block.traverseExpressions(consumer);
     }
 }

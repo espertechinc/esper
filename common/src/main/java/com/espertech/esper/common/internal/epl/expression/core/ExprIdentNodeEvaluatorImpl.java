@@ -94,7 +94,7 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
 
         if (useUnderlying) {
             CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(method, streamNum, eventType, true);
-            block.ifRefNullReturnNull(underlying)
+            block.ifNullReturnNull(underlying)
                     .methodReturn(CodegenLegoCast.castSafeFromObjectType(castTargetType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
         } else {
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(method);

@@ -40,7 +40,7 @@ public class SubselectForgeNREqualsAllAnyAggregated extends SubselectForgeNREqua
         CodegenExpressionRef evalCtx = symbols.getAddExprEvalCtx(method);
         CodegenExpressionRef left = symbols.getAddLeftResult(method);
 
-        method.getBlock().ifRefNullReturnNull(symbols.getAddLeftResult(method));
+        method.getBlock().ifNullReturnNull(symbols.getAddLeftResult(method));
         if (havingEval != null) {
             CodegenExpression having = localMethod(CodegenLegoMethodExpression.codegenExpression(havingEval, method, classScope), eps, constantTrue(), evalCtx);
             CodegenLegoBooleanExpression.codegenReturnValueIfNullOrNotPass(method.getBlock(), havingEval.getEvaluationType(), having, constantNull());

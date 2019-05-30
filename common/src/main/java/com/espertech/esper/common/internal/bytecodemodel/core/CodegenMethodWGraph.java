@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 
 import java.util.List;
 import java.util.Map;
@@ -24,14 +25,16 @@ public class CodegenMethodWGraph {
     private final CodegenBlock block;
     private final boolean isPublic;
     private final List<Class> thrown;
+    private final CodegenMethod originator;
     private boolean isStatic;
 
-    public CodegenMethodWGraph(String name, CodegenMethodFootprint footprint, CodegenBlock block, boolean isPublic, List<Class> thrown) {
+    public CodegenMethodWGraph(String name, CodegenMethodFootprint footprint, CodegenBlock block, boolean isPublic, List<Class> thrown, CodegenMethod originator) {
         this.name = name;
         this.footprint = footprint;
         this.block = block;
         this.isPublic = isPublic;
         this.thrown = thrown;
+        this.originator = originator;
     }
 
     public void mergeClasses(Set<Class> classes) {
@@ -104,5 +107,15 @@ public class CodegenMethodWGraph {
     public CodegenMethodWGraph setStatic(boolean aStatic) {
         isStatic = aStatic;
         return this;
+    }
+
+    public CodegenMethod getOriginator() {
+        return originator;
+    }
+
+    public String toString() {
+        return "CodegenMethodWGraph{" +
+            "name='" + name + '\'' +
+            '}';
     }
 }

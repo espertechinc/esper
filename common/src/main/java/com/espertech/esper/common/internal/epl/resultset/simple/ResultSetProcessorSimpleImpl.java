@@ -77,13 +77,13 @@ public class ResultSetProcessorSimpleImpl {
         {
             CodegenBlock loop = method.getBlock().forEach(EventBean.class, "aParent", REF_VIEWABLE);
             loop.assignArrayElement("eventsPerStream", constant(0), ref("aParent"))
-                    .declareVar(Object.class, "orderKey", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), REF_AGENTINSTANCECONTEXT));
+                    .declareVar(Object.class, "orderKey", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
 
             if (forge.getOptionalHavingNode() == null) {
-                loop.declareVar(EventBean[].class, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, ref("eventsPerStream"), constantTrue(), constantTrue(), REF_AGENTINSTANCECONTEXT));
+                loop.declareVar(EventBean[].class, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingCodegen(classScope, instance);
-                loop.declareVar(EventBean[].class, "result", localMethod(select, REF_SELECTEXPRNONMEMBER, ref("eventsPerStream"), constantTrue(), constantTrue(), REF_AGENTINSTANCECONTEXT));
+                loop.declareVar(EventBean[].class, "result", localMethod(select, MEMBER_SELECTEXPRNONMEMBER, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
             }
 
             loop.ifCondition(and(notEqualsNull(ref("result")), not(equalsIdentity(arrayLength(ref("result")), constant(0)))))
@@ -93,7 +93,7 @@ public class ResultSetProcessorSimpleImpl {
 
         method.getBlock().declareVar(EventBean[].class, "outgoingEvents", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")))
                 .declareVar(Object[].class, "orderKeysArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYOBJECTS, ref("orderKeys")))
-                .declareVar(EventBean[].class, "orderedEvents", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("outgoingEvents"), ref("orderKeysArr"), REF_AGENTINSTANCECONTEXT))
+                .declareVar(EventBean[].class, "orderedEvents", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("outgoingEvents"), ref("orderKeysArr"), MEMBER_AGENTINSTANCECONTEXT))
                 .methodReturn(newInstance(ArrayEventIterator.class, ref("orderedEvents")));
     }
 
@@ -113,12 +113,12 @@ public class ResultSetProcessorSimpleImpl {
         CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType[].class, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
         if (forge.isOutputAll()) {
             instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorSimpleOutputAllHelper.class);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSSimpleOutputAll", ref("this"), REF_AGENTINSTANCECONTEXT, eventTypes));
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSSimpleOutputAll", ref("this"), MEMBER_AGENTINSTANCECONTEXT, eventTypes));
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         } else if (forge.isOutputLast()) {
             instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorSimpleOutputLastHelper.class);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSSimpleOutputLast", ref("this"), REF_AGENTINSTANCECONTEXT, eventTypes));
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSSimpleOutputLast", ref("this"), MEMBER_AGENTINSTANCECONTEXT, eventTypes));
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         }
     }
 
@@ -128,9 +128,9 @@ public class ResultSetProcessorSimpleImpl {
 
     public static void continueOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         if (forge.isOutputAll()) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTALLHELPER), "outputView", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTALLHELPER), "outputView", REF_ISSYNTHESIZE));
         } else if (forge.isOutputLast()) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "outputView", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTLASTHELPER), "outputView", REF_ISSYNTHESIZE));
         } else {
             method.getBlock().methodReturn(constantNull());
         }
@@ -138,9 +138,9 @@ public class ResultSetProcessorSimpleImpl {
 
     public static void continueOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         if (forge.isOutputAll()) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTALLHELPER), "outputJoin", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTALLHELPER), "outputJoin", REF_ISSYNTHESIZE));
         } else if (forge.isOutputLast()) {
-            method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "outputJoin", REF_ISSYNTHESIZE));
+            method.getBlock().methodReturn(exprDotMethod(member(NAME_OUTPUTLASTHELPER), "outputJoin", REF_ISSYNTHESIZE));
         } else {
             method.getBlock().methodReturn(constantNull());
         }
@@ -148,19 +148,19 @@ public class ResultSetProcessorSimpleImpl {
 
     public static void stopMethodCodegen(CodegenMethod method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "destroy");
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), "destroy");
         }
         if (instance.hasMember(NAME_OUTPUTALLHELPER)) {
-            method.getBlock().exprDotMethod(ref(NAME_OUTPUTALLHELPER), "destroy");
+            method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), "destroy");
         }
     }
 
     public static void acceptHelperVisitorCodegen(CodegenMethod method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
-            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTLASTHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", member(NAME_OUTPUTLASTHELPER));
         }
         if (instance.hasMember(NAME_OUTPUTALLHELPER)) {
-            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTALLHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", member(NAME_OUTPUTALLHELPER));
         }
     }
 

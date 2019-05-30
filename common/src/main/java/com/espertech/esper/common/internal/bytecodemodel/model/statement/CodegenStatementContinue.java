@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementContinue extends CodegenStatementBase {
     public final static CodegenStatementContinue INSTANCE = new CodegenStatementContinue();
@@ -21,5 +24,9 @@ public class CodegenStatementContinue extends CodegenStatementBase {
     }
 
     public void mergeClasses(Set<Class> classes) {
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+
     }
 }

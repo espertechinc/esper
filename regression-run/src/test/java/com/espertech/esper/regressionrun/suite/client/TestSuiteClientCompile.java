@@ -86,6 +86,10 @@ public class TestSuiteClientCompile extends TestCase {
         RegressionRunner.run(session, ClientCompileExceptionItems.executions());
     }
 
+    public void testClientCompileLarge() {
+        RegressionRunner.run(session, ClientCompileLarge.executions());
+    }
+
     private static void configure(Configuration configuration) {
 
         for (Class clazz : new Class[]{SupportBean.class, SupportMarketDataBean.class, SupportBean_S0.class, SupportBean_S1.class}) {
@@ -101,5 +105,7 @@ public class TestSuiteClientCompile extends TestCase {
 
         configuration.getCommon().addEventTypeAutoName("com.espertech.esper.regressionlib.support.autoname.one");
         configuration.getCommon().addEventTypeAutoName("com.espertech.esper.regressionlib.support.autoname.two");
+
+        configuration.getCompiler().addPlugInSingleRowFunction("func", ClientCompileLarge.class.getName(), "func");
     }
 }

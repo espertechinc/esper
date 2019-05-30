@@ -15,6 +15,9 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.traverseMultiple;
 
 public class CodegenExpressionLocalMethod implements CodegenExpression {
 
@@ -33,6 +36,9 @@ public class CodegenExpressionLocalMethod implements CodegenExpression {
 
         if (methodNode.getAssignedMethod() == null) {
             throw new IllegalStateException("Method has no assignment for " + methodNode.getAdditionalDebugInfo());
+        }
+        if (methodNode.getAssignedProviderClassName() != null) {
+            builder.append(methodNode.getAssignedProviderClassName()).append(".");
         }
         builder.append(methodNode.getAssignedMethod().getName()).append("(");
         String delimiter = "";
@@ -57,5 +63,16 @@ public class CodegenExpressionLocalMethod implements CodegenExpression {
 
     public void mergeClasses(Set<Class> classes) {
         methodNode.mergeClasses(classes);
+        for (CodegenExpression param : parameters) {
+            param.mergeClasses(classes);
+        }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        traverseMultiple(parameters, consumer);
+    }
+
+    public CodegenMethod getMethodNode() {
+        return methodNode;
     }
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil.renderConstant;
 
@@ -36,5 +37,8 @@ public class CodegenExpressionConstant implements CodegenExpression {
         } else if (constant.getClass().isEnum()) {
             classes.add(constant.getClass());
         }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
     }
 }

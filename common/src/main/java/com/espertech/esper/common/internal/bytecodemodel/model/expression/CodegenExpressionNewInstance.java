@@ -14,6 +14,9 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelp
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.traverseMultiple;
 
 public class CodegenExpressionNewInstance implements CodegenExpression {
     private final Class clazz;
@@ -36,5 +39,9 @@ public class CodegenExpressionNewInstance implements CodegenExpression {
     public void mergeClasses(Set<Class> classes) {
         classes.add(clazz);
         CodegenExpressionBuilder.mergeClassesExpressions(classes, params);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        traverseMultiple(params, consumer);
     }
 }

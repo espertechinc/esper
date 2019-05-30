@@ -37,7 +37,7 @@ public class SelectEvalInsertNoWildcardSingleColCoercionJsonWrap extends SelectE
         CodegenExpressionField memberWrapperType = codegenClassScope.addFieldUnshared(true, WrapperEventType.class, cast(WrapperEventType.class, EventTypeUtility.resolveTypeCodegen(wrapper, EPStatementInitServices.REF)));
         CodegenMethod method = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope).addParam(evaluationType, "result").getBlock()
             .declareVar(String.class, "json", cast(String.class, ref("result")))
-            .ifRefNullReturnNull(ref("json"))
+            .ifNullReturnNull(ref("json"))
             .declareVar(Object.class, "und", exprDotMethod(memberUndType, "parse", ref("json")))
             .declareVar(EventBean.class, "bean", exprDotMethod(eventBeanFactory, "adapterForTypedJson", ref("und"), memberUndType))
             .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedWrapper", ref("bean"), staticMethod(Collections.class, "emptyMap"), memberWrapperType));

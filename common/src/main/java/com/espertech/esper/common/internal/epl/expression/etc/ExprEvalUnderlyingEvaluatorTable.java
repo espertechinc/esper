@@ -59,7 +59,7 @@ public class ExprEvalUnderlyingEvaluatorTable implements ExprEvaluator, ExprForg
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tableMetadata, codegenClassScope, this.getClass());
         CodegenMethod method = parent.makeChild(Object[].class, ExprEvalUnderlyingEvaluatorTable.class, codegenClassScope);
-        method.getBlock().ifRefNullReturnNull(exprSymbol.getAddEPS(method))
+        method.getBlock().ifNullReturnNull(exprSymbol.getAddEPS(method))
                 .declareVar(EventBean.class, "event", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(exprDotMethod(eventToPublic, "convertToUnd", ref("event"), exprSymbol.getAddEPS(method), exprSymbol.getAddIsNewData(method), exprSymbol.getAddExprEvalCtx(method)));

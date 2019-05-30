@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -34,15 +35,15 @@ import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE;
 
 public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
 
     private final AggregationForgeFactoryNth factory;
-    private final CodegenExpressionRef circularBuffer;
-    private final CodegenExpressionRef currentBufferElementPointer;
-    private final CodegenExpressionRef numDataPoints;
+    private final CodegenExpressionMember circularBuffer;
+    private final CodegenExpressionMember currentBufferElementPointer;
+    private final CodegenExpressionMember numDataPoints;
     private final CodegenExpressionField serdeValue;
 
     public AggregatorNth(AggregationForgeFactoryNth factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
@@ -75,21 +76,21 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
     }
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().staticMethod(this.getClass(), "write", output, unitKey, writer, serdeValue, rowDotRef(row, circularBuffer), rowDotRef(row, numDataPoints), rowDotRef(row, currentBufferElementPointer), constant(factory.getSizeOfBuf()));
+        method.getBlock().staticMethod(this.getClass(), "write", output, unitKey, writer, serdeValue, rowDotMember(row, circularBuffer), rowDotMember(row, numDataPoints), rowDotMember(row, currentBufferElementPointer), constant(factory.getSizeOfBuf()));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionRef state = refCol("state", col);
+        CodegenExpressionMember state = memberCol("state", col);
         method.getBlock()
                 .declareVar(AggregationNthState.class, state.getRef(), staticMethod(this.getClass(), "read", input, unitKey, serdeValue, constant(factory.getSizeOfBuf())))
-                .assignRef(rowDotRef(row, circularBuffer), exprDotMethod(state, "getCircularBuffer"))
-                .assignRef(rowDotRef(row, currentBufferElementPointer), exprDotMethod(state, "getCurrentBufferElementPointer"))
-                .assignRef(rowDotRef(row, numDataPoints), exprDotMethod(state, "getNumDataPoints"));
+                .assignRef(rowDotMember(row, circularBuffer), exprDotMethod(state, "getCircularBuffer"))
+                .assignRef(rowDotMember(row, currentBufferElementPointer), exprDotMethod(state, "getCurrentBufferElementPointer"))
+                .assignRef(rowDotMember(row, numDataPoints), exprDotMethod(state, "getNumDataPoints"));
     }
 
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope) {
         CodegenExpression sizeBuf = constant(factory.getSizeOfBuf());
-        method.getBlock().ifRefNullReturnNull(circularBuffer)
+        method.getBlock().ifNullReturnNull(circularBuffer)
                 .declareVar(int.class, "index", op(op(currentBufferElementPointer, "+", sizeBuf), "%", sizeBuf))
                 .methodReturn(arrayAtIndex(circularBuffer, ref("index")));
     }

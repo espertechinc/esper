@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CodegenStatementAssignArrayElement extends CodegenStatementBase {
     private final CodegenExpression array;
@@ -38,5 +39,11 @@ public class CodegenStatementAssignArrayElement extends CodegenStatementBase {
         array.mergeClasses(classes);
         index.mergeClasses(classes);
         expression.mergeClasses(classes);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        consumer.accept(array);
+        consumer.accept(index);
+        consumer.accept(expression);
     }
 }

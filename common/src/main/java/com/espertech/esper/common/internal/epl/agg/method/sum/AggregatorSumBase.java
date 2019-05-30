@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
@@ -31,8 +32,8 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 
 public abstract class AggregatorSumBase extends AggregatorMethodWDistinctWFilterWValueBase {
 
-    protected final CodegenExpressionRef cnt;
-    protected final CodegenExpressionRef sum;
+    protected final CodegenExpressionMember cnt;
+    protected final CodegenExpressionMember sum;
     protected final Class sumType;
 
     protected abstract CodegenExpression initOfSum();

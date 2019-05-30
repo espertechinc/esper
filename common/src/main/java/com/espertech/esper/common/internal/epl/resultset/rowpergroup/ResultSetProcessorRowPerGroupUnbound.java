@@ -43,7 +43,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
                 newLoop.assignArrayElement(NAME_EPS, constant(0), ref("aNewData"))
                         .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantTrue()))
                         .exprDotMethod(ref("groupReps"), "put", ref("mk"), ref("aNewData"))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", REF_EPS, ref("mk"), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", REF_EPS, ref("mk"), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
 
@@ -53,7 +53,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
                 CodegenBlock oldLoop = ifOld.forEach(EventBean.class, "anOldData", REF_OLDDATA);
                 oldLoop.assignArrayElement(NAME_EPS, constant(0), ref("anOldData"))
                         .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantFalse()))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", REF_EPS, ref("mk"), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", REF_EPS, ref("mk"), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
     }
@@ -79,7 +79,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
                 CodegenBlock newLoop = ifNew.forLoopIntSimple("i", arrayLength(REF_NEWDATA));
                 newLoop.assignArrayElement(NAME_EPS, constant(0), arrayAtIndex(REF_NEWDATA, ref("i")))
                         .exprDotMethod(ref("groupReps"), "put", arrayAtIndex(ref("newDataMultiKey"), ref("i")), arrayAtIndex(REF_EPS, constant(0)))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", REF_EPS, arrayAtIndex(ref("newDataMultiKey"), ref("i")), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", REF_EPS, arrayAtIndex(ref("newDataMultiKey"), ref("i")), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
 
@@ -88,7 +88,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
             {
                 CodegenBlock newLoop = ifOld.forLoopIntSimple("i", arrayLength(REF_OLDDATA));
                 newLoop.assignArrayElement(NAME_EPS, constant(0), arrayAtIndex(REF_OLDDATA, ref("i")))
-                        .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", REF_EPS, arrayAtIndex(ref("oldDataMultiKey"), ref("i")), REF_AGENTINSTANCECONTEXT);
+                        .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", REF_EPS, arrayAtIndex(ref("oldDataMultiKey"), ref("i")), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
 
@@ -99,7 +99,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
     public static void getIteratorViewUnboundedCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         if (!forge.isSorting()) {
             method.getBlock().declareVar(Iterator.class, "it", exprDotMethod(ref("groupReps"), "valueIterator"))
-                    .methodReturn(newInstance(ResultSetProcessorRowPerGroupIterator.class, ref("it"), ref("this"), REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT));
+                    .methodReturn(newInstance(ResultSetProcessorRowPerGroupIterator.class, ref("it"), ref("this"), MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT));
         } else {
             CodegenMethod getIteratorSorted = getIteratorSortedCodegen(forge, classScope, instance);
             method.getBlock().methodReturn(localMethod(getIteratorSorted, exprDotMethod(ref("groupReps"), "valueIterator")));
@@ -114,7 +114,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
             if (forge.isSelectRStream()) {
                 methodNode.getBlock().declareVar(EventBean.class, "rstream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantFalse(), REF_ISSYNTHESIZE));
             }
-            methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", REF_NEWDATA, ref("groupKey"), REF_AGENTINSTANCECONTEXT)
+            methodNode.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", REF_NEWDATA, ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT)
                     .exprDotMethod(ref("groupReps"), "put", ref("groupKey"), arrayAtIndex(REF_NEWDATA, constant(0)))
                     .declareVar(EventBean.class, "istream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantTrue(), REF_ISSYNTHESIZE));
             if (forge.isSelectRStream()) {

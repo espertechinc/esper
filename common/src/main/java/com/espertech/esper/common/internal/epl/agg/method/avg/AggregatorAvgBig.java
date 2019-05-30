@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -44,8 +45,8 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
     private static final Logger log = LoggerFactory.getLogger(AggregatorAvgBig.class);
 
     private final AggregationForgeFactoryAvg factory;
-    private final CodegenExpressionRef sum;
-    private final CodegenExpressionRef cnt;
+    private final CodegenExpressionMember sum;
+    private final CodegenExpressionMember cnt;
 
     public AggregatorAvgBig(AggregationForgeFactoryAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
@@ -113,13 +114,13 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(writeLong(output, row, cnt))
-                .staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigDec", rowDotRef(row, sum), output);
+                .staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigDec", rowDotMember(row, sum), output);
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(readLong(row, cnt, input))
-                .assignRef(rowDotRef(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigDec", input));
+                .assignRef(rowDotMember(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigDec", input));
     }
 
     /**

@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
+import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 /**
  * Sum for BigInteger values.
@@ -61,17 +61,17 @@ public class AggregatorSumBig extends AggregatorSumBase {
 
     protected void writeSum(CodegenExpressionRef row, CodegenExpressionRef output, CodegenMethod method, CodegenClassScope classScope) {
         if (sumType == BigInteger.class) {
-            method.getBlock().staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigInt", rowDotRef(row, sum), output);
+            method.getBlock().staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigInt", rowDotMember(row, sum), output);
         } else {
-            method.getBlock().staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigDec", rowDotRef(row, sum), output);
+            method.getBlock().staticMethod(DIOBigDecimalBigIntegerUtil.class, "writeBigDec", rowDotMember(row, sum), output);
         }
     }
 
     protected void readSum(CodegenExpressionRef row, CodegenExpressionRef input, CodegenMethod method, CodegenClassScope classScope) {
         if (sumType == BigInteger.class) {
-            method.getBlock().assignRef(rowDotRef(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigInt", input));
+            method.getBlock().assignRef(rowDotMember(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigInt", input));
         } else {
-            method.getBlock().assignRef(rowDotRef(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigDec", input));
+            method.getBlock().assignRef(rowDotMember(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigDec", input));
         }
     }
 }

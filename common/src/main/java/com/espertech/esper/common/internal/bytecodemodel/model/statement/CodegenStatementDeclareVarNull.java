@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
@@ -31,5 +34,8 @@ public class CodegenStatementDeclareVarNull extends CodegenStatementBase {
 
     public void mergeClasses(Set<Class> classes) {
         classes.add(clazz);
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
     }
 }

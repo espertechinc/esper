@@ -195,6 +195,7 @@ public class ConfigurationCompilerParser {
         parseOptionalBoolean(element, "allow-subscriber", codegen::setAllowSubscriber);
         parseOptionalInteger(element, "threadpool-compiler-num-threads", codegen::setThreadPoolCompilerNumThreads);
         parseOptionalInteger(element, "threadpool-compiler-capacity", codegen::setThreadPoolCompilerCapacity);
+        parseOptionalInteger(element, "max-methods-per-class", codegen::setMaxMethodsPerClass);
 
         parseOptionalAccessMod(element, "access-modifier-context", codegen::setAccessModifierContext);
         parseOptionalAccessMod(element, "access-modifier-event-type", codegen::setAccessModifierEventType);

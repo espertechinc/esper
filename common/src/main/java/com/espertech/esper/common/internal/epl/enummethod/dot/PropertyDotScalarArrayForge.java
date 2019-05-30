@@ -69,7 +69,7 @@ public class PropertyDotScalarArrayForge implements ExprEnumerationEval, ExprEnu
     public CodegenExpression evaluateEventGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprEnumerationGivenEventSymbol symbols, CodegenClassScope codegenClassScope) {
         CodegenMethod method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarArrayForge.class, codegenClassScope);
         method.getBlock()
-                .ifRefNullReturnNull(symbols.getAddEvent(method))
+                .ifNullReturnNull(symbols.getAddEvent(method))
                 .methodReturn(codegenEvaluateGetInternal(symbols.getAddEvent(method), codegenMethodScope, codegenClassScope));
         return localMethod(method);
     }

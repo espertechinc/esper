@@ -62,7 +62,7 @@ public class OrderByProcessorImpl {
 
     public static void getSortKeyRollupCodegen(OrderByProcessorForgeImpl forge, CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         method.getBlock().declareVar(int.class, "num", exprDotMethod(REF_ORDERROLLUPLEVEL, "getLevelNumber"));
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength("num", forge.getOrderByRollup().length, true);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("num"), forge.getOrderByRollup().length, true);
         for (int i = 0; i < blocks.length; i++) {
             CodegenMethod getSortKey = generateOrderKeyCodegen("getSortKeyInternal_" + i, forge.getOrderByRollup()[i], classScope, namedMethods);
             blocks[i].blockReturn(localMethod(getSortKey, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
@@ -74,13 +74,13 @@ public class OrderByProcessorImpl {
         method.getBlock().ifCondition(or(equalsNull(REF_OUTGOINGEVENTS), relational(arrayLength(REF_OUTGOINGEVENTS), LT, constant(2))))
                 .blockReturn(REF_OUTGOINGEVENTS);
 
-        method.getBlock().methodReturn(localMethod(node, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, constantNull(), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
+        method.getBlock().methodReturn(localMethod(node, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, constantNull(), REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC));
     }
 
     static void sortRollupCodegen(OrderByProcessorForgeImpl forge, CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenMethod createSortPropertiesWRollup = createSortPropertiesWRollupCodegen(forge, classScope, namedMethods);
         CodegenExpression comparator = classScope.addOrGetFieldSharable(forge.getComparator());
-        method.getBlock().declareVar(List.class, "sortValuesMultiKeys", localMethod(createSortPropertiesWRollup, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC))
+        method.getBlock().declareVar(List.class, "sortValuesMultiKeys", localMethod(createSortPropertiesWRollup, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC))
                 .methodReturn(staticMethod(OrderByProcessorUtil.class, "sortGivenOutgoingAndSortKeys", REF_OUTGOINGEVENTS, ref("sortValuesMultiKeys"), comparator));
     }
 
@@ -88,18 +88,18 @@ public class OrderByProcessorImpl {
         CodegenMethod sortWGroupKeysInternal = sortWGroupKeysInternalCodegen(forge, classScope, namedMethods);
         method.getBlock().ifCondition(or(equalsNull(REF_OUTGOINGEVENTS), relational(arrayLength(REF_OUTGOINGEVENTS), LT, constant(2))))
                 .blockReturn(REF_OUTGOINGEVENTS)
-                .methodReturn(localMethod(sortWGroupKeysInternal, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ORDERGROUPBYKEYS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
+                .methodReturn(localMethod(sortWGroupKeysInternal, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ORDERGROUPBYKEYS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC));
     }
 
     private static CodegenMethod sortWGroupKeysInternalCodegen(OrderByProcessorForgeImpl forge, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenMethod createSortProperties = createSortPropertiesCodegen(forge, classScope, namedMethods);
         CodegenExpression comparator = classScope.addOrGetFieldSharable(forge.getComparator());
         Consumer<CodegenMethod> code = method -> {
-            method.getBlock().declareVar(List.class, "sortValuesMultiKeys", localMethod(createSortProperties, REF_GENERATINGEVENTS, ref("groupByKeys"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC))
+            method.getBlock().declareVar(List.class, "sortValuesMultiKeys", localMethod(createSortProperties, REF_GENERATINGEVENTS, ref("groupByKeys"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC))
                     .methodReturn(staticMethod(OrderByProcessorUtil.class, "sortGivenOutgoingAndSortKeys", REF_OUTGOINGEVENTS, ref("sortValuesMultiKeys"), comparator));
         };
         return namedMethods.addMethod(EventBean[].class, "sortWGroupKeysInternal", CodegenNamedParam.from(EventBean[].class, REF_OUTGOINGEVENTS.getRef(), EventBean[][].class, REF_GENERATINGEVENTS.getRef(),
-                Object[].class, "groupByKeys", boolean.class, REF_ISNEWDATA.getRef(), ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(), AggregationService.class, REF_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
+                Object[].class, "groupByKeys", boolean.class, REF_ISNEWDATA.getRef(), ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(), AggregationService.class, MEMBER_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
     }
 
     private static CodegenMethod createSortPropertiesCodegen(OrderByProcessorForgeImpl forge, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
@@ -119,7 +119,7 @@ public class OrderByProcessorImpl {
                     .forEach(EventBean[].class, "eventsPerStream", REF_GENERATINGEVENTS);
 
             if (forge.isNeedsGroupByKeys()) {
-                forEach.exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", arrayAtIndex(ref("groupByKeys"), ref("count")), exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId"), constantNull());
+                forEach.exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", arrayAtIndex(ref("groupByKeys"), ref("count")), exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId"), constantNull());
             }
 
             forEach.apply(instblock(classScope, "qOrderBy", ref("eventsPerStream"), constant(expressions), constant(descending)));
@@ -133,11 +133,11 @@ public class OrderByProcessorImpl {
                 forEach.assignArrayElement("sortProperties", ref("count"), newInstance(HashableMultiKey.class, ref("values")));
             }
             forEach.apply(instblock(classScope, "aOrderBy", ref("sortProperties")))
-                    .increment("count");
+                    .incrementRef("count");
             method.getBlock().methodReturn(staticMethod(Arrays.class, "asList", ref("sortProperties")));
         };
         return namedMethods.addMethod(List.class, "createSortProperties", CodegenNamedParam.from(EventBean[][].class, REF_GENERATINGEVENTS.getRef(),
-                Object[].class, "groupByKeys", boolean.class, REF_ISNEWDATA.getRef(), ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(), AggregationService.class, REF_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
+                Object[].class, "groupByKeys", boolean.class, REF_ISNEWDATA.getRef(), ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(), AggregationService.class, MEMBER_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
     }
 
     static void sortWOrderKeysCodegen(OrderByProcessorForgeImpl forge, CodegenMethod method, CodegenClassScope classScope) {
@@ -161,20 +161,20 @@ public class OrderByProcessorImpl {
             CodegenBlock forEach = method.getBlock().forEach(GroupByRollupKey.class, "rollup", REF_ORDERCURRENTGENERATORS);
 
             if (forge.isNeedsGroupByKeys()) {
-                forEach.exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", exprDotMethod(ref("rollup"), "getGroupKey"), exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId"), exprDotMethod(ref("rollup"), "getLevel"));
+                forEach.exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", exprDotMethod(ref("rollup"), "getGroupKey"), exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId"), exprDotMethod(ref("rollup"), "getLevel"));
             }
 
             forEach.declareVar(int.class, "num", exprDotMethodChain(ref("rollup")).add("getLevel").add("getLevelNumber"));
-            CodegenBlock[] blocks = forEach.switchBlockOfLength("num", forge.getOrderByRollup().length, false);
+            CodegenBlock[] blocks = forEach.switchBlockOfLength(ref("num"), forge.getOrderByRollup().length, false);
             for (int i = 0; i < blocks.length; i++) {
                 CodegenMethod getSortKey = generateOrderKeyCodegen("getSortKeyInternal_" + i, forge.getOrderByRollup()[i], classScope, namedMethods);
                 blocks[i].assignArrayElement("sortProperties", ref("count"), localMethod(getSortKey, exprDotMethod(ref("rollup"), "getGenerator"), REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
 
-            forEach.increment("count");
+            forEach.incrementRef("count");
             method.getBlock().methodReturn(staticMethod(Arrays.class, "asList", ref("sortProperties")));
         };
-        return namedMethods.addMethod(List.class, "createSortPropertiesWRollup", CodegenNamedParam.from(List.class, REF_ORDERCURRENTGENERATORS.getRef(), boolean.class, REF_ISNEWDATA.getRef(), ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(), AggregationService.class, REF_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
+        return namedMethods.addMethod(List.class, "createSortPropertiesWRollup", CodegenNamedParam.from(List.class, REF_ORDERCURRENTGENERATORS.getRef(), boolean.class, REF_ISNEWDATA.getRef(), ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(), AggregationService.class, MEMBER_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
     }
 
     public static CodegenMethod determineLocalMinMaxCodegen(OrderByProcessorForgeImpl forge, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
@@ -194,7 +194,7 @@ public class OrderByProcessorImpl {
                         .assignRef("localMinMax", ref("sortKey"))
                         .assignRef("outgoingMinMaxBean", arrayAtIndex(REF_OUTGOINGEVENTS, ref("count")))
                         .blockEnd()
-                        .increment("count");
+                        .incrementRef("count");
             } else {
                 method.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(elements.length)))
                         .declareVar(HashableMultiKey.class, "valuesMk", newInstance(HashableMultiKey.class, ref("values")));
@@ -202,7 +202,7 @@ public class OrderByProcessorImpl {
                 CodegenBlock forEach = method.getBlock().forEach(EventBean[].class, "eventsPerStream", REF_GENERATINGEVENTS);
 
                 if (forge.isNeedsGroupByKeys()) {
-                    forEach.exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", arrayAtIndex(ref("groupByKeys"), ref("count")), exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId", constantNull()));
+                    forEach.exprDotMethod(MEMBER_AGGREGATIONSVC, "setCurrentAccess", arrayAtIndex(ref("groupByKeys"), ref("count")), exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId", constantNull()));
                 }
 
                 for (int i = 0; i < elements.length; i++) {
@@ -215,13 +215,13 @@ public class OrderByProcessorImpl {
                         .assignRef("valuesMk", newInstance(HashableMultiKey.class, ref("values")))
                         .assignRef("outgoingMinMaxBean", arrayAtIndex(REF_OUTGOINGEVENTS, ref("count")))
                         .blockEnd()
-                        .increment("count");
+                        .incrementRef("count");
             }
 
             method.getBlock().methodReturn(ref("outgoingMinMaxBean"));
         };
 
-        return namedMethods.addMethod(EventBean.class, "determineLocalMinMax", CodegenNamedParam.from(EventBean[].class, REF_OUTGOINGEVENTS.getRef(), EventBean[][].class, REF_GENERATINGEVENTS.getRef(), boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT, AggregationService.class, REF_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
+        return namedMethods.addMethod(EventBean.class, "determineLocalMinMax", CodegenNamedParam.from(EventBean[].class, REF_OUTGOINGEVENTS.getRef(), EventBean[][].class, REF_GENERATINGEVENTS.getRef(), boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT, AggregationService.class, MEMBER_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
     }
 
     static CodegenMethod generateOrderKeyCodegen(String methodName, OrderByElementForge[] orderBy, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {

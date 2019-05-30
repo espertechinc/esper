@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
@@ -31,7 +32,7 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
  * Aggregator for the very last value.
  */
 public class AggregatorLastEver extends AggregatorMethodWDistinctWFilterWValueBase {
-    private final CodegenExpressionRef lastValue;
+    private final CodegenExpressionMember lastValue;
     private final CodegenExpressionField serde;
 
     public AggregatorLastEver(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, Class childType, DataInputOutputSerdeForge serde) {
@@ -72,11 +73,11 @@ public class AggregatorLastEver extends AggregatorMethodWDistinctWFilterWValueBa
     }
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().expression(writeNullable(rowDotRef(row, lastValue), serde, output, unitKey, writer, classScope));
+        method.getBlock().expression(writeNullable(rowDotMember(row, lastValue), serde, output, unitKey, writer, classScope));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotRef(row, lastValue), readNullable(serde, input, unitKey, classScope));
+        method.getBlock().assignRef(rowDotMember(row, lastValue), readNullable(serde, input, unitKey, classScope));
     }
 
 }

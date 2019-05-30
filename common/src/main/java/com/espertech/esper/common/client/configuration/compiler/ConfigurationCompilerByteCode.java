@@ -37,6 +37,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
     private EventTypeBusModifier busModifierEventType = EventTypeBusModifier.NONBUS;
     private int threadPoolCompilerNumThreads = 8;
     private Integer threadPoolCompilerCapacity = null;
+    private int maxMethodsPerClass = 16 * 1024; // constant pool is 64k, the default is a quarter of the constant pool
 
     /**
      * Set all access modifiers to public.
@@ -347,6 +348,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
 
     /**
      * Returns the number of threads available for parallel compilation of multiple EPL statements. The default is 8 threads.
+     *
      * @return number of threads
      */
     public int getThreadPoolCompilerNumThreads() {
@@ -355,6 +357,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
 
     /**
      * Sets the number of threads available for parallel compilation of multiple EPL statements. The default is 8 threads.
+     *
      * @param threadPoolCompilerNumThreads number of threads
      */
     public void setThreadPoolCompilerNumThreads(int threadPoolCompilerNumThreads) {
@@ -377,6 +380,24 @@ public class ConfigurationCompilerByteCode implements Serializable {
      */
     public void setThreadPoolCompilerCapacity(Integer threadPoolCompilerCapacity) {
         this.threadPoolCompilerCapacity = threadPoolCompilerCapacity;
+    }
+
+    /**
+     * Returns the maximum number of methods per class, which defaults to 16k. The lower limit for this number is 1000.
+     *
+     * @return max number methods per class
+     */
+    public int getMaxMethodsPerClass() {
+        return maxMethodsPerClass;
+    }
+
+    /**
+     * Sets the maximum number of methods per class, which defaults to 16k. The lower limit for this number is 1000.
+     *
+     * @param maxMethodsPerClass max number methods per class
+     */
+    public void setMaxMethodsPerClass(int maxMethodsPerClass) {
+        this.maxMethodsPerClass = maxMethodsPerClass;
     }
 
     private void checkModifier(NameAccessModifier modifier) {

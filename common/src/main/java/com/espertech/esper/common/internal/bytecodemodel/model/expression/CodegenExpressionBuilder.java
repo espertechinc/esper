@@ -15,14 +15,19 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenField;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class CodegenExpressionBuilder {
     public static CodegenExpressionRef ref(String ref) {
         return new CodegenExpressionRef(ref);
     }
 
-    public static CodegenExpressionRefWCol refCol(String ref, int column) {
-        return new CodegenExpressionRefWCol(ref, column);
+    public static CodegenExpressionMember member(String ref) {
+        return new CodegenExpressionMember(ref);
+    }
+
+    public static CodegenExpressionMemberWCol memberCol(String ref, int column) {
+        return new CodegenExpressionMemberWCol(ref, column);
     }
 
     public static CodegenExpression op(CodegenExpression left, String expressionText, CodegenExpression right) {
@@ -129,20 +134,20 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionCastRef(clazz, ref);
     }
 
-    public static CodegenExpression increment(String ref) {
-        return new CodegenExpressionIncrementDecrementName(ref, true);
+    public static CodegenExpression incrementRef(String ref) {
+        return increment(ref(ref));
     }
 
-    public static CodegenExpression increment(CodegenExpressionRef ref) {
-        return new CodegenExpressionIncrementDecrementRef(ref, true);
+    public static CodegenExpression increment(CodegenExpression expression) {
+        return new CodegenExpressionIncrementDecrement(expression, true);
     }
 
-    public static CodegenExpression decrement(String ref) {
-        return new CodegenExpressionIncrementDecrementName(ref, false);
+    public static CodegenExpression decrementRef(String ref) {
+        return decrement(ref(ref));
     }
 
-    public static CodegenExpression decrement(CodegenExpressionRef ref) {
-        return new CodegenExpressionIncrementDecrementRef(ref, false);
+    public static CodegenExpression decrement(CodegenExpression expression) {
+        return new CodegenExpressionIncrementDecrement(expression, false);
     }
 
     public static CodegenExpression conditional(CodegenExpression condition, CodegenExpression expressionTrue, CodegenExpression expressionFalse) {
@@ -237,6 +242,24 @@ public class CodegenExpressionBuilder {
     public static void mergeClassesExpressions(Set<Class> classes, CodegenExpression[] expressions) {
         for (CodegenExpression expression : expressions) {
             expression.mergeClasses(classes);
+        }
+    }
+
+    public static void traverseMultiple(CodegenExpression[] expressions, Consumer<CodegenExpression> consumer) {
+        if (expressions == null) {
+            return;
+        }
+        for (CodegenExpression expression : expressions) {
+            consumer.accept(expression);
+        }
+    }
+
+    public static void traverseMultiple(Collection<CodegenExpression> expressions, Consumer<CodegenExpression> consumer) {
+        if (expressions == null) {
+            return;
+        }
+        for (CodegenExpression expression : expressions) {
+            consumer.accept(expression);
         }
     }
 }

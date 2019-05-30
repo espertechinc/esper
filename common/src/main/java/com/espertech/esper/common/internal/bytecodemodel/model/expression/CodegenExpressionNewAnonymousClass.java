@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.renderExpressions;
@@ -82,6 +83,16 @@ public class CodegenExpressionNewAnonymousClass extends CodegenStatementWBlockBa
 
         for (Pair<String, CodegenMethod> additional : methods) {
             additional.getSecond().mergeClasses(classes);
+        }
+    }
+
+    public void traverseExpressions(Consumer<CodegenExpression> consumer) {
+        for (CodegenExpression expr : ctorParams) {
+            consumer.accept(expr);
+        }
+
+        for (Pair<String, CodegenMethod> additional : methods) {
+            additional.getSecond().traverseExpressions(consumer);
         }
     }
 

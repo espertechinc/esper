@@ -91,7 +91,7 @@ public class EnumTakeWhileLastEventsForgeEval implements EnumEval {
         block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class))
                 .declareVar(EventBean[].class, "all", staticMethod(EnumTakeWhileLastEventsForgeEval.class, "takeWhileLastEventBeanToArray", EnumForgeCodegenNames.REF_ENUMCOLL));
 
-        CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrement("i"))
+        CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrementRef("i"))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), arrayAtIndex(ref("all"), ref("i")));
         CodegenLegoBooleanExpression.codegenBreakIfNotNullAndNotPass(forEach, forge.innerExpression.getEvaluationType(), innerValue);
         forEach.expression(exprDotMethod(ref("result"), "addFirst", arrayAtIndex(ref("all"), ref("i"))));
