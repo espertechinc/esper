@@ -55,11 +55,17 @@ public class CompilerHelperRefactorToStaticMethods {
 
         // collect static methods from private methods preserving the order they appear in
         List<CodegenMethodWGraph> staticMethods = new ArrayList<>();
+        int count = -1;
         for (CodegenMethodWGraph privateMethod : inner.getMethods().getPrivateMethods()) {
+            count++;
+            if (count < maxMethodsPerClass) {
+                continue;
+            }
             if (collectedStaticMethods.contains(privateMethod)) {
                 staticMethods.add(privateMethod);
             }
         }
+
         if (staticMethods.isEmpty()) {
             return;
         }
