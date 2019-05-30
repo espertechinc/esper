@@ -10,6 +10,7 @@
  */
 package com.espertech.esperio.amqp;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpFactoryInitializeContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpInitializeContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperator;
@@ -21,13 +22,14 @@ public class AMQPSinkFactory implements DataFlowOperatorFactory {
     private static final Logger log = LoggerFactory.getLogger(AMQPSinkFactory.class);
 
     private AMQPSettingsSinkFactory settings;
+    private EventType eventType;
 
     public void initializeFactory(DataFlowOpFactoryInitializeContext context) {
     }
 
     public DataFlowOperator operator(DataFlowOpInitializeContext context) {
         AMQPSettingsSinkValues settingsValues = settings.evaluate(context);
-        return new AMQPSink(settingsValues);
+        return new AMQPSink(settingsValues, eventType, context.getAgentInstanceContext());
     }
 
     public AMQPSettingsSinkFactory getSettings() {
@@ -36,5 +38,17 @@ public class AMQPSinkFactory implements DataFlowOperatorFactory {
 
     public void setSettings(AMQPSettingsSinkFactory settings) {
         this.settings = settings;
+    }
+
+    public static Logger getLog() {
+        return log;
+    }
+
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
     }
 }

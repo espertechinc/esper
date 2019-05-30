@@ -10,7 +10,6 @@
  */
 package com.espertech.esperio.amqp;
 
-import com.espertech.esper.common.internal.util.SerializerUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -26,15 +25,15 @@ public class AMQPSupportSendRunnable implements Runnable {
 
     private final String hostName;
     private final String queueName;
-    private final List<Object> events;
+    private final List<byte[]> events;
     private final long msecSleepTime;
 
     private boolean shutdown;
 
-    public AMQPSupportSendRunnable(String hostName, String queueName, List<Object> events, long msecSleepTime) {
+    public AMQPSupportSendRunnable(String hostName, String queueName, List<byte[]> events, long msecSleepTime) {
         this.hostName = hostName;
         this.queueName = queueName;
-        this.events = new ArrayList<Object>(events);
+        this.events = new ArrayList<>(events);
         this.msecSleepTime = msecSleepTime;
     }
 
@@ -64,12 +63,11 @@ public class AMQPSupportSendRunnable implements Runnable {
                     break;
                 }
 
-                Object next = events.remove(0);
-                byte[] bytes = SerializerUtil.objectToByteArr(next);
+                byte[] bytes = events.remove(0);
                 channel.basicPublish("", queueName, null, bytes);
                 count++;
 
-                log.info("Publishing message #" + count + ": " + next);
+                log.info("Publishing message #" + count);
                 Thread.sleep(msecSleepTime);
 
                 if (isShutdown()) {

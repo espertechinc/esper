@@ -11,6 +11,8 @@
 package com.espertech.esperio.amqp;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpCloseContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpOpenContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperator;
@@ -31,6 +33,8 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
     private static final Logger log = LoggerFactory.getLogger(AMQPSink.class);
 
     private final AMQPSettingsSinkValues settings;
+    private final EventType eventType;
+    private final AgentInstanceContext agentInstanceContext;
 
     private transient Connection connection;
     private transient Channel channel;
@@ -40,8 +44,10 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
         }
     };
 
-    public AMQPSink(AMQPSettingsSinkValues settings) {
+    public AMQPSink(AMQPSettingsSinkValues settings, EventType eventType, AgentInstanceContext agentInstanceContext) {
         this.settings = settings;
+        this.eventType = eventType;
+        this.agentInstanceContext = agentInstanceContext;
     }
 
     public void open(DataFlowOpOpenContext openContext) {
@@ -132,7 +138,7 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
                         }
                     }
 
-                }, event);
+                }, eventType, event);
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Using queue " + settings.getQueueName());
@@ -167,7 +173,7 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
                         }
                     }
 
-                }, event);
+                }, eventType, event);
             }
             collectorDataTL.set(holder);
         } else {

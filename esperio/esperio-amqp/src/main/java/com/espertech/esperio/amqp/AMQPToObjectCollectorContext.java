@@ -10,17 +10,20 @@
  */
 package com.espertech.esperio.amqp;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.EPDataFlowEmitter;
 
 public class AMQPToObjectCollectorContext {
     private final EPDataFlowEmitter emitter;
     private byte[] bytes;
     private QueueingConsumer.Delivery delivery;
+    private EventType outputEventType;
 
-    public AMQPToObjectCollectorContext(EPDataFlowEmitter emitter, byte[] bytes, QueueingConsumer.Delivery delivery) {
+    public AMQPToObjectCollectorContext(EPDataFlowEmitter emitter, byte[] bytes, QueueingConsumer.Delivery delivery, EventType outputEventType) {
         this.emitter = emitter;
         this.bytes = bytes;
         this.delivery = delivery;
+        this.outputEventType = outputEventType;
     }
 
     public byte[] getBytes() {
@@ -41,5 +44,9 @@ public class AMQPToObjectCollectorContext {
 
     public void setDelivery(QueueingConsumer.Delivery delivery) {
         this.delivery = delivery;
+    }
+
+    public EventType getOutputEventType() {
+        return outputEventType;
     }
 }

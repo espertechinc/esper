@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptureOpForge;
@@ -25,10 +26,7 @@ import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
-import com.espertech.esperio.amqp.AMQPSource;
-import com.espertech.esperio.amqp.AMQPSupportReceiveCallback;
-import com.espertech.esperio.amqp.AMQPSupportReceiveRunnable;
-import com.espertech.esperio.amqp.AMQPSupportSendRunnable;
+import com.espertech.esperio.amqp.*;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -36,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class TestAMQPGraphs extends TestCase {
     private EPRuntime runtime;
@@ -49,64 +49,67 @@ public class TestAMQPGraphs extends TestCase {
         runtime.initialize();
     }
 
-    public void testAMQPInput() throws Exception {
-
-        String queueName = TestAMQPGraphs.class.getSimpleName() + "-InputQueue";
-        String[] fields = "myString,myInt,myDouble".split(",");
-        compileDeploy("@public @buseventtype create schema MyMapEvent(myString string, myInt int, myDouble double)");
-
-        String graph = "create dataflow ReadAMQPGraph " +
-            "AMQPSource -> outstream<MyMapEvent> {" +
-            "  host: 'localhost'," +
-            "  queueName: '" + queueName + "', " +
-            "  collector: {class: 'AMQPToObjectCollectorSerializable'}," +
-            "  logMessages: true" +
-            "}" +
-            "DefaultSupportCaptureOp(outstream) {}";
-        EPDeployment deployed = compileDeploy(graph);
-
-        DefaultSupportCaptureOp<Object> captureOp = new DefaultSupportCaptureOp<Object>(3);
-        EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions().operatorProvider(new DefaultSupportGraphOpProvider(captureOp));
-        EPDataFlowInstance df = runtime.getDataFlowService().instantiate(deployed.getDeploymentId(), "ReadAMQPGraph", options);
-        df.start();
-
-        AMQPSupportSendRunnable runnable = new AMQPSupportSendRunnable("localhost", queueName, getEvents(3), 0);
-        runnable.run();
-
-        Object[] received = captureOp.get(3, TimeUnit.SECONDS);
-        EPAssertionUtil.assertPropsPerRow(received, fields, new Object[][]{{"E10", 0, 0d}, {"E11", 1, 1d}, {"E12", 2, 2d}});
-
-        df.cancel();
+    public void testAMQPInputMap() throws Exception {
+        runAssertionInput("MyMapEvent", "map", "AMQPToObjectCollectorSerializable", getEventsSerializedMap(3));
     }
 
-    public void testAMQPOutput() throws Exception {
+    public void testAMQPInputJson() throws Exception {
+        runAssertionInput("MyJsonEvent", "json", "AMQPToObjectCollectorJson", getEventsJsonDefaultEncoding(3));
+    }
+
+    public void testAMQPOutputMap() throws Exception {
+        Function<byte[], Object> deserializer = bytes -> SerializerUtil.byteArrToObject(bytes);
+        Consumer<List<Object>> assertion = received -> EPAssertionUtil.assertPropsPerRow(toMapArray(received), "myString,myInt,myDouble".split(","), new Object[][]{{"E10", 0, 0d}, {"E11", 1, 1d}, {"E12", 2, 2d}});
+
+        runAssertionOutput("MyMapEvent", "map", "ObjectToAMQPCollectorSerializable",
+            new Object[]{makeEventMap("E10", 0, 0), makeEventMap("E11", 1, 1), makeEventMap("E12", 2, 2)},
+            deserializer, assertion);
+    }
+
+    public void testAMQPOutputJSON() throws Exception {
+        Function<byte[], Object> deserializer = bytes -> new String(bytes);
+        Consumer<List<Object>> assertion = received -> {
+            EPAssertionUtil.assertEqualsExactOrder(received.toArray(), new Object[] {
+                "{\"myString\":\"E10\",\"myInt\":0,\"myDouble\":0}",
+                "{\"myString\":\"E11\",\"myInt\":1,\"myDouble\":1}",
+                "{\"myString\":\"E12\",\"myInt\":2,\"myDouble\":2}"});
+        };
+
+        runAssertionOutput("MyJsonEvent", "json", "ObjectToAMQPCollectorJson",
+            new Object[]{makeEventJson("E10", 0, 0), makeEventJson("E11", 1, 1), makeEventJson("E12", 2, 2)},
+            deserializer, assertion);
+    }
+
+    private void runAssertionOutput(String eventTypeName, String underlyingTypeName, String collectorClassName,
+                                    Object[] events,
+                                    Function<byte[], Object> deserializer,
+                                    Consumer<List<Object>> assertion) throws Exception {
 
         String queueName = TestAMQPGraphs.class.getSimpleName() + "-OutputQueue";
-        String[] fields = "myString,myInt,myDouble".split(",");
-        compileDeploy("@public @buseventtype create schema MyMapEvent(myString string, myInt int, myDouble double)");
+        compileDeploy("@public @buseventtype create " + underlyingTypeName + " schema " + eventTypeName + "(myString string, myInt int, myDouble double)");
 
         String graph = "create dataflow WriteAMQPGraph " +
-            "DefaultSupportSourceOp -> outstream<MyMapEvent> {}" +
+            "DefaultSupportSourceOp -> outstream<" + eventTypeName + "> {}" +
             "AMQPSink(outstream) {" +
             "  host: 'localhost', " +
             "  queueName: '" + queueName + "', " +
-            "  collector: {class: 'ObjectToAMQPCollectorSerializable'}, " +
+            "  collector: {class: '" + collectorClassName + "'}, " +
             "}";
         EPDeployment deployed = compileDeploy(graph);
 
-        DefaultSupportSourceOp source = new DefaultSupportSourceOp(new Object[]{makeEvent("E10", 0, 0), makeEvent("E11", 1, 1), makeEvent("E12", 2, 2)});
+        DefaultSupportSourceOp source = new DefaultSupportSourceOp(events);
         EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions();
         options.operatorProvider(new DefaultSupportGraphOpProvider(source));
         EPDataFlowInstance df = runtime.getDataFlowService().instantiate(deployed.getDeploymentId(), "WriteAMQPGraph", options);
         df.start();
 
-        ReceiverHelper receiverHelper = new ReceiverHelper();
+        ReceiverHelper receiverHelper = new ReceiverHelper(deserializer);
         AMQPSupportReceiveRunnable runnable = new AMQPSupportReceiveRunnable("localhost", queueName, 20000, receiverHelper);
         Thread runner = new Thread(runnable);
         runner.start();
 
         receiverHelper.getWaitReceived(3);
-        EPAssertionUtil.assertPropsPerRow(toMapArray(receiverHelper.getReceived()), fields, new Object[][]{{"E10", 0, 0d}, {"E11", 1, 1d}, {"E12", 2, 2d}});
+        assertion.accept(receiverHelper.getReceived());
 
         runner.interrupt();
         runner.join();
@@ -122,15 +125,27 @@ public class TestAMQPGraphs extends TestCase {
         return maps;
     }
 
-    private List<Object> getEvents(int count) {
-        List<Object> events = new ArrayList<Object>();
+    private List<byte[]> getEventsSerializedMap(int count) {
+        List<byte[]> events = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            events.add(makeEvent("E" + (i + 10), i, (double) i));
+            Map<String, Object> event = makeEventMap("E" + (i + 10), i, (double) i);
+            byte[] serialized = SerializerUtil.objectToByteArr(event);
+            events.add(serialized);
         }
         return events;
     }
 
-    private Map<String, Object> makeEvent(String myString, int myInt, double myDouble) {
+    private List<byte[]> getEventsJsonDefaultEncoding(int count) {
+        List<byte[]> events = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            String event = makeEventJson("E" + (i + 10), i, (double) i);
+            byte[] serialized = event.getBytes();
+            events.add(serialized);
+        }
+        return events;
+    }
+
+    private Map<String, Object> makeEventMap(String myString, int myInt, double myDouble) {
         Map<String, Object> scoreEvent = new HashMap<String, Object>();
         scoreEvent.put("myString", myString);
         scoreEvent.put("myInt", myInt);
@@ -138,11 +153,20 @@ public class TestAMQPGraphs extends TestCase {
         return scoreEvent;
     }
 
+    private String makeEventJson(String myString, int myInt, double myDouble) {
+        return new JsonObject().add("myString", myString).add("myInt", myInt).add("myDouble", myDouble).toString();
+    }
+
     public static class ReceiverHelper implements AMQPSupportReceiveCallback {
+        private final Function<byte[], Object> deserializer;
         private List<Object> received = new ArrayList<Object>();
 
+        public ReceiverHelper(Function<byte[], Object> deserializer) {
+            this.deserializer = deserializer;
+        }
+
         public void handleMessage(byte[] bytes) {
-            Object message = SerializerUtil.byteArrToObject(bytes);
+            Object message = deserializer.apply(bytes);
             received.add(message);
         }
 
@@ -171,5 +195,34 @@ public class TestAMQPGraphs extends TestCase {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private void runAssertionInput(String eventTypeName, String underlyingType, String collectorClassName, List<byte[]> bytes) throws Exception {
+        String queueName = TestAMQPGraphs.class.getSimpleName() + "-InputQueue";
+        String[] fields = "myString,myInt,myDouble".split(",");
+        compileDeploy("@public @buseventtype create " + underlyingType + " schema " + eventTypeName + "(myString string, myInt int, myDouble double)");
+
+        String graph = "create dataflow ReadAMQPGraph " +
+            "AMQPSource -> outstream<" + eventTypeName + "> {" +
+            "  host: 'localhost'," +
+            "  queueName: '" + queueName + "', " +
+            "  collector: {class: '" + collectorClassName + "'}," +
+            "  logMessages: true" +
+            "}" +
+            "DefaultSupportCaptureOp(outstream) {}";
+        EPDeployment deployed = compileDeploy(graph);
+
+        DefaultSupportCaptureOp<Object> captureOp = new DefaultSupportCaptureOp<Object>(3);
+        EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions().operatorProvider(new DefaultSupportGraphOpProvider(captureOp));
+        EPDataFlowInstance df = runtime.getDataFlowService().instantiate(deployed.getDeploymentId(), "ReadAMQPGraph", options);
+        df.start();
+
+        AMQPSupportSendRunnable runnable = new AMQPSupportSendRunnable("localhost", queueName, bytes, 0);
+        runnable.run();
+
+        Object[] received = captureOp.get(3, TimeUnit.SECONDS);
+        EPAssertionUtil.assertPropsPerRow(received, fields, new Object[][]{{"E10", 0, 0d}, {"E11", 1, 1d}, {"E12", 2, 2d}});
+
+        df.cancel();
     }
 }

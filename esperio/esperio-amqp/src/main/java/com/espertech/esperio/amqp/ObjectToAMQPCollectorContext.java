@@ -10,12 +10,16 @@
  */
 package com.espertech.esperio.amqp;
 
+import com.espertech.esper.common.client.EventType;
+
 public class ObjectToAMQPCollectorContext {
     private final AMQPEmitter emitter;
+    private final EventType eventType;
     private Object object;
 
-    public ObjectToAMQPCollectorContext(AMQPEmitter emitter, Object object) {
+    public ObjectToAMQPCollectorContext(AMQPEmitter emitter, EventType eventType, Object object) {
         this.emitter = emitter;
+        this.eventType = eventType;
         this.object = object;
     }
 
@@ -29,5 +33,9 @@ public class ObjectToAMQPCollectorContext {
 
     public AMQPEmitter getEmitter() {
         return emitter;
+    }
+
+    public EventType getEventType() {
+        return eventType;
     }
 }

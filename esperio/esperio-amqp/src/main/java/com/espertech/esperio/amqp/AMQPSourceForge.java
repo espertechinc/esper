@@ -10,6 +10,7 @@
  */
 package com.espertech.esperio.amqp;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowOpPropertyHolder;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -30,14 +31,19 @@ public class AMQPSourceForge implements DataFlowOperatorForge {
     @DataFlowOpPropertyHolder
     private AMQPSettingsSourceForge settings;
 
+    private EventType outputEventType;
+
     public DataFlowOpForgeInitializeResult initializeForge(DataFlowOpForgeInitializeContext context) throws ExprValidationException {
+        outputEventType = context.getOutputPorts().get(0).getOptionalDeclaredType() != null ? context.getOutputPorts().get(0).getOptionalDeclaredType().getEventType() : null;
         settings.validate(context);
         return null;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(AMQPSourceFactory.class, this.getClass(), "amqpSource", parent, symbols, classScope);
-        builder.expression("settings", settings.make(builder.getMethod(), symbols, classScope));
+        builder
+            .expression("settings", settings.make(builder.getMethod(), symbols, classScope))
+            .eventtype("outputEventType", outputEventType);
         return builder.build();
     }
 }

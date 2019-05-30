@@ -11,6 +11,7 @@
 package com.espertech.esperio.amqp;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpCloseContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpOpenContext;
@@ -31,6 +32,7 @@ public class AMQPSource implements DataFlowSourceOperator {
     private static final Logger log = LoggerFactory.getLogger(AMQPSource.class);
 
     private final AMQPSettingsSourceValues settings;
+    private final EventType outputEventType;
 
     private transient Connection connection;
     private transient Channel channel;
@@ -46,8 +48,9 @@ public class AMQPSource implements DataFlowSourceOperator {
         }
     };
 
-    public AMQPSource(AMQPSettingsSourceValues settings) {
+    public AMQPSource(AMQPSettingsSourceValues settings, EventType outputEventType) {
         this.settings = settings;
+        this.outputEventType = outputEventType;
     }
 
     public void open(DataFlowOpOpenContext openContext) {
@@ -123,7 +126,7 @@ public class AMQPSource implements DataFlowSourceOperator {
 
             AMQPToObjectCollectorContext holder = collectorDataTL.get();
             if (holder == null) {
-                holder = new AMQPToObjectCollectorContext(graphContext, bytes, msg);
+                holder = new AMQPToObjectCollectorContext(graphContext, bytes, msg, outputEventType);
                 collectorDataTL.set(holder);
             } else {
                 holder.setBytes(bytes);
