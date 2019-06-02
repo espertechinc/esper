@@ -7,9 +7,10 @@
 	</parent>
 	<properties>
 		<rootPath>${project.parent.basedir}</rootPath>
+
+		<geronimo.specs.jms.1.1.spec.version>1.1.1</geronimo.specs.jms.1.1.spec.version>
 	</properties>
 	<name>Esper Examples</name>
-	<groupId>com.espertech</groupId>
 	<artifactId>esper-examples-parent</artifactId>
 	<packaging>pom</packaging>
 	<description>Esper CEP Compiler and Runtime for Java examples</description>

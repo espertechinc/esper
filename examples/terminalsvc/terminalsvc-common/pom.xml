@@ -10,7 +10,6 @@
     </properties>
     <name>Esper Examples - TerminalSvc - Common</name>
     <artifactId>example-terminalsvc-common</artifactId>
-    <groupId>com.espertech</groupId>
     <packaging>jar</packaging>
     <description>Esper TerminalSvc example - Common</description>
     <repositories>
@@ -28,7 +27,7 @@
         <dependency>
             <groupId>org.jboss.spec.javax.jms</groupId>
             <artifactId>jboss-jms-api_1.1_spec</artifactId>
-            <version>1.0.0.Final</version>
+            <version>${jboss.jms.api.1.1.spec.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -36,7 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
+                <version>${maven.jar.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -48,7 +47,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -57,7 +56,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <argLine>-Dlog4j.configuration=../etc/log4j.xml</argLine>
                     <systemProperties>

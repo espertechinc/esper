@@ -9,7 +9,6 @@
 		<rootPath>${project.parent.parent.basedir}</rootPath>
 	</properties>
 	<name>EsperIO-HTTP</name>
-	<groupId>com.espertech</groupId>
 	<artifactId>esperio-http</artifactId>
 	<packaging>jar</packaging>
 	<description>EsperIO HTTP</description>
@@ -78,17 +77,17 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
-			<version>4.4.10</version>
+			<version>${httpcomponents.httpcore.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore-nio</artifactId>
-			<version>4.4.10</version>
+			<version>${httpcomponents.httpcore.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.5.6</version>
+			<version>${httpcomponents.httpclient.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-codec</groupId>
@@ -96,6 +95,8 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -134,7 +135,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+                <version>${maven.compiler.plugin.version}</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -143,7 +144,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.4.3</version>
+                <version>${maven.surefire.plugin.version}</version>
 				<configuration>
 					<argLine>-Xms256m -Xmx256m</argLine>
 					<includes>
@@ -160,7 +161,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.2</version>
+                <version>${maven.jar.plugin.version}</version>
 				<configuration>
 					<archive>
 						<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
@@ -189,8 +190,9 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1</version>
+				<version>${maven.source.plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -202,7 +204,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.5</version>
+				<version>${maven.gpg.plugin.version}</version>
 				<configuration>
 					<passphrase>${gpg.passphrase}</passphrase>
 				</configuration>
@@ -219,7 +221,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>${maven.bundle.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
