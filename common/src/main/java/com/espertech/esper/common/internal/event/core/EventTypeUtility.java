@@ -100,6 +100,9 @@ public class EventTypeUtility {
         if (eventType instanceof BaseXMLEventType) {
             return new XMLEventBean(null, eventType);
         }
+        if (eventType instanceof JsonEventType) {
+            return new JsonEventBean(null, eventType);
+        }
         throw new EventAdapterException("Event type '" + eventType.getName() + "' is not an runtime-native event type");
     }
 
