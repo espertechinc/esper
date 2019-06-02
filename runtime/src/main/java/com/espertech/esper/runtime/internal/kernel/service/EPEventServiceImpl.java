@@ -44,6 +44,7 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 import com.espertech.esper.common.internal.schedule.ScheduleHandle;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
+import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.statement.insertintolatch.InsertIntoLatchSpin;
 import com.espertech.esper.common.internal.statement.insertintolatch.InsertIntoLatchWait;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
@@ -169,6 +170,10 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
 
             public InstrumentationCommon getInstrumentationProvider() {
                 return InstrumentationCommonDefault.INSTANCE;
+            }
+
+            public ExceptionHandlingService getExceptionHandlingService() {
+                return services.getExceptionHandlingService();
             }
         };
 

@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorCont
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
+import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 
 /**
  * Returns the context for expression evaluation.
@@ -53,4 +54,6 @@ public interface ExprEvaluatorContext {
     AuditProvider getAuditProvider();
 
     InstrumentationCommon getInstrumentationProvider();
+
+    ExceptionHandlingService getExceptionHandlingService();
 }

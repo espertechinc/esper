@@ -29,6 +29,7 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 import com.espertech.esper.common.internal.schedule.SchedulingService;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
+import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperPrevious;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
@@ -188,5 +189,9 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
 
     public ClasspathImportServiceRuntime getClasspathImportService() {
         return agentInstanceContext.getClasspathImportServiceRuntime();
+    }
+
+    public ExceptionHandlingService getExceptionHandlingService() {
+        return agentInstanceContext.getExceptionHandlingService();
     }
 }
