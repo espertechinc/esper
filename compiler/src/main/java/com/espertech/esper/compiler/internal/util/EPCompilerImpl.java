@@ -70,6 +70,9 @@ public class EPCompilerImpl implements EPCompilerSPI {
             Module module = EPLModuleUtil.parseInternal(epl, null);
             List<Compilable> compilables = new ArrayList<>();
             for (ModuleItem item : module.getItems()) {
+                if (item.isCommentOnly()) {
+                    continue;
+                }
                 String stmtEpl = item.getExpression();
                 compilables.add(new CompilableEPL(stmtEpl, item.getLineNumber()));
             }

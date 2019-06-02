@@ -44,7 +44,17 @@ public class ClientCompileModule {
         execs.add(new ClientCompileModuleTwoModules());
         execs.add(new ClientCompileModuleParse());
         execs.add(new ClientCompileModuleParseFail());
+        execs.add(new ClientCompileModuleCommentTrailing());
         return execs;
+    }
+
+    private static class ClientCompileModuleCommentTrailing implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            final String epl =
+                "@public @buseventtype create map schema Fubar as (foo String, bar Double);" + System.lineSeparator()
+                    + "/** comment after */";
+            env.compileDeploy(epl).undeployAll();
+        }
     }
 
     private static class ClientCompileModuleTwoModules implements RegressionExecution {

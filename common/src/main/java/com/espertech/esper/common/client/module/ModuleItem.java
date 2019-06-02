@@ -49,23 +49,6 @@ public class ModuleItem implements Serializable {
     /**
      * Ctor.
      *
-     * @param model        statement object model
-     * @param commentOnly  true if the statement consists only of comments or whitespace
-     * @param lineNumber   line number
-     * @param charPosStart character position of start of segment
-     * @param charPosEnd   character position of end of segment
-     */
-    public ModuleItem(EPStatementObjectModel model, boolean commentOnly, int lineNumber, int charPosStart, int charPosEnd) {
-        this.model = model;
-        this.commentOnly = commentOnly;
-        this.lineNumber = lineNumber;
-        this.charPosStart = charPosStart;
-        this.charPosEnd = charPosEnd;
-    }
-
-    /**
-     * Ctor.
-     *
      * @param expression expression
      */
     public ModuleItem(String expression) {
