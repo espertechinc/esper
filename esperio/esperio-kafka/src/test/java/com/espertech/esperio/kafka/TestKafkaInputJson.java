@@ -28,7 +28,7 @@ import static com.espertech.esperio.kafka.SupportCompileUtil.compileDeploy;
 
 public class TestKafkaInputJson extends TestCase {
 
-    private static final String TOPIC = SupportConstants.DEV_INPUT_TOPIC_SUPPORTBEAN_STRING;
+    private static final String TOPIC = SupportConstants.DEV_INPUT_TOPIC_JSON;
 
     public void testInput() {
         Properties pluginProperties = SupportConstants.getInputPluginProps(TOPIC, StringDeserializer.class.getName(), null);
