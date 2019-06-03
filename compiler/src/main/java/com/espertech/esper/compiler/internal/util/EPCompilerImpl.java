@@ -82,7 +82,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
             Set<String> moduleUses = determineModuleUses(moduleName, arguments.getOptions(), module);
 
             // get compile services
-            ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+            ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, false);
             addModuleImports(module.getImports(), compileTimeServices);
 
             // compile
@@ -99,7 +99,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
     public EPCompilerSPIExpression expressionCompiler(Configuration configuration) throws EPCompileException {
         CompilerArguments arguments = new CompilerArguments(configuration);
         arguments.setConfiguration(configuration);
-        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, null, null);
+        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, null, null, false);
         return new EPCompilerSPIExpressionImpl(compileTimeServices);
     }
 
@@ -130,7 +130,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
         Set<String> moduleUses = determineModuleUses(moduleName, arguments.getOptions(), module);
 
         // get compile services
-        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, false);
         addModuleImports(module.getImports(), compileTimeServices);
 
         List<Compilable> compilables = new ArrayList<>();
@@ -201,7 +201,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
         String moduleName = determineModuleName(arguments.getOptions(), module);
         Set<String> moduleUses = determineModuleUses(moduleName, arguments.getOptions(), module);
 
-        ModuleCompileTimeServices moduleCompileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+        ModuleCompileTimeServices moduleCompileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, false);
 
         int statementNumber = 0;
         try {
@@ -237,7 +237,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
         String moduleName = arguments.getOptions().getModuleName() == null ? null : arguments.getOptions().getModuleName().getValue(new ModuleNameContext(null));
         Set<String> moduleUses = arguments.getOptions().getModuleUses() == null ? null : arguments.getOptions().getModuleUses().getValue(new ModuleUsesContext(moduleName, null));
 
-        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, true);
         try {
             return CompilerHelperFAFProvider.compile(compilable, compileTimeServices, arguments);
         } catch (Throwable t) {

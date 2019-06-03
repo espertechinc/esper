@@ -30,14 +30,16 @@ public class EventTypeCompileTimeResolver implements EventTypeNameResolver, Comp
     private final EventTypeRepositoryImpl publics;
     private final PathRegistry<String, EventType> path;
     private final ModuleDependenciesCompileTime moduleDependencies;
+    private final boolean isFireAndForget;
 
-    public EventTypeCompileTimeResolver(String moduleName, Set<String> moduleUses, EventTypeCompileTimeRegistry locals, EventTypeRepositoryImpl publics, PathRegistry<String, EventType> path, ModuleDependenciesCompileTime moduleDependencies) {
+    public EventTypeCompileTimeResolver(String moduleName, Set<String> moduleUses, EventTypeCompileTimeRegistry locals, EventTypeRepositoryImpl publics, PathRegistry<String, EventType> path, ModuleDependenciesCompileTime moduleDependencies, boolean isFireAndForget) {
         this.moduleName = moduleName;
         this.moduleUses = moduleUses;
         this.locals = locals;
         this.publics = publics;
         this.path = path;
         this.moduleDependencies = moduleDependencies;
+        this.isFireAndForget = isFireAndForget;
     }
 
     public PathRegistry<String, EventType> getPath() {
@@ -67,7 +69,7 @@ public class EventTypeCompileTimeResolver implements EventTypeNameResolver, Comp
                 return null;
             }
 
-            if (!NameAccessModifier.visible(typeAndModule.getFirst().getMetadata().getAccessModifier(), typeAndModule.getSecond(), moduleName)) {
+            if (!isFireAndForget && !NameAccessModifier.visible(typeAndModule.getFirst().getMetadata().getAccessModifier(), typeAndModule.getSecond(), moduleName)) {
                 return null;
             }
 

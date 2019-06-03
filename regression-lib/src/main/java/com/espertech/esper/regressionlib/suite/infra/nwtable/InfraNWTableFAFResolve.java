@@ -16,8 +16,6 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
-import com.espertech.esper.compiler.client.option.ModuleNameContext;
-import com.espertech.esper.compiler.client.option.ModuleNameOption;
 import com.espertech.esper.compiler.client.option.ModuleUsesContext;
 import com.espertech.esper.compiler.client.option.ModuleUsesOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -72,11 +70,6 @@ public class InfraNWTableFAFResolve implements IndexBackingTableInfo {
             args.getOptions().setModuleUses(new ModuleUsesOption() {
                 public Set<String> getValue(ModuleUsesContext env) {
                     return new HashSet<>(Arrays.asList(moduleName));
-                }
-            });
-            args.getOptions().setModuleName(new ModuleNameOption() {
-                public String getValue(ModuleNameContext env) {
-                    return moduleName;
                 }
             });
             args.getPath().add(env.runtime().getRuntimePath());

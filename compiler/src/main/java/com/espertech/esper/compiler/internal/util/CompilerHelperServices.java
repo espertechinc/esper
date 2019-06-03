@@ -103,9 +103,9 @@ import com.espertech.esper.compiler.client.EPCompileException;
 import java.util.*;
 
 public class CompilerHelperServices {
-    protected static ModuleCompileTimeServices getCompileTimeServices(CompilerArguments arguments, String moduleName, Set<String> moduleUses) throws EPCompileException {
+    protected static ModuleCompileTimeServices getCompileTimeServices(CompilerArguments arguments, String moduleName, Set<String> moduleUses, boolean isFireAndForget) throws EPCompileException {
         try {
-            return getServices(arguments, moduleName, moduleUses);
+            return getServices(arguments, moduleName, moduleUses, isFireAndForget);
         } catch (EPCompileException ex) {
             throw ex;
         } catch (Throwable t) {
@@ -113,7 +113,7 @@ public class CompilerHelperServices {
         }
     }
 
-    private static ModuleCompileTimeServices getServices(CompilerArguments arguments, String moduleName, Set<String> moduleUses) throws EPCompileException {
+    private static ModuleCompileTimeServices getServices(CompilerArguments arguments, String moduleName, Set<String> moduleUses, boolean isFireAndForget) throws EPCompileException {
         Configuration configuration = arguments.getConfiguration();
         CompilerPath path = arguments.getPath();
         CompilerOptions options = arguments.getOptions();
@@ -298,32 +298,32 @@ public class CompilerHelperServices {
         ModuleDependenciesCompileTime moduleDependencies = new ModuleDependenciesCompileTime();
 
         // build bean space of public and protected
-        EventTypeCompileTimeResolver eventTypeCompileTimeResolver = new EventTypeCompileTimeResolver(moduleName, moduleUses, eventTypeCompileRegistry, eventTypeRepositoryPreconfigured, pathEventTypes, moduleDependencies);
+        EventTypeCompileTimeResolver eventTypeCompileTimeResolver = new EventTypeCompileTimeResolver(moduleName, moduleUses, eventTypeCompileRegistry, eventTypeRepositoryPreconfigured, pathEventTypes, moduleDependencies, isFireAndForget);
 
         // build named window registry
         NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry = new NamedWindowCompileTimeRegistry();
-        NamedWindowCompileTimeResolver namedWindowCompileTimeResolver = new NamedWindowCompileTimeResolverImpl(moduleName, moduleUses, namedWindowCompileTimeRegistry, pathNamedWindows, moduleDependencies);
+        NamedWindowCompileTimeResolver namedWindowCompileTimeResolver = new NamedWindowCompileTimeResolverImpl(moduleName, moduleUses, namedWindowCompileTimeRegistry, pathNamedWindows, moduleDependencies, isFireAndForget);
 
         // build context registry
         ContextCompileTimeRegistry contextCompileTimeRegistry = new ContextCompileTimeRegistry();
-        ContextCompileTimeResolver contextCompileTimeResolver = new ContextCompileTimeResolverImpl(moduleName, moduleUses, contextCompileTimeRegistry, pathContexts, moduleDependencies);
+        ContextCompileTimeResolver contextCompileTimeResolver = new ContextCompileTimeResolverImpl(moduleName, moduleUses, contextCompileTimeRegistry, pathContexts, moduleDependencies, isFireAndForget);
 
         // build variable registry
         VariableCompileTimeRegistry variableCompileTimeRegistry = new VariableCompileTimeRegistry();
-        VariableCompileTimeResolver variableCompileTimeResolver = new VariableCompileTimeResolverImpl(moduleName, moduleUses, variableRepositoryPreconfigured, variableCompileTimeRegistry, pathVariables, moduleDependencies);
+        VariableCompileTimeResolver variableCompileTimeResolver = new VariableCompileTimeResolverImpl(moduleName, moduleUses, variableRepositoryPreconfigured, variableCompileTimeRegistry, pathVariables, moduleDependencies, isFireAndForget);
 
         // build declared-expression registry
         ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry = new ExprDeclaredCompileTimeRegistry();
-        ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver = new ExprDeclaredCompileTimeResolverImpl(moduleName, moduleUses, exprDeclaredCompileTimeRegistry, pathExprDeclared, moduleDependencies);
+        ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver = new ExprDeclaredCompileTimeResolverImpl(moduleName, moduleUses, exprDeclaredCompileTimeRegistry, pathExprDeclared, moduleDependencies, isFireAndForget);
 
         // build table-registry
         Map<String, TableMetaData> localTables = new HashMap<>();
         TableCompileTimeRegistry tableCompileTimeRegistry = new TableCompileTimeRegistry(localTables);
-        TableCompileTimeResolver tableCompileTimeResolver = new TableCompileTimeResolverImpl(moduleName, moduleUses, tableCompileTimeRegistry, pathTables, moduleDependencies);
+        TableCompileTimeResolver tableCompileTimeResolver = new TableCompileTimeResolverImpl(moduleName, moduleUses, tableCompileTimeRegistry, pathTables, moduleDependencies, isFireAndForget);
 
         // build script registry
         ScriptCompileTimeRegistry scriptCompileTimeRegistry = new ScriptCompileTimeRegistry();
-        ScriptCompileTimeResolver scriptCompileTimeResolver = new ScriptCompileTimeResolverImpl(moduleName, moduleUses, scriptCompileTimeRegistry, pathScript, moduleDependencies);
+        ScriptCompileTimeResolver scriptCompileTimeResolver = new ScriptCompileTimeResolverImpl(moduleName, moduleUses, scriptCompileTimeRegistry, pathScript, moduleDependencies, isFireAndForget);
 
         // view resolution
         PluggableObjectCollection plugInViews = new PluggableObjectCollection();

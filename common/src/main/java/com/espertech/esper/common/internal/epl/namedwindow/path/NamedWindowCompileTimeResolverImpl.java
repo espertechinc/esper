@@ -27,13 +27,15 @@ public class NamedWindowCompileTimeResolverImpl implements NamedWindowCompileTim
     private final NamedWindowCompileTimeRegistry locals;
     private final PathRegistry<String, NamedWindowMetaData> path;
     private final ModuleDependenciesCompileTime moduleDependencies;
+    private final boolean isFireAndForget;
 
-    public NamedWindowCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, NamedWindowCompileTimeRegistry locals, PathRegistry<String, NamedWindowMetaData> path, ModuleDependenciesCompileTime moduleDependencies) {
+    public NamedWindowCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, NamedWindowCompileTimeRegistry locals, PathRegistry<String, NamedWindowMetaData> path, ModuleDependenciesCompileTime moduleDependencies, boolean isFireAndForget) {
         this.moduleName = moduleName;
         this.moduleUses = moduleUses;
         this.locals = locals;
         this.path = path;
         this.moduleDependencies = moduleDependencies;
+        this.isFireAndForget = isFireAndForget;
     }
 
     public NamedWindowMetaData resolve(String namedWindowName) {
@@ -45,7 +47,7 @@ public class NamedWindowCompileTimeResolverImpl implements NamedWindowCompileTim
         try {
             Pair<NamedWindowMetaData, String> pair = path.getAnyModuleExpectSingle(namedWindowName, moduleUses);
             if (pair != null) {
-                if (!NameAccessModifier.visible(pair.getFirst().getEventType().getMetadata().getAccessModifier(), pair.getFirst().getNamedWindowModuleName(), moduleName)) {
+                if (!isFireAndForget && !NameAccessModifier.visible(pair.getFirst().getEventType().getMetadata().getAccessModifier(), pair.getFirst().getNamedWindowModuleName(), moduleName)) {
                     return null;
                 }
 
