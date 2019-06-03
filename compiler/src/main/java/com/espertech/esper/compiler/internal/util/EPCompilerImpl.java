@@ -83,6 +83,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
 
             // get compile services
             ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+            addModuleImports(module.getImports(), compileTimeServices);
 
             // compile
             return CompilerHelperModuleProvider.compile(compilables, moduleName, Collections.emptyMap(), compileTimeServices, arguments.getOptions());
@@ -130,16 +131,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
 
         // get compile services
         ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
-
-        if (module.getImports() != null) {
-            for (String imported : module.getImports()) {
-                try {
-                    compileTimeServices.getClasspathImportServiceCompileTime().addImport(imported);
-                } catch (ClasspathImportException e) {
-                    throw new EPCompileException("Invalid module import: " + e.getMessage(), e);
-                }
-            }
-        }
+        addModuleImports(module.getImports(), compileTimeServices);
 
         List<Compilable> compilables = new ArrayList<>();
         for (ModuleItem item : module.getItems()) {
@@ -270,5 +262,17 @@ public class EPCompilerImpl implements EPCompilerSPI {
 
     private Object toNullOrArray(Set<String> values) {
         return values == null || values.isEmpty() ? null : values.toArray(new String[0]);
+    }
+
+    private void addModuleImports(Set<String> imports, ModuleCompileTimeServices compileTimeServices) throws EPCompileException {
+        if (imports != null) {
+            for (String imported : imports) {
+                try {
+                    compileTimeServices.getClasspathImportServiceCompileTime().addImport(imported);
+                } catch (ClasspathImportException e) {
+                    throw new EPCompileException("Invalid module import: " + e.getMessage(), e);
+                }
+            }
+        }
     }
 }

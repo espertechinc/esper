@@ -179,6 +179,15 @@ public class ClientCompileModule {
             assertEquals(5, env.listener("A").assertOneGetNewAndReset().get("val"));
 
             env.undeployAll();
+
+            String epl = "import " + SupportStaticMethodLib.class.getName() + ";\n" +
+                "@Name('A') select SupportStaticMethodLib.plusOne(intPrimitive) as val from SupportBean;\n";
+            env.compileDeploy(epl).addListener("A");
+
+            env.sendEventBean(new SupportBean("E1", 6));
+            assertEquals(7, env.listener("A").assertOneGetNewAndReset().get("val"));
+
+            env.undeployAll();
         }
     }
 
