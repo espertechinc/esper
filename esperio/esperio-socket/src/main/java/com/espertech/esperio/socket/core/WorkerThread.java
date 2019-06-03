@@ -77,6 +77,7 @@ public class WorkerThread extends Thread {
                     handleObject(object);
                 } else {
                     String str = br.readLine();
+
                     if (str != null) {
                         handleString(str);
                     } else {
@@ -123,6 +124,14 @@ public class WorkerThread extends Thread {
         if (input == null) {
             return;
         }
+        if (socketConfig.getDataType() != DataType.JSON) {
+            handleCSV(input);
+        } else {
+            handleJSON(input);
+        }
+    }
+
+    private void handleCSV(String input) {
         try {
             Map<String, String> parameters = new HashMap<String, String>();
             WStringTokenizer tokenizer = new WStringTokenizer(input, ",");
@@ -175,6 +184,29 @@ public class WorkerThread extends Thread {
 
             EventBean theEvent = cacheEntry.getEventBeanManufacturer().make(values);
             runtime.getEventServiceSPI().processWrappedEvent(theEvent);
+        } catch (Throwable t) {
+            log.error("Unexpected exception encountered sending event " + input + " service '" + serviceName + "' :" + t.getMessage(), t);
+        }
+    }
+
+    private void handleJSON(String input) {
+        try {
+            final String prefix = "stream=";
+            if (!input.startsWith(prefix)) {
+                log.error("Message does not start with '" + prefix + "=', message: " + input);
+                return;
+            }
+
+            final String jsonDelim = ",json=";
+            int indexStart = input.indexOf(jsonDelim);
+            if (indexStart == -1) {
+                log.error("Failed to find '" + jsonDelim + "' in message: " + input);
+                return;
+            }
+
+            String eventTypeName = input.substring(prefix.length(), indexStart);
+            String json = input.substring(indexStart + jsonDelim.length());
+            runtime.getEventServiceSPI().sendEventJson(json, eventTypeName);
         } catch (Throwable t) {
             log.error("Unexpected exception encountered sending event " + input + " service '" + serviceName + "' :" + t.getMessage(), t);
         }
