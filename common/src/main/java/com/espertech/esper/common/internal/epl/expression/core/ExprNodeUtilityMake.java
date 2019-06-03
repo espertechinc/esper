@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.FilterStreamSpecRaw;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecRaw;
 import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalUnderlyingEvaluator;
@@ -115,8 +114,7 @@ public class ExprNodeUtilityMake {
         return new ExprEvalUnderlyingEvaluator(streamNum, resultType);
     }
 
-    static Pair<ExprForge[], ExprEvaluator[]> makeVarargArrayEval(Method method, final ExprForge[] childForges) {
-        ExprEvaluator[] evals = new ExprEvaluator[method.getParameterTypes().length];
+    static ExprForge[] makeVarargArrayForges(Method method, final ExprForge[] childForges) {
         ExprForge[] forges = new ExprForge[method.getParameterTypes().length];
         Class varargClass = method.getParameterTypes()[method.getParameterTypes().length - 1].getComponentType();
         Class varargClassBoxed = JavaClassHelper.getBoxedType(varargClass);
@@ -131,7 +129,7 @@ public class ExprNodeUtilityMake {
             Class lastReturns = lastForge.getEvaluationType();
             if (lastReturns != null && lastReturns.isArray()) {
                 forges[method.getParameterTypes().length - 1] = lastForge;
-                return new Pair<>(forges, evals);
+                return forges;
             }
         }
 
@@ -161,8 +159,7 @@ public class ExprNodeUtilityMake {
 
         ExprForge varargForge = new ExprNodeVarargOnlyArrayForge(varargForges, varargClass, needCoercion ? coercers : null);
         forges[method.getParameterTypes().length - 1] = varargForge;
-        evals[method.getParameterTypes().length - 1] = varargForge.getExprEvaluator();
-        return new Pair<>(forges, evals);
+        return forges;
     }
 
     public static ExprNode[] addExpression(ExprNode[] expressions, ExprNode expression) {
