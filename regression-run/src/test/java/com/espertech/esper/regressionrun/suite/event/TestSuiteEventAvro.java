@@ -16,6 +16,7 @@ import com.espertech.esper.regressionlib.suite.event.avro.EventAvroEventBean;
 import com.espertech.esper.regressionlib.suite.event.avro.EventAvroJsonWithSchema;
 import com.espertech.esper.regressionlib.suite.event.avro.EventAvroSampleConfigDocOutputSchema;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.suite.event.avro.EventAvroSupertypeInsertInto;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
@@ -48,6 +49,10 @@ public class TestSuiteEventAvro extends TestCase {
 
     public void testEventAvroEventBean() {
         RegressionRunner.run(session, new EventAvroEventBean());
+    }
+
+    public void testEventAvroSupertypeInsertInto() {
+        RegressionRunner.run(session, new EventAvroSupertypeInsertInto());
     }
 
     private static void configure(Configuration configuration) {

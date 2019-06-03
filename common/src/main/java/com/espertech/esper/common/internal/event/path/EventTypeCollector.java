@@ -32,7 +32,7 @@ public interface EventTypeCollector {
 
     void registerXML(EventTypeMetadata metadata, String representsFragmentOfProperty, String representsOriginalTypeName);
 
-    void registerAvro(EventTypeMetadata metadata, String schemaJson);
+    void registerAvro(EventTypeMetadata metadata, String schemaJson, String[] superTypes);
 
     void registerJson(EventTypeMetadata metadata, LinkedHashMap<String, Object> properties, String[] superTypes,
                       String startTimestampPropertyName, String endTimestampPropertyName, JsonEventTypeDetail detail);

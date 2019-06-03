@@ -116,9 +116,9 @@ public abstract class EventTypeAvroHandlerBase implements EventTypeAvroHandler {
         return makeType(metadata, eventAdapterService, schema, optionalConfig, superTypes, deepSuperTypes);
     }
 
-    public AvroSchemaEventType newEventTypeFromJson(EventTypeMetadata metadata, EventBeanTypedEventFactory eventBeanTypedEventFactory, String schemaJson) {
+    public AvroSchemaEventType newEventTypeFromJson(EventTypeMetadata metadata, EventBeanTypedEventFactory eventBeanTypedEventFactory, String schemaJson, EventType[] supertypes, Set<EventType> deepSupertypes) {
         Schema schema = new Schema.Parser().parse(schemaJson);
-        return makeType(metadata, eventBeanTypedEventFactory, schema, null, null, null);
+        return makeType(metadata, eventBeanTypedEventFactory, schema, null, supertypes, deepSupertypes);
     }
 
     public SelectExprProcessorRepresentationFactory getOutputFactory() {
