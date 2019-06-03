@@ -10,11 +10,15 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for providing a statement execution hint.
  * <p>
  * Hints are providing instructions that can change latency, throughput or memory requirements of a statement.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Hint {
 
     /**

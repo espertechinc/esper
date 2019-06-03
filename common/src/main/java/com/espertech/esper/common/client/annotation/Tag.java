@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use in EPL statement to tag a statement with a name-value pair.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Tag {
     /**
      * Returns the tag name.

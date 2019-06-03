@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use in EPL statements to suppress any statement-level locking (use with caution, see below).
  * <p>
@@ -20,5 +23,6 @@ package com.espertech.esper.common.client.annotation;
  * Using this annotation may have unpredictable results unless your application is taking concurrency under consideration.
  * </p>
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface NoLock {
 }

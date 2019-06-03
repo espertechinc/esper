@@ -10,8 +10,12 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation that is the modifier for event-bus-visible event types
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface BusEventType {
 }

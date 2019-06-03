@@ -113,7 +113,7 @@ public class AnnotationUtil {
      * @throws AnnotationException if annotations could not be created
      */
     private static Annotation[] compileAnnotations(List<AnnotationDesc> desc, ClasspathImportServiceCompileTime classpathImportService)
-            throws AnnotationException {
+        throws AnnotationException {
         Annotation[] annotations = new Annotation[desc.size()];
         for (int i = 0; i < desc.size(); i++) {
             annotations[i] = createProxy(desc.get(i), classpathImportService);
@@ -126,7 +126,7 @@ public class AnnotationUtil {
     }
 
     private static Annotation createProxy(AnnotationDesc desc, ClasspathImportServiceCompileTime classpathImportService)
-            throws AnnotationException {
+        throws AnnotationException {
         // resolve class
         final Class annotationClass;
         try {
@@ -226,8 +226,8 @@ public class AnnotationUtil {
                     }
 
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires an enum-value '" +
-                            annotationAttribute.getType().getSimpleName() + "' for attribute '" + annotationAttribute.getName() +
-                            "' but received '" + value + "' which is not one of the enum choices");
+                        annotationAttribute.getType().getSimpleName() + "' for attribute '" + annotationAttribute.getName() +
+                        "' but received '" + value + "' which is not one of the enum choices");
                 }
 
                 // cast as required
@@ -235,16 +235,16 @@ public class AnnotationUtil {
                 Object finalValue = caster.cast(value);
                 if (finalValue == null) {
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                            annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
-                            "a " + value.getClass().getSimpleName() + "-typed value");
+                        annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
+                        "a " + value.getClass().getSimpleName() + "-typed value");
                 }
                 return finalValue;
             } else {
                 // nested annotation
                 if (!(value instanceof AnnotationDesc)) {
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                            annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
-                            "a " + value.getClass().getSimpleName() + "-typed value");
+                        annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
+                        "a " + value.getClass().getSimpleName() + "-typed value");
                 }
                 return createProxy((AnnotationDesc) value, classpathImportService);
             }
@@ -252,8 +252,8 @@ public class AnnotationUtil {
 
         if (!value.getClass().isArray()) {
             throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                    annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
-                    "a " + value.getClass().getSimpleName() + "-typed value");
+                annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
+                "a " + value.getClass().getSimpleName() + "-typed value");
         }
 
         Class componentType = annotationAttribute.getType().getComponentType();
@@ -263,7 +263,7 @@ public class AnnotationUtil {
             Object arrayValue = Array.get(value, i);
             if (arrayValue == null) {
                 throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                        "non-null value for array elements for attribute '" + annotationAttribute.getName() + "'");
+                    "non-null value for array elements for attribute '" + annotationAttribute.getName() + "'");
             }
 
             Object finalValue;
@@ -300,10 +300,10 @@ public class AnnotationUtil {
                 continue;
             }
             if ((methods[i].getName().equals("class")) ||
-                    (methods[i].getName().equals("getClass")) ||
-                    (methods[i].getName().equals("toString")) ||
-                    (methods[i].getName().equals("annotationType")) ||
-                    (methods[i].getName().equals("hashCode"))) {
+                (methods[i].getName().equals("getClass")) ||
+                (methods[i].getName().equals("toString")) ||
+                (methods[i].getName().equals("annotationType")) ||
+                (methods[i].getName().equals("hashCode"))) {
                 continue;
             }
 
@@ -318,6 +318,28 @@ public class AnnotationUtil {
         return props;
     }
 
+    public static boolean hasAnnotation(Annotation[] annotations, Class<? extends Annotation> annotationClass) {
+        if (!annotationClass.isAnnotation()) {
+            throw new IllegalArgumentException("Class " + annotationClass.getName() + " is not an annotation class");
+        }
+        if (annotations == null || annotations.length == 0) {
+            return false;
+        }
+        for (Annotation anno : annotations) {
+            if (JavaClassHelper.isImplementsInterface(anno.getClass(), annotationClass)) {
+                return true;
+            }
+
+            // also check the annotations of the annotation, recursively
+            Annotation[] declared = anno.annotationType().getDeclaredAnnotations();
+            if (declared != null && declared.length > 0 && hasAnnotationDeclared(declared, annotationClass)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static Annotation findAnnotation(Annotation[] annotations, Class annotationClass) {
         if (!annotationClass.isAnnotation()) {
             throw new IllegalArgumentException("Class " + annotationClass.getName() + " is not an annotation class");
@@ -330,7 +352,33 @@ public class AnnotationUtil {
                 return anno;
             }
         }
+
         return null;
+    }
+
+    private static boolean hasAnnotationDeclared(final Annotation[] annotations, final Class<? extends Annotation> target) {
+        return hasAnnotationDeclaredRecursive(annotations, target, new HashSet<>());
+    }
+
+    private static boolean hasAnnotationDeclaredRecursive(final Annotation[] annotations, final Class<? extends Annotation> target,
+                                                          final Set<Annotation> visited) {
+        if (annotations == null) {
+            return false;
+        }
+        for (Annotation annotation : annotations) {
+            final Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (annotationType == target) {
+                return true;
+            }
+            if (!visited.add(annotation)) {
+                return false;
+            }
+            Annotation[] declared = annotationType.getDeclaredAnnotations();
+            if (hasAnnotationDeclaredRecursive(declared, target, visited)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static List<Annotation> findAnnotations(Annotation[] annotations, Class annotationClass) {
@@ -370,8 +418,8 @@ public class AnnotationUtil {
 
     private static AnnotationException makeArrayMismatchException(Class annotationClass, Class componentType, String attributeName, Class unexpected) {
         return new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                componentType.getSimpleName() + "-typed value for array elements for attribute '" + attributeName + "' but received " +
-                "a " + unexpected.getSimpleName() + "-typed value");
+            componentType.getSimpleName() + "-typed value for array elements for attribute '" + attributeName + "' but received " +
+            "a " + unexpected.getSimpleName() + "-typed value");
     }
 
     private static CodegenExpression makeAnnotation(Annotation annotation, CodegenMethod parent, CodegenClassScope codegenClassScope) {

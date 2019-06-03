@@ -110,8 +110,7 @@ public class FileSinkCSV implements DataFlowOperatorLifecycle, EPDataFlowSignalH
             StringBuilder buf = new StringBuilder();
             if (!(eventShell.getEventType() instanceof JsonEventType)) {
                 eventShell.setUnderlying(object);
-            }
-            else{
+            } else {
                 JsonEventType jsonEventType = (JsonEventType) eventShell.getEventType();
                 Object underlying = jsonEventType.parse(object.toString());
                 eventShell.setUnderlying(underlying);

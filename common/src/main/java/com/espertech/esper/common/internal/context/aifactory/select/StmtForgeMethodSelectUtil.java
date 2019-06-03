@@ -116,7 +116,7 @@ public class StmtForgeMethodSelectUtil {
             StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[stream];
             boolean isCanIterateUnbound = streamSpec.getViewSpecs().length == 0 &&
                 (services.getConfiguration().getCompiler().getViewResources().isIterableUnbound() ||
-                    AnnotationUtil.findAnnotation(statementSpec.getAnnotations(), IterableUnbound.class) != null);
+                    AnnotationUtil.hasAnnotation(statementSpec.getAnnotations(), IterableUnbound.class));
             ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(stream, false, -1, streamSpec.getOptions(), null, base.getStatementRawInfo(), services);
 
             if (dataflowOperator) {

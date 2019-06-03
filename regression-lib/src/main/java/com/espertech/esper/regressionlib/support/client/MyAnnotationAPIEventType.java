@@ -8,27 +8,16 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.client.annotation;
+package com.espertech.esper.regressionlib.support.client;
+
+import com.espertech.esper.common.client.annotation.BusEventType;
+import com.espertech.esper.common.client.annotation.Public;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Annotation for use with Avro to provide a schema for a given event property.
- */
+@Public()
+@BusEventType
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AvroSchemaField {
-    /**
-     * Property name.
-     *
-     * @return name
-     */
-    String name();
-
-    /**
-     * Schema text.
-     *
-     * @return schema text
-     */
-    String schema();
+public @interface MyAnnotationAPIEventType {
 }

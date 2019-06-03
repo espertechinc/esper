@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use in EPL statements to add a description.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Description {
     /**
      * Returns the description text.

@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use in EPL statement to define a statement name.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Name {
     /**
      * Returns the statement name.

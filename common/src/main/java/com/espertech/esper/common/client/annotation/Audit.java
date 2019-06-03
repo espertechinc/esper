@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use in EPL statements to add a debug.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Audit {
     /**
      * Comma-separated list of keywords (not case-sentitive), see {@link AuditEnum} for a list of keywords.
