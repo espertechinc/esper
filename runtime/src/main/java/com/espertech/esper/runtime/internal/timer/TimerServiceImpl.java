@@ -92,13 +92,11 @@ public final class TimerServiceImpl implements TimerService {
             log.debug(".stopInternalClock Stopping internal clock daemon thread");
         }
 
-        timer.shutdown();
-
         try {
-            // Sleep for 100 ms to await the internal timer
-            Thread.sleep(100);
+            timer.awaitTermination(60, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            log.info("Timer start wait interval interruped");
+            log.info("Timer termination wait interval interupted");
+            Thread.currentThread().interrupt();
         }
 
         timer = null;
