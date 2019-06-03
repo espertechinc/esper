@@ -32,4 +32,11 @@ public interface EPEventTypeService {
      * @return event type or null if not found
      */
     EventType getEventType(String deploymentId, String eventTypeName);
+
+    /**
+     * Returns the event type that has bus-visibility or null in case that the event type is not found
+     * @param eventTypeName name
+     * @return event type or null
+     */
+    EventType getBusEventType(String eventTypeName);
 }

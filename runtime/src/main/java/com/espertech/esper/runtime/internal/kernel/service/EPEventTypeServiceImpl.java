@@ -32,4 +32,8 @@ public class EPEventTypeServiceImpl implements EPEventTypeService {
         String moduleName = deployment.getModuleProvider().getModuleName();
         return services.getEventTypePathRegistry().getWithModule(eventTypeName, moduleName);
     }
+
+    public EventType getBusEventType(String eventTypeName) {
+        return services.getEventTypeRepositoryBus().getTypeByName(eventTypeName);
+    }
 }

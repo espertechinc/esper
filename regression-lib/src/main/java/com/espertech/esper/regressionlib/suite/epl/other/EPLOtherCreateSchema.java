@@ -112,6 +112,8 @@ public class EPLOtherCreateSchema {
             env.sendEventBean(new SupportBean("a", 20));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"a", 20});
 
+            assertNull(env.runtime().getEventTypeService().getBusEventType("SimpleSchema"));
+
             env.undeployAll();
         }
     }
@@ -124,6 +126,9 @@ public class EPLOtherCreateSchema {
 
             env.sendEventMap(CollectionUtil.buildMap("p0", "a", "p1", 20), "MySchema");
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"a", 20});
+
+            EventType eventType = env.runtime().getEventTypeService().getBusEventType("MySchema");
+            assertEquals("MySchema", eventType.getName());
 
             env.undeployAll();
         }
