@@ -225,6 +225,9 @@ public class ExprDotNodeUtility {
             if (EnumMethodEnum.isEnumerationMethod(chainElement.getName()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
                 EnumMethodEnum enumerationMethod = EnumMethodEnum.fromName(chainElement.getName());
                 ExprDotForgeEnumMethod eval = (ExprDotForgeEnumMethod) JavaClassHelper.instantiate(ExprDotForgeEnumMethod.class, enumerationMethod.getImplementation());
+                if (currentInputType instanceof ClassEPType && JavaClassHelper.isImplementsInterface(((ClassEPType) currentInputType).getType(), Collection.class) ) {
+                    currentInputType = EPTypeHelper.collectionOfSingleValue(Object.class);
+                }
                 eval.init(streamOfProviderIfApplicable, enumerationMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), validationContext);
                 currentInputType = eval.getTypeInfo();
                 if (currentInputType == null) {
