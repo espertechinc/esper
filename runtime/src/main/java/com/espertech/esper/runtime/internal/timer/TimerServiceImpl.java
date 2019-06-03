@@ -93,9 +93,10 @@ public final class TimerServiceImpl implements TimerService {
         }
 
         try {
-            timer.awaitTermination(60, TimeUnit.SECONDS);
+            timer.shutdown();
+            timer.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            log.info("Timer termination wait interval interupted");
+            log.info("Timer termination wait interval interrupted");
             Thread.currentThread().interrupt();
         }
 
