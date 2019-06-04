@@ -51,8 +51,8 @@ import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManu
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
 import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
-import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.json.core.JsonEventObjectBase;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventPropertyGetter;
 import com.espertech.esper.common.internal.event.map.MapEventType;
@@ -1535,7 +1535,7 @@ public class EventTypeUtility {
                 Object convertedGenericRecord = eventTypeAvroHandler.convertEvent(theEvent, (AvroSchemaEventType) targetType);
                 converted = eventAdapterService.adapterForTypedAvro(convertedGenericRecord, targetType);
             } else if ((theEvent.getEventType() instanceof JsonEventType) && (targetType instanceof JsonEventType)) {
-                Object und = convertJsonEvents((JsonEventBean) theEvent, (JsonEventType) targetType);
+                Object und = convertJsonEvents(theEvent, (JsonEventType) targetType);
                 converted = eventAdapterService.adapterForTypedJson(und, targetType);
             } else {
                 throw new EPException("Unknown event type " + theEvent.getEventType());
@@ -1546,7 +1546,7 @@ public class EventTypeUtility {
         return convertedArray;
     }
 
-    private static Object convertJsonEvents(JsonEventBean theEvent, JsonEventType targetType) {
+    private static Object convertJsonEvents(EventBean theEvent, JsonEventType targetType) {
         JsonEventObjectBase target;
         try {
             target = (JsonEventObjectBase) targetType.getUnderlyingType().newInstance();
