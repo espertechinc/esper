@@ -95,7 +95,7 @@ public class ClientCompileEnginePath {
     }
 
     private static EPCompiled compileWEnginePathAndEmptyConfig(RegressionEnvironment env, String epl) throws EPCompileException {
-        CompilerArguments args = new CompilerArguments(new Configuration());
+        CompilerArguments args = new CompilerArguments(env.getConfiguration());
         args.getPath().add(env.runtime().getRuntimePath());
         return EPCompilerProvider.getCompiler().compile(epl, args);
     }

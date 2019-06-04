@@ -48,7 +48,7 @@ public class ClientDeployPreconditionDependency {
 
     public static class ClientVisibilityDeployDepEventTypePublic implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            Configuration configuration = new Configuration();
+            Configuration configuration = env.runtime().getConfigurationDeepCopy();
             configuration.getCommon().addEventType(SomeEvent.class);
 
             EPCompiled compiled;
@@ -64,7 +64,7 @@ public class ClientDeployPreconditionDependency {
 
     public static class ClientVisibilityDeployDepVariablePublic implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            Configuration configuration = new Configuration();
+            Configuration configuration = env.runtime().getConfigurationDeepCopy();
             configuration.getCommon().addVariable("mypublicvariable", String.class, null, true);
             configuration.getCommon().addEventType(SupportBean.class);
 
