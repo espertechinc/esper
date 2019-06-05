@@ -76,6 +76,9 @@ public class TestFileSinkGraphs extends TestCase {
         runAssertion("MyOAEvent", DefaultSupportGraphEventUtil.getOAEvents(), true);
         runAssertion("MyMapEvent", DefaultSupportGraphEventUtil.getMapEvents(), false);
         runAssertion("MyDefaultSupportGraphEvent", DefaultSupportGraphEventUtil.getPOJOEvents(), true);
+
+        compileDeploy(runtime, "@public @buseventtype create json schema MyJsonEvent(myDouble double, myInt int, myString string)");
+        runAssertion("MyJsonEvent", DefaultSupportGraphEventUtil.getJsonEvents(), true);
     }
 
     private void runAssertion(String typeName, Object[] events, boolean append) throws Exception {

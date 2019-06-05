@@ -17,7 +17,7 @@ import com.espertech.esper.common.client.json.minimaljson.Json;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
+import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.util.NullableObject;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -185,7 +185,7 @@ public class EventInfraGetterDynamicIndexexPropertyPredefined implements Regress
     private void assertGetter(EventBean event, EventPropertyGetter getter, boolean exists) {
         assertEquals(exists, getter.isExistsProperty(event));
         assertEquals(exists, getter.get(event) != null);
-        assertEquals(event instanceof BeanEventBean && exists, getter.getFragment(event) != null);
+        assertEquals(event.getEventType() instanceof BeanEventType && exists, getter.getFragment(event) != null);
     }
 
     private void assertProps(RegressionEnvironment env, boolean hasA, boolean hasB) {

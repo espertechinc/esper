@@ -252,7 +252,7 @@ public class StatementInformationalsCompileTime {
     }
 
     private CodegenExpression makeAuditProvider(CodegenMethod method, CodegenClassScope classScope) {
-        if (AnnotationUtil.findAnnotation(annotations, Audit.class) == null) {
+        if (!AnnotationUtil.hasAnnotation(annotations, Audit.class)) {
             return publicConstValue(AuditProviderDefault.class, "INSTANCE");
         }
 

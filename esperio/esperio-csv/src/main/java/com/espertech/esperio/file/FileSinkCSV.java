@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpera
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.EPDataFlowSignalHandler;
 import com.espertech.esper.common.internal.event.core.EventBeanSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.render.GetterPair;
 import com.espertech.esper.common.internal.event.render.RendererMeta;
 import com.espertech.esper.common.internal.event.render.RendererMetaOptions;
@@ -107,7 +108,13 @@ public class FileSinkCSV implements DataFlowOperatorLifecycle, EPDataFlowSignalH
     public void onInput(Object object) {
         try {
             StringBuilder buf = new StringBuilder();
-            eventShell.setUnderlying(object);
+            if (!(eventShell.getEventType() instanceof JsonEventType)) {
+                eventShell.setUnderlying(object);
+            } else {
+                JsonEventType jsonEventType = (JsonEventType) eventShell.getEventType();
+                Object underlying = jsonEventType.parse(object.toString());
+                eventShell.setUnderlying(underlying);
+            }
             recursiveRender(eventShell, buf, 0, rendererMeta, rendererOptions);
             writer.write(buf.toString());
             writer.flush();

@@ -497,7 +497,7 @@ public class ResultSetProcessorFactoryFactory {
         if (allInGroupBy && allInSelect && localGroupByMatchesGroupBy) {
             boolean noDataWindowSingleStream = typeService.getIStreamOnly()[0] && typeService.getEventTypes().length < 2;
             boolean iterableUnboundConfig = services.getConfiguration().getCompiler().getViewResources().isIterableUnbound();
-            boolean iterateUnbounded = noDataWindowSingleStream && (iterableUnboundConfig || AnnotationUtil.findAnnotation(statementRawInfo.getAnnotations(), IterableUnbound.class) != null);
+            boolean iterateUnbounded = noDataWindowSingleStream && (iterableUnboundConfig || AnnotationUtil.hasAnnotation(statementRawInfo.getAnnotations(), IterableUnbound.class));
 
             log.debug(".getProcessor Using ResultSetProcessorRowPerGroup");
             ResultSetProcessorFactoryForge forge;

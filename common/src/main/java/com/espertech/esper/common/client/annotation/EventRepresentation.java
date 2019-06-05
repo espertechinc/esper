@@ -12,9 +12,13 @@ package com.espertech.esper.common.client.annotation;
 
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation that can be attached to specify which underlying event representation to use for events.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface EventRepresentation {
     /**
      * Define the event underlying type

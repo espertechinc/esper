@@ -3,10 +3,33 @@ Esper Changelog
 
 Changes in version 8.2.0
 ------------------------
+  - Support for the JSON event type.
+      This allows "create json schema" and make it possible to send JSON formatted text into the runtime as events.
+      The compiler uses the JSON schema(s) to create a fast JSON parser and fast internal representation of parsed JSON. No external JSON library is required.
+      The JSON parser has comparable and better performance compared to common JSON parsers. EsperIO gained JSON support.
+  - Support for fast and memory-saving compound keys
+      For any composite keys out of two or more expressions the compiler produces a class that represents the composite key and that implements equals and hashCode. 
+      This is applicable to the group-by clause including rollup, data windows with keys (such as #unique, #firstunique, #groupwin, #rank), partition-by for keyed segmented contexts, 
+      contexts with distinct, the select-clause distinct keyword, the query planner when planning implicit and explicit indexes, create index, every-distinct, the partition-by clause 
+      for match-recognize, table column keyed-access expressions, the for-clause for grouped delivery and the distinctOf enumeration method.    
+  - Support for array-type values as part of keys
+      All expressions for use as keys, as listed above, now allow array-type values.
   - Support for resolving serializers and de-serializers (aka. serde) at compile time for use with Esper High Availability.
-    There are two advantages of resolving the serde at compile time: 
-    The compiler is the best place to decide whether a serde is needed or not and therefore we are only resolving serdes when they are indeed needed for HA. 
-    At start/recovery time we can simply load compiled EPL and the serdes are already associated making recovery or startup in general faster.
+      There are two advantages of resolving the serde at compile time: 
+      The compiler is the best place to decide whether a serde is needed or not and therefore we are only resolving serdes when they are indeed needed for HA. 
+      At start/recovery time the runtime can simply load compiled EPL and the serdes are already associated making recovery or startup in general faster.
+  - Fixed issue #149 Enum method used on cast to collection not validating
+  - Fixed issue #155 On-merge against a table with a second action on another table fails
+  - Fixed issue #156 Constant pool for class has grown past JVM limit of 0xFFFF
+  - Fixed issue #157 Unable to use avro to event inheritance
+  - Fixed issue AOW-227-76212 Epl import statements not used when passing epl to compiler
+  - Fixed issue BLP-654-24304 @protected named window not usable for fire-and-forget
+  - Fixed issue BUB-725-88367 Unexpected end-of-input trailing comments
+  - Fixed issue FNA-839-16054 Forbidden expression expects to throw an exception
+  - Fixed issue IKL-481-12787 Unsupported exception for varargs call for service exposed by variable
+  - Fixed issue JFP-412-96594 Support for arrays in key expressions and multikey production  
+  - Fixed issue JFU-988-13370 Find-annotation considers annotations of annotations
+  - Fixed issue KJY-593-62469 NullPointerException with internal timer upon destroy
 
 Changes in version 8.1.0
 ------------------------

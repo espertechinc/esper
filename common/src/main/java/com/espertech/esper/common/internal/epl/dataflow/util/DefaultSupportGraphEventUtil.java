@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.dataflow.util;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.event.arr.SendableEventObjectArray;
 import com.espertech.esper.common.internal.event.bean.core.SendableEventBean;
 import com.espertech.esper.common.internal.event.core.SendableEvent;
@@ -96,6 +97,10 @@ public class DefaultSupportGraphEventUtil {
         return new Object[]{new MyDefaultSupportGraphEvent(1.1d, 1, "one"), new MyDefaultSupportGraphEvent(2.2d, 2, "two")};
     }
 
+    public static Object[] getJsonEvents() {
+        return new Object[]{makeJsonEvent(1.1, 1, "one"), makeJsonEvent(2.2d, 2, "two")};
+    }
+
     private static ConfigurationCommonEventTypeXMLDOM getConfig() {
         ConfigurationCommonEventTypeXMLDOM eventTypeMeta = new ConfigurationCommonEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("rootelement");
@@ -130,6 +135,10 @@ public class DefaultSupportGraphEventUtil {
         map.put("myInt", myInt);
         map.put("myString", myString);
         return map;
+    }
+
+    private static String makeJsonEvent(double myDouble, int myInt, String myString) {
+        return new JsonObject().add("myDouble", myDouble).add("myInt", myInt).add("myString", myString).toString();
     }
 
     public static class MyDefaultSupportGraphEvent {

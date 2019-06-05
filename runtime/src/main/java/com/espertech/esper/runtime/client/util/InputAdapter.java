@@ -18,4 +18,9 @@ public interface InputAdapter extends Adapter {
      * Use for MapMessage events to indicate the event type name.
      */
     public static final String ESPERIO_MAP_EVENT_TYPE = InputAdapter.class.getName() + "_maptype";
+
+    /**
+     * Use for TextMessage events to indicate the event type name.
+     */
+    public static final String ESPERIO_JSON_EVENT_TYPE = InputAdapter.class.getName() + "_jsontype";
 }

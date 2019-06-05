@@ -14,13 +14,12 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprSubstitutionNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
  * Specification object representing a complete EPL statement including all EPL constructs.
  */
-public class StatementSpecRaw implements Serializable {
+public class StatementSpecRaw {
     private ExpressionDeclDesc expressionDeclDesc;
     private OnTriggerDesc onTriggerDesc;
     private UpdateDesc updateDesc;

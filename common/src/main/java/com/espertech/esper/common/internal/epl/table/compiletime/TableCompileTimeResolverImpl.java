@@ -29,13 +29,15 @@ public class TableCompileTimeResolverImpl implements TableCompileTimeResolver {
     private final TableCompileTimeRegistry compileTimeRegistry;
     private final PathRegistry<String, TableMetaData> pathTables;
     private final ModuleDependenciesCompileTime moduleDependencies;
+    private final boolean isFireAndForget;
 
-    public TableCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, TableCompileTimeRegistry compileTimeRegistry, PathRegistry<String, TableMetaData> pathTables, ModuleDependenciesCompileTime moduleDependencies) {
+    public TableCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, TableCompileTimeRegistry compileTimeRegistry, PathRegistry<String, TableMetaData> pathTables, ModuleDependenciesCompileTime moduleDependencies, boolean isFireAndForget) {
         this.moduleName = moduleName;
         this.moduleUses = moduleUses;
         this.compileTimeRegistry = compileTimeRegistry;
         this.pathTables = pathTables;
         this.moduleDependencies = moduleDependencies;
+        this.isFireAndForget = isFireAndForget;
     }
 
     public TableMetaData resolveTableFromEventType(EventType containedType) {
@@ -55,7 +57,7 @@ public class TableCompileTimeResolverImpl implements TableCompileTimeResolver {
         try {
             Pair<TableMetaData, String> data = pathTables.getAnyModuleExpectSingle(tableName, moduleUses);
             if (data != null) {
-                if (!NameAccessModifier.visible(data.getFirst().getTableVisibility(), data.getFirst().getTableModuleName(), moduleName)) {
+                if (!isFireAndForget && !NameAccessModifier.visible(data.getFirst().getTableVisibility(), data.getFirst().getTableModuleName(), moduleName)) {
                     return null;
                 }
 

@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.toObjectArray;
@@ -44,7 +45,21 @@ public class ClientRuntimeStatementAnnotation {
         execs.add(new ClientRuntimeStatementAnnotationAppNested());
         execs.add(new ClientRuntimeStatementAnnotationInvalid());
         execs.add(new ClientRuntimeStatementAnnotationSpecificImport());
+        execs.add(new ClientRuntimeStatementAnnotationRecursive());
         return execs;
+    }
+
+    public static class ClientRuntimeStatementAnnotationRecursive implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@MyAnnotationAPIEventType create schema ABC();\n" +
+                        "@name('s0') select * from ABC;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventMap(Collections.emptyMap(), "ABC");
+            env.listener("s0").assertOneGetNewAndReset();
+
+            env.undeployAll();
+        }
     }
 
     public static class ClientRuntimeStatementAnnotationAppSimple implements RegressionExecution {

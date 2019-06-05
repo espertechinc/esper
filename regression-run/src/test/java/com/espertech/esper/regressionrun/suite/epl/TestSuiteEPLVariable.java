@@ -120,6 +120,7 @@ public class TestSuiteEPLVariable extends TestCase {
         common.addVariable("var_output_limit", long.class, "3");
         common.addVariable("myNonSerializable", EPLVariablesEventTyped.NonSerializable.class, EPLVariablesEventTyped.NON_SERIALIZABLE);
         common.addVariable("my_variable_custom_typed", EPLVariables.MyVariableCustomType.class.getName(), EPLVariables.MyVariableCustomType.of("abc"), true);
+        common.addVariable("varargsTestClient", EPLVariables.SupportVarargsClient.class, new EPLVariables.SupportVarargsClientImpl());
 
         configuration.getCompiler().getViewResources().setIterableUnbound(true);
         configuration.getCompiler().getByteCode().setAllowSubscriber(true);

@@ -10,6 +10,7 @@
  */
 package com.espertech.esperio.regression.adapter;
 
+import com.espertech.esper.runtime.client.util.InputAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -52,6 +53,11 @@ public class SupportJMSSender {
 
     public void sendMap(Map<String, Object> message) {
         MessageCreator creator = new MyMapMessageCreator(message);
+        jmsTemplate.send(creator);
+    }
+
+    public void sendJson(String eventTypeName, String message) {
+        MessageCreator creator = new MyTextMessageCreator(eventTypeName, message);
         jmsTemplate.send(creator);
     }
 
@@ -101,6 +107,32 @@ public class SupportJMSSender {
                     Object val = msgObject.get(key);
                     msg.setObject(key, val);
                 }
+            } catch (JMSException ex) {
+                log.error(".createMessage Error creating map message", ex);
+            }
+            return msg;
+        }
+    }
+
+    private class MyTextMessageCreator implements MessageCreator {
+        private String eventTypeName;
+        private String text;
+
+        public MyTextMessageCreator(String eventTypeName, String text) {
+            this.eventTypeName = eventTypeName;
+            this.text = text;
+        }
+
+        public Message createMessage(Session session) {
+            if (log.isDebugEnabled()) {
+                log.debug(".createMessage Creating map message for map " + text.toString());
+            }
+
+            TextMessage msg = null;
+            try {
+                msg = session.createTextMessage();
+                msg.setText(text);
+                msg.setStringProperty(InputAdapter.ESPERIO_JSON_EVENT_TYPE, eventTypeName);
             } catch (JMSException ex) {
                 log.error(".createMessage Error creating map message", ex);
             }

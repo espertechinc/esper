@@ -26,12 +26,11 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
-import java.io.Serializable;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ContextSpecKeyedItem implements Serializable {
+public class ContextSpecKeyedItem {
 
     private final FilterSpecRaw filterSpecRaw;
     private final List<String> propertyNames;

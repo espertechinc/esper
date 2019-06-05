@@ -68,7 +68,7 @@ public class ExceptionHandlingService {
         return runtimeURI;
     }
 
-    public void handleException(RuntimeException ex, String deploymentId, String statementName, String epl, ExceptionHandlerExceptionType type, EventBean optionalCurrentEvent) {
+    public void handleException(Throwable t, String deploymentId, String statementName, String optionalEPL, ExceptionHandlerExceptionType type, EventBean optionalCurrentEvent) {
         if (exceptionHandlers.isEmpty()) {
             StringWriter writer = new StringWriter();
             if (type == ExceptionHandlerExceptionType.PROCESS) {
@@ -82,24 +82,24 @@ public class ExceptionHandlingService {
             writer.append("statement '");
             writer.append(statementName);
             writer.append("'");
-            if (epl != null) {
+            if (optionalEPL != null) {
                 writer.append(" expression '");
-                writer.append(epl);
+                writer.append(optionalEPL);
                 writer.append("'");
             }
             writer.append(" : ");
-            writer.append(ex.getMessage());
+            writer.append(t.getMessage());
             String message = writer.toString();
 
             if (type == ExceptionHandlerExceptionType.PROCESS) {
-                log.error(message, ex);
+                log.error(message, t);
             } else {
-                log.warn(message, ex);
+                log.warn(message, t);
             }
             return;
         }
 
-        ExceptionHandlerContext context = new ExceptionHandlerContext(runtimeURI, ex, deploymentId, statementName, epl, type, optionalCurrentEvent);
+        ExceptionHandlerContext context = new ExceptionHandlerContext(runtimeURI, t, deploymentId, statementName, optionalEPL, type, optionalCurrentEvent);
         for (ExceptionHandler handler : exceptionHandlers) {
             handler.handle(context);
         }

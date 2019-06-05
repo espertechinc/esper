@@ -12,6 +12,8 @@ package com.espertech.esperio.regression.adapter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.json.minimaljson.Json;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
 import com.espertech.esper.runtime.client.EPStatement;
@@ -43,12 +45,7 @@ public class TestJMSSpringInputAdapter extends TestCase {
     }
 
     public void testSerializable() throws Exception {
-        // define loader
-        Configuration config = new Configuration();
-        config.getRuntime().getThreading().setInternalTimerEnabled(false);
-        Properties props = new Properties();
-        props.put(SpringContext.CLASSPATH_CONTEXT, "regression/jms_regression_input_spring.xml");
-        config.getRuntime().addPluginLoader("MyLoader", SpringContextLoader.class.getName(), props);
+        Configuration config = getCommonConfig();
         config.getCommon().addEventType(SupportSerializableBean.class);
         EPRuntime runtime = EPRuntimeProvider.getRuntime(this.getClass().getName() + "_testSerializable", config);
 
@@ -70,13 +67,7 @@ public class TestJMSSpringInputAdapter extends TestCase {
     }
 
     public void testMap() throws Exception {
-        Configuration config = new Configuration();
-        config.getRuntime().getThreading().setInternalTimerEnabled(false);
-
-        // define loader
-        Properties props = new Properties();
-        props.put(SpringContext.CLASSPATH_CONTEXT, "regression/jms_regression_input_spring.xml");
-        config.getRuntime().addPluginLoader("MyLoader", SpringContextLoader.class.getName(), props);
+        Configuration config = getCommonConfig();
 
         // define type
         Map<String, Object> typeProps = new HashMap<String, Object>();
@@ -107,6 +98,22 @@ public class TestJMSSpringInputAdapter extends TestCase {
         assertEquals(200, received.get("prop2"));
     }
 
+    public void testJSON() throws Exception {
+        Configuration config = getCommonConfig();
+        EPRuntime runtime = EPRuntimeProvider.getRuntime(this.getClass().getName() + "_testJson", config);
+        compileDeploy(runtime, "@public @buseventtype create json schema MyJsonType(prop1 string, prop2 int)");
+
+        EPStatement statement = compileDeploy(runtime, "select * from MyJsonType").getStatements()[0];
+        SupportUpdateListener listener = new SupportUpdateListener();
+        statement.addListener(listener);
+
+        jmsSender.sendJson("MyJsonType", makeJson("IBM", 100));
+        Thread.sleep(500);
+        EventBean received = listener.assertOneGetNewAndReset();
+        assertEquals("IBM", received.get("prop1"));
+        assertEquals(100, received.get("prop2"));
+    }
+
     private Map<String, Object> makeMap(String type, String prop1, int prop2) {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("prop1", prop1);
@@ -115,4 +122,15 @@ public class TestJMSSpringInputAdapter extends TestCase {
         return props;
     }
 
+    private String makeJson(String prop1, int prop2) {
+        return new JsonObject().add("prop1", prop1).add("prop2", prop2).toString();
+    }
+
+    private Configuration getCommonConfig() {
+        Configuration config = new Configuration();
+        Properties props = new Properties();
+        props.put(SpringContext.CLASSPATH_CONTEXT, "regression/jms_regression_input_spring.xml");
+        config.getRuntime().addPluginLoader("MyLoader", SpringContextLoader.class.getName(), props);
+        return config;
+    }
 }

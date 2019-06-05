@@ -27,13 +27,15 @@ public class ExprDeclaredCompileTimeResolverImpl implements ExprDeclaredCompileT
     private final ExprDeclaredCompileTimeRegistry locals;
     private final PathRegistry<String, ExpressionDeclItem> path;
     private final ModuleDependenciesCompileTime moduleDependencies;
+    private final boolean isFireAndForget;
 
-    public ExprDeclaredCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, ExprDeclaredCompileTimeRegistry locals, PathRegistry<String, ExpressionDeclItem> path, ModuleDependenciesCompileTime moduleDependencies) {
+    public ExprDeclaredCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, ExprDeclaredCompileTimeRegistry locals, PathRegistry<String, ExpressionDeclItem> path, ModuleDependenciesCompileTime moduleDependencies, boolean isFireAndForget) {
         this.moduleName = moduleName;
         this.moduleUses = moduleUses;
         this.locals = locals;
         this.path = path;
         this.moduleDependencies = moduleDependencies;
+        this.isFireAndForget = isFireAndForget;
     }
 
     public ExpressionDeclItem resolve(String name) {
@@ -45,7 +47,7 @@ public class ExprDeclaredCompileTimeResolverImpl implements ExprDeclaredCompileT
         try {
             Pair<ExpressionDeclItem, String> expression = path.getAnyModuleExpectSingle(name, moduleUses);
             if (expression != null) {
-                if (!NameAccessModifier.visible(expression.getFirst().getVisibility(), expression.getFirst().getModuleName(), moduleName)) {
+                if (!isFireAndForget && !NameAccessModifier.visible(expression.getFirst().getVisibility(), expression.getFirst().getModuleName(), moduleName)) {
                     return null;
                 }
 

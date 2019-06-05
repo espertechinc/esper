@@ -393,13 +393,7 @@ public class CompilerHelperModuleProvider {
         if (eventType instanceof JsonEventType) {
             JsonEventType jsonEventType = (JsonEventType) eventType;
             method.getBlock().declareVar(LinkedHashMap.class, "props", localMethod(makePropsCodegen(jsonEventType.getTypes(), method, symbols, classScope, () -> jsonEventType.getDeepSuperTypes())));
-            String[] superTypeNames = null;
-            if (jsonEventType.getSuperTypes() != null && jsonEventType.getSuperTypes().length > 0) {
-                superTypeNames = new String[jsonEventType.getSuperTypes().length];
-                for (int i = 0; i < jsonEventType.getSuperTypes().length; i++) {
-                    superTypeNames[i] = jsonEventType.getSuperTypes()[i].getName();
-                }
-            }
+            String[] superTypeNames = getSupertypeNames(jsonEventType);
             CodegenExpression detailExpr = jsonEventType.getDetail().toExpression(method, classScope);
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerJson", ref("metadata"), ref("props"),
                 constant(superTypeNames), constant(jsonEventType.getStartTimestampPropertyName()), constant(jsonEventType.getEndTimestampPropertyName()), detailExpr));
@@ -407,13 +401,7 @@ public class CompilerHelperModuleProvider {
             BaseNestableEventType baseNestable = (BaseNestableEventType) eventType;
             method.getBlock().declareVar(LinkedHashMap.class, "props", localMethod(makePropsCodegen(baseNestable.getTypes(), method, symbols, classScope, () -> baseNestable.getDeepSuperTypes())));
             String registerMethodName = eventType instanceof MapEventType ? "registerMap" : "registerObjectArray";
-            String[] superTypeNames = null;
-            if (baseNestable.getSuperTypes() != null && baseNestable.getSuperTypes().length > 0) {
-                superTypeNames = new String[baseNestable.getSuperTypes().length];
-                for (int i = 0; i < baseNestable.getSuperTypes().length; i++) {
-                    superTypeNames[i] = baseNestable.getSuperTypes()[i].getName();
-                }
-            }
+            String[] superTypeNames = getSupertypeNames(baseNestable);
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add(registerMethodName, ref("metadata"), ref("props"),
                 constant(superTypeNames), constant(baseNestable.getStartTimestampPropertyName()), constant(baseNestable.getEndTimestampPropertyName())));
         } else if (eventType instanceof WrapperEventType) {
@@ -435,8 +423,9 @@ public class CompilerHelperModuleProvider {
                 constant(xmlType.getRepresentsFragmentOfProperty()), constant(xmlType.getRepresentsOriginalTypeName())));
         } else if (eventType instanceof AvroSchemaEventType) {
             AvroSchemaEventType avroType = (AvroSchemaEventType) eventType;
+            String[] superTypeNames = getSupertypeNames(avroType);
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerAvro", ref("metadata"),
-                constant(avroType.getSchema().toString())));
+                constant(avroType.getSchema().toString()), constant(superTypeNames)));
         } else if (eventType instanceof VariantEventType) {
             VariantEventType variantEventType = (VariantEventType) eventType;
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerVariant", ref("metadata"),
@@ -446,6 +435,17 @@ public class CompilerHelperModuleProvider {
         }
 
         return method;
+    }
+
+    private static String[] getSupertypeNames(EventType eventType) {
+        if (eventType.getSuperTypes() != null && eventType.getSuperTypes().length > 0) {
+            String[] superTypeNames = new String[eventType.getSuperTypes().length];
+            for (int i = 0; i < eventType.getSuperTypes().length; i++) {
+                superTypeNames[i] = eventType.getSuperTypes()[i].getName();
+            }
+            return superTypeNames;
+        }
+        return new String[0];
     }
 
     private static CodegenMethod registerEventTypeSerdeCodegen(EventType eventType, DataInputOutputSerdeForge serdeForge, CodegenMethodScope parent, CodegenClassScope classScope, ModuleEventTypeInitializeSymbol symbols) {

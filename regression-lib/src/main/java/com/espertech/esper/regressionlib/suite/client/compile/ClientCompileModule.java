@@ -44,7 +44,17 @@ public class ClientCompileModule {
         execs.add(new ClientCompileModuleTwoModules());
         execs.add(new ClientCompileModuleParse());
         execs.add(new ClientCompileModuleParseFail());
+        execs.add(new ClientCompileModuleCommentTrailing());
         return execs;
+    }
+
+    private static class ClientCompileModuleCommentTrailing implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            final String epl =
+                "@public @buseventtype create map schema Fubar as (foo String, bar Double);" + System.lineSeparator()
+                    + "/** comment after */";
+            env.compileDeploy(epl).undeployAll();
+        }
     }
 
     private static class ClientCompileModuleTwoModules implements RegressionExecution {
@@ -167,6 +177,15 @@ public class ClientCompileModule {
 
             env.sendEventBean(new SupportBean("E1", 4));
             assertEquals(5, env.listener("A").assertOneGetNewAndReset().get("val"));
+
+            env.undeployAll();
+
+            String epl = "import " + SupportStaticMethodLib.class.getName() + ";\n" +
+                "@Name('A') select SupportStaticMethodLib.plusOne(intPrimitive) as val from SupportBean;\n";
+            env.compileDeploy(epl).addListener("A");
+
+            env.sendEventBean(new SupportBean("E1", 6));
+            assertEquals(7, env.listener("A").assertOneGetNewAndReset().get("val"));
 
             env.undeployAll();
         }

@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.suite.client.runtime.*;
 import com.espertech.esper.regressionlib.suite.event.infra.EventInfraPropertyUnderlyingSimple;
 import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.client.MyAnnotationAPIEventType;
 import com.espertech.esper.regressionlib.support.client.MyAnnotationNestableValues;
 import com.espertech.esper.regressionlib.support.client.MyAnnotationValueEnum;
 import com.espertech.esper.regressionlib.support.extend.aggfunc.SupportInvalidAggregationFunctionForge;
@@ -28,6 +29,7 @@ import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 

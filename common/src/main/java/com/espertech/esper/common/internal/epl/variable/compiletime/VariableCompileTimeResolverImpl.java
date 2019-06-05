@@ -28,14 +28,16 @@ public class VariableCompileTimeResolverImpl implements VariableCompileTimeResol
     private final VariableCompileTimeRegistry compileTimeRegistry;
     private final PathRegistry<String, VariableMetaData> pathVariables;
     private final ModuleDependenciesCompileTime moduleDependencies;
+    private final boolean isFireAndForget;
 
-    public VariableCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, VariableRepositoryPreconfigured publicVariables, VariableCompileTimeRegistry compileTimeRegistry, PathRegistry<String, VariableMetaData> pathVariables, ModuleDependenciesCompileTime moduleDependencies) {
+    public VariableCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, VariableRepositoryPreconfigured publicVariables, VariableCompileTimeRegistry compileTimeRegistry, PathRegistry<String, VariableMetaData> pathVariables, ModuleDependenciesCompileTime moduleDependencies, boolean isFireAndForget) {
         this.moduleName = moduleName;
         this.moduleUses = moduleUses;
         this.publicVariables = publicVariables;
         this.compileTimeRegistry = compileTimeRegistry;
         this.pathVariables = pathVariables;
         this.moduleDependencies = moduleDependencies;
+        this.isFireAndForget = isFireAndForget;
     }
 
     public VariableMetaData resolve(String variableName) {
@@ -62,7 +64,7 @@ public class VariableCompileTimeResolverImpl implements VariableCompileTimeResol
                 return null;
             }
 
-            if (!NameAccessModifier.visible(pair.getFirst().getVariableVisibility(), pair.getFirst().getVariableModuleName(), moduleName)) {
+            if (!isFireAndForget && !NameAccessModifier.visible(pair.getFirst().getVariableVisibility(), pair.getFirst().getVariableModuleName(), moduleName)) {
                 return null;
             }
 

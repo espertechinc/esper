@@ -22,8 +22,9 @@ import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
+import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
@@ -64,6 +65,7 @@ public class EPLVariables {
         execs.add(new EPLVariableInvalidSet());
         execs.add(new EPLVariableFilterConstantCustomTypePreconfigured());
         execs.add(new EPLVariableSetSubqueryMultikeyWArray());
+        execs.add(new EPLVariableWVarargs());
         return execs;
     }
 
@@ -97,6 +99,20 @@ public class EPLVariables {
 
         private void assertVariable(RegressionEnvironment env, Integer expected) {
             assertEquals(expected, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "total_sum"));
+        }
+    }
+
+    private static class EPLVariableWVarargs implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean(varargsTestClient.functionWithVarargs(longBoxed, varargsTestClient.getTestObject(theString))) as t";
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportBean sb = new SupportBean("5", 0);
+            sb.setLongBoxed(5L);
+            env.sendEventBean(sb);
+            env.listener("s0").assertOneGetNewAndReset();
+
+            env.undeployAll();
         }
     }
 
@@ -1195,6 +1211,42 @@ public class EPLVariables {
         @Override
         public int hashCode() {
             return Objects.hash(name);
+        }
+    }
+
+    public static class SupportVarargsObject {
+
+        private Long value;
+
+        public SupportVarargsObject(Long value) {
+            this.value = value;
+        }
+
+        public Long getValue() {
+            return value;
+        }
+
+        public void setValue(Long value) {
+            this.value = value;
+        }
+    }
+
+    public interface SupportVarargsClient extends Serializable {
+
+        boolean functionWithVarargs(Long longValue, Object... objects);
+
+        public SupportVarargsObject getTestObject(String stringValue);
+    }
+
+    public static class SupportVarargsClientImpl implements SupportVarargsClient {
+
+        public boolean functionWithVarargs(Long longValue, Object... objects) {
+            SupportVarargsObject obj = (SupportVarargsObject) objects[0];
+            return longValue.equals(obj.getValue());
+        }
+
+        public SupportVarargsObject getTestObject(String stringValue) {
+            return new SupportVarargsObject(Long.parseLong(stringValue));
         }
     }
 }

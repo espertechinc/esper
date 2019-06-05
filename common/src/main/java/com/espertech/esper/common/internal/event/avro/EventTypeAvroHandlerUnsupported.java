@@ -71,7 +71,7 @@ public class EventTypeAvroHandlerUnsupported implements EventTypeAvroHandler {
         throw getUnsupported();
     }
 
-    public AvroSchemaEventType newEventTypeFromJson(EventTypeMetadata metadata, EventBeanTypedEventFactory eventBeanTypedEventFactory, String schemaJson) {
+    public AvroSchemaEventType newEventTypeFromJson(EventTypeMetadata metadata, EventBeanTypedEventFactory eventBeanTypedEventFactory, String schemaJson, EventType[] supertypes, Set<EventType> deepSupertypes) {
         throw getUnsupported();
     }
 

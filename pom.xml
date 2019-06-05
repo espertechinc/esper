@@ -31,7 +31,7 @@
 		<maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
 		<maven.source.plugin.version>2.1</maven.source.plugin.version>
 		<maven.surefire.plugin.version>2.4.3</maven.surefire.plugin.version>
-		<puppycrawl.tools.checkstyle.version>8.13</puppycrawl.tools.checkstyle.version>
+		<puppycrawl.tools.checkstyle.version>8.18</puppycrawl.tools.checkstyle.version>
 
 		<antlr4-runtime.version>4.7.1</antlr4-runtime.version>
 		<avro.version>1.8.2</avro.version>

@@ -24,6 +24,7 @@ public class SupportConstants {
     public final static String DEV_INPUT_TOPIC_SUPPORTBEAN_STRING = "esperio_regression_input_t1";
     public final static String DEV_INPUT_TOPIC_SUPPORTBEAN_JAVASERIALIZED = "esperio_regression_input_t2";
     public final static String DEV_INPUT_TOPIC_BYTES = "esperio_regression_input_t3";
+    public final static String DEV_INPUT_TOPIC_JSON = "esperio_regression_input_t4";
     public final static String DEV_OUTPUT_TOPIC_JSON = "esperio_regression_output_t1";
 
     public static Properties getInputPluginProps(String topicName, String valueDeserializerClassName, String timestampExtractorClassName) {

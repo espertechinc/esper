@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.metrics.audit.AuditProviderDefault;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommonDefault;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
+import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 
 public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
     protected final StatementContext statementContext;
@@ -103,5 +104,9 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
 
     public InstrumentationCommon getInstrumentationProvider() {
         return InstrumentationCommonDefault.INSTANCE;
+    }
+
+    public ExceptionHandlingService getExceptionHandlingService() {
+        return statementContext.getExceptionHandlingService();
     }
 }

@@ -10,8 +10,12 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation that is the public access modifier
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Protected {
 }

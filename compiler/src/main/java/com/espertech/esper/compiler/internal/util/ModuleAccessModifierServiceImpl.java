@@ -86,7 +86,7 @@ public class ModuleAccessModifierServiceImpl implements ModuleAccessModifierServ
                 return result;
             }
         }
-        boolean busEventType = AnnotationUtil.findAnnotation(raw.getAnnotations(), BusEventType.class) != null;
+        boolean busEventType = AnnotationUtil.hasAnnotation(raw.getAnnotations(), BusEventType.class);
         if (busEventType) {
             return EventTypeBusModifier.BUS;
         }
@@ -104,9 +104,9 @@ public class ModuleAccessModifierServiceImpl implements ModuleAccessModifierServ
             }
         }
 
-        boolean isPrivate = AnnotationUtil.findAnnotation(annotations, Private.class) != null;
-        boolean isProtected = AnnotationUtil.findAnnotation(annotations, Protected.class) != null;
-        boolean isPublic = AnnotationUtil.findAnnotation(annotations, Public.class) != null;
+        boolean isPrivate = AnnotationUtil.hasAnnotation(annotations, Private.class);
+        boolean isProtected = AnnotationUtil.hasAnnotation(annotations, Protected.class);
+        boolean isPublic = AnnotationUtil.hasAnnotation(annotations, Public.class);
         if (isPrivate) {
             if (isProtected) {
                 throw new EPException("Encountered both the @private and the @protected annotation");

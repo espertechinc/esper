@@ -103,7 +103,7 @@ public class TestSuiteInfraNWTable extends TestCase {
     }
 
     public void testInfraNWTableInfraEventType() {
-        RegressionRunner.run(session, new InfraNWTableEventType());
+        RegressionRunner.run(session, InfraNWTableEventType.executions());
     }
 
     public void testInfraNWTableInfraFAFIndex() {

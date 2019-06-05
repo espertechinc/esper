@@ -91,6 +91,10 @@ public class TableInstanceGroupedImpl extends TableInstanceGroupedBase implement
         return createRowIntoTable(groupByKey);
     }
 
+    public Collection<Object> getGroupKeysMayMultiKey() {
+        return rows.keySet();
+    }
+
     public Collection<Object> getGroupKeys() {
         Class[] keyTypes = table.getMetaData().getKeyTypes();
         if (keyTypes.length == 1 && !keyTypes[0].isArray()) {

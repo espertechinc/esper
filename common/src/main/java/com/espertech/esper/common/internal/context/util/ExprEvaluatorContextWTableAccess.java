@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorCont
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
+import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 
 public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext {
     private final ExprEvaluatorContext context;
@@ -87,5 +88,9 @@ public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext {
 
     public InstrumentationCommon getInstrumentationProvider() {
         return context.getInstrumentationProvider();
+    }
+
+    public ExceptionHandlingService getExceptionHandlingService() {
+        return context.getExceptionHandlingService();
     }
 }

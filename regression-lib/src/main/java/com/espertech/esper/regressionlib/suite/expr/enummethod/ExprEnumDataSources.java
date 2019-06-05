@@ -51,7 +51,21 @@ public class ExprEnumDataSources {
         execs.add(new ExprEnumMatchRecognizeDefine());
         execs.add(new ExprEnumMatchRecognizeMeasures(false));
         execs.add(new ExprEnumMatchRecognizeMeasures(true));
+        execs.add(new ExprEnumCast());
         return execs;
+    }
+
+    private static class ExprEnumCast implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyLocalEvent as " + MyLocalEvent.class.getName() + ";\n" +
+                "@name('s0') select cast(value.someCollection?, java.util.Collection).countOf() as cnt from MyLocalEvent";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new MyLocalEvent(new MyLocalWithCollection(Arrays.asList("a", "b"))));
+            assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprEnumPropertySchema implements RegressionExecution {
@@ -745,5 +759,29 @@ public class ExprEnumDataSources {
 
     private static void assertColl(String expected, Object value) {
         EPAssertionUtil.assertEqualsExactOrder(expected.split(","), ((Collection) value).toArray());
+    }
+
+    public static class MyLocalEvent {
+        private Object value;
+
+        public MyLocalEvent(Object value) {
+            this.value = value;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+    }
+
+    public static class MyLocalWithCollection {
+        private final Collection someCollection;
+
+        public MyLocalWithCollection(Collection someCollection) {
+            this.someCollection = someCollection;
+        }
+
+        public Collection getSomeCollection() {
+            return someCollection;
+        }
     }
 }

@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use with Avro to provide a schema for a given event property.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface AvroSchemaField {
     /**
      * Property name.

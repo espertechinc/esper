@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use with JSON schemas.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface JsonSchema {
     /**
      * Flag indicating whether to discard unrecognized property names (the default, false, i.e. non-dynamic)

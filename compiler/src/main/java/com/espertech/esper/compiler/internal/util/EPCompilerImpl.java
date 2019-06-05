@@ -70,6 +70,9 @@ public class EPCompilerImpl implements EPCompilerSPI {
             Module module = EPLModuleUtil.parseInternal(epl, null);
             List<Compilable> compilables = new ArrayList<>();
             for (ModuleItem item : module.getItems()) {
+                if (item.isCommentOnly()) {
+                    continue;
+                }
                 String stmtEpl = item.getExpression();
                 compilables.add(new CompilableEPL(stmtEpl, item.getLineNumber()));
             }
@@ -79,7 +82,8 @@ public class EPCompilerImpl implements EPCompilerSPI {
             Set<String> moduleUses = determineModuleUses(moduleName, arguments.getOptions(), module);
 
             // get compile services
-            ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+            ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, false);
+            addModuleImports(module.getImports(), compileTimeServices);
 
             // compile
             return CompilerHelperModuleProvider.compile(compilables, moduleName, Collections.emptyMap(), compileTimeServices, arguments.getOptions());
@@ -95,7 +99,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
     public EPCompilerSPIExpression expressionCompiler(Configuration configuration) throws EPCompileException {
         CompilerArguments arguments = new CompilerArguments(configuration);
         arguments.setConfiguration(configuration);
-        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, null, null);
+        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, null, null, false);
         return new EPCompilerSPIExpressionImpl(compileTimeServices);
     }
 
@@ -126,17 +130,8 @@ public class EPCompilerImpl implements EPCompilerSPI {
         Set<String> moduleUses = determineModuleUses(moduleName, arguments.getOptions(), module);
 
         // get compile services
-        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
-
-        if (module.getImports() != null) {
-            for (String imported : module.getImports()) {
-                try {
-                    compileTimeServices.getClasspathImportServiceCompileTime().addImport(imported);
-                } catch (ClasspathImportException e) {
-                    throw new EPCompileException("Invalid module import: " + e.getMessage(), e);
-                }
-            }
-        }
+        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, false);
+        addModuleImports(module.getImports(), compileTimeServices);
 
         List<Compilable> compilables = new ArrayList<>();
         for (ModuleItem item : module.getItems()) {
@@ -206,7 +201,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
         String moduleName = determineModuleName(arguments.getOptions(), module);
         Set<String> moduleUses = determineModuleUses(moduleName, arguments.getOptions(), module);
 
-        ModuleCompileTimeServices moduleCompileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+        ModuleCompileTimeServices moduleCompileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, false);
 
         int statementNumber = 0;
         try {
@@ -242,7 +237,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
         String moduleName = arguments.getOptions().getModuleName() == null ? null : arguments.getOptions().getModuleName().getValue(new ModuleNameContext(null));
         Set<String> moduleUses = arguments.getOptions().getModuleUses() == null ? null : arguments.getOptions().getModuleUses().getValue(new ModuleUsesContext(moduleName, null));
 
-        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses);
+        ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, true);
         try {
             return CompilerHelperFAFProvider.compile(compilable, compileTimeServices, arguments);
         } catch (Throwable t) {
@@ -267,5 +262,17 @@ public class EPCompilerImpl implements EPCompilerSPI {
 
     private Object toNullOrArray(Set<String> values) {
         return values == null || values.isEmpty() ? null : values.toArray(new String[0]);
+    }
+
+    private void addModuleImports(Set<String> imports, ModuleCompileTimeServices compileTimeServices) throws EPCompileException {
+        if (imports != null) {
+            for (String imported : imports) {
+                try {
+                    compileTimeServices.getClasspathImportServiceCompileTime().addImport(imported);
+                } catch (ClasspathImportException e) {
+                    throw new EPCompileException("Invalid module import: " + e.getMessage(), e);
+                }
+            }
+        }
     }
 }

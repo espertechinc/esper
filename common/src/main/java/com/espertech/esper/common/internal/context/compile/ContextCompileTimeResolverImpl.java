@@ -26,13 +26,15 @@ public class ContextCompileTimeResolverImpl implements ContextCompileTimeResolve
     private final ContextCompileTimeRegistry locals;
     private final PathRegistry<String, ContextMetaData> path;
     private final ModuleDependenciesCompileTime moduleDependencies;
+    private final boolean isFireAndForget;
 
-    public ContextCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, ContextCompileTimeRegistry locals, PathRegistry<String, ContextMetaData> path, ModuleDependenciesCompileTime moduleDependencies) {
+    public ContextCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, ContextCompileTimeRegistry locals, PathRegistry<String, ContextMetaData> path, ModuleDependenciesCompileTime moduleDependencies, boolean isFireAndForget) {
         this.moduleName = moduleName;
         this.moduleUses = moduleUses;
         this.locals = locals;
         this.path = path;
         this.moduleDependencies = moduleDependencies;
+        this.isFireAndForget = isFireAndForget;
     }
 
     public ContextMetaData getContextInfo(String contextName) {
@@ -44,7 +46,7 @@ public class ContextCompileTimeResolverImpl implements ContextCompileTimeResolve
         try {
             Pair<ContextMetaData, String> pair = path.getAnyModuleExpectSingle(contextName, moduleUses);
             if (pair != null) {
-                if (!NameAccessModifier.visible(pair.getFirst().getContextVisibility(), pair.getFirst().getContextModuleName(), moduleName)) {
+                if (!isFireAndForget && !NameAccessModifier.visible(pair.getFirst().getContextVisibility(), pair.getFirst().getContextModuleName(), moduleName)) {
                     return null;
                 }
 

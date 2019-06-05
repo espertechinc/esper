@@ -41,7 +41,7 @@ public interface EventTypeAvroHandler {
 
     AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, EventTypeNameResolver eventTypeNameResolver, EventBeanTypedEventFactory eventBeanTypedEventFactory, Map<String, Object> properties, Annotation[] annotations, ConfigurationCommonEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes, String statementName);
 
-    AvroSchemaEventType newEventTypeFromJson(EventTypeMetadata metadata, EventBeanTypedEventFactory eventBeanTypedEventFactory, String schemaJson);
+    AvroSchemaEventType newEventTypeFromJson(EventTypeMetadata metadata, EventBeanTypedEventFactory eventBeanTypedEventFactory, String schemaJson, EventType[] supertypes, Set<EventType> deepSupertypes);
 
     EventBean adapterForTypeAvro(Object avroGenericDataDotRecord, EventType existingType);
 

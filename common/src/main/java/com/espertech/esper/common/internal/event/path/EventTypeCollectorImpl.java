@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariantStream;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.util.EventUnderlyingType;
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
@@ -24,6 +26,7 @@ import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeSt
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
+import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactory;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
@@ -108,8 +111,9 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         handleRegister(eventType);
     }
 
-    public void registerAvro(EventTypeMetadata metadata, String schemaJson) {
-        EventType eventType = eventTypeAvroHandler.newEventTypeFromJson(metadata, eventBeanTypedEventFactory, schemaJson);
+    public void registerAvro(EventTypeMetadata metadata, String schemaJson, String[] superTypes) {
+        Pair<EventType[], Set<EventType>> st = EventTypeUtility.getSuperTypesDepthFirst(superTypes, EventUnderlyingType.AVRO, eventTypeNameResolver);
+        EventType eventType = eventTypeAvroHandler.newEventTypeFromJson(metadata, eventBeanTypedEventFactory, schemaJson, st.getFirst(), st.getSecond());
         handleRegister(eventType);
     }
 

@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.methodbase;
 
+import java.io.Serializable;
 import java.io.StringWriter;
 
-public class DotMethodFP {
+public class DotMethodFP implements Serializable {
 
     private final DotMethodFPInputEnum input;
     private final DotMethodFPParam[] parameters;

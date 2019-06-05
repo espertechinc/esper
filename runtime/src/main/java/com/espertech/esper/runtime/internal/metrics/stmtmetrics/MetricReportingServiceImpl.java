@@ -165,7 +165,7 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
     }
 
     public void route(MetricEvent metricEvent) {
-        executionContext.getEpRuntimeSendEvent().sendEventBean(metricEvent, metricEvent.getClass().getName());
+        executionContext.getEPRuntimeSendEvent().sendEventBean(metricEvent, metricEvent.getClass().getName());
     }
 
     public void accountTime(StatementMetricHandle metricsHandle, long deltaCPU, long deltaWall, int numInputEvents) {

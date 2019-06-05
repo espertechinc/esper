@@ -91,7 +91,7 @@ public class StmtClassForgeableBaseNestableEventTypeSerde implements StmtClassFo
             providerCtor.getBlock().assignRef("s" + i, forges[i].codegen(providerCtor, classScope, ref("resolver")));
         }
 
-        return new CodegenClass(CodegenClassType.KEYPROVISIONINGSERDE, DataInputOutputSerde.class, className, classScope, members, providerCtor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.EVENTSERDE, DataInputOutputSerde.class, className, classScope, members, providerCtor, methods, Collections.emptyList());
     }
 
     public String getClassName() {

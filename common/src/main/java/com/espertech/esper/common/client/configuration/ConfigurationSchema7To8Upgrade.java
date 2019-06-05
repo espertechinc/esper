@@ -225,7 +225,7 @@ public class ConfigurationSchema7To8Upgrade {
 
     private static List<Node> moveNodes(String name, Element from, Element to) {
         NodeList nodes = from.getChildNodes();
-        if (nodes == null && nodes.getLength() == 0) {
+        if (nodes == null || nodes.getLength() == 0) {
             return Collections.emptyList();
         }
         List<Node> moved = new ArrayList<>();
@@ -242,7 +242,7 @@ public class ConfigurationSchema7To8Upgrade {
 
     private static void removeNodes(String name, Element parent) {
         NodeList nodes = parent.getChildNodes();
-        if (nodes == null && nodes.getLength() == 0) {
+        if (nodes == null || nodes.getLength() == 0) {
             return;
         }
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -256,7 +256,7 @@ public class ConfigurationSchema7To8Upgrade {
     private static void removeNodesBut(String allowedCSV, Element parent) {
         Set<String> allowed = toSet(allowedCSV);
         NodeList nodes = parent.getChildNodes();
-        if (nodes == null && nodes.getLength() == 0) {
+        if (nodes == null || nodes.getLength() == 0) {
             return;
         }
         List<Node> toRemove = new ArrayList<>();
@@ -284,7 +284,7 @@ public class ConfigurationSchema7To8Upgrade {
 
     private static Element findNode(String name, Element parent) throws ConfigurationException {
         NodeList nodes = parent.getChildNodes();
-        if (nodes == null && nodes.getLength() == 0) {
+        if (nodes == null || nodes.getLength() == 0) {
             return null;
         }
         for (int i = 0; i < nodes.getLength(); i++) {

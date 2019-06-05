@@ -138,7 +138,7 @@ public class StatementSpecMapContext {
     }
 
     public void setHasPriorExpression() {
-        this.hasPriorExpression = hasPriorExpression;
+        this.hasPriorExpression = true;
     }
 
     public boolean isHasPriorExpression() {

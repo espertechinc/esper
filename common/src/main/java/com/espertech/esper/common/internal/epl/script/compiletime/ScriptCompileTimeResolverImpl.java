@@ -28,13 +28,15 @@ public class ScriptCompileTimeResolverImpl implements ScriptCompileTimeResolver 
     private final ScriptCompileTimeRegistry locals;
     private final PathRegistry<NameAndParamNum, ExpressionScriptProvided> path;
     private final ModuleDependenciesCompileTime moduleDependencies;
+    private final boolean isFireAndForget;
 
-    public ScriptCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, ScriptCompileTimeRegistry locals, PathRegistry<NameAndParamNum, ExpressionScriptProvided> path, ModuleDependenciesCompileTime moduleDependencies) {
+    public ScriptCompileTimeResolverImpl(String moduleName, Set<String> moduleUses, ScriptCompileTimeRegistry locals, PathRegistry<NameAndParamNum, ExpressionScriptProvided> path, ModuleDependenciesCompileTime moduleDependencies, boolean isFireAndForget) {
         this.moduleName = moduleName;
         this.moduleUses = moduleUses;
         this.locals = locals;
         this.path = path;
         this.moduleDependencies = moduleDependencies;
+        this.isFireAndForget = isFireAndForget;
     }
 
     public ExpressionScriptProvided resolve(String name, int numParameters) {
@@ -48,7 +50,7 @@ public class ScriptCompileTimeResolverImpl implements ScriptCompileTimeResolver 
         try {
             Pair<ExpressionScriptProvided, String> expression = path.getAnyModuleExpectSingle(new NameAndParamNum(name, numParameters), moduleUses);
             if (expression != null) {
-                if (!NameAccessModifier.visible(expression.getFirst().getVisibility(), expression.getFirst().getModuleName(), moduleName)) {
+                if (!isFireAndForget && !NameAccessModifier.visible(expression.getFirst().getVisibility(), expression.getFirst().getModuleName(), moduleName)) {
                     return null;
                 }
 

@@ -45,10 +45,6 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
         AgentInstanceContext agentInstanceContext = controller.getRealization().getAgentInstanceContextCreate();
 
         FilterHandleCallback filterCallback = new FilterHandleCallback() {
-            public int getStatementId() {
-                return agentInstanceContext.getStatementContext().getStatementId();
-            }
-
             public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
                 filterMatchFound(theEvent);
             }

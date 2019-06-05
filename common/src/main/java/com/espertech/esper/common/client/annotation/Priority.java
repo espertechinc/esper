@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * An execution directive for use in an EPL statement, by which processing of an event by statements
  * start with the statement that has the highest priority, applicable only if multiple statements must process the same event.
@@ -18,6 +21,7 @@ package com.espertech.esper.common.client.annotation;
  * <p>
  * The default priority value is zero (0).
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Priority {
     /**
      * Priority value.

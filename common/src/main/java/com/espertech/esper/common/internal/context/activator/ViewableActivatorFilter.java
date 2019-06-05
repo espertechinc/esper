@@ -73,10 +73,6 @@ public class ViewableActivatorFilter implements ViewableActivator {
         FilterHandleCallback filterCallback;
         if (filterSpec.getOptionalPropertyEvaluator() == null) {
             filterCallback = new FilterHandleCallback() {
-                public int getStatementId() {
-                    return statementId;
-                }
-
                 public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
                     theStream.insert(theEvent);
                 }
@@ -87,10 +83,6 @@ public class ViewableActivatorFilter implements ViewableActivator {
             };
         } else {
             filterCallback = new FilterHandleCallback() {
-                public int getStatementId() {
-                    return statementId;
-                }
-
                 public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
                     EventBean[] result = filterSpec.getOptionalPropertyEvaluator().getProperty(theEvent, agentInstanceContext);
                     if (result == null) {

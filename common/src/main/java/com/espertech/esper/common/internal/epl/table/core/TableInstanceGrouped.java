@@ -24,5 +24,7 @@ public interface TableInstanceGrouped extends TableInstance {
 
     Collection<Object> getGroupKeys();
 
+    Collection<Object> getGroupKeysMayMultiKey();
+
     Table getTable();
 }

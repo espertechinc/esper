@@ -38,7 +38,7 @@ public class MetricExecutionContext {
         return schedulingService;
     }
 
-    public EventServiceSendEventCommon getEpRuntimeSendEvent() {
+    public EventServiceSendEventCommon getEPRuntimeSendEvent() {
         return epRuntimeSendEvent;
     }
 

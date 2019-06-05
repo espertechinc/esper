@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="esper-common" />
+        <module name="esper-common-avro" />
+        <module name="esper-compiler" />
+        <module name="esper-example-autoid" />
+        <module name="esper-example-cycledetect" />
+        <module name="esper-example-marketdatafeed" />
+        <module name="esper-example-matchmaker" />
+        <module name="esper-example-namedwinquery" />
+        <module name="esper-example-ohlcpluginview" />
+        <module name="esper-example-qossla" />
+        <module name="esper-example-rfidassetzone" />
+        <module name="esper-example-runtimeconfig" />
+        <module name="esper-example-servershell" />
+        <module name="esper-example-stockticker" />
+        <module name="esper-example-transaction" />
+        <module name="esper-example-trivia" />
+        <module name="esper-example-virtualdw" />
+        <module name="esper-regression-lib" />
+        <module name="esper-regression-run" />
+        <module name="esper-runtime" />
+        <module name="esper_examples_benchmark" />
+        <module name="esper_examples_terminalservicejse" />
+        <module name="esperio-amqp" />
+        <module name="esperio-csv" />
+        <module name="esperio-db" />
+        <module name="esperio-http" />
+        <module name="esperio-kafka" />
+        <module name="esperio-socket" />
+        <module name="esperio-springjms" />
+        <module name="example-terminalsvc-common" />
+        <module name="example-terminalsvc-ear" />
+        <module name="example-terminalsvc-mdb" />
+        <module name="example-terminalsvc-receiver" />
+        <module name="example-terminalsvc-sender" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="esper-common" options="-XDignore.symbol.file" />
+      <module name="esper-common-avro" options="-XDignore.symbol.file" />
+      <module name="esper-compiler" options="-XDignore.symbol.file" />
+      <module name="esper-regression-lib" options="-XDignore.symbol.file" />
+      <module name="esper-regression-run" options="-XDignore.symbol.file" />
+      <module name="esper-runtime" options="-XDignore.symbol.file" />
+    </option>
+  </component>
+</project>

@@ -32,7 +32,7 @@ public class StatementAgentInstanceLockFactoryImpl implements StatementAgentInst
         if (statementType.isOnTriggerInfra()) {
             throw new UnsupportedOperationException("Operation not available for statement type " + statementType);
         }
-        boolean foundNoLock = AnnotationUtil.findAnnotation(annotations, NoLock.class) != null;
+        boolean foundNoLock = AnnotationUtil.hasAnnotation(annotations, NoLock.class);
         if (disableLocking || foundNoLock || stateless) {
             return new StatementAgentInstanceLockNoLockImpl(statementName);
         }

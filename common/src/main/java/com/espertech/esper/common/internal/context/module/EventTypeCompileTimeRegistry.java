@@ -46,7 +46,9 @@ public class EventTypeCompileTimeRegistry {
         if (moduleTypesAdded.containsKey(type.getName())) {
             throw new IllegalArgumentException("Event type '" + type.getName() + "' has already been added by the module");
         }
-        if (type.getMetadata().getAccessModifier() == NameAccessModifier.PRIVATE || type.getMetadata().getAccessModifier() == NameAccessModifier.PUBLIC) {
+        if (type.getMetadata().getAccessModifier() == NameAccessModifier.PRIVATE ||
+            type.getMetadata().getAccessModifier() == NameAccessModifier.PROTECTED ||
+            type.getMetadata().getAccessModifier() == NameAccessModifier.PUBLIC) {
             moduleTypesAdded.put(type.getName(), type);
         }
 

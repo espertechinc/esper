@@ -29,19 +29,10 @@ public final class DoubleRangeComparator implements Comparator<DoubleRange>, Ser
         double maxOne = r1.getMax();
         double maxTwo = r2.getMax();
 
-        if (minOne < minTwo) {
-            return -1;
+        int minCompared = Double.compare(minOne, minTwo);
+        if (minCompared != 0) {
+            return minCompared;
         }
-        if (minOne > minTwo) {
-            return 1;
-        }
-        if (maxOne < maxTwo) {
-            return -1;
-        }
-        if (maxOne > maxTwo) {
-            return 1;
-        }
-
-        return 0;
+        return Double.compare(maxOne, maxTwo);
     }
 }

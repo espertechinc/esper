@@ -14,8 +14,6 @@ import com.espertech.esper.common.internal.metrics.stmtmetrics.StatementMetricHa
 import com.espertech.esper.common.internal.statement.insertintolatch.InsertIntoLatchFactory;
 import com.espertech.esper.common.internal.statement.multimatch.MultiMatchHandler;
 
-import java.io.Serializable;
-
 /**
  * Class exists once per statement and hold statement resource lock(s).
  * <p>
@@ -24,9 +22,7 @@ import java.io.Serializable;
  * requiring internal dispatch logic to not shortcut evaluation of all filters for the statement
  * within one lock, requiring the callback handle to be sorted.
  */
-public class EPStatementHandle implements Serializable {
-    private static final long serialVersionUID = 0L;
-
+public class EPStatementHandle {
     private final String statementName;
     private final String deploymentId;
     private final int statementId;

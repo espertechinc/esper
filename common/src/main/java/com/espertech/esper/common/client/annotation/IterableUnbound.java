@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.client.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Annotation for use in EPL statements for making an unbound stream iterable returning the last event without
  * requiring a data window to be declared.
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface IterableUnbound {
 }

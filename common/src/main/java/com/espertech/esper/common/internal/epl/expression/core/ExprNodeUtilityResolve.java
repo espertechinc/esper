@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.expression.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
-import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
@@ -137,7 +136,7 @@ public class ExprNodeUtilityResolve {
 
         // add an evaluator if the method expects a context object
         if (!method.isVarArgs() && method.getParameterTypes().length > 0 &&
-                method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
+            method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
             ExprEvalMethodContext node = new ExprEvalMethodContext(functionName);
             childForges = (ExprForge[]) CollectionUtil.arrayExpandAddSingle(childForges, node);
         }
@@ -155,8 +154,7 @@ public class ExprNodeUtilityResolve {
                 childForges = rewrittenForges;
             }
 
-            Pair<ExprForge[], ExprEvaluator[]> pair = ExprNodeUtilityMake.makeVarargArrayEval(method, childForges);
-            childForges = pair.getFirst();
+            childForges = ExprNodeUtilityMake.makeVarargArrayForges(method, childForges);
         }
 
         return new ExprNodeUtilMethodDesc(allConstants, childForges, method);
