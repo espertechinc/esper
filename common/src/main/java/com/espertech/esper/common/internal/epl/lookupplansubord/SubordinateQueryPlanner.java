@@ -398,7 +398,7 @@ public class SubordinateQueryPlanner {
 
         QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, unique, null, eventTypeIndexed);
 
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(indexCoercionTypes, false, raw, services.getSerdeResolver());
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(indexCoercionTypes, true, raw, services.getSerdeResolver());
         indexItem.setHashMultiKeyClasses(multiKeyPlan.getClassRef());
 
         DataInputOutputSerdeForge[] rangeSerdes = new DataInputOutputSerdeForge[rangeCoercionTypes.length];
