@@ -47,11 +47,11 @@ public class DIOPrimitiveIntArray2DimNullableSerde implements DataInputOutputSer
     }
 
     private void writeArray(int[] array, DataOutput output) throws IOException {
-        output.writeInt(array.length);
         if (array == null) {
             output.writeInt(-1);
             return;
         }
+        output.writeInt(array.length);
         for (int i : array) {
             output.writeInt(i);
         }

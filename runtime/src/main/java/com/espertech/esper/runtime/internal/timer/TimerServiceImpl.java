@@ -147,7 +147,6 @@ public final class TimerServiceImpl implements TimerService {
                 return t;
             }
         });
-        timer.setMaximumPoolSize(timer.getCorePoolSize());
         timer.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         timer.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
     }

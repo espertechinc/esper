@@ -358,7 +358,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
             int numOutputPorts = operatorSpec.getOutput().getItems().size();
             String operatorName = operatorSpec.getOperatorName();
             String operatorPrettyPrint = toPrettyPrint(i, operatorSpec);
-            Annotation[] operatorAnnotation = operatorAnnotations.get(operatorSpec);
+            Annotation[] operatorAnnotation = operatorAnnotations.get(i);
 
             Class forgeClass = null;
             try {

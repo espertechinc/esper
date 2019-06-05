@@ -73,10 +73,8 @@ public class TimePeriodComputeConstGivenCalAddEval implements TimePeriodCompute,
 
     public TimePeriodDeltaResult deltaAddWReference(long fromTime, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         // find the next-nearest reference higher then the current time, compute delta, return reference one lower
-        if (reference > fromTime) {
-            while (reference > fromTime) {
-                reference = reference - deltaSubtract(reference, eventsPerStream, isNewData, context);
-            }
+        while (reference > fromTime) {
+            reference = reference - deltaSubtract(reference, eventsPerStream, isNewData, context);
         }
 
         long next = reference;

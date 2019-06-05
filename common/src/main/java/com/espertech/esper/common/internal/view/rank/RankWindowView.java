@@ -122,32 +122,30 @@ public class RankWindowView extends ViewSupport implements DataWindowView {
         }
 
         // Remove data that sorts to the bottom of the window
-        if (numberOfEvents > sortWindowSize) {
-            while (numberOfEvents > sortWindowSize) {
-                Object lastKey = sortedEvents.lastKey();
-                Object existing = sortedEvents.get(lastKey);
-                if (existing instanceof List) {
-                    List<EventBean> existingList = (List<EventBean>) existing;
-                    while (numberOfEvents > sortWindowSize && !existingList.isEmpty()) {
-                        EventBean newestEvent = existingList.remove(0);
-                        Object uniqueKey = getUniqueKey(newestEvent);
-                        uniqueKeySortKeys.remove(uniqueKey);
-                        numberOfEvents--;
-                        removedEvents.add(newestEvent);
-                        internalHandleRemovedKey(existing, newestEvent);
-                    }
-                    if (existingList.isEmpty()) {
-                        sortedEvents.remove(lastKey);
-                    }
-                } else {
-                    EventBean lastSortedEvent = (EventBean) existing;
-                    Object uniqueKey = getUniqueKey(lastSortedEvent);
+        while (numberOfEvents > sortWindowSize) {
+            Object lastKey = sortedEvents.lastKey();
+            Object existing = sortedEvents.get(lastKey);
+            if (existing instanceof List) {
+                List<EventBean> existingList = (List<EventBean>) existing;
+                while (numberOfEvents > sortWindowSize && !existingList.isEmpty()) {
+                    EventBean newestEvent = existingList.remove(0);
+                    Object uniqueKey = getUniqueKey(newestEvent);
                     uniqueKeySortKeys.remove(uniqueKey);
                     numberOfEvents--;
-                    removedEvents.add(lastSortedEvent);
-                    sortedEvents.remove(lastKey);
-                    internalHandleRemovedKey(lastKey, lastSortedEvent);
+                    removedEvents.add(newestEvent);
+                    internalHandleRemovedKey(existing, newestEvent);
                 }
+                if (existingList.isEmpty()) {
+                    sortedEvents.remove(lastKey);
+                }
+            } else {
+                EventBean lastSortedEvent = (EventBean) existing;
+                Object uniqueKey = getUniqueKey(lastSortedEvent);
+                uniqueKeySortKeys.remove(uniqueKey);
+                numberOfEvents--;
+                removedEvents.add(lastSortedEvent);
+                sortedEvents.remove(lastKey);
+                internalHandleRemovedKey(lastKey, lastSortedEvent);
             }
         }
 

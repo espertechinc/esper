@@ -13,12 +13,9 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class CreateTableColumn implements Serializable {
-    private static final long serialVersionUID = 5158525273388684702L;
-
+public class CreateTableColumn {
     private final String columnName;
     private final ExprNode optExpression;
     private final ClassIdentifierWArray optType;

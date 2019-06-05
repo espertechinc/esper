@@ -12,14 +12,13 @@ package com.espertech.esper.runtime.client;
 
 import com.espertech.esper.common.client.module.ModuleProperty;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
 /**
  * Represents a deployment.
  */
-public class EPDeployment implements Serializable {
+public class EPDeployment {
 
     private final String deploymentId;
     private final String moduleName;

@@ -73,10 +73,8 @@ public class TimePeriodComputeNCGivenTPCalForgeEval implements TimePeriodCompute
 
     public TimePeriodDeltaResult deltaAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         // find the next-nearest reference higher then the current time, compute delta, return reference one lower
-        if (reference > current) {
-            while (reference > current) {
-                reference = reference - deltaSubtract(reference, eventsPerStream, isNewData, context);
-            }
+        while (reference > current) {
+            reference = reference - deltaSubtract(reference, eventsPerStream, isNewData, context);
         }
 
         long next = reference;

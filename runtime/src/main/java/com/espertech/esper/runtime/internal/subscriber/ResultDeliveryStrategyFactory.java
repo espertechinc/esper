@@ -234,6 +234,7 @@ public class ResultDeliveryStrategyFactory {
                     }
                 }
             }
+            throw new ResultDeliveryStrategyInvalidException("No suitable subscriber method named 'update' found");
         }
 
         // Invalid if there is a another footprint for the subscription method that does not include EPStatement if present

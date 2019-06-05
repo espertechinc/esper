@@ -69,10 +69,6 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
         public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, AgentInstanceContext agentInstanceContext) {
             return new EventTable[]{new UnindexedEventTableList(pollResult, -1)};
         }
-
-        public String toQueryPlan() {
-            return this.getClass().getSimpleName() + " unindexed";
-        }
     };
 
     public EventTable[][] poll(EventBean[][] lookupEventsPerStream, PollResultIndexingStrategy indexingStrategy, ExprEvaluatorContext exprEvaluatorContext) {

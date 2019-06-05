@@ -12,10 +12,7 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.collection.Pair;
 
-import java.io.Serializable;
-
-public class CreateExpressionDesc implements Serializable {
-    private static final long serialVersionUID = 7784429868833410090L;
+public class CreateExpressionDesc {
     private final ExpressionDeclItem expression;
     private final ExpressionScriptProvided script;
 
