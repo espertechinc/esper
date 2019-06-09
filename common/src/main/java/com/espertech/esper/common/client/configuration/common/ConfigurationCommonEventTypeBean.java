@@ -42,7 +42,7 @@ public class ConfigurationCommonEventTypeBean implements Serializable {
     }
 
     /**
-     * Sets the accessor style. Thus controls how the runtimeexposes event properties
+     * Sets the accessor style. Thus controls how the runtime exposes event properties
      * based on a Java class's public methods and public member variables.
      *
      * @param accessorStyle is the style enum

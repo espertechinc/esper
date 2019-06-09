@@ -18,6 +18,8 @@ import java.util.List;
  * Serialization and Deserialization options.
  */
 public class ConfigurationCompilerSerde implements Serializable {
+    private static final long serialVersionUID = -1742511809811951823L;
+
     private boolean enableExtendedBuiltin = true;
     private boolean enableSerializable = false;
     private boolean enableExternalizable = false;
@@ -25,7 +27,7 @@ public class ConfigurationCompilerSerde implements Serializable {
     private List<String> serdeProviderFactories = new ArrayList<>(2);
 
     /**
-     * Returns indicator whether the runtimeprovides the serde for extended builtin classes (see doc).
+     * Returns indicator whether the runtime provides the serde for extended builtin classes (see doc).
      *
      * @return indicator
      */
@@ -34,7 +36,7 @@ public class ConfigurationCompilerSerde implements Serializable {
     }
 
     /**
-     * Sets indicator whether the runtimeprovides the serde for extended builtin classes (see doc).
+     * Sets indicator whether the runtime provides the serde for extended builtin classes (see doc).
      *
      * @param enableExtendedBuiltin indicator
      */
@@ -43,7 +45,7 @@ public class ConfigurationCompilerSerde implements Serializable {
     }
 
     /**
-     * Returns indicator whether the runtimeconsiders the java.io.Serializable interface for serializing types that implement Serializable
+     * Returns indicator whether the runtime considers the {@link java.io.Serializable} interface for serializing types that implement Serializable
      *
      * @return indicator
      */
@@ -52,7 +54,7 @@ public class ConfigurationCompilerSerde implements Serializable {
     }
 
     /**
-     * Sets indicator whether the runtimeconsiders the java.io.Serializable interface for serializing types that implement Serializable
+     * Sets indicator whether the runtime considers the {@link java.io.Serializable} interface for serializing types that implement Serializable
      *
      * @param enableSerializable indicator
      */
@@ -61,7 +63,7 @@ public class ConfigurationCompilerSerde implements Serializable {
     }
 
     /**
-     * Returns indicator whether the runtimeconsiders the java.io.Externalizable interface for serializing types that implement Externalizable.
+     * Returns indicator whether the runtime considers the {@link java.io.Externalizable} interface for serializing types that implement Externalizable.
      *
      * @return indicator
      */
@@ -70,7 +72,7 @@ public class ConfigurationCompilerSerde implements Serializable {
     }
 
     /**
-     * Sets indicator whether the runtimeconsiders the java.io.Externalizable interface for serializing types that implement Externalizable.
+     * Sets indicator whether the runtime considers the {@link java.io.Externalizable} interface for serializing types that implement Externalizable.
      *
      * @param enableExternalizable indicator to set
      */

@@ -18,6 +18,8 @@ import java.io.Serializable;
  * Time source configuration, the default in MILLI (millisecond resolution from System.currentTimeMillis).
  */
 public class ConfigurationRuntimeTimeSource implements Serializable {
+    private static final long serialVersionUID = 5082072580765252557L;
+
     private TimeSourceType timeSourceType;
 
     /**

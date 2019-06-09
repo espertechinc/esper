@@ -21,6 +21,7 @@ import java.util.List;
  * Contains settings that apply to the compiler only (and that do not apply at runtime).
  */
 public class ConfigurationCompiler implements Serializable {
+    private static final long serialVersionUID = -1168467295251839905L;
     /**
      * List of configured plug-in views.
      */

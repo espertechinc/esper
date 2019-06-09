@@ -13,9 +13,10 @@ package com.espertech.esper.common.client.configuration.compiler;
 import java.io.Serializable;
 
 /**
- * Language settings in the runtimeare for string comparisons.
+ * Language settings in the runtime are for string comparisons.
  */
 public class ConfigurationCompilerLanguage implements Serializable {
+    private static final long serialVersionUID = -6019225386478861987L;
     private boolean sortUsingCollator;
 
     /**

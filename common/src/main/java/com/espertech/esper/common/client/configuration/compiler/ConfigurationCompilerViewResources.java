@@ -16,6 +16,8 @@ import java.io.Serializable;
  * Holds view resources settings.
  */
 public class ConfigurationCompilerViewResources implements Serializable {
+    private static final long serialVersionUID = 4401151763108581565L;
+
     private boolean iterableUnbound;
     private boolean outputLimitOpt;
 

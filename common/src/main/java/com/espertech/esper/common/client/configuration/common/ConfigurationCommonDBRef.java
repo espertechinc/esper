@@ -27,6 +27,7 @@ import java.util.Properties;
  */
 public class ConfigurationCommonDBRef implements Serializable {
     private static final long serialVersionUID = 2833881768128847540L;
+
     private ConnectionFactoryDesc connectionFactoryDesc;
     private ConnectionSettings connectionSettings;
     private ConnectionLifecycleEnum connectionLifecycleEnum;
@@ -236,7 +237,7 @@ public class ConfigurationCommonDBRef implements Serializable {
      * Returns an enumeration indicating how the runtime retrieves metadata about the columns
      * that a given SQL query returns.
      * <p>
-     * The runtimerequires to retrieve result column names and types in order to build a resulting
+     * The runtime requires to retrieve result column names and types in order to build a resulting
      * event type and perform expression type checking.
      *
      * @return indication how to retrieve metadata
@@ -246,10 +247,10 @@ public class ConfigurationCommonDBRef implements Serializable {
     }
 
     /**
-     * Sets and indicator how the runtimeshould retrieve metadata about the columns
+     * Sets and indicator how the runtime should retrieve metadata about the columns
      * that a given SQL query returns.
      * <p>
-     * The runtimerequires to retrieve result column names and types in order to build a resulting
+     * The runtime requires to retrieve result column names and types in order to build a resulting
      * event type and perform expression type checking.
      *
      * @param metadataOrigin indication how to retrieve metadata
@@ -259,7 +260,7 @@ public class ConfigurationCommonDBRef implements Serializable {
     }
 
     /**
-     * Returns enum value determining how the runtimechanges case on output column names
+     * Returns enum value determining how the runtime changes case on output column names
      * returned from statement or statement result set metadata.
      *
      * @return change case enums
@@ -269,7 +270,7 @@ public class ConfigurationCommonDBRef implements Serializable {
     }
 
     /**
-     * Sets enum value determining how the runtimeshould change case on output column names
+     * Sets enum value determining how the runtime should change case on output column names
      * returned from statement or statement result set metadata.
      *
      * @param columnChangeCaseEnum change case enums
@@ -281,7 +282,7 @@ public class ConfigurationCommonDBRef implements Serializable {
     /**
      * Adds a mapping of a java.sql.Types type to a Java type.
      * <p>
-     * The mapping dictates to the runtimehow the output column should be
+     * The mapping dictates to the runtime how the output column should be
      * represented as a Java Object.
      * <p>
      * Accepts a Java classname (fully-qualified or simple) or primitive type name
@@ -302,7 +303,7 @@ public class ConfigurationCommonDBRef implements Serializable {
     /**
      * Adds a mapping of a java.sql.Types type to a Java type.
      * <p>
-     * The mapping dictates to the runtimehow the output column should be
+     * The mapping dictates to the runtime how the output column should be
      * represented as a Java Object.
      * <p>
      * Accepts a Java class for the Java type parameter. See {@link DatabaseTypeEnum} for valid values.
@@ -315,7 +316,7 @@ public class ConfigurationCommonDBRef implements Serializable {
     }
 
     /**
-     * Returns the mapping of types that the runtimemust perform
+     * Returns the mapping of types that the runtime must perform
      * when receiving output columns of that sql types.
      *
      * @return map of {@link java.sql.Types} types to Java types
@@ -325,7 +326,7 @@ public class ConfigurationCommonDBRef implements Serializable {
     }
 
     /**
-     * Supplies connectioon-level settings for a given database name.
+     * Supplies connection-level settings for a given database name.
      */
     public static class ConnectionSettings implements Serializable {
         private static final long serialVersionUID = 5463131581739739687L;
@@ -619,7 +620,7 @@ public class ConfigurationCommonDBRef implements Serializable {
     }
 
     /**
-     * Indicates how the runtimeretrieves metadata about a statement's output columns.
+     * Indicates how the runtime retrieves metadata about a statement's output columns.
      */
     public enum MetadataOriginEnum {
         /**

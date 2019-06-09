@@ -146,9 +146,9 @@ public class ConfigurationCompilerPlugInSingleRowFunction implements Serializabl
     }
 
     /**
-     * Returns indicator whether the runtimere-throws exceptions
+     * Returns indicator whether the runtime re-throws exceptions
      * thrown by the single-row function. The default is false
-     * therefore the runtimeby default does not rethrow exceptions.
+     * therefore the runtime by default does not rethrow exceptions.
      *
      * @return indicator
      */
@@ -157,9 +157,9 @@ public class ConfigurationCompilerPlugInSingleRowFunction implements Serializabl
     }
 
     /**
-     * Sets indicator whether the runtimere-throws exceptions
+     * Sets indicator whether the runtime re-throws exceptions
      * thrown by the single-row function. The default is false
-     * therefore the runtimeby default does not rethrow exceptions.
+     * therefore the runtime by default does not rethrow exceptions.
      *
      * @param rethrowExceptions indicator
      */
@@ -195,13 +195,13 @@ public class ConfigurationCompilerPlugInSingleRowFunction implements Serializabl
         DISABLED,
 
         /**
-         * Causes the runtimeto not actually invoke the single-row function and instead return a cached precomputed value
+         * Causes the runtime to not actually invoke the single-row function and instead return a cached precomputed value
          * when all parameters are constants or there are no parameters.
          */
         ENABLED,
 
         /**
-         * Causes the runtimeto follow the runtime-wide policy as configured for user-defined functions.
+         * Causes the runtime to follow the runtime-wide policy as configured for user-defined functions.
          */
         CONFIGURED
     }
@@ -211,12 +211,12 @@ public class ConfigurationCompilerPlugInSingleRowFunction implements Serializabl
      */
     public enum FilterOptimizable {
         /**
-         * The runtimedoes not consider the single-row function for optimizing evaluation: The function gets evaluated for each event possibly multiple times.
+         * The runtime does not consider the single-row function for optimizing evaluation: The function gets evaluated for each event possibly multiple times.
          */
         DISABLED,
 
         /**
-         * The runtimeconsiders the single-row function for optimizing evaluation: The function gets evaluated only once per event.
+         * The runtime considers the single-row function for optimizing evaluation: The function gets evaluated only once per event.
          */
         ENABLED
     }

@@ -16,6 +16,7 @@ import java.io.Serializable;
  * Holds view logging settings other then the Apache commons or Log4J settings.
  */
 public class ConfigurationCommonLogging implements Serializable {
+    private static final long serialVersionUID = -6972204511237827822L;
     private boolean enableQueryPlan;
     private boolean enableJDBC;
 

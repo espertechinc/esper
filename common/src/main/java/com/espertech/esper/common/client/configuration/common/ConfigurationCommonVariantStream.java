@@ -60,7 +60,7 @@ public class ConfigurationCommonVariantStream implements Serializable {
     }
 
     /**
-     * Adds names of an event types that is one of the predefined event typs allowed for the variant stream.
+     * Adds names of an event types that is one of the predefined event types allowed for the variant stream.
      *
      * @param eventTypeName name of the event type to allow in the variant stream
      */

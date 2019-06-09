@@ -14,9 +14,11 @@ import java.io.Serializable;
 import java.util.TimeZone;
 
 /**
- * Expression evaluation settings in the runtimeare for results of expressions.
+ * Expression evaluation settings in the runtime are for results of expressions.
  */
 public class ConfigurationRuntimeExpression implements Serializable {
+    private static final long serialVersionUID = -5269442371030768939L;
+
     private boolean selfSubselectPreeval;
     private TimeZone timeZone;
 
@@ -48,7 +50,7 @@ public class ConfigurationRuntimeExpression implements Serializable {
 
     /**
      * Set to true (the default) to indicate that sub-selects within a statement are updated first when a new
-     * event arrives. This is only relevant for statements in which both subselects
+     * event arrives. This is only relevant for statements in which both sub-selects
      * and the from-clause may react to the same exact event.
      *
      * @return indicator whether to evaluate sub-selects first or last on new event arrival
@@ -59,7 +61,7 @@ public class ConfigurationRuntimeExpression implements Serializable {
 
     /**
      * Set to true (the default) to indicate that sub-selects within a statement are updated first when a new
-     * event arrives. This is only relevant for statements in which both subselects
+     * event arrives. This is only relevant for statements in which both sub-selects
      * and the from-clause may react to the same exact event.
      *
      * @param selfSubselectPreeval indicator whether to evaluate sub-selects first or last on new event arrival

@@ -23,6 +23,7 @@ import java.io.Serializable;
  */
 public class ConfigurationCommonEventTypeMeta implements Serializable {
 
+    private static final long serialVersionUID = 1430881486279542799L;
     private PropertyResolutionStyle classPropertyResolutionStyle;
     private AccessorStyle defaultAccessorStyle;
     private EventUnderlyingType defaultEventRepresentation;

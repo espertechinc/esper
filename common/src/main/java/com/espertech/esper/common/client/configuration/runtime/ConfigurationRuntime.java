@@ -19,6 +19,7 @@ import java.util.Properties;
  * Contains settings that apply to the runtime only (and that do not apply to the compiler).
  */
 public class ConfigurationRuntime implements Serializable {
+    private static final long serialVersionUID = -3207891291764278914L;
     /**
      * Optional classname to use for constructing services context.
      */
@@ -82,7 +83,7 @@ public class ConfigurationRuntime implements Serializable {
      *
      * @param loaderName    is the name of the loader
      * @param className     is the fully-qualified classname of the loader class
-     * @param configuration is loader cofiguration entries
+     * @param configuration is loader configuration entries
      */
     public void addPluginLoader(String loaderName, String className, Properties configuration) {
         addPluginLoader(loaderName, className, configuration, null);
@@ -105,7 +106,7 @@ public class ConfigurationRuntime implements Serializable {
      *
      * @param loaderName       is the name of the loader
      * @param className        is the fully-qualified classname of the loader class
-     * @param configuration    is loader cofiguration entries
+     * @param configuration    is loader configuration entries
      * @param configurationXML config xml if any
      */
     public void addPluginLoader(String loaderName, String className, Properties configuration, String configurationXML) {

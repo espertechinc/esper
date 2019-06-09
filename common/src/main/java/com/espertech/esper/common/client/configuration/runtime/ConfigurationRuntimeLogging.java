@@ -16,6 +16,8 @@ import java.io.Serializable;
  * Holds view logging settings other then the Apache commons or Log4J settings.
  */
 public class ConfigurationRuntimeLogging implements Serializable {
+    private static final long serialVersionUID = 2406269988569122375L;
+
     private boolean enableExecutionDebug;
     private boolean enableTimerDebug;
     private String auditPattern;
@@ -41,7 +43,7 @@ public class ConfigurationRuntimeLogging implements Serializable {
     }
 
     /**
-     * Set the debug flag for debugging the execution path, in which case the runtimelogs
+     * Set the debug flag for debugging the execution path, in which case the runtime logs
      * to Log4j in debug-level during execution.
      *
      * @param enableExecutionDebug false to disable debug logging in the execution path, true to enable

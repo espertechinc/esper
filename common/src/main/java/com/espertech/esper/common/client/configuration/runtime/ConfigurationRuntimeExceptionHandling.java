@@ -77,7 +77,7 @@ public class ConfigurationRuntimeExceptionHandling implements Serializable {
     }
 
     /**
-     * Returns the policy to instruct the runtimewhether a module un-deploy rethrows runtime exceptions that are encountered
+     * Returns the policy to instruct the runtime whether a module un-deploy rethrows runtime exceptions that are encountered
      * during the undeploy. By default we are logging exceptions.
      *
      * @return indicator
@@ -87,7 +87,7 @@ public class ConfigurationRuntimeExceptionHandling implements Serializable {
     }
 
     /**
-     * Sets the policy to instruct the runtimewhether a module un-deploy rethrows runtime exceptions that are encountered
+     * Sets the policy to instruct the runtime whether a module un-deploy rethrows runtime exceptions that are encountered
      * during the undeploy for any statement that is undeployed. By default we are logging exceptions.
      *
      * @param undeployRethrowPolicy indicator

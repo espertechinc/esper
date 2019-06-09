@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Configuratiom for metrics reporting.
+ * Configuration for metrics reporting.
  */
 public class ConfigurationRuntimeMetricsReporting implements Serializable {
     private boolean jmxRuntimeMetrics;
@@ -99,7 +99,7 @@ public class ConfigurationRuntimeMetricsReporting implements Serializable {
     }
 
     /**
-     * Returns the runtimemetrics production interval in milliseconds.
+     * Returns the runtime metrics production interval in milliseconds.
      *
      * @return runtime metrics production interval
      */
@@ -108,7 +108,7 @@ public class ConfigurationRuntimeMetricsReporting implements Serializable {
     }
 
     /**
-     * Sets the runtimemetrics production interval in milliseconds.
+     * Sets the runtime metrics production interval in milliseconds.
      * <p>
      * Use a negative or zero value to disable runtime metrics production.
      *
