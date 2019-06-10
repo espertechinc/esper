@@ -9,7 +9,6 @@
 		<rootPath>${project.parent.basedir}</rootPath>
 	</properties>
 	<name>Esper Regression-Lib</name>
-	<groupId>com.espertech</groupId>
 	<artifactId>esper-regression-lib</artifactId>
 	<packaging>jar</packaging>
 	<inceptionYear>2005</inceptionYear>
@@ -57,6 +56,8 @@
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 		</dependency>
+
+		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
@@ -89,7 +90,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+                <version>${maven.compiler.plugin.version}</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -102,7 +103,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.4.3</version>
+                <version>${maven.surefire.plugin.version}</version>
 				<configuration>
 					<skip>false</skip>
 					<argLine>-Xms512m -Xmx512m</argLine>
@@ -127,7 +128,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.7</version>
+				<version>${maven.deploy.plugin.version}</version>
 				<configuration>
 					<skip>true</skip>
 				</configuration>

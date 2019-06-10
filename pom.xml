@@ -18,15 +18,31 @@
 		<module>examples</module>
 	</modules>
 	<properties>
-		<slf4j-api.version>1.7.25</slf4j-api.version>
-		<log4j.version>1.2.17</log4j.version>
-		<junit.version>4.11</junit.version>
+		<rootPath>${basedir}</rootPath>
+
+		<!-- Plugins dependencies version -->
+		<maven.bundle.plugin.version>3.5.0</maven.bundle.plugin.version>
+		<maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
+		<maven.compiler.plugin.version>3.5.1</maven.compiler.plugin.version>
+		<maven.dependency.plugin.version>2.0</maven.dependency.plugin.version>
+		<maven.deploy.plugin.version>2.7</maven.deploy.plugin.version>
+		<maven.gpg.plugin.version>1.5</maven.gpg.plugin.version>
+		<maven.jar.plugin.version>2.2</maven.jar.plugin.version>
+		<maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
+		<maven.source.plugin.version>2.1</maven.source.plugin.version>
+		<maven.surefire.plugin.version>2.4.3</maven.surefire.plugin.version>
+		<puppycrawl.tools.checkstyle.version>8.18</puppycrawl.tools.checkstyle.version>
+
 		<antlr4-runtime.version>4.7.1</antlr4-runtime.version>
-		<mysql-connector-java.version>5.1.28</mysql-connector-java.version>
 		<avro.version>1.8.2</avro.version>
 		<janino.version>3.0.10</janino.version>
+		<log4j.version>1.2.17</log4j.version>
+		<mysql-connector-java.version>5.1.28</mysql-connector-java.version>
+		<slf4j-api.version>1.7.25</slf4j-api.version>
+
+		<!-- Testing dependencies versions -->
+		<junit.version>4.11</junit.version>
 		<mockito.version>1.10.19</mockito.version>
-		<rootPath>${basedir}</rootPath>
 	</properties>
 	<licenses>
 		<license>
@@ -67,12 +83,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>${maven.checkstyle.plugin.version}</version>
 				<dependencies>
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>8.18</version>
+						<version>${puppycrawl.tools.checkstyle.version}</version>
 					</dependency>
 				</dependencies>
 				<executions>
@@ -97,7 +113,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.5</version>
+				<version>${maven.gpg.plugin.version}</version>
 				<configuration>
 					<passphrase>${gpg.passphrase}</passphrase>
 				</configuration>

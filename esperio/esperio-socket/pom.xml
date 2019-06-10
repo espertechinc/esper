@@ -9,7 +9,6 @@
 		<rootPath>${project.parent.parent.basedir}</rootPath>
 	</properties>
 	<name>EsperIO-Socket</name>
-	<groupId>com.espertech</groupId>
 	<artifactId>esperio-socket</artifactId>
 	<packaging>jar</packaging>
 	<description>EsperIO Socket</description>
@@ -75,6 +74,8 @@
 			<artifactId>antlr4-runtime</artifactId>
 			<version>${antlr4-runtime.version}</version>
 		</dependency>
+
+		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -113,7 +114,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+                <version>${maven.compiler.plugin.version}</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -122,7 +123,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.4.3</version>
+                <version>${maven.surefire.plugin.version}</version>
 				<configuration>
 					<argLine>-Xms256m -Xmx256m</argLine>
 					<includes>
@@ -139,7 +140,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.2</version>
+                <version>${maven.jar.plugin.version}</version>
 				<configuration>
 					<archive>
 						<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
@@ -168,8 +169,9 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1</version>
+				<version>${maven.source.plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -181,7 +183,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.5</version>
+				<version>${maven.gpg.plugin.version}</version>
 				<configuration>
 					<passphrase>${gpg.passphrase}</passphrase>
 				</configuration>
@@ -198,7 +200,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>${maven.bundle.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>

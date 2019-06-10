@@ -10,7 +10,6 @@
     </properties>
     <name>Esper Examples - TerminalSvc - EAR</name>
     <artifactId>example-terminalsvc-ear</artifactId>
-    <groupId>com.espertech</groupId>
     <packaging>ear</packaging>
     <description>Esper TerminalSvc example - EAR</description>
     <repositories>
@@ -32,7 +31,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
-                <version>2.10.1</version>
+                <version>${maven.ear.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -44,7 +43,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
