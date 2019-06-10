@@ -31,7 +31,7 @@ public class ConfigurationRuntimeVariables implements Serializable {
      * use by very long-running atomic statement execution.
      * <p>
      * A slow-executing statement such as an SQL join may use variables that, at the time
-     * the statement starts to execute, have certain values. The runtimeguarantees that during
+     * the statement starts to execute, have certain values. The runtime guarantees that during
      * statement execution the value of the variables stays the same as long as the statement
      * does not take longer then the given number of milliseconds to execute. If the statement does take longer
      * to execute then the variables release time, the current variables value applies instead.

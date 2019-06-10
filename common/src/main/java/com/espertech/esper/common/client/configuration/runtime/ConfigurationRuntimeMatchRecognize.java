@@ -13,9 +13,11 @@ package com.espertech.esper.common.client.configuration.runtime;
 import java.io.Serializable;
 
 /**
- * Holds match-reconize settings.
+ * Holds match-recognize settings.
  */
 public class ConfigurationRuntimeMatchRecognize implements Serializable {
+    private static final long serialVersionUID = 6812580847949366921L;
+
     private Long maxStates;
     private boolean maxStatesPreventStart = true;
 

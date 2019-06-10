@@ -33,6 +33,7 @@ import java.net.URL;
  */
 public class Configuration implements Serializable {
     private final static Logger log = LoggerFactory.getLogger(Configuration.class);
+    private static final long serialVersionUID = -2806573144337726660L;
 
     private ConfigurationCommon common;
     private ConfigurationCompiler compiler;

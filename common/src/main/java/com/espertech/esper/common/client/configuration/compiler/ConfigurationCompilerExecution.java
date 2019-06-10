@@ -16,6 +16,8 @@ import java.io.Serializable;
  * Holds execution-related settings.
  */
 public class ConfigurationCompilerExecution implements Serializable {
+    private static final long serialVersionUID = 7211697789154513169L;
+
     private int filterServiceMaxFilterWidth = 16;
     private boolean enabledDeclaredExprValueCache = true;
 

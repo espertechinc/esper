@@ -37,7 +37,7 @@ public class ConfigurationCommonMethodRef implements Serializable {
      * eligible for garbage collection and are removed from cache when the garbage collection requires so.
      *
      * @param maxAgeSeconds        is the maximum number of seconds before a method invocation result is considered stale (also known as time-to-live)
-     * @param purgeIntervalSeconds is the interval at which the runtimepurges stale data from the cache
+     * @param purgeIntervalSeconds is the interval at which the runtime purges stale data from the cache
      */
     public void setExpiryTimeCache(double maxAgeSeconds, double purgeIntervalSeconds) {
         dataCacheDesc = new ConfigurationCommonCacheExpiryTime(maxAgeSeconds, purgeIntervalSeconds, CacheReferenceType.getDefault());
@@ -48,7 +48,7 @@ public class ConfigurationCommonMethodRef implements Serializable {
      * setting the reference type indicating whether garbage collection may remove entries from cache.
      *
      * @param maxAgeSeconds        is the maximum number of seconds before a method invocation result is considered stale (also known as time-to-live)
-     * @param purgeIntervalSeconds is the interval at which the runtimepurges stale data from the cache
+     * @param purgeIntervalSeconds is the interval at which the runtime purges stale data from the cache
      * @param cacheReferenceType   specifies the reference type to use
      */
     public void setExpiryTimeCache(double maxAgeSeconds, double purgeIntervalSeconds, CacheReferenceType cacheReferenceType) {

@@ -94,7 +94,7 @@ public class ConfigurationRuntimeThreading implements Serializable {
      * In multithreaded environments, this setting controls when dispatches to listeners preserve
      * the ordering the timeout to complete any outstanding dispatches.
      *
-     * @param value is the timeout in milliseconds that the runtimemay spend
+     * @param value is the timeout in milliseconds that the runtime may spend
      *              waiting for a listener dispatch to complete before dispatching further
      *              results for the same statement to listeners for that statement
      */
@@ -146,10 +146,10 @@ public class ConfigurationRuntimeThreading implements Serializable {
     /**
      * Sets the use of internal timer.
      * <p>
-     * By setting internal timer to true (the default) the runtimestarts the internal timer thread
+     * By setting internal timer to true (the default) the runtime starts the internal timer thread
      * and relies on internal timer events to supply the time.
      * <p>
-     * By setting internal timer to false the runtimedoes not start the internal timer thread
+     * By setting internal timer to false the runtime does not start the internal timer thread
      * and relies on external application-supplied timer events to supply the time.
      *
      * @param internalTimerEnabled is true for internal timer enabled, or false if the application supplies timer events
@@ -168,9 +168,9 @@ public class ConfigurationRuntimeThreading implements Serializable {
     }
 
     /**
-     * Returns the millisecond resolutuion of the internal timer thread.
+     * Returns the millisecond resolution of the internal timer thread.
      *
-     * @return number of msec between timer processing intervals
+     * @return number of milliseconds between timer processing intervals
      */
     public long getInternalTimerMsecResolution() {
         return internalTimerMsecResolution;
@@ -186,7 +186,7 @@ public class ConfigurationRuntimeThreading implements Serializable {
     }
 
     /**
-     * Returns the number of milliseconds that a thread may maximually be blocking
+     * Returns the number of milliseconds that a thread may maximally be blocking
      * to deliver statement results from a producing statement that employs insert-into
      * to a consuming statement.
      *
@@ -207,7 +207,7 @@ public class ConfigurationRuntimeThreading implements Serializable {
     }
 
     /**
-     * Sets the number of milliseconds that a thread may maximually be blocking
+     * Sets the number of milliseconds that a thread may maximally be blocking
      * to deliver statement results from a producing statement that employs insert-into
      * to a consuming statement.
      *

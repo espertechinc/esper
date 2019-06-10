@@ -31,6 +31,7 @@ public class ConfigurationCommon implements Serializable {
      * Import package for data flow operator forges.
      */
     public static final String DATAFLOWOPERATOR_IMPORT = BeaconSourceForge.class.getPackage().getName() + ".*";
+    private static final long serialVersionUID = 5944286520474247829L;
 
     /**
      * Map of event name and fully-qualified class name.

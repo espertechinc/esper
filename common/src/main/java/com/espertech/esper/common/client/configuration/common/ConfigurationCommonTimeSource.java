@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Time source configuration, the default in MILLI (millisecond resolution from System.currentTimeMillis).
  */
 public class ConfigurationCommonTimeSource implements Serializable {
+    private static final long serialVersionUID = 4952034651495455128L;
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 
     /**

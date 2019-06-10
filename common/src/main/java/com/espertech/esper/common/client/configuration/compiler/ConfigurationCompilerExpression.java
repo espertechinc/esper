@@ -14,7 +14,7 @@ import java.io.Serializable;
 import java.math.MathContext;
 
 /**
- * Expression evaluation settings in the runtimeare for results of expressions.
+ * Expression evaluation settings in the runtime are for results of expressions.
  */
 public class ConfigurationCompilerExpression implements Serializable {
     private boolean integerDivision;
@@ -75,7 +75,7 @@ public class ConfigurationCompilerExpression implements Serializable {
      * Set to false (default) to have division by zero return Double.Infinity.
      * Set to true to have division by zero return null.
      * <p>
-     * If integer devision is set, then division by zero for non-FP operands also returns null.
+     * If integer division is set, then division by zero for non-FP operands also returns null.
      *
      * @param divisionByZeroReturnsNull indicator for division-by-zero results
      */

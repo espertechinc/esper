@@ -20,6 +20,8 @@ import java.io.Serializable;
  * Code generation settings.
  */
 public class ConfigurationCompilerByteCode implements Serializable {
+    private static final long serialVersionUID = -2067096962204046301L;
+
     private boolean includeDebugSymbols = false;
     private boolean includeComments = false;
     private boolean attachEPL = true;

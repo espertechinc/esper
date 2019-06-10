@@ -18,6 +18,7 @@ import java.io.Serializable;
  * Holds common execution-related settings.
  */
 public class ConfigurationCommonExecution implements Serializable {
+    private static final long serialVersionUID = -5811779933558904439L;
     private ThreadingProfile threadingProfile = ThreadingProfile.NORMAL;
 
     /**

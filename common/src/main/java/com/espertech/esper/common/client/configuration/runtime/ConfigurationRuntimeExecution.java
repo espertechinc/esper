@@ -18,6 +18,8 @@ import java.io.Serializable;
  * Holds runtime execution-related settings.
  */
 public class ConfigurationRuntimeExecution implements Serializable {
+    private static final long serialVersionUID = -7222514049255015505L;
+
     private boolean prioritized;
     private boolean fairlock;
     private boolean disableLocking;
@@ -32,7 +34,7 @@ public class ConfigurationRuntimeExecution implements Serializable {
     }
 
     /**
-     * Returns false (the default) if the runtimedoes not consider statement priority and preemptive instructions,
+     * Returns false (the default) if the runtime does not consider statement priority and preemptive instructions,
      * or true to enable priority-based statement execution order.
      *
      * @return false by default to indicate unprioritized statement execution
@@ -42,7 +44,7 @@ public class ConfigurationRuntimeExecution implements Serializable {
     }
 
     /**
-     * Set to false (the default) if the runtimedoes not consider statement priority and preemptive instructions,
+     * Set to false (the default) if the runtime does not consider statement priority and preemptive instructions,
      * or true for enable priority-based statement execution order.
      *
      * @param prioritized false by default to indicate unprioritized statement execution
