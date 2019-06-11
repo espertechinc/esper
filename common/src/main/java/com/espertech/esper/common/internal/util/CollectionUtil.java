@@ -877,4 +877,31 @@ public class CollectionUtil {
         lists.add(items.subList(start, start + remainder));
         return lists;
     }
+
+    public static boolean isArrayAllNull(Object[] array) {
+        if (array == null || array.length == 0) {
+            return true;
+        }
+        for (Object o : array) {
+            if (o != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isArraySameReferences(Object[] arrayOne, Object[] arrayTwo) {
+        if (arrayOne == null || arrayTwo == null) {
+            throw new IllegalArgumentException("Null arrays");
+        }
+        if (arrayOne.length != arrayTwo.length) {
+            return false;
+        }
+        for (int i = 0; i < arrayOne.length; i++) {
+            if (arrayOne[i] != arrayTwo[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

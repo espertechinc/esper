@@ -116,7 +116,7 @@ public final class IndexTreeBuilderAdd {
 
             FilterParamIndexBase index = IndexFactory.createIndex(parameterPickedForIndex.getLookupable(), lockFactory, parameterPickedForIndex.getFilterOperator());
 
-            currentNode.getIndizes().add(index);
+            currentNode.add(index);
             addToIndex(remainingParameters, filterCallback, index, parameterPickedForIndex.getFilterForValue(), lockFactory);
         } finally {
             currentNode.getNodeRWLock().writeLock().unlock();

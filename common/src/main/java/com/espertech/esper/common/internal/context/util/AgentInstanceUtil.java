@@ -171,7 +171,7 @@ public class AgentInstanceUtil {
 
         AuditProvider auditProvider = statementContext.getStatementInformationals().getAuditProvider();
         InstrumentationCommon instrumentationProvider = statementContext.getStatementInformationals().getInstrumentationProvider();
-        AgentInstanceContext agentInstanceContext = new AgentInstanceContext(statementContext, agentInstanceId, agentInstanceHandle, agentInstanceFilterProxy, contextProperties, auditProvider, instrumentationProvider);
+        AgentInstanceContext agentInstanceContext = new AgentInstanceContext(statementContext, agentInstanceHandle, agentInstanceFilterProxy, contextProperties, auditProvider, instrumentationProvider);
         if (agentInstanceId != -1) {
             agentInstanceContext.getAuditProvider().contextPartition(true, agentInstanceContext);
         }

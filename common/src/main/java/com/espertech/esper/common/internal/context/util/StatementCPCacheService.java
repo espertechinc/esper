@@ -145,7 +145,7 @@ public class StatementCPCacheService {
         // re-allocate context
         AuditProvider auditProvider = statementContext.getStatementInformationals().getAuditProvider();
         InstrumentationCommon instrumentationProvider = statementContext.getStatementInformationals().getInstrumentationProvider();
-        return new AgentInstanceContext(statementContext, agentInstanceId, epStatementAgentInstanceHandle, agentInstanceFilterProxy, contextProperties, auditProvider, instrumentationProvider);
+        return new AgentInstanceContext(statementContext, epStatementAgentInstanceHandle, agentInstanceFilterProxy, contextProperties, auditProvider, instrumentationProvider);
     }
 
     private void hookUpNewRealization(StatementAgentInstanceFactoryResult result, StatementContext statementContext) {

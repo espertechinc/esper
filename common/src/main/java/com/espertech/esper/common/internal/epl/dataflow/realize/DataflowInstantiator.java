@@ -52,7 +52,7 @@ public class DataflowInstantiator {
         EPStatementAgentInstanceHandle handle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), agentInstanceId, lock);
         AuditProvider auditProvider = statementContext.getStatementInformationals().getAuditProvider();
         InstrumentationCommon instrumentationProvider = statementContext.getStatementInformationals().getInstrumentationProvider();
-        AgentInstanceContext agentInstanceContext = new AgentInstanceContext(statementContext, agentInstanceId, handle, null, null, auditProvider, instrumentationProvider);
+        AgentInstanceContext agentInstanceContext = new AgentInstanceContext(statementContext, handle, null, null, auditProvider, instrumentationProvider);
 
         // assure variables
         statementContext.getVariableManagementService().setLocalVersion();

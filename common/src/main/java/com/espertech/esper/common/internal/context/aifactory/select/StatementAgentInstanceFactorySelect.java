@@ -197,12 +197,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
 
         // result-set-processing
         Pair<ResultSetProcessor, AggregationService> processorPair = StatementAgentInstanceFactoryUtil.startResultSetAndAggregation(resultSetProcessorFactoryProvider, agentInstanceContext, false, null);
-        stopCallbacks.add(new AgentInstanceStopCallback() {
-            public void stop(AgentInstanceStopServices services) {
-                processorPair.getFirst().stop();
-                processorPair.getSecond().stop();
-            }
-        });
+        stopCallbacks.add(new SelectStopCallback(processorPair));
 
         // join versus non-join
         JoinSetComposer joinSetComposer;
@@ -228,6 +223,20 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         }
 
         AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+
+        // clean up empty holder
+        if (CollectionUtil.isArrayAllNull(priorEvalStrategies)) {
+            priorEvalStrategies = PriorEvalStrategy.EMPTY_ARRAY;
+        }
+        if (CollectionUtil.isAllNullArray(previousGetterStrategies)) {
+            previousGetterStrategies = PreviousGetterStrategy.EMPTY_ARRAY;
+        }
+        if (CollectionUtil.isAllNullArray(patternRoots)) {
+            patternRoots = EvalRootState.EMPTY_ARRAY;
+        }
+        if (CollectionUtil.isArraySameReferences(topViews, eventStreamParentViewable)) {
+            topViews = eventStreamParentViewable;
+        }
 
         return new StatementAgentInstanceFactorySelectResult(outputProcessView, stopCallback, agentInstanceContext, processorPair.getSecond(),
                 subselectActivations, priorEvalStrategies, previousGetterStrategies, rowRecogPreviousStrategy, tableAccessEvals, preloadList, patternRoots,
@@ -514,6 +523,21 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
 
         public void executePreload() {
             joinPreloadMethod.preloadAggregation(resultSetProcessor);
+        }
+    }
+
+    private static class SelectStopCallback implements AgentInstanceStopCallback {
+        private final ResultSetProcessor resultSetProcessor;
+        private final AggregationService aggregationService;
+
+        public SelectStopCallback(Pair<ResultSetProcessor, AggregationService> processorPair) {
+            resultSetProcessor = processorPair.getFirst();
+            aggregationService = processorPair.getSecond();
+        }
+
+        public void stop(AgentInstanceStopServices services) {
+            resultSetProcessor.stop();
+            aggregationService.stop();
         }
     }
 }

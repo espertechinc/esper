@@ -13,13 +13,15 @@ package com.espertech.esper.common.internal.context.util;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 
+import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 public class AgentInstanceFilterProxyImpl implements AgentInstanceFilterProxy {
 
-    private final Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator;
-    private IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]> addendumMap;
+    private Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator;
+    private Map<FilterSpecActivatable, FilterValueSetParam[][]> addendumMap;
 
     public AgentInstanceFilterProxyImpl(Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator) {
         this.generator = generator;
@@ -28,6 +30,10 @@ public class AgentInstanceFilterProxyImpl implements AgentInstanceFilterProxy {
     public FilterValueSetParam[][] getAddendumFilters(FilterSpecActivatable filterSpec, AgentInstanceContext agentInstanceContext) {
         if (addendumMap == null) {
             addendumMap = generator.apply(agentInstanceContext);
+            if (addendumMap.isEmpty()) {
+                addendumMap = Collections.emptyMap();
+            }
+            generator = null;
         }
         return addendumMap.get(filterSpec);
     }

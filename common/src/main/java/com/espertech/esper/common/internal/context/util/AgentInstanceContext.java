@@ -57,7 +57,6 @@ import java.util.HashSet;
 public class AgentInstanceContext implements ExprEvaluatorContext {
     private final long filterVersionAfterAllocation;
     private final StatementContext statementContext;
-    private final int agentInstanceId;
     private final EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;
     private final AgentInstanceFilterProxy agentInstanceFilterProxy;
     private final MappedEventBean contextProperties;
@@ -67,10 +66,9 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     private AgentInstanceScriptContext agentInstanceScriptContext;
     private Object terminationCallbacks;
 
-    public AgentInstanceContext(StatementContext statementContext, int agentInstanceId, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, AgentInstanceFilterProxy agentInstanceFilterProxy, MappedEventBean contextProperties, AuditProvider auditProvider, InstrumentationCommon instrumentationProvider) {
+    public AgentInstanceContext(StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, AgentInstanceFilterProxy agentInstanceFilterProxy, MappedEventBean contextProperties, AuditProvider auditProvider, InstrumentationCommon instrumentationProvider) {
         this.statementContext = statementContext;
         this.filterVersionAfterAllocation = statementContext.getFilterService().getFiltersVersion();
-        this.agentInstanceId = agentInstanceId;
         this.epStatementAgentInstanceHandle = epStatementAgentInstanceHandle;
         this.agentInstanceFilterProxy = agentInstanceFilterProxy;
         this.contextProperties = contextProperties;
@@ -103,7 +101,7 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     }
 
     public int getAgentInstanceId() {
-        return agentInstanceId;
+        return epStatementAgentInstanceHandle.getAgentInstanceId();
     }
 
     public StatementAgentInstanceLock getAgentInstanceLock() {
@@ -168,7 +166,7 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
 
     public StatementContextCPPair getStatementContextCPPair() {
         if (statementContextCPPair == null) {
-            statementContextCPPair = new StatementContextCPPair(statementContext.getStatementId(), agentInstanceId, statementContext);
+            statementContextCPPair = new StatementContextCPPair(statementContext.getStatementId(), epStatementAgentInstanceHandle.getAgentInstanceId(), statementContext);
         }
         return statementContextCPPair;
     }

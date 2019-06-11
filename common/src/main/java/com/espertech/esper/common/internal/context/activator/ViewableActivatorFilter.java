@@ -69,7 +69,6 @@ public class ViewableActivatorFilter implements ViewableActivator {
             theStream = canIterate ? new ZeroDepthStreamIterableWAudit(filterSpec.getResultEventType(), agentInstanceContext, filterSpec, streamNum, isSubselect, subselectNumber) : new ZeroDepthStreamNoIterateWAudit(filterSpec.getResultEventType(), agentInstanceContext, filterSpec, streamNum, isSubselect, subselectNumber);
         }
 
-        int statementId = agentInstanceContext.getStatementId();
         FilterHandleCallback filterCallback;
         if (filterSpec.getOptionalPropertyEvaluator() == null) {
             filterCallback = new FilterHandleCallback() {

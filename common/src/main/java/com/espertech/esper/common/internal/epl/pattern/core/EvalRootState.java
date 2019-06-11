@@ -17,6 +17,9 @@ import com.espertech.esper.common.internal.util.StopCallback;
  * Interface for a root state node accepting a callback to use to indicate pattern results.
  */
 public interface EvalRootState extends StopCallback, EvalRootMatchRemover {
+
+    EvalRootState[] EMPTY_ARRAY = new EvalRootState[0];
+
     /**
      * Accept callback to indicate pattern results.
      *

@@ -17,7 +17,37 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
+import static com.espertech.esper.common.internal.util.CollectionUtil.isArrayAllNull;
+import static com.espertech.esper.common.internal.util.CollectionUtil.isArraySameReferences;
+
 public class TestCollectionUtil extends TestCase {
+
+    public void testArrayAllNull() {
+        assertTrue(isArrayAllNull(null));
+        assertTrue(isArrayAllNull(new Object[0]));
+        assertTrue(isArrayAllNull(new Object[] {null}));
+        assertTrue(isArrayAllNull(new Object[] {null, null}));
+
+        assertFalse(isArrayAllNull(new Object[] {"a", null}));
+        assertFalse(isArrayAllNull(new Object[] {null, "b"}));
+    }
+
+    public void testArraySameReferences() {
+        String a = "a";
+        String b = "b";
+
+        assertTrue(isArraySameReferences(new Object[0], new Object[0]));
+        assertTrue(isArraySameReferences(new Object[] {a}, new Object[] {a}));
+        assertTrue(isArraySameReferences(new Object[] {a, b}, new Object[] {a, b}));
+
+        assertFalse(isArraySameReferences(new Object[] {}, new Object[] {b}));
+        assertFalse(isArraySameReferences(new Object[] {a}, new Object[] {}));
+        assertFalse(isArraySameReferences(new Object[] {a}, new Object[] {b}));
+        assertFalse(isArraySameReferences(new Object[] {a}, new Object[] {b, a}));
+        assertFalse(isArraySameReferences(new Object[] {a, b}, new Object[] {a}));
+        assertFalse(isArraySameReferences(new Object[] {a, b}, new Object[] {b, a}));
+        assertFalse(isArraySameReferences(new Object[] {new String(new char[] {'a'})}, new Object[] {new String(new char[] {'a'})}));
+    }
 
     public void testSubdivide() {
         runAssertionSubdivide3("", "");

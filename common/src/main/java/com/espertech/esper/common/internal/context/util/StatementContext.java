@@ -331,7 +331,7 @@ public class StatementContext implements ExprEvaluatorContext {
         EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = new EPStatementAgentInstanceHandle(epStatementHandle, -1, lock);
         AuditProvider auditProvider = getStatementInformationals().getAuditProvider();
         InstrumentationCommon instrumentationProvider = getStatementInformationals().getInstrumentationProvider();
-        return new AgentInstanceContext(this, -1, epStatementAgentInstanceHandle, null, null, auditProvider, instrumentationProvider);
+        return new AgentInstanceContext(this, epStatementAgentInstanceHandle, null, null, auditProvider, instrumentationProvider);
     }
 
     public ContextManagementService getContextManagementService() {

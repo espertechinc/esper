@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.filterspec.FilterAddendumUtil;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.*;
 import java.util.function.Function;
@@ -59,7 +60,7 @@ public class ContextManagerUtil {
                                                                                                               Object[] allPartitionKeys,
                                                                                                               AgentInstanceContext agentInstanceContextCreate) {
         Map<Integer, FilterSpecActivatable> filters = statementDesc.getLightweight().getStatementContext().getFilterSpecActivatables();
-        IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]> map = new IdentityHashMap<>();
+        IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]> map = new IdentityHashMap<>(CollectionUtil.capacityHashMap(filters.size()));
         for (Map.Entry<Integer, FilterSpecActivatable> filter : filters.entrySet()) {
             FilterValueSetParam[][] addendum = computeAddendum(allPartitionKeys, filter.getValue(), true, statementDesc, controllerFactories, agentInstanceContextCreate);
             if (addendum != null && addendum.length > 0) {

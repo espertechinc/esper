@@ -13,5 +13,7 @@ package com.espertech.esper.common.internal.view.previous;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface PreviousGetterStrategy {
+    PreviousGetterStrategy[] EMPTY_ARRAY = new PreviousGetterStrategy[0];
+
     PreviousGetterStrategy getStrategy(ExprEvaluatorContext ctx);
 }

@@ -19,6 +19,9 @@ public class ContextPartitionIdServiceImpl implements ContextPartitionIdService 
     private final Map<Integer, Object[]> cpids = new HashMap<Integer, Object[]>();
     private int lastAssignedId = -1;
 
+    public ContextPartitionIdServiceImpl() {
+    }
+
     public void clear() {
         cpids.clear();
         lastAssignedId = -1;

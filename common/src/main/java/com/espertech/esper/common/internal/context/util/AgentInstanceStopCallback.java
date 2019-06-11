@@ -11,11 +11,9 @@
 package com.espertech.esper.common.internal.context.util;
 
 public interface AgentInstanceStopCallback {
-    public AgentInstanceStopCallback INSTANCE_NO_ACTION = new AgentInstanceStopCallback() {
-        public void stop(AgentInstanceStopServices services) {
-            // no action
-        }
+    AgentInstanceStopCallback INSTANCE_NO_ACTION = services -> {
+        // no action
     };
 
-    public void stop(AgentInstanceStopServices services);
+    void stop(AgentInstanceStopServices services);
 }

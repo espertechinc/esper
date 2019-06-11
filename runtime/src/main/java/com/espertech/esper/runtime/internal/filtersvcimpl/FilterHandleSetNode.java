@@ -13,6 +13,7 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.filtersvc.FilterHandleSize;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.runtime.internal.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.*;
@@ -29,12 +30,12 @@ import java.util.concurrent.locks.ReadWriteLock;
 public final class FilterHandleSetNode implements EventEvaluator, FilterHandleSize {
     private final ReadWriteLock nodeRWLock;
     private final Set<FilterHandle> callbackSet;
-    private final List<FilterParamIndexBase> indizes;
+    private List<FilterParamIndexBase> indizes;
 
     public FilterHandleSetNode(ReadWriteLock nodeRWLock) {
         this.nodeRWLock = nodeRWLock;
-        callbackSet = new LinkedHashSet<FilterHandle>();
-        indizes = new LinkedList<FilterParamIndexBase>();
+        callbackSet = new LinkedHashSet<>(CollectionUtil.capacityHashMap(4));
+        indizes = Collections.emptyList();
     }
 
     /**
@@ -134,6 +135,7 @@ public final class FilterHandleSetNode implements EventEvaluator, FilterHandleSi
      * @param index - index to add
      */
     public final void add(FilterParamIndexBase index) {
+        checkIndizesIsModifyable();
         indizes.add(index);
     }
 
@@ -146,6 +148,7 @@ public final class FilterHandleSetNode implements EventEvaluator, FilterHandleSi
      * @return true if found, false if not existing
      */
     public final boolean remove(FilterParamIndexBase index) {
+        checkIndizesIsModifyable();
         return indizes.remove(index);
     }
 
@@ -185,6 +188,12 @@ public final class FilterHandleSetNode implements EventEvaluator, FilterHandleSi
         }
         for (FilterParamIndexBase index : indizes) {
             index.getTraverseStatement(traverse, statementIds, evaluatorStack);
+        }
+    }
+
+    private void checkIndizesIsModifyable() {
+        if (!(indizes instanceof LinkedList)) {
+            indizes = new LinkedList<>();
         }
     }
 }

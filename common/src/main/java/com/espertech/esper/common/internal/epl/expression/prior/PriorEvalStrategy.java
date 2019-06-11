@@ -17,5 +17,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
  * Represents the 'prior' prior event resolution strategy for use in an expression node tree.
  */
 public interface PriorEvalStrategy {
+    PriorEvalStrategy[] EMPTY_ARRAY = new PriorEvalStrategy[0];
+
     EventBean getSubstituteEvent(EventBean originalEvent, boolean isNewData, int constantIndexNumber, int relativeIndex, ExprEvaluatorContext exprEvaluatorContext, int streamNum);
 }
