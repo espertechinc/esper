@@ -25,6 +25,8 @@ import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessN
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeViewResourceVisitor;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPatternExpandUtil;
+import com.espertech.esper.common.internal.epl.rowrecog.expr.RowRecogExprNode;
 import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerSubselectAndDeclaredDot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +109,18 @@ public class StatementRawCompiler {
                     spec.getSelectClauseSpec(), spec.getHavingClause(), spec.getOrderByList(), expressionCopier);
         } catch (ExprValidationException ex) {
             throw new StatementSpecCompileException(ex.getMessage(), ex, compilable.toEPL());
+        }
+
+        // Expand match-recognize patterns
+        if (spec.getMatchRecognizeSpec() != null) {
+            RowRecogExprNode expandedPatternNode;
+            try {
+                ExpressionCopier copier = new ExpressionCopier(spec, statementRawInfo.getOptionalContextDescriptor(), compileTimeServices, visitor);
+                expandedPatternNode = RowRecogPatternExpandUtil.expand(spec.getMatchRecognizeSpec().getPattern(), copier);
+            } catch (ExprValidationException ex) {
+                throw new StatementSpecCompileException(ex.getMessage(), ex, compilable.toEPL());
+            }
+            spec.getMatchRecognizeSpec().setPattern(expandedPatternNode);
         }
 
         if (isSubquery && !visitor.getSubselects().isEmpty()) {

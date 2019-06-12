@@ -554,7 +554,7 @@ public class RowRecogRepetition implements RegressionExecution {
         StatementSpecCompiled spec = SupportStatementCompileHook.getSpecs().get(0);
         RowRecogExprNode expanded = null;
         try {
-            expanded = RowRecogPatternExpandUtil.expand(spec.getRaw().getMatchRecognizeSpec().getPattern());
+            expanded = RowRecogPatternExpandUtil.expand(spec.getRaw().getMatchRecognizeSpec().getPattern(), null);
         } catch (ExprValidationException e) {
             fail(e.getMessage());
         }

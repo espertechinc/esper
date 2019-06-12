@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.expr;
 
+import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 
@@ -52,5 +53,12 @@ public class RowRecogExprRepeatDesc {
             }
         }
         writer.write("}");
+    }
+
+    public RowRecogExprRepeatDesc checkedCopy(ExpressionCopier expressionCopier) {
+        ExprNode lowerCopy = lower == null ? null : expressionCopier.copy(lower);
+        ExprNode upperCopy = upper == null ? null : expressionCopier.copy(upper);
+        ExprNode singleCopy = single == null ? null : expressionCopier.copy(single);
+        return new RowRecogExprRepeatDesc(lowerCopy, upperCopy, singleCopy);
     }
 }

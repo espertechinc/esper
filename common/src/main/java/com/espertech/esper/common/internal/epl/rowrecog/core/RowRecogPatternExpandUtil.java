@@ -10,13 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
-import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.PermutationEnumeration;
+import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.rowrecog.expr.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +27,7 @@ public class RowRecogPatternExpandUtil {
     private static final RowRegexExprNodeCopierAtom ATOM_HANDLER = new RowRegexExprNodeCopierAtom();
     private static final RowRegexExprNodeCopierNested NESTED_HANDLER = new RowRegexExprNodeCopierNested();
 
-    public static RowRecogExprNode expand(RowRecogExprNode pattern) throws ExprValidationException {
+    public static RowRecogExprNode expand(RowRecogExprNode pattern, ExpressionCopier expressionCopier) throws ExprValidationException {
         RowRecogExprNodeVisitorRepeat visitor = new RowRecogExprNodeVisitorRepeat();
         pattern.accept(visitor);
         RowRecogExprNode newParentNode = pattern;
@@ -44,7 +43,7 @@ public class RowRecogPatternExpandUtil {
             }
         });
         for (RowRecogExprNodeVisitorRepeat.RowRegexPermuteDesc permute : permutes) {
-            RowRecogExprNodeAlteration alteration = expandPermute(permute.getPermute());
+            RowRecogExprNodeAlteration alteration = expandPermute(permute.getPermute(), expressionCopier);
             RowRecogExprNode optionalNewParent = replace(permute.getOptionalParent(), permute.getPermute(), Collections.<RowRecogExprNode>singletonList(alteration));
             if (optionalNewParent != null) {
                 newParentNode = optionalNewParent;
@@ -55,7 +54,7 @@ public class RowRecogPatternExpandUtil {
         List<Pair<RowRecogExprNodeAtom, RowRecogExprNode>> atomPairs = visitor.getAtoms();
         for (Pair<RowRecogExprNodeAtom, RowRecogExprNode> pair : atomPairs) {
             RowRecogExprNodeAtom atom = pair.getFirst();
-            List<RowRecogExprNode> expandedRepeat = expandRepeat(atom, atom.getOptionalRepeat(), atom.getType(), ATOM_HANDLER);
+            List<RowRecogExprNode> expandedRepeat = expandRepeat(atom, atom.getOptionalRepeat(), atom.getType(), ATOM_HANDLER, expressionCopier);
             RowRecogExprNode optionalNewParent = replace(pair.getSecond(), pair.getFirst(), expandedRepeat);
             if (optionalNewParent != null) {
                 newParentNode = optionalNewParent;
@@ -74,7 +73,7 @@ public class RowRecogPatternExpandUtil {
         });
         for (RowRecogExprNodeVisitorRepeat.RowRegexNestedDesc pair : nestedPairs) {
             RowRecogExprNodeNested nested = pair.getNested();
-            List<RowRecogExprNode> expandedRepeat = expandRepeat(nested, nested.getOptionalRepeat(), nested.getType(), NESTED_HANDLER);
+            List<RowRecogExprNode> expandedRepeat = expandRepeat(nested, nested.getOptionalRepeat(), nested.getType(), NESTED_HANDLER, expressionCopier);
             RowRecogExprNode optionalNewParent = replace(pair.getOptionalParent(), pair.getNested(), expandedRepeat);
             if (optionalNewParent != null) {
                 newParentNode = optionalNewParent;
@@ -84,7 +83,7 @@ public class RowRecogPatternExpandUtil {
         return newParentNode;
     }
 
-    private static RowRecogExprNodeAlteration expandPermute(RowRecogExprNodePermute permute) {
+    private static RowRecogExprNodeAlteration expandPermute(RowRecogExprNodePermute permute, ExpressionCopier expressionCopier) {
         PermutationEnumeration e = new PermutationEnumeration(permute.getChildNodes().size());
         RowRecogExprNodeAlteration parent = new RowRecogExprNodeAlteration();
         while (e.hasMoreElements()) {
@@ -93,7 +92,7 @@ public class RowRecogPatternExpandUtil {
             parent.addChildNode(concat);
             for (int i = 0; i < indexes.length; i++) {
                 RowRecogExprNode toCopy = permute.getChildNodes().get(indexes[i]);
-                RowRecogExprNode copy = checkedCopy(toCopy);
+                RowRecogExprNode copy = toCopy.checkedCopy(expressionCopier);
                 concat.addChildNode(copy);
             }
         }
@@ -124,7 +123,8 @@ public class RowRecogPatternExpandUtil {
     private static List<RowRecogExprNode> expandRepeat(RowRecogExprNode node,
                                                        RowRecogExprRepeatDesc repeat,
                                                        RowRecogNFATypeEnum type,
-                                                       RowRegexExprNodeCopier copier) throws ExprValidationException {
+                                                       RowRegexExprNodeCopier copier,
+                                                       ExpressionCopier expressionCopier) throws ExprValidationException {
         // handle single-bounds (no ranges)
         List<RowRecogExprNode> repeated = new ArrayList<RowRecogExprNode>();
         if (repeat.getSingle() != null) {
@@ -132,7 +132,7 @@ public class RowRecogPatternExpandUtil {
             int numRepeated = (Integer) repeat.getSingle().getForge().getExprEvaluator().evaluate(null, true, null);
             validateRange(numRepeated, 1, Integer.MAX_VALUE);
             for (int i = 0; i < numRepeated; i++) {
-                RowRecogExprNode copy = copier.copy(node, type);
+                RowRecogExprNode copy = copier.copy(node, type, expressionCopier);
                 repeated.add(copy);
             }
             return repeated;
@@ -156,7 +156,7 @@ public class RowRecogPatternExpandUtil {
             validateRange(upper, 1, Integer.MAX_VALUE);
             validateRange(lower, 1, upper);
             for (int i = 0; i < lower; i++) {
-                RowRecogExprNode copy = copier.copy(node, type);
+                RowRecogExprNode copy = copier.copy(node, type, expressionCopier);
                 repeated.add(copy);
             }
             for (int i = lower; i < upper; i++) {
@@ -169,7 +169,7 @@ public class RowRecogPatternExpandUtil {
                 } else if (type == RowRecogNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
                     newType = RowRecogNFATypeEnum.ZERO_TO_MANY_RELUCTANT;
                 }
-                RowRecogExprNode copy = copier.copy(node, newType);
+                RowRecogExprNode copy = copier.copy(node, newType, expressionCopier);
                 repeated.add(copy);
             }
             return repeated;
@@ -179,7 +179,7 @@ public class RowRecogPatternExpandUtil {
         if (upper == null) {
             validateRange(lower, 1, Integer.MAX_VALUE);
             for (int i = 0; i < lower; i++) {
-                RowRecogExprNode copy = copier.copy(node, type);
+                RowRecogExprNode copy = copier.copy(node, type, expressionCopier);
                 repeated.add(copy);
             }
             // makeInline type optional
@@ -195,7 +195,7 @@ public class RowRecogPatternExpandUtil {
             } else if (type == RowRecogNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
                 newType = RowRecogNFATypeEnum.ZERO_TO_MANY_RELUCTANT;
             }
-            RowRecogExprNode copy = copier.copy(node, newType);
+            RowRecogExprNode copy = copier.copy(node, newType, expressionCopier);
             repeated.add(copy);
             return repeated;
         }
@@ -212,18 +212,10 @@ public class RowRecogPatternExpandUtil {
             } else if (type == RowRecogNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
                 newType = RowRecogNFATypeEnum.ZERO_TO_MANY_RELUCTANT;
             }
-            RowRecogExprNode copy = copier.copy(node, newType);
+            RowRecogExprNode copy = copier.copy(node, newType, expressionCopier);
             repeated.add(copy);
         }
         return repeated;
-    }
-
-    private static RowRecogExprNode checkedCopy(RowRecogExprNode inner) {
-        try {
-            return SerializableObjectCopier.copy(inner);
-        } catch (Exception e) {
-            throw new EPException("Failed to repeat nested match-recognize: " + e.getMessage(), e);
-        }
     }
 
     private static void validateRange(int value, int min, int maxValue) throws ExprValidationException {
@@ -247,23 +239,23 @@ public class RowRecogPatternExpandUtil {
         }
     }
 
-    private static interface RowRegexExprNodeCopier {
-        public RowRecogExprNode copy(RowRecogExprNode nodeToCopy, RowRecogNFATypeEnum newType);
+    private interface RowRegexExprNodeCopier {
+        RowRecogExprNode copy(RowRecogExprNode nodeToCopy, RowRecogNFATypeEnum newType, ExpressionCopier expressionCopier);
     }
 
     private static class RowRegexExprNodeCopierAtom implements RowRegexExprNodeCopier {
-        public RowRecogExprNode copy(RowRecogExprNode nodeToCopy, RowRecogNFATypeEnum newType) {
+        public RowRecogExprNode copy(RowRecogExprNode nodeToCopy, RowRecogNFATypeEnum newType, ExpressionCopier expressionCopier) {
             RowRecogExprNodeAtom atom = (RowRecogExprNodeAtom) nodeToCopy;
             return new RowRecogExprNodeAtom(atom.getTag(), newType, null);
         }
     }
 
     private static class RowRegexExprNodeCopierNested implements RowRegexExprNodeCopier {
-        public RowRecogExprNode copy(RowRecogExprNode nodeToCopy, RowRecogNFATypeEnum newType) {
+        public RowRecogExprNode copy(RowRecogExprNode nodeToCopy, RowRecogNFATypeEnum newType, ExpressionCopier expressionCopier) {
             RowRecogExprNodeNested nested = (RowRecogExprNodeNested) nodeToCopy;
             RowRecogExprNodeNested nestedCopy = new RowRecogExprNodeNested(newType, null);
             for (RowRecogExprNode inner : nested.getChildNodes()) {
-                RowRecogExprNode innerCopy = checkedCopy(inner);
+                RowRecogExprNode innerCopy = inner.checkedCopy(expressionCopier);
                 nestedCopy.addChildNode(innerCopy);
             }
             return nestedCopy;

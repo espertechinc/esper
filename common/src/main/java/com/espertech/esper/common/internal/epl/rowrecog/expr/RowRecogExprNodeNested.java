@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.expr;
 
+import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFATypeEnum;
 
 import java.io.StringWriter;
@@ -46,5 +47,9 @@ public class RowRecogExprNodeNested extends RowRecogExprNode {
 
     public RowRecogExprNodePrecedenceEnum getPrecedence() {
         return RowRecogExprNodePrecedenceEnum.GROUPING;
+    }
+
+    public RowRecogExprNode checkedCopySelf(ExpressionCopier expressionCopier) {
+        return new RowRecogExprNodeNested(type, optionalRepeat == null ? null : optionalRepeat.checkedCopy(expressionCopier));
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.expr;
 
+import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +27,8 @@ public abstract class RowRecogExprNode {
     private List<RowRecogExprNode> childNodes;
 
     public abstract RowRecogExprNodePrecedenceEnum getPrecedence();
-
     public abstract void toPrecedenceFreeEPL(StringWriter writer);
+    public abstract RowRecogExprNode checkedCopySelf(ExpressionCopier expressionCopier);
 
     /**
      * Constructor creates a list of child nodes.
@@ -100,5 +101,14 @@ public abstract class RowRecogExprNode {
             }
         }
         childNodes = newChildNodes;
+    }
+
+    public RowRecogExprNode checkedCopy(ExpressionCopier expressionCopier) {
+        RowRecogExprNode copy = checkedCopySelf(expressionCopier);
+        for (RowRecogExprNode child : childNodes) {
+            RowRecogExprNode childCopy = child.checkedCopy(expressionCopier);
+            copy.addChildNode(childCopy);
+        }
+        return copy;
     }
 }

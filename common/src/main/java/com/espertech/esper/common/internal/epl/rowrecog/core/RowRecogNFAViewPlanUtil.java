@@ -76,8 +76,8 @@ public class RowRecogNFAViewPlanUtil {
         boolean iterateOnly = HintEnum.ITERATE_ONLY.getHint(annotations) != null;
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
-        // Expand repeats and permutations
-        RowRecogExprNode expandedPatternNode = RowRecogPatternExpandUtil.expand(matchRecognizeSpec.getPattern());
+        // Expanded pattern already there
+        RowRecogExprNode expandedPatternNode = matchRecognizeSpec.getPattern();
 
         // Determine single-row and multiple-row variables
         LinkedHashSet<String> variablesSingle = new LinkedHashSet<>();

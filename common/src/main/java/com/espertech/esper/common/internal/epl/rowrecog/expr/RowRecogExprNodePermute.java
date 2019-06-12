@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.expr;
 
+import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
+
 import java.io.StringWriter;
 
 /**
@@ -29,5 +31,9 @@ public class RowRecogExprNodePermute extends RowRecogExprNode {
 
     public RowRecogExprNodePrecedenceEnum getPrecedence() {
         return RowRecogExprNodePrecedenceEnum.UNARY;
+    }
+
+    public RowRecogExprNode checkedCopySelf(ExpressionCopier expressionCopier) {
+        return new RowRecogExprNodePermute();
     }
 }
