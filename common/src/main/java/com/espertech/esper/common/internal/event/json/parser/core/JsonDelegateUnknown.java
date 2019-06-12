@@ -20,7 +20,7 @@ public class JsonDelegateUnknown extends JsonDelegateBase {
     }
 
     public JsonDelegateBase startArray(String name) {
-        return new JsonDelegateUnknown(baseHandler, parent);
+        return new JsonDelegateUnknown(baseHandler, this);
     }
 
     public boolean endObjectValue(String name) {

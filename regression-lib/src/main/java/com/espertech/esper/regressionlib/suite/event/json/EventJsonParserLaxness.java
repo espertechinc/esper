@@ -37,7 +37,44 @@ public class EventJsonParserLaxness {
         execs.add(new EventJsonParserLaxnessNumberType());
         execs.add(new EventJsonParserLaxnessBooleanType());
         execs.add(new EventJsonParserLaxnessObjectType());
+        execs.add(new EventJsonParserUndeclaredContent());
         return execs;
+    }
+
+    private static class EventJsonParserUndeclaredContent implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create json schema JsonEvent ();\n" +
+                "@name('s0') select * from JsonEvent;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            String json = "{\n" +
+                "  \"users\": [\n" +
+                "    {\n" +
+                "      \"_id\": \"45166552176594981065\",\n" +
+                "      \"longitude\": 110.5363758848371,\n" +
+                "      \"tags\": [\n" +
+                "        \"ezNI8Gx5vq\"\n" +
+                "      ],\n" +
+                "      \"friends\": [\n" +
+                "        {\n" +
+                "          \"id\": \"4673\",\n" +
+                "          \"name\": \"EqVIiZyuhSCkWXvqSxgyQihZaiwSra\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"greeting\": \"xfS8vUXYq4wzufBLP6CY\",\n" +
+                "      \"favoriteFruit\": \"KT0tVAxXRawtbeQIWAot\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"_id\": \"23504426278646846580\",\n" +
+                "      \"favoriteFruit\": \"9aUx0u6G840i0EeKFM4Z\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+            env.sendEventJson(json, "JsonEvent");
+
+            env.undeployAll();
+        }
     }
 
     private static class EventJsonParserLaxnessObjectType implements RegressionExecution {
