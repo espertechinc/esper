@@ -10,16 +10,14 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Specification for property evaluation.
  */
-public class PropertyEvalSpec implements Serializable {
+public class PropertyEvalSpec {
     private List<PropertyEvalAtom> atoms;
-    private static final long serialVersionUID = -8843638696605082278L;
 
     /**
      * Ctor.

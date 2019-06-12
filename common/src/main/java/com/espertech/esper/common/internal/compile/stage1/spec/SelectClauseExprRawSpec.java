@@ -24,7 +24,6 @@ public class SelectClauseExprRawSpec implements SelectClauseElementRaw {
     private ExprNode selectExpression;
     private String optionalAsName;
     private boolean isEvents;
-    private static final long serialVersionUID = 2613265291858800221L;
 
     /**
      * Ctor.

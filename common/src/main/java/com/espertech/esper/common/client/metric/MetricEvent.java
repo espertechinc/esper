@@ -16,6 +16,7 @@ import java.io.Serializable;
  * Base metric event.
  */
 public abstract class MetricEvent implements Serializable {
+    private static final long serialVersionUID = -7971073046305352106L;
     private String runtimeURI;
 
     /**

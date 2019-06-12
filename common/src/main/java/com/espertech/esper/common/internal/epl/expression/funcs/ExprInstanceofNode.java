@@ -23,7 +23,6 @@ import java.util.Set;
  * Represents the INSTANCEOF(a,b,...) function is an expression tree.
  */
 public class ExprInstanceofNode extends ExprNodeBase {
-    private static final long serialVersionUID = 3358616797009364727L;
     private final String[] classIdentifiers;
 
     private transient ExprInstanceofNodeForge forge;

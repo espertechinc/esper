@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import java.util.List;
 
 public class GroupByClauseElementRollupOrCube implements GroupByClauseElement {
-    private static final long serialVersionUID = 4518704111521658749L;
     private final boolean cube;
     private final List<GroupByClauseElement> rollupExpressions;
 

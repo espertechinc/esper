@@ -39,7 +39,6 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
     private final static String METHOD_HANDLEEXPRNUMBERSETLISTEMPTY = "handleExprNumberSetListEmpty";
 
     private transient ExprEvaluator[] evaluators;
-    private static final long serialVersionUID = 4941618470342360450L;
 
     public ExprEvaluator getExprEvaluator() {
         return this;

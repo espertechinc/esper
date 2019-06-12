@@ -20,6 +20,7 @@ import java.io.Serializable;
  * allows it to use the byte code.
  */
 public class EPCompiledManifest implements Serializable {
+    private static final long serialVersionUID = -5866999692666004050L;
     private final String compilerVersion;
     private final String moduleProviderClassName;
     private final String queryProviderClassName;

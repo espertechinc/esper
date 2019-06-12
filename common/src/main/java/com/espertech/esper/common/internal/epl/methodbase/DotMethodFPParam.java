@@ -12,8 +12,11 @@ package com.espertech.esper.common.internal.epl.methodbase;
 
 import com.espertech.esper.common.internal.epl.util.EPLExpressionParamType;
 
-public class DotMethodFPParam {
+import java.io.Serializable;
 
+public class DotMethodFPParam implements Serializable {
+
+    private static final long serialVersionUID = -8644850353486284119L;
     private final int lambdaParamNum; // 0 means not a lambda expression expected, 1 means "x=>", 2 means "(x,y)=>"
     private final String description;
     private final EPLExpressionParamType type;

@@ -16,6 +16,7 @@ import java.io.Serializable;
  * Context partition identifiers are provided by the API when interrogating context partitions for a given statement.
  */
 public abstract class ContextPartitionIdentifier implements Serializable {
+    private static final long serialVersionUID = -2242958374563093760L;
     private Integer contextPartitionId;
 
     /**

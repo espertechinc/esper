@@ -22,8 +22,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprGroupingNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
 
-    private static final long serialVersionUID = 8054177261371678105L;
-
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (!validationContext.isAllowRollupFunctions()) {
             throw ExprGroupingIdNode.makeException("grouping");

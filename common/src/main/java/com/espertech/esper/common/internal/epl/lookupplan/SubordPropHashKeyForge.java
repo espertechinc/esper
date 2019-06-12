@@ -12,14 +12,10 @@ package com.espertech.esper.common.internal.epl.lookupplan;
 
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForge;
 
-import java.io.Serializable;
-
 /**
  * Holds property information for joined properties in a lookup.
  */
-public class SubordPropHashKeyForge implements Serializable {
-    private static final long serialVersionUID = -8830134829029646585L;
-
+public class SubordPropHashKeyForge {
     private final QueryGraphValueEntryHashKeyedForge hashKey;
     private final Integer optionalKeyStreamNum;
     private final Class coercionType;

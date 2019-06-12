@@ -10,11 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
-public class CreateContextDesc implements Serializable {
-
-    private static final long serialVersionUID = -5318225626899036861L;
+public class CreateContextDesc {
     private final String contextName;
     private final ContextSpec contextDetail;
 

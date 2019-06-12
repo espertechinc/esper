@@ -13,14 +13,13 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.rowrecog.expr.RowRecogExprNode;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Specification for match_recognize.
  */
-public class MatchRecognizeSpec implements Serializable {
+public class MatchRecognizeSpec {
     private List<ExprNode> partitionByExpressions;
     private List<MatchRecognizeMeasureItem> measures;
     private RowRecogExprNode pattern;
@@ -28,7 +27,6 @@ public class MatchRecognizeSpec implements Serializable {
     private boolean isAllMatches;
     private MatchRecognizeSkip skip;
     private MatchRecognizeInterval interval;
-    private static final long serialVersionUID = -2402650987323748877L;
 
     /**
      * Ctor.

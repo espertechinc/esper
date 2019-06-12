@@ -12,14 +12,11 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
-
 /**
  * Descriptor for an on-set assignment.
  */
-public class OnTriggerSetAssignment implements Serializable {
+public class OnTriggerSetAssignment {
     private ExprNode expression;
-    private static final long serialVersionUID = -3672553372059354285L;
 
     /**
      * Ctor.

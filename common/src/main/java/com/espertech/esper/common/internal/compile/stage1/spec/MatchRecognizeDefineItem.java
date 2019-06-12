@@ -12,15 +12,12 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
-
 /**
  * Specification for a "define" construct within a match_recognize.
  */
-public class MatchRecognizeDefineItem implements Serializable {
+public class MatchRecognizeDefineItem {
     private String identifier;
     private ExprNode expression;
-    private static final long serialVersionUID = -7736241770279336651L;
 
     /**
      * Ctor.

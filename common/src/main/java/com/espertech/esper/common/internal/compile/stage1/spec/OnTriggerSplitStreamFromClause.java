@@ -10,11 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
-public class OnTriggerSplitStreamFromClause implements Serializable {
-    private static final long serialVersionUID = 6732032046677935097L;
-
+public class OnTriggerSplitStreamFromClause {
     private PropertyEvalSpec propertyEvalSpec;
     private String optionalStreamName;
 

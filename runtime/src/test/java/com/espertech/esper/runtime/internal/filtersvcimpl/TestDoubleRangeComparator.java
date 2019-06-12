@@ -21,7 +21,7 @@ import java.util.TreeSet;
 
 public class TestDoubleRangeComparator extends TestCase {
     public void testComparator() {
-        SortedSet<DoubleRange> sorted = new TreeSet<DoubleRange>(new DoubleRangeComparator());
+        SortedSet<DoubleRange> sorted = new TreeSet<>(DoubleRangeComparator.INSTANCE);
 
         final double[][] TEST_SET =
                 {{10, 20},         // 4

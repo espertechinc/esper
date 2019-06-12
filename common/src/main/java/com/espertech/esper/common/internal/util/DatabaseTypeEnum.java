@@ -166,6 +166,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingString implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingString INSTANCE = new DatabaseTypeBindingString();
+        private static final long serialVersionUID = -3831364370730920000L;
 
         private DatabaseTypeBindingString() {
         }
@@ -185,6 +186,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingBigDecimal implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingBigDecimal INSTANCE = new DatabaseTypeBindingBigDecimal();
+        private static final long serialVersionUID = 7936793469129113188L;
 
         private DatabaseTypeBindingBigDecimal() {
         }
@@ -204,6 +206,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingBoolean implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingBoolean INSTANCE = new DatabaseTypeBindingBoolean();
+        private static final long serialVersionUID = 2011917861145281792L;
 
         private DatabaseTypeBindingBoolean() {
         }
@@ -223,6 +226,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingByte implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingByte INSTANCE = new DatabaseTypeBindingByte();
+        private static final long serialVersionUID = -4384419006649960382L;
 
         private DatabaseTypeBindingByte() {
         }
@@ -242,6 +246,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingByteArray implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingByteArray INSTANCE = new DatabaseTypeBindingByteArray();
+        private static final long serialVersionUID = -3021791118652285417L;
 
         private DatabaseTypeBindingByteArray() {
         }
@@ -261,6 +266,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingDouble implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingDouble INSTANCE = new DatabaseTypeBindingDouble();
+        private static final long serialVersionUID = 5260960578225698141L;
 
         private DatabaseTypeBindingDouble() {
         }
@@ -280,6 +286,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingFloat implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingFloat INSTANCE = new DatabaseTypeBindingFloat();
+        private static final long serialVersionUID = -6368364148039830269L;
 
         private DatabaseTypeBindingFloat() {
         }
@@ -299,6 +306,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingInt implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingInt INSTANCE = new DatabaseTypeBindingInt();
+        private static final long serialVersionUID = -1781602056657894856L;
 
         private DatabaseTypeBindingInt() {
         }
@@ -318,6 +326,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingLong implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingLong INSTANCE = new DatabaseTypeBindingLong();
+        private static final long serialVersionUID = -2540462063946936850L;
 
         private DatabaseTypeBindingLong() {
         }
@@ -337,6 +346,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingShort implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingShort INSTANCE = new DatabaseTypeBindingShort();
+        private static final long serialVersionUID = -4696766274483402031L;
 
         private DatabaseTypeBindingShort() {
         }
@@ -356,6 +366,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingSqlDate implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingSqlDate INSTANCE = new DatabaseTypeBindingSqlDate();
+        private static final long serialVersionUID = 8886935241855230262L;
 
         private DatabaseTypeBindingSqlDate() {
         }
@@ -375,6 +386,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingSqlTime implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingSqlTime INSTANCE = new DatabaseTypeBindingSqlTime();
+        private static final long serialVersionUID = -9004717069396381416L;
 
         private DatabaseTypeBindingSqlTime() {
         }
@@ -394,6 +406,7 @@ public enum DatabaseTypeEnum {
 
     public static class DatabaseTypeBindingSqlTimestamp implements DatabaseTypeBinding {
         public final static DatabaseTypeBindingSqlTimestamp INSTANCE = new DatabaseTypeBindingSqlTimestamp();
+        private static final long serialVersionUID = 4287456701361551857L;
 
         private DatabaseTypeBindingSqlTimestamp() {
         }

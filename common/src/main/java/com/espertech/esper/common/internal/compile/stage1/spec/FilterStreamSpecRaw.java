@@ -10,15 +10,11 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
 /**
  * Unvalided filter-based stream specification.
  */
-public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw, Serializable {
+public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw {
     private FilterSpecRaw rawFilterSpec;
-    private static final long serialVersionUID = -7919060568262701953L;
-
 
     /**
      * Ctor.

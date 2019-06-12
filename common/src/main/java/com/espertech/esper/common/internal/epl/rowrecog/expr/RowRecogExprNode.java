@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.rowrecog.expr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +20,8 @@ import java.util.List;
 /**
  * Base node for
  */
-public abstract class RowRecogExprNode implements Serializable {
+public abstract class RowRecogExprNode {
     private static final Logger log = LoggerFactory.getLogger(RowRecogExprNode.class);
-    private static final long serialVersionUID = 0L;
 
     private List<RowRecogExprNode> childNodes;
 

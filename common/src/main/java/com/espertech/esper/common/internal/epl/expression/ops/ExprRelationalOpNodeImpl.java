@@ -20,8 +20,6 @@ import java.io.StringWriter;
  * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
 public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprRelationalOpNode {
-    private static final long serialVersionUID = -6170161542681634598L;
-
     private final RelationalOpEnum relationalOpEnum;
 
     private transient ExprRelationalOpNodeForge forge;

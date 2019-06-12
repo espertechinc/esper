@@ -16,6 +16,8 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableDeclaration
  * Exception indicating a variable type error.
  */
 public class VariableTypeException extends VariableDeclarationException {
+    private static final long serialVersionUID = 6778336939605945944L;
+
     /**
      * Ctor.
      *

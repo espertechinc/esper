@@ -15,6 +15,8 @@ package com.espertech.esper.common.internal.context.util;
  */
 public class UndeployPreconditionException extends Exception {
 
+    private static final long serialVersionUID = -4354386368238436441L;
+
     /**
      * Ctor.
      *

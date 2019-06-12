@@ -15,7 +15,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import java.util.List;
 
 public class GroupByClauseElementCombinedExpr implements GroupByClauseElement {
-    private static final long serialVersionUID = -8761673351655924445L;
     private final List<ExprNode> expressions;
 
     public GroupByClauseElementCombinedExpr(List<ExprNode> expressions) {

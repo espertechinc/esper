@@ -19,13 +19,12 @@ import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.common.internal.type.OuterJoinType;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * Contains the ON-clause criteria in an outer join.
  */
-public class OuterJoinDesc implements Serializable {
+public class OuterJoinDesc {
     public static final OuterJoinDesc[] EMPTY_OUTERJOIN_ARRAY = new OuterJoinDesc[0];
 
     private OuterJoinType outerJoinType;
@@ -33,7 +32,6 @@ public class OuterJoinDesc implements Serializable {
     private ExprIdentNode optRightNode;
     private ExprIdentNode[] optAddLeftNode;
     private ExprIdentNode[] optAddRightNode;
-    private static final long serialVersionUID = -2616847070429124382L;
 
     /**
      * Ctor.

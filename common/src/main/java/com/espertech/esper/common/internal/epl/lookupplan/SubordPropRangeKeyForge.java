@@ -12,15 +12,12 @@ package com.espertech.esper.common.internal.epl.lookupplan;
 
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRangeForge;
 
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Collection;
 
-public class SubordPropRangeKeyForge implements Serializable {
-    private static final long serialVersionUID = 8075290397924970479L;
-
-    private QueryGraphValueEntryRangeForge rangeInfo;
-    private Class coercionType;
+public class SubordPropRangeKeyForge {
+    private final QueryGraphValueEntryRangeForge rangeInfo;
+    private final Class coercionType;
 
     public SubordPropRangeKeyForge(QueryGraphValueEntryRangeForge rangeInfo, Class coercionType) {
         this.rangeInfo = rangeInfo;

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.collection;
 
 public class PathExceptionInvalidVisibility extends PathException {
 
+    private static final long serialVersionUID = -8930440966672146718L;
+
     public PathExceptionInvalidVisibility(PathRegistryObjectType objectType) {
         super("Attempted to add non-path-visibility " + objectType);
     }

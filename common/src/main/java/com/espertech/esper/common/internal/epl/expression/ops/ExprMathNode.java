@@ -21,8 +21,6 @@ import java.math.BigDecimal;
  * Represents a simple Math (+/-/divide/*) in a filter expression tree.
  */
 public class ExprMathNode extends ExprNodeBase {
-    private static final long serialVersionUID = 6479683588602862158L;
-
     private final MathArithTypeEnum mathArithTypeEnum;
     private final boolean isIntegerDivision;
     private final boolean isDivisionByZeroReturnsNull;

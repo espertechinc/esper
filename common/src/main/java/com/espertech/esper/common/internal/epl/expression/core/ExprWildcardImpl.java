@@ -26,7 +26,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Expression for use within crontab to specify a wildcard.
  */
 public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEvaluator, ExprWildcard {
-    private static final long serialVersionUID = -6098833102154556698L;
 
     public ExprWildcardImpl() {
     }

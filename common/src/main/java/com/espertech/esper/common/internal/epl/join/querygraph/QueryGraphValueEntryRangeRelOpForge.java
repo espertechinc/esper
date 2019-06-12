@@ -24,8 +24,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class QueryGraphValueEntryRangeRelOpForge extends QueryGraphValueEntryRangeForge {
 
-    private static final long serialVersionUID = -4616155064548498888L;
-
     private final ExprNode expression;
     private final boolean isBetweenPart; // indicate that this is part of a between-clause or in-clause
 

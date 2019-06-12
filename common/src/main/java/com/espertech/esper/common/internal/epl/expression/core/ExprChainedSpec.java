@@ -10,12 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class ExprChainedSpec implements Serializable {
-    private static final long serialVersionUID = -5618484186038424466L;
-
+public class ExprChainedSpec {
     private String name;
     private List<ExprNode> parameters;
     private boolean property;

@@ -22,7 +22,6 @@ import java.io.StringWriter;
  */
 public class ExprNewInstanceNode extends ExprNodeBase {
 
-    private static final long serialVersionUID = 1354077020397807076L;
     private final String classIdent;
 
     private transient ExprNewInstanceNodeForge forge;

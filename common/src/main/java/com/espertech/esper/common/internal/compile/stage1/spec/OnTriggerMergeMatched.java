@@ -12,15 +12,12 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Specification for the merge statement insert/update/delete-part.
  */
-public class OnTriggerMergeMatched implements Serializable {
-    private static final long serialVersionUID = -8789870272699226779L;
-
+public class OnTriggerMergeMatched {
     private final boolean matchedUnmatched;
     private ExprNode optionalMatchCond;
     private final List<OnTriggerMergeAction> actions;

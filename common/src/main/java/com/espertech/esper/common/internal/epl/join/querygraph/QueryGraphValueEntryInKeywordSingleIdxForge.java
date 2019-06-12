@@ -20,12 +20,9 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 
-import java.io.Serializable;
-
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class QueryGraphValueEntryInKeywordSingleIdxForge implements QueryGraphValueEntryForge, Serializable {
-    private static final long serialVersionUID = -2340719032845201999L;
+public class QueryGraphValueEntryInKeywordSingleIdxForge implements QueryGraphValueEntryForge {
     private final ExprNode[] keyExprs;
 
     protected QueryGraphValueEntryInKeywordSingleIdxForge(ExprNode[] keyExprs) {
@@ -43,8 +40,8 @@ public class QueryGraphValueEntryInKeywordSingleIdxForge implements QueryGraphVa
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(QueryGraphValueEntryInKeywordSingleIdx.class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprEvaluator[].class, "expressions", ExprNodeUtilityCodegen.codegenEvaluators(keyExprs, method, this.getClass(), classScope))
-                .methodReturn(newInstance(QueryGraphValueEntryInKeywordSingleIdx.class, ref("expressions")));
+            .declareVar(ExprEvaluator[].class, "expressions", ExprNodeUtilityCodegen.codegenEvaluators(keyExprs, method, this.getClass(), classScope))
+            .methodReturn(newInstance(QueryGraphValueEntryInKeywordSingleIdx.class, ref("expressions")));
         return localMethod(method);
     }
 }

@@ -12,19 +12,17 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Specification object for historical data poll via database SQL statement.
  */
-public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled, Serializable {
+public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled {
     private String ident;
     private String className;
     private String methodName;
     private List<ExprNode> expressions;
     private String eventTypeName;
-    private static final long serialVersionUID = -5290682188045211532L;
 
     /**
      * Ctor.

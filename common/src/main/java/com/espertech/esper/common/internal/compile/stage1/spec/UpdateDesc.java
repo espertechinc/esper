@@ -12,17 +12,15 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Specification for the update statement.
  */
-public class UpdateDesc implements Serializable {
+public class UpdateDesc {
     private final String optionalStreamName;
     private final List<OnTriggerSetAssignment> assignments;
     private ExprNode optionalWhereClause;
-    private static final long serialVersionUID = -5995788555238052741L;
 
     /**
      * Ctor.

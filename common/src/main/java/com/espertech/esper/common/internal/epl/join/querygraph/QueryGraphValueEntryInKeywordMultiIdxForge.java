@@ -17,10 +17,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 
-import java.io.Serializable;
-
-public class QueryGraphValueEntryInKeywordMultiIdxForge implements QueryGraphValueEntryForge, Serializable {
-    private static final long serialVersionUID = 3018879286841740917L;
+public class QueryGraphValueEntryInKeywordMultiIdxForge implements QueryGraphValueEntryForge {
     private final ExprNode keyExpr;
 
     protected QueryGraphValueEntryInKeywordMultiIdxForge(ExprNode keyExpr) {

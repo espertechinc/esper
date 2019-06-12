@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -21,11 +20,10 @@ import java.util.List;
  * Event type and expression nodes in this filter specification are not yet validated, optimized for resolved
  * against actual streams.
  */
-public class FilterSpecRaw implements Serializable {
+public class FilterSpecRaw {
     private String eventTypeName;
     private List<ExprNode> filterExpressions;
     private PropertyEvalSpec optionalPropertyEvalSpec;
-    private static final long serialVersionUID = 4316000245281974225L;
 
     /**
      * Ctor.

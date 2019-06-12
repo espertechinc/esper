@@ -12,18 +12,15 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
-
 /**
  * Atom in a specification for property evaluation.
  */
-public class PropertyEvalAtom implements Serializable {
+public class PropertyEvalAtom {
     private final ExprNode splitterExpression;
     private final String optionalResultEventType;
     private final String optionalAsName;
     private final SelectClauseSpecRaw optionalSelectClause;
     private final ExprNode optionalWhereClause;
-    private static final long serialVersionUID = -7123359550634592847L;
 
     /**
      * Ctor.

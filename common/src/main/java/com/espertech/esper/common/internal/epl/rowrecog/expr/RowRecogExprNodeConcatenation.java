@@ -16,8 +16,6 @@ import java.io.StringWriter;
  * Concatenation of atoms in a regular expression tree.
  */
 public class RowRecogExprNodeConcatenation extends RowRecogExprNode {
-    private static final long serialVersionUID = 2450243642083341825L;
-
     /**
      * Ctor.
      */

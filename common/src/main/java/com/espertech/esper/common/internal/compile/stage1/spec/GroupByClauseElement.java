@@ -10,7 +10,5 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
-public interface GroupByClauseElement extends Serializable {
+public interface GroupByClauseElement {
 }

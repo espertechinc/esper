@@ -42,8 +42,6 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
  * Represents the 'prev' previous event function in an expression node tree.
  */
 public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval, ExprForgeInstrumentable {
-    private static final long serialVersionUID = 0L;
-
     private final ExprPreviousNodePreviousType previousType;
 
     private Class resultType;

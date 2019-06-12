@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.util;
 
 public class ValidationException extends RuntimeException {
+    private static final long serialVersionUID = 3196896548712632748L;
+
     public ValidationException(String message) {
         super(message);
     }

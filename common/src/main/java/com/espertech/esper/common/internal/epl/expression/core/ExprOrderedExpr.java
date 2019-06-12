@@ -25,7 +25,6 @@ import java.io.StringWriter;
 public class ExprOrderedExpr extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private final boolean isDescending;
     private transient ExprEvaluator evaluator;
-    private static final long serialVersionUID = -3140402807682771591L;
 
     /**
      * Ctor.

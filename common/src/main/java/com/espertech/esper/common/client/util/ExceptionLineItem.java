@@ -14,6 +14,7 @@ package com.espertech.esper.common.client.util;
  * Exception for line item.
  */
 public class ExceptionLineItem extends Exception {
+    private static final long serialVersionUID = 8381912568144436585L;
     protected final String expression;
     protected final int lineNumber;
 

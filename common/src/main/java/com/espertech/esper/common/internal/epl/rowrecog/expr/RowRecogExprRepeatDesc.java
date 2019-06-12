@@ -13,11 +13,9 @@ package com.espertech.esper.common.internal.epl.rowrecog.expr;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 
-import java.io.Serializable;
 import java.io.StringWriter;
 
-public class RowRecogExprRepeatDesc implements Serializable {
-    private static final long serialVersionUID = -5731091962097679923L;
+public class RowRecogExprRepeatDesc {
     private final ExprNode lower;
     private final ExprNode upper;
     private final ExprNode single;

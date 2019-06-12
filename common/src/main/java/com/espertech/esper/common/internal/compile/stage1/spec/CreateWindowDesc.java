@@ -12,22 +12,19 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Specification for creating a named window.
  */
-public class CreateWindowDesc implements Serializable {
+public class CreateWindowDesc {
     private String windowName;
     private List<ViewSpec> viewSpecs;
     private boolean isInsert;
-    private String insertFromWindow;
     private ExprNode insertFilter;
     private StreamSpecOptions streamSpecOptions;
     private List<ColumnDesc> columns;
     private String asEventTypeName;
-    private static final long serialVersionUID = 3889989851649484639L;
 
     /**
      * Ctor.

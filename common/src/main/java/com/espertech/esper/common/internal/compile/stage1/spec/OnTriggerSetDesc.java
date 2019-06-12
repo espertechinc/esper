@@ -17,7 +17,6 @@ import java.util.List;
  */
 public class OnTriggerSetDesc extends OnTriggerDesc {
     private List<OnTriggerSetAssignment> assignments;
-    private static final long serialVersionUID = -5104683353293495487L;
 
     /**
      * Ctor.

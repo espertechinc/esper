@@ -19,8 +19,6 @@ import java.io.StringWriter;
  * Represents a string concatenation.
  */
 public class ExprConcatNode extends ExprNodeBase {
-    private static final long serialVersionUID = 5811427566733004327L;
-
     private transient ExprConcatNodeForge forge;
 
     public ExprEvaluator getExprEvaluator() {

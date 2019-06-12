@@ -10,13 +10,10 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForClauseSpec implements Serializable {
-    private static final long serialVersionUID = -8529660985454535028L;
-
+public class ForClauseSpec {
     private List<ForClauseItemSpec> clauses;
 
     public ForClauseSpec() {

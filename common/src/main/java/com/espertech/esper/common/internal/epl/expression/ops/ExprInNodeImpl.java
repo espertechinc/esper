@@ -23,8 +23,6 @@ import java.util.*;
  * Represents the in-clause (set check) function in an expression tree.
  */
 public class ExprInNodeImpl extends ExprNodeBase implements ExprInNode {
-    private static final long serialVersionUID = -601723009914169907L;
-
     private final boolean isNotIn;
 
     private transient ExprInNodeForge forge;

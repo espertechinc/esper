@@ -12,12 +12,9 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class ForClauseItemSpec implements Serializable {
-    private static final long serialVersionUID = 4374267047749646423L;
-
+public class ForClauseItemSpec {
     private String keyword;
     private List<ExprNode> expressions;
 

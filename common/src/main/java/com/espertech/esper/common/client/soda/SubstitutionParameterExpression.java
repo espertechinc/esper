@@ -16,6 +16,7 @@ import java.io.StringWriter;
  * Represents a substitution parameter
  */
 public class SubstitutionParameterExpression extends ExpressionBase {
+    private static final long serialVersionUID = -3761383588607218180L;
     private String optionalName;
     private String optionalType;
 

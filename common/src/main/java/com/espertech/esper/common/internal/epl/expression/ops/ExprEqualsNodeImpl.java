@@ -23,8 +23,6 @@ import java.util.Map;
  * Represents an equals (=) comparator in a filter expressiun tree.
  */
 public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
-    private static final long serialVersionUID = 5504809379222369952L;
-
     private final boolean isNotEquals;
     private final boolean isIs;
 

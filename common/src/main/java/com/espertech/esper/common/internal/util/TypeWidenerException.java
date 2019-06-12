@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.util;
 
 public class TypeWidenerException extends Exception {
+    private static final long serialVersionUID = -4201286185409234550L;
+
     public TypeWidenerException(String message) {
         super(message);
     }

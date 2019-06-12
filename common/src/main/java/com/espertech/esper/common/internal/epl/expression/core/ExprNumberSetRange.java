@@ -38,7 +38,6 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
     public final static String METHOD_HANDLENUMBERSETRANGEUPPERNULL = "handleNumberSetRangeUpperNull";
 
     private transient ExprEvaluator[] evaluators;
-    private static final long serialVersionUID = -3777415170380735662L;
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);

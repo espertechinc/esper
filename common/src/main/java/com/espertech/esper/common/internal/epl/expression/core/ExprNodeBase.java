@@ -22,8 +22,6 @@ import java.util.Collection;
  * validation against stream event types and evaluation of events against filter tree.
  */
 public abstract class ExprNodeBase implements ExprNode {
-    private static final long serialVersionUID = 0L;
-
     private static final ExprNode[] EMPTY_EXPR_ARRAY = new ExprNode[0];
     private ExprNode[] childNodes;
 

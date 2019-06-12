@@ -20,7 +20,6 @@ import java.io.StringWriter;
 public class RowRecogExprNodeNested extends RowRecogExprNode {
     private final RowRecogNFATypeEnum type;
     private final RowRecogExprRepeatDesc optionalRepeat;
-    private static final long serialVersionUID = -2079284511194587570L;
 
     public RowRecogExprNodeNested(RowRecogNFATypeEnum type, RowRecogExprRepeatDesc optionalRepeat) {
         this.type = type;

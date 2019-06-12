@@ -10,15 +10,12 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Descriptor for create-table statements.
  */
-public class CreateTableDesc implements Serializable {
-    private static final long serialVersionUID = -2708705726609018664L;
-
+public class CreateTableDesc {
     private final String tableName;
     private final List<CreateTableColumn> columns;
 

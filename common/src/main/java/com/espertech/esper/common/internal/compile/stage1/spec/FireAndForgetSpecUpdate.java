@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import java.util.List;
 
 public class FireAndForgetSpecUpdate extends FireAndForgetSpec {
-    private static final long serialVersionUID = -2633119130798557349L;
     private final List<OnTriggerSetAssignment> assignments;
 
     public FireAndForgetSpecUpdate(List<OnTriggerSetAssignment> assignments) {

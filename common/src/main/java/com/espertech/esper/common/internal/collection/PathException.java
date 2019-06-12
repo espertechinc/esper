@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.collection;
 
 public class PathException extends Exception {
 
+    private static final long serialVersionUID = -7724208779567856745L;
+
     public PathException(String message) {
         super(message);
     }

@@ -31,8 +31,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents the TYPEOF(a) function is an expression tree.
  */
 public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizableNode {
-    private static final long serialVersionUID = -612634538694877204L;
-
     private transient ExprTypeofNodeForge forge;
     private transient ExprValidationContext exprValidationContext;
 

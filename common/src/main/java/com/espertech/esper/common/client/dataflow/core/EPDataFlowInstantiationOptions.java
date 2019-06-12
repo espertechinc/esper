@@ -22,14 +22,14 @@ import java.util.Map;
 public class EPDataFlowInstantiationOptions implements Serializable {
 
     private static final long serialVersionUID = -2935388024377311454L;
-    private EPDataFlowOperatorProvider operatorProvider;
-    private EPDataFlowOperatorParameterProvider parameterProvider;
-    private EPDataFlowExceptionHandler exceptionHandler;
+    private transient EPDataFlowOperatorProvider operatorProvider;
+    private transient EPDataFlowOperatorParameterProvider parameterProvider;
+    private transient EPDataFlowExceptionHandler exceptionHandler;
     private String dataFlowInstanceId;
     private Object dataFlowInstanceUserObject;
     private boolean operatorStatistics;
     private boolean cpuStatistics;
-    private EPRuntimeEventProcessWrapped surrogateEventSender;
+    private transient EPRuntimeEventProcessWrapped surrogateEventSender;
     private Map<String, Object> parametersURIs;
 
     /**

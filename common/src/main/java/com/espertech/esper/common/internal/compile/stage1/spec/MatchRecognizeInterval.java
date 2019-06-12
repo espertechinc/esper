@@ -13,16 +13,13 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriodEvalDeltaConst;
 
-import java.io.Serializable;
-
 /**
  * Interval specification within match_recognize.
  */
-public class MatchRecognizeInterval implements Serializable {
+public class MatchRecognizeInterval {
     private ExprTimePeriod timePeriodExpr;
     private boolean orTerminated;
     private ExprTimePeriodEvalDeltaConst timeDeltaComputation;
-    private static final long serialVersionUID = 9015877742992218244L;
 
     /**
      * Ctor.

@@ -15,6 +15,7 @@ import java.io.StringWriter;
 
 public class DotMethodFP implements Serializable {
 
+    private static final long serialVersionUID = -6796718924674447259L;
     private final DotMethodFPInputEnum input;
     private final DotMethodFPParam[] parameters;
 

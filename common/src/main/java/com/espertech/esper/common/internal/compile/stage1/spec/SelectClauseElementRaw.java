@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
 /**
  * Marker interface for elements in a select clause that is in the raw (storable) form.
  */
-public interface SelectClauseElementRaw extends Serializable {
+public interface SelectClauseElementRaw {
 }

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class SupportBeanComplexProps implements Serializable, SupportMarkerInterface {
+    private static final long serialVersionUID = -5852920774075185837L;
     private String simpleProperty;
     private Properties mappedProps;
     private int[] indexedProps;
@@ -118,6 +119,7 @@ public class SupportBeanComplexProps implements Serializable, SupportMarkerInter
     }
 
     public static class SupportBeanSpecialGetterNested implements Serializable {
+        private static final long serialVersionUID = 8924122094175541712L;
         private String nestedValue;
         private SupportBeanSpecialGetterNestedNested nestedNested;
 
@@ -161,6 +163,7 @@ public class SupportBeanComplexProps implements Serializable, SupportMarkerInter
     }
 
     public static class SupportBeanSpecialGetterNestedNested implements Serializable {
+        private static final long serialVersionUID = -8877503538621163468L;
         private String nestedNestedValue;
 
         public SupportBeanSpecialGetterNestedNested(String nestedNestedValue) {

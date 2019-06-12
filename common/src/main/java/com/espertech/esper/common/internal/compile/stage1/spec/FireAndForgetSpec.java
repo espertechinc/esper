@@ -10,8 +10,5 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
-public abstract class FireAndForgetSpec implements Serializable {
-    private static final long serialVersionUID = 4888941807553376416L;
+public abstract class FireAndForgetSpec {
 }

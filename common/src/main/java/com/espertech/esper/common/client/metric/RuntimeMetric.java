@@ -14,6 +14,7 @@ package com.espertech.esper.common.client.metric;
  * Reports runtime-level instrumentation values.
  */
 public class RuntimeMetric extends MetricEvent {
+    private static final long serialVersionUID = 1875223434088366151L;
     private final long timestamp;
     private final long inputCount;
     private final long inputCountDelta;

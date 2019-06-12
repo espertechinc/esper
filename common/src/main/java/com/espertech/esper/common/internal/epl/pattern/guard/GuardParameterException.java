@@ -15,6 +15,8 @@ package com.espertech.esper.common.internal.epl.pattern.guard;
  */
 public class GuardParameterException extends Exception {
 
+    private static final long serialVersionUID = -8314581805163533196L;
+
     /**
      * Ctor.
      *

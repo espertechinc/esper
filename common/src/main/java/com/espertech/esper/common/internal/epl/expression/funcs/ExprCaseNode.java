@@ -28,8 +28,6 @@ import java.util.Map;
  * Represents the case-when-then-else control flow function is an expression tree.
  */
 public class ExprCaseNode extends ExprNodeBase {
-    private static final long serialVersionUID = 792538321520346459L;
-
     private final boolean isCase2;
 
     private transient ExprCaseNodeForge forge;

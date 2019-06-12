@@ -33,7 +33,6 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
     private int streamNum = -1;
     private Class type;
     private transient EventType eventType;
-    private static final long serialVersionUID = 6611578192872250478L;
 
     public ExprStreamUnderlyingNodeImpl(String streamName, boolean isWildcard) {
         if ((streamName == null) && (!isWildcard)) {

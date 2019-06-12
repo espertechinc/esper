@@ -12,14 +12,13 @@ package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 
-import java.io.Serializable;
 import java.io.StringWriter;
 
 /**
  * This interface represents one filter parameter in an filter specification.
  * <p> Each filtering parameter has a lookup-able and operator type, and a value to filter for.
  */
-public interface FilterValueSetParam extends Serializable {
+public interface FilterValueSetParam {
     /**
      * Returns the lookup-able for the filter parameter.
      *

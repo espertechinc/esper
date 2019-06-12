@@ -41,8 +41,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents a variable in an expression tree.
  */
 public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstrumentable, ExprEvaluator, ExprVariableNode {
-    private static final long serialVersionUID = 0L;
-
     private final VariableMetaData variableMeta;
     private final String optSubPropName;
     private EventPropertyGetterSPI optSubPropGetter;

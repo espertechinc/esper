@@ -12,14 +12,12 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Specification for creating a named window index column.
  */
-public class CreateIndexItem implements Serializable {
-    private static final long serialVersionUID = 1739215547545216200L;
+public class CreateIndexItem {
     private final List<ExprNode> expressions;
     private final String type;
     private final List<ExprNode> parameters;

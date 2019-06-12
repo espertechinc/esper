@@ -37,8 +37,6 @@ import java.io.StringWriter;
  * Represents an stream property identifier in a filter expressiun tree.
  */
 public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, ExprNode, ExprForgeInstrumentable {
-    private static final long serialVersionUID = 5882493771230745244L;
-
     // select myprop from...        is a simple property, no stream supplied
     // select s0.myprop from...     is a simple property with a stream supplied, or a nested property (cannot tell until resolved)
     // select indexed[1] from ...   is a indexed property

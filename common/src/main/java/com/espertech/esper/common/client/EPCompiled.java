@@ -17,6 +17,7 @@ import java.util.Map;
  * The byte code and manifest of a compile EPL module or EPL fire-and-forget query.
  */
 public class EPCompiled implements Serializable {
+    private static final long serialVersionUID = -8931728660516931214L;
     private final Map<String, byte[]> classes;
     private final EPCompiledManifest manifest;
 

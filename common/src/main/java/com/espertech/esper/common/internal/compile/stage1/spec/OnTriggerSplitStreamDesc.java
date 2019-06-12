@@ -18,7 +18,6 @@ import java.util.List;
 public class OnTriggerSplitStreamDesc extends OnTriggerDesc {
     private boolean isFirst;
     private final List<OnTriggerSplitStream> splitStreams;
-    private static final long serialVersionUID = 794886832792005103L;
 
     /**
      * Ctor.

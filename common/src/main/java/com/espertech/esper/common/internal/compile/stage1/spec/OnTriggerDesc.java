@@ -10,14 +10,11 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
 /**
  * Specification for on-trigger statements.
  */
-public abstract class OnTriggerDesc implements Serializable {
+public abstract class OnTriggerDesc {
     private OnTriggerType onTriggerType;
-    private static final long serialVersionUID = -70427959082206739L;
 
     /**
      * Ctor.

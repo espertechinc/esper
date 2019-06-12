@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.support;
 import java.io.Serializable;
 
 public class SupportBean_A extends SupportBeanBase implements Serializable {
+    private static final long serialVersionUID = 3625039581045840256L;
+
     public SupportBean_A(String id) {
         super(id);
     }

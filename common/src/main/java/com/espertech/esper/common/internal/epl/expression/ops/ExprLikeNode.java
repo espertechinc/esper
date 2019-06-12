@@ -23,8 +23,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents the like-clause in an expression tree.
  */
 public class ExprLikeNode extends ExprNodeBase {
-    private static final long serialVersionUID = 34888860063217132L;
-
     private final boolean isNot;
 
     private transient ExprLikeNodeForge forge;

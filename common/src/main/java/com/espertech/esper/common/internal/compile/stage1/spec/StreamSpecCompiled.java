@@ -14,5 +14,5 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
  * Validated stream specifications generally have expression nodes that are valid and event types exist.
  */
 public interface StreamSpecCompiled extends StreamSpec {
-    public final static StreamSpecCompiled[] EMPTY_STREAM_ARRAY = new StreamSpecCompiled[0];
+    StreamSpecCompiled[] EMPTY_STREAM_ARRAY = new StreamSpecCompiled[0];
 }

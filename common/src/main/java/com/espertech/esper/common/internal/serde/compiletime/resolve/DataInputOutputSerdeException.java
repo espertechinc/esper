@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.serde.compiletime.resolve;
 
 public class DataInputOutputSerdeException extends RuntimeException {
 
+    private static final long serialVersionUID = -6976465921234144033L;
+
     public DataInputOutputSerdeException(String message) {
         super(message);
     }

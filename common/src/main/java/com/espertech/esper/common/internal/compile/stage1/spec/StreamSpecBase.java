@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
-
 /**
  * Abstract base specification for a stream, consists simply of an optional stream name and a list of views
  * on to of the stream.
@@ -19,9 +17,7 @@ import java.io.Serializable;
  * Implementation classes for views and patterns add additional information defining the
  * stream of events.
  */
-public abstract class StreamSpecBase implements Serializable {
-    private static final long serialVersionUID = 0L;
-
+public abstract class StreamSpecBase {
     private String optionalStreamName;
     private ViewSpec[] viewSpecs;
     private StreamSpecOptions streamSpecOptions;

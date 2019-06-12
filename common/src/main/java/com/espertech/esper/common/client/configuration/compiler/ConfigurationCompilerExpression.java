@@ -17,6 +17,7 @@ import java.math.MathContext;
  * Expression evaluation settings in the runtime are for results of expressions.
  */
 public class ConfigurationCompilerExpression implements Serializable {
+    private static final long serialVersionUID = 3247294506900217035L;
     private boolean integerDivision;
     private boolean divisionByZeroReturnsNull;
     private boolean udfCache;

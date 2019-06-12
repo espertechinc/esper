@@ -23,8 +23,6 @@ import java.util.Map;
  */
 public class ExprNewStructNode extends ExprNodeBase {
 
-    private static final long serialVersionUID = -210293632565665600L;
-
     private final String[] columnNames;
 
     private ExprNewStructNodeForge forge;

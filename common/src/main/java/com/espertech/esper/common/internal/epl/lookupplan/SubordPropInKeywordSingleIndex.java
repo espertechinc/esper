@@ -12,13 +12,10 @@ package com.espertech.esper.common.internal.epl.lookupplan;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
-
 /**
  * Holds property information for joined properties in a lookup.
  */
-public class SubordPropInKeywordSingleIndex implements Serializable {
-    private static final long serialVersionUID = 5502815704969387843L;
+public class SubordPropInKeywordSingleIndex {
     private final String indexedProp;
     private final Class coercionType;
     private final ExprNode[] expressions;

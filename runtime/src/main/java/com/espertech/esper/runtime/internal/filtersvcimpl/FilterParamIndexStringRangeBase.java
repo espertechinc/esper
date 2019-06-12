@@ -29,7 +29,7 @@ public abstract class FilterParamIndexStringRangeBase extends FilterParamIndexLo
     protected FilterParamIndexStringRangeBase(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(filterOperator, lookupable);
 
-        ranges = new TreeMap<>(new StringRangeComparator());
+        ranges = new TreeMap<>(StringRangeComparator.INSTANCE);
         rangesRWLock = readWriteLock;
     }
 

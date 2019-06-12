@@ -21,7 +21,6 @@ import java.io.StringWriter;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
 public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprNamedParameterNode, ExprForge, ExprEvaluator {
-    private static final long serialVersionUID = -7566189525627783543L;
     private final String parameterName;
 
     public ExprNamedParameterNodeImpl(String parameterName) {

@@ -15,6 +15,8 @@ package com.espertech.esper.common.internal.epl.variable.core;
  */
 public class VariableExistsException extends VariableDeclarationException {
 
+    private static final long serialVersionUID = 5180261045217066381L;
+
     /**
      * Ctor.
      *

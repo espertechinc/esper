@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 public class GroupByClauseElementExpr implements GroupByClauseElement {
-    private static final long serialVersionUID = -5528463243284179063L;
     private final ExprNode expr;
 
     public GroupByClauseElementExpr(ExprNode expr) {

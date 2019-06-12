@@ -37,11 +37,14 @@
 package com.espertech.esper.common.client.json.minimaljson;
 
 
+import java.io.Serializable;
+
 /**
  * An immutable object that represents a location in the parsed text.
  */
-public class Location {
+public class Location implements Serializable {
 
+    private static final long serialVersionUID = 2178303312505368489L;
     /**
      * The absolute character index, starting at 0.
      */

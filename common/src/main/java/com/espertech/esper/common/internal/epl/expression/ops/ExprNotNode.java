@@ -29,7 +29,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForgeInstrumentable {
     private transient ExprEvaluator evaluator;
-    private static final long serialVersionUID = -5958420226808323787L;
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Must have a single child node

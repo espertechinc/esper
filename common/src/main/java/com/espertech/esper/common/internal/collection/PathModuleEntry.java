@@ -40,7 +40,7 @@ public class PathModuleEntry<E> {
             if (modules.size() > 1) {
                 throw new PathExceptionAmbiguous(entityName, objectType);
             }
-            String moduleName = modules.keySet().iterator().next();
+            String moduleName = modules.entrySet().iterator().next().getKey();
             PathDeploymentEntry<E> entry = modules.get(moduleName);
             if (entry == null) {
                 return null;

@@ -33,8 +33,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents the 'prev' previous event function in match-recognize "define" item.
  */
 public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
-    private static final long serialVersionUID = 0L;
-
     private Class resultType;
     private int streamNumber;
     private Integer constantIndexNumber;

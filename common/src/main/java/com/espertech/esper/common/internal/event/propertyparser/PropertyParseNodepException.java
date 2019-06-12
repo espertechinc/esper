@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.event.propertyparser;
 
 public class PropertyParseNodepException extends RuntimeException {
+    private static final long serialVersionUID = 5458245347326913822L;
+
     public PropertyParseNodepException(String message) {
         super(message);
     }

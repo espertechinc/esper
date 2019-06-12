@@ -24,7 +24,6 @@ import java.io.StringWriter;
  */
 public class ExprNodeValidated extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private final ExprNode inner;
-    private static final long serialVersionUID = 301058622892268624L;
 
     /**
      * Ctor.

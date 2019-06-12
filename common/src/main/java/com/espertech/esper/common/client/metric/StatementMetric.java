@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Reports statement-level instrumentation values.
  */
 public class StatementMetric extends MetricEvent {
+    private static final long serialVersionUID = 3350930147068150376L;
     private long timestamp;
     private String deploymentId;
     private String statementName;

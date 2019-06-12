@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
 public class FireAndForgetSpecInsert extends FireAndForgetSpec {
-    private static final long serialVersionUID = -2473275073393671915L;
     private final boolean useValuesKeyword;
 
     public FireAndForgetSpecInsert(boolean useValuesKeyword) {

@@ -16,8 +16,6 @@ import java.util.List;
  * Specification for the on-select and on-delete (no split-stream) statement.
  */
 public class OnTriggerWindowUpdateDesc extends OnTriggerWindowDesc {
-    private static final long serialVersionUID = 3796573624109335943L;
-
     private List<OnTriggerSetAssignment> assignments;
 
     /**

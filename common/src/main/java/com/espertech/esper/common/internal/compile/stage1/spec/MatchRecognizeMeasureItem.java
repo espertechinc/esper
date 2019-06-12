@@ -12,15 +12,12 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
-
 /**
  * Specification for measure definition item within match_recognize.
  */
-public class MatchRecognizeMeasureItem implements Serializable {
+public class MatchRecognizeMeasureItem {
     private ExprNode expr;
     private String name;
-    private static final long serialVersionUID = 1609117378292500082L;
 
     /**
      * Ctor.

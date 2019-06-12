@@ -15,6 +15,8 @@ package com.espertech.esper.common.client.module;
  */
 public class ModuleOrderException extends Exception {
 
+    private static final long serialVersionUID = -1358936423218557867L;
+
     /**
      * Ctor.
      *

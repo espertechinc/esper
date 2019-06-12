@@ -16,8 +16,6 @@ import java.io.StringWriter;
  * Or-condition in a regex expression tree.
  */
 public class RowRecogExprNodeAlteration extends RowRecogExprNode {
-    private static final long serialVersionUID = 8383340732689436983L;
-
     /**
      * Ctor.
      */

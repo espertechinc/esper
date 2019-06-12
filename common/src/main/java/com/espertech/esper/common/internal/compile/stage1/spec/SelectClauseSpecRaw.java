@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,10 +17,9 @@ import java.util.List;
 /**
  * Encapsulates the parsed select expressions in a select-clause in an EPL statement.
  */
-public class SelectClauseSpecRaw implements Serializable {
+public class SelectClauseSpecRaw {
     private boolean isDistinct;
     private List<SelectClauseElementRaw> selectClauseElements;
-    private static final long serialVersionUID = -6530225321409268186L;
 
     /**
      * Ctor.

@@ -14,6 +14,8 @@ package com.espertech.esper.common.internal.epl.variable.core;
  * Exception indicating a problem in a variable declaration.
  */
 public class VariableDeclarationException extends Exception {
+    private static final long serialVersionUID = -5419410793398465572L;
+
     /**
      * Ctor.
      *

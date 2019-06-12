@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.collection;
 import com.espertech.esper.common.internal.util.StringValue;
 
 public class PathExceptionAlreadyRegistered extends PathException {
+    private static final long serialVersionUID = -2816268359908454331L;
+
     public PathExceptionAlreadyRegistered(String name, PathRegistryObjectType objectType, String moduleName) {
         super(objectType.getPrefix() + " " + objectType.getName() + " by name '" + name + "' has already been created for module '" + StringValue.unnamedWhenNullOrEmpty(moduleName) + "'");
     }

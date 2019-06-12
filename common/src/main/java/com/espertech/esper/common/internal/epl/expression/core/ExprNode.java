@@ -13,10 +13,9 @@ package com.espertech.esper.common.internal.epl.expression.core;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitorWithParent;
 
-import java.io.Serializable;
 import java.util.Collection;
 
-public interface ExprNode extends ExprNodeRenderable, ExprValidator, Serializable {
+public interface ExprNode extends ExprNodeRenderable, ExprValidator {
 
     /**
      * Returns precedence.

@@ -17,13 +17,12 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newArrayWithInit;
 
-public abstract class QueryGraphValueEntryRangeForge implements QueryGraphValueEntryForge, Serializable {
+public abstract class QueryGraphValueEntryRangeForge implements QueryGraphValueEntryForge {
 
     protected final QueryGraphRangeEnum type;
 

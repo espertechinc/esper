@@ -25,8 +25,6 @@ import java.util.Map;
  * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
 public class ExprRelationalOpAllAnyNode extends ExprNodeBase {
-    private static final long serialVersionUID = -9212002972361997109L;
-
     private final RelationalOpEnum relationalOpEnum;
     private final boolean isAll;
 

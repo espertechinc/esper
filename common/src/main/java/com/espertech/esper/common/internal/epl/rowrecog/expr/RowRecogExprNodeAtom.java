@@ -21,7 +21,6 @@ public class RowRecogExprNodeAtom extends RowRecogExprNode {
     private final String tag;
     private final RowRecogNFATypeEnum type;
     private final RowRecogExprRepeatDesc optionalRepeat;
-    private static final long serialVersionUID = -4844175686289523214L;
 
     /**
      * Ctor.

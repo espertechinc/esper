@@ -12,7 +12,6 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.internal.filterspec.StringRange;
 
-import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -20,8 +19,11 @@ import java.util.Comparator;
  * <p>Sorts double ranges as this:     sort by min asc, max asc.
  * I.e. same minimum value sorts maximum value ascending.
  */
-public final class StringRangeComparator implements Comparator<StringRange>, Serializable {
-    private static final long serialVersionUID = 612230810237318028L;
+public final class StringRangeComparator implements Comparator<StringRange> {
+    public final static StringRangeComparator INSTANCE = new StringRangeComparator();
+
+    private StringRangeComparator() {
+    }
 
     public final int compare(StringRange r1, StringRange r2) {
         if (r1.getMin() == null) {

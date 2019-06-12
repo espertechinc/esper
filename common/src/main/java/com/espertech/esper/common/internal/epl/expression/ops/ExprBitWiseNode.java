@@ -20,8 +20,6 @@ import java.io.StringWriter;
  * Represents the bit-wise operators in an expression tree.
  */
 public class ExprBitWiseNode extends ExprNodeBase {
-    private static final long serialVersionUID = 9035943176810365437L;
-
     private final BitWiseOpEnum bitWiseOpEnum;
 
     private transient ExprBitWiseNodeForge forge;

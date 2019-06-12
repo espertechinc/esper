@@ -18,8 +18,6 @@ import java.io.StringWriter;
  * Filter parameter value defining the event property to filter, the filter operator, and the filter value.
  */
 public class FilterValueSetParamImpl implements FilterValueSetParam {
-    private static final long serialVersionUID = 6010018248791276406L;
-
     private final ExprFilterSpecLookupable lookupable;
     private final FilterOperator filterOperator;
     private final Object filterValue;

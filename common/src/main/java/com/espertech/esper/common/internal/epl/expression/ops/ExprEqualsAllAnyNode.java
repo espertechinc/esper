@@ -26,8 +26,6 @@ import java.util.Map;
  * Represents an equals-for-group (= ANY/ALL/SOME (expression list)) comparator in a expression tree.
  */
 public class ExprEqualsAllAnyNode extends ExprNodeBase {
-    private static final long serialVersionUID = -2410457251623137179L;
-
     private final boolean isNot;
     private final boolean isAll;
 

@@ -35,7 +35,7 @@ public abstract class FilterParamIndexDoubleRangeBase extends FilterParamIndexLo
     protected FilterParamIndexDoubleRangeBase(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(filterOperator, lookupable);
 
-        ranges = new TreeMap<DoubleRange, EventEvaluator>(new DoubleRangeComparator());
+        ranges = new TreeMap<>(DoubleRangeComparator.INSTANCE);
         rangesRWLock = readWriteLock;
     }
 

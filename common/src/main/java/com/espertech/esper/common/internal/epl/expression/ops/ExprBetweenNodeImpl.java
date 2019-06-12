@@ -36,8 +36,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents the between-clause function in an expression tree.
  */
 public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode {
-    private static final long serialVersionUID = -9089344387956311948L;
-
     private final boolean isLowEndpointIncluded;
     private final boolean isHighEndpointIncluded;
     private final boolean isNotBetween;

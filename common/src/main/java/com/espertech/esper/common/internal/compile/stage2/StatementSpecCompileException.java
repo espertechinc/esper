@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 public class StatementSpecCompileException extends Exception {
+    private static final long serialVersionUID = -917985672709976300L;
     private final String expression;
 
     public StatementSpecCompileException(String message, String expression) {

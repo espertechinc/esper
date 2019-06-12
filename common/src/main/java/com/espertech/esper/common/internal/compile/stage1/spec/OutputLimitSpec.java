@@ -13,13 +13,12 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Spec for defining an output rate
  */
-public class OutputLimitSpec implements Serializable {
+public class OutputLimitSpec {
     private final OutputLimitLimitType displayLimit;
     private final OutputLimitRateType rateType;
     private final Double rate;
@@ -33,7 +32,6 @@ public class OutputLimitSpec implements Serializable {
     private final boolean andAfterTerminate;
     private ExprNode andAfterTerminateExpr;
     private List<OnTriggerSetAssignment> andAfterTerminateThenExpressions;
-    private static final long serialVersionUID = 7314871194757342071L;
 
     public OutputLimitSpec(Double rate, String variableForRate, OutputLimitRateType rateType, OutputLimitLimitType displayLimit, ExprNode whenExpressionNode, List<OnTriggerSetAssignment> thenExpressions, List<ExprNode> crontabAtSchedule, ExprTimePeriod timePeriodExpr, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, boolean andAfterTerminate, ExprNode andAfterTerminateExpr, List<OnTriggerSetAssignment> andAfterTerminateSetExpressions) {
         this.rate = rate;

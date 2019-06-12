@@ -29,7 +29,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluator, ExprForgeInstrumentable {
     private ExprIdentNode identNode;
-    private static final long serialVersionUID = -6304444201237275628L;
 
     /**
      * Ctor.

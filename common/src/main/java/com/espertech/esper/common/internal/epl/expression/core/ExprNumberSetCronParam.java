@@ -40,7 +40,6 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
 
     private final CronOperatorEnum cronOperator;
     private transient ExprEvaluator evaluator;
-    private static final long serialVersionUID = -1315999998249935318L;
 
     /**
      * Ctor.

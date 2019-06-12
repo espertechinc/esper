@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.compile.stage1.spec;
 import java.util.List;
 
 public class GroupByClauseElementGroupingSet implements GroupByClauseElement {
-    private static final long serialVersionUID = -1370009169493362021L;
     private final List<GroupByClauseElement> elements;
 
     public GroupByClauseElementGroupingSet(List<GroupByClauseElement> elements) {

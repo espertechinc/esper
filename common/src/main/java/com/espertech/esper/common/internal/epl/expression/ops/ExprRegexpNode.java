@@ -25,8 +25,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents the regexp-clause in an expression tree.
  */
 public class ExprRegexpNode extends ExprNodeBase {
-    private static final long serialVersionUID = -837177267278295664L;
-
     private final boolean isNot;
 
     private transient ExprRegexpNodeForge forge;

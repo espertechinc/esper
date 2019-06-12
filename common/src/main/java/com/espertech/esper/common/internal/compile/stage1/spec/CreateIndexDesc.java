@@ -10,15 +10,12 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Specification for creating a named window.
  */
-public class CreateIndexDesc implements Serializable {
-    private static final long serialVersionUID = -6758785746637089810L;
-
+public class CreateIndexDesc {
     private final boolean unique;
     private final String indexName;
     private final String windowName;

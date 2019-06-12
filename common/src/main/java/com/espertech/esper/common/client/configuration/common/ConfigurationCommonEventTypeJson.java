@@ -14,4 +14,5 @@ package com.espertech.esper.common.client.configuration.common;
  * Configuration information for JSON event types.
  */
 public class ConfigurationCommonEventTypeJson extends ConfigurationCommonEventTypeWithSupertype {
+    private static final long serialVersionUID = 8082464248002829923L;
 }

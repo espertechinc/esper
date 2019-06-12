@@ -21,7 +21,7 @@ import java.util.TreeSet;
 
 public class TestStringRangeComparator extends TestCase {
     public void testComparator() {
-        SortedSet<StringRange> sorted = new TreeSet<StringRange>(new StringRangeComparator());
+        SortedSet<StringRange> sorted = new TreeSet<>(StringRangeComparator.INSTANCE);
 
         final String[][] TEST_SET =
                 {
