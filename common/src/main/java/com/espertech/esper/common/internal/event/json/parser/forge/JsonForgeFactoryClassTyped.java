@@ -10,14 +10,24 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.forge;
 
+import com.espertech.esper.common.client.annotation.JsonSchemaField;
+import com.espertech.esper.common.client.json.util.JsonFieldAdapterString;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateJsonGenericArray;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateJsonGenericObject;
 import com.espertech.esper.common.internal.event.json.parser.delegates.array.*;
 import com.espertech.esper.common.internal.event.json.parser.delegates.array2dim.*;
 import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.*;
 import com.espertech.esper.common.internal.event.json.write.*;
+import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.util.ConstructorHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.MethodResolver;
+import com.espertech.esper.common.internal.util.MethodResolverNoSuchMethodException;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -137,14 +147,40 @@ public class JsonForgeFactoryClassTyped {
         WRITE_ARRAY_FORGES.put(BigInteger[][].class, new JsonWriteForgeByMethod("writeArray2DimBigInteger"));
     }
 
-    public static JsonForgeDesc forge(Class type) {
+    public static JsonForgeDesc forge(Class type, String fieldName, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
         type = JavaClassHelper.getBoxedType(type);
         JsonDelegateForge startObject = null;
         JsonDelegateForge startArray = null;
         JsonEndValueForge end = END_VALUE_FORGES.get(type);
         JsonWriteForge writeForge = WRITE_FORGES.get(type);
 
-        if (type == Object.class) {
+        JsonSchemaField fieldAnnotation = findFieldAnnotation(fieldName, annotations);
+
+        if (fieldAnnotation != null && type != null) {
+            Class clazz;
+            try {
+                clazz = services.getClasspathImportServiceCompileTime().resolveClass(fieldAnnotation.adapter(), true);
+            } catch (ClasspathImportException e) {
+                throw new ExprValidationException("Failed to resolve Json schema field adapter class: " + e.getMessage(), e);
+            }
+            if (!JavaClassHelper.isImplementsInterface(clazz, JsonFieldAdapterString.class)) {
+                throw new ExprValidationException("Json schema field adapter class does not implement interface '" + JsonFieldAdapterString.class.getSimpleName());
+            }
+            if (ConstructorHelper.getRegularConstructor(clazz, new Class[0]) == null) {
+                throw new ExprValidationException("Json schema field adapter class '" + clazz.getSimpleName() + "' does not have a default constructor");
+            }
+            Method writeMethod;
+            try {
+                writeMethod = MethodResolver.resolveMethod(clazz, "parse", new Class[]{String.class}, true, new boolean[1], new boolean[1]);
+            } catch (MethodResolverNoSuchMethodException e) {
+                throw new ExprValidationException("Failed to resolve write method of Json schema field adapter class: " + e.getMessage(), e);
+            }
+            if (!JavaClassHelper.isSubclassOrImplementsInterface(type, writeMethod.getReturnType())) {
+                throw new ExprValidationException("Json schema field adapter class '" + clazz.getSimpleName() + "' mismatches the return type of the parse method, expected '" + type.getSimpleName() + "' but found '" + writeMethod.getReturnType().getSimpleName() + "'");
+            }
+            end = new JsonEndValueForgeProvidedStringAdapter(clazz);
+            writeForge = new JsonWriteForgeProvidedStringAdapter(clazz);
+        } else if (type == Object.class) {
             startObject = new JsonDelegateForgeByClass(JsonDelegateJsonGenericObject.class);
             startArray = new JsonDelegateForgeByClass(JsonDelegateJsonGenericArray.class);
             end = JsonEndValueForgeJsonValue.INSTANCE;
@@ -170,7 +206,7 @@ public class JsonForgeFactoryClassTyped {
             } else {
                 Class startArrayDelegateClass = START_ARRAY_FORGES.get(type);
                 if (startArrayDelegateClass == null) {
-                    throw new UnsupportedOperationException("Unsupported type " + type);
+                    throw getUnsupported(type, fieldName);
                 }
                 startArray = new JsonDelegateForgeByClass(startArrayDelegateClass);
                 writeForge = WRITE_ARRAY_FORGES.get(type);
@@ -179,12 +215,32 @@ public class JsonForgeFactoryClassTyped {
         }
 
         if (end == null) {
-            throw new UnsupportedOperationException("Unsupported type '" + type + "'");
+            throw getUnsupported(type, fieldName);
         }
         if (writeForge == null) {
-            throw new UnsupportedOperationException("Unsupported type '" + type + "'");
+            throw getUnsupported(type, fieldName);
         }
 
         return new JsonForgeDesc(startObject, startArray, end, writeForge);
+    }
+
+    private static JsonSchemaField findFieldAnnotation(String fieldName, Annotation[] annotations) {
+        if (annotations == null || annotations.length == 0) {
+            return null;
+        }
+        for (Annotation annotation : annotations) {
+            if (!(annotation instanceof JsonSchemaField)) {
+                continue;
+            }
+            JsonSchemaField field = (JsonSchemaField) annotation;
+            if (field.name().equals(fieldName)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    private static UnsupportedOperationException getUnsupported(Class type, String fieldName) {
+        return new UnsupportedOperationException("Unsupported type '" + type + "' for property '" + fieldName + "' (use @JsonSchemaField to declare additional information)");
     }
 }

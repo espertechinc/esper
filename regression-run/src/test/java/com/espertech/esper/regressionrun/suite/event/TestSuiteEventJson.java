@@ -12,8 +12,11 @@ package com.espertech.esper.regressionrun.suite.event;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.suite.event.json.*;
+import com.espertech.esper.regressionlib.support.json.SupportJsonFieldAdapterStringDate;
+import com.espertech.esper.regressionlib.support.json.SupportJsonFieldAdapterStringPoint;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
@@ -71,11 +74,17 @@ public class TestSuiteEventJson extends TestCase {
         RegressionRunner.run(session, EventJsonDocSamples.executions());
     }
 
+    public void testEventJsonAdapter() {
+        RegressionRunner.run(session, EventJsonAdapter.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 
-        configuration.getCommon().getImports().add(SupportEnum.class.getName());
+        for (Class clazz : new Class[] {SupportEnum.class, SupportJsonFieldAdapterStringDate.class, SupportJsonFieldAdapterStringPoint.class}) {
+            configuration.getCommon().getImports().add(clazz.getName());
+        }
     }
 }

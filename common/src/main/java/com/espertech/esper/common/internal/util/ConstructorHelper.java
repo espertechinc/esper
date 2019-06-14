@@ -85,7 +85,7 @@ public class ConstructorHelper {
         return true;
     }
 
-    private static Constructor getRegularConstructor(Class clazz, Class[] parameterTypes) {
+    public static Constructor getRegularConstructor(Class clazz, Class[] parameterTypes) {
 
         // Try to find the matching constructor
         try {

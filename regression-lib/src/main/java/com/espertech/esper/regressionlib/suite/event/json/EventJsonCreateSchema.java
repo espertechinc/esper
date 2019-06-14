@@ -60,6 +60,9 @@ public class EventJsonCreateSchema {
 
             tryInvalidCompile(env, "create json schema InvalidDecl(int fieldname)",
                 "Nestable type configuration encountered an unexpected property type name 'fieldname' for property 'int', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
+
+            tryInvalidCompile(env, "create json schema InvalidDecl(comparable java.lang.Comparable)",
+                "Unsupported type 'interface java.lang.Comparable' for property 'comparable' (use @JsonSchemaField to declare additional information)");
         }
     }
 }

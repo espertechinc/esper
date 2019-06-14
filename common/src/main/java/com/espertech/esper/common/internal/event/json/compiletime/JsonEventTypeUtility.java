@@ -41,6 +41,7 @@ import com.espertech.esper.common.internal.event.json.write.JsonWriteForgeNull;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.util.IdentifierUtil.getIdentifierMayStartNumeric;
@@ -66,7 +67,7 @@ public class JsonEventTypeUtility {
         properties = removeEventBeanTypes(properties);
         Map<String, String> fieldNames = computeFieldNames(properties);
         Map<String, JsonUnderlyingField> fieldDescriptors = computeFields(properties, fieldNames, optionalSuperType);
-        Map<String, JsonForgeDesc> forges = computeValueForges(properties);
+        Map<String, JsonForgeDesc> forges = computeValueForges(properties, raw.getAnnotations(), services);
 
         // determine dynamic
         boolean dynamic;
@@ -144,7 +145,7 @@ public class JsonEventTypeUtility {
         return verified;
     }
 
-    private static Map<String, JsonForgeDesc> computeValueForges(Map<String, Object> compiledTyping) throws ExprValidationException {
+    private static Map<String, JsonForgeDesc> computeValueForges(Map<String, Object> compiledTyping, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
         Map<String, JsonForgeDesc> valueForges = new HashMap<>();
         for (Map.Entry<String, Object> entry : compiledTyping.entrySet()) {
             Object type = entry.getValue();
@@ -153,14 +154,14 @@ public class JsonEventTypeUtility {
                 forgeDesc = new JsonForgeDesc(null, null, JsonEndValueForgeNull.INSTANCE, JsonWriteForgeNull.INSTANCE);
             } else if (type instanceof Class) {
                 Class clazz = (Class) type;
-                forgeDesc = JsonForgeFactoryClassTyped.forge(clazz);
+                forgeDesc = JsonForgeFactoryClassTyped.forge(clazz, entry.getKey(), annotations, services);
             } else if (type instanceof TypeBeanOrUnderlying) {
                 EventType eventType = ((TypeBeanOrUnderlying) type).getEventType();
                 validateJsonOrMapType(eventType);
                 if (eventType instanceof JsonEventType) {
                     forgeDesc = JsonForgeFactoryEventTypeTyped.forgeNonArray((JsonEventType) eventType);
                 } else {
-                    forgeDesc = JsonForgeFactoryClassTyped.forge(Map.class);
+                    forgeDesc = JsonForgeFactoryClassTyped.forge(Map.class, entry.getKey(), annotations, services);
                 }
             } else if (type instanceof TypeBeanOrUnderlying[]) {
                 EventType eventType = ((TypeBeanOrUnderlying[]) type)[0].getEventType();
@@ -168,7 +169,7 @@ public class JsonEventTypeUtility {
                 if (eventType instanceof JsonEventType) {
                     forgeDesc = JsonForgeFactoryEventTypeTyped.forgeArray((JsonEventType) eventType);
                 } else {
-                    forgeDesc = JsonForgeFactoryClassTyped.forge(Map[].class);
+                    forgeDesc = JsonForgeFactoryClassTyped.forge(Map[].class, entry.getKey(), annotations, services);
                 }
             } else {
                 throw new IllegalStateException("Unrecognized type " + type);
