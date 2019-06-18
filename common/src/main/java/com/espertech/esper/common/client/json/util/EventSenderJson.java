@@ -25,5 +25,5 @@ public interface EventSenderJson extends EventSender {
      * @return event object
      * @throws com.espertech.esper.common.client.EPException when parsing the document failed
      */
-    JsonEventObject parse(String json);
+    Object parse(String json);
 }

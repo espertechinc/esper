@@ -13,7 +13,9 @@ package com.espertech.esper.common.client.render;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.json.minimaljson.WriterConfig;
+import com.espertech.esper.common.client.json.minimaljson.WritingBuffer;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -38,7 +40,21 @@ public class JSONEventRendererJsonEventType implements JSONEventRenderer {
     }
 
     public String render(EventBean theEvent) {
-        JsonEventObject event = (JsonEventObject) theEvent.getUnderlying();
-        return event.toString(WriterConfig.MINIMAL);
+        Object underlying = theEvent.getUnderlying();
+        if (underlying instanceof JsonEventObject) {
+            JsonEventObject event = (JsonEventObject) underlying;
+            return event.toString(WriterConfig.MINIMAL);
+        }
+        JsonEventType eventType = (JsonEventType) theEvent.getEventType();
+        StringWriter writer = new StringWriter();
+        try {
+            WritingBuffer buffer = new WritingBuffer(writer, 128);
+            eventType.getDelegateFactory().write(WriterConfig.MINIMAL.createWriter(buffer), underlying);
+            buffer.flush();
+        } catch (IOException exception) {
+            // StringWriter does not throw IOExceptions
+            throw new RuntimeException(exception);
+        }
+        return writer.toString();
     }
 }

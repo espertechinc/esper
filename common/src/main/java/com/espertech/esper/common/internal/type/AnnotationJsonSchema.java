@@ -16,13 +16,19 @@ import java.lang.annotation.Annotation;
 
 public class AnnotationJsonSchema implements JsonSchema {
     private final boolean dynamic;
+    private final String className;
 
-    public AnnotationJsonSchema(boolean dynamic) {
+    public AnnotationJsonSchema(boolean dynamic, String className) {
         this.dynamic = dynamic;
+        this.className = className;
     }
 
     public boolean dynamic() {
         return dynamic;
+    }
+
+    public String className() {
+        return className;
     }
 
     public Class<? extends Annotation> annotationType() {

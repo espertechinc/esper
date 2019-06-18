@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.event.json;
 
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.json.util.EventSenderJson;
-import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -20,6 +20,9 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
 
 public class EventJsonDocSamples {
 
@@ -29,7 +32,26 @@ public class EventJsonDocSamples {
         execs.add(new EventJsonDocSamplesBook());
         execs.add(new EventJsonDocSamplesCake());
         execs.add(new EventJsonDocDynamicEmpty());
+        execs.add(new EventJsonDocApplicationClass());
         return execs;
+    }
+
+    private static class EventJsonDocApplicationClass implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create json schema JsonEvent(person " + MyLocalPersonEvent.class.getName() + ");\n" +
+                "@name('s0') select * from JsonEvent;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            UUID uuid = UUID.randomUUID();
+            JsonObject json = new JsonObject().add("person", new JsonObject().add("name", "Joe").add("id", uuid.toString()));
+            env.sendEventJson(json.toString(), "JsonEvent");
+            MyLocalPersonEvent person = (MyLocalPersonEvent) env.listener("s0").assertOneGetNewAndReset().get("person");
+
+            assertEquals("Joe", person.name);
+            assertEquals(uuid, person.id);
+
+            env.undeployAll();
+        }
     }
 
     private static class EventJsonDocDynamicEmpty implements RegressionExecution {
@@ -59,7 +81,7 @@ public class EventJsonDocSamples {
                 new Object[]{"Cooling Water Temperature"});
 
             EventSenderJson sender = (EventSenderJson) env.runtime().getEventService().getEventSender("SensorEvent");
-            JsonEventObject eventObject = sender.parse(json);
+            sender.parse(json);
 
             env.undeployAll();
         }
@@ -156,5 +178,10 @@ public class EventJsonDocSamples {
 
             env.undeployAll();
         }
+    }
+
+    public static class MyLocalPersonEvent {
+        public String name;
+        public UUID id;
     }
 }

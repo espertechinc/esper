@@ -18,12 +18,22 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class JsonEndValueForgeCast implements JsonEndValueForge {
     private final Class target;
+    private final String targetClassName;
 
     public JsonEndValueForgeCast(Class target) {
         this.target = target;
+        this.targetClassName = null;
+    }
+
+    public JsonEndValueForgeCast(String targetClassName) {
+        this.targetClassName = targetClassName;
+        this.target = null;
     }
 
     public CodegenExpression captureValue(JsonEndValueRefs refs, CodegenMethod method, CodegenClassScope classScope) {
-        return cast(target, refs.getValueObject());
+        if (target != null) {
+            return cast(target, refs.getValueObject());
+        }
+        return cast(targetClassName, refs.getValueObject());
     }
 }

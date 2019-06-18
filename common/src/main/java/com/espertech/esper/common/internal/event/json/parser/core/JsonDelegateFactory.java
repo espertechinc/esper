@@ -10,6 +10,11 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.json.minimaljson.JsonWriter;
+
+import java.io.IOException;
+
 public interface JsonDelegateFactory {
     JsonDelegateBase make(JsonHandlerDelegator handler, JsonDelegateBase optionalParent);
+    void write(JsonWriter writer, Object underlying) throws IOException;
 }

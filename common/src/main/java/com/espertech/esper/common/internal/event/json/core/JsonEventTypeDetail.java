@@ -24,6 +24,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class JsonEventTypeDetail {
     private String underlyingClassName;
+    private Class optionalUnderlyingProvided;
     private String delegateClassName;
     private String delegateFactoryClassName;
     private String serdeClassName;
@@ -34,8 +35,9 @@ public class JsonEventTypeDetail {
     public JsonEventTypeDetail() {
     }
 
-    public JsonEventTypeDetail(String underlyingClassName, String delegateClassName, String delegateFactoryClassName, String serdeClassName, Map<String, JsonUnderlyingField> fieldDescriptors, boolean dynamic, int numFieldsSupertype) {
+    public JsonEventTypeDetail(String underlyingClassName, Class optionalUnderlyingProvided, String delegateClassName, String delegateFactoryClassName, String serdeClassName, Map<String, JsonUnderlyingField> fieldDescriptors, boolean dynamic, int numFieldsSupertype) {
         this.underlyingClassName = underlyingClassName;
+        this.optionalUnderlyingProvided = optionalUnderlyingProvided;
         this.delegateClassName = delegateClassName;
         this.delegateFactoryClassName = delegateFactoryClassName;
         this.serdeClassName = serdeClassName;
@@ -58,6 +60,10 @@ public class JsonEventTypeDetail {
 
     public String getDelegateFactoryClassName() {
         return delegateFactoryClassName;
+    }
+
+    public void setOptionalUnderlyingProvided(Class optionalUnderlyingProvided) {
+        this.optionalUnderlyingProvided = optionalUnderlyingProvided;
     }
 
     public void setDelegateClassName(String delegateClassName) {
@@ -101,6 +107,7 @@ public class JsonEventTypeDetail {
         method.getBlock()
             .declareVar(JsonEventTypeDetail.class, "detail", newInstance(JsonEventTypeDetail.class))
             .exprDotMethod(ref("detail"), "setUnderlyingClassName", constant(underlyingClassName))
+            .exprDotMethod(ref("detail"), "setOptionalUnderlyingProvided", constant(optionalUnderlyingProvided))
             .exprDotMethod(ref("detail"), "setDelegateClassName", constant(delegateClassName))
             .exprDotMethod(ref("detail"), "setDelegateFactoryClassName", constant(delegateFactoryClassName))
             .exprDotMethod(ref("detail"), "setSerdeClassName", constant(serdeClassName))

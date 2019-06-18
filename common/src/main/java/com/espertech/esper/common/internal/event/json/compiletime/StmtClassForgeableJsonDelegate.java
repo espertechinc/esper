@@ -36,6 +36,7 @@ import static com.espertech.esper.common.internal.event.json.compiletime.StmtCla
 
 public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
 
+    private final CodegenClassType classType;
     private final String className;
     private final CodegenPackageScope packageScope;
     private final Map<String, Object> properties;
@@ -45,7 +46,8 @@ public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
     private final boolean dynamic;
     private final JsonEventType optionalSuperType;
 
-    public StmtClassForgeableJsonDelegate(String className, CodegenPackageScope packageScope, Map<String, Object> properties, Map<String, JsonUnderlyingField> fieldDescriptors, Map<String, JsonForgeDesc> forges, String underlyingClassName, boolean dynamic, JsonEventType optionalSuperType) {
+    public StmtClassForgeableJsonDelegate(CodegenClassType classType, String className, CodegenPackageScope packageScope, Map<String, Object> properties, Map<String, JsonUnderlyingField> fieldDescriptors, Map<String, JsonForgeDesc> forges, String underlyingClassName, boolean dynamic, JsonEventType optionalSuperType) {
+        this.classType = classType;
         this.className = className;
         this.packageScope = packageScope;
         this.properties = properties;
@@ -151,7 +153,7 @@ public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
         CodegenStackGenerator.recursiveBuildStack(endObjectValueMethod, "endObjectValue", methods);
         CodegenStackGenerator.recursiveBuildStack(getResultMethod, "getResult", methods);
 
-        CodegenClass clazz = new CodegenClass(CodegenClassType.JSONDELEGATEFACTORY, className, classScope, members, ctor, methods, Collections.emptyList());
+        CodegenClass clazz = new CodegenClass(classType, className, classScope, members, ctor, methods, Collections.emptyList());
         if (optionalSuperType == null) {
             clazz.getSupers().setClassExtended(JsonDelegateBase.class);
         } else {

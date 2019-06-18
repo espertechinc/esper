@@ -27,7 +27,7 @@ import java.util.Map;
 
 import static com.espertech.esper.regressionlib.support.json.SupportJsonEventTypeUtil.assertJsonWrite;
 
-public class EventJsonTypingWrite {
+public class EventJsonTypingCoreWrite {
 
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();

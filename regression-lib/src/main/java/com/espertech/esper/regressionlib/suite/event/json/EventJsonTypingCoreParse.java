@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.support.SupportEnum.*;
 import static org.junit.Assert.*;
 
-public class EventJsonTypingParse {
+public class EventJsonTypingCoreParse {
 
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();

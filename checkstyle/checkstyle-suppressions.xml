@@ -36,6 +36,7 @@
     <suppress files="SupportBean_ST0_Container.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="SupportBean_IntAlphabetic.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="SupportBean_StringAlphabetic.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportUsersEvent.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="EventInfraSuperType.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="Json.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="JsonArray.java" checks="[a-zA-Z0-9]*"/>  
@@ -66,4 +67,5 @@
     <suppress files="PrettyPrint_Test.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="TestUtil.java" checks="[a-zA-Z0-9]*"/>  
     <suppress files="WritingBuffer_Test.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportClientsEvent.java" checks="[a-zA-Z0-9]*"/>     
 </suppressions>

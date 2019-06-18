@@ -24,4 +24,6 @@ public @interface JsonSchema {
      * @return dynamic flag
      */
     boolean dynamic() default false;
+
+    String className() default "";
 }

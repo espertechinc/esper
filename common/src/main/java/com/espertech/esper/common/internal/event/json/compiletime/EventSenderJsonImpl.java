@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.event.json.compiletime;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.json.util.EventSenderJson;
-import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapped;
@@ -61,8 +60,8 @@ public class EventSenderJsonImpl implements EventSenderJson {
         runtimeEventSender.routeEventBean(eventBean);
     }
 
-    public JsonEventObject parse(String json) {
-        return (JsonEventObject) eventType.parse(json);
+    public Object parse(String json) {
+        return eventType.parse(json);
     }
 
     private Object getUnderlying(Object theEvent) {

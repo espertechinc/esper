@@ -464,7 +464,8 @@ public class AnnotationUtil {
         } else if (annotation instanceof BusEventType) {
             return newInstance(AnnotationBusEventType.class);
         } else if (annotation instanceof JsonSchema) {
-            return newInstance(AnnotationJsonSchema.class, constant(((JsonSchema) annotation).dynamic()));
+            JsonSchema jsonSchema = (JsonSchema) annotation;
+            return newInstance(AnnotationJsonSchema.class, constant(jsonSchema.dynamic()), constant(jsonSchema.className()));
         } else if (annotation instanceof JsonSchemaField) {
             JsonSchemaField field = (JsonSchemaField) annotation;
             return newInstance(AnnotationJsonSchemaField.class, constant(field.name()), constant(field.adapter()));

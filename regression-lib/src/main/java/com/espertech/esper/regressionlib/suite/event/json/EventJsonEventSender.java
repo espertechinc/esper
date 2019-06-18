@@ -34,7 +34,7 @@ public class EventJsonEventSender {
             env.compileDeploy(epl).addListener("s0");
 
             EventSenderJson sender = (EventSenderJson) env.runtime().getEventService().getEventSender("MyEvent");
-            JsonEventObject underlying = sender.parse("{\"p1\": \"abc\"}");
+            JsonEventObject underlying = (JsonEventObject) sender.parse("{\"p1\": \"abc\"}");
 
             sender.sendEvent(underlying);
             env.listener("s0").assertInvokedAndReset();

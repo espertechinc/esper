@@ -14,8 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class JsonWriteForgeString implements JsonWriteForge {
 
@@ -25,6 +24,6 @@ public class JsonWriteForgeString implements JsonWriteForge {
     }
 
     public CodegenExpression codegenWrite(JsonWriteForgeRefs refs, CodegenMethod method, CodegenClassScope classScope) {
-        return exprDotMethod(ref("this"), "writeNullableString", refs.getWriter(), refs.getField());
+        return staticMethod(JsonWriteUtil.class, "writeNullableString", refs.getWriter(), refs.getField());
     }
 }

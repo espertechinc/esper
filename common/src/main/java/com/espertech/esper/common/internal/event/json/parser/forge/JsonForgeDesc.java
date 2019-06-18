@@ -19,13 +19,13 @@ public class JsonForgeDesc {
     private final JsonEndValueForge endValueForge;
     private final JsonWriteForge writeForge;
 
-    public JsonForgeDesc(JsonDelegateForge optionalStartObjectForge, JsonDelegateForge optionalStartArrayForge, JsonEndValueForge endValueForge, JsonWriteForge writeForge) {
+    public JsonForgeDesc(String fieldName, JsonDelegateForge optionalStartObjectForge, JsonDelegateForge optionalStartArrayForge, JsonEndValueForge endValueForge, JsonWriteForge writeForge) {
         this.optionalStartObjectForge = optionalStartObjectForge;
         this.optionalStartArrayForge = optionalStartArrayForge;
         this.endValueForge = endValueForge;
         this.writeForge = writeForge;
         if (endValueForge == null || writeForge == null) {
-            throw new IllegalArgumentException("Unexpected null forge for end-value or write forge");
+            throw new IllegalArgumentException("Unexpected null forge for end-value or write forge for field '" + fieldName + "'");
         }
     }
 

@@ -12,7 +12,6 @@ package com.espertech.esper.regressionrun.suite.event;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.suite.event.json.*;
 import com.espertech.esper.regressionlib.support.json.SupportJsonFieldAdapterStringDate;
@@ -38,12 +37,12 @@ public class TestSuiteEventJson extends TestCase {
         RegressionRunner.run(session, EventJsonVisibility.executions());
     }
 
-    public void testEventJsonTypingParse() {
-        RegressionRunner.run(session, EventJsonTypingParse.executions());
+    public void testEventJsonTypingCoreParse() {
+        RegressionRunner.run(session, EventJsonTypingCoreParse.executions());
     }
 
-    public void testEventJsonTypingWrite() {
-        RegressionRunner.run(session, EventJsonTypingWrite.executions());
+    public void testEventJsonTypingCoreWrite() {
+        RegressionRunner.run(session, EventJsonTypingCoreWrite.executions());
     }
 
     public void testEventJsonUnderlying() {
@@ -76,6 +75,14 @@ public class TestSuiteEventJson extends TestCase {
 
     public void testEventJsonAdapter() {
         RegressionRunner.run(session, EventJsonAdapter.executions());
+    }
+
+    public void testEventJsonProvidedUnderlyingClass() {
+        RegressionRunner.run(session, EventJsonProvidedUnderlyingClass.executions());
+    }
+
+    public void testEventJsonTypingClassParseWrite() {
+        RegressionRunner.run(session, EventJsonTypingClassParseWrite.executions());
     }
 
     private static void configure(Configuration configuration) {

@@ -10,60 +10,25 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.forge;
 
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
-import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
-import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateEventObjectArray;
-import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateFactory;
 import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.JsonEndValueForge;
-import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.JsonEndValueRefs;
+import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.JsonEndValueForgeCast;
 import com.espertech.esper.common.internal.event.json.write.JsonWriteForge;
 import com.espertech.esper.common.internal.event.json.write.JsonWriteForgeByMethod;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-
 public class JsonForgeFactoryEventTypeTyped {
-    public static JsonForgeDesc forgeNonArray(JsonEventType other) {
-        JsonDelegateForge startObject = new JsonDelegateForge() {
-            public CodegenExpression newDelegate(JsonDelegateRefs fields, CodegenMethod parent, CodegenClassScope classScope) {
-                CodegenMethod method = parent.makeChild(JsonDelegateBase.class, JsonForgeFactoryEventTypeTyped.class, classScope);
-                method.getBlock()
-                    .declareVar(JsonDelegateFactory.class, "factory", newInstance(other.getDetail().getDelegateFactoryClassName()))
-                    .methodReturn(exprDotMethod(ref("factory"), "make", fields.getBaseHandler(), fields.getThis()));
-                return localMethod(method);
-            }
-        };
-
-        JsonEndValueForge end = new JsonEndValueForge() {
-            public CodegenExpression captureValue(JsonEndValueRefs refs, CodegenMethod method, CodegenClassScope classScope) {
-                return cast(other.getDetail().getUnderlyingClassName(), refs.getValueObject());
-            }
-        };
+    public static JsonForgeDesc forgeNonArray(String fieldName, JsonEventType other) {
+        JsonDelegateForge startObject = new JsonDelegateForgeWithDelegateFactory(other.getDetail().getDelegateFactoryClassName());
+        JsonEndValueForge end = new JsonEndValueForgeCast(other.getDetail().getUnderlyingClassName());
         JsonWriteForge writeForge = new JsonWriteForgeByMethod("writeNested");
-        return new JsonForgeDesc(startObject, null, end, writeForge);
+        return new JsonForgeDesc(fieldName, startObject, null, end, writeForge);
     }
 
-    public static JsonForgeDesc forgeArray(JsonEventType other) {
-        JsonDelegateForge startArray = new JsonDelegateForge() {
-            public CodegenExpression newDelegate(JsonDelegateRefs fields, CodegenMethod parent, CodegenClassScope classScope) {
-                CodegenMethod method = parent.makeChild(JsonDelegateEventObjectArray.class, JsonForgeFactoryEventTypeTyped.class, classScope);
-                method.getBlock()
-                    .declareVar(JsonDelegateFactory.class, "factory", newInstance(other.getDetail().getDelegateFactoryClassName()))
-                    .methodReturn(newInstance(JsonDelegateEventObjectArray.class, fields.getBaseHandler(), fields.getThis(), ref("factory"), constant(other.getUnderlyingType())));
-                return localMethod(method);
-            }
-        };
-
-        JsonEndValueForge end = new JsonEndValueForge() {
-            public CodegenExpression captureValue(JsonEndValueRefs refs, CodegenMethod method, CodegenClassScope classScope) {
-                return cast(JavaClassHelper.getArrayType(other.getUnderlyingType()), refs.getValueObject());
-            }
-        };
-
+    public static JsonForgeDesc forgeArray(String fieldName, JsonEventType other) {
+        JsonDelegateForge startArray = new JsonDelegateForgeWithDelegateFactoryArray(other.getDetail().getDelegateFactoryClassName(), other.getUnderlyingType());
+        JsonEndValueForge end = new JsonEndValueForgeCast(JavaClassHelper.getArrayType(other.getUnderlyingType()));
         JsonWriteForge writeForge = new JsonWriteForgeByMethod("writeNestedArray");
-        return new JsonForgeDesc(null, startArray, end, writeForge);
+        return new JsonForgeDesc(fieldName, null, startArray, end, writeForge);
     }
 }

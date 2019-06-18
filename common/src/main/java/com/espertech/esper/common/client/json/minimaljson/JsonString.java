@@ -41,11 +41,11 @@ import java.io.IOException;
 
 @SuppressWarnings("serial")
     // use default serial UID
-class JsonString extends JsonValue {
+public class JsonString extends JsonValue {
 
     private final String string;
 
-    JsonString(String string) {
+    public JsonString(String string) {
         if (string == null) {
             throw new NullPointerException("string is null");
         }

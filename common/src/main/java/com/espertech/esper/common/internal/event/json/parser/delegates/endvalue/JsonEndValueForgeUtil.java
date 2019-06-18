@@ -21,4 +21,9 @@ public class JsonEndValueForgeUtil {
     public static EPException handleBooleanException(String name, String value) {
         return new EPException("Failed to parse json member name '" + name + "' as a boolean-type from value '" + value + "'");
     }
+
+    public static EPException handleParseException(String name, Class boxedType, String value, Exception ex) {
+        String innerMsg = ex.getMessage() == null ? "" : ex.getMessage();
+        return new EPException("Failed to parse json member name '" + name + "' as a " + boxedType.getSimpleName() + "-type from value '" + value + "': " + innerMsg, ex);
+    }
 }
