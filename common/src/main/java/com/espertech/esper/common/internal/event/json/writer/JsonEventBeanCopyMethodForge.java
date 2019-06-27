@@ -15,62 +15,29 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.event.core.*;
-import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
-import com.espertech.esper.common.internal.util.IntArrayUtil;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.cast;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 /**
  * Copy method for Json-underlying events.
  */
 public class JsonEventBeanCopyMethodForge implements EventBeanCopyMethodForge {
     private final JsonEventType eventType;
-    private final int[] regularIndexes;
-    private final int[] mapIndexes;
-    private final int[] arrayIndexes;
 
-    public JsonEventBeanCopyMethodForge(JsonEventType eventType, Set<String> mapPropertiesToCopy, Set<String> arrayPropertiesToCopy) {
+    public JsonEventBeanCopyMethodForge(JsonEventType eventType) {
         this.eventType = eventType;
-
-        Set<Integer> mapIndexesToCopy = new HashSet<>();
-        for (String prop : mapPropertiesToCopy) {
-            JsonUnderlyingField field = eventType.getDetail().getFieldDescriptors().get(prop);
-            mapIndexesToCopy.add(field.getPropertyNumber());
-        }
-
-        Set<Integer> arrayIndexesToCopy = new HashSet<>();
-        for (String prop : arrayPropertiesToCopy) {
-            JsonUnderlyingField field = eventType.getDetail().getFieldDescriptors().get(prop);
-            arrayIndexesToCopy.add(field.getPropertyNumber());
-        }
-
-        Set<Integer> regularProps = new HashSet<>();
-        for (String prop : eventType.getTypes().keySet()) {
-            if (mapPropertiesToCopy.contains(prop) || arrayPropertiesToCopy.contains(prop)) {
-                continue;
-            }
-            JsonUnderlyingField field = eventType.getDetail().getFieldDescriptors().get(prop);
-            regularProps.add(field.getPropertyNumber());
-        }
-
-        mapIndexes = IntArrayUtil.toArray(mapIndexesToCopy);
-        arrayIndexes = IntArrayUtil.toArray(arrayIndexesToCopy);
-        regularIndexes = IntArrayUtil.toArray(regularProps);
     }
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
         return newInstance(JsonEventBeanCopyMethod.class,
             cast(JsonEventType.class, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)),
-            factory,
-            constant(regularIndexes), constant(mapIndexes), constant(arrayIndexes));
+            factory);
     }
 
     public EventBeanCopyMethod getCopyMethod(EventBeanTypedEventFactory eventBeanTypedEventFactory) {
-        return new JsonEventBeanCopyMethod(eventType, eventBeanTypedEventFactory, regularIndexes, mapIndexes, arrayIndexes);
+        return new JsonEventBeanCopyMethod(eventType, eventBeanTypedEventFactory);
     }
 }

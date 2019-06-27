@@ -102,6 +102,10 @@ public class JsonEventTypeDetail {
         this.numFieldsSupertype = numFieldsSupertype;
     }
 
+    public Class getOptionalUnderlyingProvided() {
+        return optionalUnderlyingProvided;
+    }
+
     public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(JsonEventTypeDetail.class, JsonEventTypeDetail.class, classScope);
         method.getBlock()

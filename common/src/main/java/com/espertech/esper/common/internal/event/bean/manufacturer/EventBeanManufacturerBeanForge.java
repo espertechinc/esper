@@ -26,8 +26,6 @@ import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.util.SimpleTypeCaster;
 import com.espertech.esper.common.internal.util.SimpleTypeCasterFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -37,14 +35,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Factory for event beans created and populate anew from a set of values.
  */
 public class EventBeanManufacturerBeanForge implements EventBeanManufacturerForge {
-    private final static Logger log = LoggerFactory.getLogger(EventBeanManufacturerBeanForge.class);
-
     private final BeanInstantiatorForge beanInstantiator;
     private final BeanEventType beanEventType;
     private final WriteablePropertyDescriptor[] properties;
     private final ClasspathImportService classpathImportService;
     private final Method[] writeMethodsReflection;
-    private final boolean hasPrimitiveTypes;
     private final boolean[] primitiveType;
 
     /**
@@ -68,14 +63,11 @@ public class EventBeanManufacturerBeanForge implements EventBeanManufacturerForg
 
         writeMethodsReflection = new Method[properties.length];
 
-        boolean primitiveTypeCheck = false;
         primitiveType = new boolean[properties.length];
         for (int i = 0; i < properties.length; i++) {
             writeMethodsReflection[i] = properties[i].getWriteMethod();
             primitiveType[i] = properties[i].getType().isPrimitive();
-            primitiveTypeCheck |= primitiveType[i];
         }
-        hasPrimitiveTypes = primitiveTypeCheck;
     }
 
     public EventBeanManufacturer getManufacturer(EventBeanTypedEventFactory eventBeanTypedEventFactory) throws EventBeanManufactureException {

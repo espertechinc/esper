@@ -22,10 +22,12 @@ import com.espertech.esper.common.internal.util.NullableObject;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.support.json.SupportJsonEventTypeUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -97,6 +99,10 @@ public class EventInfraGetterDynamicIndexexPropertyPredefined implements Regress
         String epl = "@public @buseventtype create json schema LocalInnerEvent();\n" +
             "@public @buseventtype create json schema LocalEvent(array LocalInnerEvent[]);\n";
         runAssertion(env, epl, json);
+
+        // Json-Class-Provided
+        String eplJsonProvided = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n";
+        runAssertion(env, eplJsonProvided, json);
 
         // Avro
         BiConsumer<EventType, NullableObject<Integer>> avro = (type, nullable) -> {
@@ -185,7 +191,8 @@ public class EventInfraGetterDynamicIndexexPropertyPredefined implements Regress
     private void assertGetter(EventBean event, EventPropertyGetter getter, boolean exists) {
         assertEquals(exists, getter.isExistsProperty(event));
         assertEquals(exists, getter.get(event) != null);
-        assertEquals(event.getEventType() instanceof BeanEventType && exists, getter.getFragment(event) != null);
+        boolean beanBacked = event.getEventType() instanceof BeanEventType || SupportJsonEventTypeUtil.isBeanBackedJson(event.getEventType());
+        assertEquals(beanBacked && exists, getter.getFragment(event) != null);
     }
 
     private void assertProps(RegressionEnvironment env, boolean hasA, boolean hasB) {
@@ -214,5 +221,12 @@ public class EventInfraGetterDynamicIndexexPropertyPredefined implements Regress
         public LocalInnerEvent[] getArray() {
             return array;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public MyLocalJsonProvidedInnerEvent[] array;
+    }
+
+    public static class MyLocalJsonProvidedInnerEvent implements Serializable {
     }
 }

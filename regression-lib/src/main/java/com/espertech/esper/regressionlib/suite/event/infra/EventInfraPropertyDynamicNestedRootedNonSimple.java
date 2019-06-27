@@ -24,6 +24,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ public class EventInfraPropertyDynamicNestedRootedNonSimple implements Regressio
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicNestedRootedNonSimple.class.getSimpleName() + "Avro";
     private final static Class BEAN_TYPE = SupportBeanDynRoot.class;
     public final static String JSON_TYPENAME = EventInfraPropertyDynamicNestedRootedNonSimple.class.getSimpleName() + "Json";
+    public final static String JSONPROVIDED_TYPENAME = EventInfraPropertyDynamicNestedRootedNonSimple.class.getSimpleName() + "JsonProvided";
 
     @Override
     public boolean excludeWhenInstrumented() {
@@ -122,9 +124,28 @@ public class EventInfraPropertyDynamicNestedRootedNonSimple implements Regressio
                 "  }\n" +
                 "}", new ValueWithExistsFlag[]{exists(1), exists(2), notExists(), exists(3), exists(4), notExists()}),
         };
-        String schemas = "@public @buseventtype @name('schema') @JsonSchema(dynamic=true) create json schema " + JSON_TYPENAME + "()";
-        env.compileDeploy(schemas, path);
+        String schemasJson = "@public @buseventtype @name('schema') @JsonSchema(dynamic=true) create json schema " + JSON_TYPENAME + "()";
+        env.compileDeploy(schemasJson, path);
         runAssertion(env, JSON_TYPENAME, FJSON, null, jsonTests, Object.class, path);
+
+        // Json-Class-Provided
+        ValueWithExistsFlag[] jsonProvidedNulls = new ValueWithExistsFlag[]{exists(null), notExists(), notExists(), exists(null), notExists(), notExists()};
+        Pair[] jsonProvidedTests = new Pair[]{
+            new Pair<>("{}", notExists),
+            new Pair<>("{ \"item\" : {}}", jsonProvidedNulls),
+            new Pair<>("{\n" +
+                "  \"item\": {\n" +
+                "    \"indexed\": [1,2],\n" +
+                "    \"mapped\": {\n" +
+                "      \"keyOne\": 3,\n" +
+                "      \"keyTwo\": 4\n" +
+                "    }\n" +
+                "  }\n" +
+                "}", new ValueWithExistsFlag[]{exists(1), exists(2), notExists(), exists(3), exists(4), notExists()})
+        };
+        String schemasJsonProvided = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype @name('schema') @JsonSchema(dynamic=true) create json schema " + JSONPROVIDED_TYPENAME + "()";
+        env.compileDeploy(schemasJsonProvided, path);
+        runAssertion(env, JSONPROVIDED_TYPENAME, FJSON, null, jsonProvidedTests, Object.class, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
@@ -164,5 +185,14 @@ public class EventInfraPropertyDynamicNestedRootedNonSimple implements Regressio
         }
 
         env.undeployAll();
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public MyLocalJsonProvidedItem item;
+    }
+
+    public static class MyLocalJsonProvidedItem implements Serializable {
+        public Object[] indexed;
+        public Map<String, Object> mapped;
     }
 }

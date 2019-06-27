@@ -20,8 +20,9 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
-import com.espertech.esper.common.internal.event.json.core.JsonEventObjectBase;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -64,10 +65,17 @@ public class EventBeanManufacturerJsonForge implements EventBeanManufacturerForg
     }
 
     private void makeUnderlyingCodegen(CodegenMethod method, CodegenClassScope codegenClassScope) {
-        int[] nativeNums = EventBeanManufacturerJson.findPropertyIndexes(jsonEventType, writables);
-        method.getBlock().declareVar(JsonEventObjectBase.class, "und", newInstance(jsonEventType.getUnderlyingType()));
+        method.getBlock().declareVar(jsonEventType.getUnderlyingType(), "und", newInstance(jsonEventType.getUnderlyingType()));
         for (int i = 0; i < writables.length; i++) {
-            method.getBlock().exprDotMethod(ref("und"), "setNativeValue", constant(nativeNums[i]), arrayAtIndex(ref("properties"), constant(i)));
+            JsonUnderlyingField field = jsonEventType.getDetail().getFieldDescriptors().get(writables[i].getPropertyName());
+            CodegenExpression rhs = arrayAtIndex(ref("properties"), constant(i));
+            if (field.getPropertyType().isPrimitive()) {
+                method.getBlock()
+                    .ifCondition(notEqualsNull(rhs))
+                    .assignRef(ref("und." + field.getFieldName()), cast(JavaClassHelper.getBoxedType(field.getPropertyType()), rhs));
+            } else {
+                method.getBlock().assignRef(ref("und." + field.getFieldName()), cast(JavaClassHelper.getBoxedType(field.getPropertyType()), rhs));
+            }
         }
         method.getBlock().methodReturn(ref("und"));
     }

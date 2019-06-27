@@ -22,6 +22,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -86,6 +87,10 @@ public class EventInfraGetterDynamicNestedDeep implements RegressionExecution {
         };
         runAssertion(env, getEpl("json"), json);
 
+        // Json-Class-Provided
+        String eplJsonProvided = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n";
+        runAssertion(env, eplJsonProvided, json);
+
         // Avro
         BiConsumer<EventType, Nullable2Lvl> avro = (type, val) -> {
             Schema emptySchema = SchemaBuilder.record("name").fields().endRecord();
@@ -117,7 +122,7 @@ public class EventInfraGetterDynamicNestedDeep implements RegressionExecution {
         return "@public @buseventtype @JsonSchema(dynamic=true) create " + underlying + " schema LocalEvent();\n";
     }
 
-    public void runAssertion(RegressionEnvironment env,
+    private void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
                              BiConsumer<EventType, Nullable2Lvl> sender) {
 
@@ -235,5 +240,17 @@ public class EventInfraGetterDynamicNestedDeep implements RegressionExecution {
         public String getId() {
             return id;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public EventInfraGetterNestedSimpleDeep.MyLocalJsonProvidedInnerEvent property;
+    }
+
+    public static class MyLocalJsonProvidedInnerEvent implements Serializable {
+        public EventInfraGetterNestedSimpleDeep.MyLocalJsonProvidedLeafEvent leaf;
+    }
+
+    public static class MyLocalJsonProvidedLeafEvent implements Serializable {
+        public String id;
     }
 }

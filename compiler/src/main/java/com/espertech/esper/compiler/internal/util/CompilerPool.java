@@ -71,6 +71,9 @@ class CompilerPool {
         }
 
         for (Future<CompilableItemResult> future : futures) {
+            if (future == null) {
+                continue;
+            }
             CompilableItemResult result;
             try {
                 result = future.get();

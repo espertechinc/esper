@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.util;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -526,6 +527,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param array array
      * @param index index
      * @return null or array value
@@ -542,6 +544,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param array array
      * @param index index
      * @return null or array value
@@ -555,6 +558,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param map map
      * @param key key
      * @return null or map value for key
@@ -565,6 +569,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param map map
      * @param key key
      * @return contains-key or false for null-map
@@ -581,19 +586,19 @@ public class CollectionUtil {
             throw new IllegalArgumentException("Expected array type and received " + arrayType);
         }
         CodegenBlock block = codegenMethodScope.makeChild(Collection.class, CollectionUtil.class, codegenClassScope).addParam(arrayType, "array").getBlock()
-                .ifRefNullReturnNull("array");
+            .ifRefNullReturnNull("array");
         if (!arrayType.getComponentType().isPrimitive()) {
             return localMethodBuild(block.methodReturn(staticMethod(Arrays.class, "asList", ref("array")))).pass(array).call();
         }
         CodegenMethod method = block.ifCondition(equalsIdentity(arrayLength(ref("array")), constant(0)))
-                .blockReturn(staticMethod(Collections.class, "emptyList"))
-                .ifCondition(equalsIdentity(arrayLength(ref("array")), constant(1)))
-                .blockReturn(staticMethod(Collections.class, "singletonList", arrayAtIndex(ref("array"), constant(0))))
-                .declareVar(ArrayDeque.class, "dq", newInstance(ArrayDeque.class, arrayLength(ref("array"))))
-                .forLoopIntSimple("i", arrayLength(ref("array")))
-                .expression(exprDotMethod(ref("dq"), "add", arrayAtIndex(ref("array"), ref("i"))))
-                .blockEnd()
-                .methodReturn(ref("dq"));
+            .blockReturn(staticMethod(Collections.class, "emptyList"))
+            .ifCondition(equalsIdentity(arrayLength(ref("array")), constant(1)))
+            .blockReturn(staticMethod(Collections.class, "singletonList", arrayAtIndex(ref("array"), constant(0))))
+            .declareVar(ArrayDeque.class, "dq", newInstance(ArrayDeque.class, arrayLength(ref("array"))))
+            .forLoopIntSimple("i", arrayLength(ref("array")))
+            .expression(exprDotMethod(ref("dq"), "add", arrayAtIndex(ref("array"), ref("i"))))
+            .blockEnd()
+            .methodReturn(ref("dq"));
         return localMethodBuild(method).pass(array).call();
     }
 
@@ -903,5 +908,21 @@ public class CollectionUtil {
             }
         }
         return true;
+    }
+
+    public static Object getMapValueChecked(Object candidate, Object key) throws PropertyAccessException {
+        if (!(candidate instanceof Map)) {
+            return null;
+        }
+        Map map = (Map) candidate;
+        return map.get(key);
+    }
+
+    public static boolean getMapKeyExistsChecked(Object candidate, Object key) throws PropertyAccessException {
+        if (!(candidate instanceof Map)) {
+            return false;
+        }
+        Map map = (Map) candidate;
+        return map.containsKey(key);
     }
 }

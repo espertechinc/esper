@@ -68,7 +68,7 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return new ObjectArrayEventBeanArrayIndexedPropertyGetter(propertyIndex, index);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedUnderlyingArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventType innerType) {
+    public EventPropertyGetterSPI getGetterIndexedUnderlyingArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventType innerType, BeanEventTypeFactory beanEventTypeFactory) {
         int propertyIndex = getAssertIndex(propertyNameAtomic);
         return new ObjectArrayArrayPropertyGetter(propertyIndex, index, eventBeanTypedEventFactory, innerType);
     }

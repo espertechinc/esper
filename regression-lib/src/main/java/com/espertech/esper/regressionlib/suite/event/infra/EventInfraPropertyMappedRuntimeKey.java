@@ -18,6 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +59,10 @@ public class EventInfraPropertyMappedRuntimeKey implements RegressionExecution {
         String jsonepl = "@public @buseventtype create json schema LocalEvent(mapped java.util.Map);\n";
         runAssertion(env, jsonepl, json);
 
+        // Json-Class-Provided
+        String jsonProvidedEpl = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n";
+        runAssertion(env, jsonProvidedEpl, json);
+
         // Avro
         BiConsumer<EventType, Map<String, String>> avro = (type, entries) -> {
             GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(type));
@@ -97,5 +102,9 @@ public class EventInfraPropertyMappedRuntimeKey implements RegressionExecution {
         public Map<String, String> getMapped() {
             return mapped;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public Map<String, String> mapped;
     }
 }

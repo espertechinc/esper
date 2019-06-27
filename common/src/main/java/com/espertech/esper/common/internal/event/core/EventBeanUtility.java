@@ -486,9 +486,10 @@ public class EventBeanUtility {
      * @param propertyType         property return type
      * @param genericType          property generic type parameter, or null if none
      * @param beanEventTypeFactory for event types
+     * @param publicFields
      * @return fragment type
      */
-    public static FragmentEventType createNativeFragmentType(Class propertyType, Class genericType, BeanEventTypeFactory beanEventTypeFactory) {
+    public static FragmentEventType createNativeFragmentType(Class propertyType, Class genericType, BeanEventTypeFactory beanEventTypeFactory, boolean publicFields) {
         boolean isIndexed = false;
 
         if (propertyType.isArray()) {
@@ -506,7 +507,7 @@ public class EventBeanUtility {
             return null;
         }
 
-        EventType type = beanEventTypeFactory.getCreateBeanType(propertyType);
+        EventType type = beanEventTypeFactory.getCreateBeanType(propertyType, publicFields);
         return new FragmentEventType(type, isIndexed, true);
     }
 

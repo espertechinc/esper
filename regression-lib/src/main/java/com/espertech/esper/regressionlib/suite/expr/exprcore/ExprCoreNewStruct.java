@@ -15,14 +15,15 @@ import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 public class ExprCoreNewStruct {
 
@@ -134,7 +136,7 @@ public class ExprCoreNewStruct {
             SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\"} w...(55 chars)': Case node 'when' expressions require that all results either return a single value or a Map-type (new-operator) value, check when-condition number 1 [select case when true then new { col1 = 'a' } when false then 1 end from SupportBean]");
 
             epl = "select case when true then new { col1 = 'a' } else new { col1 = 1 } end from SupportBean";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\"} e...(54 chars)': Incompatible case-when return types by new-operator in case-when number 1: Type by name 'Case-when number 1' in property 'col1' expected class java.lang.String but receives class java.lang.Integer [select case when true then new { col1 = 'a' } else new { col1 = 1 } end from SupportBean]");
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\"} e...(54 chars)': Incompatible case-when return types by new-operator in case-when number 1: Type by name 'Case-when number 1' in property 'col1' expected java.lang.String but receives java.lang.Integer [select case when true then new { col1 = 'a' } else new { col1 = 1 } end from SupportBean]");
 
             epl = "select case when true then new { col1 = 'a' } else new { col2 = 'a' } end from SupportBean";
             SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\"} e...(56 chars)': Incompatible case-when return types by new-operator in case-when number 1: The property 'col1' is not provided but required [select case when true then new { col1 = 'a' } else new { col2 = 'a' } end from SupportBean]");
@@ -171,15 +173,19 @@ public class ExprCoreNewStruct {
     }
 
     private static void tryAssertionNewWRepresentation(RegressionEnvironment env, EventRepresentationChoice rep, AtomicInteger milestone) {
-        String epl = rep.getAnnotationText() + "@name('s0') select new { theString = 'x' || theString || 'x', intPrimitive = intPrimitive + 2} as val0 from SupportBean as sb";
+        String epl = rep.getAnnotationTextWJsonProvided(MyLocalJsonProvided.class) + "@name('s0') select new { theString = 'x' || theString || 'x', intPrimitive = intPrimitive + 2} as val0 from SupportBean as sb";
         env.compileDeploy(epl).addListener("s0").milestone(milestone.getAndIncrement());
 
         Assert.assertEquals(rep.isAvroEvent() ? GenericData.Record.class : Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
         FragmentEventType fragType = env.statement("s0").getEventType().getFragmentType("val0");
-        assertFalse(fragType.isIndexed());
-        assertFalse(fragType.isNative());
-        Assert.assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
-        Assert.assertEquals(Integer.class, JavaClassHelper.getBoxedType(fragType.getFragmentType().getPropertyType("intPrimitive")));
+        if (rep == EventRepresentationChoice.JSONCLASSPROVIDED) {
+            assertNull(fragType);
+        } else {
+            assertFalse(fragType.isIndexed());
+            assertFalse(fragType.isNative());
+            Assert.assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
+            Assert.assertEquals(Integer.class, JavaClassHelper.getBoxedType(fragType.getFragmentType().getPropertyType("intPrimitive")));
+        }
 
         String[] fieldsInner = "theString,intPrimitive".split(",");
         env.sendEventBean(new SupportBean("E1", -5));
@@ -194,5 +200,9 @@ public class ExprCoreNewStruct {
         }
 
         env.undeployAll();
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public Map<String, Object> val0;
     }
 }

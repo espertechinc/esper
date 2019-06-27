@@ -22,7 +22,7 @@ public class BeanEventTypeFactoryDisallow implements BeanEventTypeFactory {
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
     }
 
-    public BeanEventType getCreateBeanType(Class clazz) {
+    public BeanEventType getCreateBeanType(Class clazz, boolean publicFields) {
         throw new EPException("Bean type creation not supported");
     }
 

@@ -16,10 +16,10 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQuery;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
@@ -35,6 +35,7 @@ import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
 import com.espertech.esper.runtime.client.EPStatement;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -242,15 +243,15 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
         }
 
         public void run(RegressionEnvironment env) {
-            String eplEvents = eventRepresentationEnum.getAnnotationText() + " create schema Product (productId string, categoryId string);" +
-                eventRepresentationEnum.getAnnotationText() + " create schema Category (categoryId string, owner string);" +
-                eventRepresentationEnum.getAnnotationText() + " create schema ProductOwnerDetails (productId string, owner string);";
+            String eplEvents = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + " create schema Product (productId string, categoryId string);" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCategory.class) + " create schema Category (categoryId string, owner string);" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductOwnerDetails.class) + " create schema ProductOwnerDetails (productId string, owner string);";
             String epl;
             if (namedWindow) {
                 epl = eplEvents +
-                    eventRepresentationEnum.getAnnotationText() + " create window WinProduct#keepall as select * from Product;" +
-                    eventRepresentationEnum.getAnnotationText() + " create window WinCategory#keepall as select * from Category;" +
-                    eventRepresentationEnum.getAnnotationText() + " create window WinProductOwnerDetails#keepall as select * from ProductOwnerDetails;" +
+                    "create window WinProduct#keepall as select * from Product;" +
+                    "create window WinCategory#keepall as select * from Category;" +
+                    "create window WinProductOwnerDetails#keepall as select * from ProductOwnerDetails;" +
                     "insert into WinProduct select * from Product;" +
                     "insert into WinCategory select * from Category;" +
                     "insert into WinProductOwnerDetails select * from ProductOwnerDetails;";
@@ -1089,7 +1090,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 record.put(key, value);
             }
             env.eventService().sendEventAvro(record, eventName);
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject event = new JsonObject();
             for (String attribute : attributes) {
                 String key = attribute.split("=")[0];
@@ -1168,5 +1169,20 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
     private static EPFireAndForgetQueryResult compileExecute(String faf, RegressionPath path, RegressionEnvironment env) {
         EPCompiled compiled = env.compileFAF(faf, path);
         return env.runtime().getFireAndForgetService().executeQuery(compiled);
+    }
+
+    public static class MyLocalJsonProvidedProduct implements Serializable {
+        public String productId;
+        public String categoryId;
+    }
+
+    public static class MyLocalJsonProvidedCategory implements Serializable {
+        public String categoryId;
+        public String owner;
+    }
+
+    public static class MyLocalJsonProvidedProductOwnerDetails implements Serializable {
+        public String productId;
+        public String owner;
     }
 }

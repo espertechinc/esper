@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFacto
  * Interface for a factory for obtaining {@link BeanEventType} instances.
  */
 public interface BeanEventTypeFactory {
-    BeanEventType getCreateBeanType(Class clazz);
+    BeanEventType getCreateBeanType(Class clazz, boolean publicFields);
 
     EventBeanTypedEventFactory getEventBeanTypedEventFactory();
 

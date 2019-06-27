@@ -15,12 +15,18 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 
 /**
  * Helper class to find and invoke a class constructors that matches the types of arguments supplied.
  */
 public class ConstructorHelper {
     private final static Class[] EMPTY_OBJECT_ARRAY_TYPE = new Class[]{(new Object[0]).getClass()};
+
+    public static boolean hasDefaultConstructor(Class clazz) {
+        Constructor ctor = getRegularConstructor(clazz, new Class[0]);
+        return ctor != null && Modifier.isPublic(ctor.getModifiers());
+    }
 
     /**
      * Find and invoke constructor matching the argument number and types returning an instance
@@ -85,7 +91,7 @@ public class ConstructorHelper {
         return true;
     }
 
-    public static Constructor getRegularConstructor(Class clazz, Class[] parameterTypes) {
+    private static Constructor getRegularConstructor(Class clazz, Class[] parameterTypes) {
 
         // Try to find the matching constructor
         try {

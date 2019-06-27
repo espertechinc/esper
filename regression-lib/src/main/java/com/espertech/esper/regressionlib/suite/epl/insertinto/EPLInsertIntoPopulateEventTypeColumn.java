@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         execs.add(new EPLInsertIntoTypableSubquery());
         execs.add(new EPLInsertIntoTypableNewOperatorDocSample());
         execs.add(new EPLInsertIntoTypableAndCaseNew(EventRepresentationChoice.MAP));
-        execs.add(new EPLInsertIntoTypableAndCaseNew(EventRepresentationChoice.ARRAY));
+        execs.add(new EPLInsertIntoTypableAndCaseNew(EventRepresentationChoice.OBJECTARRAY));
         execs.add(new EPLInsertIntoTypableAndCaseNew(EventRepresentationChoice.JSON));
         execs.add(new EPLInsertIntoInvalid());
         execs.add(new EPLInsertIntoEnumerationSubquery());
@@ -91,8 +92,8 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create " + representation.getOutputTypeCreateSchemaName() + " schema Nested(p0 string, p1 int)", path);
-            env.compileDeploy("create " + representation.getOutputTypeCreateSchemaName() + " schema OuterType(n0 Nested)", path);
+            env.compileDeploy(representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNested.class) + "create schema Nested(p0 string, p1 int)", path);
+            env.compileDeploy(representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedOuterType.class) + "create schema OuterType(n0 Nested)", path);
 
             String[] fields = "n0.p0,n0.p1".split(",");
             env.compileDeploy("@Name('out') " +
@@ -310,4 +311,14 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         env.undeployAll();
     }
+
+    public static class MyLocalJsonProvidedNested implements Serializable {
+        public String p0;
+        public int p1;
+    }
+
+    public static class MyLocalJsonProvidedOuterType implements Serializable {
+        public MyLocalJsonProvidedNested n0;
+    }
+
 }

@@ -57,7 +57,7 @@ public class TestSuiteEventBeanWConfig extends TestCase {
         session.destroy();
     }
 
-    public void testEventBeanPublicAccessors() {
+    public void testEventBeanPublicFields() {
         RegressionSession session = RegressionRunner.session();
 
         ConfigurationCommonEventTypeBean legacyDef = new ConfigurationCommonEventTypeBean();

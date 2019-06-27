@@ -80,7 +80,7 @@ public class EPLInsertIntoTransposeStream {
         private static void runTransposeMapAndObjectArray(RegressionEnvironment env, EventRepresentationChoice representation) {
             String[] fields = "p0,p1".split(",");
             RegressionPath path = new RegressionPath();
-            String schema = "create " + representation.getOutputTypeCreateSchemaName() + " schema MySchema(p0 string, p1 int)";
+            String schema = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "create schema MySchema(p0 string, p1 int)";
             env.compileDeployWBusPublicType(schema, path);
 
             String generateFunction;
@@ -90,7 +90,7 @@ public class EPLInsertIntoTransposeStream {
                 generateFunction = "generateMap";
             } else if (representation.isAvroEvent()) {
                 generateFunction = "generateAvro";
-            } else if (representation.isJsonEvent()) {
+            } else if (representation.isJsonEvent() || representation.isJsonProvidedClassEvent()) {
                 generateFunction = "generateJson";
             } else {
                 throw new IllegalStateException("Unrecognized code " + representation);
@@ -397,5 +397,10 @@ public class EPLInsertIntoTransposeStream {
         public String getOtherId() {
             return otherId;
         }
+    }
+
+    public static class MyLocalJsonProvidedMySchema implements Serializable {
+        public String p0;
+        public int p1;
     }
 }

@@ -252,4 +252,12 @@ public class SupportJsonEventTypeUtil {
         set.forEach(key -> list.add(key));
         return list.toArray(new Map.Entry[0]);
     }
+
+    public static boolean isBeanBackedJson(EventType eventType) {
+        if (!(eventType instanceof JsonEventType)) {
+            return false;
+        }
+        JsonEventType jsonEventType = (JsonEventType) eventType;
+        return jsonEventType.getDetail().getOptionalUnderlyingProvided() != null;
+    }
 }

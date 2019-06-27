@@ -14,18 +14,19 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -91,7 +92,7 @@ public class EPLOtherSelectExprEventBeanAnnotation {
 
     private static void runAssertionEventBeanAnnotation(RegressionEnvironment env, EventRepresentationChoice rep) {
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType("@name('schema') create " + rep.getOutputTypeCreateSchemaName() + " schema MyEvent(col1 string)", path);
+        env.compileDeployWBusPublicType(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "@name('schema') create schema MyEvent(col1 string)", path);
 
         String eplInsert = "@name('insert') insert into DStream select " +
             "last(*) @eventbean as c0, " +
@@ -117,14 +118,14 @@ public class EPLOtherSelectExprEventBeanAnnotation {
         env.compileDeploy("@name('s1') select * from MyEvent", path).addListener("s1");
 
         Object eventOne = sendEvent(env, rep, "E1");
-        if (rep.isJsonEvent()) {
+        if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             eventOne = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         }
         assertTrue(((Map) env.listener("insert").assertOneGetNewAndReset().getUnderlying()).get("c0") instanceof EventBean);
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventOne, "E1", new Object[]{eventOne}, "E1", new Object[]{eventOne}, "E1"});
 
         Object eventTwo = sendEvent(env, rep, "E2");
-        if (rep.isJsonEvent()) {
+        if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             eventTwo = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         }
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
@@ -164,7 +165,7 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             event.put("col1", value);
             env.sendEventAvro(event, "MyEvent");
             eventOne = event;
-        } else if (rep.isJsonEvent()) {
+        } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject().add("col1", value);
             env.sendEventJson(object.toString(), "MyEvent");
             eventOne = object.toString();
@@ -172,5 +173,9 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             throw new IllegalStateException();
         }
         return eventOne;
+    }
+
+    public static class MyLocalJsonProvidedMyEvent implements Serializable {
+        public String col1;
     }
 }

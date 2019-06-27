@@ -17,6 +17,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -29,6 +30,19 @@ public class EventInfraPropertyIndexedKeyExpr implements RegressionExecution {
         runAssertionWrapper(env);
         runAssertionBean(env);
         runAssertionJson(env);
+        runAssertionJsonClassProvided(env);
+    }
+
+    private void runAssertionJsonClassProvided(RegressionEnvironment env) {
+        env.compileDeploy("@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema JsonSchema();\n" +
+            "@name('s0') select * from JsonSchema;\n").addListener("s0");
+        env.sendEventJson("{ \"indexed\": [1, 2], \"mapped\" : { \"keyOne\": 20 }}", "JsonSchema");
+        EventBean event = env.listener("s0").assertOneGetNewAndReset();
+
+        assertEquals(2, event.getEventType().getGetterIndexed("indexed").get(event, 1));
+        assertEquals(20, event.getEventType().getGetterMapped("mapped").get(event, "keyOne"));
+
+        env.undeployAll();
     }
 
     private void runAssertionJson(RegressionEnvironment env) {
@@ -119,5 +133,10 @@ public class EventInfraPropertyIndexedKeyExpr implements RegressionExecution {
         public Iterable<Integer> getIterableOfInt() {
             return intlist;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public int[] indexed;
+        public Map<String, Object> mapped;
     }
 }

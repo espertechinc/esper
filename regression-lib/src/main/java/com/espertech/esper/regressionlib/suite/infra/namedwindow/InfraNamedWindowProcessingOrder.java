@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
-
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -19,6 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,11 +53,11 @@ public class InfraNamedWindowProcessingOrder {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationText() + " create schema StartValueEvent as (dummy string);\n";
-            epl += eventRepresentationEnum.getAnnotationText() + " create schema TestForwardEvent as (prop1 string);\n";
-            epl += eventRepresentationEnum.getAnnotationText() + " create schema TestInputEvent as (dummy string);\n";
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStartValueEvent.class) + " create schema StartValueEvent as (dummy string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestForwardEvent.class) + " create schema TestForwardEvent as (prop1 string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestInputEvent.class) + " create schema TestInputEvent as (dummy string);\n";
             epl += "insert into TestForwardEvent select'V1' as prop1 from TestInputEvent;\n";
-            epl += eventRepresentationEnum.getAnnotationText() + " create window NamedWin#unique(prop1) (prop1 string, prop2 string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNamedWin.class) + " create window NamedWin#unique(prop1) (prop1 string, prop2 string);\n";
             epl += "insert into NamedWin select 'V1' as prop1, 'O1' as prop2 from StartValueEvent;\n";
             epl += "on TestForwardEvent update NamedWin as work set prop2 = 'U1' where work.prop1 = 'V1';\n";
             epl += "@name('select') select irstream prop1, prop2 from NamedWin;\n";
@@ -70,7 +70,7 @@ public class InfraNamedWindowProcessingOrder {
                 env.sendEventMap(new HashMap<String, Object>(), "StartValueEvent");
             } else if (eventRepresentationEnum.isAvroEvent()) {
                 env.eventService().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "StartValueEvent");
-            } else if (eventRepresentationEnum.isJsonEvent()) {
+            } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 env.eventService().sendEventJson("{}", "StartValueEvent");
             } else {
                 fail();
@@ -84,7 +84,7 @@ public class InfraNamedWindowProcessingOrder {
                 env.sendEventMap(new HashMap<String, Object>(), "TestInputEvent");
             } else if (eventRepresentationEnum.isAvroEvent()) {
                 env.eventService().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "TestInputEvent");
-            } else if (eventRepresentationEnum.isJsonEvent()) {
+            } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 env.eventService().sendEventJson("{}", "TestInputEvent");
             } else {
                 fail();
@@ -120,5 +120,22 @@ public class InfraNamedWindowProcessingOrder {
 
             env.undeployAll();
         }
+    }
+
+    public static class MyLocalJsonProvidedStartValueEvent implements Serializable {
+        public String dummy;
+    }
+
+    public static class MyLocalJsonProvidedTestForwardEvent implements Serializable {
+        public String prop1;
+    }
+
+    public static class MyLocalJsonProvidedTestInputEvent implements Serializable {
+        public String dummy;
+    }
+
+    public static class MyLocalJsonProvidedNamedWin implements Serializable {
+        public String prop1;
+        public String prop2;
     }
 }

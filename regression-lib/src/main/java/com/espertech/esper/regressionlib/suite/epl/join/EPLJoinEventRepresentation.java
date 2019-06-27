@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,33 +44,36 @@ public class EPLJoinEventRepresentation {
     private static class EPLJoinJoinEventRepresentations implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@public @buseventtype create json schema S0_JSON(id String, p00 int);\n" +
-                "@public @buseventtype create json schema S1_JSON(id String, p00 int);\n", path);
+            String jsonSchemas = "@public @buseventtype create json schema S0_JSON(id String, p00 int);\n" +
+                "@public @buseventtype create json schema S1_JSON(id String, p00 int);\n" +
+                "@public @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedS0.class.getName() + "') create json schema S0_JSONCLASSPROVIDED();\n" +
+                "@public @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedS1.class.getName() + "') create json schema S1_JSONCLASSPROVIDED();\n";
+            env.compileDeploy(jsonSchemas, path);
             AtomicInteger milestone = new AtomicInteger();
 
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                String s0Type = "S0_" + rep.getUndName();
-                String s1Type = "S1_" + rep.getUndName();
-                String eplOne = "select S0.id as S0_id, S1.id as S1_id, S0.p00 as S0_p00, S1.p00 as S1_p00 from " + s0Type + "#keepall as S0, " +
+                String s0Type = "S0_" + rep.getName();
+                String s1Type = "S1_" + rep.getName();
+                String eplOne = "select S0.id as s0id, S1.id as s1id, S0.p00 as s0p00, S1.p00 as s1p00 from " + s0Type + "#keepall as S0, " +
                     s1Type + "#keepall as S1 where S0.id = S1.id";
-                tryJoinAssertion(env, eplOne, rep, "S0_id,S1_id,S0_p00,S1_p00", milestone, path);
+                tryJoinAssertion(env, eplOne, rep, "s0id,s1id,s0p00,s1p00", milestone, path, MyLocalJsonProvidedWFields.class);
             }
 
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                String s0Type = "S0_" + rep.getUndName();
-                String s1Type = "S1_" + rep.getUndName();
-                String eplTwo = "select * from " + s0Type + "#keepall as S0, " + s1Type + "#keepall as S1 where S0.id = S1.id";
-                tryJoinAssertion(env, eplTwo, rep, "S0.id,S1.id,S0.p00,S1.p00", milestone, path);
+                String s0Type = "S0_" + rep.getName();
+                String s1Type = "S1_" + rep.getName();
+                String eplTwo = "select * from " + s0Type + "#keepall as s0, " + s1Type + "#keepall as s1 where s0.id = s1.id";
+                tryJoinAssertion(env, eplTwo, rep, "s0.id,s1.id,s0.p00,s1.p00", milestone, path, MyLocalJsonProvidedWildcard.class);
             }
 
             env.undeployAll();
         }
 
-        private static void tryJoinAssertion(RegressionEnvironment env, String epl, EventRepresentationChoice rep, String columnNames, AtomicInteger milestone, RegressionPath path) {
-            env.compileDeploy("@name('s0')" + rep.getAnnotationText() + epl, path).addListener("s0").milestoneInc(milestone);
+        private static void tryJoinAssertion(RegressionEnvironment env, String epl, EventRepresentationChoice rep, String columnNames, AtomicInteger milestone, RegressionPath path, Class jsonClass) {
+            env.compileDeploy("@name('s0')" + rep.getAnnotationTextWJsonProvided(jsonClass) + epl, path).addListener("s0").milestoneInc(milestone);
 
-            String s0Name = "S0_" + rep.getUndName();
-            String s1Name = "S1_" + rep.getUndName();
+            String s0Name = "S0_" + rep.getName();
+            String s1Name = "S1_" + rep.getName();
 
             sendRepEvent(env, rep, s0Name, "a", 1);
             assertFalse(env.listener("s0").isInvoked());
@@ -142,11 +146,33 @@ public class EPLJoinEventRepresentation {
             theEvent.put("id", id);
             theEvent.put("p00", p00);
             env.sendEventAvro(theEvent, name);
-        } else if (rep.isJsonEvent()) {
+        } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             String json = "{\"id\": \"" + id + "\", \"p00\": " + p00 + "}";
             env.eventService().sendEventJson(json, name);
         } else {
             fail();
         }
+    }
+
+    public static class MyLocalJsonProvidedS0 implements Serializable {
+        public String id;
+        public int p00;
+    }
+
+    public static class MyLocalJsonProvidedS1 implements Serializable {
+        public String id;
+        public int p00;
+    }
+
+    public static class MyLocalJsonProvidedWFields implements Serializable {
+        public String s0id;
+        public String s1id;
+        public int s0p00;
+        public int s1p00;
+    }
+
+    public static class MyLocalJsonProvidedWildcard implements Serializable {
+        public MyLocalJsonProvidedS0 s0;
+        public MyLocalJsonProvidedS1 s1;
     }
 }

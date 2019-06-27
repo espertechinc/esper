@@ -803,7 +803,7 @@ public class EPLOtherUpdateIStream {
 
         // test update-istream with map
         RegressionPath path = new RegressionPath();
-        String eplType = eventRepresentationEnum.getAnnotationText() + " @name('type') create schema MyInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
+        String eplType = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') create schema MyInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
         env.compileDeployWBusPublicType(eplType, path);
 
         env.compileDeploy("@name('update') update istream MyInfraTypeWithMapProp set simple='A', mymap('abc') = 1, myarray[2] = 10", path).addListener("update");
@@ -817,7 +817,7 @@ public class EPLOtherUpdateIStream {
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
             env.sendEventAvro(event, "MyInfraTypeWithMapProp");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonArray myarray = new JsonArray().add(0).add(0).add(0).add(0).add(0);
             JsonObject mymap = new JsonObject();
             JsonObject event = new JsonObject().add("myarray", myarray).add("mymap", mymap);
@@ -834,11 +834,11 @@ public class EPLOtherUpdateIStream {
 
         // test named-window update
         RegressionPath path = new RegressionPath();
-        String eplTypes = eventRepresentationEnum.getAnnotationText() + " @name('type') create schema MyNWInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
+        String eplTypes = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') create schema MyNWInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
         env.compileDeployWBusPublicType(eplTypes, path);
 
         env.compileDeploy("@name('window') create window MyWindowWithMapProp#keepall as MyNWInfraTypeWithMapProp", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " insert into MyWindowWithMapProp select * from MyNWInfraTypeWithMapProp", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " insert into MyWindowWithMapProp select * from MyNWInfraTypeWithMapProp", path);
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{null, new int[10], new HashMap<String, Object>()}, "MyNWInfraTypeWithMapProp");
@@ -849,7 +849,7 @@ public class EPLOtherUpdateIStream {
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
             env.sendEventAvro(event, "MyNWInfraTypeWithMapProp");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonArray myarray = new JsonArray().add(0).add(0).add(0).add(0).add(0);
             JsonObject mymap = new JsonObject();
             JsonObject event = new JsonObject().add("myarray", myarray).add("mymap", mymap);
@@ -876,7 +876,7 @@ public class EPLOtherUpdateIStream {
             event.put("myarray", Arrays.asList(0, 0));
             event.put("mymap", null);
             env.sendEventAvro(event, "MyNWInfraTypeWithMapProp");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonArray myarray = new JsonArray().add(0).add(0);
             JsonObject event = new JsonObject().add("myarray", myarray);
             env.sendEventJson(event.toString(), "MyNWInfraTypeWithMapProp");
@@ -898,12 +898,13 @@ public class EPLOtherUpdateIStream {
 
     private static void tryAssertionFieldsWithPriority(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " insert into MyStream select theString, intPrimitive from SupportBean(theString not like 'Z%')", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " insert into MyStream select 'AX'||theString as theString, intPrimitive from SupportBean(theString like 'Z%')", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @Name('a') @Priority(12) update istream MyStream set intPrimitive=-2 where intPrimitive=-1", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @Name('b') @Priority(11) update istream MyStream set intPrimitive=-1 where theString like 'D%'", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @Name('c') @Priority(9) update istream MyStream set intPrimitive=9 where theString like 'A%'", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @Name('d') @Priority(8) update istream MyStream set intPrimitive=8 where theString like 'A%' or theString like 'C%'", path);
+        String prefix = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSB.class);
+        env.compileDeploy(prefix + " insert into MyStream select theString, intPrimitive from SupportBean(theString not like 'Z%')", path);
+        env.compileDeploy(prefix + " insert into MyStream select 'AX'||theString as theString, intPrimitive from SupportBean(theString like 'Z%')", path);
+        env.compileDeploy(prefix + " @Name('a') @Priority(12) update istream MyStream set intPrimitive=-2 where intPrimitive=-1", path);
+        env.compileDeploy(prefix + " @Name('b') @Priority(11) update istream MyStream set intPrimitive=-1 where theString like 'D%'", path);
+        env.compileDeploy(prefix + " @Name('c') @Priority(9) update istream MyStream set intPrimitive=9 where theString like 'A%'", path);
+        env.compileDeploy(prefix + " @Name('d') @Priority(8) update istream MyStream set intPrimitive=8 where theString like 'A%' or theString like 'C%'", path);
         env.compileDeploy(" @Name('e') @Priority(10) update istream MyStream set intPrimitive=10 where theString like 'A%'", path);
         env.compileDeploy(" @Name('f') @Priority(7) update istream MyStream set intPrimitive=7 where theString like 'A%' or theString like 'C%'", path);
         env.compileDeploy(" @Name('g') @Priority(6) update istream MyStream set intPrimitive=6 where theString like 'A%'", path);
@@ -1119,5 +1120,16 @@ public class EPLOtherUpdateIStream {
         public Object getArray(int index) {
             return array[index];
         }
+    }
+
+    public static class MyLocalJsonProvidedMapProp implements Serializable {
+        public String simple;
+        public Integer[] myarray;
+        public Map mymap;
+    }
+
+    public static class MyLocalJsonProvidedSB implements Serializable {
+        public String theString;
+        public int intPrimitive;
     }
 }

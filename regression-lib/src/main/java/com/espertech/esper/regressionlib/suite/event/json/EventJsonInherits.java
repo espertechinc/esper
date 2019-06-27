@@ -244,7 +244,6 @@ public class EventJsonInherits {
             assertNoSuchElement(() -> und.getNativeKey(0));
             assertNoSuchElement(() -> und.getNativeEntry(0));
             assertEquals(-1, und.getNativeNum("x"));
-            assertNoSuchElement(() -> und.setNativeValue(0, null));
             assertTrue(und.getJsonValues().isEmpty());
 
             SupportJsonEventTypeUtil.compareMaps(new LinkedHashMap<>(), und);

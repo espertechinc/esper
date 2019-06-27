@@ -22,7 +22,7 @@ public interface EventTypeResolver {
 
     EventType resolve(EventTypeMetadata metadata);
 
-    BeanEventType resolvePrivateBean(Class clazz);
+    BeanEventType resolvePrivateBean(Class clazz, boolean publicFields);
 
     EventSerdeFactory getEventSerdeFactory();
 }

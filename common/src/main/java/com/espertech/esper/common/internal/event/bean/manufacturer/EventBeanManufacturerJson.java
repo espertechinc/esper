@@ -46,18 +46,11 @@ public class EventBeanManufacturerJson implements EventBeanManufacturer {
     }
 
     public Object makeUnderlying(Object[] properties) {
-        JsonEventObjectBase base;
-        try {
-            base = (JsonEventObjectBase) jsonEventType.getUnderlyingType().newInstance();
-        }
-        catch (Exception ex) {
-            throw new EPException("Failed to obtain json underlying instance: " + ex.getMessage(), ex);
-        }
-
+        Object underlying = jsonEventType.getDelegateFactory().newUnderlying();
         for (int i = 0; i < properties.length; i++) {
-            base.setNativeValue(nativeNums[i], properties[i]);
+            jsonEventType.getDelegateFactory().setValue(nativeNums[i], properties[i], underlying);
         }
-        return base;
+        return underlying;
     }
 
     static int[] findPropertyIndexes(JsonEventType jsonEventType, WriteablePropertyDescriptor[] writables) {

@@ -20,7 +20,6 @@ import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenera
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableRSPFactoryProvider;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableType;
-import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateJsonGenericArray;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateJsonGenericObject;
@@ -39,23 +38,15 @@ public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
     private final CodegenClassType classType;
     private final String className;
     private final CodegenPackageScope packageScope;
-    private final Map<String, Object> properties;
-    private final Map<String, JsonUnderlyingField> fieldDescriptors;
-    private final Map<String, JsonForgeDesc> forges;
     private final String underlyingClassName;
-    private final boolean dynamic;
-    private final JsonEventType optionalSuperType;
+    private final StmtClassForgeableJsonDesc desc;
 
-    public StmtClassForgeableJsonDelegate(CodegenClassType classType, String className, CodegenPackageScope packageScope, Map<String, Object> properties, Map<String, JsonUnderlyingField> fieldDescriptors, Map<String, JsonForgeDesc> forges, String underlyingClassName, boolean dynamic, JsonEventType optionalSuperType) {
+    public StmtClassForgeableJsonDelegate(CodegenClassType classType, String className, CodegenPackageScope packageScope, String underlyingClassName, StmtClassForgeableJsonDesc desc) {
         this.classType = classType;
         this.className = className;
         this.packageScope = packageScope;
-        this.properties = properties;
-        this.fieldDescriptors = fieldDescriptors;
-        this.forges = forges;
         this.underlyingClassName = underlyingClassName;
-        this.dynamic = dynamic;
-        this.optionalSuperType = optionalSuperType;
+        this.desc = desc;
     }
 
     public CodegenClass forge(boolean includeDebugSymbols, boolean fireAndForget) {
@@ -71,7 +62,7 @@ public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
         CodegenTypedParam beanParam = new CodegenTypedParam(underlyingClassName, "bean", false, false);
         List<CodegenTypedParam> ctorParams = Arrays.asList(delegatorParam, parentParam, beanParam);
         CodegenCtor ctor = new CodegenCtor(StmtClassForgeableRSPFactoryProvider.class, classScope, ctorParams);
-        if (optionalSuperType != null) {
+        if (desc.getOptionalSupertype() != null) {
             ctor.getBlock().superCtor(ref("delegator"), ref("parent"), ref("bean"));
         } else {
             ctor.getBlock().superCtor(ref("delegator"), ref("parent"));
@@ -81,32 +72,32 @@ public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
         // startObject
         CodegenMethod startObjectMethod = CodegenMethod.makeParentNode(JsonDelegateBase.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
             .addParam(String.class, "name");
-        if (optionalSuperType != null) {
+        if (desc.getOptionalSupertype() != null) {
             startObjectMethod.getBlock()
                 .declareVar(JsonDelegateBase.class, "delegate", exprDotMethod(ref("super"), "startObject", ref("name")))
                 .ifCondition(notEqualsNull(ref("delegate"))).blockReturn(ref("delegate"));
         }
-        for (String property : properties.keySet()) {
-            JsonForgeDesc forge = forges.get(property);
+        for (String property : desc.getPropertiesThisType().keySet()) {
+            JsonForgeDesc forge = desc.getForges().get(property);
             if (forge.getOptionalStartObjectForge() != null) {
                 startObjectMethod.getBlock()
                     .ifCondition(exprDotMethod(ref("name"), "equals", constant(property)))
                     .blockReturn(forge.getOptionalStartObjectForge().newDelegate(JsonDelegateRefs.INSTANCE, startObjectMethod, classScope));
             }
         }
-        CodegenExpression resultStartObject = dynamic ? newInstance(JsonDelegateJsonGenericObject.class, JsonDelegateRefs.INSTANCE.getBaseHandler(), JsonDelegateRefs.INSTANCE.getThis()) : constantNull();
+        CodegenExpression resultStartObject = desc.isDynamic() ? newInstance(JsonDelegateJsonGenericObject.class, JsonDelegateRefs.INSTANCE.getBaseHandler(), JsonDelegateRefs.INSTANCE.getThis()) : constantNull();
         startObjectMethod.getBlock().methodReturn(resultStartObject);
 
         // startArray
         CodegenMethod startArrayMethod = CodegenMethod.makeParentNode(JsonDelegateBase.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
             .addParam(String.class, "name");
-        if (optionalSuperType != null) {
+        if (desc.getOptionalSupertype() != null) {
             startArrayMethod.getBlock()
                 .declareVar(JsonDelegateBase.class, "delegate", exprDotMethod(ref("super"), "startArray", ref("name")))
                 .ifCondition(notEqualsNull(ref("delegate"))).blockReturn(ref("delegate"));
         }
-        for (String property : properties.keySet()) {
-            JsonForgeDesc forge = forges.get(property);
+        for (String property : desc.getPropertiesThisType().keySet()) {
+            JsonForgeDesc forge = desc.getForges().get(property);
             if (forge.getOptionalStartArrayForge() != null) {
                 startArrayMethod.getBlock()
                     .ifCondition(exprDotMethod(ref("name"), "equals", constant(property)))
@@ -114,30 +105,30 @@ public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
             }
         }
 
-        CodegenExpression resultStartArray = dynamic ? newInstance(JsonDelegateJsonGenericArray.class, JsonDelegateRefs.INSTANCE.getBaseHandler(), JsonDelegateRefs.INSTANCE.getThis()) : constantNull();
+        CodegenExpression resultStartArray = desc.isDynamic() ? newInstance(JsonDelegateJsonGenericArray.class, JsonDelegateRefs.INSTANCE.getBaseHandler(), JsonDelegateRefs.INSTANCE.getThis()) : constantNull();
         startArrayMethod.getBlock().methodReturn(resultStartArray);
 
         // endObjectValue
         CodegenMethod endObjectValueMethod = CodegenMethod.makeParentNode(boolean.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
             .addParam(String.class, "name");
-        if (optionalSuperType != null) {
+        if (desc.getOptionalSupertype() != null) {
             endObjectValueMethod.getBlock()
                 .declareVar(boolean.class, "handled", exprDotMethod(ref("super"), "endObjectValue", ref("name")))
                 .ifCondition(ref("handled")).blockReturn(constantTrue());
         }
-        for (Map.Entry<String, Object> propertyPair : properties.entrySet()) {
+        for (Map.Entry<String, Object> propertyPair : desc.getPropertiesThisType().entrySet()) {
             if (propertyPair.getValue() == null) { // no assignment for null values
                 continue;
             }
-            String fieldName = fieldDescriptors.get(propertyPair.getKey()).getFieldName();
-            JsonForgeDesc forge = forges.get(propertyPair.getKey());
+            String fieldName = desc.getFieldDescriptorsInclSupertype().get(propertyPair.getKey()).getFieldName();
+            JsonForgeDesc forge = desc.getForges().get(propertyPair.getKey());
             CodegenExpression value = forge.getEndValueForge().captureValue(JsonEndValueRefs.INSTANCE, endObjectValueMethod, classScope);
             endObjectValueMethod.getBlock()
                 .ifCondition(exprDotMethod(ref("name"), "equals", constant(propertyPair.getKey())))
                 .assignRef(ref("bean." + fieldName), value)
                 .blockReturn(constantTrue());
         }
-        if (dynamic) {
+        if (desc.isDynamic()) {
             endObjectValueMethod.getBlock().exprDotMethod(ref("this"), "addGeneralJson", ref("bean." + DYNAMIC_PROP_FIELD), ref("name"));
         }
         endObjectValueMethod.getBlock().methodReturn(constantFalse());
@@ -154,10 +145,10 @@ public class StmtClassForgeableJsonDelegate implements StmtClassForgeable {
         CodegenStackGenerator.recursiveBuildStack(getResultMethod, "getResult", methods);
 
         CodegenClass clazz = new CodegenClass(classType, className, classScope, members, ctor, methods, Collections.emptyList());
-        if (optionalSuperType == null) {
+        if (desc.getOptionalSupertype() == null) {
             clazz.getSupers().setClassExtended(JsonDelegateBase.class);
         } else {
-            clazz.getSupers().setClassExtended(optionalSuperType.getDetail().getDelegateClassName());
+            clazz.getSupers().setClassExtended(desc.getOptionalSupertype().getDetail().getDelegateClassName());
         }
         return clazz;
     }

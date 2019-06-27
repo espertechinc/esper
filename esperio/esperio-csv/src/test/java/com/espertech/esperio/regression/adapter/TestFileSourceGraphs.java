@@ -70,7 +70,7 @@ public class TestFileSourceGraphs extends TestCase {
     }
 
     public void testCSVGraph() throws Exception {
-        runAssertionCSVGraphSchema(EventRepresentationChoice.ARRAY);
+        runAssertionCSVGraphSchema(EventRepresentationChoice.OBJECTARRAY);
         runAssertionCSVGraphSchema(EventRepresentationChoice.MAP);
     }
 

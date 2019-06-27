@@ -20,7 +20,6 @@ import com.espertech.esper.common.internal.util.ConstructorHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -100,8 +99,7 @@ public class JsonEventTypeUtilityReflective {
     }
 
     private static boolean isDeepClassEligibleType(Class genericType, String fieldName, Field optionalField, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
-        Constructor defaultCtor = ConstructorHelper.getRegularConstructor(genericType, new Class[0]);
-        if (defaultCtor == null) {
+        if (!ConstructorHelper.hasDefaultConstructor(genericType)) {
             return false;
         }
         try {

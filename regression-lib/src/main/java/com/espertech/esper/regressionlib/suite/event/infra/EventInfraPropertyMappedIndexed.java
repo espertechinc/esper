@@ -22,6 +22,7 @@ import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +39,7 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
     public final static String OA_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "Avro";
     public final static String JSON_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "Json";
+    public final static String JSONPROVIDED_TYPENAME = EventInfraPropertyMappedIndexed.class.getSimpleName() + "JsonProvided";
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
@@ -59,6 +61,10 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
         env.compileDeploy("@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(indexed string[], mapped java.util.Map)", path);
         String json = "{\"mapped\":{\"k1\":\"v1\"},\"indexed\":[\"v1\",\"v2\"]}";
         runAssertion(env, JSON_TYPENAME, FJSON, json, path);
+
+        // Json+ProvidedClass
+        env.compileDeploy("@public @buseventtype @name('schema') @JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') create json schema " + JSONPROVIDED_TYPENAME + "()", path);
+        runAssertion(env, JSONPROVIDED_TYPENAME, FJSON, json, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
@@ -95,7 +101,7 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
     }
 
     private void runAssertionTypeValidProp(RegressionEnvironment env, String typeName, Object underlying) {
-        EventType eventType = env.runtime().getEventTypeService().getEventTypePreconfigured(typeName);
+        EventType eventType = env.runtime().getEventTypeService().getBusEventType(typeName);
 
         Object[][] expectedType = new Object[][]{{"indexed", underlying instanceof GenericData.Record ? Collection.class : String[].class, null, null}, {"mapped", Map.class, null, null}};
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, eventType, SupportEventTypeAssertionEnum.getSetWithFragment());
@@ -111,7 +117,7 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
         assertTrue(eventType.isProperty("indexed"));
         assertTrue(eventType.isProperty("indexed[0]"));
         assertEquals(Map.class, eventType.getPropertyType("mapped"));
-        boolean mappedReturnsObject = typeName.equals(MAP_TYPENAME) || typeName.equals(OA_TYPENAME) || typeName.equals(JSON_TYPENAME);
+        boolean mappedReturnsObject = typeName.equals(MAP_TYPENAME) || typeName.equals(OA_TYPENAME) || typeName.equals(JSON_TYPENAME) || typeName.equals(JSONPROVIDED_TYPENAME);
         assertEquals(mappedReturnsObject ? Object.class : String.class, eventType.getPropertyType("mapped('a')"));
         assertEquals(underlying instanceof GenericData.Record ? Collection.class : String[].class, eventType.getPropertyType("indexed"));
         assertEquals(String.class, eventType.getPropertyType("indexed[0]"));
@@ -149,5 +155,10 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
         public Map<String, String> getMapped() {
             return mapped;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public String[] indexed;
+        public Map<String, String> mapped;
     }
 }

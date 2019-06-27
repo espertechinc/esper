@@ -16,5 +16,9 @@ import java.io.IOException;
 
 public interface JsonDelegateFactory {
     JsonDelegateBase make(JsonHandlerDelegator handler, JsonDelegateBase optionalParent);
-    void write(JsonWriter writer, Object underlying) throws IOException;
+    void write(JsonWriter writer, Object und) throws IOException;
+    Object newUnderlying();
+    void setValue(int num, Object value, Object und);
+    Object getValue(int num, Object und);
+    Object copy(Object und);
 }

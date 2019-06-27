@@ -40,8 +40,8 @@ public class EventJsonTypingClassParseWrite {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new EventJsonTypingClassSimple());
-        execs.add(new EventJsonTypingCollectionBuiltinType());
-        execs.add(new EventJsonTypingCollectionEnumType());
+        execs.add(new EventJsonTypingListBuiltinType());
+        execs.add(new EventJsonTypingListEnumType());
         execs.add(new EventJsonTypingVMClass());
         execs.add(new EventJsonTypingClassWArrayAndColl());
         execs.add(new EventJsonTypingNestedRecursive());
@@ -307,7 +307,7 @@ public class EventJsonTypingClassParseWrite {
         }
     }
 
-    private static class EventJsonTypingCollectionEnumType implements RegressionExecution {
+    private static class EventJsonTypingListEnumType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@public @buseventtype create json schema JsonEvent(local " + MyLocalEventCollectionEnumType.class.getName() + ");\n" +
                 "@name('s0') select * from JsonEvent#keepall;\n";
@@ -376,7 +376,7 @@ public class EventJsonTypingClassParseWrite {
         }
     }
 
-    private static class EventJsonTypingCollectionBuiltinType implements RegressionExecution {
+    private static class EventJsonTypingListBuiltinType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@public @buseventtype create json schema JsonEvent(local " + MyLocalEventCollectionBuiltinType.class.getName() + ");\n" +
                 "@name('s0') select * from JsonEvent#keepall;\n";
@@ -592,21 +592,21 @@ public class EventJsonTypingClassParseWrite {
     }
 
     public static class MyLocalEventCollectionBuiltinType implements Serializable {
-        public Collection<String> c0;
-        public Collection<Character> c1;
-        public Collection<Boolean> c2;
-        public Collection<Byte> c3;
-        public Collection<Short> c4;
-        public Collection<Integer> c5;
-        public Collection<Long> c6;
-        public Collection<Double> c7;
-        public Collection<Float> c8;
-        public Collection<BigInteger> c9;
-        public Collection<BigDecimal> c10;
+        public List<String> c0;
+        public List<Character> c1;
+        public List<Boolean> c2;
+        public List<Byte> c3;
+        public List<Short> c4;
+        public List<Integer> c5;
+        public List<Long> c6;
+        public List<Double> c7;
+        public List<Float> c8;
+        public List<BigInteger> c9;
+        public List<BigDecimal> c10;
     }
 
     public static class MyLocalEventCollectionEnumType implements Serializable {
-        public Collection<SupportEnum> c0;
+        public List<SupportEnum> c0;
     }
 
     public interface MyLocalVMType extends Serializable {
@@ -623,7 +623,7 @@ public class EventJsonTypingClassParseWrite {
         public UUID c0;
         public UUID[] c0Arr;
         public UUID[][] c0Arr2Dim;
-        public Collection<UUID> c0Coll;
+        public List<UUID> c0Coll;
 
         public Object getC0() {
             return c0;
@@ -646,7 +646,7 @@ public class EventJsonTypingClassParseWrite {
         public OffsetDateTime c0;
         public OffsetDateTime[] c0Arr;
         public OffsetDateTime[][] c0Arr2Dim;
-        public Collection<OffsetDateTime> c0Coll;
+        public List<OffsetDateTime> c0Coll;
 
         public Object getC0() {
             return c0;
@@ -669,7 +669,7 @@ public class EventJsonTypingClassParseWrite {
         public LocalDate c0;
         public LocalDate[] c0Arr;
         public LocalDate[][] c0Arr2Dim;
-        public Collection<LocalDate> c0Coll;
+        public List<LocalDate> c0Coll;
 
         public Object getC0() {
             return c0;
@@ -692,7 +692,7 @@ public class EventJsonTypingClassParseWrite {
         public LocalDateTime c0;
         public LocalDateTime[] c0Arr;
         public LocalDateTime[][] c0Arr2Dim;
-        public Collection<LocalDateTime> c0Coll;
+        public List<LocalDateTime> c0Coll;
 
         public Object getC0() {
             return c0;
@@ -715,7 +715,7 @@ public class EventJsonTypingClassParseWrite {
         public ZonedDateTime c0;
         public ZonedDateTime[] c0Arr;
         public ZonedDateTime[][] c0Arr2Dim;
-        public Collection<ZonedDateTime> c0Coll;
+        public List<ZonedDateTime> c0Coll;
 
         public Object getC0() {
             return c0;
@@ -738,7 +738,7 @@ public class EventJsonTypingClassParseWrite {
         public URL c0;
         public URL[] c0Arr;
         public URL[][] c0Arr2Dim;
-        public Collection<URL> c0Coll;
+        public List<URL> c0Coll;
 
         public Object getC0() {
             return c0;
@@ -761,7 +761,7 @@ public class EventJsonTypingClassParseWrite {
         public URI c0;
         public URI[] c0Arr;
         public URI[][] c0Arr2Dim;
-        public Collection<URI> c0Coll;
+        public List<URI> c0Coll;
 
         public Object getC0() {
             return c0;
@@ -784,7 +784,7 @@ public class EventJsonTypingClassParseWrite {
         public MyLocalEvent c0;
         public MyLocalEvent[] c0Arr;
         public MyLocalEvent[][] c0Arr2Dim;
-        public Collection<MyLocalEvent> c0Coll;
+        public List<MyLocalEvent> c0Coll;
 
         public Object getC0() {
             return c0;

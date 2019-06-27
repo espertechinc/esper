@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.event.infra;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -30,6 +31,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.function.Function;
 
@@ -46,9 +48,10 @@ public class EventInfraPropertyDynamicNested implements RegressionExecution {
     public final static String OA_TYPENAME = EventInfraPropertyDynamicNested.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicNested.class.getSimpleName() + "Avro";
     public final static String JSON_TYPENAME = EventInfraPropertyDynamicNested.class.getSimpleName() + "Json";
+    public final static String JSONPROVIDED_TYPENAME = EventInfraPropertyDynamicNested.class.getSimpleName() + "JsonProvided";
 
     public void run(RegressionEnvironment env) {
-        runAssertion(env, EventRepresentationChoice.ARRAY, "");
+        runAssertion(env, EventRepresentationChoice.OBJECTARRAY, "");
         runAssertion(env, EventRepresentationChoice.MAP, "");
         runAssertion(env, EventRepresentationChoice.AVRO, "@AvroSchemaField(name='myid',schema='[\"int\",{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]')");
         runAssertion(env, EventRepresentationChoice.DEFAULT, "");
@@ -107,10 +110,17 @@ public class EventInfraPropertyDynamicNested implements RegressionExecution {
             new Pair<>("{\"item\": { \"id\": 101} }", exists(101)),
             new Pair<>("{\"item\": { \"id\": \"abc\"} }", exists("abc")),
         };
-        String schemas = "@JsonSchema(dynamic=true) create json schema Undefined();\n" +
+        String schemasJson = "@JsonSchema(dynamic=true) create json schema Undefined();\n" +
             "@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(item Undefined)";
-        env.compileDeploy(schemas, path);
+        env.compileDeploy(schemasJson, path);
         runAssertion(env, outputEventRep, additionalAnnotations, JSON_TYPENAME, FJSON, null, jsonTests, Object.class, path);
+
+        // Json-Provided (class is provided)
+        String schemasJsonProvided =
+            "@JsonSchema(className='" + MyLocalJsonProvidedItem.class.getName() + "') @public @buseventtype @name('schema') create json schema Item();\n" +
+            "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype @name('schema') create json schema " + JSONPROVIDED_TYPENAME + "(item Item)";
+        env.compileDeploy(schemasJsonProvided, path);
+        runAssertion(env, outputEventRep, additionalAnnotations, JSONPROVIDED_TYPENAME, FJSON, null, jsonTests, Object.class, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
@@ -125,8 +135,9 @@ public class EventInfraPropertyDynamicNested implements RegressionExecution {
         String stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationText() + additionalAnnotations + " select " +
             "item.id? as myid, " +
             "exists(item.id?) as exists_myid " +
-            "from " + typename;
-        env.compileDeploy(stmtText, path).addListener("s0");
+            "from " + typename + ";\n" +
+            "@name('s1') select * from " + typename + ";\n";
+        env.compileDeploy(stmtText, path).addListener("s0").addListener("s1");
 
         EventType eventType = env.statement("s0").getEventType();
         assertEquals(expectedPropertyType, eventType.getPropertyType("myid"));
@@ -136,7 +147,19 @@ public class EventInfraPropertyDynamicNested implements RegressionExecution {
         for (Pair pair : tests) {
             send.apply(env, pair.getFirst(), typename);
             EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            SupportEventInfra.assertValueMayConvert(event, "myid", (ValueWithExistsFlag) pair.getSecond(), optionalValueConversion);
+            ValueWithExistsFlag expected = (ValueWithExistsFlag) pair.getSecond();
+            SupportEventInfra.assertValueMayConvert(event, "myid", expected, optionalValueConversion);
+
+            EventBean out = env.listener("s1").assertOneGetNewAndReset();
+            EventPropertyGetter getter = out.getEventType().getGetter("item.id?");
+
+            if (!typename.equals(XML_TYPENAME)) {
+                assertEquals(expected.getValue(), getter.get(out));
+            } else {
+                Node item = (Node) getter.get(out);
+                assertEquals(expected.getValue(), item == null ? null : item.getTextContent());
+            }
+            assertEquals(expected.isExists(), getter.isExistsProperty(out));
         }
 
         env.undeployAll();
@@ -152,4 +175,11 @@ public class EventInfraPropertyDynamicNested implements RegressionExecution {
         env.sendEventAvro(datum, typeName);
     };
 
+    public static class MyLocalJsonProvided implements Serializable {
+        public MyLocalJsonProvidedItem item;
+    }
+
+    public static class MyLocalJsonProvidedItem implements Serializable {
+        public Object id;
+    }
 }

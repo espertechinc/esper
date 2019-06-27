@@ -83,4 +83,10 @@ public class PropertyUtility {
         String message = "Failed to invoke method " + method.getName() + " on class " + JavaClassHelper.getClassNameFullyQualPretty(declaring) + ": " + t.getMessage();
         throw new PropertyAccessException(message, t);
     }
+
+    public static PropertyAccessException getGeneralException(Field field, Throwable t) {
+        Class declaring = field.getDeclaringClass();
+        String message = "Failed to obtain field value for field " + field.getName() + " on class " + JavaClassHelper.getClassNameFullyQualPretty(declaring) + ": " + t.getMessage();
+        throw new PropertyAccessException(message, t);
+    }
 }

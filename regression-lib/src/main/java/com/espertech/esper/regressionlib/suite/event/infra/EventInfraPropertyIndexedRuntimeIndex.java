@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.BiConsumer;
@@ -58,6 +59,10 @@ public class EventInfraPropertyIndexedRuntimeIndex implements RegressionExecutio
         String jsonepl = "@public @buseventtype create json schema LocalEvent(indexed string[]);\n";
         runAssertion(env, jsonepl, json);
 
+        // Json-Class-Provided
+        String jsonProvidedEpl = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n";
+        runAssertion(env, jsonProvidedEpl, json);
+
         // Avro
         BiConsumer<EventType, String[]> avro = (type, ids) -> {
             GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(type));
@@ -94,5 +99,9 @@ public class EventInfraPropertyIndexedRuntimeIndex implements RegressionExecutio
         public String[] getIndexed() {
             return indexed;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public String[] indexed;
     }
 }

@@ -23,6 +23,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanTwo;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.util.SupportInfraUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -50,7 +51,7 @@ public class InfraNamedWindowOnDelete {
     private static class InfraNamedWindowSilentDeleteOnDeleteMany implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
-                    "@name('create') create window MyWindow#groupwin(theString)#length(2) as SupportBean;\n" +
+                "@name('create') create window MyWindow#groupwin(theString)#length(2) as SupportBean;\n" +
                     "insert into MyWindow select * from SupportBean;\n" +
                     "@name('delete') @hint('silent_delete') on SupportBean_S0 delete from MyWindow;\n" +
                     "@name('count') select count(*) as cnt from MyWindow;\n";
@@ -66,8 +67,8 @@ public class InfraNamedWindowOnDelete {
 
             env.sendEventBean(new SupportBean_S0(0));
             assertEquals(0L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("delete").getAndResetLastNewData(), "theString,intPrimitive".split(","), new Object[][] {
-                new Object[] {"A", 1}, new Object[] {"A", 2}, new Object[] {"B", 3}, new Object[] {"B", 4}
+            EPAssertionUtil.assertPropsPerRow(env.listener("delete").getAndResetLastNewData(), "theString,intPrimitive".split(","), new Object[][]{
+                new Object[]{"A", 1}, new Object[]{"A", 2}, new Object[]{"B", 3}, new Object[]{"B", 4}
             });
             assertFalse(env.listener("create").isInvoked());
 
@@ -79,9 +80,9 @@ public class InfraNamedWindowOnDelete {
         public void run(RegressionEnvironment env) {
             String epl =
                 "@name('create') create window MyWindow#length(2) as SupportBean;\n" +
-                "insert into MyWindow select * from SupportBean;\n" +
-                "@name('delete') @hint('silent_delete') on SupportBean_S0 delete from MyWindow where p00 = theString;\n" +
-                "@name('count') select count(*) as cnt from MyWindow;\n";
+                    "insert into MyWindow select * from SupportBean;\n" +
+                    "@name('delete') @hint('silent_delete') on SupportBean_S0 delete from MyWindow where p00 = theString;\n" +
+                    "@name('count') select count(*) as cnt from MyWindow;\n";
             env.compileDeploy(epl).addListener("create").addListener("delete").addListener("count");
 
             env.sendEventBean(new SupportBean("E1", 1));
@@ -103,7 +104,7 @@ public class InfraNamedWindowOnDelete {
 
             env.sendEventBean(new SupportBean("E4", 4));
             assertEquals(2L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
-            EPAssertionUtil.assertProps(env.listener("create").assertPairGetIRAndReset(), "theString".split(","), new Object[] {"E4"}, new Object[] {"E2"});
+            EPAssertionUtil.assertProps(env.listener("create").assertPairGetIRAndReset(), "theString".split(","), new Object[]{"E4"}, new Object[]{"E2"});
 
             env.sendEventBean(new SupportBean_S0(0, "E4"));
             assertEquals(1L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
@@ -468,13 +469,13 @@ public class InfraNamedWindowOnDelete {
         RegressionPath path = new RegressionPath();
 
         // create window one
-        String stmtTextCreateOne = outputType.getAnnotationText() + "@name('createOne') create window MyWindowSTAG#keepall as select theString as a1, intPrimitive as b1 from SupportBean";
+        String stmtTextCreateOne = outputType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSTAG.class) + "@name('createOne') create window MyWindowSTAG#keepall as select theString as a1, intPrimitive as b1 from SupportBean";
         env.compileDeploy(stmtTextCreateOne, path).addListener("createOne");
         assertEquals(0, getCount(env, "createOne", "MyWindowSTAG"));
         assertTrue(outputType.matchesClass(env.statement("createOne").getEventType().getUnderlyingType()));
 
         // create window two
-        String stmtTextCreateTwo = outputType.getAnnotationText() + " @name('createTwo') create window MyWindowSTAGTwo#keepall as select theString as a2, intPrimitive as b2 from SupportBean";
+        String stmtTextCreateTwo = outputType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSTAGTwo.class) + " @name('createTwo') create window MyWindowSTAGTwo#keepall as select theString as a2, intPrimitive as b2 from SupportBean";
         env.compileDeploy(stmtTextCreateTwo, path).addListener("createTwo");
         assertEquals(0, getCount(env, "createTwo", "MyWindowSTAGTwo"));
         assertTrue(outputType.matchesClass(env.statement("createTwo").getEventType().getUnderlyingType()));
@@ -536,5 +537,15 @@ public class InfraNamedWindowOnDelete {
 
     private static int getIndexCount(RegressionEnvironment env, String statementName, String windowName) {
         return SupportInfraUtil.getIndexCountNoContext(env, true, statementName, windowName);
+    }
+
+    public static class MyLocalJsonProvidedSTAG implements Serializable {
+        public String a1;
+        public int b1;
+    }
+
+    public static class MyLocalJsonProvidedSTAGTwo implements Serializable {
+        public String a2;
+        public int b2;
     }
 }

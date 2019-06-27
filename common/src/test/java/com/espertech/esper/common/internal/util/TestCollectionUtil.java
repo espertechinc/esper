@@ -17,8 +17,7 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-import static com.espertech.esper.common.internal.util.CollectionUtil.isArrayAllNull;
-import static com.espertech.esper.common.internal.util.CollectionUtil.isArraySameReferences;
+import static com.espertech.esper.common.internal.util.CollectionUtil.*;
 
 public class TestCollectionUtil extends TestCase {
 
@@ -47,6 +46,20 @@ public class TestCollectionUtil extends TestCase {
         assertFalse(isArraySameReferences(new Object[] {a, b}, new Object[] {a}));
         assertFalse(isArraySameReferences(new Object[] {a, b}, new Object[] {b, a}));
         assertFalse(isArraySameReferences(new Object[] {new String(new char[] {'a'})}, new Object[] {new String(new char[] {'a'})}));
+    }
+
+    public void testGetMapValueChecked() {
+        assertNull(getMapValueChecked(null, "x"));
+        assertNull(getMapValueChecked("b", "x"));
+        assertNull(getMapValueChecked(Collections.emptyMap(), "x"));
+        assertEquals("y", getMapValueChecked(Collections.singletonMap("x", "y"), "x"));
+    }
+
+    public void testGetMapKeyExistsChecked() {
+        assertFalse(getMapKeyExistsChecked(null, "x"));
+        assertFalse(getMapKeyExistsChecked("b", "x"));
+        assertFalse(getMapKeyExistsChecked(Collections.emptyMap(), "x"));
+        assertTrue(getMapKeyExistsChecked(Collections.singletonMap("x", "y"), "x"));
     }
 
     public void testSubdivide() {

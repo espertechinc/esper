@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.event.json.writer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.event.core.EventBeanWriter;
-import com.espertech.esper.common.internal.event.json.core.JsonEventObjectBase;
 
 /**
  * Writer method for writing to Json-type events.
@@ -36,7 +35,7 @@ public class JsonEventBeanWriterPerProp implements EventBeanWriter {
      * @param theEvent to write to
      */
     public void write(Object[] values, EventBean theEvent) {
-        JsonEventObjectBase event = (JsonEventObjectBase) theEvent.getUnderlying();
+        Object event = theEvent.getUnderlying();
         for (int i = 0; i < writers.length; i++) {
             writers[i].write(values[i], event);
         }

@@ -25,8 +25,10 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.util.CollectionUtil.twoEntryMap;
@@ -41,6 +43,7 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
     public final static String OA_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "Avro";
     private final static String JSON_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "Json";
+    private final static String JSONPROVIDED_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "JsonProvided";
 
     @Override
     public boolean excludeWhenInstrumented() {
@@ -98,6 +101,14 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
             new Pair<>("{\"mapped\":{\"keyOne\":\"3\",\"keyTwo\":\"4\"},\"indexed\":[\"1\",\"2\"]}", ValueWithExistsFlag.allExist("1", "2", "3", "4"))
         };
         runAssertion(env, JSON_TYPENAME, FJSON, null, jsonTests, Object.class, path);
+
+        // Json-Provided-Class
+        Pair[] jsonProvidedTests = new Pair[]{
+            new Pair<>("{}", notExists),
+            new Pair<>("{\"mapped\":{\"keyOne\":\"3\",\"keyTwo\":\"4\"},\"indexed\":[\"1\",\"2\"]}", ValueWithExistsFlag.allExist(1, 2, "3", "4"))
+        };
+        env.compileDeploy("@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema " + JSONPROVIDED_TYPENAME + "()", path);
+        runAssertion(env, JSONPROVIDED_TYPENAME, FJSON, null, jsonProvidedTests, Object.class, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
@@ -133,5 +144,10 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
         }
 
         env.undeployAll();
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public int[] indexed;
+        public Map<String, Object> mapped;
     }
 }

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,12 +47,17 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
     public final static String OA_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "Avro";
     public final static String JSON_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "Json";
+    public final static String JSONPROVIDEDBEAN_TYPENAME = EventInfraPropertyUnderlyingSimple.class.getSimpleName() + "JsonWProvided";
 
     private static final Logger log = LoggerFactory.getLogger(EventInfraPropertyUnderlyingSimple.class);
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(myInt int, myString string)", path);
+
+        String eplJson =
+            "@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(myInt int, myString string);\n" +
+                "@public @buseventtype @name('schema') @JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') create json schema " + JSONPROVIDEDBEAN_TYPENAME + "();\n";
+        env.compileDeploy(eplJson, path);
 
         Pair<String, FunctionSendEventIntString>[] pairs = new Pair[]{
             new Pair<>(MAP_TYPENAME, FMAP),
@@ -59,7 +65,8 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
             new Pair<>(BEAN_TYPENAME, FBEAN),
             new Pair<>(XML_TYPENAME, FXML),
             new Pair<>(AVRO_TYPENAME, FAVRO),
-            new Pair<>(JSON_TYPENAME, FJSON)
+            new Pair<>(JSON_TYPENAME, FJSON),
+            new Pair<>(JSONPROVIDEDBEAN_TYPENAME, FJSON)
         };
 
         for (Pair<String, FunctionSendEventIntString> pair : pairs) {
@@ -82,23 +89,29 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
         assertEquals(Integer.class, JavaClassHelper.getBoxedType(env.statement("s0").getEventType().getPropertyType("myInt")));
         assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("myString"));
 
-        Object eventOne = send.apply(env, 3, "some string");
+        Object eventOne = send.apply(typename, env, 3, "some string");
 
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
         SupportEventTypeAssertionUtil.assertConsistency(event);
-        if (!typename.equals(JSON_TYPENAME)) {
-            assertEquals(eventOne, event.getUnderlying());
-        }
+        assertUnderlying(typename, eventOne, event.getUnderlying());
         EPAssertionUtil.assertProps(event, fields, new Object[]{3, "some string"});
 
-        Object eventTwo = send.apply(env, 4, "other string");
+        Object eventTwo = send.apply(typename, env, 4, "other string");
         event = env.listener("s0").assertOneGetNewAndReset();
-        if (!typename.equals(JSON_TYPENAME)) {
-            assertEquals(eventTwo, event.getUnderlying());
-        }
+        assertUnderlying(typename, eventTwo, event.getUnderlying());
         EPAssertionUtil.assertProps(event, fields, new Object[]{4, "other string"});
 
         env.undeployModuleContaining("s0");
+    }
+
+    private void assertUnderlying(String typename, Object expected, Object received) {
+        if (typename.equals(JSONPROVIDEDBEAN_TYPENAME)) {
+            assertTrue(received instanceof MyLocalJsonProvided);
+        } else if (typename.equals(JSON_TYPENAME)) {
+            assertEquals(expected, received.toString());
+        } else {
+            assertEquals(expected, received);
+        }
     }
 
     private void runAssertionPropertiesWGetter(RegressionEnvironment env, String typename, FunctionSendEventIntString send, RegressionPath path) {
@@ -113,13 +126,13 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
         assertEquals(Boolean.class, eventType.getPropertyType("exists_myInt"));
         assertEquals(Boolean.class, eventType.getPropertyType("exists_myString"));
 
-        send.apply(env, 3, "some string");
+        send.apply(typename, env, 3, "some string");
 
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
         runAssertionEventInvalidProp(event);
         EPAssertionUtil.assertProps(event, fields, new Object[]{3, true, "some string", true});
 
-        send.apply(env, 4, "other string");
+        send.apply(typename, env, 4, "other string");
         event = env.listener("s0").assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(event, fields, new Object[]{4, true, "other string", true});
 
@@ -171,59 +184,64 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
 
     @FunctionalInterface
     interface FunctionSendEventIntString {
-        public Object apply(RegressionEnvironment env, Integer intValue, String stringValue);
+        Object apply(String eventTypeName, RegressionEnvironment env, Integer intValue, String stringValue);
     }
 
     private final static String BEAN_TYPENAME = SupportBeanSimple.class.getSimpleName();
 
-    private static final FunctionSendEventIntString FMAP = (env, a, b) -> {
+    private static final FunctionSendEventIntString FMAP = (eventTypeName, env, a, b) -> {
         Map<String, Object> map = new HashMap<>();
         map.put("myInt", a);
         map.put("myString", b);
-        env.sendEventMap(map, MAP_TYPENAME);
+        env.sendEventMap(map, eventTypeName);
         return map;
     };
 
-    private static final FunctionSendEventIntString FOA = (env, a, b) -> {
+    private static final FunctionSendEventIntString FOA = (eventTypeName, env, a, b) -> {
         Object[] oa = new Object[]{a, b};
-        env.sendEventObjectArray(oa, OA_TYPENAME);
+        env.sendEventObjectArray(oa, eventTypeName);
         return oa;
     };
 
-    private static final FunctionSendEventIntString FBEAN = (env, a, b) -> {
+    private static final FunctionSendEventIntString FBEAN = (eventTypeName, env, a, b) -> {
         SupportBeanSimple bean = new SupportBeanSimple(b, a);
         env.sendEventBean(bean);
         return bean;
     };
 
-    private static final FunctionSendEventIntString FXML = (env, a, b) -> {
+    private static final FunctionSendEventIntString FXML = (eventTypeName, env, a, b) -> {
         String xml = "<myevent myInt=\"XXXXXX\" myString=\"YYYYYY\">\n" +
             "</myevent>\n";
         xml = xml.replace("XXXXXX", a.toString());
         xml = xml.replace("YYYYYY", b);
         try {
-            Document d = SupportXML.sendXMLEvent(env, xml, XML_TYPENAME);
+            Document d = SupportXML.sendXMLEvent(env, xml, eventTypeName);
             return d.getDocumentElement();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     };
 
-    private static final FunctionSendEventIntString FAVRO = (env, a, b) -> {
+    private static final FunctionSendEventIntString FAVRO = (eventTypeName, env, a, b) -> {
         Schema avroSchema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
         GenericData.Record datum = new GenericData.Record(avroSchema);
         datum.put("myInt", a);
         datum.put("myString", b);
-        env.sendEventAvro(datum, AVRO_TYPENAME);
+        env.sendEventAvro(datum, eventTypeName);
         return datum;
     };
 
-    private static final FunctionSendEventIntString FJSON = (env, a, b) -> {
+    private static final FunctionSendEventIntString FJSON = (eventTypeName, env, a, b) -> {
         JsonObject object = new JsonObject();
         object.add("myInt", a);
         object.add("myString", b);
         String json = object.toString();
-        env.sendEventJson(json, JSON_TYPENAME);
+        env.sendEventJson(json, eventTypeName);
         return json;
     };
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public Integer myInt;
+        public String myString;
+    }
 }

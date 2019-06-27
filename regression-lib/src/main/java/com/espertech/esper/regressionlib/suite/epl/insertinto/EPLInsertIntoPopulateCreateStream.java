@@ -11,8 +11,8 @@
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -21,6 +21,7 @@ import com.espertech.esper.runtime.client.EPStatement;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -61,12 +62,12 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
 
     private static void runAssertPopulateFromNamedWindow(RegressionEnvironment env, EventRepresentationChoice type) {
         RegressionPath path = new RegressionPath();
-        String schemaEPL = "create " + type.getOutputTypeCreateSchemaName() + " schema Node(nid string)";
+        String schemaEPL = type.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNode.class) + "create schema Node(nid string)";
         env.compileDeployWBusPublicType(schemaEPL, path);
 
         env.compileDeploy("create window NodeWindow#unique(nid) as Node", path);
         env.compileDeploy("insert into NodeWindow select * from Node", path);
-        env.compileDeploy("create " + type.getOutputTypeCreateSchemaName() + " schema NodePlus(npid string, node Node)", path);
+        env.compileDeploy(type.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNodePlus.class) + "create schema NodePlus(npid string, node Node)", path);
         env.compileDeploy("@name('s0') insert into NodePlus select 'E1' as npid, n1 as node from NodeWindow n1", path).addListener("s0");
 
         if (type.isObjectArrayEvent()) {
@@ -77,7 +78,7 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
             GenericData.Record genericRecord = new GenericData.Record(record("name").fields().requiredString("nid").endRecord());
             genericRecord.put("nid", "n1");
             env.sendEventAvro(genericRecord, "Node");
-        } else if (type.isJsonEvent()) {
+        } else if (type.isJsonEvent() || type.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject();
             object.add("nid", "n1");
             env.sendEventJson(object.toString(), "Node");
@@ -93,30 +94,31 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
         env.undeployAll();
     }
 
-    private static void runAssertionCreateStream(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-        String epl = eventRepresentationEnum.getAnnotationText() + " create schema MyEvent(myId int);\n" +
-            eventRepresentationEnum.getAnnotationText() + " create schema CompositeEvent(c1 MyEvent, c2 MyEvent, rule string);\n" +
+    private static void runAssertionCreateStream(RegressionEnvironment env, EventRepresentationChoice representation) {
+        String epl = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent(myId int);\n" +
+            representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCompositeEvent.class) + " create schema CompositeEvent(c1 MyEvent, c2 MyEvent, rule string);\n" +
             "insert into MyStream select c, 'additionalValue' as value from MyEvent c;\n" +
             "insert into CompositeEvent select e1.c as c1, e2.c as c2, '4' as rule " +
             "  from pattern [e1=MyStream -> e2=MyStream];\n" +
-            eventRepresentationEnum.getAnnotationText() + " @Name('Target') select * from CompositeEvent;\n";
+            representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCompositeEvent.class) + " @Name('Target') select * from CompositeEvent;\n";
         env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("Target");
 
-        if (eventRepresentationEnum.isObjectArrayEvent()) {
+        if (representation.isObjectArrayEvent()) {
             env.sendEventObjectArray(makeEvent(10).values().toArray(), "MyEvent");
             env.sendEventObjectArray(makeEvent(11).values().toArray(), "MyEvent");
-        } else if (eventRepresentationEnum.isMapEvent()) {
+        } else if (representation.isMapEvent()) {
             env.sendEventMap(makeEvent(10), "MyEvent");
             env.sendEventMap(makeEvent(11), "MyEvent");
-        } else if (eventRepresentationEnum.isAvroEvent()) {
+        } else if (representation.isAvroEvent()) {
             env.sendEventAvro(makeEventAvro(10), "MyEvent");
             env.sendEventAvro(makeEventAvro(11), "MyEvent");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (representation.isJsonEvent() || representation.isJsonProvidedClassEvent()) {
             env.sendEventJson("{\"myId\": 10}", "MyEvent");
             env.sendEventJson("{\"myId\": 11}", "MyEvent");
         } else {
             fail();
         }
+
         EventBean theEvent = env.listener("Target").assertOneGetNewAndReset();
         assertEquals(10, theEvent.get("c1.myId"));
         assertEquals(11, theEvent.get("c2.myId"));
@@ -127,19 +129,19 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
 
     private static void runAssertionCreateStreamTwo(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        String epl = eventRepresentationEnum.getAnnotationText() + " create schema MyEvent(myId int)\n;" +
-            eventRepresentationEnum.getAnnotationText() + " create schema AllMyEvent as (myEvent MyEvent, class String, reverse boolean);\n" +
-            eventRepresentationEnum.getAnnotationText() + " create schema SuspectMyEvent as (myEvent MyEvent, class String);\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent(myId int)\n;" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedAllMyEvent.class) + " create schema AllMyEvent as (myEvent MyEvent, clazz String, reverse boolean);\n" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSuspectMyEvent.class) + " create schema SuspectMyEvent as (myEvent MyEvent, clazz String);\n";
         env.compileDeployWBusPublicType(epl, path);
 
         env.compileDeploy("@name('s0') insert into AllMyEvent " +
-            "select c as myEvent, 'test' as class, false as reverse " +
+            "select c as myEvent, 'test' as clazz, false as reverse " +
             "from MyEvent(myId=1) c", path).addListener("s0");
 
         assertTrue(eventRepresentationEnum.matchesClass(env.statement("s0").getEventType().getUnderlyingType()));
 
         env.compileDeploy("@name('s1') insert into SuspectMyEvent " +
-            "select c.myEvent as myEvent, class " +
+            "select c.myEvent as myEvent, clazz " +
             "from AllMyEvent(not reverse) c", path).addListener("s1");
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
@@ -148,7 +150,7 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
             env.sendEventMap(makeEvent(1), "MyEvent");
         } else if (eventRepresentationEnum.isAvroEvent()) {
             env.sendEventAvro(makeEventAvro(1), "MyEvent");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             env.sendEventJson("{\"myId\": 1}", "MyEvent");
         } else {
             fail();
@@ -179,5 +181,35 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
         GenericData.Record record = new GenericData.Record(schema);
         record.put("myId", myId);
         return record;
+    }
+
+    public static class MyLocalJsonProvidedMyEvent implements Serializable {
+        public Integer myId;
+    }
+
+    public static class MyLocalJsonProvidedCompositeEvent implements Serializable {
+        public MyLocalJsonProvidedMyEvent c1;
+        public MyLocalJsonProvidedMyEvent c2;
+        public String rule;
+    }
+
+    public static class MyLocalJsonProvidedAllMyEvent implements Serializable {
+        public MyLocalJsonProvidedMyEvent myEvent;
+        public String clazz;
+        public boolean reverse;
+    }
+
+    public static class MyLocalJsonProvidedSuspectMyEvent implements Serializable {
+        public MyLocalJsonProvidedMyEvent myEvent;
+        public String clazz;
+    }
+
+    public static class MyLocalJsonProvidedNode implements Serializable {
+        public String nid;
+    }
+
+    public static class MyLocalJsonProvidedNodePlus implements Serializable {
+        public String npid;
+        public MyLocalJsonProvidedNode node;
     }
 }

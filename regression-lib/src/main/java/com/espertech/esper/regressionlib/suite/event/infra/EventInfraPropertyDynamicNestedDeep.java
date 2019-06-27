@@ -27,14 +27,14 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import static com.espertech.esper.regressionlib.support.events.SupportEventInfra.*;
-import static com.espertech.esper.regressionlib.support.events.ValueWithExistsFlag.allExist;
-import static com.espertech.esper.regressionlib.support.events.ValueWithExistsFlag.multipleNotExists;
+import static com.espertech.esper.regressionlib.support.events.ValueWithExistsFlag.*;
 import static org.junit.Assert.assertEquals;
 
 public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution {
@@ -43,6 +43,7 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
     public final static String OA_TYPENAME = EventInfraPropertyDynamicNestedDeep.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicNestedDeep.class.getSimpleName() + "Avro";
     public final static String JSON_TYPENAME = EventInfraPropertyDynamicNestedDeep.class.getSimpleName() + "Json";
+    public final static String JSONPROVIDED_TYPENAME = EventInfraPropertyDynamicNestedDeep.class.getSimpleName() + "JsonProvided";
 
     @Override
     public boolean excludeWhenInstrumented() {
@@ -148,6 +149,31 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
             "@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(item Item)";
         env.compileDeploy(schemas, path);
         runAssertion(env, JSON_TYPENAME, FJSON, null, jsonTests, Object.class, path);
+
+        // Json-Provided
+        Pair[] jsonProvidedTests = new Pair[]{
+            new Pair<>("{\n" +
+                "  \"item\": {\n" +
+                "    \"nested\": {\n" +
+                "      \"nestedValue\": 100,\n" +
+                "      \"nestedNested\": {\n" +
+                "        \"nestedNestedValue\": 101\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}", allExist(100, 100, 101, 101, 101, 101)),
+            new Pair<>("{\n" +
+                "  \"item\": {\n" +
+                "    \"nested\": {\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n", new ValueWithExistsFlag[] {exists(null), exists(null), notExists(), notExists(), notExists(), notExists()}),
+            new Pair<>("{ \"item\": {}}", notExists),
+            new Pair<>("{}", notExists)
+        };
+        String schemasJsonProvided = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype @name('schema') create json schema " + JSONPROVIDED_TYPENAME + "()";
+        env.compileDeploy(schemasJsonProvided, path);
+        runAssertion(env, JSONPROVIDED_TYPENAME, FJSON, null, jsonProvidedTests, Object.class, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
@@ -224,4 +250,21 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
         datum.put("item", itemDatum);
         env.sendEventAvro(datum, typename);
     };
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public MyLocalJsonItem item;
+    }
+
+    public static class MyLocalJsonItem implements Serializable {
+        public MyLocalJsonProvidedNested nested;
+    }
+
+    public static class MyLocalJsonProvidedNested implements Serializable {
+        public Integer nestedValue;
+        public MyLocalJsonProvidedNestedNested nestedNested;
+    }
+
+    public static class MyLocalJsonProvidedNestedNested implements Serializable {
+        public Integer nestedNestedValue;
+    }
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.json.minimaljson.Json;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,6 +24,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.json.core.JsonEventObjectBase;
 
@@ -46,9 +48,12 @@ public class SelectEvalJoinWildcardProcessorJson implements SelectExprProcessorF
         CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(JsonEventObjectBase.class, "tuple", newInstance(resultEventType.getDetail().getUnderlyingClassName()));
+                .declareVar(resultEventType.getUnderlyingType(), "tuple", newInstance(resultEventType.getDetail().getUnderlyingClassName()));
         for (int i = 0; i < streamNames.length; i++) {
-            methodNode.getBlock().expression(exprDotMethod(ref("tuple"), "setNativeValue", constant(i), arrayAtIndex(refEPS, constant(i))));
+            CodegenExpression event = arrayAtIndex(refEPS, constant(i));
+            JsonUnderlyingField field = resultEventType.getDetail().getFieldDescriptors().get(streamNames[i]);
+            CodegenExpression rhs = cast(field.getPropertyType(), exprDotUnderlying(event));
+            methodNode.getBlock().assignRef(exprDotName(ref("tuple"), field.getFieldName()), rhs);
         }
         methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedJson", ref("tuple"), mType));
         return methodNode;

@@ -19,6 +19,11 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -55,40 +60,45 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
         // test Map type Long-type timestamps
         runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "long",
             DateTime.parseDefaultMSec(startA), DateTime.parseDefaultMSec(endA),
-            DateTime.parseDefaultMSec(startB), DateTime.parseDefaultMSec(endB));
+            DateTime.parseDefaultMSec(startB), DateTime.parseDefaultMSec(endB),
+            MyLocalJsonProvidedLong.class);
 
         // test Map type Calendar-type timestamps
         if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.util.Calendar",
                 DateTime.parseDefaultCal(startA), DateTime.parseDefaultCal(endA),
-                DateTime.parseDefaultCal(startB), DateTime.parseDefaultCal(endB));
+                DateTime.parseDefaultCal(startB), DateTime.parseDefaultCal(endB),
+                MyLocalJsonProvidedCalendar.class);
         }
 
         // test Map type Date-type timestamps
         if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.util.Date",
                 DateTime.parseDefaultDate(startA), DateTime.parseDefaultDate(endA),
-                DateTime.parseDefaultDate(startB), DateTime.parseDefaultDate(endB));
+                DateTime.parseDefaultDate(startB), DateTime.parseDefaultDate(endB),
+                MyLocalJsonProvidedDate.class);
         }
 
         // test Map type LocalDateTime-type timestamps
         if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.time.LocalDateTime",
                 DateTime.parseDefaultLocalDateTime(startA), DateTime.parseDefaultLocalDateTime(endA),
-                DateTime.parseDefaultLocalDateTime(startB), DateTime.parseDefaultLocalDateTime(endB));
+                DateTime.parseDefaultLocalDateTime(startB), DateTime.parseDefaultLocalDateTime(endB),
+                MyLocalJsonProvidedLocalDateTime.class);
         }
 
         // test Map type ZonedDateTime-type timestamps
         if (!eventRepresentationEnum.isAvroOrJsonEvent()) {
             runAssertionCreateSchemaWTypes(env, eventRepresentationEnum, "java.time.ZonedDateTime",
                 DateTime.parseDefaultZonedDateTime(startA), DateTime.parseDefaultZonedDateTime(endA),
-                DateTime.parseDefaultZonedDateTime(startB), DateTime.parseDefaultZonedDateTime(endB));
+                DateTime.parseDefaultZonedDateTime(startB), DateTime.parseDefaultZonedDateTime(endB),
+                MyLocalJsonProvidedZonedDateTime.class);
         }
     }
 
-    private void runAssertionCreateSchemaWTypes(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, String typeOfDatetimeProp, Object startA, Object endA, Object startB, Object endB) {
-        String epl = eventRepresentationEnum.getAnnotationText() + " create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
-        epl += eventRepresentationEnum.getAnnotationText() + " create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
+    private void runAssertionCreateSchemaWTypes(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, String typeOfDatetimeProp, Object startA, Object endA, Object startB, Object endB, Class jsonClass) {
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
+        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
         epl += "@name('s0') select a.includes(b) as val0 from TypeA#lastevent as a, TypeB#lastevent as b;\n";
         env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
@@ -112,11 +122,36 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
             record.put("startts", startTs);
             record.put("endts", endTs);
             env.eventService().sendEventAvro(record, typeName);
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             String json = "{\"startts\": \"" + startTs + "\", \"endts\": \"" + endTs + "\"}";
             env.eventService().sendEventJson(json, typeName);
         } else {
             throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }
+    }
+
+    public static class MyLocalJsonProvidedLong implements Serializable {
+        public long startts;
+        public long endts;
+    }
+
+    public static class MyLocalJsonProvidedCalendar implements Serializable {
+        public Calendar startts;
+        public Calendar endts;
+    }
+
+    public static class MyLocalJsonProvidedDate implements Serializable {
+        public Date startts;
+        public Date endts;
+    }
+
+    public static class MyLocalJsonProvidedLocalDateTime implements Serializable {
+        public LocalDateTime startts;
+        public LocalDateTime endts;
+    }
+
+    public static class MyLocalJsonProvidedZonedDateTime implements Serializable {
+        public ZonedDateTime startts;
+        public ZonedDateTime endts;
     }
 }

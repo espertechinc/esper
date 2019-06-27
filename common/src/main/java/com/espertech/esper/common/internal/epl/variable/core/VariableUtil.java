@@ -150,7 +150,7 @@ public class VariableUtil {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
                         variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array, only scalar types can be array");
             }
-            eventType = beanEventTypeFactory.getCreateBeanType(type);
+            eventType = beanEventTypeFactory.getCreateBeanType(type, false);
         }
 
         if (arrayType != null) {

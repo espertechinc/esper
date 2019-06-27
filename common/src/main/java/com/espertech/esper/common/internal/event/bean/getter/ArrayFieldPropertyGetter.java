@@ -20,12 +20,11 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndIndexed;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
 
 /**
  * Getter for an array property backed by a field, identified by a given index, using vanilla reflection.
@@ -50,9 +49,8 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
 
     private CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return codegenMethodScope.makeChild(getBeanPropType(), this.getClass(), codegenClassScope).addParam(getTargetType(), "object").addParam(int.class, "index").getBlock()
-                .declareVar(Object.class, "value", exprDotName(ref("object"), field.getName()))
-                .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, ref("index")), null)
-                .methodReturn(cast(getBeanPropType(), staticMethod(Array.class, "get", ref("value"), ref("index"))));
+            .declareVar(Object.class, "value", exprDotName(ref("object"), field.getName()))
+            .methodReturn(cast(getBeanPropType(), staticMethod(CollectionUtil.class, "arrayValueAtIndex", ref("value"), ref("index"))));
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -73,8 +71,8 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
 
     public String toString() {
         return "ArrayFieldPropertyGetter " +
-                " field=" + field.toString() +
-                " index=" + index;
+            " field=" + field.toString() +
+            " index=" + index;
     }
 
     public boolean isExistsProperty(EventBean eventBean) {

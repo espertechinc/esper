@@ -26,6 +26,7 @@ import com.espertech.esper.regressionlib.support.context.*;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,10 +59,10 @@ public class ContextHashSegmented {
         private static void tryAssertionScoringUseCase(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, AtomicInteger milestone) {
             String[] fields = "userId,keyword,sumScore".split(",");
             String epl =
-                eventRepresentationEnum.getAnnotationText() + " create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
-                    eventRepresentationEnum.getAnnotationText() + " create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedScoreCycle.class) + "create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedUserKeywordTotalStream.class) + "create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
                     "\n" +
-                    eventRepresentationEnum.getAnnotationText() + " create context HashByUserCtx as " +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvided.class) + " create context HashByUserCtx as " +
                     "coalesce by consistent_hash_crc32(userId) from ScoreCycle, " +
                     "consistent_hash_crc32(userId) from UserKeywordTotalStream " +
                     "granularity 1000000;\n" +
@@ -541,7 +542,7 @@ public class ContextHashSegmented {
             record.put("productId", productId);
             record.put("score", score);
             env.sendEventAvro(record, typeName);
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject();
             object.add("userId", userId);
             object.add("keyword", keyword);
@@ -596,5 +597,21 @@ public class ContextHashSegmented {
         public List<Integer> getContexts() {
             return contexts;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+    }
+
+    public static class MyLocalJsonProvidedScoreCycle implements Serializable {
+        public String userId;
+        public String keyword;
+        public String productId;
+        public long score;
+    }
+
+    public static class MyLocalJsonProvidedUserKeywordTotalStream implements Serializable {
+        public String userId;
+        public String keyword;
+        public long sumScore;
     }
 }

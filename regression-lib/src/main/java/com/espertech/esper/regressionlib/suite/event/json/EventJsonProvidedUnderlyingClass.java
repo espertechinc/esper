@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.json.util.EventSenderJson;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.render.JSONEventRenderer;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.json.SupportClientsEvent;
@@ -37,7 +39,73 @@ public class EventJsonProvidedUnderlyingClass {
         execs.add(new EventJsonProvidedClassClientsEvent());
         execs.add(new EventJsonProvidedClassClientsEventWithCreateSchema());
         execs.add(new EventJsonProvidedClassInvalid());
+        execs.add(new EventJsonProvidedClassFieldTypeMismatchInvalid());
+        execs.add(new EventJsonProvidedClassCreateSchemaTypeMismatchInvalid());
+        execs.add(new EventJsonProvidedClassSetNullForPrimitive());
+        execs.add(new EventJsonProvidedClassWArrayPatternInsert());
         return execs;
+    }
+
+    private static class EventJsonProvidedClassWArrayPatternInsert implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String epl =
+                "@public @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedEventOne.class.getName() + "') create json schema EventOne();\n" +
+                "@public @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedEventTwo.class.getName() + "') create json schema EventTwo();\n" +
+                "@public @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedEventOut.class.getName() + "') create json schema EventOut();\n" +
+                "@name('s0') insert into EventOut select s as startEvent, e as endEvents from pattern [" +
+                    "every s=EventOne -> e=EventTwo(id=s.id) until timer:interval(10 sec)]";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventJson("{\"id\":\"G1\"}", "EventOne");
+            env.sendEventJson("{\"id\":\"G1\",\"val\":2}", "EventTwo");
+            env.sendEventJson("{\"id\":\"G1\",\"val\":3}", "EventTwo");
+            env.advanceTime(10000);
+
+            MyLocalJsonProvidedEventOut out = (MyLocalJsonProvidedEventOut) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
+            assertEquals("G1", out.startEvent.id);
+            assertEquals("G1", out.endEvents[0].id);
+            assertEquals(2, out.endEvents[0].val);
+            assertEquals("G1", out.endEvents[1].id);
+            assertEquals(3, out.endEvents[1].val);
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EventJsonProvidedClassSetNullForPrimitive implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedPrimitiveInt.class.getName() + "') create json schema MySchema();\n" +
+                "insert into MySchema select intBoxed as primitiveInt from SupportBean;\n" +
+                "@name('s0') select * from MySchema;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean());
+            assertEquals(-1, env.listener("s0").assertOneGetNewAndReset().get("primitiveInt"));
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EventJsonProvidedClassCreateSchemaTypeMismatchInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String prefix = "@JsonSchema(className='" + MyLocalJsonProvidedStringInt.class.getName() + "') ";
+            String epl = prefix + "create json schema MySchema(c0 int)";
+            tryInvalidSchema(env, epl, MyLocalJsonProvidedStringInt.class,
+                "Public field 'c0' of class '%CLASS%' declared as type 'java.lang.String' cannot receive a value of type 'java.lang.Integer'");
+        }
+    }
+
+    private static class EventJsonProvidedClassFieldTypeMismatchInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String prefix = EventRepresentationChoice.JSONCLASSPROVIDED.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStringInt.class);
+            tryInvalidSchema(env, prefix + "select 0 as dummy from SupportBean", MyLocalJsonProvidedStringInt.class,
+                "Failed to find public field 'dummy' on class '%CLASS%'");
+            tryInvalidSchema(env, prefix + "select 0 as c0 from SupportBean", MyLocalJsonProvidedStringInt.class,
+                "Public field 'c0' of class '%CLASS%' declared as type 'java.lang.String' cannot receive a value of type 'java.lang.Integer'");
+            tryInvalidSchema(env, prefix + "select new {a=0} as c0 from SupportBean", MyLocalJsonProvidedStringInt.class,
+                "Public field 'c0' of class '%CLASS%' declared as type 'java.lang.String' cannot receive a value of type 'java.util.Map'");
+        }
     }
 
     private static class EventJsonProvidedClassInvalid implements RegressionExecution {
@@ -47,10 +115,6 @@ public class EventJsonProvidedUnderlyingClass {
             epl = "@JsonSchema(dynamic=true, className='" + SupportClientsEvent.class.getName() + "') create json schema Clients()";
             tryInvalidCompile(env, epl,
                 "The dynamic flag is not supported when used with a provided JSON event class");
-
-            epl = "@JsonSchema(className='" + SupportClientsEvent.class.getName() + "') create json schema Clients(id string)";
-            tryInvalidCompile(env, epl,
-                "Specifying event properties is not supported with a provided JSON event class");
 
             epl = "create json schema ABC();\n" +
                 "@JsonSchema(className='" + SupportClientsEvent.class.getName() + "') create json schema Clients() inherits ABC";
@@ -283,6 +347,10 @@ public class EventJsonProvidedUnderlyingClass {
         return getClientsJson().replaceAll("\n", "").replaceAll(" ", "");
     }
 
+    private static void tryInvalidSchema(RegressionEnvironment env, String epl, Class provided, String message) {
+        tryInvalidCompile(env, epl, message.replace("%CLASS%", provided.getName()));
+    }
+
     private static String getUsersJson() {
         return "{\n" +
             "  \"users\": [\n" +
@@ -447,5 +515,27 @@ public class EventJsonProvidedUnderlyingClass {
     public class MyLocalInstanceInvalid implements Serializable {
         public MyLocalInstanceInvalid() {
         }
+    }
+
+    public static class MyLocalJsonProvidedStringInt implements Serializable {
+        public String c0;
+    }
+
+    public static class MyLocalJsonProvidedPrimitiveInt implements Serializable {
+        public int primitiveInt = -1;
+    }
+
+    public static class MyLocalJsonProvidedEventOne implements Serializable {
+        public String id;
+    }
+
+    public static class MyLocalJsonProvidedEventTwo implements Serializable {
+        public String id;
+        public int val;
+    }
+
+    public static class MyLocalJsonProvidedEventOut implements Serializable {
+        public MyLocalJsonProvidedEventOne startEvent;
+        public MyLocalJsonProvidedEventTwo[] endEvents;
     }
 }

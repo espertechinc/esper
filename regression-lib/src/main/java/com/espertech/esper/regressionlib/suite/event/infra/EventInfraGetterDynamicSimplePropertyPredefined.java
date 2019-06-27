@@ -21,6 +21,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.function.BiConsumer;
 
@@ -57,6 +58,11 @@ public class EventInfraGetterDynamicSimplePropertyPredefined implements Regressi
             }
         };
         runAssertion(env, getEpl("json"), json);
+
+        // Json-Class-Predefined
+        String eplJsonPredefined = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @buseventtype @public " +
+            "create json schema LocalEvent();\n";
+        runAssertion(env, eplJsonPredefined, json);
 
         // Avro
         BiConsumer<EventType, String> avro = (type, property) -> {
@@ -127,5 +133,9 @@ public class EventInfraGetterDynamicSimplePropertyPredefined implements Regressi
         public String getProperty() {
             return property;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public String property;
     }
 }

@@ -22,36 +22,37 @@ import java.util.HashSet;
 import java.util.Set;
 
 public enum EventRepresentationChoice {
-    ARRAY(EventUnderlyingType.OBJECTARRAY, "@EventRepresentation('objectarray')", " objectarray"),
-    MAP(EventUnderlyingType.MAP, "@EventRepresentation('map')", " map"),
-    AVRO(EventUnderlyingType.AVRO, "@EventRepresentation('avro')", " avro"),
-    JSON(EventUnderlyingType.JSON, "@EventRepresentation('json')", " json"),
-    DEFAULT(EventUnderlyingType.getDefault(), "", "");
+    OBJECTARRAY(EventUnderlyingType.OBJECTARRAY, "@EventRepresentation('objectarray')"),
+    MAP(EventUnderlyingType.MAP, "@EventRepresentation('map')"),
+    AVRO(EventUnderlyingType.AVRO, "@EventRepresentation('avro')"),
+    JSON(EventUnderlyingType.JSON, "@EventRepresentation('json')"),
+    JSONCLASSPROVIDED(EventUnderlyingType.JSON, "@EventRepresentation('json')"),
+    DEFAULT(EventUnderlyingType.getDefault(), "");
 
     private final EventUnderlyingType eventRepresentation;
     private final String annotationText;
-    private final String outputTypeCreateSchemaName;
     private final String outputTypeClassName;
     private final Class outputTypeClass;
 
-    EventRepresentationChoice(EventUnderlyingType eventRepresentation, String annotationText, String outputTypeCreateSchemaName) {
+    EventRepresentationChoice(EventUnderlyingType eventRepresentation, String annotationText) {
         this.eventRepresentation = eventRepresentation;
         this.annotationText = annotationText;
-        this.outputTypeCreateSchemaName = outputTypeCreateSchemaName;
         this.outputTypeClassName = eventRepresentation.getUnderlyingClassName();
         this.outputTypeClass = eventRepresentation.getUnderlyingClass();
     }
 
-    public String getUndName() {
-        return eventRepresentation.name();
-    }
-
     public String getAnnotationText() {
+        if (this == JSONCLASSPROVIDED) {
+            throw new UnsupportedOperationException("For Json-Provided please use getAnnotationTextWJsonProvided(class)");
+        }
         return annotationText;
     }
 
-    public String getOutputTypeCreateSchemaName() {
-        return outputTypeCreateSchemaName;
+    public String getAnnotationTextWJsonProvided(Class jsonProvidedClass) {
+        if (this == JSONCLASSPROVIDED) {
+            return "@JsonSchema(className='" + jsonProvidedClass.getName() + "') " + annotationText;
+        }
+        return annotationText;
     }
 
     public boolean matchesClass(Class representationType) {
@@ -67,7 +68,7 @@ public enum EventRepresentationChoice {
     }
 
     public boolean isObjectArrayEvent() {
-        return this == ARRAY;
+        return this == OBJECTARRAY;
     }
 
     public boolean isMapEvent() {
@@ -86,13 +87,13 @@ public enum EventRepresentationChoice {
             return;
         }
         AnnotationPart part = new AnnotationPart(EventRepresentation.class.getSimpleName());
-        if (this == ARRAY) {
+        if (this == OBJECTARRAY) {
             part.addValue("objectarray");
         }
         if (this == AVRO) {
             part.addValue("avro");
         }
-        if (this == JSON) {
+        if (this == JSON || this == JSONCLASSPROVIDED) {
             part.addValue("json");
         }
         model.setAnnotations(Collections.singletonList(part));
@@ -103,13 +104,13 @@ public enum EventRepresentationChoice {
     }
 
     public boolean isAvroOrJsonEvent() {
-        return this == AVRO || this == JSON;
+        return this == AVRO || this == JSON || this == JSONCLASSPROVIDED;
     }
 
     public static EventRepresentationChoice getEngineDefault(Configuration configuration) {
         EventUnderlyingType configured = configuration.getCommon().getEventMeta().getDefaultEventRepresentation();
         if (configured == EventUnderlyingType.OBJECTARRAY) {
-            return ARRAY;
+            return OBJECTARRAY;
         } else if (configured == EventUnderlyingType.AVRO) {
             return AVRO;
         }
@@ -118,5 +119,16 @@ public enum EventRepresentationChoice {
 
     public boolean isJsonEvent() {
         return this == JSON;
+    }
+
+    public boolean isJsonProvidedClassEvent() {
+        return this == JSONCLASSPROVIDED;
+    }
+
+    public String getName() {
+        if (this == DEFAULT) {
+            return this.eventRepresentation.name();
+        }
+        return name();
     }
 }

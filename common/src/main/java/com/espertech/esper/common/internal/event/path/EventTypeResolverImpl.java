@@ -57,8 +57,8 @@ public class EventTypeResolverImpl implements EventTypeResolver, EventTypeNameRe
         }
     }
 
-    public BeanEventType resolvePrivateBean(Class clazz) {
-        return beanEventTypeFactoryPrivate.getCreateBeanType(clazz);
+    public BeanEventType resolvePrivateBean(Class clazz, boolean publicFields) {
+        return beanEventTypeFactoryPrivate.getCreateBeanType(clazz, publicFields);
     }
 
     public EventType resolve(EventTypeMetadata metadata) {

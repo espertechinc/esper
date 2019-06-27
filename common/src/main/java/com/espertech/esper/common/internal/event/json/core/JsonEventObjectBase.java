@@ -85,15 +85,6 @@ public abstract class JsonEventObjectBase implements JsonEventObject {
     public abstract int getNativeNum(String name);
 
     /**
-     * Returns the index number of a a pre-declared property of the same name including property names of the parent event type if any
-     *
-     * @param num   index number of the property
-     * @param value to set
-     * @throws java.util.NoSuchElementException for invalid index
-     */
-    public abstract void setNativeValue(int num, Object value);
-
-    /**
      * Returns the flag whether the key exists as a pre-declared property of the same name including property names of the parent event type if any
      *
      * @param key property name

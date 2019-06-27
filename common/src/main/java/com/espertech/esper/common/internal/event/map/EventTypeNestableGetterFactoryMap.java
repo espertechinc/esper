@@ -58,7 +58,7 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return new MapEventBeanArrayIndexedPropertyGetter(propertyNameAtomic, index);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedUnderlyingArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventType innerType) {
+    public EventPropertyGetterSPI getGetterIndexedUnderlyingArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventType innerType, BeanEventTypeFactory beanEventTypeFactory) {
         return new MapArrayPropertyGetter(propertyNameAtomic, index, eventBeanTypedEventFactory, innerType);
     }
 

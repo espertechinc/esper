@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.introspect;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
+import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.PropertyResolutionStyle;
 import com.espertech.esper.common.internal.event.bean.core.PropertyStem;
 
@@ -108,5 +109,9 @@ public class BeanEventTypeStem {
 
     public Map<String, EventPropertyDescriptor> getPropertyDescriptorMap() {
         return propertyDescriptorMap;
+    }
+
+    public boolean isPublicFields() {
+        return optionalLegacyDef != null && optionalLegacyDef.getAccessorStyle() == AccessorStyle.PUBLIC;
     }
 }

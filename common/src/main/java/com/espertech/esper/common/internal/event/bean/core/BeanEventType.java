@@ -316,7 +316,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
         PropertyInfo simpleProp = getSimplePropertyInfo(propertyExpression);
         if ((simpleProp != null) && (simpleProp.getClazz() != null)) {
             GenericPropertyDesc genericProp = simpleProp.getDescriptor().getReturnTypeGeneric();
-            return EventBeanUtility.createNativeFragmentType(genericProp.getType(), genericProp.getGeneric(), beanEventTypeFactory);
+            return EventBeanUtility.createNativeFragmentType(genericProp.getType(), genericProp.getGeneric(), beanEventTypeFactory, stem.isPublicFields());
         }
 
         Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
@@ -329,7 +329,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
         if (genericProp == null) {
             return null;
         }
-        return EventBeanUtility.createNativeFragmentType(genericProp.getType(), genericProp.getGeneric(), beanEventTypeFactory);
+        return EventBeanUtility.createNativeFragmentType(genericProp.getType(), genericProp.getGeneric(), beanEventTypeFactory, stem.isPublicFields());
     }
 
     public BeanEventPropertyWriter getWriter(String propertyName) {

@@ -83,7 +83,7 @@ public class TestSuiteEPLContained extends TestCase {
                     methods = "splitSentenceMethodReturnMap,splitSentenceBeanMethodReturnMap,splitWordMethodReturnMap".split(",");
                 } else if (rep.isAvroEvent()) {
                     methods = "splitSentenceMethodReturnAvro,splitSentenceBeanMethodReturnAvro,splitWordMethodReturnAvro".split(",");
-                } else if (rep.isJsonEvent()) {
+                } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
                     methods = "splitSentenceMethodReturnJson,splitSentenceBeanMethodReturnJson,splitWordMethodReturnJson".split(",");
                 } else {
                     throw new IllegalStateException("Unrecognized enum " + rep);

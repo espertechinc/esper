@@ -13,7 +13,8 @@ package com.espertech.esper.common.internal.event.property;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayMappedPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
-import com.espertech.esper.common.internal.event.bean.getter.DynamicMappedPropertyGetter;
+import com.espertech.esper.common.internal.event.bean.getter.DynamicMappedPropertyGetterByField;
+import com.espertech.esper.common.internal.event.bean.getter.DynamicMappedPropertyGetterByMethod;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
@@ -55,7 +56,10 @@ public class DynamicMappedProperty extends PropertyBase implements DynamicProper
     }
 
     public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        return new DynamicMappedPropertyGetter(propertyNameAtomic, key, eventBeanTypedEventFactory, beanEventTypeFactory);
+        if (!eventType.getStem().isPublicFields()) {
+            return new DynamicMappedPropertyGetterByMethod(propertyNameAtomic, key, eventBeanTypedEventFactory, beanEventTypeFactory);
+        }
+        return new DynamicMappedPropertyGetterByField(propertyNameAtomic, key, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
     public Class getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {

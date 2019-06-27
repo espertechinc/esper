@@ -133,7 +133,6 @@ public class EPLContainedEventSplitExpr {
         }
 
         public void run(RegressionEnvironment env) {
-
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
                 tryAssertionSingleRowSplitAndType(env, rep);
             }
@@ -143,9 +142,9 @@ public class EPLContainedEventSplitExpr {
     private static void tryAssertionSingleRowSplitAndType(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
         RegressionPath path = new RegressionPath();
-        String types = eventRepresentationEnum.getAnnotationText() + " create schema MySentenceEvent(sentence String);\n" +
-            eventRepresentationEnum.getAnnotationText() + " create schema WordEvent(word String);\n" +
-            eventRepresentationEnum.getAnnotationText() + " create schema CharacterEvent(char String);\n";
+        String types = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonSentence.class) + " create schema MySentenceEvent(sentence String);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " create schema WordEvent(word String);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonCharacter.class) + " create schema CharacterEvent(character String);\n";
         env.compileDeployWBusPublicType(types, path);
 
         String stmtText;
@@ -208,7 +207,7 @@ public class EPLContainedEventSplitExpr {
         assertEquals("CharacterEvent", env.statement("s0").getEventType().getName());
 
         sendMySentenceEvent(env, eventRepresentationEnum, "I am");
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "char".split(","), new Object[][]{{"I"}, {"a"}, {"m"}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "character".split(","), new Object[][]{{"I"}, {"a"}, {"m"}});
 
         env.undeployModuleContaining("s0");
 
@@ -246,7 +245,7 @@ public class EPLContainedEventSplitExpr {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"collection"}});
             env.undeployAll();
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationText() + " select * from SupportAvroArrayEvent[someAvroArray@type(WordEvent)]";
+            stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " select * from SupportAvroArrayEvent[someAvroArray@type(WordEvent)]";
             env.compileDeploy(stmtText, path).addListener("s0");
             assertEquals("WordEvent", env.statement("s0").getEventType().getName());
 
@@ -259,8 +258,8 @@ public class EPLContainedEventSplitExpr {
             env.sendEventBean(new SupportAvroArrayEvent(rows));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
             env.undeployAll();
-        } else if (eventRepresentationEnum.isJsonEvent()) {
-            stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationText() + " select * from SupportJsonArrayEvent[someJsonArray@type(WordEvent)]";
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
+            stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " select * from SupportJsonArrayEvent[someJsonArray@type(WordEvent)]";
             env.compileDeploy(stmtText, path).addListener("s0");
             assertEquals("WordEvent", env.statement("s0").getEventType().getName());
 
@@ -294,7 +293,7 @@ public class EPLContainedEventSplitExpr {
         } else if (eventRepresentationEnum.isAvroEvent()) {
             tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' underlying type " + JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME + " cannot be assigned a value of type");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' requires string-type array and cannot be assigned from value of type " + JavaClassHelper.getClassNameFullyQualPretty(SupportBean[].class));
         } else {
@@ -318,7 +317,7 @@ public class EPLContainedEventSplitExpr {
             GenericData.Record record = new GenericData.Record(schema);
             record.put("sentence", sentence);
             env.sendEventAvro(record, "MySentenceEvent");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject();
             object.add("sentence", sentence);
             env.sendEventJson(object.toString(), "MySentenceEvent");
@@ -386,7 +385,7 @@ public class EPLContainedEventSplitExpr {
     public static Map[] splitWordMethodReturnMap(String word) {
         List<Map> maps = new ArrayList<Map>();
         for (int i = 0; i < word.length(); i++) {
-            maps.add(Collections.singletonMap("char", Character.toString(word.charAt(i))));
+            maps.add(Collections.singletonMap("character", Character.toString(word.charAt(i))));
         }
         return maps.toArray(new Map[maps.size()]);
     }
@@ -396,11 +395,11 @@ public class EPLContainedEventSplitExpr {
     }
 
     public static GenericData.Record[] splitWordMethodReturnAvro(String word) {
-        Schema schema = record("chars").fields().requiredString("char").endRecord();
+        Schema schema = record("chars").fields().requiredString("character").endRecord();
         GenericData.Record[] records = new GenericData.Record[word.length()];
         for (int i = 0; i < word.length(); i++) {
             records[i] = new GenericData.Record(schema);
-            records[i].put("char", Character.toString(word.charAt(i)));
+            records[i].put("character", Character.toString(word.charAt(i)));
         }
         return records;
     }
@@ -424,7 +423,7 @@ public class EPLContainedEventSplitExpr {
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < word.length(); i++) {
             String c = Character.toString(word.charAt(i));
-            strings.add("{ \"char\": \"" + c + "\"}");
+            strings.add("{ \"character\": \"" + c + "\"}");
         }
         return strings.toArray(new String[0]);
 
@@ -439,8 +438,14 @@ public class EPLContainedEventSplitExpr {
         return events;
     }
 
-    public static String[] splitSentenceBeanMethodReturnJson(JsonEventObject sentenceEvent) {
-        return splitSentenceMethodReturnJson((String) sentenceEvent.get("sentence"));
+    public static String[] splitSentenceBeanMethodReturnJson(Object sentenceEvent) {
+        String sentence;
+        if (sentenceEvent instanceof JsonEventObject) {
+            sentence = ((JsonEventObject) sentenceEvent).get("sentence").toString();
+        } else {
+            sentence = ((MyLocalJsonSentence) sentenceEvent).sentence;
+        }
+        return splitSentenceMethodReturnJson(sentence);
     }
 
     public static class AvroArrayEvent {
@@ -453,5 +458,17 @@ public class EPLContainedEventSplitExpr {
         public GenericData.Record[] getSomeAvroArray() {
             return someAvroArray;
         }
+    }
+
+    public static class MyLocalJsonSentence {
+        public String sentence;
+    }
+
+    public static class MyLocalJsonWord {
+        public String word;
+    }
+
+    public static class MyLocalJsonCharacter {
+        public String character;
     }
 }

@@ -18,6 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -60,6 +61,14 @@ public class EventInfraManufacturer implements RegressionExecution {
         runAssertion(env, "create json schema JsonEvent(p1 string, p2 int)",
             und -> {
                 EPAssertionUtil.assertEqualsExactOrder(new Object[]{"a", 1}, ((Map) und).values());
+            });
+
+        // Json-Class-Provided
+        runAssertion(env, "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') create json schema JsonEvent()",
+            und -> {
+                MyLocalJsonProvided received = (MyLocalJsonProvided) und;
+                assertEquals("a", received.p1);
+                assertEquals(1, received.p2);
             });
     }
 
@@ -121,5 +130,10 @@ public class EventInfraManufacturer implements RegressionExecution {
         public void setP2(int p2) {
             this.p2 = p2;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public String p1;
+        public int p2;
     }
 }

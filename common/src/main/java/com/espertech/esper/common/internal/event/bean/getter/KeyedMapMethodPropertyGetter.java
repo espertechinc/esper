@@ -28,6 +28,8 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.util.CollectionUtil.getMapKeyExistsChecked;
+import static com.espertech.esper.common.internal.util.CollectionUtil.getMapValueChecked;
 
 /**
  * Getter for a key property identified by a given key value, using vanilla reflection.
@@ -53,11 +55,7 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
     public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException {
         try {
             Object result = method.invoke(object, (Object[]) null);
-            if (!(result instanceof Map)) {
-                return null;
-            }
-            Map resultMap = (Map) result;
-            return resultMap.get(key);
+            return getMapValueChecked(result, key);
         } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
         } catch (InvocationTargetException e) {
@@ -72,11 +70,7 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
     public boolean getBeanPropExistsInternal(Object object, Object key) throws PropertyAccessException {
         try {
             Object result = method.invoke(object, (Object[]) null);
-            if (!(result instanceof Map)) {
-                return false;
-            }
-            Map resultMap = (Map) result;
-            return resultMap.containsKey(key);
+            return getMapKeyExistsChecked(result, key);
         } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
         } catch (InvocationTargetException e) {

@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeSt
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepository;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.util.CRC32Util;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
 
@@ -133,7 +134,7 @@ public class EventTypeRepositoryBeanTypeUtil {
     private static void addPredefinedBeanEventType(Class clazz, Map<String, Class> resolvedBeanEventTypes) {
         Class existing = resolvedBeanEventTypes.get(clazz.getName());
         if (existing != null && existing != clazz) {
-            throw new ConfigurationException("Predefined event type " + clazz.getName() + " expected class " + clazz.getName() + " but is already defined to another class " + existing.getName());
+            throw new ConfigurationException("Predefined event type " + clazz.getName() + " expected class " + JavaClassHelper.getClassNameFullyQualPretty(clazz) + " but is already defined to another class " + existing.getName());
         }
         resolvedBeanEventTypes.put(clazz.getName(), clazz);
     }

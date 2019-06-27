@@ -75,6 +75,7 @@ public class NestedProperty implements Property {
         List<EventPropertyGetter> getters = new LinkedList<EventPropertyGetter>();
 
         Property lastProperty = null;
+        boolean publicFields = eventType.getStem().isPublicFields();
         for (Iterator<Property> it = properties.iterator(); it.hasNext(); ) {
             Property property = it.next();
             lastProperty = property;
@@ -96,7 +97,7 @@ public class NestedProperty implements Property {
                 if (clazz.isArray()) {
                     return null;
                 }
-                eventType = beanEventTypeFactory.getCreateBeanType(clazz);
+                eventType = beanEventTypeFactory.getCreateBeanType(clazz, publicFields);
             }
             getters.add(getter);
         }
@@ -129,7 +130,8 @@ public class NestedProperty implements Property {
                     return null;
                 }
 
-                eventType = beanEventTypeFactory.getCreateBeanType(result);
+                boolean publicFields = eventType.getStem().isPublicFields();
+                eventType = beanEventTypeFactory.getCreateBeanType(result, publicFields);
             }
         }
 
@@ -139,6 +141,7 @@ public class NestedProperty implements Property {
     public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
         GenericPropertyDesc result = null;
 
+        boolean publicFields = eventType.getStem().isPublicFields();
         for (Iterator<Property> it = properties.iterator(); it.hasNext(); ) {
             Property property = it.next();
             result = property.getPropertyTypeGeneric(eventType, beanEventTypeFactory);
@@ -158,7 +161,7 @@ public class NestedProperty implements Property {
                     return null;
                 }
 
-                eventType = beanEventTypeFactory.getCreateBeanType(result.getType());
+                eventType = beanEventTypeFactory.getCreateBeanType(result.getType(), publicFields);
             }
         }
 
@@ -204,12 +207,12 @@ public class NestedProperty implements Property {
             if (nestedType instanceof Class) {
                 Class pojoClass = (Class) nestedType;
                 if (!pojoClass.isArray()) {
-                    BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(pojoClass);
+                    BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(pojoClass, false);
                     String remainingProps = toPropertyEPL(properties, count);
                     return beanType.getPropertyType(remainingProps);
                 } else if (property instanceof IndexedProperty) {
                     Class componentType = pojoClass.getComponentType();
-                    BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(componentType);
+                    BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(componentType, false);
                     String remainingProps = toPropertyEPL(properties, count);
                     return beanType.getPropertyType(remainingProps);
                 }
@@ -325,7 +328,7 @@ public class NestedProperty implements Property {
                         // treat the return type of the map property as a POJO
                         Class pojoClass = (Class) propertyReturnType;
                         if (!pojoClass.isArray()) {
-                            BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(pojoClass);
+                            BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(pojoClass, false);
                             String remainingProps = toPropertyEPL(properties, count);
                             EventPropertyGetterSPI getterInner = beanType.getGetterSPI(remainingProps);
                             if (getterInner == null) {
@@ -335,7 +338,7 @@ public class NestedProperty implements Property {
                             break; // the single Pojo getter handles the rest
                         } else {
                             Class componentType = pojoClass.getComponentType();
-                            BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(componentType);
+                            BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(componentType, false);
                             String remainingProps = toPropertyEPL(properties, count);
                             EventPropertyGetterSPI getterInner = beanType.getGetterSPI(remainingProps);
                             if (getterInner == null) {

@@ -95,6 +95,7 @@ public class CompilerHelperModuleProvider {
         List<String> statementClassNames = new ArrayList<>();
         Set<String> statementNames = new HashSet<>();
         List<EPCompileExceptionItem> exceptions = new ArrayList<>();
+        List<EPCompileExceptionItem> postLatchThrowables = new ArrayList<>();
         CompilerPool compilerPool = new CompilerPool(compilables.size(), compileTimeServices, moduleBytes);
 
         try {
@@ -111,7 +112,11 @@ public class CompilerHelperModuleProvider {
                     compilerPool.submit(statementNumber, compilableItem);
 
                     // there can be a post-compile step, which may block submitting further compilables
-                    compilableItem.getPostCompileLatch().awaitAndRun();
+                    try {
+                        compilableItem.getPostCompileLatch().awaitAndRun();
+                    } catch (Throwable t) {
+                        postLatchThrowables.add(new EPCompileExceptionItem(t.getMessage(), t, compilable.toEPL(), compilable.lineNumber()));
+                    }
                 } catch (StatementSpecCompileException ex) {
                     if (ex instanceof StatementSpecCompileSyntaxException) {
                         exception = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
@@ -134,14 +139,15 @@ public class CompilerHelperModuleProvider {
             throw new EPCompileException(ex.getMessage(), ex);
         }
 
+        // await async compilation
+        compilerPool.shutdownCollectResults();
+
+        exceptions.addAll(postLatchThrowables);
         if (!exceptions.isEmpty()) {
             compilerPool.shutdown();
             EPCompileExceptionItem ex = exceptions.get(0);
             throw new EPCompileException(ex.getMessage() + " [" + ex.getExpression() + "]", ex, exceptions);
         }
-
-        // await async compilation
-        compilerPool.shutdownCollectResults();
 
         // compile module resource
         String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, moduleBytes, compileTimeServices);

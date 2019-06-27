@@ -12,9 +12,9 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -31,6 +31,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
@@ -459,11 +460,11 @@ public class EPLInsertIntoPopulateUnderlying {
     private static class EPLInsertIntoCharSequenceCompat implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                if (rep.isJsonEvent()) {
-                    continue; // Json doesn't allow CharSequence
+                if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
+                    continue; // Json doesn't allow CharSequence by itself unless registering an adapter
                 }
                 RegressionPath path = new RegressionPath();
-                env.compileDeploy("create " + rep.getOutputTypeCreateSchemaName() + " schema ConcreteType as (value java.lang.CharSequence)", path);
+                env.compileDeploy(rep.getAnnotationText() + "create schema ConcreteType as (value java.lang.CharSequence)", path);
                 env.compileDeploy("insert into ConcreteType select \"Test\" as value from SupportBean", path);
                 env.undeployAll();
             }
@@ -567,11 +568,11 @@ public class EPLInsertIntoPopulateUnderlying {
 
         RegressionPath path = new RegressionPath();
         String schema =
-            eventRepresentationEnum.getAnnotationText() + " create schema EventOne(id string);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema EventTwo(id string, val int);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema FinalEventValid (startEvent EventOne, endEvent EventTwo[]);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema FinalEventInvalidNonArray (startEvent EventOne, endEvent EventTwo);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema FinalEventInvalidArray (startEvent EventOne, endEvent EventTwo);\n";
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventOne.class) + " create schema EventOne(id string);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTwo.class) + " create schema EventTwo(id string, val int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventValid.class) + " create schema FinalEventValid (startEvent EventOne, endEvent EventTwo[]);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidNonArray.class) + " create schema FinalEventInvalidNonArray (startEvent EventOne, endEvent EventTwo);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidArray.class) + " create schema FinalEventInvalidArray (startEvent EventOne, endEvent EventTwo);\n";
         env.compileDeployWBusPublicType(schema, path);
 
         env.advanceTime(0);
@@ -599,7 +600,7 @@ public class EPLInsertIntoPopulateUnderlying {
             startEventOne = (EventBean) outMap.get("startEvent");
             endEventOne = ((EventBean[]) outMap.get("endEvent"))[0];
             endEventTwo = ((EventBean[]) outMap.get("endEvent"))[1];
-        } else if (eventRepresentationEnum.isAvroEvent() || eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isAvroEvent() || eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             EventBean received = env.listener("s0").assertOneGetNewAndReset();
             startEventOne = (EventBean) received.getFragment("startEvent");
             EventBean[] endEvents = (EventBean[]) received.getFragment("endEvent");
@@ -647,7 +648,8 @@ public class EPLInsertIntoPopulateUnderlying {
         env.undeployAll();
     }
 
-    private static void sendEventTwo(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, String id, int val) {
+    private static void sendEventTwo(RegressionEnvironment env, EventRepresentationChoice
+        eventRepresentationEnum, String id, int val) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{id, val}, "EventTwo");
         } else if (eventRepresentationEnum.isMapEvent()) {
@@ -661,7 +663,7 @@ public class EPLInsertIntoPopulateUnderlying {
             record.put("id", id);
             record.put("val", val);
             env.sendEventAvro(record, "EventTwo");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject();
             object.add("id", id);
             object.add("val", val);
@@ -671,7 +673,8 @@ public class EPLInsertIntoPopulateUnderlying {
         }
     }
 
-    private static void sendEventOne(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, String id) {
+    private static void sendEventOne(RegressionEnvironment env, EventRepresentationChoice
+        eventRepresentationEnum, String id) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{id}, "EventOne");
         } else if (eventRepresentationEnum.isMapEvent()) {
@@ -683,7 +686,7 @@ public class EPLInsertIntoPopulateUnderlying {
             GenericData.Record record = new GenericData.Record(schema);
             record.put("id", id);
             env.sendEventAvro(record, "EventOne");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject();
             object.add("id", id);
             env.sendEventJson(object.toString(), "EventOne");
@@ -767,7 +770,8 @@ public class EPLInsertIntoPopulateUnderlying {
         }
     }
 
-    private static void sendReceiveTwo(RegressionEnvironment env, SupportListener listener, String theString, Integer intBoxed) {
+    private static void sendReceiveTwo(RegressionEnvironment env, SupportListener listener, String
+        theString, Integer intBoxed) {
         SupportBean bean = new SupportBean(theString, -1);
         bean.setIntBoxed(intBoxed);
         env.sendEventBean(bean);
@@ -777,7 +781,8 @@ public class EPLInsertIntoPopulateUnderlying {
         assertEquals(intBoxed, (Integer) theEvent.getIntPrimitive());
     }
 
-    private static void sendReceive(RegressionEnvironment env, SupportListener listener, String theString, int intPrimitive, boolean boolPrimitive, Integer intBoxed) {
+    private static void sendReceive(RegressionEnvironment env, SupportListener listener, String theString,
+                                    int intPrimitive, boolean boolPrimitive, Integer intBoxed) {
         SupportBean bean = new SupportBean(theString, intPrimitive);
         bean.setBoolPrimitive(boolPrimitive);
         bean.setIntBoxed(intBoxed);
@@ -805,5 +810,29 @@ public class EPLInsertIntoPopulateUnderlying {
 
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "intVal,stringVal,doubleVal".split(","), new Object[]{1000, "E1", 1001d});
         env.undeployAll();
+    }
+
+    public static class MyLocalJsonProvidedEventOne implements Serializable {
+        public String id;
+    }
+
+    public static class MyLocalJsonProvidedEventTwo implements Serializable {
+        public String id;
+        public int val;
+    }
+
+    public static class MyLocalJsonProvidedFinalEventValid implements Serializable {
+        public MyLocalJsonProvidedEventOne startEvent;
+        public MyLocalJsonProvidedEventTwo[] endEvent;
+    }
+
+    public static class MyLocalJsonProvidedFinalEventInvalidNonArray implements Serializable {
+        public MyLocalJsonProvidedEventOne startEvent;
+        public MyLocalJsonProvidedEventTwo endEvent;
+    }
+
+    public static class MyLocalJsonProvidedFinalEventInvalidArray implements Serializable {
+        public MyLocalJsonProvidedEventOne startEvent;
+        public MyLocalJsonProvidedEventTwo endEvent;
     }
 }

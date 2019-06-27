@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
+import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
@@ -35,7 +36,9 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
@@ -70,7 +73,55 @@ public class EPLInsertInto {
         execs.add(new EPLInsertIntoUnnamedWildcard());
         execs.add(new EPLInsertIntoUnnamedJoin());
         execs.add(new EPLInsertIntoTypeMismatchInvalid());
+        execs.add(new EPLInsertIntoEventRepresentationsSimple());
         return execs;
+    }
+
+    private static class EPLInsertIntoEventRepresentationsSimple implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+
+            Map<EventRepresentationChoice, Consumer<Object>> assertions = new HashMap<>();
+            assertions.put(EventRepresentationChoice.OBJECTARRAY, und -> {
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1", 10}, (Object[]) und);
+            });
+            Consumer<Object> mapAssertion = und -> EPAssertionUtil.assertPropsMap((Map) und, "theString,intPrimitive".split(","), "E1", 10);
+            assertions.put(EventRepresentationChoice.MAP, mapAssertion);
+            assertions.put(EventRepresentationChoice.DEFAULT, mapAssertion);
+            assertions.put(EventRepresentationChoice.AVRO, und -> {
+                GenericData.Record rec = (GenericData.Record) und;
+                assertEquals("E1", rec.get("theString"));
+                assertEquals(10, rec.get("intPrimitive"));
+            });
+            assertions.put(EventRepresentationChoice.JSON, und -> {
+                JsonEventObject rec = (JsonEventObject) und;
+                assertEquals("E1", rec.get("theString"));
+                assertEquals(10, rec.get("intPrimitive"));
+            });
+            assertions.put(EventRepresentationChoice.JSONCLASSPROVIDED, und -> {
+                MyLocalJsonProvided rec = (MyLocalJsonProvided) und;
+                assertEquals("E1", rec.theString);
+                assertEquals(Integer.valueOf(10), rec.intPrimitive);
+            });
+
+            for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+                tryAssertionRepresentationSimple(env, rep, assertions);
+            }
+        }
+    }
+
+    private static void tryAssertionRepresentationSimple(RegressionEnvironment env, EventRepresentationChoice rep, Map<EventRepresentationChoice, Consumer<Object>> assertions) {
+        String epl = rep.getAnnotationTextWJsonProvided(MyLocalJsonProvided.class) + " insert into SomeStream select theString, intPrimitive from SupportBean;\n" +
+            "@name('s0') select * from SomeStream;\n";
+        env.compileDeploy(epl).addListener("s0");
+
+        env.sendEventBean(new SupportBean("E1", 10));
+        Consumer<Object> assertion = assertions.get(rep);
+        if (assertion == null) {
+            fail("No assertion provided for type " + rep);
+        }
+        assertion.accept(env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+
+        env.undeployAll();
     }
 
     private static class EPLInsertIntoRStreamOMToStmt implements RegressionExecution {
@@ -406,32 +457,39 @@ public class EPLInsertInto {
             }
 
             // OA
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.ARRAY);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.MAP);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.AVRO);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.JSON);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.ARRAY, true, null);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.OBJECTARRAY, false, EventRepresentationChoice.OBJECTARRAY);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.OBJECTARRAY, false, EventRepresentationChoice.MAP);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.OBJECTARRAY, false, EventRepresentationChoice.AVRO);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.OBJECTARRAY, false, EventRepresentationChoice.JSON);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.OBJECTARRAY, true, null);
 
             // Map
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.ARRAY);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.OBJECTARRAY);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.MAP);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.AVRO);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.JSON);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, true, null);
 
             // Avro
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.ARRAY);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.OBJECTARRAY);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.MAP);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.AVRO);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.JSON);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, true, null);
 
             // Json
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.ARRAY);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.OBJECTARRAY);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.MAP);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.AVRO);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.JSON);
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, true, null);
+
+            // Json-Provided-Class
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSONCLASSPROVIDED, false, EventRepresentationChoice.OBJECTARRAY);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSONCLASSPROVIDED, false, EventRepresentationChoice.MAP);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSONCLASSPROVIDED, false, EventRepresentationChoice.AVRO);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSONCLASSPROVIDED, false, EventRepresentationChoice.JSONCLASSPROVIDED);
+            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSONCLASSPROVIDED, true, null);
         }
     }
 
@@ -440,7 +498,9 @@ public class EPLInsertInto {
             tryAssertionJoinWildcard(env, true, null);
 
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                tryAssertionJoinWildcard(env, false, rep);
+                if (rep.isJsonProvidedClassEvent()) {
+                    tryAssertionJoinWildcard(env, false, rep);
+                }
             }
         }
     }
@@ -691,7 +751,7 @@ public class EPLInsertInto {
         assertEquals(2, listener.getLastNewData()[0].getEventType().getPropertyNames().length);
         assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s0"));
         assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s1"));
-        if (eventS0 instanceof String) {
+        if (rep != null && (rep.isJsonEvent() || rep.isJsonProvidedClassEvent())) {
             assertEquals(eventS0, listener.getLastNewData()[0].get("s0").toString());
             assertEquals(eventS1, listener.getLastNewData()[0].get("s1").toString());
         } else {
@@ -718,6 +778,9 @@ public class EPLInsertInto {
         } else if (rep.isJsonEvent()) {
             schema = "@name('schema1') create json schema S0 as (theString string);\n" +
                 "@name('schema2') create json schema S1 as (id string);\n";
+        } else if (rep.isJsonProvidedClassEvent()) {
+            schema = "@name('schema1') @JsonSchema(className='" + MyLocalJsonProvidedS0.class.getName() + "') create json schema S0 as ();\n" +
+                "@name('schema2') @JsonSchema(className='" + MyLocalJsonProvidedS1.class.getName() + "') create json schema S1 as ();\n";
         } else {
             schema = null;
             fail();
@@ -726,12 +789,12 @@ public class EPLInsertInto {
         RegressionPath path = new RegressionPath();
         env.compileDeployWBusPublicType(schema, path);
 
-        String textOne = "@name('s1') " + (bean ? "" : rep.getAnnotationText()) + "insert into event2 select * " +
+        String textOne = "@name('s1') " + (bean ? "" : rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedJoin.class)) + "insert into event2 select * " +
             "from S0#length(100) as s0, S1#length(5) as s1 " +
             "where s0.theString = s1.id";
         env.compileDeploy(textOne, path).addListener("s1");
 
-        String textTwo = "@name('s2') " + (bean ? "" : rep.getAnnotationText()) + "select * from event2#length(10)";
+        String textTwo = "@name('s2') " + (bean ? "" : rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedJoin.class)) + "select * from event2#length(10)";
         env.compileDeploy(textTwo, path).addListener("s2");
 
         // send event for joins to match on
@@ -750,7 +813,7 @@ public class EPLInsertInto {
             theEvent.put("id", "myId");
             eventS1 = theEvent;
             env.sendEventAvro(theEvent, "S1");
-        } else if (rep.isJsonEvent()) {
+        } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject();
             object.add("id", "myId");
             eventS1 = object.toString();
@@ -774,7 +837,7 @@ public class EPLInsertInto {
             theEvent.put("theString", "myId");
             eventS0 = theEvent;
             env.sendEventAvro(theEvent, "S0");
-        } else if (rep.isJsonEvent()) {
+        } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             JsonObject object = new JsonObject();
             object.add("theString", "myId");
             eventS0 = object.toString();
@@ -806,7 +869,7 @@ public class EPLInsertInto {
         if (sourceBean) {
             schemaEPL = "create schema SourceSchema as " + MyP0P1EventSource.class.getName();
         } else {
-            schemaEPL = "create " + sourceType.getOutputTypeCreateSchemaName() + " schema SourceSchema as (p0 string, p1 int)";
+            schemaEPL = sourceType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSourceSchema.class) + "create schema SourceSchema as (p0 string, p1 int)";
         }
         RegressionPath path = new RegressionPath();
         env.compileDeployWBusPublicType(schemaEPL, path);
@@ -815,8 +878,8 @@ public class EPLInsertInto {
         if (targetBean) {
             env.compileDeploy("create schema TargetSchema as " + MyP0P1EventTarget.class.getName(), path);
         } else {
-            env.compileDeploy("create " + targetType.getOutputTypeCreateSchemaName() + " schema TargetContainedSchema as (c0 int)", path);
-            env.compileDeploy("create " + targetType.getOutputTypeCreateSchemaName() + " schema TargetSchema (p0 string, p1 int, c0 TargetContainedSchema)", path);
+            env.compileDeploy(targetType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTargetContainedSchema.class) + "create schema TargetContainedSchema as (c0 int)", path);
+            env.compileDeploy(targetType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTargetSchema.class) + "create schema TargetSchema (p0 string, p1 int, c0 TargetContainedSchema)", path);
         }
 
         // insert-into and select
@@ -839,7 +902,7 @@ public class EPLInsertInto {
             record.put("p0", "a");
             record.put("p1", 10);
             env.sendEventAvro(record, "SourceSchema");
-        } else if (sourceType.isJsonEvent()) {
+        } else if (sourceType.isJsonEvent() || sourceType.isJsonProvidedClassEvent()) {
             env.sendEventJson("{\"p0\": \"a\", \"p1\": 10}", "SourceSchema");
         } else {
             fail();
@@ -913,4 +976,44 @@ public class EPLInsertInto {
         }
     }
 
+    public static class MyLocalJsonProvided implements Serializable {
+        public String theString;
+        public Integer intPrimitive;
+    }
+
+    public static class MyLocalJsonProvidedS0 implements Serializable {
+        public String theString;
+
+        public String toString() {
+            return "{\"theString\":\"" + theString + "\"}";
+        }
+    }
+
+    public static class MyLocalJsonProvidedS1 implements Serializable {
+        public String id;
+
+        public String toString() {
+            return "{\"id\":\"" + id + "\"}";
+        }
+    }
+
+    public static class MyLocalJsonProvidedJoin implements Serializable {
+        public MyLocalJsonProvidedS0 s0;
+        public MyLocalJsonProvidedS1 s1;
+    }
+
+    public static class MyLocalJsonProvidedSourceSchema implements Serializable {
+        public String p0;
+        public int p1;
+    }
+
+    public static class MyLocalJsonProvidedTargetContainedSchema implements Serializable {
+        public int c0;
+    }
+
+    public static class MyLocalJsonProvidedTargetSchema implements Serializable {
+        public String p0;
+        public int p1;
+        public MyLocalJsonProvidedTargetContainedSchema c0;
+    }
 }

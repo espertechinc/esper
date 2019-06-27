@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class EventInfraEventRenderer implements RegressionExecution {
     public final static String OA_TYPENAME = "EventInfraEventRendererOA";
     public final static String AVRO_TYPENAME = "EventInfraEventRendererAvro";
     public final static String JSON_TYPENAME = "EventInfraEventRendererJson";
+    public final static String JSONPROVIDED_TYPENAME = "EventInfraEventRendererJsonProvided";
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
@@ -70,9 +72,9 @@ public class EventInfraEventRenderer implements RegressionExecution {
         runAssertion(env, AVRO_TYPENAME, FAVRO, avro, path);
 
         // Json
-        String schemas = "create json schema Nested(myInsideInt int);\n" +
+        String schemasJson = "create json schema Nested(myInsideInt int);\n" +
             "@public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "(myInt int, myString string, nested Nested)";
-        env.compileDeploy(schemas, path);
+        env.compileDeploy(schemasJson, path);
         String json = "{\n" +
             "  \"myInt\": 1,\n" +
             "  \"myString\": \"abc\",\n" +
@@ -81,6 +83,12 @@ public class EventInfraEventRenderer implements RegressionExecution {
             "  }\n" +
             "}";
         runAssertion(env, JSON_TYPENAME, FJSON, json, path);
+
+        // Json-Class-Provided
+        String schemas = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') " +
+            "@public @buseventtype @name('schema') create json schema " + JSONPROVIDED_TYPENAME + "()";
+        env.compileDeploy(schemas, path);
+        runAssertion(env, JSONPROVIDED_TYPENAME, FJSON, json, path);
     }
 
     private void runAssertion(RegressionEnvironment env, String typename, FunctionSendEvent send, Object event, RegressionPath path) {
@@ -99,18 +107,6 @@ public class EventInfraEventRenderer implements RegressionExecution {
         assertEquals("<?xmlversion=\"1.0\"encoding=\"UTF-8\"?><root><myInt>1</myInt><myString>abc</myString><nested><myInsideInt>10</myInsideInt></nested></root>", xml);
 
         env.undeployAll();
-    }
-
-    public final static class MyInsideEvent {
-        private int myInsideInt;
-
-        public MyInsideEvent(int myInsideInt) {
-            this.myInsideInt = myInsideInt;
-        }
-
-        public int getMyInsideInt() {
-            return myInsideInt;
-        }
     }
 
     public final static class MyEvent {
@@ -137,4 +133,25 @@ public class EventInfraEventRenderer implements RegressionExecution {
         }
     }
 
+    public final static class MyInsideEvent {
+        private int myInsideInt;
+
+        public MyInsideEvent(int myInsideInt) {
+            this.myInsideInt = myInsideInt;
+        }
+
+        public int getMyInsideInt() {
+            return myInsideInt;
+        }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public int myInt;
+        public String myString;
+        public MyLocalJsonProvidedNested nested;
+    }
+
+    public static class MyLocalJsonProvidedNested implements Serializable {
+        public int myInsideInt;
+    }
 }

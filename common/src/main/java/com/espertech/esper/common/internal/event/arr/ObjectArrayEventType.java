@@ -35,7 +35,7 @@ public class ObjectArrayEventType extends BaseNestableEventType {
                                 EventType[] optionalSuperTypes, Set<EventType> optionalDeepSupertypes,
                                 String startTimestampName, String endTimestampName, BeanEventTypeFactory beanEventTypeFactory) {
         super(metadata, properyTypes, optionalSuperTypes, optionalDeepSupertypes, startTimestampName, endTimestampName,
-                getGetterFactory(metadata.getName(), properyTypes, optionalSuperTypes), beanEventTypeFactory);
+                getGetterFactory(metadata.getName(), properyTypes, optionalSuperTypes), beanEventTypeFactory, false);
     }
 
     public Map<String, Integer> getPropertiesIndexes() {

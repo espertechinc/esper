@@ -15,20 +15,34 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.
 import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.JsonEndValueForgeCast;
 import com.espertech.esper.common.internal.event.json.write.JsonWriteForge;
 import com.espertech.esper.common.internal.event.json.write.JsonWriteForgeByMethod;
+import com.espertech.esper.common.internal.event.json.write.JsonWriteUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class JsonForgeFactoryEventTypeTyped {
     public static JsonForgeDesc forgeNonArray(String fieldName, JsonEventType other) {
         JsonDelegateForge startObject = new JsonDelegateForgeWithDelegateFactory(other.getDetail().getDelegateFactoryClassName());
         JsonEndValueForge end = new JsonEndValueForgeCast(other.getDetail().getUnderlyingClassName());
-        JsonWriteForge writeForge = new JsonWriteForgeByMethod("writeNested");
+        JsonWriteForge writeForge;
+        if (other.getDetail().getOptionalUnderlyingProvided() == null) {
+            writeForge = new JsonWriteForgeByMethod("writeNested");
+        } else {
+            writeForge = (refs, method, classScope) -> staticMethod(JsonWriteUtil.class, "writeNested", refs.getWriter(), refs.getField(), newInstance(other.getDetail().getDelegateFactoryClassName()));
+        }
         return new JsonForgeDesc(fieldName, startObject, null, end, writeForge);
     }
 
     public static JsonForgeDesc forgeArray(String fieldName, JsonEventType other) {
         JsonDelegateForge startArray = new JsonDelegateForgeWithDelegateFactoryArray(other.getDetail().getDelegateFactoryClassName(), other.getUnderlyingType());
         JsonEndValueForge end = new JsonEndValueForgeCast(JavaClassHelper.getArrayType(other.getUnderlyingType()));
-        JsonWriteForge writeForge = new JsonWriteForgeByMethod("writeNestedArray");
+        JsonWriteForge writeForge;
+        if (other.getDetail().getOptionalUnderlyingProvided() == null) {
+            writeForge = new JsonWriteForgeByMethod("writeNestedArray");
+        } else {
+            writeForge = (refs, method, classScope) -> staticMethod(JsonWriteUtil.class, "writeNestedArray", refs.getWriter(), refs.getField(), newInstance(other.getDetail().getDelegateFactoryClassName()));
+        }
         return new JsonForgeDesc(fieldName, null, startArray, end, writeForge);
     }
 }

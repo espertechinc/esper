@@ -28,8 +28,10 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 
+import java.io.Serializable;
 import java.util.*;
 
+import static com.espertech.esper.common.internal.support.EventRepresentationChoice.*;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -55,7 +57,7 @@ public class ExprCoreTypeOf {
     private static class ExprCoreTypeOfDynamicProps implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String schema = EventRepresentationChoice.MAP.getAnnotationText() + " create schema MyDynoPropSchema as (key string);\n";
+            String schema = MAP.getAnnotationText() + " create schema MyDynoPropSchema as (key string);\n";
             env.compileDeployWBusPublicType(schema, path);
 
             String epl = "@name('s0') select typeof(prop?), typeof(key) from MyDynoPropSchema as s0";
@@ -80,7 +82,7 @@ public class ExprCoreTypeOf {
         }
 
         public void run(RegressionEnvironment env) {
-            for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+            for (EventRepresentationChoice rep : values()) {
                 tryAssertionVariantStream(env, rep);
             }
         }
@@ -104,7 +106,7 @@ public class ExprCoreTypeOf {
 
     private static class ExprCoreTypeOfFragment implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+            for (EventRepresentationChoice rep : values()) {
                 tryAssertionFragment(env, rep);
             }
         }
@@ -113,10 +115,10 @@ public class ExprCoreTypeOf {
     private static void tryAssertionVariantStream(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
         String eplSchemas =
-            eventRepresentationEnum.getAnnotationText() + " create schema EventOne as (key string);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema EventTwo as (key string);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema S0 as " + SupportBean_S0.class.getName() + ";\n" +
-                eventRepresentationEnum.getAnnotationText() + " create variant schema VarSchema as *;\n";
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " create schema EventOne as (key string);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " create schema EventTwo as (key string);\n" +
+                " create schema S0 as " + SupportBean_S0.class.getName() + ";\n" +
+                " create variant schema VarSchema as *;\n";
         RegressionPath path = new RegressionPath();
         env.compileDeployWBusPublicType(eplSchemas, path);
 
@@ -136,7 +138,7 @@ public class ExprCoreTypeOf {
             GenericData.Record record = new GenericData.Record(SchemaBuilder.record("EventOne").fields().requiredString("key").endRecord());
             record.put("key", "value");
             env.sendEventAvro(record, "EventOne");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventOne");
         } else {
             fail();
@@ -151,7 +153,7 @@ public class ExprCoreTypeOf {
             GenericData.Record record = new GenericData.Record(SchemaBuilder.record("EventTwo").fields().requiredString("key").endRecord());
             record.put("key", "value");
             env.sendEventAvro(record, "EventTwo");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventTwo");
         } else {
             fail();
@@ -186,7 +188,7 @@ public class ExprCoreTypeOf {
             eventTwo.put("key", "value");
             env.sendEventAvro(eventOne, "EventOne");
             env.sendEventAvro(eventTwo, "EventTwo");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventOne");
             env.sendEventJson(new JsonObject().add("key", "value").toString(), "EventTwo");
         } else {
@@ -198,9 +200,9 @@ public class ExprCoreTypeOf {
     }
 
     private static void tryAssertionFragment(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-        String epl = eventRepresentationEnum.getAnnotationText() + " create schema InnerSchema as (key string);\n" +
-            eventRepresentationEnum.getAnnotationText() + " create schema MySchema as (inside InnerSchema, insidearr InnerSchema[]);\n" +
-            eventRepresentationEnum.getAnnotationText() + " @name('s0') select typeof(s0.inside) as t0, typeof(s0.insidearr) as t1 from MySchema as s0;\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedInnerSchema.class) + " create schema InnerSchema as (key string);\n" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " create schema MySchema as (inside InnerSchema, insidearr InnerSchema[]);\n" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedOut.class) + " @name('s0') select typeof(s0.inside) as t0, typeof(s0.insidearr) as t1 from MySchema as s0;\n";
         String[] fields = new String[]{"t0", "t1"};
         env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
         String deploymentId = env.deploymentId("s0");
@@ -212,7 +214,7 @@ public class ExprCoreTypeOf {
         } else if (eventRepresentationEnum.isAvroEvent()) {
             Schema schema = SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventType(deploymentId, "MySchema"));
             env.sendEventAvro(new GenericData.Record(schema), "MySchema");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             env.sendEventJson("{}", "MySchema");
         } else {
             fail();
@@ -231,12 +233,13 @@ public class ExprCoreTypeOf {
             GenericData.Record event = new GenericData.Record(mySchema);
             event.put("inside", new GenericData.Record(innerSchema));
             env.sendEventAvro(event, "MySchema");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject theEvent = new JsonObject().add("inside", new JsonObject());
             env.sendEventJson(theEvent.toString(), "MySchema");
         } else {
             fail();
         }
+
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"InnerSchema", null});
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
@@ -250,12 +253,13 @@ public class ExprCoreTypeOf {
             GenericData.Record event = new GenericData.Record(mySchema);
             event.put("insidearr", Collections.emptyList());
             env.sendEventAvro(event, "MySchema");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject theEvent = new JsonObject().add("insidearr", new JsonArray().add(new JsonObject()));
             env.sendEventJson(theEvent.toString(), "MySchema");
         } else {
             fail();
         }
+
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, "InnerSchema[]"});
 
         env.undeployAll();
@@ -280,5 +284,23 @@ public class ExprCoreTypeOf {
         theEvent.put("prop", prop);
         theEvent.put("key", key);
         env.sendEventMap(theEvent, "MyDynoPropSchema");
+    }
+
+    public static class MyLocalJsonProvidedInnerSchema implements Serializable {
+        public String key;
+    }
+
+    public static class MyLocalJsonProvidedMySchema implements Serializable {
+        public MyLocalJsonProvidedInnerSchema inside;
+        public MyLocalJsonProvidedInnerSchema[] insidearr;
+    }
+
+    public static class MyLocalJsonProvidedOut implements Serializable {
+        public String t0;
+        public String t1;
+    }
+
+    public static class MyLocalJsonProvidedWKey implements Serializable {
+        public String key;
     }
 }

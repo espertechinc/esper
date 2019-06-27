@@ -40,7 +40,7 @@ public class MapEventType extends BaseNestableEventType {
                         String endTimestampPropertyName,
                         BeanEventTypeFactory beanEventTypeFactory) {
         super(metadata, propertyTypes, optionalSuperTypes, optionalDeepSupertypes, startTimestampPropertyName, endTimestampPropertyName,
-                GETTER_FACTORY, beanEventTypeFactory);
+                GETTER_FACTORY, beanEventTypeFactory, false);
     }
 
     public final Class getUnderlyingType() {

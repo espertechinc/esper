@@ -28,6 +28,7 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -419,10 +420,10 @@ public class EPLOtherSplitStream {
 
     private static void tryAssertionSplitPremptiveNamedWindow(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(eventRepresentationEnum.getAnnotationText() + " create schema TypeTrigger(trigger int)", path);
+        env.compileDeployWBusPublicType(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTrigger.class) + " create schema TypeTrigger(trigger int)", path);
 
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " create schema TypeTwo(col2 int)", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " create window WinTwo#keepall as TypeTwo", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " create schema TypeTwo(col2 int)", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " create window WinTwo#keepall as TypeTwo", path);
 
         String stmtOrigText = "on TypeTrigger " +
             "insert into OtherStream select 1 " +
@@ -443,7 +444,7 @@ public class EPLOtherSplitStream {
         } else if (eventRepresentationEnum.isAvroEvent()) {
             GenericData.Record event = new GenericData.Record(SchemaBuilder.record("name").fields().optionalInt("trigger").endRecord());
             env.sendEventAvro(event, "TypeTrigger");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             env.sendEventJson("{}", "TypeTrigger");
         } else {
             fail();
@@ -603,5 +604,13 @@ public class EPLOtherSplitStream {
             listeners[i] = env.listenerNew();
         }
         return listeners;
+    }
+
+    public static class MyLocalJsonProvidedTrigger implements Serializable {
+        public int trigger;
+    }
+
+    public static class MyLocalJsonProvidedTypeTwo implements Serializable {
+        public int col2;
     }
 }

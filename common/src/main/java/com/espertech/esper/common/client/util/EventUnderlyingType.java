@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.client.util;
 
-import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Map;
@@ -48,8 +47,8 @@ public enum EventUnderlyingType {
         MAP.underlyingClassName = MAP.underlyingClass.getName();
         AVRO.underlyingClassName = AVRO_TYPE_NAME;
         AVRO.underlyingClass = null;
-        JSON.underlyingClass = JsonEventObject.class;
-        JSON.underlyingClassName = JsonEventObject.class.getName();
+        JSON.underlyingClass = Object.class;
+        JSON.underlyingClassName = Object.class.getName();
     }
 
     private String underlyingClassName;

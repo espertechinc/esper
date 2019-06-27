@@ -25,6 +25,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.util.SupportInfraUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -179,7 +180,7 @@ public class InfraNamedWindowInsertFrom {
         private void tryAssertionInsertWhereOMStaggered(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
             RegressionPath path = new RegressionPath();
-            String stmtTextCreateOne = eventRepresentationEnum.getAnnotationText() + " @name('window') create window MyWindowIWOM#keepall as select a, b from MyMapAB";
+            String stmtTextCreateOne = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyWindowIWOM.class) + " @name('window') create window MyWindowIWOM#keepall as select a, b from MyMapAB";
             env.compileDeploy(stmtTextCreateOne, path);
             assertTrue(eventRepresentationEnum.matchesClass(env.statement("window").getEventType().getUnderlyingType()));
             env.addListener("window");
@@ -210,7 +211,7 @@ public class InfraNamedWindowInsertFrom {
             EPAssertionUtil.assertPropsPerRow(env.iterator("windowTwo"), "a,b".split(","), new Object[][]{{"E2", 10}, {"E3", 10}});
 
             // test select individual fields and from an insert-from named window
-            env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @name('windowThree') create window MyWindowIWOMThree#keepall as select a from MyWindowIWOMTwo insert where a = 'E2'", path);
+            env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyWindowIWOMThree.class) + " @name('windowThree') create window MyWindowIWOMThree#keepall as select a from MyWindowIWOMTwo insert where a = 'E2'", path);
             EPAssertionUtil.assertPropsPerRow(env.iterator("windowThree"), "a".split(","), new Object[][]{{"E2"}});
 
             env.undeployAll();
@@ -262,5 +263,14 @@ public class InfraNamedWindowInsertFrom {
             return (Long) env.compileExecuteFAF("select count(*) as cnt from " + windowName, path).getArray()[0].get("cnt");
         }
         return SupportInfraUtil.getDataWindowCountNoContext(env, statementName, windowName);
+    }
+
+    public static class MyLocalJsonProvidedMyWindowIWOM implements Serializable {
+        public String a;
+        public int b;
+    }
+
+    public static class MyLocalJsonProvidedMyWindowIWOMThree implements Serializable {
+        public String a;
     }
 }

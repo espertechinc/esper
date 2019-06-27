@@ -155,7 +155,7 @@ public class TestSuiteEventInfra extends TestCase {
         RegressionRunner.run(session, new EventInfraGetterNestedSimple());
     }
 
-    public void testEventInfraGetterNestedArrayNoFragment() {
+    public void testEventInfraGetterNestedArray() {
         RegressionRunner.run(session, new EventInfraGetterNestedArray());
     }
 

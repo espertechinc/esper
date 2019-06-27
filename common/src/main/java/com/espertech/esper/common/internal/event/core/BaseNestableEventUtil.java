@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventPropertyGetter;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.property.IndexedProperty;
@@ -40,6 +41,7 @@ import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.getClassNameFullyQualPretty;
 
 public class BaseNestableEventUtil {
 
@@ -138,7 +140,7 @@ public class BaseNestableEventUtil {
 
     private static EPException makeUnexpectedTypeException(String propertyTypeName, String propertyName) {
         return new EPException("Nestable type configuration encountered an unexpected property type name '"
-                + propertyTypeName + "' for property '" + propertyName + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
+            + propertyTypeName + "' for property '" + propertyName + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
     }
 
     public static Map<String, Object> checkedCastUnderlyingMap(EventBean theEvent) throws PropertyAccessException {
@@ -494,12 +496,22 @@ public class BaseNestableEventUtil {
 
     public static CodegenMethod getBeanArrayValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, BeanEventPropertyGetter nestedGetter, int index) {
         return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(Object.class, "value").getBlock()
-                .ifRefNullReturnNull("value")
-                .ifConditionReturnConst(not(exprDotMethodChain(ref("value")).add("getClass").add("isArray")), null)
-                .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, constant(index)), null)
-                .declareVar(Object.class, "arrayItem", staticMethod(Array.class, "get", ref("value"), constant(index)))
-                .ifRefNullReturnNull("arrayItem")
-                .methodReturn(nestedGetter.underlyingGetCodegen(cast(nestedGetter.getTargetType(), ref("arrayItem")), codegenMethodScope, codegenClassScope));
+            .ifRefNullReturnNull("value")
+            .ifConditionReturnConst(not(exprDotMethodChain(ref("value")).add("getClass").add("isArray")), null)
+            .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, constant(index)), null)
+            .declareVar(Object.class, "arrayItem", staticMethod(Array.class, "get", ref("value"), constant(index)))
+            .ifRefNullReturnNull("arrayItem")
+            .methodReturn(nestedGetter.underlyingGetCodegen(cast(nestedGetter.getTargetType(), ref("arrayItem")), codegenMethodScope, codegenClassScope));
+    }
+
+    public static CodegenMethod getBeanArrayValueExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, BeanEventPropertyGetter nestedGetter, int index) {
+        return codegenMethodScope.makeChild(boolean.class, BaseNestableEventUtil.class, codegenClassScope).addParam(Object.class, "value").getBlock()
+            .ifRefNullReturnFalse("value")
+            .ifConditionReturnConst(not(exprDotMethodChain(ref("value")).add("getClass").add("isArray")), false)
+            .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, constant(index)), false)
+            .declareVar(Object.class, "arrayItem", staticMethod(Array.class, "get", ref("value"), constant(index)))
+            .ifRefNullReturnFalse("arrayItem")
+            .methodReturn(nestedGetter.underlyingExistsCodegen(cast(nestedGetter.getTargetType(), ref("arrayItem")), codegenMethodScope, codegenClassScope));
     }
 
     public static Object getArrayPropertyValue(EventBean[] wrapper, int index, EventPropertyGetter nestedGetter) {
@@ -515,10 +527,10 @@ public class BaseNestableEventUtil {
 
     public static CodegenMethod getArrayPropertyValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, int index, EventPropertyGetterSPI nestedGetter) {
         return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(EventBean[].class, "wrapper").getBlock()
-                .ifRefNullReturnNull("wrapper")
-                .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
-                .declareVar(EventBean.class, "inner", arrayAtIndex(ref("wrapper"), constant(index)))
-                .methodReturn(nestedGetter.eventBeanGetCodegen(ref("inner"), codegenMethodScope, codegenClassScope));
+            .ifRefNullReturnNull("wrapper")
+            .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
+            .declareVar(EventBean.class, "inner", arrayAtIndex(ref("wrapper"), constant(index)))
+            .methodReturn(nestedGetter.eventBeanGetCodegen(ref("inner"), codegenMethodScope, codegenClassScope));
     }
 
     public static Object getArrayPropertyFragment(EventBean[] wrapper, int index, EventPropertyGetter nestedGetter) {
@@ -534,10 +546,10 @@ public class BaseNestableEventUtil {
 
     public static CodegenMethod getArrayPropertyFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, int index, EventPropertyGetterSPI nestedGetter) {
         return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(EventBean[].class, "wrapper").getBlock()
-                .ifRefNullReturnNull("wrapper")
-                .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
-                .declareVar(EventBean.class, "inner", arrayAtIndex(ref("wrapper"), constant(index)))
-                .methodReturn(nestedGetter.eventBeanFragmentCodegen(ref("inner"), codegenMethodScope, codegenClassScope));
+            .ifRefNullReturnNull("wrapper")
+            .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
+            .declareVar(EventBean.class, "inner", arrayAtIndex(ref("wrapper"), constant(index)))
+            .methodReturn(nestedGetter.eventBeanFragmentCodegen(ref("inner"), codegenMethodScope, codegenClassScope));
     }
 
     /**
@@ -590,12 +602,12 @@ public class BaseNestableEventUtil {
 
     public static CodegenMethod getArrayPropertyAsUnderlyingsArrayCodegen(Class underlyingType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(EventBean[].class, "wrapper").getBlock()
-                .ifRefNullReturnNull("wrapper")
-                .declareVar(JavaClassHelper.getArrayType(underlyingType), "array", newArrayByLength(underlyingType, arrayLength(ref("wrapper"))))
-                .forLoopIntSimple("i", arrayLength(ref("wrapper")))
-                .assignArrayElement("array", ref("i"), cast(underlyingType, exprDotMethod(arrayAtIndex(ref("wrapper"), ref("i")), "getUnderlying")))
-                .blockEnd()
-                .methodReturn(ref("array"));
+            .ifRefNullReturnNull("wrapper")
+            .declareVar(JavaClassHelper.getArrayType(underlyingType), "array", newArrayByLength(underlyingType, arrayLength(ref("wrapper"))))
+            .forLoopIntSimple("i", arrayLength(ref("wrapper")))
+            .assignArrayElement("array", ref("i"), cast(underlyingType, exprDotMethod(arrayAtIndex(ref("wrapper"), ref("i")), "getUnderlying")))
+            .blockEnd()
+            .methodReturn(ref("array"));
     }
 
     public static ExprValidationException comparePropType(String propName, Object setOneType, Object setTwoType, boolean setTwoTypeFound, String otherName) {
@@ -621,20 +633,20 @@ public class BaseNestableEventUtil {
             Class boxedThis = JavaClassHelper.getBoxedType((Class) setOneType);
             if (!boxedOther.equals(boxedThis)) {
                 if (!JavaClassHelper.isSubclassOrImplementsInterface(boxedOther, boxedThis)) {
-                    return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' expected " + boxedThis + " but receives " + boxedOther);
+                    return makeExpectedReceivedException(otherName, propName, boxedThis, boxedOther);
                 }
             }
-        } else if ((setTwoType instanceof BeanEventType) && (setOneType instanceof Class)) {
-            Class boxedOther = JavaClassHelper.getBoxedType(((BeanEventType) setTwoType).getUnderlyingType());
+        } else if ((setTwoType instanceof EventType && isNativeUnderlyingType((EventType) setTwoType)) && (setOneType instanceof Class)) {
+            Class boxedOther = JavaClassHelper.getBoxedType(((EventType) setTwoType).getUnderlyingType());
             Class boxedThis = JavaClassHelper.getBoxedType((Class) setOneType);
             if (!boxedOther.equals(boxedThis)) {
-                return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' expected " + boxedThis + " but receives " + boxedOther);
+                return makeExpectedReceivedException(otherName, propName, boxedThis, boxedOther);
             }
-        } else if (setTwoType instanceof EventType[] && ((EventType[]) setTwoType)[0] instanceof BeanEventType && setOneType instanceof Class && ((Class) setOneType).isArray()) {
+        } else if (setTwoType instanceof EventType[] && (isNativeUnderlyingType(((EventType[]) setTwoType)[0]) && setOneType instanceof Class && ((Class) setOneType).isArray())) {
             Class boxedOther = JavaClassHelper.getBoxedType((((EventType[]) setTwoType)[0]).getUnderlyingType());
             Class boxedThis = JavaClassHelper.getBoxedType(((Class) setOneType).getComponentType());
             if (!boxedOther.equals(boxedThis)) {
-                return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' expected " + boxedThis + " but receives " + boxedOther);
+                return makeExpectedReceivedException(otherName, propName, boxedThis, boxedOther);
             }
         } else if ((setTwoType instanceof Map) && (setOneType instanceof Map)) {
             ExprValidationException messageIsDeepEquals = BaseNestableEventType.isDeepEqualsProperties(propName, (Map<String, Object>) setOneType, (Map<String, Object>) setTwoType);
@@ -690,15 +702,19 @@ public class BaseNestableEventUtil {
         return null;
     }
 
+    private static ExprValidationException makeExpectedReceivedException(String otherName, String propName, Class boxedThis, Class boxedOther) {
+        return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' expected " + getClassNameFullyQualPretty(boxedThis) + " but receives " + getClassNameFullyQualPretty(boxedOther));
+    }
+
     private static ExprValidationException getMismatchMessageEventType(String otherName, String propName, EventType setOneEventType, EventType setTwoEventType) {
         return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' expected event type '" + setOneEventType.getName() + "' but receives event type '" + setTwoEventType.getName() + "'");
     }
 
     private static boolean isNestedType(Object type) {
         return type instanceof TypeBeanOrUnderlying ||
-                type instanceof EventType ||
-                type instanceof TypeBeanOrUnderlying[] ||
-                type instanceof EventType[];
+            type instanceof EventType ||
+            type instanceof TypeBeanOrUnderlying[] ||
+            type instanceof EventType[];
     }
 
     private static String getTypeName(Object type) {
@@ -721,6 +737,16 @@ public class BaseNestableEventUtil {
             return "event type array '" + ((TypeBeanOrUnderlying[]) type)[0].getEventType().getName() + "'";
         }
         return type.getClass().getName();
+    }
+
+    private static boolean isNativeUnderlyingType(EventType eventType) {
+        if (eventType instanceof BeanEventType) {
+            return true;
+        }
+        if (eventType instanceof JsonEventType) {
+            return ((JsonEventType) eventType).getDetail().getOptionalUnderlyingProvided() != null;
+        }
+        return false;
     }
 
     public static class MapIndexedPropPair {

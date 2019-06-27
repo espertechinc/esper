@@ -31,6 +31,7 @@ import org.apache.avro.generic.GenericData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -224,18 +225,18 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
         }
 
         private static void tryAssertionInnerJoinLateStart(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-            String schemaEPL = eventRepresentationEnum.getAnnotationText() + "@name('schema') create schema Product (product string, size int);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema Portfolio (portfolio string, product string);\n";
+            String schemaEPL = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + "@name('schema') create schema Product (product string, size int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedPortfolio.class) + " create schema Portfolio (portfolio string, product string);\n";
             RegressionPath path = new RegressionPath();
             env.compileDeployWBusPublicType(schemaEPL, path);
 
-            env.compileDeploy(eventRepresentationEnum.getAnnotationText() + "@name('window') create window ProductWin#keepall as Product", path);
+            env.compileDeploy("@name('window') create window ProductWin#keepall as Product", path);
 
             assertTrue(eventRepresentationEnum.matchesClass(env.statement("schema").getEventType().getUnderlyingType()));
             assertTrue(eventRepresentationEnum.matchesClass(env.statement("window").getEventType().getUnderlyingType()));
 
             env.compileDeploy("insert into ProductWin select * from Product", path);
-            env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " create window PortfolioWin#keepall as Portfolio", path);
+            env.compileDeploy("create window PortfolioWin#keepall as Portfolio", path);
             env.compileDeploy("insert into PortfolioWin select * from Portfolio", path);
 
             sendProduct(env, eventRepresentationEnum, "productA", 1);
@@ -272,7 +273,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 theEvent.put("product", product);
                 theEvent.put("size", size);
                 env.eventService().sendEventAvro(theEvent, "Product");
-            } else if (eventRepresentationEnum.isJsonEvent()) {
+            } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 JsonObject object = new JsonObject();
                 object.add("product", product);
                 object.add("size", size);
@@ -295,7 +296,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 theEvent.put("portfolio", portfolio);
                 theEvent.put("product", product);
                 env.eventService().sendEventAvro(theEvent, "Portfolio");
-            } else if (eventRepresentationEnum.isJsonEvent()) {
+            } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 JsonObject object = new JsonObject();
                 object.add("portfolio", portfolio);
                 object.add("product", product);
@@ -716,5 +717,15 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
         EPAssertionUtil.assertEqualsExactOrder(SupportBean.getBeansPerIndex(beans, indexesAll), (Object[]) received.get("c0"));
         EPAssertionUtil.assertEqualsExactOrder(SupportBean.getBeansPerIndex(beans, indexesWhere), (Collection) received.get("c1"));
         EPAssertionUtil.assertPropsMap((Map) received.get("c2"), mapKeys, mapValues);
+    }
+
+    public static class MyLocalJsonProvidedProduct implements Serializable {
+        public String product;
+        public int size;
+    }
+
+    public static class MyLocalJsonProvidedPortfolio implements Serializable {
+        public String portfolio;
+        public String product;
     }
 }

@@ -24,6 +24,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +83,9 @@ public class EventInfraGetterDynamicMapped implements RegressionExecution {
             }
         };
         runAssertion(env, "@public @buseventtype @JsonSchema(dynamic=true) create json schema LocalEvent();\n", json);
+
+        // Json-Class-Provided
+        runAssertion(env, "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n", json);
 
         // Avro
         BiConsumer<EventType, NullableObject<Map<String, String>>> avro = (type, nullable) -> {
@@ -190,5 +194,9 @@ public class EventInfraGetterDynamicMapped implements RegressionExecution {
         public Map<String, String> getMapped() {
             return mapped;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public Map<String, String> mapped;
     }
 }

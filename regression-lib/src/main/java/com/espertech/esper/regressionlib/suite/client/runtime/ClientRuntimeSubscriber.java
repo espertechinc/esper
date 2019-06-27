@@ -30,6 +30,7 @@ import com.espertech.esper.runtime.client.UpdateListener;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import org.junit.Assert;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ClientRuntimeSubscriber {
     private final static String[] FIELDS = "theString,intPrimitive".split(",");
 
     public static Collection<RegressionExecution> executions() {
-        ArrayList<RegressionExecution> execs = new ArrayList();
+        List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ClientRuntimeSubscriberBindings());
         execs.add(new ClientRuntimeSubscriberSubscriberAndListener());
         execs.add(new ClientRuntimeSubscriberBindWildcardJoin());
@@ -238,7 +239,7 @@ public class ClientRuntimeSubscriber {
     }
 
     private static void tryAssertionBindObjectArr(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, SupportSubscriberMultirowObjectArrayBase subscriber) {
-        String stmtText = eventRepresentationEnum.getAnnotationText() + " @name('s0') select irstream theString, intPrimitive from SupportBean" + "#length_batch(2)";
+        String stmtText = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStringInt.class) + " @name('s0') select irstream theString, intPrimitive from SupportBean" + "#length_batch(2)";
         EPStatement stmt = env.compileDeploy(stmtText).statement("s0");
         stmt.setSubscriber(subscriber);
         assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
@@ -259,7 +260,7 @@ public class ClientRuntimeSubscriber {
     }
 
     private static void tryAssertionBindMap(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, SupportSubscriberMultirowMapBase subscriber) {
-        String stmtText = eventRepresentationEnum.getAnnotationText() + " @name('s0') select irstream theString, intPrimitive from SupportBean" + "#length_batch(2)";
+        String stmtText = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStringInt.class) + " @name('s0') select irstream theString, intPrimitive from SupportBean" + "#length_batch(2)";
         EPStatement stmt = env.compileDeploy(stmtText).statement("s0");
         stmt.setSubscriber(subscriber);
         assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
@@ -280,7 +281,7 @@ public class ClientRuntimeSubscriber {
     }
 
     private static void tryAssertionWidening(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowSpecificBase subscriber) {
-        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @name('s0') select bytePrimitive, intPrimitive, longPrimitive, floatPrimitive from SupportBean(theString='E1')").statement("s0");
+        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWidenedEvent.class) + " @name('s0') select bytePrimitive, intPrimitive, longPrimitive, floatPrimitive from SupportBean(theString='E1')").statement("s0");
         stmt.setSubscriber(subscriber);
         assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
@@ -297,7 +298,7 @@ public class ClientRuntimeSubscriber {
     }
 
     private static void tryAssertionObjectArrayDelivery(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowObjectArrayBase subscriber) {
-        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @name('s0') select theString, intPrimitive from SupportBean#unique(theString)").statement("s0");
+        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStringInt.class) + " @name('s0') select theString, intPrimitive from SupportBean#unique(theString)").statement("s0");
         stmt.setSubscriber(subscriber);
         assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
@@ -311,7 +312,7 @@ public class ClientRuntimeSubscriber {
     }
 
     private static void tryAssertionRowMapDelivery(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowMapBase subscriber) {
-        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @name('s0') select irstream theString, intPrimitive from SupportBean#unique(theString)").statement("s0");
+        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStringInt.class) + " @name('s0') select irstream theString, intPrimitive from SupportBean#unique(theString)").statement("s0");
         stmt.setSubscriber(subscriber);
         assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
@@ -397,7 +398,7 @@ public class ClientRuntimeSubscriber {
     }
 
     private static void tryAssertionOutputLimitNoJoin(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowSpecificBase subscriber) {
-        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @name('s0') select theString, intPrimitive from SupportBean output every 2 events").statement("s0");
+        EPStatement stmt = env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStringInt.class) + " @name('s0') select theString, intPrimitive from SupportBean output every 2 events").statement("s0");
         stmt.setSubscriber(subscriber);
         assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
@@ -841,5 +842,17 @@ public class ClientRuntimeSubscriber {
             indicate = new ArrayList<>();
             return result;
         }
+    }
+
+    public static class MyLocalJsonProvidedWidenedEvent implements Serializable {
+        public byte bytePrimitive;
+        public int intPrimitive;
+        public long longPrimitive;
+        public float floatPrimitive;
+    }
+
+    public static class MyLocalJsonProvidedStringInt implements Serializable {
+        public String theString;
+        public Integer intPrimitive;
     }
 }

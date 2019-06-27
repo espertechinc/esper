@@ -144,7 +144,7 @@ public class EPLDataflowOpBeaconSource {
         EPDataFlowInstantiationOptions options;
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create " + representationEnum.getOutputTypeCreateSchemaName() + " schema MyEvent(p0 string, p1 long, p2 double)", path);
+        env.compileDeploy(representationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "create schema MyEvent(p0 string, p1 long, p2 double)", path);
         env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
             "" +
             "BeaconSource -> BeaconStream<" + (eventbean ? "EventBean<MyEvent>" : "MyEvent") + "> {" +
@@ -354,5 +354,11 @@ public class EPLDataflowOpBeaconSource {
         public void setMyfield(String myfield) {
             this.myfield = myfield;
         }
+    }
+
+    public static class MyLocalJsonProvidedMyEvent implements Serializable {
+        public String p0;
+        public long p1;
+        public double p2;
     }
 }

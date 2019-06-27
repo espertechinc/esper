@@ -40,7 +40,7 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
     private final BeanEventTypeFactory beanEventTypeFactory;
     private volatile BeanEventType fragmentEventType;
     private final Class fragmentClassType;
-    private boolean isFragmentable;
+    protected boolean isFragmentable;
     private final boolean isArray;
     private final boolean isIterable;
 
@@ -102,11 +102,11 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         if (object.getClass().isArray()) {
             if (JavaClassHelper.isFragmentableType(object.getClass().getComponentType())) {
                 isArray = true;
-                fragmentEventType = beanEventTypeFactory.getCreateBeanType(object.getClass().getComponentType());
+                fragmentEventType = beanEventTypeFactory.getCreateBeanType(object.getClass().getComponentType(), false);
             }
         } else {
             if (JavaClassHelper.isFragmentableType(object.getClass())) {
-                fragmentEventType = beanEventTypeFactory.getCreateBeanType(object.getClass());
+                fragmentEventType = beanEventTypeFactory.getCreateBeanType(object.getClass(), false);
             }
         }
 
@@ -193,7 +193,7 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         isFragmentable = true;
     }
 
-    public Object getFragment(EventBean eventBean) {
+    public final Object getFragment(EventBean eventBean) {
         determineFragmentable();
         if (!isFragmentable) {
             return null;
@@ -204,12 +204,24 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
             return null;
         }
 
+        return getFragmentFromObject(object);
+    }
+
+    public Object getFragmentFromValue(Object valueReturnedByGet) {
+        determineFragmentable();
+        if (!isFragmentable) {
+            return null;
+        }
+        return getFragmentFromObject(valueReturnedByGet);
+    }
+
+    private Object getFragmentFromObject(Object value) {
         if (isArray) {
-            return toFragmentArray((Object[]) object, fragmentEventType, eventBeanTypedEventFactory);
+            return toFragmentArray((Object[]) value, fragmentEventType, eventBeanTypedEventFactory);
         } else if (isIterable) {
-            return toFragmentIterable(object, fragmentEventType, eventBeanTypedEventFactory);
+            return toFragmentIterable(value, fragmentEventType, eventBeanTypedEventFactory);
         } else {
-            return eventBeanTypedEventFactory.adapterForTypedBean(object, fragmentEventType);
+            return eventBeanTypedEventFactory.adapterForTypedBean(value, fragmentEventType);
         }
     }
 
@@ -249,7 +261,7 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
     private void determineFragmentable() {
         if (fragmentEventType == null) {
             if (JavaClassHelper.isFragmentableType(fragmentClassType)) {
-                fragmentEventType = beanEventTypeFactory.getCreateBeanType(fragmentClassType);
+                fragmentEventType = beanEventTypeFactory.getCreateBeanType(fragmentClassType, false);
             } else {
                 isFragmentable = false;
             }

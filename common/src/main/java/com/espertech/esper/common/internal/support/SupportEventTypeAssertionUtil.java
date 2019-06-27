@@ -34,7 +34,7 @@ public class SupportEventTypeAssertionUtil {
     }
 
     public static void assertConsistency(EventBean eventBean) {
-        assertConsistencyRecusive(eventBean, new HashSet<EventType>());
+        assertConsistencyRecursive(eventBean, new HashSet<EventType>());
     }
 
     public static void assertConsistency(EventType eventType) {
@@ -228,7 +228,7 @@ public class SupportEventTypeAssertionUtil {
         }
     }
 
-    private static void assertConsistencyRecusive(EventBean eventBean, Set<EventType> alreadySeenTypes) {
+    private static void assertConsistencyRecursive(EventBean eventBean, Set<EventType> alreadySeenTypes) {
         assertConsistencyRecursive(eventBean.getEventType(), alreadySeenTypes);
 
         EventPropertyDescriptor[] properties = eventBean.getEventType().getPropertyDescriptors();
@@ -267,22 +267,25 @@ public class SupportEventTypeAssertionUtil {
                 continue;
             }
 
-            Object fragment = eventBean.getFragment(propertyName);
-            ScopeTestHelper.assertNotNull(failedMessage, fragment);
-
             FragmentEventType fragmentType = eventBean.getEventType().getFragmentType(propertyName);
             ScopeTestHelper.assertNotNull(failedMessage, fragmentType);
+
+            // fragment can be null
+            Object fragment = eventBean.getFragment(propertyName);
+            if (fragment == null) {
+                return;
+            }
 
             if (!fragmentType.isIndexed()) {
                 ScopeTestHelper.assertTrue(failedMessage, fragment instanceof EventBean);
                 EventBean fragmentEvent = (EventBean) fragment;
-                assertConsistencyRecusive(fragmentEvent, alreadySeenTypes);
+                assertConsistencyRecursive(fragmentEvent, alreadySeenTypes);
             } else {
                 ScopeTestHelper.assertTrue(failedMessage, fragment instanceof EventBean[]);
                 EventBean[] events = (EventBean[]) fragment;
                 ScopeTestHelper.assertTrue(failedMessage, events.length > 0);
                 for (EventBean theEvent : events) {
-                    assertConsistencyRecusive(theEvent, alreadySeenTypes);
+                    assertConsistencyRecursive(theEvent, alreadySeenTypes);
                 }
             }
         }

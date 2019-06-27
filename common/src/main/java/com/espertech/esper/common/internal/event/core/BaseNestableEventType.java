@@ -33,6 +33,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     protected final Set<EventType> optionalDeepSupertypes;
     protected final EventTypeNestableGetterFactory getterFactory;
     protected final BeanEventTypeFactory beanEventTypeFactory;
+    protected final boolean publicFields;
 
     // Simple (not-nested) properties are stored here
     protected String[] propertyNames;       // Cache an array of property names so not to construct one frequently
@@ -50,15 +51,15 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     /**
      * Constructor takes a type name, map of property names and types, for
      * use with nestable Map events.
-     *
+     *  @param metadata                   event type metadata
      * @param propertyTypes              is pairs of property name and type
      * @param optionalSuperTypes         the supertypes to this type if any, or null if there are no supertypes
      * @param optionalDeepSupertypes     the deep supertypes to this type if any, or null if there are no deep supertypes
-     * @param metadata                   event type metadata
+     * @param startTimestampPropertyName start timestamp
+     * @param endTimestampPropertyName   end timestamp
      * @param getterFactory              getter factory
      * @param beanEventTypeFactory       bean factory
-     * @param endTimestampPropertyName   end timestamp
-     * @param startTimestampPropertyName start timestamp
+     * @param publicFields
      */
     public BaseNestableEventType(EventTypeMetadata metadata,
                                  Map<String, Object> propertyTypes,
@@ -67,10 +68,12 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
                                  String startTimestampPropertyName,
                                  String endTimestampPropertyName,
                                  EventTypeNestableGetterFactory getterFactory,
-                                 BeanEventTypeFactory beanEventTypeFactory) {
+                                 BeanEventTypeFactory beanEventTypeFactory,
+                                 boolean publicFields) {
         this.metadata = metadata;
         this.getterFactory = getterFactory;
         this.beanEventTypeFactory = beanEventTypeFactory;
+        this.publicFields = publicFields;
         this.startTimestampPropertyName = startTimestampPropertyName;
         this.endTimestampPropertyName = endTimestampPropertyName;
 
@@ -82,7 +85,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         }
 
         // determine property set and prepare getters
-        PropertySetDescriptor propertySet = EventTypeUtility.getNestableProperties(propertyTypes, beanEventTypeFactory.getEventBeanTypedEventFactory(), getterFactory, optionalSuperTypes, beanEventTypeFactory);
+        PropertySetDescriptor propertySet = EventTypeUtility.getNestableProperties(propertyTypes, beanEventTypeFactory.getEventBeanTypedEventFactory(), getterFactory, optionalSuperTypes, beanEventTypeFactory, publicFields);
 
         nestableTypes = propertySet.getNestableTypes();
         propertyNames = propertySet.getPropertyNameArray();
@@ -111,14 +114,14 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     }
 
     public final Class getPropertyType(String propertyName) {
-        return EventTypeUtility.getNestablePropertyType(propertyName, propertyItems, nestableTypes, beanEventTypeFactory);
+        return EventTypeUtility.getNestablePropertyType(propertyName, propertyItems, nestableTypes, beanEventTypeFactory, publicFields);
     }
 
     public EventPropertyGetterSPI getGetterSPI(String propertyName) {
         if (propertyGetterCache == null) {
             propertyGetterCache = new HashMap<>();
         }
-        return EventTypeUtility.getNestableGetter(propertyName, propertyItems, propertyGetterCache, nestableTypes, beanEventTypeFactory.getEventBeanTypedEventFactory(), getterFactory, metadata.getApplicationType() == EventTypeApplicationType.OBJECTARR, beanEventTypeFactory);
+        return EventTypeUtility.getNestableGetter(propertyName, propertyItems, propertyGetterCache, nestableTypes, beanEventTypeFactory.getEventBeanTypedEventFactory(), getterFactory, metadata.getApplicationType() == EventTypeApplicationType.OBJECTARR, beanEventTypeFactory, publicFields);
     }
 
     public EventPropertyGetter getGetter(final String propertyName) {
@@ -275,7 +278,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
                     return null;
                 }
                 // its an array
-                return EventBeanUtility.createNativeFragmentType(((Class) type).getComponentType(), null, beanEventTypeFactory);
+                return EventBeanUtility.createNativeFragmentType(((Class) type).getComponentType(), null, beanEventTypeFactory, false);
             } else if (property instanceof MappedProperty) {
                 // No type information available for the inner event
                 return null;
@@ -327,7 +330,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
                     if (!((Class) type).isArray()) {
                         return null;
                     }
-                    FragmentEventType fragmentParent = EventBeanUtility.createNativeFragmentType((Class) type, null, beanEventTypeFactory);
+                    FragmentEventType fragmentParent = EventBeanUtility.createNativeFragmentType((Class) type, null, beanEventTypeFactory, false);
                     if (fragmentParent == null) {
                         return null;
                     }
@@ -351,7 +354,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
             if (!JavaClassHelper.isFragmentableType(simpleClass)) {
                 return null;
             }
-            EventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass);
+            EventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass, false);
             return nestedEventType.getFragmentType(propertyNested);
         } else if (nestedType instanceof EventType) {
             EventType innerType = (EventType) nestedType;

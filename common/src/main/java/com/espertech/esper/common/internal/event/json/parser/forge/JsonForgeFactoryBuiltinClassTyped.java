@@ -244,7 +244,7 @@ public class JsonForgeFactoryBuiltinClassTyped {
             if (!JavaClassHelper.isImplementsInterface(clazz, JsonFieldAdapterString.class)) {
                 throw new ExprValidationException("Json schema field adapter class does not implement interface '" + JsonFieldAdapterString.class.getSimpleName());
             }
-            if (ConstructorHelper.getRegularConstructor(clazz, new Class[0]) == null) {
+            if (!ConstructorHelper.hasDefaultConstructor(clazz)) {
                 throw new ExprValidationException("Json schema field adapter class '" + clazz.getSimpleName() + "' does not have a default constructor");
             }
             Method writeMethod;
@@ -302,7 +302,7 @@ public class JsonForgeFactoryBuiltinClassTyped {
                 }
             }
             end = new JsonEndValueForgeCast(type);
-        } else if (type == Collection.class || type == List.class) {
+        } else if (type == List.class) {
             if (optionalField != null) {
                 Class genericType = JavaClassHelper.getGenericFieldType(optionalField, true);
                 if (genericType == null) {

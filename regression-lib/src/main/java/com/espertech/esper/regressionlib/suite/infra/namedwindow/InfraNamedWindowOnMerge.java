@@ -11,9 +11,9 @@
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -24,6 +24,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static org.junit.Assert.assertTrue;
@@ -166,9 +167,9 @@ public class InfraNamedWindowOnMerge {
 
     private static void tryAssertionSubselect(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         String[] fields = "col1,col2".split(",");
-        String epl = eventRepresentationEnum.getAnnotationText() + " create schema MyEvent as (in1 string, in2 int);\n";
-        epl += eventRepresentationEnum.getAnnotationText() + " create schema MySchema as (col1 string, col2 int);\n";
-        epl += eventRepresentationEnum.getAnnotationText() + " @name('create') create window MyWindowSS#lastevent as MySchema;\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent as (in1 string, in2 int);\n";
+        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " create schema MySchema as (col1 string, col2 int);\n";
+        epl += "@name('create') create window MyWindowSS#lastevent as MySchema;\n";
         epl += "on SupportBean_A delete from MyWindowSS;\n";
         epl += "on MyEvent me " +
             "merge MyWindowSS mw " +
@@ -241,7 +242,7 @@ public class InfraNamedWindowOnMerge {
             theEvent.put("in1", in1);
             theEvent.put("in2", in2);
             env.eventService().sendEventAvro(theEvent, "MyEvent");
-        } else if (eventRepresentationEnum.isJsonEvent()) {
+        } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             env.eventService().sendEventJson("{\"in1\": \"" + in1 + "\", \"in2\": " + in2 + "}", "MyEvent");
         } else {
             fail();
@@ -250,12 +251,13 @@ public class InfraNamedWindowOnMerge {
 
     private static void tryAssertionDocExample(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        String baseModuleEPL = eventRepresentationEnum.getAnnotationText() + " create schema OrderEvent as (orderId string, productId string, price double, quantity int, deletedFlag boolean)";
+        String baseModuleEPL = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedOrderEvent.class) +
+            " create schema OrderEvent as (orderId string, productId string, price double, quantity int, deletedFlag boolean)";
         env.compileDeployWBusPublicType(baseModuleEPL, path);
 
-        String appModuleOne = eventRepresentationEnum.getAnnotationText() + " create schema ProductTotalRec as (productId string, totalPrice double);" +
+        String appModuleOne = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductTotalRec.class) + " create schema ProductTotalRec as (productId string, totalPrice double);" +
             "" +
-            eventRepresentationEnum.getAnnotationText() + " @Name('nwProd') create window ProductWindow#unique(productId) as ProductTotalRec;" +
+            "@Name('nwProd') create window ProductWindow#unique(productId) as ProductTotalRec;" +
             "" +
             "on OrderEvent oe\n" +
             "merge ProductWindow pw\n" +
@@ -266,7 +268,7 @@ public class InfraNamedWindowOnMerge {
             "then insert select productId, price as totalPrice;";
         env.compileDeploy(appModuleOne, path);
 
-        String appModuleTwo = eventRepresentationEnum.getAnnotationText() + " @Name('nwOrd') create window OrderWindow#keepall as OrderEvent;" +
+        String appModuleTwo = "@Name('nwOrd') create window OrderWindow#keepall as OrderEvent;" +
             "" +
             "on OrderEvent oe\n" +
             "  merge OrderWindow pw\n" +
@@ -346,4 +348,28 @@ public class InfraNamedWindowOnMerge {
         updatedBean.setIntPrimitive(initialBean.getIntPrimitive() + 1);
         updatedBean.setDoubleBoxed(updatedBean.getDoublePrimitive());
     }
+
+    public static class MyLocalJsonProvidedMyEvent implements Serializable {
+        public String in1;
+        public int in2;
+    }
+
+    public static class MyLocalJsonProvidedMySchema implements Serializable {
+        public String col1;
+        public int col2;
+    }
+
+    public static class MyLocalJsonProvidedOrderEvent implements Serializable {
+        public String orderId;
+        public String productId;
+        public double price;
+        public int quantity;
+        public boolean deletedFlag;
+    }
+
+    public static class MyLocalJsonProvidedProductTotalRec implements Serializable {
+        public String productId;
+        public double totalPrice;
+    }
+
 }

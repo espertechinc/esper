@@ -13,11 +13,11 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class EPLOuterFullJoin3Stream {
 
     private static class EPLJoinFullJoin2SidesMulticolumn implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryAssertionFullJoin_2sides_multicolumn(env, EventRepresentationChoice.ARRAY);
+            tryAssertionFullJoin_2sides_multicolumn(env, EventRepresentationChoice.OBJECTARRAY);
             tryAssertionFullJoin_2sides_multicolumn(env, EventRepresentationChoice.MAP);
             tryAssertionFullJoin_2sides_multicolumn(env, EventRepresentationChoice.DEFAULT);
         }
@@ -43,7 +43,7 @@ public class EPLOuterFullJoin3Stream {
         private static void tryAssertionFullJoin_2sides_multicolumn(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
             String[] fields = "s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11, s2.id, s2.p20, s2.p21".split(",");
 
-            String epl = eventRepresentationEnum.getAnnotationText() + " @name('s0') select * from " +
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvided.class) + " @name('s0') select * from " +
                 "SupportBean_S0#length(1000) as s0 " +
                 " full outer join SupportBean_S1#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
                 " full outer join SupportBean_S2#length(1000) as s2 on s0.p00 = s2.p20 and s0.p01 = s2.p21";
@@ -495,5 +495,11 @@ public class EPLOuterFullJoin3Stream {
         EventBean[] newEvents = env.listener("s0").getLastNewData();
         env.listener("s0").reset();
         return ArrayHandlingUtil.getUnderlyingEvents(newEvents, new String[]{"s0", "s1", "s2"});
+    }
+
+    private static class MyLocalJsonProvided {
+        public SupportBean_S0 s0;
+        public SupportBean_S1 s1;
+        public SupportBean_S2 s2;
     }
 }

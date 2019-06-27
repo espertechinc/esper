@@ -14,7 +14,8 @@ import com.espertech.esper.common.internal.event.arr.ObjectArrayDynamicPropertyG
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayPropertyGetterDefaultObjectArray;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
-import com.espertech.esper.common.internal.event.bean.getter.DynamicSimplePropertyGetter;
+import com.espertech.esper.common.internal.event.bean.getter.DynamicSimplePropertyGetterByField;
+import com.espertech.esper.common.internal.event.bean.getter.DynamicSimplePropertyGetterByMethod;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
@@ -44,7 +45,10 @@ public class DynamicSimpleProperty extends PropertyBase implements DynamicProper
     }
 
     public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        return new DynamicSimplePropertyGetter(propertyNameAtomic, eventBeanTypedEventFactory, beanEventTypeFactory);
+        if (!eventType.getStem().isPublicFields()) {
+            return new DynamicSimplePropertyGetterByMethod(propertyNameAtomic, eventBeanTypedEventFactory, beanEventTypeFactory);
+        }
+        return new DynamicSimplePropertyGetterByField(propertyNameAtomic, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
     public boolean isDynamic() {

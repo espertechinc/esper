@@ -20,10 +20,12 @@ import com.espertech.esper.common.internal.util.NullableObject;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.support.json.SupportJsonEventTypeUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.function.BiConsumer;
 
@@ -81,6 +83,9 @@ public class EventInfraGetterDynamicSimple implements RegressionExecution {
         };
         runAssertion(env, "@public @buseventtype @JsonSchema(dynamic=true) create json schema LocalEvent();\n", json);
 
+        // Json-Class-Provided
+        runAssertion(env, "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n", json);
+
         // Avro
         BiConsumer<EventType, NullableObject<String>> avro = (type, nullable) -> {
             Schema schema = SchemaBuilder.record("name").fields().name("property").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault().endRecord();
@@ -122,31 +127,31 @@ public class EventInfraGetterDynamicSimple implements RegressionExecution {
         sender.accept(eventType, new NullableObject<>("a"));
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
         assertGetter(event, g0, true, "a");
-        assertProps(env, true, "a");
+        assertProps(env, eventType, true, "a");
 
         sender.accept(eventType, new NullableObject<>(null));
         event = env.listener("s0").assertOneGetNewAndReset();
         assertGetter(event, g0, true, null);
-        assertProps(env, true, null);
+        assertProps(env, eventType, true, null);
 
         sender.accept(eventType, null);
         event = env.listener("s0").assertOneGetNewAndReset();
         assertGetter(event, g0, false, null);
-        assertProps(env, false, null);
+        assertProps(env, eventType, false, null);
 
         env.undeployAll();
     }
 
     private void assertGetter(EventBean event, EventPropertyGetter getter, boolean exists, String value) {
-        assertEquals(exists, getter.isExistsProperty(event));
+        assertEquals(SupportJsonEventTypeUtil.isBeanBackedJson(event.getEventType()) || exists, getter.isExistsProperty(event));
         assertEquals(value, getter.get(event));
         assertNull(getter.getFragment(event));
     }
 
-    private void assertProps(RegressionEnvironment env, boolean exists, String value) {
+    private void assertProps(RegressionEnvironment env, EventType eventType, boolean exists, String value) {
         EventBean event = env.listener("s1").assertOneGetNewAndReset();
         assertEquals(value, event.get("c0"));
-        assertEquals(exists, event.get("c1"));
+        assertEquals(SupportJsonEventTypeUtil.isBeanBackedJson(eventType) || exists, event.get("c1"));
         assertEquals(value != null ? "String" : null, event.get("c2"));
     }
 
@@ -163,5 +168,9 @@ public class EventInfraGetterDynamicSimple implements RegressionExecution {
         public String getProperty() {
             return property;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public String property;
     }
 }

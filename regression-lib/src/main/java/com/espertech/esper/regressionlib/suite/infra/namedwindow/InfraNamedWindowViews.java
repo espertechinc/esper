@@ -239,7 +239,7 @@ public class InfraNamedWindowViews {
     private static class InfraSelectStreamDotStarInsert implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(EventRepresentationChoice.ARRAY.getAnnotationText() + " create window MyNWWindowObjectArray#keepall (p0 int)", path);
+            env.compileDeploy(EventRepresentationChoice.OBJECTARRAY.getAnnotationText() + " create window MyNWWindowObjectArray#keepall (p0 int)", path);
             env.compileDeploy("insert into MyNWWindowObjectArray select intPrimitive as p0, sb.* as c0 from SupportBean as sb", path);
             env.undeployAll();
         }
@@ -247,7 +247,7 @@ public class InfraNamedWindowViews {
 
     private static class InfraBeanBacked implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryAssertionBeanBacked(env, EventRepresentationChoice.ARRAY);
+            tryAssertionBeanBacked(env, EventRepresentationChoice.OBJECTARRAY);
             tryAssertionBeanBacked(env, EventRepresentationChoice.MAP);
             tryAssertionBeanBacked(env, EventRepresentationChoice.DEFAULT);
             tryAssertionBeanBacked(env, EventRepresentationChoice.AVRO);

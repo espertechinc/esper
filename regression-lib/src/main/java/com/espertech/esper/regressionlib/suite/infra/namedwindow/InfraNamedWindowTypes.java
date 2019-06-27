@@ -20,15 +20,16 @@ import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -66,8 +67,8 @@ public class InfraNamedWindowTypes {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationText() + " @name('schema') create schema SchemaOne(col1 int, col2 int);\n";
-            epl += eventRepresentationEnum.getAnnotationText() + " @name('create') create window SchemaWindow#lastevent as (s1 SchemaOne);\n";
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaOne.class) + " @name('schema') create schema SchemaOne(col1 int, col2 int);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaWindow.class) + " @name('create') create window SchemaWindow#lastevent as (s1 SchemaOne);\n";
             epl += "insert into SchemaWindow (s1) select sone from SchemaOne as sone;\n";
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("create");
 
@@ -86,7 +87,7 @@ public class InfraNamedWindowTypes {
                 theEvent.put("col1", 10);
                 theEvent.put("col2", 11);
                 env.eventService().sendEventAvro(theEvent, "SchemaOne");
-            } else if (eventRepresentationEnum.isJsonEvent()) {
+            } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 env.eventService().sendEventJson("{\"col1\": 10, \"col2\": 11}", "SchemaOne");
             } else {
                 fail();
@@ -99,7 +100,7 @@ public class InfraNamedWindowTypes {
 
     private static class InfraMapTranspose implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryAssertionMapTranspose(env, EventRepresentationChoice.ARRAY);
+            tryAssertionMapTranspose(env, EventRepresentationChoice.OBJECTARRAY);
             tryAssertionMapTranspose(env, EventRepresentationChoice.MAP);
             tryAssertionMapTranspose(env, EventRepresentationChoice.DEFAULT);
         }
@@ -247,9 +248,9 @@ public class InfraNamedWindowTypes {
         }
 
         private void tryAssertionCreateSchemaModelAfter(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-            String epl = eventRepresentationEnum.getAnnotationText() + " create schema EventTypeOne (hsi int);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema EventTypeTwo (event EventTypeOne);\n" +
-                eventRepresentationEnum.getAnnotationText() + " @name('create') create window NamedWindow#unique(event.hsi) as EventTypeTwo;\n" +
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeOne.class) + " create schema EventTypeOne (hsi int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeTwo.class) + " create schema EventTypeTwo (event EventTypeOne);\n" +
+                "@name('create') create window NamedWindow#unique(event.hsi) as EventTypeTwo;\n" +
                 "on EventTypeOne as ev insert into NamedWindow select ev as event;\n";
             env.compileDeployWBusPublicType(epl, new RegressionPath());
 
@@ -261,7 +262,7 @@ public class InfraNamedWindowTypes {
                 GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("EventTypeOne")));
                 theEvent.put("hsi", 10);
                 env.eventService().sendEventAvro(theEvent, "EventTypeOne");
-            } else if (eventRepresentationEnum.isJsonEvent()) {
+            } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 env.eventService().sendEventJson("{\"hsi\": 10}", "EventTypeOne");
             } else {
                 fail();
@@ -433,5 +434,22 @@ public class InfraNamedWindowTypes {
     }
 
     public static class NWTypesChildClass extends NWTypesParentClass {
+    }
+
+    public static class MyLocalJsonProvidedSchemaOne implements Serializable {
+        public int col1;
+        public int col2;
+    }
+
+    public static class MyLocalJsonProvidedSchemaWindow implements Serializable {
+        public MyLocalJsonProvidedSchemaOne s1;
+    }
+
+    public static class MyLocalJsonProvidedEventTypeOne implements Serializable {
+        public int hsi;
+    }
+
+    public static class MyLocalJsonProvidedEventTypeTwo implements Serializable {
+        public MyLocalJsonProvidedEventTypeOne event;
     }
 }

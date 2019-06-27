@@ -21,6 +21,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -79,6 +80,10 @@ public class EventInfraContainedIndexedWithIndex implements RegressionExecution 
         String jsonepl = "@public @buseventtype create json schema LocalInnerEvent(id string);\n" +
             "@public @buseventtype create json schema LocalEvent(indexed LocalInnerEvent[]);\n";
         runAssertion(env, jsonepl, json);
+
+        // Json-Class-Provided
+        String jsonProvidedEpl = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n";
+        runAssertion(env, jsonProvidedEpl, json);
 
         // Avro
         BiConsumer<EventType, String[]> avro = (type, ids) -> {
@@ -139,5 +144,13 @@ public class EventInfraContainedIndexedWithIndex implements RegressionExecution 
         public LocalInnerEvent[] getIndexed() {
             return indexed;
         }
+    }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public MyLocalJsonProvidedInnerEvent[] indexed;
+    }
+
+    public static class MyLocalJsonProvidedInnerEvent implements Serializable {
+        public String id;
     }
 }

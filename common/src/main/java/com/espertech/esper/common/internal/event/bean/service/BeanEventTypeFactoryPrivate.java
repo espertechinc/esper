@@ -11,10 +11,12 @@
 package com.espertech.esper.common.internal.event.bean.service;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -39,14 +41,20 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
         this.stemFactory = stemFactory;
     }
 
-    public BeanEventType getCreateBeanType(Class clazz) {
+    public BeanEventType getCreateBeanType(Class clazz, boolean publicFields) {
         BeanEventType existing = types.get(clazz);
         if (existing != null) {
             return existing;
         }
 
         // check-allocate bean-stem
-        BeanEventTypeStem stem = stemFactory.getCreateStem(clazz, null);
+        ConfigurationCommonEventTypeBean config = null;
+        if (publicFields) {
+            config = new ConfigurationCommonEventTypeBean();
+            config.setAccessorStyle(AccessorStyle.PUBLIC);
+        }
+
+        BeanEventTypeStem stem = stemFactory.getCreateStem(clazz, config);
 
         // metadata
         EventTypeMetadata metadata = new EventTypeMetadata(clazz.getName(), null, EventTypeTypeClass.BEAN_INCIDENTAL, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, computeTypeId(clazz.getName()));
@@ -85,7 +93,7 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
         }
         EventType[] types = new EventType[superTypes.length];
         for (int i = 0; i < types.length; i++) {
-            types[i] = getCreateBeanType(superTypes[i]);
+            types[i] = getCreateBeanType(superTypes[i], false);
         }
         return types;
     }
@@ -96,7 +104,7 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
         }
         LinkedHashSet<EventType> supers = new LinkedHashSet<>(4);
         for (Class clazz : superTypes) {
-            supers.add(getCreateBeanType(clazz));
+            supers.add(getCreateBeanType(clazz, false));
         }
         return supers;
     }

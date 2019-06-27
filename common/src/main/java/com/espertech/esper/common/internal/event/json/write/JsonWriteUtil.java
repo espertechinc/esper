@@ -641,8 +641,8 @@ public class JsonWriteUtil {
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      *
-     * @param writer writer
-     * @param values value
+     * @param writer  writer
+     * @param values  value
      * @param factory delegate factory
      * @throws IOException io error
      */
@@ -670,8 +670,8 @@ public class JsonWriteUtil {
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      *
-     * @param writer writer
-     * @param values value
+     * @param writer  writer
+     * @param values  value
      * @param factory delegate factory
      * @throws IOException io error
      */
@@ -1240,7 +1240,7 @@ public class JsonWriteUtil {
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      *
-     * @param name name
+     * @param name      name
      * @param writer    writer
      * @param jsonValue value
      * @throws IOException io error
@@ -1297,7 +1297,7 @@ public class JsonWriteUtil {
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      *
-     * @param name name
+     * @param name   name
      * @param writer writer
      * @param array  value
      * @throws IOException io error
@@ -1326,12 +1326,51 @@ public class JsonWriteUtil {
      * @param nested value
      * @throws IOException io error
      */
+    public static void writeNested(JsonWriter writer, Object nested, JsonDelegateFactory nestedFactory) throws IOException {
+        if (nested == null) {
+            writer.writeLiteral("null");
+            return;
+        }
+        nestedFactory.write(writer, nested);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param writer writer
+     * @param nested value
+     * @throws IOException io error
+     */
     public static void writeNested(JsonWriter writer, JsonEventObjectBase nested) throws IOException {
         if (nested == null) {
             writer.writeLiteral("null");
             return;
         }
         nested.write(writer);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param writer  writer
+     * @param nesteds value
+     * @throws IOException io error
+     */
+    public static void writeNestedArray(JsonWriter writer, Object[] nesteds, JsonDelegateFactory nestedFactory) throws IOException {
+        if (nesteds == null) {
+            writer.writeLiteral("null");
+            return;
+        }
+        writer.writeArrayOpen();
+        boolean first = true;
+        for (Object nested : nesteds) {
+            if (!first) {
+                writer.writeObjectSeparator();
+            }
+            first = false;
+            nestedFactory.write(writer, nested);
+        }
+        writer.writeArrayClose();
     }
 
     /**

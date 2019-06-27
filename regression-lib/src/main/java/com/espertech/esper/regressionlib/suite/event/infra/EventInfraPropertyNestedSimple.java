@@ -44,6 +44,7 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
     public final static String AVRO_TYPENAME = EventInfraPropertyNestedSimple.class.getSimpleName() + "Avro";
     private final static String BEAN_TYPENAME = InfraNestedSimplePropTop.class.getSimpleName();
     private final static String JSON_TYPENAME = EventInfraPropertyNestedSimple.class.getSimpleName() + "Json";
+    private final static String JSONPROVIDED_TYPENAME = EventInfraPropertyNestedSimple.class.getSimpleName() + "JsonProvided";
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
@@ -64,6 +65,10 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         Class nestedClass = SupportJsonEventTypeUtil.getUnderlyingType(env, "types", JSON_TYPENAME + "_1");
         runAssertion(env, JSON_TYPENAME, FJSON, nestedClass, JSON_TYPENAME + "_1", path);
 
+        epl = "@JsonSchema(className='" + MyLocalJSONProvidedTop.class.getName() + "') @name('types') @public @buseventtype create json schema " + JSONPROVIDED_TYPENAME + "();\n";
+        env.compileDeploy(epl, path);
+        runAssertion(env, JSONPROVIDED_TYPENAME, FJSON, MyLocalJSONProvidedLvl1.class, MyLocalJSONProvidedLvl1.class.getName(), path);
+
         env.undeployAll();
     }
 
@@ -78,12 +83,13 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         String epl = "@name('s0') select * from " + typename;
         env.compileDeploy(epl, path).addListener("s0");
 
-        send.apply(env, 1, 2, 3, 4);
+        send.apply(typename, env, 1, 2, 3, 4);
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(event, "l1.lvl1,l1.l2.lvl2,l1.l2.l3.lvl3,l1.l2.l3.l4.lvl4".split(","), new Object[]{1, 2, 3, 4});
         SupportEventTypeAssertionUtil.assertConsistency(event);
-        SupportEventTypeAssertionUtil.assertFragments(event, typename.equals(BEAN_TYPENAME), false, "l1.l2");
-        SupportEventTypeAssertionUtil.assertFragments(event, typename.equals(BEAN_TYPENAME), false, "l1,l1.l2,l1.l2.l3,l1.l2.l3.l4");
+        boolean nativeFragment = typename.equals(BEAN_TYPENAME) || typename.equals(JSONPROVIDED_TYPENAME);
+        SupportEventTypeAssertionUtil.assertFragments(event, nativeFragment, false, "l1.l2");
+        SupportEventTypeAssertionUtil.assertFragments(event, nativeFragment, false, "l1,l1.l2,l1.l2.l3,l1.l2.l3.l4");
         runAssertionEventInvalidProp(event);
 
         env.undeployModuleContaining("s0");
@@ -108,12 +114,12 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
             assertEquals(property.startsWith("exists") ? Boolean.class : Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType(property)));
         }
 
-        send.apply(env, 1, 2, 3, 4);
+        send.apply(typename, env, 1, 2, 3, 4);
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(event, fields, new Object[]{1, true, 2, true, 3, true, 4, true});
         SupportEventTypeAssertionUtil.assertConsistency(event);
 
-        send.apply(env, 10, 5, 50, 400);
+        send.apply(typename, env, 10, 5, 50, 400);
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, true, 5, true, 50, true, 400, true});
 
         env.undeployModuleContaining("s0");
@@ -146,12 +152,13 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
 
         FragmentEventType lvl1Fragment = eventType.getFragmentType("l1");
         assertFalse(lvl1Fragment.isIndexed());
-        assertEquals(send == FBEAN, lvl1Fragment.isNative());
+        boolean isNative = typeName.equals(BEAN_TYPENAME) || typeName.equals(JSONPROVIDED_TYPENAME);
+        assertEquals(isNative, lvl1Fragment.isNative());
         assertEquals(fragmentTypeName, lvl1Fragment.getFragmentType().getName());
 
         FragmentEventType lvl2Fragment = eventType.getFragmentType("l1.l2");
         assertFalse(lvl2Fragment.isIndexed());
-        assertEquals(send == FBEAN, lvl2Fragment.isNative());
+        assertEquals(isNative, lvl2Fragment.isNative());
 
         assertEquals(new EventPropertyDescriptor("l1", nestedClass, null, false, false, false, false, true), eventType.getPropertyDescriptor("l1"));
     }
@@ -166,25 +173,25 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         }
     }
 
-    private static final FunctionSendEvent4Int FMAP = (env, lvl1, lvl2, lvl3, lvl4) -> {
+    private static final FunctionSendEvent4Int FMAP = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
         Map<String, Object> l4 = Collections.singletonMap("lvl4", lvl4);
         Map<String, Object> l3 = twoEntryMap("l4", l4, "lvl3", lvl3);
         Map<String, Object> l2 = twoEntryMap("l3", l3, "lvl2", lvl2);
         Map<String, Object> l1 = twoEntryMap("l2", l2, "lvl1", lvl1);
         Map<String, Object> top = Collections.singletonMap("l1", l1);
-        env.sendEventMap(top, MAP_TYPENAME);
+        env.sendEventMap(top, eventTypeName);
     };
 
-    private static final FunctionSendEvent4Int FOA = (env, lvl1, lvl2, lvl3, lvl4) -> {
+    private static final FunctionSendEvent4Int FOA = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
         Object[] l4 = new Object[]{lvl4};
         Object[] l3 = new Object[]{l4, lvl3};
         Object[] l2 = new Object[]{l3, lvl2};
         Object[] l1 = new Object[]{l2, lvl1};
         Object[] top = new Object[]{l1};
-        env.sendEventObjectArray(top, OA_TYPENAME);
+        env.sendEventObjectArray(top, eventTypeName);
     };
 
-    private static final FunctionSendEvent4Int FBEAN = (env, lvl1, lvl2, lvl3, lvl4) -> {
+    private static final FunctionSendEvent4Int FBEAN = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
         InfraNestedSimplePropLvl4 l4 = new InfraNestedSimplePropLvl4(lvl4);
         InfraNestedSimplePropLvl3 l3 = new InfraNestedSimplePropLvl3(l4, lvl3);
         InfraNestedSimplePropLvl2 l2 = new InfraNestedSimplePropLvl2(l3, lvl2);
@@ -193,7 +200,7 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         env.sendEventBean(top);
     };
 
-    private static final FunctionSendEvent4Int FXML = (env, lvl1, lvl2, lvl3, lvl4) -> {
+    private static final FunctionSendEvent4Int FXML = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<myevent>\n" +
             "\t<l1 lvl1=\"${lvl1}\">\n" +
@@ -210,13 +217,13 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         xml = xml.replace("${lvl3}", Integer.toString(lvl3));
         xml = xml.replace("${lvl4}", Integer.toString(lvl4));
         try {
-            SupportXML.sendXMLEvent(env, xml, XML_TYPENAME);
+            SupportXML.sendXMLEvent(env, xml, eventTypeName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     };
 
-    private static final FunctionSendEvent4Int FAVRO = (env, lvl1, lvl2, lvl3, lvl4) -> {
+    private static final FunctionSendEvent4Int FAVRO = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
         Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
         Schema lvl1Schema = schema.getField("l1").schema();
         Schema lvl2Schema = lvl1Schema.getField("l2").schema();
@@ -235,10 +242,10 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         lvl1Rec.put("lvl1", lvl1);
         GenericData.Record datum = new GenericData.Record(schema);
         datum.put("l1", lvl1Rec);
-        env.sendEventAvro(datum, AVRO_TYPENAME);
+        env.sendEventAvro(datum, eventTypeName);
     };
 
-    private static final FunctionSendEvent4Int FJSON = (env, lvl1, lvl2, lvl3, lvl4) -> {
+    private static final FunctionSendEvent4Int FJSON = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
         String json = "{\n" +
             "  \"l1\": {\n" +
             "    \"lvl1\": ${lvl1},\n" +
@@ -257,12 +264,12 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         json = json.replace("${lvl2}", Integer.toString(lvl2));
         json = json.replace("${lvl3}", Integer.toString(lvl3));
         json = json.replace("${lvl4}", Integer.toString(lvl4));
-        env.sendEventJson(json, JSON_TYPENAME);
+        env.sendEventJson(json, eventTypeName);
     };
 
     @FunctionalInterface
     interface FunctionSendEvent4Int {
-        public void apply(RegressionEnvironment env, int lvl1, int lvl2, int lvl3, int lvl4);
+        void apply(String eventTypeName, RegressionEnvironment env, int lvl1, int lvl2, int lvl3, int lvl4);
     }
 
     public final static class InfraNestedSimplePropTop implements Serializable {
@@ -341,5 +348,28 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         public int getLvl4() {
             return lvl4;
         }
+    }
+
+    public final static class MyLocalJSONProvidedTop implements Serializable {
+        public MyLocalJSONProvidedLvl1 l1;
+    }
+
+    public final static class MyLocalJSONProvidedLvl1 {
+        public MyLocalJSONProvidedLvl2 l2;
+        public int lvl1;
+    }
+
+    public final static class MyLocalJSONProvidedLvl2 {
+        public MyLocalJSONProvidedLvl3 l3;
+        public int lvl2;
+    }
+
+    public final static class MyLocalJSONProvidedLvl3 {
+        public MyLocalJSONProvidedLvl4 l4;
+        public int lvl3;
+    }
+
+    public final static class MyLocalJSONProvidedLvl4 {
+        public int lvl4;
     }
 }

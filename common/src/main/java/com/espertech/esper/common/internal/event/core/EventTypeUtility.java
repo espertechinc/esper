@@ -44,14 +44,11 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.core.PropertyHelper;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
-import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerBeanForge;
-import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerJsonForge;
-import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerMapForge;
-import com.espertech.esper.common.internal.event.bean.manufacturer.EventBeanManufacturerObjectArrayForge;
+import com.espertech.esper.common.internal.event.bean.manufacturer.*;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
+import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
-import com.espertech.esper.common.internal.event.json.core.JsonEventObjectBase;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventPropertyGetter;
@@ -172,6 +169,9 @@ public class EventTypeUtility {
         }
         if (eventType instanceof JsonEventType) {
             JsonEventType jsonEventType = (JsonEventType) eventType;
+            if (jsonEventType.getDetail().getOptionalUnderlyingProvided() != null) {
+                return new EventBeanManufacturerJsonProvidedForge(jsonEventType, properties, classpathImportService);
+            }
             return new EventBeanManufacturerJsonForge(jsonEventType, properties);
         }
         return null;
@@ -247,7 +247,9 @@ public class EventTypeUtility {
             throw new IllegalArgumentException("Event type resolver not provided");
         }
         if (eventType instanceof BeanEventType && eventType.getMetadata().getAccessModifier() == NameAccessModifier.TRANSIENT) {
-            return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_PRIVATE_BEAN_METHOD, constant(eventType.getUnderlyingType()));
+            BeanEventType beanEventType = (BeanEventType) eventType;
+            boolean publicFields = beanEventType.getStem().isPublicFields();
+            return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_PRIVATE_BEAN_METHOD, constant(eventType.getUnderlyingType()), constant(publicFields));
         }
         return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_METHOD, eventType.getMetadata().toExpression());
     }
@@ -701,7 +703,7 @@ public class EventTypeUtility {
         return name.replaceAll("\\[", "").replaceAll("\\]", "");
     }
 
-    public static PropertySetDescriptor getNestableProperties(Map<String, Object> propertiesToAdd, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeNestableGetterFactory factory, EventType[] optionalSuperTypes, BeanEventTypeFactory beanEventTypeFactory)
+    public static PropertySetDescriptor getNestableProperties(Map<String, Object> propertiesToAdd, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeNestableGetterFactory factory, EventType[] optionalSuperTypes, BeanEventTypeFactory beanEventTypeFactory, boolean publicFields)
         throws EPException {
         List<String> propertyNameList = new ArrayList<String>();
         List<EventPropertyDescriptor> propertyDescriptors = new ArrayList<EventPropertyDescriptor>();
@@ -765,7 +767,7 @@ public class EventTypeUtility {
                 BeanEventType nativeFragmentType = null;
                 FragmentEventType fragmentType = null;
                 if (isFragment) {
-                    fragmentType = EventBeanUtility.createNativeFragmentType(classType, null, beanEventTypeFactory);
+                    fragmentType = EventBeanUtility.createNativeFragmentType(classType, null, beanEventTypeFactory, publicFields);
                     if (fragmentType != null) {
                         nativeFragmentType = (BeanEventType) fragmentType.getFragmentType();
                     } else {
@@ -886,7 +888,8 @@ public class EventTypeUtility {
     public static Class getNestablePropertyType(String propertyName,
                                                 Map<String, PropertySetDescriptorItem> simplePropertyTypes,
                                                 Map<String, Object> nestableTypes,
-                                                BeanEventTypeFactory beanEventTypeFactory) {
+                                                BeanEventTypeFactory beanEventTypeFactory,
+                                                boolean publicFields) {
         PropertySetDescriptorItem item = simplePropertyTypes.get(StringValue.unescapeDot(propertyName));
         if (item != null) {
             return item.getSimplePropertyType();
@@ -993,7 +996,7 @@ public class EventTypeUtility {
                         return null;
                     }
                     Class componentType = ((Class) type).getComponentType();
-                    BeanEventType beanEventType = beanEventTypeFactory.getCreateBeanType(componentType);
+                    BeanEventType beanEventType = beanEventTypeFactory.getCreateBeanType(componentType, publicFields);
                     return beanEventType.getPropertyType(propertyNested);
                 }
             } else if (property instanceof MappedProperty) {
@@ -1020,7 +1023,7 @@ public class EventTypeUtility {
                 (JavaClassHelper.isJavaBuiltinDataType(simpleClass.getComponentType()) || simpleClass.getComponentType() == Object.class)) {
                 return null;
             }
-            EventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass);
+            EventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass, publicFields);
             return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(nestedEventType.getPropertyType(propertyNested));
         } else if (nestedType instanceof EventType) {
             EventType innerType = (EventType) nestedType;
@@ -1049,7 +1052,8 @@ public class EventTypeUtility {
                                                            EventBeanTypedEventFactory eventBeanTypedEventFactory,
                                                            EventTypeNestableGetterFactory factory,
                                                            boolean isObjectArray,
-                                                           BeanEventTypeFactory beanEventTypeFactory) {
+                                                           BeanEventTypeFactory beanEventTypeFactory,
+                                                           boolean publicFields) {
         EventPropertyGetterSPI cachedGetter = propertyGetterCache.get(propertyName);
         if (cachedGetter != null) {
             return cachedGetter;
@@ -1094,7 +1098,7 @@ public class EventTypeUtility {
                     if (!(innerType instanceof BaseNestableEventType)) {
                         return null;
                     }
-                    EventPropertyGetterSPI typeGetter = factory.getGetterIndexedUnderlyingArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventBeanTypedEventFactory, innerType);
+                    EventPropertyGetterSPI typeGetter = factory.getGetterIndexedUnderlyingArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventBeanTypedEventFactory, innerType, beanEventTypeFactory);
                     propertyGetterCache.put(propertyName, typeGetter);
                     return typeGetter;
                 }
@@ -1178,7 +1182,7 @@ public class EventTypeUtility {
                         return null;
                     }
                     Class componentType = ((Class) type).getComponentType();
-                    BeanEventType nestedEventType = beanEventTypeFactory.getCreateBeanType(componentType);
+                    BeanEventType nestedEventType = beanEventTypeFactory.getCreateBeanType(componentType, publicFields);
                     final BeanEventPropertyGetter nestedGetter = (BeanEventPropertyGetter) nestedEventType.getGetterSPI(propertyNested);
                     if (nestedGetter == null) {
                         return null;
@@ -1232,7 +1236,7 @@ public class EventTypeUtility {
             if (simpleClass.isArray()) {
                 return null;
             }
-            BeanEventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass);
+            BeanEventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass, publicFields);
             final BeanEventPropertyGetter nestedGetter = (BeanEventPropertyGetter) nestedEventType.getGetterSPI(propertyNested);
             if (nestedGetter == null) {
                 return null;
@@ -1547,20 +1551,17 @@ public class EventTypeUtility {
     }
 
     private static Object convertJsonEvents(EventBean theEvent, JsonEventType targetType) {
-        JsonEventObjectBase target;
-        try {
-            target = (JsonEventObjectBase) targetType.getUnderlyingType().newInstance();
-        } catch (Exception e) {
-            throw new EPException("Failed to allocate instance of Json event: " + e.getMessage(), e);
-        }
-        JsonEventObjectBase source = (JsonEventObjectBase) theEvent.getUnderlying();
-        for (Map.Entry<String, Object> entry : targetType.getTypes().entrySet()) {
-            int targetNum = target.getNativeNum(entry.getKey());
-            int sourceNum = source.getNativeNum(entry.getKey());
-            if (targetNum == -1) {
+        Object target = targetType.getDelegateFactory().newUnderlying();
+        Object source = theEvent.getUnderlying();
+        JsonEventType sourceType = (JsonEventType) theEvent.getEventType();
+        for (Map.Entry<String, JsonUnderlyingField> entry : targetType.getDetail().getFieldDescriptors().entrySet()) {
+            JsonUnderlyingField sourceField = entry.getValue();
+            JsonUnderlyingField targetField = sourceType.getDetail().getFieldDescriptors().get(entry.getKey());
+            if (targetField == null) {
                 continue;
             }
-            target.setNativeValue(targetNum, source.getNativeValue(sourceNum));
+            Object value = sourceType.getDelegateFactory().getValue(sourceField.getPropertyNumber(), source);
+            targetType.getDelegateFactory().setValue(targetField.getPropertyNumber(), value, target);
         }
         return target;
     }
@@ -1721,7 +1722,7 @@ public class EventTypeUtility {
             return found.get(0);
         }
 
-        return services.getBeanEventTypeFactoryPrivate().getCreateBeanType(clazz);
+        return services.getBeanEventTypeFactoryPrivate().getCreateBeanType(clazz, false);
     }
 
     private static boolean matches(EventType eventType, Class clazz) {

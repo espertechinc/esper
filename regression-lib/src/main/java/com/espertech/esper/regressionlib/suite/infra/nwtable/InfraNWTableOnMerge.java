@@ -31,6 +31,7 @@ import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
@@ -729,13 +730,13 @@ public class InfraNWTableOnMerge {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String schema = eventRepresentationEnum.getAnnotationText() + " create schema MyInnerSchema(in1 string, in2 int);\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema MyEventSchema(col1 string, col2 MyInnerSchema)";
+            String schema = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInnerSchema.class) + " create schema MyInnerSchema(in1 string, in2 int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventSchema.class) + " create schema MyEventSchema(col1 string, col2 MyInnerSchema)";
             env.compileDeployWBusPublicType(schema, path);
 
             String eplCreate = namedWindow ?
-                eventRepresentationEnum.getAnnotationText() + " create window MyInfraITV#keepall as (c1 string, c2 MyInnerSchema)" :
-                eventRepresentationEnum.getAnnotationText() + " create table MyInfraITV as (c1 string primary key, c2 MyInnerSchema)";
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInfraITV.class) + " create window MyInfraITV#keepall as (c1 string, c2 MyInnerSchema)" :
+                "create table MyInfraITV as (c1 string primary key, c2 MyInnerSchema)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("@name('createvar') create variable boolean myvar", path);
 
@@ -1034,13 +1035,13 @@ public class InfraNWTableOnMerge {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationText() + " create schema MyEvent as (name string, value double);\n" +
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent as (name string, value double);\n" +
                 (namedWindow ?
-                    eventRepresentationEnum.getAnnotationText() + " create window MyInfraIOS#unique(name) as MyEvent;\n" :
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create window MyInfraIOS#unique(name) as MyEvent;\n" :
                     "create table MyInfraIOS (name string primary key, value double primary key);\n"
                 ) +
                 "insert into MyInfraIOS select * from MyEvent;\n" +
-                eventRepresentationEnum.getAnnotationText() + " create schema InputEvent as (col1 string, col2 double);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedInputEvent.class) + " create schema InputEvent as (col1 string, col2 double);\n" +
                 "\n" +
                 "on MyEvent as eme\n" +
                 "  merge MyInfraIOS as MyInfraIOS where MyInfraIOS.name = eme.name\n" +
@@ -1079,7 +1080,7 @@ public class InfraNWTableOnMerge {
                 record.put("name", name);
                 record.put("value", value);
                 env.eventService().sendEventAvro(record, typeName);
-            } else if (eventRepresentationEnum.isJsonEvent()) {
+            } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 env.eventService().sendEventJson(new JsonObject().add("name", name).add("value", value).toString(), typeName);
             } else {
                 fail();
@@ -1196,5 +1197,30 @@ public class InfraNWTableOnMerge {
         } else {
             env.sendEventMap(theEvent, "MyEvent");
         }
+    }
+
+    public static class MyLocalJsonProvidedMyEvent implements Serializable {
+        public String name;
+        public double value;
+    }
+
+    public static class MyLocalJsonProvidedInputEvent implements Serializable {
+        public String col1;
+        public double col2;
+    }
+
+    public static class MyLocalJsonProvidedMyInnerSchema implements Serializable {
+        public String in1;
+        public int in2;
+    }
+
+    public static class MyLocalJsonProvidedMyEventSchema implements Serializable {
+        public String col1;
+        public MyLocalJsonProvidedMyInnerSchema col2;
+    }
+
+    public static class MyLocalJsonProvidedMyInfraITV implements Serializable {
+        public String c1;
+        public MyLocalJsonProvidedMyInnerSchema c2;
     }
 }

@@ -12,22 +12,19 @@ package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
-import com.espertech.esper.common.internal.support.SupportBean_S2;
 import org.apache.avro.generic.GenericData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -330,7 +327,7 @@ public class InfraTableInsertInto {
         if (bean) {
             schemaCompiled = env.compile("create schema MySchema as " + MyP0P1Event.class.getName(), options -> options.setBusModifierEventType(ctx -> EventTypeBusModifier.BUS).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC));
         } else {
-            schemaCompiled = env.compile("create " + rep.getOutputTypeCreateSchemaName() + " schema MySchema (p0 string, p1 string)", options -> options.setBusModifierEventType(ctx -> EventTypeBusModifier.BUS).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC));
+            schemaCompiled = env.compile(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "create schema MySchema (p0 string, p1 string)", options -> options.setBusModifierEventType(ctx -> EventTypeBusModifier.BUS).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC));
         }
         path.add(schemaCompiled);
         env.deploy(schemaCompiled);
@@ -352,7 +349,7 @@ public class InfraTableInsertInto {
             theEvent.put("p0", "a");
             theEvent.put("p1", "b");
             env.eventService().sendEventAvro(theEvent, "MySchema");
-        } else if (rep.isJsonEvent()) {
+        } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             env.eventService().sendEventJson(new JsonObject().add("p0", "a").add("p1", "b").toString(), "MySchema");
         } else {
             fail();
@@ -383,5 +380,10 @@ public class InfraTableInsertInto {
         public String getP1() {
             return p1;
         }
+    }
+
+    public static class MyLocalJsonProvidedMySchema implements Serializable {
+        public String p0;
+        public String p1;
     }
 }

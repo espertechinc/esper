@@ -26,6 +26,7 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
@@ -41,6 +42,7 @@ public class EventInfraPropertyDynamicNestedRootedSimple implements RegressionEx
     public final static String OA_TYPENAME = EventInfraPropertyDynamicNestedRootedSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicNestedRootedSimple.class.getSimpleName() + "Avro";
     public final static String JSON_TYPENAME = EventInfraPropertyDynamicNestedRootedSimple.class.getSimpleName() + "Json";
+    public final static String JSONPROVIDED_TYPENAME = EventInfraPropertyDynamicNestedRootedSimple.class.getSimpleName() + "JsonProvided";
     private final static Class BEAN_TYPE = SupportMarkerInterface.class;
     private final static ValueWithExistsFlag[] NOT_EXISTS = multipleNotExists(3);
 
@@ -117,9 +119,19 @@ public class EventInfraPropertyDynamicNestedRootedSimple implements RegressionEx
             new Pair<>("{\"simpleProperty\": 1}", new ValueWithExistsFlag[]{exists(1), notExists(), notExists()}),
             new Pair<>("{\"simpleProperty\": \"abc\", \"nested\": { \"nestedValue\": 100, \"nestedNested\": { \"nestedNestedValue\": 101 } } }", allExist("abc", 100, 101)),
         };
-        String schemas = "@JsonSchema(dynamic=true) @public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "()";
-        env.compileDeploy(schemas, path);
+        String schemasJson = "@JsonSchema(dynamic=true) @public @buseventtype @name('schema') create json schema " + JSON_TYPENAME + "()";
+        env.compileDeploy(schemasJson, path);
         runAssertion(env, JSON_TYPENAME, FJSON, null, jsonTests, Object.class, path);
+
+        // Json-Provided
+        Pair[] jsonProvidedTests = new Pair[]{
+            new Pair<>("{}", new ValueWithExistsFlag[]{exists(null), notExists(), notExists()}),
+            new Pair<>("{\"simpleProperty\": 1}", new ValueWithExistsFlag[]{exists(1), notExists(), notExists()}),
+            new Pair<>("{\"simpleProperty\": \"abc\", \"nested\": { \"nestedValue\": 100, \"nestedNested\": { \"nestedNestedValue\": 101 } } }", allExist("abc", 100, 101)),
+        };
+        String schemasJsonProvided = "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype @name('schema') create json schema " + JSONPROVIDED_TYPENAME + "()";
+        env.compileDeploy(schemasJsonProvided, path);
+        runAssertion(env, JSONPROVIDED_TYPENAME, FJSON, null, jsonProvidedTests, Object.class, path);
     }
 
     private void runAssertion(RegressionEnvironment env,
@@ -154,4 +166,19 @@ public class EventInfraPropertyDynamicNestedRootedSimple implements RegressionEx
 
         env.undeployAll();
     }
+
+    public static class MyLocalJsonProvided implements Serializable {
+        public Object simpleProperty;
+        public MyLocalJsonProvidedNested nested;
+    }
+
+    public static class MyLocalJsonProvidedNested implements Serializable {
+        public int nestedValue;
+        public MyLocalJsonProvidedNestedNested nestedNested;
+    }
+
+    public static class MyLocalJsonProvidedNestedNested implements Serializable {
+        public int nestedNestedValue;
+    }
 }
+

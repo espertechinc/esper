@@ -28,10 +28,10 @@ public class InfraNWTableOnMergePerf {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        execs.add(new InfraPerformance(true, EventRepresentationChoice.ARRAY));
+        execs.add(new InfraPerformance(true, EventRepresentationChoice.OBJECTARRAY));
         execs.add(new InfraPerformance(true, EventRepresentationChoice.MAP));
         execs.add(new InfraPerformance(true, EventRepresentationChoice.DEFAULT));
-        execs.add(new InfraPerformance(false, EventRepresentationChoice.ARRAY));
+        execs.add(new InfraPerformance(false, EventRepresentationChoice.OBJECTARRAY));
         return execs;
     }
 

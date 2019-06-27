@@ -15,7 +15,8 @@ import com.espertech.esper.common.internal.event.util.PropertyUtility;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.Map;
+
+import static com.espertech.esper.common.internal.util.CollectionUtil.getMapValueChecked;
 
 public class BeanFieldGetterHelper {
     public static Object getFieldSimple(Field field, Object object) {
@@ -31,11 +32,7 @@ public class BeanFieldGetterHelper {
     public static Object getFieldMap(Field field, Object object, Object key) throws PropertyAccessException {
         try {
             Object result = field.get(object);
-            if (!(result instanceof Map)) {
-                return null;
-            }
-            Map resultMap = (Map) result;
-            return resultMap.get(key);
+            return getMapValueChecked(result, key);
         } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(field, object, e);
         } catch (IllegalAccessException e) {

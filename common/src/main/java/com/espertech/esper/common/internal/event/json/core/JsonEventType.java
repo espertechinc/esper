@@ -45,7 +45,7 @@ public class JsonEventType extends BaseNestableEventType {
     protected Map<String, Pair<EventPropertyDescriptor, JsonEventBeanPropertyWriter>> propertyWriters;
 
     public JsonEventType(EventTypeMetadata metadata, Map<String, Object> propertyTypes, EventType[] optionalSuperTypes, Set<EventType> optionalDeepSupertypes, String startTimestampPropertyName, String endTimestampPropertyName, EventTypeNestableGetterFactory getterFactory, BeanEventTypeFactory beanEventTypeFactory, JsonEventTypeDetail detail, Class underlyingStandInClass) {
-        super(metadata, propertyTypes, optionalSuperTypes, optionalDeepSupertypes, startTimestampPropertyName, endTimestampPropertyName, getterFactory, beanEventTypeFactory);
+        super(metadata, propertyTypes, optionalSuperTypes, optionalDeepSupertypes, startTimestampPropertyName, endTimestampPropertyName, getterFactory, beanEventTypeFactory, true);
         this.detail = detail;
         this.underlyingType = underlyingStandInClass;
     }
@@ -66,7 +66,7 @@ public class JsonEventType extends BaseNestableEventType {
             if (field == null) {
                 return null;
             }
-            return new JsonEventBeanPropertyWriterMapProp(field, mapProp.getKey());
+            return new JsonEventBeanPropertyWriterMapProp(this.delegateFactory, field, mapProp.getKey());
         }
 
         if (property instanceof IndexedProperty) {
@@ -75,7 +75,7 @@ public class JsonEventType extends BaseNestableEventType {
             if (field == null) {
                 return null;
             }
-            return new JsonEventBeanPropertyWriterIndexedProp(field, indexedProp.getIndex());
+            return new JsonEventBeanPropertyWriterIndexedProp(this.delegateFactory, field, indexedProp.getIndex());
         }
 
         return null;
@@ -118,8 +118,7 @@ public class JsonEventType extends BaseNestableEventType {
     }
 
     public EventBeanCopyMethodForge getCopyMethodForge(String[] properties) {
-        BaseNestableEventUtil.MapIndexedPropPair pair = BaseNestableEventUtil.getIndexedAndMappedProps(properties);
-        return new JsonEventBeanCopyMethodForge(this, pair.getMapProperties(), pair.getArrayProperties());
+        return new JsonEventBeanCopyMethodForge(this);
     }
 
     public EventBeanWriter getWriter(String[] properties) {
@@ -197,10 +196,9 @@ public class JsonEventType extends BaseNestableEventType {
     }
 
     public int getColumnNumber(String columnName) {
-        for (Map.Entry<String, JsonUnderlyingField> entry : detail.getFieldDescriptors().entrySet()) {
-            if (entry.getKey().equals(columnName)) {
-                return entry.getValue().getPropertyNumber();
-            }
+        JsonUnderlyingField field = detail.getFieldDescriptors().get(columnName);
+        if (field != null) {
+            return field.getPropertyNumber();
         }
         throw new IllegalStateException("Unrecognized json-type column name '" + columnName + "'");
     }
@@ -235,9 +233,12 @@ public class JsonEventType extends BaseNestableEventType {
         List<EventPropertyDescriptor> writeableProps = new ArrayList<EventPropertyDescriptor>();
         Map<String, Pair<EventPropertyDescriptor, JsonEventBeanPropertyWriter>> propertWritersMap = new HashMap<String, Pair<EventPropertyDescriptor, JsonEventBeanPropertyWriter>>();
         for (EventPropertyDescriptor prop : propertyDescriptors) {
-            writeableProps.add(prop);
             JsonUnderlyingField field = detail.getFieldDescriptors().get(prop.getPropertyName());
-            JsonEventBeanPropertyWriter eventPropertyWriter = new JsonEventBeanPropertyWriter(field);
+            if (field == null) {
+                continue;
+            }
+            writeableProps.add(prop);
+            JsonEventBeanPropertyWriter eventPropertyWriter = new JsonEventBeanPropertyWriter(this.delegateFactory, field);
             propertWritersMap.put(prop.getPropertyName(), new Pair<>(prop, eventPropertyWriter));
         }
 
