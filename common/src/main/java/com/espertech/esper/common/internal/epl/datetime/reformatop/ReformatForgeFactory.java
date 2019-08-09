@@ -12,9 +12,9 @@ package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.internal.epl.datetime.calop.CalendarFieldEnum;
 import com.espertech.esper.common.internal.epl.datetime.calop.CalendarOpUtil;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.common.internal.epl.datetime.eval.ForgeFactory;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -27,7 +27,8 @@ public class ReformatForgeFactory implements ForgeFactory {
 
     private final static ReformatForge FORMAT_STRING = new ReformatStringFormatForge();
 
-    public ReformatForge getForge(EPType inputType, TimeAbacus timeAbacus, DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters, ExprEvaluatorContext exprEvaluatorContext) throws ExprValidationException {
+    public ReformatForge getForge(EPType inputType, TimeAbacus timeAbacus, DatetimeMethodDesc desc, String methodNameUsed, List<ExprNode> parameters) throws ExprValidationException {
+        DatetimeMethodEnum method = desc.getDatetimeMethod();
         if (method == DatetimeMethodEnum.GET) {
             CalendarFieldEnum fieldNum = CalendarOpUtil.getEnum(methodNameUsed, parameters.get(0));
             return new ReformatGetFieldForge(fieldNum, timeAbacus);

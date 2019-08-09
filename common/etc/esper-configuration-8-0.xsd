@@ -42,6 +42,7 @@
 					<xs:element ref="esper:plugin-singlerow-function" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:plugin-pattern-guard" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:plugin-pattern-observer" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esper:plugin-method-datetime" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:bytecode" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:language" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:stream-selection" minOccurs="0" maxOccurs="unbounded"/>
@@ -396,6 +397,12 @@
 			<xs:attribute name="event-type-name" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="plugin-method-datetime">
+		<xs:complexType>
+			<xs:attribute name="method-name" type="xs:string" use="required"/>
+			<xs:attribute name="forge-class" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
 	<xs:simpleType name="valueCacheEnum">
 		<xs:restriction base="xs:token">
 			<xs:enumeration value="enabled"/>
@@ -460,7 +467,7 @@
 			<xs:attribute name="access-modifier-variable" type="esper:accessModifierEnum" use="optional"/>
 			<xs:attribute name="threadpool-compiler-num-threads" type="xs:int" use="optional"/>
 			<xs:attribute name="threadpool-compiler-capacity" type="xs:int" use="optional"/>
-			<xs:attribute name="max-methods-per-class" type="xs:int" use="optional"/>			
+			<xs:attribute name="max-methods-per-class" type="xs:int" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="threading">

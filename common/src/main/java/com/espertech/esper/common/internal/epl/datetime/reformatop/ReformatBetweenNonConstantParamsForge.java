@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeLongCoercer;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeLongCoercerFactory;
-import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
 import com.espertech.esper.common.internal.epl.datetime.eval.FilterExprAnalyzerDTBetweenAffector;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -99,7 +99,7 @@ public class ReformatBetweenNonConstantParamsForge implements ReformatForge {
         return Boolean.class;
     }
 
-    public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
+    public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
         if (includeLow == null || includeHigh == null) {
             return null;
         }

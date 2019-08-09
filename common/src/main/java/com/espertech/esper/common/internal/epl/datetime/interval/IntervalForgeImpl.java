@@ -18,10 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeLongCoercerLocalDateTime;
-import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
-import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
-import com.espertech.esper.common.internal.epl.datetime.eval.FilterExprAnalyzerDTIntervalAffector;
+import com.espertech.esper.common.internal.epl.datetime.eval.*;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeFilterAnalyzerInput;
@@ -55,7 +52,7 @@ public class IntervalForgeImpl implements IntervalForge {
 
     private final IntervalOpForge intervalOpForge;
 
-    public IntervalForgeImpl(DatetimeMethodEnum method, String methodNameUse, StreamTypeService streamTypeService, List<ExprNode> expressions, TimeAbacus timeAbacus, TableCompileTimeResolver tableCompileTimeResolver)
+    public IntervalForgeImpl(DatetimeMethodDesc method, String methodNameUse, StreamTypeService streamTypeService, List<ExprNode> expressions, TimeAbacus timeAbacus, TableCompileTimeResolver tableCompileTimeResolver)
             throws ExprValidationException {
 
         ExprForge forgeEndTimestamp = null;
@@ -183,7 +180,7 @@ public class IntervalForgeImpl implements IntervalForge {
      * @param currentParameters current params
      * @param inputDesc         descriptor of what the input to this interval method is
      */
-    public FilterExprAnalyzerDTIntervalAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
+    public FilterExprAnalyzerDTIntervalAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
 
         // with intervals is not currently query planned
         if (currentParameters.size() > 1) {

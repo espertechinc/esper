@@ -122,7 +122,7 @@ public class EPTypeHelper {
     /**
      * Indicate that the expression return type is a single (non-enumerable) value of the given type.
      * The expression can still return an array or collection or events however
-     * since the runtimewould not know the type of such objects and may not use runtime reflection
+     * since the runtime would not know the type of such objects and may not use runtime reflection
      * it may not allow certain operations on expression results.
      *
      * @param singleValueType type of single value returned, or null to indicate that the expression always returns null

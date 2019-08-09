@@ -26,9 +26,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
-import com.espertech.esper.common.internal.epl.datetime.eval.ExprDotDTFactory;
-import com.espertech.esper.common.internal.epl.datetime.eval.ExprDotDTMethodDesc;
+import com.espertech.esper.common.internal.epl.datetime.eval.*;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -41,6 +39,7 @@ import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.rettype.*;
+import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
@@ -60,8 +59,8 @@ public class ExprDotNodeUtility {
         return oatype;
     }
 
-    public static boolean isDatetimeOrEnumMethod(String name) {
-        return EnumMethodEnum.isEnumerationMethod(name) || DatetimeMethodEnum.isDateTimeMethod(name);
+    public static boolean isDatetimeOrEnumMethod(String name, ClasspathImportServiceCompileTime classpathImportService) throws ExprValidationException {
+        return EnumMethodEnum.isEnumerationMethod(name) || DatetimeMethodResolver.isDateTimeMethod(name, classpathImportService);
     }
 
     public static ExprDotEnumerationSourceForge getEnumerationSource(ExprNode inputExpression, StreamTypeService streamTypeService, boolean hasEnumerationMethod, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
@@ -239,9 +238,9 @@ public class ExprDotNodeUtility {
             }
 
             // resolve datetime
-            if (DatetimeMethodEnum.isDateTimeMethod(chainElement.getName()) && (!matchingMethod || methodTarget == Calendar.class || methodTarget == Date.class)) {
-                DatetimeMethodEnum datetimeMethod = DatetimeMethodEnum.fromName(chainElement.getName());
-                ExprDotDTMethodDesc datetimeImpl = ExprDotDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getClasspathImportService().getTimeAbacus(), null, validationContext.getTableCompileTimeResolver());
+            if (DatetimeMethodResolver.isDateTimeMethod(chainElement.getName(), validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget == Calendar.class || methodTarget == Date.class)) {
+                DatetimeMethodDesc datetimeMethod = DatetimeMethodResolver.fromName(chainElement.getName(), validationContext.getClasspathImportService());
+                ExprDotDTMethodDesc datetimeImpl = ExprDotDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getClasspathImportService().getTimeAbacus(), validationContext.getTableCompileTimeResolver(), validationContext.getClasspathImportService(), validationContext.getStatementRawInfo());
                 currentInputType = datetimeImpl.getReturnType();
                 if (currentInputType == null) {
                     throw new IllegalStateException("Date-time method '" + chainElement.getName() + "' has not returned type information");

@@ -26,20 +26,6 @@ public class CodegenLegoMethodExpression {
         return localMethod(expressionMethod, eps, isNewData, exprEvalCtx);
     }
 
-    public static void codegenBooleanExpressionReturnNullIfNullOrNotPass(ExprForge forge, CodegenClassScope classScope, CodegenMethod parent, CodegenExpression eps, CodegenExpression isNewData, CodegenExpression exprEvalCtx) {
-        checkEvaluationType(forge);
-        CodegenMethod expressionMethod = codegenBooleanExpressionBoxedToPrimitive(forge, parent, classScope);
-        CodegenExpression evaluation = localMethod(expressionMethod, eps, isNewData, exprEvalCtx);
-        parent.getBlock().ifCondition(not(evaluation)).blockReturn(constantNull());
-    }
-
-    public static void codegenBooleanExpressionReturnIfNullOrNotPass(ExprForge forge, CodegenClassScope classScope, CodegenMethod parent, CodegenExpression eps, CodegenExpression isNewData, CodegenExpression exprEvalCtx) {
-        checkEvaluationType(forge);
-        CodegenMethod expressionMethod = codegenBooleanExpressionBoxedToPrimitive(forge, parent, classScope);
-        CodegenExpression evaluation = localMethod(expressionMethod, eps, isNewData, exprEvalCtx);
-        parent.getBlock().ifCondition(not(evaluation)).blockReturnNoValue();
-    }
-
     public static CodegenMethod codegenExpression(ExprForge forge, CodegenMethod parent, CodegenClassScope classScope) {
         Class evaluationType = forge.getEvaluationType();
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);

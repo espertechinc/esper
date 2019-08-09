@@ -55,6 +55,8 @@ public class ConfigurationCompilerParser {
                 handlePlugInPatternGuard(compiler, element);
             } else if (nodeName.equals("plugin-pattern-observer")) {
                 handlePlugInPatternObserver(compiler, element);
+            } else if (nodeName.equals("plugin-method-datetime")) {
+                handlePlugInDateTimeMethod(compiler, element);
             } else if (nodeName.equals("bytecode")) {
                 handleByteCode(compiler, element);
             } else if (nodeName.equals("logging")) {
@@ -245,6 +247,12 @@ public class ConfigurationCompilerParser {
         String name = getRequiredAttribute(element, "name");
         String forgeClassName = getRequiredAttribute(element, "forge-class");
         configuration.addPlugInAggregationFunctionForge(name, forgeClassName);
+    }
+
+    private static void handlePlugInDateTimeMethod(ConfigurationCompiler configuration, Element element) {
+        String methodName = getRequiredAttribute(element, "method-name");
+        String forgeClassName = getRequiredAttribute(element, "forge-class");
+        configuration.addPlugInDateTimeMethod(methodName, forgeClassName);
     }
 
     private static void handlePlugInMultiFunctionAggregation(ConfigurationCompiler configuration, Element element) {

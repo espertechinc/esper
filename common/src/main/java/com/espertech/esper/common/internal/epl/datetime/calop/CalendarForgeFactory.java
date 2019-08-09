@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.calop;
 
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.common.internal.epl.datetime.eval.ForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -20,8 +21,9 @@ import java.util.List;
 
 public class CalendarForgeFactory implements ForgeFactory {
 
-    public CalendarForge getOp(DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters, ExprForge[] forges)
-            throws ExprValidationException {
+    public CalendarForge getOp(DatetimeMethodDesc desc, String methodNameUsed, List<ExprNode> parameters, ExprForge[] forges)
+        throws ExprValidationException {
+        DatetimeMethodEnum method = desc.getDatetimeMethod();
         if (method == DatetimeMethodEnum.WITHTIME) {
             return new CalendarWithTimeForge(forges[0], forges[1], forges[2], forges[3]);
         }
@@ -32,11 +34,11 @@ public class CalendarForgeFactory implements ForgeFactory {
             return new CalendarPlusMinusForge(forges[0], method == DatetimeMethodEnum.MINUS ? -1 : 1);
         }
         if (method == DatetimeMethodEnum.WITHMAX ||
-                method == DatetimeMethodEnum.WITHMIN ||
-                method == DatetimeMethodEnum.ROUNDCEILING ||
-                method == DatetimeMethodEnum.ROUNDFLOOR ||
-                method == DatetimeMethodEnum.ROUNDHALF ||
-                method == DatetimeMethodEnum.SET) {
+            method == DatetimeMethodEnum.WITHMIN ||
+            method == DatetimeMethodEnum.ROUNDCEILING ||
+            method == DatetimeMethodEnum.ROUNDFLOOR ||
+            method == DatetimeMethodEnum.ROUNDHALF ||
+            method == DatetimeMethodEnum.SET) {
             CalendarFieldEnum fieldNum = CalendarOpUtil.getEnum(methodNameUsed, parameters.get(0));
             if (method == DatetimeMethodEnum.WITHMIN) {
                 return new CalendarWithMinForge(fieldNum);

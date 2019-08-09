@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.rettype.ClassEPType;
+import com.espertech.esper.common.internal.rettype.ClassMultiValuedEPType;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -47,7 +48,7 @@ public class ExprDotDTForge implements ExprDotForge {
     private final EPType returnType;
     private final DTLocalForge forge;
 
-    public ExprDotDTForge(List<CalendarForge> calendarForges, TimeAbacus timeAbacus, ReformatForge reformatForge, IntervalForge intervalForge, Class inputType, EventType inputEventType) {
+    ExprDotDTForge(List<CalendarForge> calendarForges, TimeAbacus timeAbacus, ReformatForge reformatForge, IntervalForge intervalForge, Class inputType, EventType inputEventType) {
         if (intervalForge != null) {
             returnType = EPTypeHelper.singleValue(Boolean.class);
         } else if (reformatForge != null) {
@@ -81,7 +82,8 @@ public class ExprDotDTForge implements ExprDotForge {
     }
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(((ClassEPType) returnType).getType(), ExprDotDTForge.class, codegenClassScope).addParam(innerType, "target");
+        Class methodReturnType = returnType instanceof ClassEPType ? ((ClassEPType) returnType).getType() : ((ClassMultiValuedEPType) returnType).getContainer();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(methodReturnType, ExprDotDTForge.class, codegenClassScope).addParam(innerType, "target");
 
         CodegenBlock block = methodNode.getBlock();
         if (!innerType.isPrimitive()) {

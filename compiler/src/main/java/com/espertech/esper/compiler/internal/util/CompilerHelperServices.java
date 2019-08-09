@@ -380,6 +380,10 @@ public class CompilerHelperServices {
             for (ConfigurationCompilerPlugInSingleRowFunction config : configuration.getCompiler().getPlugInSingleRowFunctions()) {
                 classpathImportService.addSingleRow(config.getName(), config.getFunctionClassName(), config.getFunctionMethodName(), config.getValueCache(), config.getFilterOptimizable(), config.isRethrowExceptions(), config.getEventTypeName());
             }
+
+            for (ConfigurationCompilerPlugInDateTimeMethod config : configuration.getCompiler().getPlugInDateTimeMethods()) {
+                classpathImportService.addPlugInDateTimeMethod(config.getName(), config);
+            }
         } catch (ClasspathImportException ex) {
             throw new ConfigurationException("Error configuring compiler: " + ex.getMessage(), ex);
         }

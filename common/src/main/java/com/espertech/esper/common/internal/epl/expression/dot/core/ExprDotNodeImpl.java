@@ -236,7 +236,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             if (forge != null) {
                 return null;
             } else {
-                if (ExprDotNodeUtility.isDatetimeOrEnumMethod(remainderChain.get(0).getName())) {
+                if (ExprDotNodeUtility.isDatetimeOrEnumMethod(remainderChain.get(0).getName(), validationContext.getClasspathImportService())) {
                     prefixedStreamNumException = enumDatetimeEx;
                 } else {
                     prefixedStreamNumException = new ExprValidationException("Failed to solve '" + remainderChain.get(0).getName() + "' to either an date-time or enumeration method, an event property or a method on the event underlying object: " + methodEx.getMessage(), methodEx);

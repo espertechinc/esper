@@ -52,6 +52,11 @@ public class ConfigurationCompiler implements Serializable {
      */
     protected List<ConfigurationCompilerPlugInSingleRowFunction> plugInSingleRowFunctions;
 
+    /**
+     * List of configured plug-in date-time-methods.
+     */
+    protected List<ConfigurationCompilerPlugInDateTimeMethod> plugInDateTimeMethods;
+
     private ConfigurationCompilerByteCode byteCode;
     private ConfigurationCompilerStreamSelection streamSelection;
     private ConfigurationCompilerViewResources viewResources;
@@ -422,6 +427,14 @@ public class ConfigurationCompiler implements Serializable {
         this.serde = serde;
     }
 
+    public void addPlugInDateTimeMethod(String dateTimeMethodName, String dateTimeMethodForgeFactoryClassName) {
+        plugInDateTimeMethods.add(new ConfigurationCompilerPlugInDateTimeMethod(dateTimeMethodName, dateTimeMethodForgeFactoryClassName));
+    }
+
+    public List<ConfigurationCompilerPlugInDateTimeMethod> getPlugInDateTimeMethods() {
+        return plugInDateTimeMethods;
+    }
+
     /**
      * Reset to an empty configuration.
      */
@@ -431,6 +444,7 @@ public class ConfigurationCompiler implements Serializable {
         plugInAggregationFunctions = new ArrayList<>();
         plugInAggregationMultiFunctions = new ArrayList<>();
         plugInSingleRowFunctions = new ArrayList<>();
+        plugInDateTimeMethods = new ArrayList<>();
         plugInPatternObjects = new ArrayList<>();
         byteCode = new ConfigurationCompilerByteCode();
         streamSelection = new ConfigurationCompilerStreamSelection();

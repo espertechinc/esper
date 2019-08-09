@@ -10,54 +10,28 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.eval;
 
-public enum DatetimeMethodEnum {
+import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 
-    // calendar op
-    WITHTIME,
-    WITHDATE,
-    PLUS,
-    MINUS,
-    WITHMAX,
-    WITHMIN,
-    SET,
-    ROUNDCEILING,
-    ROUNDFLOOR,
-    ROUNDHALF,
+public class DatetimeMethodDesc {
+    private final DatetimeMethodEnum datetimeMethod;
+    private final ForgeFactory forgeFactory;
+    private final DotMethodFP[] parameters;
 
-    // reformat op
-    GET,
-    FORMAT,
-    TOCALENDAR,
-    TODATE,
-    TOMILLISEC,
-    GETMINUTEOFHOUR,
-    GETMONTHOFYEAR,
-    GETDAYOFMONTH,
-    GETDAYOFWEEK,
-    GETDAYOFYEAR,
-    GETERA,
-    GETHOUROFDAY,
-    GETMILLISOFSECOND,
-    GETSECONDOFMINUTE,
-    GETWEEKYEAR,
-    GETYEAR,
-    BETWEEN,
+    public DatetimeMethodDesc(DatetimeMethodEnum datetimeMethod, ForgeFactory forgeFactory, DotMethodFP[] parameters) {
+        this.datetimeMethod = datetimeMethod;
+        this.forgeFactory = forgeFactory;
+        this.parameters = parameters;
+    }
 
-    // interval op
-    BEFORE,
-    AFTER,
-    COINCIDES,
-    DURING,
-    INCLUDES,
-    FINISHES,
-    FINISHEDBY,
-    MEETS,
-    METBY,
-    OVERLAPS,
-    OVERLAPPEDBY,
-    STARTS,
-    STARTEDBY,
+    public DatetimeMethodEnum getDatetimeMethod() {
+        return datetimeMethod;
+    }
 
-    // plug-in
-    PLUGIN
+    public ForgeFactory getForgeFactory() {
+        return forgeFactory;
+    }
+
+    public DotMethodFP[] getFootprints() {
+        return parameters;
+    }
 }

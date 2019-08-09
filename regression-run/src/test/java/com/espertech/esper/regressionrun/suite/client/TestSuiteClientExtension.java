@@ -101,10 +101,14 @@ public class TestSuiteClientExtension extends TestCase {
         session.destroy();
     }
 
+    public void testClientExtendDateTimeMethod() {
+        RegressionRunner.run(session, ClientExtendDateTimeMethod.executions());
+    }
+
     private static void configure(Configuration configuration) {
 
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_A.class, SupportBean_S0.class, SupportMarketDataBean.class,
-            SupportSimpleBeanOne.class, SupportBean_ST0.class, SupportBeanRange.class}) {
+            SupportSimpleBeanOne.class, SupportBean_ST0.class, SupportBeanRange.class, SupportDateTime.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
 
@@ -159,6 +163,13 @@ public class TestSuiteClientExtension extends TestCase {
 
         configurationCompiler.addPlugInPatternGuard("myplugin", "count_to", MyCountToPatternGuardForge.class.getName());
         configurationCompiler.addPlugInPatternGuard("namespace", "name", String.class.getName());
+
+        configurationCompiler.addPlugInDateTimeMethod("roll", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryRoll.class.getName());
+        configurationCompiler.addPlugInDateTimeMethod("asArrayOfString", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryArrayOfString.class.getName());
+        configurationCompiler.addPlugInDateTimeMethod("dtmInvalidMethodNotExists", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryInvalidMethodNotExists.class.getName());
+        configurationCompiler.addPlugInDateTimeMethod("dtmInvalidNotProvided", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryInvalidNotProvided.class.getName());
+        configurationCompiler.addPlugInDateTimeMethod("someDTMInvalidReformat", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryInvalidReformat.class.getName());
+        configurationCompiler.addPlugInDateTimeMethod("someDTMInvalidNoOp", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryInvalidNoOp.class.getName());
 
         configuration.getCommon().addImport(ClientExtendSingleRowFunction.class);
 

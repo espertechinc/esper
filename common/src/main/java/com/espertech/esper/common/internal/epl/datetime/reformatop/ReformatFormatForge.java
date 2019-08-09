@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
-import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -81,8 +81,8 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField formatField = codegenFormatFieldInit(codegenClassScope);
         CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, codegenClassScope).addParam(Date.class, "d").getBlock()
-                .synchronizedOn(formatField)
-                .blockReturn(exprDotMethod(formatField, "format", ref("d")));
+            .synchronizedOn(formatField)
+            .blockReturn(exprDotMethod(formatField, "format", ref("d")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
     }
 
@@ -93,8 +93,8 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
     public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField formatField = codegenFormatFieldInit(codegenClassScope);
         CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, codegenClassScope).addParam(Calendar.class, "cal").getBlock()
-                .synchronizedOn(formatField)
-                .blockReturn(exprDotMethod(formatField, "format", exprDotMethod(ref("cal"), "getTime")));
+            .synchronizedOn(formatField)
+            .blockReturn(exprDotMethod(formatField, "format", exprDotMethod(ref("cal"), "getTime")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
     }
 
@@ -120,7 +120,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         return String.class;
     }
 
-    public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
+    public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
         return null;
     }
 

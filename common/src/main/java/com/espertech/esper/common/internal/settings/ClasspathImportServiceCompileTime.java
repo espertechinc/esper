@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationFunction;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInDateTimeMethod;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionForge;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -48,6 +49,7 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
     private final List<Pair<Set<String>, ConfigurationCompilerPlugInAggregationMultiFunction>> aggregationAccess;
     private final Map<String, ClasspathImportSingleRowDesc> singleRowFunctions = new HashMap<>();
     private final LinkedHashMap<String, AdvancedIndexFactoryProvider> advancedIndexProviders = new LinkedHashMap<>(8);
+    private final Map<String, ConfigurationCompilerPlugInDateTimeMethod> dateTimeMethods;
 
     public ClasspathImportServiceCompileTime(Map<String, Object> transientConfiguration, TimeAbacus timeAbacus, Set<String> eventTypeAutoNames, MathContext mathContext, boolean allowExtendedAggregationFunc, boolean sortUsingCollator) {
         super(transientConfiguration, timeAbacus, eventTypeAutoNames);
@@ -58,6 +60,7 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
         this.sortUsingCollator = sortUsingCollator;
         this.advancedIndexProviders.put("pointregionquadtree", new AdvancedIndexFactoryProviderPointRegionQuadTree());
         this.advancedIndexProviders.put("mxcifquadtree", new AdvancedIndexFactoryProviderMXCIFQuadTree());
+        this.dateTimeMethods = new HashMap<>();
     }
 
     public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationCompilerPlugInSingleRowFunction.ValueCache valueCache, ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions, String optionalEventTypeName) throws ClasspathImportException {
@@ -67,6 +70,15 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
             throw new ClasspathImportException("Invalid class name for aggregation '" + singleRowFuncClass + "'");
         }
         singleRowFunctions.put(functionName.toLowerCase(Locale.ENGLISH), new ClasspathImportSingleRowDesc(singleRowFuncClass, methodName, valueCache, filterOptimizable, rethrowExceptions, optionalEventTypeName));
+    }
+
+    public void addPlugInDateTimeMethod(String dtmMethodName, ConfigurationCompilerPlugInDateTimeMethod config) throws ClasspathImportException {
+        validateFunctionName("date-time-method", dtmMethodName);
+
+        if (!isClassName(config.getForgeClassName())) {
+            throw new ClasspathImportException("Invalid class name for date-time-method '" + config.getForgeClassName() + "'");
+        }
+        dateTimeMethods.put(dtmMethodName.toLowerCase(Locale.ENGLISH), config);
     }
 
     public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) throws ClasspathImportException, ClasspathImportUndefinedException {
@@ -339,6 +351,24 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
             throw new ClasspathImportException("Invalid class name for aggregation multi-function factory '" + desc.getMultiFunctionForgeClassName() + "'");
         }
         aggregationAccess.add(new Pair<Set<String>, ConfigurationCompilerPlugInAggregationMultiFunction>(orderedImmutableFunctionNames, desc));
+    }
+
+    public Class resolveDateTimeMethod(String name) throws ClasspathImportException {
+        ConfigurationCompilerPlugInDateTimeMethod dtm = dateTimeMethods.get(name);
+        if (dtm == null) {
+            dtm = dateTimeMethods.get(name.toLowerCase(Locale.ENGLISH));
+        }
+        if (dtm == null) {
+            return null;
+        }
+
+        Class clazz;
+        try {
+            clazz = getClassForNameProvider().classForName(dtm.getForgeClassName());
+        } catch (ClassNotFoundException ex) {
+            throw new ClasspathImportException("Could not load date-time-method forge class by name '" + dtm.getForgeClassName() + "'", ex);
+        }
+        return clazz;
     }
 
     private enum MethodModifiers {

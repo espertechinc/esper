@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.common.internal.epl.datetime.interval.deltaexpr.IntervalDeltaExprMSecConstForge;
 import com.espertech.esper.common.internal.epl.datetime.interval.deltaexpr.IntervalDeltaExprTimePeriodNonConstForge;
@@ -36,10 +37,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class IntervalComputerForgeFactory {
 
-    public static IntervalComputerForge make(DatetimeMethodEnum method, List<ExprNode> expressions, TimeAbacus timeAbacus) throws ExprValidationException {
+    public static IntervalComputerForge make(DatetimeMethodDesc method, List<ExprNode> expressions, TimeAbacus timeAbacus) throws ExprValidationException {
         ExprOptionalConstantForge[] parameters = getParameters(expressions, timeAbacus);
 
-        if (method == DatetimeMethodEnum.BEFORE) {
+        if (method.getDatetimeMethod() == DatetimeMethodEnum.BEFORE) {
             if (parameters.length == 0) {
                 return new IntervalComputerBeforeNoParamForge();
             }
@@ -48,7 +49,7 @@ public class IntervalComputerForgeFactory {
                 return new IntervalComputerConstantBefore(pair);
             }
             return new IntervalComputerBeforeWithDeltaExprForge(pair);
-        } else if (method == DatetimeMethodEnum.AFTER) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.AFTER) {
             if (parameters.length == 0) {
                 return new IntervalComputerAfterNoParam();
             }
@@ -57,7 +58,7 @@ public class IntervalComputerForgeFactory {
                 return new IntervalComputerConstantAfter(pair);
             }
             return new IntervalComputerAfterWithDeltaExprForge(pair);
-        } else if (method == DatetimeMethodEnum.COINCIDES) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.COINCIDES) {
             if (parameters.length == 0) {
                 return new IntervalComputerCoincidesNoParam();
             }
@@ -66,63 +67,63 @@ public class IntervalComputerForgeFactory {
                 return new IntervalComputerConstantCoincides(pair);
             }
             return new IntervalComputerCoincidesWithDeltaExprForge(pair);
-        } else if (method == DatetimeMethodEnum.DURING || method == DatetimeMethodEnum.INCLUDES) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.DURING || method.getDatetimeMethod() == DatetimeMethodEnum.INCLUDES) {
             if (parameters.length == 0) {
-                if (method == DatetimeMethodEnum.DURING) {
+                if (method.getDatetimeMethod() == DatetimeMethodEnum.DURING) {
                     return new IntervalComputerDuringNoParam();
                 }
                 return new IntervalComputerIncludesNoParam();
             }
             IntervalStartEndParameterPairForge pair = IntervalStartEndParameterPairForge.fromParamsWithSameEnd(parameters);
             if (parameters.length == 1) {
-                return new IntervalComputerDuringAndIncludesThresholdForge(method == DatetimeMethodEnum.DURING, pair.getStart().getForge());
+                return new IntervalComputerDuringAndIncludesThresholdForge(method.getDatetimeMethod() == DatetimeMethodEnum.DURING, pair.getStart().getForge());
             }
             if (parameters.length == 2) {
-                return new IntervalComputerDuringAndIncludesMinMax(method == DatetimeMethodEnum.DURING, pair.getStart().getForge(), pair.getEnd().getForge());
+                return new IntervalComputerDuringAndIncludesMinMax(method.getDatetimeMethod() == DatetimeMethodEnum.DURING, pair.getStart().getForge(), pair.getEnd().getForge());
             }
-            return new IntervalComputerDuringMinMaxStartEndForge(method == DatetimeMethodEnum.DURING, getEvaluators(expressions, timeAbacus));
-        } else if (method == DatetimeMethodEnum.FINISHES) {
+            return new IntervalComputerDuringMinMaxStartEndForge(method.getDatetimeMethod() == DatetimeMethodEnum.DURING, getEvaluators(expressions, timeAbacus));
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.FINISHES) {
             if (parameters.length == 0) {
                 return new IntervalComputerFinishesNoParam();
             }
             validateConstantThreshold("finishes", parameters[0]);
             return new IntervalComputerFinishesThresholdForge(parameters[0].getForge());
-        } else if (method == DatetimeMethodEnum.FINISHEDBY) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.FINISHEDBY) {
             if (parameters.length == 0) {
                 return new IntervalComputerFinishedByNoParam();
             }
             validateConstantThreshold("finishedby", parameters[0]);
             return new IntervalComputerFinishedByThresholdForge(parameters[0].getForge());
-        } else if (method == DatetimeMethodEnum.MEETS) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.MEETS) {
             if (parameters.length == 0) {
                 return new IntervalComputerMeetsNoParam();
             }
             validateConstantThreshold("meets", parameters[0]);
             return new IntervalComputerMeetsThresholdForge(parameters[0].getForge());
-        } else if (method == DatetimeMethodEnum.METBY) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.METBY) {
             if (parameters.length == 0) {
                 return new IntervalComputerMetByNoParam();
             }
             validateConstantThreshold("metBy", parameters[0]);
             return new IntervalComputerMetByThresholdForge(parameters[0].getForge());
-        } else if (method == DatetimeMethodEnum.OVERLAPS || method == DatetimeMethodEnum.OVERLAPPEDBY) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.OVERLAPS || method.getDatetimeMethod() == DatetimeMethodEnum.OVERLAPPEDBY) {
             if (parameters.length == 0) {
-                if (method == DatetimeMethodEnum.OVERLAPS) {
+                if (method.getDatetimeMethod() == DatetimeMethodEnum.OVERLAPS) {
                     return new IntervalComputerOverlapsNoParam();
                 }
                 return new IntervalComputerOverlappedByNoParam();
             }
             if (parameters.length == 1) {
-                return new IntervalComputerOverlapsAndByThreshold(method == DatetimeMethodEnum.OVERLAPS, parameters[0].getForge());
+                return new IntervalComputerOverlapsAndByThreshold(method.getDatetimeMethod() == DatetimeMethodEnum.OVERLAPS, parameters[0].getForge());
             }
-            return new IntervalComputerOverlapsAndByMinMaxForge(method == DatetimeMethodEnum.OVERLAPS, parameters[0].getForge(), parameters[1].getForge());
-        } else if (method == DatetimeMethodEnum.STARTS) {
+            return new IntervalComputerOverlapsAndByMinMaxForge(method.getDatetimeMethod() == DatetimeMethodEnum.OVERLAPS, parameters[0].getForge(), parameters[1].getForge());
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.STARTS) {
             if (parameters.length == 0) {
                 return new IntervalComputerStartsNoParam();
             }
             validateConstantThreshold("starts", parameters[0]);
             return new IntervalComputerStartsThresholdForge(parameters[0].getForge());
-        } else if (method == DatetimeMethodEnum.STARTEDBY) {
+        } else if (method.getDatetimeMethod() == DatetimeMethodEnum.STARTEDBY) {
             if (parameters.length == 0) {
                 return new IntervalComputerStartedByNoParam();
             }
