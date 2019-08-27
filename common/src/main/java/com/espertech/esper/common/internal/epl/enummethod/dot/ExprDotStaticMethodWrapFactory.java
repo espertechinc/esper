@@ -35,7 +35,7 @@ public class ExprDotStaticMethodWrapFactory {
     public static ExprDotStaticMethodWrap make(Method method, List<ExprChainedSpec> modifiedChain, String optionalEventTypeName, ExprValidationContext validationContext)
             throws ExprValidationException {
 
-        if (modifiedChain.isEmpty() || (!EnumMethodEnum.isEnumerationMethod(modifiedChain.get(0).getName()))) {
+        if (modifiedChain.isEmpty() || (!EnumMethodResolver.isEnumerationMethod(modifiedChain.get(0).getName(), validationContext.getClasspathImportService()))) {
             return null;
         }
 

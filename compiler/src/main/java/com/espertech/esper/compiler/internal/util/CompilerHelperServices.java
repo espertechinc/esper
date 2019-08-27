@@ -384,6 +384,10 @@ public class CompilerHelperServices {
             for (ConfigurationCompilerPlugInDateTimeMethod config : configuration.getCompiler().getPlugInDateTimeMethods()) {
                 classpathImportService.addPlugInDateTimeMethod(config.getName(), config);
             }
+
+            for (ConfigurationCompilerPlugInEnumMethod config : configuration.getCompiler().getPlugInEnumMethods()) {
+                classpathImportService.addPlugInEnumMethod(config.getName(), config);
+            }
         } catch (ClasspathImportException ex) {
             throw new ConfigurationException("Error configuring compiler: " + ex.getMessage(), ex);
         }

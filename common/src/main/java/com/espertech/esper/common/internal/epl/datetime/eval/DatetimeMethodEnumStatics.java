@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.epl.datetime.reformatop.ReformatForge
 
 public class DatetimeMethodEnumStatics {
 
-    public final static ForgeFactory CALENDAR_FORGE_FACTORY = new CalendarForgeFactory();
-    public final static ForgeFactory REFORMAT_FORGE_FACTORY = new ReformatForgeFactory();
-    public final static ForgeFactory INTERVAL_FORGE_FACTORY = new IntervalForgeFactory();
+    public final static DatetimeMethodProviderForgeFactory CALENDAR_FORGE_FACTORY = new CalendarForgeFactory();
+    public final static DatetimeMethodProviderForgeFactory REFORMAT_FORGE_FACTORY = new ReformatForgeFactory();
+    public final static DatetimeMethodProviderForgeFactory INTERVAL_FORGE_FACTORY = new IntervalForgeFactory();
 }

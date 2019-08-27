@@ -11,9 +11,24 @@
 package com.espertech.esper.common.internal.epl.methodbase;
 
 public enum DotMethodFPInputEnum {
+    /**
+     * Numeric scalar values.
+     */
     SCALAR_NUMERIC,
+
+    /**
+     * Any values.
+     */
     SCALAR_ANY,
+
+    /**
+     * Collection of events
+     */
     EVENTCOLL,
+
+    /**
+     * Any input.
+     */
     ANY;
 
     public boolean isScalar() {

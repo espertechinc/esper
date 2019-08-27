@@ -19,26 +19,33 @@ public class DotMethodFPParam implements Serializable {
     private static final long serialVersionUID = -8644850353486284119L;
     private final int lambdaParamNum; // 0 means not a lambda expression expected, 1 means "x=>", 2 means "(x,y)=>"
     private final String description;
-    private final EPLExpressionParamType type;
+    private final EPLExpressionParamType paramType;
     private final Class[] specificType;
 
-    public DotMethodFPParam(int lambdaParamNum, String description, EPLExpressionParamType type) {
+    /**
+     * Ctor.
+     * @param lambdaParamNum number of parameters that are lambda-parameters, i.e. zero for no-lambda, or 1 for "a => ..." or
+     *                       2 for "(a,b) => ..."
+     * @param description parameter description
+     * @param paramType parameter type
+     */
+    public DotMethodFPParam(int lambdaParamNum, String description, EPLExpressionParamType paramType) {
         this.lambdaParamNum = lambdaParamNum;
         this.description = description;
-        this.type = type;
+        this.paramType = paramType;
         this.specificType = null;
-        if (type == EPLExpressionParamType.SPECIFIC) {
+        if (paramType == EPLExpressionParamType.SPECIFIC) {
             throw new IllegalArgumentException("Invalid ctor for specific-type parameter");
         }
     }
 
-    public DotMethodFPParam(String description, EPLExpressionParamType type) {
-        this(description, type, (Class[]) null);
+    public DotMethodFPParam(String description, EPLExpressionParamType paramType) {
+        this(description, paramType, (Class[]) null);
     }
 
-    public DotMethodFPParam(String description, EPLExpressionParamType type, Class... specificType) {
+    public DotMethodFPParam(String description, EPLExpressionParamType paramType, Class... specificType) {
         this.description = description;
-        this.type = type;
+        this.paramType = paramType;
         this.specificType = specificType;
         this.lambdaParamNum = 0;
     }
@@ -51,8 +58,8 @@ public class DotMethodFPParam implements Serializable {
         return description;
     }
 
-    public EPLExpressionParamType getType() {
-        return type;
+    public EPLExpressionParamType getParamType() {
+        return paramType;
     }
 
     public Class[] getSpecificType() {

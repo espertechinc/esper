@@ -82,7 +82,7 @@ public class ExprDotDTFactory {
 
             // handle the first one only if its a calendar op
             ExprForge[] forges = getForges(currentParameters);
-            ForgeFactory opFactory = currentMethod.getForgeFactory();
+            DatetimeMethodProviderForgeFactory opFactory = currentMethod.getForgeFactory();
 
             // compile parameter abstract for validation against available footprints
             DotMethodFPProvided footprintProvided = DotMethodUtil.getProvidedFootprint(currentParameters);

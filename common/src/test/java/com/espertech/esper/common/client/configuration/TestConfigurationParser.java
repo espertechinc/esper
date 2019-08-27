@@ -459,12 +459,17 @@ public class TestConfigurationParser extends TestCase {
         assertEquals("observer2", pluginPattern.getName());
         assertEquals(PatternObjectType.OBSERVER, pluginPattern.getPatternObjectType());
 
-        // assert plug-in date-time method
+        // assert plug-in date-time method and enum-method
         List<ConfigurationCompilerPlugInDateTimeMethod> configDTM = compiler.getPlugInDateTimeMethods();
         assertEquals(1, configDTM.size());
         ConfigurationCompilerPlugInDateTimeMethod dtmOne = configDTM.get(0);
         assertEquals("methodname1", dtmOne.getName());
         assertEquals("com.mycompany.MyDateTimeMethodForge", dtmOne.getForgeClassName());
+        List<ConfigurationCompilerPlugInEnumMethod> configENM = compiler.getPlugInEnumMethods();
+        assertEquals(1, configENM.size());
+        ConfigurationCompilerPlugInEnumMethod enmOne = configENM.get(0);
+        assertEquals("methodname2", enmOne.getName());
+        assertEquals("com.mycompany.MyEnumMethodForge", enmOne.getForgeClassName());
 
         assertTrue(compiler.getViewResources().isIterableUnbound());
         assertFalse(compiler.getViewResources().isOutputLimitOpt());

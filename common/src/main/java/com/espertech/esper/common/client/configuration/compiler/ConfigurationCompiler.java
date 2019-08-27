@@ -57,6 +57,11 @@ public class ConfigurationCompiler implements Serializable {
      */
     protected List<ConfigurationCompilerPlugInDateTimeMethod> plugInDateTimeMethods;
 
+    /**
+     * List of configured plug-in enum-methods.
+     */
+    protected List<ConfigurationCompilerPlugInEnumMethod> plugInEnumMethods;
+
     private ConfigurationCompilerByteCode byteCode;
     private ConfigurationCompilerStreamSelection streamSelection;
     private ConfigurationCompilerViewResources viewResources;
@@ -427,12 +432,38 @@ public class ConfigurationCompiler implements Serializable {
         this.serde = serde;
     }
 
+    /**
+     * Add a plug-in date-time method
+     * @param dateTimeMethodName method name
+     * @param dateTimeMethodForgeFactoryClassName fully-qualified forge class name
+     */
     public void addPlugInDateTimeMethod(String dateTimeMethodName, String dateTimeMethodForgeFactoryClassName) {
         plugInDateTimeMethods.add(new ConfigurationCompilerPlugInDateTimeMethod(dateTimeMethodName, dateTimeMethodForgeFactoryClassName));
     }
 
+    /**
+     * Add a plug-in enum method
+     * @param enumMethodName method name
+     * @param enumMethodForgeFactoryClassName fully-qualified forge class name
+     */
+    public void addPlugInEnumMethod(String enumMethodName, String enumMethodForgeFactoryClassName) {
+        plugInEnumMethods.add(new ConfigurationCompilerPlugInEnumMethod(enumMethodName, enumMethodForgeFactoryClassName));
+    }
+
+    /**
+     * Returns the list of plug-in date-time methods
+     * @return plug-in date-time methods
+     */
     public List<ConfigurationCompilerPlugInDateTimeMethod> getPlugInDateTimeMethods() {
         return plugInDateTimeMethods;
+    }
+
+    /**
+     * Returns the list of plug-in enum-methods
+     * @return plug-in enum methods
+     */
+    public List<ConfigurationCompilerPlugInEnumMethod> getPlugInEnumMethods() {
+        return plugInEnumMethods;
     }
 
     /**
@@ -445,6 +476,7 @@ public class ConfigurationCompiler implements Serializable {
         plugInAggregationMultiFunctions = new ArrayList<>();
         plugInSingleRowFunctions = new ArrayList<>();
         plugInDateTimeMethods = new ArrayList<>();
+        plugInEnumMethods = new ArrayList<>();
         plugInPatternObjects = new ArrayList<>();
         byteCode = new ConfigurationCompilerByteCode();
         streamSelection = new ConfigurationCompilerStreamSelection();

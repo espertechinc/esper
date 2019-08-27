@@ -107,7 +107,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         // determine if there are enumeration method expressions in the chain
         boolean hasEnumerationMethod = false;
         for (ExprChainedSpec chain : chainSpec) {
-            if (EnumMethodEnum.isEnumerationMethod(chain.getName())) {
+            if (EnumMethodResolver.isEnumerationMethod(chain.getName(), validationContext.getClasspathImportService())) {
                 hasEnumerationMethod = true;
                 break;
             }

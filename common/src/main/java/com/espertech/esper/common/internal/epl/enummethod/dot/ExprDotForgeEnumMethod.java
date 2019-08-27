@@ -20,10 +20,10 @@ import java.util.List;
 
 public interface ExprDotForgeEnumMethod extends ExprDotForge {
 
-    public void init(Integer streamOfProviderIfApplicable,
-                     EnumMethodEnum lambda,
-                     String lambdaUsedName,
-                     EPType currentInputType,
-                     List<ExprNode> parameters,
-                     ExprValidationContext validationContext) throws ExprValidationException;
+    void init(Integer streamOfProviderIfApplicable,
+              EnumMethodDesc lambda,
+              String lambdaUsedName,
+              EPType currentInputType,
+              List<ExprNode> parameters,
+              ExprValidationContext validationContext) throws ExprValidationException;
 }

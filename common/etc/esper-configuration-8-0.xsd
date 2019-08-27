@@ -43,6 +43,7 @@
 					<xs:element ref="esper:plugin-pattern-guard" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:plugin-pattern-observer" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:plugin-method-datetime" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esper:plugin-method-enum" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:bytecode" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:language" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:stream-selection" minOccurs="0" maxOccurs="unbounded"/>
@@ -398,6 +399,12 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="plugin-method-datetime">
+		<xs:complexType>
+			<xs:attribute name="method-name" type="xs:string" use="required"/>
+			<xs:attribute name="forge-class" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="plugin-method-enum">
 		<xs:complexType>
 			<xs:attribute name="method-name" type="xs:string" use="required"/>
 			<xs:attribute name="forge-class" type="xs:string" use="required"/>

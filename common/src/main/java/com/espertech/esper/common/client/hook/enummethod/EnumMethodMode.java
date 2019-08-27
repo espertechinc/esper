@@ -8,7 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.datetime.eval;
+package com.espertech.esper.common.client.hook.enummethod;
 
-public interface ForgeFactory {
+/**
+ * Describes to the compiler how it should manage code for the enumeration method.
+ */
+public interface EnumMethodMode {
 }

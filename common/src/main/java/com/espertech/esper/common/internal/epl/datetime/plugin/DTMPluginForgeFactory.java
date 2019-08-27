@@ -13,9 +13,9 @@ package com.espertech.esper.common.internal.epl.datetime.plugin;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodForgeFactory;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodOps;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodValidateContext;
-import com.espertech.esper.common.internal.epl.datetime.eval.ForgeFactory;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodProviderForgeFactory;
 
-public class DTMPluginForgeFactory implements ForgeFactory {
+public class DTMPluginForgeFactory implements DatetimeMethodProviderForgeFactory {
 
     private final DateTimeMethodForgeFactory forgeFactory;
 

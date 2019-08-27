@@ -11,10 +11,40 @@
 package com.espertech.esper.common.internal.epl.util;
 
 public enum EPLExpressionParamType {
+    /**
+     * Boolean-type parameter.
+     */
     BOOLEAN,
+
+    /**
+     * Any numeric value.
+     */
     NUMERIC,
+
+    /**
+     * Any value, ie. Object
+     */
     ANY,
+
+    /**
+     * A specific class as indicated by a separate Class
+     */
     SPECIFIC,
+
+    /**
+     * Time-period or number of seconds
+     */
     TIME_PERIOD_OR_SEC,
-    DATETIME
+
+    /**
+     * Date-time value.
+     */
+    DATETIME;
+
+    public Class getMethodParamType() {
+        if (this == BOOLEAN) {
+            return Boolean.class;
+        }
+        return Object.class;
+    }
 }

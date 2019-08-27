@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
+import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodResolver;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.common.internal.epl.expression.etc.*;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -44,7 +44,7 @@ public class ExprNodeUtilityResolve {
         ExprForge[] childEvalsEventBeanReturnTypesForges = new ExprForge[parameters.size()];
         boolean allConstants = true;
         for (ExprNode childNode : parameters) {
-            if (!EnumMethodEnum.isEnumerationMethod(methodName) && childNode instanceof ExprLambdaGoesNode) {
+            if (!EnumMethodResolver.isEnumerationMethod(methodName, services.getClasspathImportServiceCompileTime()) && childNode instanceof ExprLambdaGoesNode) {
                 throw new ExprValidationException("Unexpected lambda-expression encountered as parameter to UDF or static method '" + methodName + "'");
             }
             if (childNode instanceof ExprWildcard) {

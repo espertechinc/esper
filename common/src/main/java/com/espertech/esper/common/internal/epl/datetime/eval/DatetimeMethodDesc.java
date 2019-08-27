@@ -14,10 +14,10 @@ import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 
 public class DatetimeMethodDesc {
     private final DatetimeMethodEnum datetimeMethod;
-    private final ForgeFactory forgeFactory;
+    private final DatetimeMethodProviderForgeFactory forgeFactory;
     private final DotMethodFP[] parameters;
 
-    public DatetimeMethodDesc(DatetimeMethodEnum datetimeMethod, ForgeFactory forgeFactory, DotMethodFP[] parameters) {
+    public DatetimeMethodDesc(DatetimeMethodEnum datetimeMethod, DatetimeMethodProviderForgeFactory forgeFactory, DotMethodFP[] parameters) {
         this.datetimeMethod = datetimeMethod;
         this.forgeFactory = forgeFactory;
         this.parameters = parameters;
@@ -27,7 +27,7 @@ public class DatetimeMethodDesc {
         return datetimeMethod;
     }
 
-    public ForgeFactory getForgeFactory() {
+    public DatetimeMethodProviderForgeFactory getForgeFactory() {
         return forgeFactory;
     }
 

@@ -14,7 +14,7 @@ import com.espertech.esper.common.internal.epl.datetime.calop.CalendarFieldEnum;
 import com.espertech.esper.common.internal.epl.datetime.calop.CalendarOpUtil;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
-import com.espertech.esper.common.internal.epl.datetime.eval.ForgeFactory;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodProviderForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -23,7 +23,7 @@ import com.espertech.esper.common.internal.rettype.EPType;
 
 import java.util.List;
 
-public class ReformatForgeFactory implements ForgeFactory {
+public class ReformatForgeFactory implements DatetimeMethodProviderForgeFactory {
 
     private final static ReformatForge FORMAT_STRING = new ReformatStringFormatForge();
 

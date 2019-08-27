@@ -12,14 +12,14 @@ package com.espertech.esper.common.internal.epl.datetime.calop;
 
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
 import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodEnum;
-import com.espertech.esper.common.internal.epl.datetime.eval.ForgeFactory;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodProviderForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 import java.util.List;
 
-public class CalendarForgeFactory implements ForgeFactory {
+public class CalendarForgeFactory implements DatetimeMethodProviderForgeFactory {
 
     public CalendarForge getOp(DatetimeMethodDesc desc, String methodNameUsed, List<ExprNode> parameters, ExprForge[] forges)
         throws ExprValidationException {

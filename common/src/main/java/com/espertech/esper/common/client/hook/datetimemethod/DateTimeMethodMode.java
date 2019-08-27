@@ -11,7 +11,7 @@
 package com.espertech.esper.common.client.hook.datetimemethod;
 
 /**
- * Describes to the compiler how it should manage code for the aggregation function.
+ * Describes to the compiler how it should manage code for the date-time method.
  */
 public interface DateTimeMethodMode {
 }

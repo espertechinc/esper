@@ -13,11 +13,10 @@ package com.espertech.esper.common.internal.epl.enummethod.eval;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParam;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotForgeEnumMethodBase;
+import com.espertech.esper.common.internal.epl.enummethod.dot.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeUtility;
+import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
@@ -27,7 +26,7 @@ import java.util.List;
 
 public class ExprDotForgeAggregate extends ExprDotForgeEnumMethodBase {
 
-    public EventType[] getAddStreamTypes(String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+    public EventType[] getAddStreamTypes(DotMethodFP footprint, int parameterNum, EnumMethodEnum enumMethod, String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
         EventType evalEventType;
         if (inputEventType == null) {
             evalEventType = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(1), collectionComponentType, statementRawInfo, services);
@@ -41,7 +40,7 @@ public class ExprDotForgeAggregate extends ExprDotForgeEnumMethodBase {
         return new EventType[]{typeResult, evalEventType};
     }
 
-    public EnumForge getEnumForge(StreamTypeService streamTypeService, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+    public EnumForge getEnumForge(DotMethodFP footprint, EnumMethodDesc enumMethodEnum, StreamTypeService streamTypeService, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
         ExprDotEvalParam initValueParam = bodiesAndParameters.get(0);
         ExprForge initValueEval = initValueParam.getBodyForge();
         super.setTypeInfo(EPTypeHelper.singleValue(JavaClassHelper.getBoxedType(initValueEval.getEvaluationType())));

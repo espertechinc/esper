@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.common.internal.settings;
 
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationFunction;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInDateTimeMethod;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.client.configuration.compiler.*;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionForge;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.agg.access.linear.AggregationAccessorLinearType;
@@ -50,6 +47,7 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
     private final Map<String, ClasspathImportSingleRowDesc> singleRowFunctions = new HashMap<>();
     private final LinkedHashMap<String, AdvancedIndexFactoryProvider> advancedIndexProviders = new LinkedHashMap<>(8);
     private final Map<String, ConfigurationCompilerPlugInDateTimeMethod> dateTimeMethods;
+    private final Map<String, ConfigurationCompilerPlugInEnumMethod> enumMethods;
 
     public ClasspathImportServiceCompileTime(Map<String, Object> transientConfiguration, TimeAbacus timeAbacus, Set<String> eventTypeAutoNames, MathContext mathContext, boolean allowExtendedAggregationFunc, boolean sortUsingCollator) {
         super(transientConfiguration, timeAbacus, eventTypeAutoNames);
@@ -61,6 +59,7 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
         this.advancedIndexProviders.put("pointregionquadtree", new AdvancedIndexFactoryProviderPointRegionQuadTree());
         this.advancedIndexProviders.put("mxcifquadtree", new AdvancedIndexFactoryProviderMXCIFQuadTree());
         this.dateTimeMethods = new HashMap<>();
+        this.enumMethods = new HashMap<>();
     }
 
     public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationCompilerPlugInSingleRowFunction.ValueCache valueCache, ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions, String optionalEventTypeName) throws ClasspathImportException {
@@ -79,6 +78,15 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
             throw new ClasspathImportException("Invalid class name for date-time-method '" + config.getForgeClassName() + "'");
         }
         dateTimeMethods.put(dtmMethodName.toLowerCase(Locale.ENGLISH), config);
+    }
+
+    public void addPlugInEnumMethod(String dtmMethodName, ConfigurationCompilerPlugInEnumMethod config) throws ClasspathImportException {
+        validateFunctionName("enum-method", dtmMethodName);
+
+        if (!isClassName(config.getForgeClassName())) {
+            throw new ClasspathImportException("Invalid class name for enum-method '" + config.getForgeClassName() + "'");
+        }
+        enumMethods.put(dtmMethodName.toLowerCase(Locale.ENGLISH), config);
     }
 
     public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) throws ClasspathImportException, ClasspathImportUndefinedException {
@@ -367,6 +375,24 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
             clazz = getClassForNameProvider().classForName(dtm.getForgeClassName());
         } catch (ClassNotFoundException ex) {
             throw new ClasspathImportException("Could not load date-time-method forge class by name '" + dtm.getForgeClassName() + "'", ex);
+        }
+        return clazz;
+    }
+
+    public Class resolveEnumMethod(String name) throws ClasspathImportException {
+        ConfigurationCompilerPlugInEnumMethod enumMethod = enumMethods.get(name);
+        if (enumMethod == null) {
+            enumMethod = enumMethods.get(name.toLowerCase(Locale.ENGLISH));
+        }
+        if (enumMethod == null) {
+            return null;
+        }
+
+        Class clazz;
+        try {
+            clazz = getClassForNameProvider().classForName(enumMethod.getForgeClassName());
+        } catch (ClassNotFoundException ex) {
+            throw new ClasspathImportException("Could not load enum-method forge class by name '" + enumMethod.getForgeClassName() + "'", ex);
         }
         return clazz;
     }

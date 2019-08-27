@@ -144,7 +144,7 @@ public class DotMethodUtil {
             if (found.getLambdaParamNum() > 0) {
                 continue;
             }
-            EPLValidationUtil.validateParameterType(methodUsedName, type.getTypeName(), false, found.getType(), found.getSpecificType(), provided.getReturnType(), i, provided.getExpression());
+            EPLValidationUtil.validateParameterType(methodUsedName, type.getTypeName(), false, found.getParamType(), found.getSpecificType(), provided.getReturnType(), i, provided.getExpression());
         }
     }
 }

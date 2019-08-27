@@ -10,90 +10,47 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
-import com.espertech.esper.common.internal.epl.enummethod.eval.*;
-import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
-
-import java.util.Locale;
-
 public enum EnumMethodEnum {
 
-    AGGREGATE("aggregate", ExprDotForgeAggregate.class, EnumMethodEnumParams.AGGREGATE_FP),
+    AGGREGATE,
 
-    ALLOF("allOf", ExprDotForgeAllOfAnyOf.class, EnumMethodEnumParams.ALLOF_ANYOF),
-    ANYOF("anyOf", ExprDotForgeAllOfAnyOf.class, EnumMethodEnumParams.ALLOF_ANYOF),
+    ALLOF,
+    ANYOF,
 
-    TOMAP("toMap", ExprDotForgeToMap.class, EnumMethodEnumParams.MAP),
-    GROUPBY("groupBy", ExprDotForgeGroupBy.class, EnumMethodEnumParams.GROUP),
+    TOMAP,
+    GROUPBY,
 
-    COUNTOF("countOf", ExprDotForgeCountOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
-    MIN("min", ExprDotForgeMinMax.class, EnumMethodEnumParams.MIN_MAX),
-    MAX("max", ExprDotForgeMinMax.class, EnumMethodEnumParams.MIN_MAX),
-    AVERAGE("average", ExprDotForgeAverage.class, EnumMethodEnumParams.AVERAGE_SUMOF),
-    SUMOF("sumOf", ExprDotForgeSumOf.class, EnumMethodEnumParams.AVERAGE_SUMOF),
+    COUNTOF,
+    MIN,
+    MAX,
+    AVERAGE,
+    SUMOF,
 
-    MOSTFREQUENT("mostFrequent", ExprDotForgeMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
-    LEASTFREQUENT("leastFrequent", ExprDotForgeMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
+    MOSTFREQUENT,
+    LEASTFREQUENT,
 
-    SELECTFROM("selectFrom", ExprDotForgeSelectFrom.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
+    SELECTFROM,
 
-    FIRST("firstOf", ExprDotForgeFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
-    LAST("lastOf", ExprDotForgeFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
-    MINBY("minBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
-    MAXBY("maxBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
+    FIRSTOF,
+    LASTOF,
+    MINBY,
+    MAXBY,
 
-    TAKE("take", ExprDotForgeTakeAndTakeLast.class, EnumMethodEnumParams.TAKE),
-    TAKELAST("takeLast", ExprDotForgeTakeAndTakeLast.class, EnumMethodEnumParams.TAKELAST),
-    TAKEWHILE("takeWhile", ExprDotForgeTakeWhileAndLast.class, EnumMethodEnumParams.WHERE_FP),
-    TAKEWHILELAST("takeWhileLast", ExprDotForgeTakeWhileAndLast.class, EnumMethodEnumParams.WHERE_FP),
-    ORDERBY("orderBy", ExprDotForgeOrderByAscDesc.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
-    ORDERBYDESC("orderByDesc", ExprDotForgeOrderByAscDesc.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
-    DISTINCT("distinctOf", ExprDotForgeDistinct.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
-    WHERE("where", ExprDotForgeWhere.class, EnumMethodEnumParams.WHERE_FP),
-    UNION("union", ExprDotForgeSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
-    EXCEPT("except", ExprDotForgeSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
-    INTERSECT("intersect", ExprDotForgeSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
-    REVERSE("reverse", ExprDotForgeReverse.class, EnumMethodEnumParams.NOOP_REVERSE),
-    NOOP("esperInternalNoop", ExprDotForgeNoOp.class, EnumMethodEnumParams.NOOP_REVERSE),
+    TAKE,
+    TAKELAST,
+    TAKEWHILE,
+    TAKEWHILELAST,
+    ORDERBY,
+    ORDERBYDESC,
+    DISTINCTOF,
+    WHERE,
+    UNION,
+    EXCEPT,
+    INTERSECT,
+    REVERSE,
+    ESPERINTERNALNOOP,
 
-    SEQUENCE_EQUAL("sequenceequal", ExprDotForgeSequenceEqual.class, EnumMethodEnumParams.SEQ_EQUALS_FP);
+    SEQUENCEEQUAL,
 
-    private final String nameCamel;
-    private final Class implementation;
-    private final DotMethodFP[] footprints;
-
-    private EnumMethodEnum(String nameCamel, Class implementation, DotMethodFP[] footprints) {
-        this.nameCamel = nameCamel;
-        this.implementation = implementation;
-        this.footprints = footprints;
-    }
-
-    public String getNameCamel() {
-        return nameCamel;
-    }
-
-    public DotMethodFP[] getFootprints() {
-        return footprints;
-    }
-
-    public static boolean isEnumerationMethod(String name) {
-        for (EnumMethodEnum e : EnumMethodEnum.values()) {
-            if (e.getNameCamel().toLowerCase(Locale.ENGLISH).equals(name.toLowerCase(Locale.ENGLISH))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static EnumMethodEnum fromName(String name) {
-        for (EnumMethodEnum e : EnumMethodEnum.values()) {
-            if (e.getNameCamel().toLowerCase(Locale.ENGLISH).equals(name.toLowerCase(Locale.ENGLISH))) {
-                return e;
-            }
-        }
-        return null;
-    }
-
-    public Class getImplementation() {
-        return implementation;
-    }
+    PLUGIN;
 }

@@ -26,7 +26,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.datetime.eval.*;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodDesc;
+import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodResolver;
+import com.espertech.esper.common.internal.epl.datetime.eval.ExprDotDTFactory;
+import com.espertech.esper.common.internal.epl.datetime.eval.ExprDotDTMethodDesc;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -60,7 +63,7 @@ public class ExprDotNodeUtility {
     }
 
     public static boolean isDatetimeOrEnumMethod(String name, ClasspathImportServiceCompileTime classpathImportService) throws ExprValidationException {
-        return EnumMethodEnum.isEnumerationMethod(name) || DatetimeMethodResolver.isDateTimeMethod(name, classpathImportService);
+        return EnumMethodResolver.isEnumerationMethod(name, classpathImportService) || DatetimeMethodResolver.isDateTimeMethod(name, classpathImportService);
     }
 
     public static ExprDotEnumerationSourceForge getEnumerationSource(ExprNode inputExpression, StreamTypeService streamTypeService, boolean hasEnumerationMethod, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
@@ -174,7 +177,7 @@ public class ExprDotNodeUtility {
         throws ExprValidationException {
         List<ExprDotForge> methodForges = new ArrayList<>();
         EPType currentInputType = inputType;
-        EnumMethodEnum lastLambdaFunc = null;
+        EnumMethodDesc lastLambdaFunc = null;
         ExprChainedSpec lastElement = chainSpec.isEmpty() ? null : chainSpec.get(chainSpec.size() - 1);
         FilterExprAnalyzerAffector filterAnalyzerDesc = null;
 
@@ -221,9 +224,9 @@ public class ExprDotNodeUtility {
                 }
             }
 
-            if (EnumMethodEnum.isEnumerationMethod(chainElement.getName()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
-                EnumMethodEnum enumerationMethod = EnumMethodEnum.fromName(chainElement.getName());
-                ExprDotForgeEnumMethod eval = (ExprDotForgeEnumMethod) JavaClassHelper.instantiate(ExprDotForgeEnumMethod.class, enumerationMethod.getImplementation());
+            if (EnumMethodResolver.isEnumerationMethod(chainElement.getName(), validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
+                EnumMethodDesc enumerationMethod = EnumMethodResolver.fromName(chainElement.getName(), validationContext.getClasspathImportService());
+                ExprDotForgeEnumMethod eval = enumerationMethod.getFactory().make();
                 if (currentInputType instanceof ClassEPType && JavaClassHelper.isImplementsInterface(((ClassEPType) currentInputType).getType(), Collection.class)) {
                     currentInputType = EPTypeHelper.collectionOfSingleValue(Object.class);
                 }
@@ -272,7 +275,7 @@ public class ExprDotNodeUtility {
                     ExprDotForge forge;
                     if (currentInputType instanceof ClassEPType) {
                         // if followed by an enumeration method, convert array to collection
-                        if (desc.getReflectionMethod().getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodEnum.isEnumerationMethod(chainSpecStack.getFirst().getName())) {
+                        if (desc.getReflectionMethod().getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodResolver.isEnumerationMethod(chainSpecStack.getFirst().getName(), validationContext.getClasspathImportService())) {
                             forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), paramForges, ExprDotMethodForgeNoDuck.Type.WRAPARRAY);
                         } else {
                             forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), paramForges, ExprDotMethodForgeNoDuck.Type.PLAIN);

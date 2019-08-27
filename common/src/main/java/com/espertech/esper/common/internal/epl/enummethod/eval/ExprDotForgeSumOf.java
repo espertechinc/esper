@@ -15,10 +15,9 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParam;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotForgeEnumMethodBase;
+import com.espertech.esper.common.internal.epl.enummethod.dot.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeUtility;
+import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
@@ -32,11 +31,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
 
-    public EventType[] getAddStreamTypes(String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+    public EventType[] getAddStreamTypes(DotMethodFP footprint, int parameterNum, EnumMethodEnum enumMethod, String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
         return ExprDotNodeUtility.getSingleLambdaParamEventType(enumMethodUsedName, goesToNames, inputEventType, collectionComponentType, statementRawInfo, services);
     }
 
-    public EnumForge getEnumForge(StreamTypeService streamTypeService, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+    public EnumForge getEnumForge(DotMethodFP footprint, EnumMethodDesc enumMethodEnum, StreamTypeService streamTypeService, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
 
         if (bodiesAndParameters.isEmpty()) {
             ExprDotEvalSumMethodFactory aggMethodFactory = getAggregatorFactory(collectionComponentType);

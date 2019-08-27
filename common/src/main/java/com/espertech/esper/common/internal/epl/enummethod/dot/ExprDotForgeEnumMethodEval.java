@@ -40,13 +40,11 @@ public class ExprDotForgeEnumMethodEval implements ExprDotEval {
 
     private final ExprDotForgeEnumMethodBase forge;
     private final EnumEval enumEval;
-    private final boolean cache;
     private final int enumEvalNumRequiredEvents;
 
-    public ExprDotForgeEnumMethodEval(ExprDotForgeEnumMethodBase forge, EnumEval enumEval, boolean cache, int enumEvalNumRequiredEvents) {
+    public ExprDotForgeEnumMethodEval(ExprDotForgeEnumMethodBase forge, EnumEval enumEval, int enumEvalNumRequiredEvents) {
         this.forge = forge;
         this.enumEval = enumEval;
-        this.cache = cache;
         this.enumEvalNumRequiredEvents = enumEvalNumRequiredEvents;
     }
 

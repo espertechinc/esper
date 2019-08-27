@@ -105,10 +105,15 @@ public class TestSuiteClientExtension extends TestCase {
         RegressionRunner.run(session, ClientExtendDateTimeMethod.executions());
     }
 
+    public void testClientExtendEnumMethod() {
+        RegressionRunner.run(session, ClientExtendEnumMethod.executions());
+    }
+
     private static void configure(Configuration configuration) {
 
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_A.class, SupportBean_S0.class, SupportMarketDataBean.class,
-            SupportSimpleBeanOne.class, SupportBean_ST0.class, SupportBeanRange.class, SupportDateTime.class}) {
+            SupportSimpleBeanOne.class, SupportBean_ST0.class, SupportBeanRange.class, SupportDateTime.class, SupportCollection.class,
+            SupportBean_ST0_Container.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
 
@@ -131,6 +136,7 @@ public class TestSuiteClientExtension extends TestCase {
             "varargOverload").split(",")) {
             configurationCompiler.addPlugInSingleRowFunction(method, SupportSingleRowFunction.class.getName(), method);
         }
+        configurationCompiler.addPlugInSingleRowFunction("extractNum", ClientExtendEnumMethod.class.getName(), "extractNum");
 
         addEventTypeUDF("myItemProducerEventBeanArray", "MyItem", "myItemProducerEventBeanArray", configuration);
         addEventTypeUDF("myItemProducerEventBeanCollection", "MyItem", "myItemProducerEventBeanCollection", configuration);
@@ -170,6 +176,16 @@ public class TestSuiteClientExtension extends TestCase {
         configurationCompiler.addPlugInDateTimeMethod("dtmInvalidNotProvided", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryInvalidNotProvided.class.getName());
         configurationCompiler.addPlugInDateTimeMethod("someDTMInvalidReformat", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryInvalidReformat.class.getName());
         configurationCompiler.addPlugInDateTimeMethod("someDTMInvalidNoOp", ClientExtendDateTimeMethod.MyLocalDTMForgeFactoryInvalidNoOp.class.getName());
+
+        configurationCompiler.addPlugInEnumMethod("enumPlugInMedian", ClientExtendEnumMethod.MyLocalEnumMethodForgeMedian.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInOne", ClientExtendEnumMethod.MyLocalEnumMethodForgeOne.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInEarlyExit", ClientExtendEnumMethod.MyLocalEnumMethodForgeEarlyExit.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInReturnEvents", ClientExtendEnumMethod.MyLocalEnumMethodForgePredicateReturnEvents.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInReturnSingleEvent", ClientExtendEnumMethod.MyLocalEnumMethodForgePredicateReturnSingleEvent.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInTwoLambda", ClientExtendEnumMethod.MyLocalEnumMethodForgeTwoLambda.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInLambdaEventWPredicateAndIndex", ClientExtendEnumMethod.MyLocalEnumMethodForgeThree.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInLambdaScalarWPredicateAndIndex", ClientExtendEnumMethod.MyLocalEnumMethodForgeThree.class.getName());
+        configurationCompiler.addPlugInEnumMethod("enumPlugInLambdaScalarWStateAndValue", ClientExtendEnumMethod.MyLocalEnumMethodForgeStateWValue.class.getName());
 
         configuration.getCommon().addImport(ClientExtendSingleRowFunction.class);
 

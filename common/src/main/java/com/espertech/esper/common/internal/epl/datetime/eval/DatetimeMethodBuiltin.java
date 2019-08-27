@@ -64,17 +64,17 @@ public enum DatetimeMethodBuiltin {
 
     private final String nameCamel;
     private final DatetimeMethodEnum datetimeMethod;
-    private final ForgeFactory forgeFactory;
+    private final DatetimeMethodProviderForgeFactory forgeFactory;
     private final DotMethodFP[] footprints;
 
-    DatetimeMethodBuiltin(String nameCamel, ForgeFactory forgeFactory, DotMethodFP[] footprints) {
+    DatetimeMethodBuiltin(String nameCamel, DatetimeMethodProviderForgeFactory forgeFactory, DotMethodFP[] footprints) {
         this.nameCamel = nameCamel;
         this.datetimeMethod = DatetimeMethodEnum.valueOf(nameCamel.toUpperCase(Locale.ENGLISH));
         this.forgeFactory = forgeFactory;
         this.footprints = footprints;
     }
 
-    public ForgeFactory getForgeFactory() {
+    public DatetimeMethodProviderForgeFactory getForgeFactory() {
         return forgeFactory;
     }
 
