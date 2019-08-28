@@ -46,3 +46,9 @@
 /esperio/esperio-springjms/target
 /doc/javadoc
 /esperio/doc/javadoc
+
+.idea/
+
+esper-parent.iml
+
+*.iml
