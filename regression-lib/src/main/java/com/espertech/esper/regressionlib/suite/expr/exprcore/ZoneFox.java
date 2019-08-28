@@ -23,12 +23,12 @@ import static org.junit.Assert.assertTrue;
 public class ZoneFox {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
-        executions.add(new ExprCoreLikeRegexStartsWith());
-        executions.add(new ExprCoreLikeRegexSlashU());
+        executions.add(new StartsWith());
+        executions.add(new RegexSlashU());
         return executions;
     }
 
-    private static class ExprCoreLikeRegexStartsWith implements RegressionExecution {
+    private static class StartsWith implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select p00 as result from SupportBean_S0 where p00.startsWith('\\user\\bob')";
             String expected = "\\user\\bob";
@@ -40,7 +40,7 @@ public class ZoneFox {
         }
     }
 
-    private static class ExprCoreLikeRegexSlashU implements RegressionExecution {
+    private static class RegexSlashU implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select p00 regexp '.*\\\\user\\\\.*' as result from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
