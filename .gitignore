@@ -47,8 +47,6 @@
 /doc/javadoc
 /esperio/doc/javadoc
 
+# JIdea IDE files
 .idea/
-
-esper-parent.iml
-
 *.iml
