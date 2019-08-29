@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.util.LongValue;
 import com.espertech.esper.common.internal.util.StringValue;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -60,12 +61,37 @@ public class ASTConstantHelper {
                     return parseNumber(number, 1);
                 }
             } else if (ruleIndex == EsperEPL2GrammarParser.RULE_stringconstant) {
-                return StringValue.parseString(node.getText());
+                boolean requireUnescape = !isRegexpNode(node);
+                return StringValue.parseString(node.getText(), requireUnescape);
             } else if (ruleIndex == EsperEPL2GrammarParser.RULE_constant) {
                 return parse(ruleNode.getChild(0));
             }
             throw ASTWalkException.from("Encountered unrecognized constant", node.getText());
         }
+    }
+
+    private static boolean isRegexpNode(Tree node)
+    {
+        Tree parent = node.getParent();
+        while (parent != null)
+        {
+            if (parent.getChildCount() > 1)
+            {
+                for (int i = 0; i < parent.getChildCount(); i++)
+                {
+                    Tree child = parent.getChild(i);
+                    if (child.getPayload() instanceof CommonToken)
+                    {
+                        if (((CommonToken) child.getPayload()).getText().equals("regexp"))
+                            return true;
+                    }
+                }
+            }
+
+            parent = parent.getParent();
+        }
+
+        return false;
     }
 
     private static Object parseNumber(RuleNode number, int factor) {

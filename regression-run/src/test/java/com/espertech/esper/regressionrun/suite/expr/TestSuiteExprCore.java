@@ -38,6 +38,8 @@ public class TestSuiteExprCore extends TestCase {
         session = null;
     }
 
+    public void testZoneFox() { RegressionRunner.run(session, ZoneFox.executions()); }
+
     public void testExprCoreRelOp() {
         RegressionRunner.run(session, new ExprCoreRelOp());
     }

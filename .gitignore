@@ -46,3 +46,7 @@
 /esperio/esperio-springjms/target
 /doc/javadoc
 /esperio/doc/javadoc
+
+# JIdea IDE files
+.idea/
+*.iml
