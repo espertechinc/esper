@@ -19,15 +19,17 @@ public final class StringValue {
     /**
      * Parse the string literal consisting of text between double-quotes or single-quotes.
      * This method will not perform unescape if it is not required as indicated by the second argument
-     * @param value is the text within double or single quotes
+     *
+     * @param value           is the text within double or single quotes
      * @param requireUnescape indicates if value should be unescaped
      * @return parsed value
      */
     public static String parseString(String value, boolean requireUnescape) {
-        if(!requireUnescape)
+        if (!requireUnescape) {
             return value.substring(1, value.length() - 1);
-        else
+        } else {
             return parseString(value);
+        }
     }
 
     /**

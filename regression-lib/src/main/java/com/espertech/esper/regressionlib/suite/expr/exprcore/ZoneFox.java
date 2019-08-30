@@ -34,7 +34,7 @@ public class ZoneFox {
             String expected = "\\user\\bob";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(-1, expected));
-            String actual = (String)env.listener("s0").assertOneGetNewAndReset().get("result");
+            String actual = (String) env.listener("s0").assertOneGetNewAndReset().get("result");
             assertEquals(actual, expected);
             env.undeployAll();
         }

@@ -70,18 +70,13 @@ public class ASTConstantHelper {
         }
     }
 
-    private static boolean isRegexpNode(Tree node)
-    {
+    private static boolean isRegexpNode(Tree node) {
         Tree parent = node.getParent();
-        while (parent != null)
-        {
-            if (parent.getChildCount() > 1)
-            {
-                for (int i = 0; i < parent.getChildCount(); i++)
-                {
+        while (parent != null) {
+            if (parent.getChildCount() > 1) {
+                for (int i = 0; i < parent.getChildCount(); i++) {
                     Tree child = parent.getChild(i);
-                    if (child.getPayload() instanceof CommonToken)
-                    {
+                    if (child.getPayload() instanceof CommonToken) {
                         if (((CommonToken) child.getPayload()).getText().equals("regexp"))
                             return true;
                     }
