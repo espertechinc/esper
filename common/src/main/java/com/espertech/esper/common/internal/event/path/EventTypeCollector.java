@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.path;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
@@ -31,6 +32,8 @@ public interface EventTypeCollector {
                       EventType[] superTypes, Set<EventType> deepSupertypes);
 
     void registerXML(EventTypeMetadata metadata, String representsFragmentOfProperty, String representsOriginalTypeName);
+
+    void registerXMLNewType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM config);
 
     void registerAvro(EventTypeMetadata metadata, String schemaJson, String[] superTypes);
 

@@ -15,14 +15,42 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class EventXMLSchemaEventTypes implements RegressionExecution {
+public class EventXMLSchemaEventTypes {
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLSchemaEventTypesPreconfigured());
+        execs.add(new EventXMLSchemaEventTypesCreateSchema());
+        return execs;
+    }
 
-    public void run(RegressionEnvironment env) {
-        String stmtSelectWild = "@name('s0') select * from TestTypesEvent";
-        env.compileDeploy(stmtSelectWild).addListener("s0");
+    private static class EventXMLSchemaEventTypesPreconfigured implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "TestTypesEvent", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLSchemaEventTypesCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String schemaUriTypeTestSchema = this.getClass().getClassLoader().getResource("regression/typeTestSchema.xsd").toString();
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='typesEvent', schemaResource='" + schemaUriTypeTestSchema + "')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
+        String stmtSelectWild = "@name('s0') select * from " + eventTypeName;
+        env.compileDeploy(stmtSelectWild, path).addListener("s0");
         EventType type = env.statement("s0").getEventType();
         SupportEventTypeAssertionUtil.assertConsistency(type);
 

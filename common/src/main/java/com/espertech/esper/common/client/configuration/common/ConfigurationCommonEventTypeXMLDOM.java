@@ -13,6 +13,11 @@ package com.espertech.esper.common.client.configuration.common;
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilder;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilderItemConsumer;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import javax.xml.namespace.QName;
@@ -22,6 +27,9 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 /**
  * Configuration object for enabling the runtimeto process events represented as XML DOM document nodes.
@@ -222,7 +230,7 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
     }
 
     /**
-     * Set to true to indicate that an {@link EventSender} returned for this event type validates
+     * Set to true (the default) to indicate that an {@link EventSender} returned for this event type validates
      * the root document element name against the one configured (the default), or false to not validate the root document
      * element name as configured.
      *
@@ -348,6 +356,10 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         namespacePrefixes.putAll(prefixNamespaceMap);
     }
 
+    public void setNamespacePrefixes(Map<String, String> namespacePrefixes) {
+        this.namespacePrefixes = namespacePrefixes;
+    }
+
     /**
      * Indicates whether properties are compiled into absolute or deep XPath expressions (see setter method for more detail).
      *
@@ -413,6 +425,10 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         this.xPathVariableResolver = xPathVariableResolver;
     }
 
+    public void setXPathProperties(Map<String, XPathPropertyDesc> xPathProperties) {
+        this.xPathProperties = xPathProperties;
+    }
+
     /**
      * Descriptor class for event properties that are resolved via XPath-expression.
      */
@@ -423,6 +439,9 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         private Class optionalCastToType;
         private String optionaleventTypeName;
         private static final long serialVersionUID = -4141721949296588319L;
+
+        public XPathPropertyDesc() {
+        }
 
         /**
          * Ctor.
@@ -511,6 +530,40 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         public String getOptionaleventTypeName() {
             return optionaleventTypeName;
         }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setXpath(String xpath) {
+            this.xpath = xpath;
+        }
+
+        public void setType(QName type) {
+            this.type = type;
+        }
+
+        public void setOptionalCastToType(Class optionalCastToType) {
+            this.optionalCastToType = optionalCastToType;
+        }
+
+        public void setOptionaleventTypeName(String optionaleventTypeName) {
+            this.optionaleventTypeName = optionaleventTypeName;
+        }
+
+        public void setOptionalEventTypeName(String optionaleventTypeName) {
+            this.optionaleventTypeName = optionaleventTypeName;
+        }
+
+        public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
+            return new CodegenSetterBuilder(XPathPropertyDesc.class, XPathPropertyDesc.class, "desc", parent, scope)
+                .constant("name", name)
+                .expression("type", newInstance(QName.class, constant(type.getNamespaceURI()), constant(type.getLocalPart()), constant(type.getPrefix())))
+                .constant("xpath", xpath)
+                .constant("optionaleventTypeName", optionaleventTypeName)
+                .constant("optionalCastToType", optionalCastToType)
+                .build();
+        }
     }
 
     /**
@@ -560,7 +613,7 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         }
 
         if (((other.rootElementNamespace == null) && (rootElementNamespace != null)) ||
-                ((other.rootElementNamespace != null) && (rootElementNamespace == null))) {
+            ((other.rootElementNamespace != null) && (rootElementNamespace == null))) {
             return false;
         }
         if ((other.rootElementNamespace != null) && (rootElementNamespace != null)) {
@@ -571,5 +624,26 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
 
     public int hashCode() {
         return rootElementName.hashCode();
+    }
+
+    public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
+        CodegenSetterBuilderItemConsumer<XPathPropertyDesc> xPathBuild = (o, parentXPath, scopeXPath) -> o.toExpression(parentXPath, scopeXPath);
+        return new CodegenSetterBuilder(ConfigurationCommonEventTypeXMLDOM.class, ConfigurationCommonEventTypeXMLDOM.class, "xmlconfig", parent, scope)
+            .constant("rootElementName", rootElementName)
+            .map("xPathProperties", xPathProperties, xPathBuild)
+            .mapOfConstants("namespacePrefixes", namespacePrefixes)
+            .constant("schemaResource", schemaResource)
+            .constant("schemaText", schemaText)
+            .constant("eventSenderValidatesRoot", isEventSenderValidatesRoot)
+            .constant("autoFragment", isAutoFragment)
+            .constant("xPathPropertyExpr", isXPathPropertyExpr)
+            .constant("xPathFunctionResolver", xPathFunctionResolver)
+            .constant("xPathVariableResolver", xPathVariableResolver)
+            .constant("xPathResolvePropertiesAbsolute", isXPathResolvePropertiesAbsolute)
+            .constant("defaultNamespace", defaultNamespace)
+            .constant("rootElementNamespace", rootElementNamespace)
+            .constant("startTimestampPropertyName", startTimestampPropertyName)
+            .constant("endTimestampPropertyName", endTimestampPropertyName)
+            .build();
     }
 }

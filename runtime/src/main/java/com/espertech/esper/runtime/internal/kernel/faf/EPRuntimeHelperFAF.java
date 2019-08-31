@@ -65,7 +65,7 @@ public class EPRuntimeHelperFAF {
         // initialize event types
         Map<String, EventType> moduleTypes = new HashMap<>();
         EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleTypes, services.getEventTypePathRegistry(), services.getEventTypeRepositoryBus(), services.getBeanEventTypeFactoryPrivate(), services.getEventSerdeFactory());
-        EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, services.getBeanEventTypeFactoryPrivate(), classLoader, services.getEventTypeFactory(), services.getBeanEventTypeStemService(), eventTypeResolver, services.getXmlFragmentEventTypeFactory(), services.getEventTypeAvroHandler(), services.getEventBeanTypedEventFactory());
+        EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, services.getBeanEventTypeFactoryPrivate(), classLoader, services.getEventTypeFactory(), services.getBeanEventTypeStemService(), eventTypeResolver, services.getXmlFragmentEventTypeFactory(), services.getEventTypeAvroHandler(), services.getEventBeanTypedEventFactory(), services.getClasspathImportServiceRuntime());
         fafProvider.initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
 
         // initialize query

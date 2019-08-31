@@ -12,9 +12,9 @@ package com.espertech.esper.regressionrun.suite.event;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.FileUtil;
 import com.espertech.esper.regressionlib.suite.event.xml.*;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.util.SupportXPathFunctionResolver;
 import com.espertech.esper.regressionlib.support.util.SupportXPathVariableResolver;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
@@ -37,72 +37,72 @@ public class TestSuiteEventXML extends TestCase {
         session = null;
     }
 
-    public void testEventXMLNoSchemaEventTransposeXPathConfigured() {
-        RegressionRunner.run(session, new EventXMLNoSchemaEventTransposeXPathConfigured());
+    public void testEventXMLNoSchemaEventXML() {
+        RegressionRunner.run(session, EventXMLNoSchemaEventXML.executions());
     }
 
-    public void testEventXMLNoSchemaEventTransposeXPathGetter() {
-        RegressionRunner.run(session, new EventXMLNoSchemaEventTransposeXPathGetter());
+    public void testEventXMLNoSchemaEventTransposeXPathConfigured() {
+        RegressionRunner.run(session, EventXMLNoSchemaEventTransposeXPathConfigured.executions());
     }
 
     public void testEventXMLNoSchemaEventTransposeDOM() {
-        RegressionRunner.run(session, new EventXMLNoSchemaEventTransposeDOM());
-    }
-
-    public void testEventXMLSchemaPropertyDynamicXPathGetter() {
-        RegressionRunner.run(session, new EventXMLSchemaPropertyDynamicXPathGetter());
-    }
-
-    public void testEventXMLSchemaEventObservationDOM() {
-        RegressionRunner.run(session, new EventXMLSchemaEventObservationDOM());
-    }
-
-    public void testEventXMLSchemaEventObservationXPath() {
-        RegressionRunner.run(session, new EventXMLSchemaEventObservationXPath());
-    }
-
-    public void testEventXMLSchemaEventSender() {
-        RegressionRunner.run(session, new EventXMLSchemaEventSender());
-    }
-
-    public void testEventXMLSchemaEventTransposeDOMGetter() {
-        RegressionRunner.run(session, new EventXMLSchemaEventTransposeDOMGetter());
-    }
-
-    public void testEventXMLSchemaEventTransposeXPathConfigured() {
-        RegressionRunner.run(session, new EventXMLSchemaEventTransposeXPathConfigured());
-    }
-
-    public void testEventXMLSchemaEventTransposeXPathGetter() {
-        RegressionRunner.run(session, new EventXMLSchemaEventTransposeXPathGetter());
-    }
-
-    public void testEventXMLSchemaEventTransposePrimitiveArray() {
-        RegressionRunner.run(session, new EventXMLSchemaEventTransposePrimitiveArray());
-    }
-
-    public void testEventXMLSchemaEventTransposeNodeArray() {
-        RegressionRunner.run(session, new EventXMLSchemaEventTransposeNodeArray());
+        RegressionRunner.run(session, EventXMLNoSchemaEventTransposeDOM.executions());
     }
 
     public void testEventXMLSchemaEventTypes() {
-        RegressionRunner.run(session, new EventXMLSchemaEventTypes());
+        RegressionRunner.run(session, EventXMLSchemaEventTypes.executions());
+    }
+
+    public void testEventXMLSchemaPropertyDynamicXPathGetter() {
+        RegressionRunner.run(session, EventXMLSchemaPropertyDynamicXPathGetter.executions());
+    }
+
+    public void testEventXMLSchemaEventObservationDOM() {
+        RegressionRunner.run(session, EventXMLSchemaEventObservationDOM.executions());
+    }
+
+    public void testEventXMLSchemaEventObservationXPath() {
+        RegressionRunner.run(session, EventXMLSchemaEventObservationXPath.executions());
+    }
+
+    public void testEventXMLSchemaEventSender() {
+        RegressionRunner.run(session, EventXMLSchemaEventSender.executions());
+    }
+
+    public void testEventXMLSchemaEventTransposeDOMGetter() {
+        RegressionRunner.run(session, EventXMLSchemaEventTransposeDOMGetter.executions());
+    }
+
+    public void testEventXMLSchemaEventTransposeXPathConfigured() {
+        RegressionRunner.run(session, EventXMLSchemaEventTransposeXPathConfigured.executions());
+    }
+
+    public void testEventXMLSchemaEventTransposeXPathGetter() {
+        RegressionRunner.run(session, EventXMLSchemaEventTransposeXPathGetter.executions());
+    }
+
+    public void testEventXMLSchemaEventTransposePrimitiveArray() {
+        RegressionRunner.run(session, EventXMLSchemaEventTransposePrimitiveArray.executions());
+    }
+
+    public void testEventXMLSchemaEventTransposeNodeArray() {
+        RegressionRunner.run(session, EventXMLSchemaEventTransposeNodeArray.executions());
     }
 
     public void testEventXMLSchemaWithRestriction() {
-        RegressionRunner.run(session, new EventXMLSchemaWithRestriction());
+        RegressionRunner.run(session, EventXMLSchemaWithRestriction.executions());
     }
 
     public void testEventXMLSchemaWithAll() {
-        RegressionRunner.run(session, new EventXMLSchemaWithAll());
+        RegressionRunner.run(session, EventXMLSchemaWithAll.executions());
     }
 
     public void testEventXMLSchemaDOMGetterBacked() {
-        RegressionRunner.run(session, new EventXMLSchemaDOMGetterBacked());
+        RegressionRunner.run(session, EventXMLSchemaDOMGetterBacked.executions());
     }
 
     public void testEventXMLSchemaXPathBacked() {
-        RegressionRunner.run(session, new EventXMLSchemaXPathBacked());
+        RegressionRunner.run(session, EventXMLSchemaXPathBacked.executions());
     }
 
     public void testEventXMLSchemaInvalid() {
@@ -114,62 +114,63 @@ public class TestSuiteEventXML extends TestCase {
     }
 
     public void testEventXMLNoSchemaSimpleXMLXPathProperties() {
-        RegressionRunner.run(session, new EventXMLNoSchemaSimpleXMLXPathProperties());
+        RegressionRunner.run(session, EventXMLNoSchemaSimpleXMLXPathProperties.executions());
     }
 
     public void testEventXMLNoSchemaSimpleXMLDOMGetter() {
-        RegressionRunner.run(session, new EventXMLNoSchemaSimpleXMLDOMGetter());
+        RegressionRunner.run(session, EventXMLNoSchemaSimpleXMLDOMGetter.executions());
     }
 
     public void testEventXMLNoSchemaSimpleXMLXPathGetter() {
-        RegressionRunner.run(session, new EventXMLNoSchemaSimpleXMLXPathGetter());
+        RegressionRunner.run(session, EventXMLNoSchemaSimpleXMLXPathGetter.executions());
     }
 
     public void testEventXMLNoSchemaNestedXMLDOMGetter() {
-        RegressionRunner.run(session, new EventXMLNoSchemaNestedXMLDOMGetter());
+        RegressionRunner.run(session, EventXMLNoSchemaNestedXMLDOMGetter.executions());
     }
 
     public void testEventXMLNoSchemaNestedXMLXPathGetter() {
-        RegressionRunner.run(session, new EventXMLNoSchemaNestedXMLXPathGetter());
+        RegressionRunner.run(session, EventXMLNoSchemaNestedXMLXPathGetter.executions());
     }
 
     public void testEventXMLNoSchemaDotEscape() {
-        RegressionRunner.run(session, new EventXMLNoSchemaDotEscape());
-    }
-
-    public void testEventXMLNoSchemaEventXML() {
-        RegressionRunner.run(session, new EventXMLNoSchemaEventXML());
+        RegressionRunner.run(session, EventXMLNoSchemaDotEscape.executions());
     }
 
     public void testEventXMLNoSchemaElementNode() {
-        RegressionRunner.run(session, new EventXMLNoSchemaElementNode());
+        RegressionRunner.run(session, EventXMLNoSchemaElementNode.executions());
     }
 
     public void testEventXMLNoSchemaNamespaceXPathRelative() {
-        RegressionRunner.run(session, new EventXMLNoSchemaNamespaceXPathRelative());
+        RegressionRunner.run(session, EventXMLNoSchemaNamespaceXPathRelative.executions());
     }
 
     public void testEventXMLNoSchemaNamespaceXPathAbsolute() {
-        RegressionRunner.run(session, new EventXMLNoSchemaNamespaceXPathAbsolute());
+        RegressionRunner.run(session, EventXMLNoSchemaNamespaceXPathAbsolute.executions());
     }
 
     public void testEventXMLNoSchemaXPathArray() {
-        RegressionRunner.run(session, new EventXMLNoSchemaXPathArray());
+        RegressionRunner.run(session, EventXMLNoSchemaXPathArray.executions());
     }
 
     public void testEventXMLNoSchemaPropertyDynamicDOMGetter() {
-        RegressionRunner.run(session, new EventXMLNoSchemaPropertyDynamicDOMGetter());
+        RegressionRunner.run(session, EventXMLNoSchemaPropertyDynamicDOMGetter.executions());
     }
 
     public void testEventXMLNoSchemaPropertyDynamicXPathGetter() {
-        RegressionRunner.run(session, new EventXMLNoSchemaPropertyDynamicXPathGetter());
+        RegressionRunner.run(session, EventXMLNoSchemaPropertyDynamicXPathGetter.executions());
     }
 
     public void testEventXMLSchemaPropertyDynamicDOMGetter() {
-        RegressionRunner.run(session, new EventXMLSchemaPropertyDynamicDOMGetter());
+        RegressionRunner.run(session, EventXMLSchemaPropertyDynamicDOMGetter.executions());
+    }
+
+    public void testEventXMLCreateSchemaInvalid() {
+        RegressionRunner.run(session, new EventXMLCreateSchemaInvalid());
     }
 
     private static void configure(Configuration configuration) {
+        configuration.getCompiler().getViewResources().setIterableUnbound(true);
 
         configuration.getCommon().addVariable("var", int.class, 0);
 
@@ -218,7 +219,7 @@ public class TestSuiteEventXML extends TestCase {
 
         ConfigurationCommonEventTypeXMLDOM eventTypeMeta = new ConfigurationCommonEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("simpleEvent");
-        configuration.getCommon().addEventType("TestXMLSchemaType", eventTypeMeta);
+        configuration.getCommon().addEventType("TestXMLJustRootElementType", eventTypeMeta);
 
         ConfigurationCommonEventTypeXMLDOM rootMeta = new ConfigurationCommonEventTypeXMLDOM();
         rootMeta.setRootElementName("simpleEvent");
@@ -235,14 +236,12 @@ public class TestSuiteEventXML extends TestCase {
         metaNestedArray.setRootElementName("nested4");
         configuration.getCommon().addEventType("MyNestedArrayEvent", metaNestedArray);
 
-        configuration.getCompiler().getViewResources().setIterableUnbound(true);
-
-        ConfigurationCommonEventTypeXMLDOM testXMLSchemaTypeTXG = new ConfigurationCommonEventTypeXMLDOM();
-        testXMLSchemaTypeTXG.setRootElementName("simpleEvent");
-        testXMLSchemaTypeTXG.setSchemaResource(schemaUriSimpleSchema);
-        testXMLSchemaTypeTXG.setXPathPropertyExpr(true);       // <== note this
-        testXMLSchemaTypeTXG.addNamespacePrefix("ss", "samples:schemas:simpleSchema");
-        configuration.getCommon().addEventType("TestXMLSchemaTypeTXG", testXMLSchemaTypeTXG);
+        ConfigurationCommonEventTypeXMLDOM testXMLSchemaTypeWithSS = new ConfigurationCommonEventTypeXMLDOM();
+        testXMLSchemaTypeWithSS.setRootElementName("simpleEvent");
+        testXMLSchemaTypeWithSS.setSchemaResource(schemaUriSimpleSchema);
+        testXMLSchemaTypeWithSS.setXPathPropertyExpr(true);       // <== note this
+        testXMLSchemaTypeWithSS.addNamespacePrefix("ss", "samples:schemas:simpleSchema");
+        configuration.getCommon().addEventType("TestXMLSchemaTypeWithSS", testXMLSchemaTypeWithSS);
 
         ConfigurationCommonEventTypeXMLDOM myEventWTypeAndUID = new ConfigurationCommonEventTypeXMLDOM();
         myEventWTypeAndUID.addXPathProperty("event.type", "/event/@type", XPathConstants.STRING);
@@ -316,7 +315,6 @@ public class TestSuiteEventXML extends TestCase {
         ConfigurationCommonEventTypeXMLDOM typecfg = new ConfigurationCommonEventTypeXMLDOM();
         typecfg.setRootElementName("Sensor");
         typecfg.setSchemaResource(schemaUriSensorEvent);
-        configuration.getCompiler().getViewResources().setIterableUnbound(true);
         configuration.getCommon().addEventType("SensorEvent", typecfg);
 
         ConfigurationCommonEventTypeXMLDOM sensorcfg = new ConfigurationCommonEventTypeXMLDOM();
@@ -349,7 +347,6 @@ public class TestSuiteEventXML extends TestCase {
         ConfigurationCommonEventTypeXMLDOM simpleEventWSchema = new ConfigurationCommonEventTypeXMLDOM();
         simpleEventWSchema.setRootElementName("simpleEvent");
         simpleEventWSchema.setSchemaResource(schemaUriSimpleSchema);
-        // eventTypeMeta.setXPathPropertyExpr(false); <== the default
         configuration.getCommon().addEventType("SimpleEventWSchema", simpleEventWSchema);
 
         ConfigurationCommonEventTypeXMLDOM abcType = new ConfigurationCommonEventTypeXMLDOM();
@@ -382,13 +379,6 @@ public class TestSuiteEventXML extends TestCase {
         myNestedArrayEventXPC.setRootElementName("//nested4");
         myNestedArrayEventXPC.setSchemaResource(schemaUriSimpleSchema);
         configuration.getCommon().addEventType("MyNestedArrayEventXPC", myNestedArrayEventXPC);
-
-        ConfigurationCommonEventTypeXMLDOM testXMLSchemaTypeWithSS = new ConfigurationCommonEventTypeXMLDOM();
-        testXMLSchemaTypeWithSS.setRootElementName("simpleEvent");
-        testXMLSchemaTypeWithSS.setSchemaResource(schemaUriSimpleSchema);
-        testXMLSchemaTypeWithSS.setXPathPropertyExpr(true);       // <== note this
-        testXMLSchemaTypeWithSS.addNamespacePrefix("ss", "samples:schemas:simpleSchema");
-        configuration.getCommon().addEventType("TestXMLSchemaTypeWithSS", testXMLSchemaTypeWithSS);
 
         ConfigurationCommonEventTypeXMLDOM testTypesEvent = new ConfigurationCommonEventTypeXMLDOM();
         testTypesEvent.setRootElementName("typesEvent");
@@ -426,7 +416,7 @@ public class TestSuiteEventXML extends TestCase {
         configuration.getCommon().addEventType("OrderEvent", orderEvent);
     }
 
-    protected static ConfigurationCommonEventTypeXMLDOM getConfigTestType(String additionalXPathProperty, boolean isUseXPathPropertyExpression, String schemaUriSimpleSchema) {
+    private static ConfigurationCommonEventTypeXMLDOM getConfigTestType(String additionalXPathProperty, boolean isUseXPathPropertyExpression, String schemaUriSimpleSchema) {
         ConfigurationCommonEventTypeXMLDOM eventTypeMeta = new ConfigurationCommonEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("simpleEvent");
         eventTypeMeta.setSchemaResource(schemaUriSimpleSchema);

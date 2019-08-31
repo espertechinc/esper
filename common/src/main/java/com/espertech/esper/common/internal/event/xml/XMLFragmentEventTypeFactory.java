@@ -41,9 +41,6 @@ public class XMLFragmentEventTypeFactory {
     }
 
     public void addRootType(SchemaXMLEventType type) {
-        if (type.getMetadata().getAccessModifier() != NameAccessModifier.PRECONFIGURED) {
-            throw new IllegalStateException("Type '" + type.getName() + "' is not public");
-        }
         if (rootTypes == null) {
             rootTypes = new HashMap<>();
         }

@@ -469,6 +469,15 @@ public class AnnotationUtil {
         } else if (annotation instanceof JsonSchemaField) {
             JsonSchemaField field = (JsonSchemaField) annotation;
             return newInstance(AnnotationJsonSchemaField.class, constant(field.name()), constant(field.adapter()));
+        } else if (annotation instanceof XMLSchema) {
+            XMLSchema xmlSchema = (XMLSchema) annotation;
+            return AnnotationXMLSchema.toExpression(xmlSchema, parent, codegenClassScope);
+        } else if (annotation instanceof XMLSchemaNamespacePrefix) {
+            XMLSchemaNamespacePrefix prefix = (XMLSchemaNamespacePrefix) annotation;
+            return AnnotationXMLSchemaNamespacePrefix.toExpression(prefix, parent, codegenClassScope);
+        } else if (annotation instanceof XMLSchemaField) {
+            XMLSchemaField field = (XMLSchemaField) annotation;
+            return AnnotationXMLSchemaField.toExpression(field, parent, codegenClassScope);
         } else if (annotation.annotationType().getPackage().equals(Name.class.getPackage())) {
             throw new IllegalStateException("Unrecognized annotation residing in the '" + Name.class.getPackage() + " package having type" + annotation.annotationType().getName());
         } else {

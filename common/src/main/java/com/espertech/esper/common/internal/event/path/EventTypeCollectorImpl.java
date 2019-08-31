@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.path;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariantStream;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
@@ -36,6 +37,7 @@ import com.espertech.esper.common.internal.event.property.Property;
 import com.espertech.esper.common.internal.event.property.PropertyParser;
 import com.espertech.esper.common.internal.event.variant.VariantSpec;
 import com.espertech.esper.common.internal.event.xml.*;
+import com.espertech.esper.common.internal.settings.ClasspathImportService;
 
 import java.util.*;
 
@@ -50,8 +52,9 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
     private final EventTypeAvroHandler eventTypeAvroHandler;
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final List<EventTypeCollectedSerde> serdes = new ArrayList<>();
+    private final ClasspathImportService classpathImportService;
 
-    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, ByteArrayProvidingClassLoader classLoader, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, ByteArrayProvidingClassLoader classLoader, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory, ClasspathImportService classpathImportService) {
         this.moduleEventTypes = moduleEventTypes;
         this.beanEventTypeFactory = beanEventTypeFactory;
         this.classLoader = classLoader;
@@ -61,6 +64,7 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         this.xmlFragmentEventTypeFactory = xmlFragmentEventTypeFactory;
         this.eventTypeAvroHandler = eventTypeAvroHandler;
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
+        this.classpathImportService = classpathImportService;
     }
 
     public void registerMap(EventTypeMetadata metadata, LinkedHashMap<String, Object> properties, String[] superTypes, String startTimestampPropertyName, String endTimestampPropertyName) {
@@ -109,6 +113,23 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         SchemaElementComplex complex = (SchemaElementComplex) item;
         EventType eventType = xmlFragmentEventTypeFactory.getCreateXMLDOMType(representsOriginalTypeName, metadata.getName(), metadata.getModuleName(), complex, representsFragmentOfProperty);
         handleRegister(eventType);
+    }
+
+    public void registerXMLNewType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM config) {
+        SchemaModel schemaModel = null;
+        if ((config.getSchemaResource() != null) || (config.getSchemaText() != null)) {
+            try {
+                schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText(), classpathImportService);
+            } catch (Exception ex) {
+                throw new EPException(ex.getMessage(), ex);
+            }
+        }
+        EventType eventType = eventTypeFactory.createXMLType(metadata, config, schemaModel, null, metadata.getName(), beanEventTypeFactory, xmlFragmentEventTypeFactory, eventTypeNameResolver);
+        handleRegister(eventType);
+
+        if (eventType instanceof SchemaXMLEventType) {
+            xmlFragmentEventTypeFactory.addRootType((SchemaXMLEventType) eventType);
+        }
     }
 
     public void registerAvro(EventTypeMetadata metadata, String schemaJson, String[] superTypes) {

@@ -394,7 +394,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         Map<String, EventType> types = new HashMap<String, EventType>();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         for (CreateSchemaDesc spec : desc.getSchemas()) {
-            EventTypeForgablesPair forgablesPair = EventTypeUtility.createNonVariantType(true, spec, packageName, base, services);
+            EventTypeForgablesPair forgablesPair = EventTypeUtility.createNonVariantType(true, spec, base, services);
             additionalForgeables.addAll(forgablesPair.getAdditionalForgeables());
             EventType eventType = forgablesPair.getEventType();
             types.put(spec.getSchemaName(), eventType);

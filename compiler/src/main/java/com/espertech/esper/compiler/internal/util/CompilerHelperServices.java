@@ -182,7 +182,7 @@ public class CompilerHelperServices {
             // initialize event types
             Map<String, EventType> moduleTypes = new LinkedHashMap<>();
             EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleTypes, pathEventTypes, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate, EventSerdeFactoryDefault.INSTANCE);
-            EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, beanEventTypeFactoryPrivate, provider.getClassLoader(), EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService, eventTypeResolver, xmlFragmentEventTypeFactory, eventTypeAvroHandler, EventBeanTypedEventFactoryCompileTime.INSTANCE);
+            EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, beanEventTypeFactoryPrivate, provider.getClassLoader(), EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService, eventTypeResolver, xmlFragmentEventTypeFactory, eventTypeAvroHandler, EventBeanTypedEventFactoryCompileTime.INSTANCE, classpathImportServiceCompileTime);
             try {
                 provider.getModuleProvider().initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
             } catch (Throwable e) {

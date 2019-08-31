@@ -13,23 +13,56 @@ package com.espertech.esper.regressionlib.suite.event.xml;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventSender;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.w3c.dom.Document;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportXML.getDocument;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class EventXMLSchemaEventSender implements RegressionExecution {
-    public void run(RegressionEnvironment env) {
+public class EventXMLSchemaEventSender {
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLSchemaEventSenderPreconfig());
+        execs.add(new EventXMLSchemaEventSenderCreateSchema());
+        return execs;
+    }
 
-        String stmtText = "@name('s0') select b.c as type, element1 from EventABC";
-        env.compileDeploy(stmtText).addListener("s0");
+    public static class EventXMLSchemaEventSenderPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "EventABC", "BEvent", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLSchemaEventSenderCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='a')" +
+                "@XMLSchemaField(name='element1', xpath='/a/b/c', type='string')" +
+                "create xml schema MyEventCreateSchemaABC();\n" +
+                "" +
+                "@public @buseventtype " +
+                "@XMLSchema(rootElementName='a', eventSenderValidatesRoot=false)" +
+                "@XMLSchemaField(name='element2', xpath='//c', type='string')" +
+                "create xml schema MyEventCreateSchemaB()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchemaABC", "MyEventCreateSchemaB", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeNameABC, String eventTypeNameB, RegressionPath path) {
+        String stmtText = "@name('s0') select b.c as type, element1 from " + eventTypeNameABC;
+        env.compileDeploy(stmtText, path).addListener("s0");
 
         Document doc = getDocument("<a><b><c>text</c></b></a>");
-        EventSender sender = env.eventService().getEventSender("EventABC");
+        EventSender sender = env.eventService().getEventSender(eventTypeNameABC);
         sender.sendEvent(doc);
 
         EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -53,11 +86,11 @@ public class EventXMLSchemaEventSender implements RegressionExecution {
         env.undeployModuleContaining("s0");
 
         // test adding a second type for the same root element
-        stmtText = "@name('s0') select element2 from BEvent#lastevent";
-        env.compileDeploy(stmtText).addListener("s0");
+        stmtText = "@name('s0') select element2 from " + eventTypeNameB + "#lastevent";
+        env.compileDeploy(stmtText, path).addListener("s0");
 
         // test sender that doesn't care about the root element
-        EventSender senderTwo = env.eventService().getEventSender("BEvent");
+        EventSender senderTwo = env.eventService().getEventSender(eventTypeNameB);
         senderTwo.sendEvent(getDocument("<xxxx><b><c>text</c></b></xxxx>"));    // allowed, not checking
 
         theEvent = env.statement("s0").iterator().next();

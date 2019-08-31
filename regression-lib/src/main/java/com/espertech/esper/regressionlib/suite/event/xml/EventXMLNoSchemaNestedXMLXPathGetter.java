@@ -13,28 +13,57 @@ package com.espertech.esper.regressionlib.suite.event.xml;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportXML.sendXMLEvent;
 import static org.junit.Assert.assertEquals;
 
-public class EventXMLNoSchemaNestedXMLXPathGetter implements RegressionExecution {
+public class EventXMLNoSchemaNestedXMLXPathGetter {
 
-    public void run(RegressionEnvironment env) {
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLNoSchemaNestedXMLXPathGetterPreconfig());
+        execs.add(new EventXMLNoSchemaNestedXMLXPathGetterCreateSchema());
+        return execs;
+    }
 
-        String stmt = "@name('s0') select b.c as type, element1, result1 from AEventMoreXPath";
-        env.compileDeploy(stmt).addListener("s0");
+    public static class EventXMLNoSchemaNestedXMLXPathGetterPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "AEventMoreXPath", new RegressionPath());
+        }
+    }
 
-        sendXMLEvent(env, "<a><b><c></c></b></a>", "AEventMoreXPath");
+    public static class EventXMLNoSchemaNestedXMLXPathGetterCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='a', xpathPropertyExpr=true)" +
+                "@XMLSchemaField(name='element1', xpath='/a/b/c', type='string')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
+
+        String stmt = "@name('s0') select b.c as type, element1, result1 from " + eventTypeName;
+        env.compileDeploy(stmt, path).addListener("s0");
+
+        sendXMLEvent(env, "<a><b><c></c></b></a>", eventTypeName);
         EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
         assertEquals("", theEvent.get("type"));
         assertEquals("", theEvent.get("element1"));
 
-        sendXMLEvent(env, "<a><b></b></a>", "AEventMoreXPath");
+        sendXMLEvent(env, "<a><b></b></a>", eventTypeName);
         theEvent = env.listener("s0").assertOneGetNewAndReset();
         assertEquals("", theEvent.get("type"));
         assertEquals("", theEvent.get("element1"));
 
-        sendXMLEvent(env, "<a><b><c>text</c></b></a>", "AEventMoreXPath");
+        sendXMLEvent(env, "<a><b><c>text</c></b></a>", eventTypeName);
         theEvent = env.listener("s0").assertOneGetNewAndReset();
         assertEquals("text", theEvent.get("type"));
         assertEquals("text", theEvent.get("element1"));

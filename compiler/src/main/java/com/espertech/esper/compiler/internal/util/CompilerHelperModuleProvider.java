@@ -53,6 +53,7 @@ import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
+import com.espertech.esper.common.internal.event.xml.BaseXMLEventType;
 import com.espertech.esper.common.internal.event.xml.SchemaXMLEventType;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
@@ -423,10 +424,14 @@ public class CompilerHelperModuleProvider {
                 constant(beanType.getUnderlyingType()),
                 constant(beanType.getStartTimestampPropertyName()), constant(beanType.getEndTimestampPropertyName()),
                 superTypes, deepSuperTypes));
-        } else if (eventType instanceof SchemaXMLEventType) {
+        } else if (eventType instanceof SchemaXMLEventType && ((SchemaXMLEventType) eventType).getRepresentsFragmentOfProperty() != null) {
             SchemaXMLEventType xmlType = (SchemaXMLEventType) eventType;
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerXML", ref("metadata"),
                 constant(xmlType.getRepresentsFragmentOfProperty()), constant(xmlType.getRepresentsOriginalTypeName())));
+        } else if (eventType instanceof BaseXMLEventType) {
+            BaseXMLEventType xmlType = (BaseXMLEventType) eventType;
+            method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerXMLNewType", ref("metadata"),
+                xmlType.getConfigurationEventTypeXMLDOM().toExpression(method, classScope)));
         } else if (eventType instanceof AvroSchemaEventType) {
             AvroSchemaEventType avroType = (AvroSchemaEventType) eventType;
             String[] superTypeNames = getSupertypeNames(avroType);

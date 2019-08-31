@@ -20,13 +20,41 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
-public class EventXMLSchemaEventTransposeDOMGetter implements RegressionExecution {
-    public void run(RegressionEnvironment env) {
+public class EventXMLSchemaEventTransposeDOMGetter {
 
-        RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('s0') insert into MyNestedStream select nested1 from SimpleEventWSchema#lastevent", path);
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLSchemaEventTransposeDOMGetterPreconfig());
+        execs.add(new EventXMLSchemaEventTransposeDOMGetterCreateSchema());
+        return execs;
+    }
+
+    public static class EventXMLSchemaEventTransposeDOMGetterPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "SimpleEventWSchema", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLSchemaEventTransposeDOMGetterCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String schemaUriSimpleSchema = Thread.currentThread().getContextClassLoader().getResource("regression/simpleSchema.xsd").toString();
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='simpleEvent', schemaResource='" + schemaUriSimpleSchema + "')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
+
+        env.compileDeploy("@name('s0') insert into MyNestedStream select nested1 from " + eventTypeName + "#lastevent", path);
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
             new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, true),
         }, env.statement("s0").getEventType().getPropertyDescriptors());
@@ -49,7 +77,7 @@ public class EventXMLSchemaEventTransposeDOMGetter implements RegressionExecutio
         }, env.statement("sw").getEventType().getPropertyDescriptors());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("sw").getEventType());
 
-        env.compileDeploy("@name('iw') insert into MyNestedStreamTwo select nested1.* from SimpleEventWSchema#lastevent", path);
+        env.compileDeploy("@name('iw') insert into MyNestedStreamTwo select nested1.* from " + eventTypeName + "#lastevent", path);
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
             new EventPropertyDescriptor("prop1", String.class, null, false, false, false, false, false),
             new EventPropertyDescriptor("prop2", Boolean.class, null, false, false, false, false, false),
@@ -58,7 +86,7 @@ public class EventXMLSchemaEventTransposeDOMGetter implements RegressionExecutio
         }, env.statement("iw").getEventType().getPropertyDescriptors());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("iw").getEventType());
 
-        SupportXML.sendDefaultEvent(env.eventService(), "test", "SimpleEventWSchema");
+        SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);
         EventBean stmtInsertWildcardBean = env.iterator("iw").next();
         EPAssertionUtil.assertProps(stmtInsertWildcardBean, "prop1,prop2,attr1".split(","),
             new Object[]{"SAMPLE_V1", true, "SAMPLE_ATTR1"});
@@ -70,11 +98,11 @@ public class EventXMLSchemaEventTransposeDOMGetter implements RegressionExecutio
 
         EventBean fragmentNested1 = (EventBean) stmtInsertBean.getFragment("nested1");
         assertEquals(5, fragmentNested1.get("nested2.prop3[2]"));
-        assertEquals("SimpleEventWSchema.nested1", fragmentNested1.getEventType().getName());
+        assertEquals(eventTypeName + ".nested1", fragmentNested1.getEventType().getName());
 
         EventBean fragmentNested2 = (EventBean) stmtInsertWildcardBean.getFragment("nested2");
         assertEquals(4, fragmentNested2.get("prop3[1]"));
-        assertEquals("SimpleEventWSchema.nested1.nested2", fragmentNested2.getEventType().getName());
+        assertEquals(eventTypeName + ".nested1.nested2", fragmentNested2.getEventType().getName());
 
         env.undeployAll();
     }

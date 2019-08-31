@@ -38,6 +38,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
 import com.espertech.esper.common.internal.event.core.EventTypeNameGeneratorStatement;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
+import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -204,5 +205,9 @@ public class StatementCompileTimeServices {
 
     public SerdeCompileTimeResolver getSerdeResolver() {
         return services.getSerdeResolver();
+    }
+
+    public XMLFragmentEventTypeFactory getXmlFragmentEventTypeFactory() {
+        return services.getXmlFragmentEventTypeFactory();
     }
 }

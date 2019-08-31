@@ -14,16 +14,44 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.espertech.esper.regressionlib.support.util.SupportXML.sendXMLEvent;
 import static org.junit.Assert.assertEquals;
 
-public class EventXMLNoSchemaEventXML implements RegressionExecution {
+public class EventXMLNoSchemaEventXML {
 
-    public void run(RegressionEnvironment env) {
-        String stmt = "@name('s0') select event.type as type, event.uid as uid from MyEventWTypeAndUID";
-        env.compileDeploy(stmt).addListener("s0");
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLNoSchemaEventXMLPreconfig());
+        execs.add(new EventXMLNoSchemaEventXMLCreateSchema());
+        return execs;
+    }
 
-        sendXMLEvent(env, "<event type=\"a-f-G\" uid=\"terminal.55\" time=\"2007-04-19T13:05:20.22Z\" version=\"2.0\"></event>", "MyEventWTypeAndUID");
+    public static class EventXMLNoSchemaEventXMLPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select event.type as type, event.uid as uid from MyEventWTypeAndUID";
+            runAssertion(env, epl, "MyEventWTypeAndUID");
+        }
+    }
+
+    public static class EventXMLNoSchemaEventXMLCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='event')" +
+                "@XMLSchemaField(name='event.type', xpath='/event/@type', type='string')" +
+                "@XMLSchemaField(name='event.uid', xpath='/event/@uid', type='string')" +
+                "create xml schema MyEventCreateSchema();\n" +
+                "@name('s0') select event.type as type, event.uid as uid from MyEventCreateSchema;\n";
+            runAssertion(env, epl, "MyEventCreateSchema");
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String epl, String eventTypeName) {
+        env.compileDeploy(epl).addListener("s0");
+
+        sendXMLEvent(env, "<event type=\"a-f-G\" uid=\"terminal.55\" time=\"2007-04-19T13:05:20.22Z\" version=\"2.0\"></event>", eventTypeName);
         EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
         assertEquals("a-f-G", theEvent.get("type"));
         assertEquals("terminal.55", theEvent.get("uid"));

@@ -14,11 +14,41 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportXML.sendXMLEvent;
 
-public class EventXMLNoSchemaXPathArray implements RegressionExecution {
-    public void run(RegressionEnvironment env) {
+public class EventXMLNoSchemaXPathArray {
+
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLNoSchemaXPathArrayPreconfig());
+        execs.add(new EventXMLNoSchemaXPathArrayCreateSchema());
+        return execs;
+    }
+
+    public static class EventXMLNoSchemaXPathArrayPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "Event", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLNoSchemaXPathArrayCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='Event')" +
+                "@XMLSchemaField(name='A', xpath='//Field[@Name=\"A\"]/@Value', type='nodeset', castToType='string[]')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
         String xml = "<Event IsTriggering=\"True\">\n" +
             "<Field Name=\"A\" Value=\"987654321\"/>\n" +
             "<Field Name=\"B\" Value=\"2196958725202\"/>\n" +
@@ -32,9 +62,9 @@ public class EventXMLNoSchemaXPathArray implements RegressionExecution {
             "</Participants>\n" +
             "</Event>";
 
-        env.compileDeploy("@name('s0') select * from Event").addListener("s0");
+        env.compileDeploy("@name('s0') select * from " + eventTypeName, path).addListener("s0");
 
-        sendXMLEvent(env, xml, "Event");
+        sendXMLEvent(env, xml, eventTypeName);
 
         EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(theEvent, "A".split(","), new Object[]{new Object[]{"987654321", "9876543210"}});

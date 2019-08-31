@@ -43,6 +43,11 @@ public enum CreateSchemaClauseTypeDef implements Serializable {
     JSON,
 
     /**
+     * XML underlying type.
+     */
+    XML,
+
+    /**
      * Undefined (system default) underlying type.
      */
     NONE;
@@ -63,6 +68,8 @@ public enum CreateSchemaClauseTypeDef implements Serializable {
             writer.write(" avro");
         } else if (this == JSON) {
             writer.write(" json");
+        } else if (this == XML) {
+            writer.write(" xml");
         }
     }
 }

@@ -13,10 +13,10 @@ package com.espertech.esper.regressionlib.suite.expr.datetime;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
 import com.espertech.esper.regressionlib.support.bean.SupportStartTSEndTSImpl;
 import com.espertech.esper.regressionlib.support.bean.SupportStartTSEndTSInterface;
@@ -144,6 +144,21 @@ public class ExprDTDataSources {
             env.compileDeployWBusPublicType(eplPOJO, path);
 
             EPCompiled compiled = env.compile("@name('s2') select * from DerivedType dt where dt.before(current_timestamp())", path);
+            env.deploy(compiled);
+            assertEquals("startTS", env.statement("s2").getEventType().getStartTimestampPropertyName());
+            assertEquals("endTS", env.statement("s2").getEventType().getEndTimestampPropertyName());
+
+            env.undeployAll();
+
+            // test POJO inheritance via create-schema
+            path.clear();
+            String eplXML = "@XMLSchema(rootElementName='root', schemaText='') " +
+                "@XMLSchemaField(name='startTS', xpath='/abc', type='string', castToType='long')" +
+                "@XMLSchemaField(name='endTS', xpath='/def', type='string', castToType='long')" +
+                "create xml schema MyXMLEvent() starttimestamp startTS endtimestamp endTS;\n";
+            env.compileDeployWBusPublicType(eplXML, path);
+
+            compiled = env.compile("@name('s2') select * from MyXMLEvent dt where dt.before(current_timestamp())", path);
             env.deploy(compiled);
             assertEquals("startTS", env.statement("s2").getEventType().getStartTimestampPropertyName());
             assertEquals("endTS", env.statement("s2").getEventType().getEndTimestampPropertyName());

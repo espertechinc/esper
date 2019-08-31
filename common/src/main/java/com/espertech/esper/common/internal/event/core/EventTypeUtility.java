@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.*;
+import com.espertech.esper.common.client.annotation.XMLSchemaField;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.*;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
@@ -46,6 +47,7 @@ import com.espertech.esper.common.internal.event.bean.core.PropertyHelper;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.bean.manufacturer.*;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
+import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
@@ -55,8 +57,7 @@ import com.espertech.esper.common.internal.event.map.MapEventPropertyGetter;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.property.*;
-import com.espertech.esper.common.internal.event.xml.BaseXMLEventType;
-import com.espertech.esper.common.internal.event.xml.XMLEventBean;
+import com.espertech.esper.common.internal.event.xml.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -1566,7 +1567,7 @@ public class EventTypeUtility {
         return target;
     }
 
-    public static EventTypeForgablesPair createNonVariantType(boolean isAnonymous, CreateSchemaDesc spec, String packageName, StatementBaseInfo base, StatementCompileTimeServices services)
+    public static EventTypeForgablesPair createNonVariantType(boolean isAnonymous, CreateSchemaDesc spec, StatementBaseInfo base, StatementCompileTimeServices services)
         throws ExprValidationException {
         if (spec.getAssignedType() == CreateSchemaDesc.AssignedType.VARIANT) {
             throw new IllegalStateException("Variant type is not allowed in this context");
@@ -1586,7 +1587,7 @@ public class EventTypeUtility {
 
         EventType eventType;
         List<StmtClassForgeableFactory> additionalForgeables = Collections.emptyList();
-        if (spec.getTypes().isEmpty()) {
+        if (spec.getTypes().isEmpty() && spec.getAssignedType() != CreateSchemaDesc.AssignedType.XML) {
             EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(annotations, services.getConfiguration(), spec.getAssignedType());
             Map<String, Object> typing = EventTypeUtility.buildType(spec.getColumns(), spec.getCopyFrom(), services.getClasspathImportServiceCompileTime(), services.getEventTypeCompileTimeResolver());
             Map<String, Object> compiledTyping = EventTypeUtility.compileMapTypeProperties(typing, services.getEventTypeCompileTimeResolver());
@@ -1635,6 +1636,30 @@ public class EventTypeUtility {
             } else {
                 throw new IllegalStateException("Unrecognized representation " + representation);
             }
+        } else if (spec.getAssignedType() == CreateSchemaDesc.AssignedType.XML) {
+            if (!spec.getColumns().isEmpty()) {
+                throw new ExprValidationException("Create-XML-Schema does not allow specifying columns, use @" + XMLSchemaField.class.getSimpleName() + " instead");
+            }
+            if (!spec.getCopyFrom().isEmpty()) {
+                throw new ExprValidationException("Create-XML-Schema does not allow copy-from");
+            }
+            if (!spec.getInherits().isEmpty()) {
+                throw new ExprValidationException("Create-XML-Schema does not allow inherits");
+            }
+            ConfigurationCommonEventTypeXMLDOM config = CreateSchemaXMLHelper.configure(base, services);
+            SchemaModel schemaModel = null;
+            if ((config.getSchemaResource() != null) || (config.getSchemaText() != null)) {
+                try {
+                    schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText(), services.getClasspathImportServiceCompileTime());
+                } catch (Exception ex) {
+                    throw new ExprValidationException(ex.getMessage(), ex);
+                }
+            }
+            boolean propertyAgnostic = schemaModel == null;
+            EventTypeMetadata metadata = new EventTypeMetadata(spec.getSchemaName(), base.getModuleName(), EventTypeTypeClass.STREAM, EventTypeApplicationType.XML, visibility, eventBusVisibility, propertyAgnostic, EventTypeIdPair.unassigned());
+            config.setStartTimestampPropertyName(spec.getStartTimestampProperty());
+            config.setEndTimestampPropertyName(spec.getEndTimestampProperty());
+            eventType = EventTypeFactoryImpl.INSTANCE.createXMLType(metadata, config, schemaModel, null, metadata.getName(), services.getBeanEventTypeFactoryPrivate(), services.getXmlFragmentEventTypeFactory(), null);
         } else {
             // Java Object/Bean/POJO type definition
             if (spec.getCopyFrom() != null && !spec.getCopyFrom().isEmpty()) {

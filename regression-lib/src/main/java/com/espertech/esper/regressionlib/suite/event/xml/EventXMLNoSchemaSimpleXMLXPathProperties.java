@@ -17,14 +17,20 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.support.util.SupportXPathFunctionResolver;
+import com.espertech.esper.regressionlib.support.util.SupportXPathVariableResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportXML.sendXMLEvent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class EventXMLNoSchemaSimpleXMLXPathProperties implements RegressionExecution {
+public class EventXMLNoSchemaSimpleXMLXPathProperties {
     protected static final String XML_NOSCHEMAEVENT =
         "<myevent>\n" +
             "  <element1>VAL1</element1>\n" +
@@ -36,9 +42,43 @@ public class EventXMLNoSchemaSimpleXMLXPathProperties implements RegressionExecu
             "  <element4><element41>VAL4-1</element41></element4>\n" +
             "</myevent>";
 
-    public void run(RegressionEnvironment env) {
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLNoSchemaSimpleXMLXPathPropertiesPreconfig());
+        execs.add(new EventXMLNoSchemaSimpleXMLXPathPropertiesCreateSchema());
+        return execs;
+    }
+
+    public static class EventXMLNoSchemaSimpleXMLXPathPropertiesPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "TestXMLNoSchemaTypeWMoreXPath", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLNoSchemaSimpleXMLXPathPropertiesCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='myevent'," +
+                "  xpathFunctionResolver='" + SupportXPathFunctionResolver.class.getName() + "'," +
+                "  xpathVariableResolver='" + SupportXPathVariableResolver.class.getName() + "')" +
+                "@XMLSchemaField(name='xpathElement1', xpath='/myevent/element1', type='STRING')" +
+                "@XMLSchemaField(name='xpathCountE21', xpath='count(/myevent/element2/element21)', type='NUMBER')" +
+                "@XMLSchemaField(name='xpathAttrString', xpath='/myevent/element3/@attrString', type='STRING')" +
+                "@XMLSchemaField(name='xpathAttrNum', xpath='/myevent/element3/@attrNum', type='NUMBER')" +
+                "@XMLSchemaField(name='xpathAttrBool', xpath='/myevent/element3/@attrBool', type='BOOLEAN')" +
+                "@XMLSchemaField(name='stringCastLong', xpath='/myevent/element3/@attrNum', type='STRING', castToType='long')" +
+                "@XMLSchemaField(name='stringCastDouble', xpath='/myevent/element3/@attrNum', type='STRING', castToType='double')" +
+                "@XMLSchemaField(name='numCastInt', xpath='/myevent/element3/@attrNum', type='NUMBER', castToType='int')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
         // assert type metadata
-        EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured("TestXMLNoSchemaTypeWMoreXPath");
+        EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured(eventTypeName);
         assertEquals(EventTypeApplicationType.XML, type.getMetadata().getApplicationType());
 
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
@@ -56,14 +96,14 @@ public class EventXMLNoSchemaSimpleXMLXPathProperties implements RegressionExecu
             "stringCastLong," +
             "stringCastDouble," +
             "numCastInt " +
-            "from TestXMLNoSchemaTypeWMoreXPath#length(100)";
-        env.compileDeploy(stmt).addListener("s0");
+            "from " + eventTypeName + "#length(100)";
+        env.compileDeploy(stmt, path).addListener("s0");
 
         // Generate document with the specified in element1 to confirm we have independent events
-        sendEvent(env, "EventA", "TestXMLNoSchemaTypeWMoreXPath");
+        sendEvent(env, "EventA", eventTypeName);
         assertDataSimpleXPath(env, "EventA");
 
-        sendEvent(env, "EventB", "TestXMLNoSchemaTypeWMoreXPath");
+        sendEvent(env, "EventB", eventTypeName);
         assertDataSimpleXPath(env, "EventB");
 
         env.undeployAll();

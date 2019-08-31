@@ -17,18 +17,49 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.espertech.esper.regressionlib.suite.event.xml.EventXMLSchemaPropertyDynamicDOMGetter.SCHEMA_XML;
 import static org.junit.Assert.assertSame;
 
-public class EventXMLSchemaPropertyDynamicXPathGetter implements RegressionExecution {
+public class EventXMLSchemaPropertyDynamicXPathGetter {
 
-    public void run(RegressionEnvironment env) {
-        String stmtText = "@name('s0') select type?,dyn[1]?,nested.nes2?,map('a')? from MyEventWithXPath";
-        env.compileDeploy(stmtText).addListener("s0");
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLSchemaPropertyDynamicXPathGetterPreconfig());
+        execs.add(new EventXMLSchemaPropertyDynamicXPathGetterCreateSchema());
+        return execs;
+    }
+
+    public static class EventXMLSchemaPropertyDynamicXPathGetterPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "MyEventWithXPath", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLSchemaPropertyDynamicXPathGetterCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String schemaUriSimpleSchema = this.getClass().getClassLoader().getResource("regression/simpleSchema.xsd").toString();
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='simpleEvent', schemaResource='" + schemaUriSimpleSchema + "', xpathPropertyExpr=true, " +
+                "  eventSenderValidatesRoot=false, defaultNamespace='samples:schemas:simpleSchema')" +
+                "@XMLSchemaNamespacePrefix(prefix='ss', namespace='samples:schemas:simpleSchema')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
+        String stmtText = "@name('s0') select type?,dyn[1]?,nested.nes2?,map('a')? from " + eventTypeName;
+        env.compileDeploy(stmtText, path).addListener("s0");
 
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
             new EventPropertyDescriptor("type?", Node.class, null, false, false, false, false, false),
@@ -38,7 +69,7 @@ public class EventXMLSchemaPropertyDynamicXPathGetter implements RegressionExecu
         }, env.statement("s0").getEventType().getPropertyDescriptors());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
 
-        EventSender sender = env.eventService().getEventSender("MyEventWithXPath");
+        EventSender sender = env.eventService().getEventSender(eventTypeName);
         Document root = SupportXML.sendEvent(sender, SCHEMA_XML);
 
         EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();

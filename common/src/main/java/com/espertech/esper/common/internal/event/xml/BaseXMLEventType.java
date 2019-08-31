@@ -132,8 +132,8 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
                 }
 
                 xpathExpression = property.getXpath();
-                if (log.isInfoEnabled()) {
-                    log.info("Compiling XPath expression for property '" + property.getName() + "' as '" + xpathExpression + "'");
+                if (log.isDebugEnabled()) {
+                    log.debug("Compiling XPath expression for property '" + property.getName() + "' as '" + xpathExpression + "'");
                 }
                 XPathExpression expression = xPath.compile(xpathExpression);
 

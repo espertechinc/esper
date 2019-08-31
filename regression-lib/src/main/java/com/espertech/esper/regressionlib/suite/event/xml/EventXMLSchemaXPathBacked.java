@@ -17,22 +17,49 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
-public class EventXMLSchemaXPathBacked implements RegressionExecution {
+public class EventXMLSchemaXPathBacked {
 
-    public void run(RegressionEnvironment env) {
-        runAssertion(env, true, "XMLSchemaConfigOne");
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLSchemaXPathBackedPreconfig());
+        execs.add(new EventXMLSchemaXPathBackedCreateSchema());
+        return execs;
     }
 
-    protected static void runAssertion(RegressionEnvironment env, boolean xpath, String typeName) {
+    public static class EventXMLSchemaXPathBackedPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, true, "XMLSchemaConfigOne", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLSchemaXPathBackedCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String schemaUriSimpleSchema = Thread.currentThread().getContextClassLoader().getResource("regression/simpleSchema.xsd").toString();
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='simpleEvent', schemaResource='" + schemaUriSimpleSchema + "', xpathPropertyExpr=true)" +
+                "@XMLSchemaNamespacePrefix(prefix='ss', namespace='samples:schemas:simpleSchema')" +
+                "@XMLSchemaField(name='customProp', xpath='count(/ss:simpleEvent/ss:nested3/ss:nested4)', type='number')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, true, "MyEventCreateSchema", path);
+        }
+    }
+
+    protected static void runAssertion(RegressionEnvironment env, boolean xpath, String typeName, RegressionPath path) {
 
         String stmtSelectWild = "@name('s0') select * from " + typeName;
-        env.compileDeploy(stmtSelectWild).addListener("s0");
+        env.compileDeploy(stmtSelectWild, path).addListener("s0");
         EventType type = env.statement("s0").getEventType();
         SupportEventTypeAssertionUtil.assertConsistency(type);
 
@@ -54,7 +81,7 @@ public class EventXMLSchemaXPathBacked implements RegressionExecution {
             "nested3.nested4[2].id as attrTwoProp" +
             " from " + typeName + "#length(100)";
 
-        env.compileDeploy(stmt).addListener("s0");
+        env.compileDeploy(stmt, path).addListener("s0");
         type = env.statement("s0").getEventType();
         SupportEventTypeAssertionUtil.assertConsistency(type);
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{

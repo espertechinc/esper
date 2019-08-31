@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.event.xml.XPathNamespaceContext;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -26,23 +27,79 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class EventXMLSchemaEventTransposeXPathConfigured implements RegressionExecution {
-
-    public void run(RegressionEnvironment env) {
-        runAssertionXPathConfigured(env);
-        runAssertionXPathExpression();
+public class EventXMLSchemaEventTransposeXPathConfigured {
+    public static List<RegressionExecution> executions() {
+        List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLSchemaEventTransposeXPathConfiguredPreconfig());
+        execs.add(new EventXMLSchemaEventTransposeXPathConfiguredCreateSchema());
+        execs.add(new EventXMLSchemaEventTransposeXPathConfiguredXPathExpression());
+        return execs;
     }
 
-    private void runAssertionXPathConfigured(RegressionEnvironment env) {
+    public static class EventXMLSchemaEventTransposeXPathConfiguredPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "MyXMLEventXPC", new RegressionPath());
+        }
+    }
 
-        env.compileDeploy("@name('insert') insert into Nested3Stream select nested1simple, nested4array from MyXMLEventXPC#lastevent");
-        env.compileDeploy("@name('sw') select * from MyXMLEventXPC#lastevent");
+    public static class EventXMLSchemaEventTransposeXPathConfiguredCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String schemaUriSimpleSchema = Thread.currentThread().getContextClassLoader().getResource("regression/simpleSchema.xsd").toString();
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='simpleEvent', schemaResource='" + schemaUriSimpleSchema + "', autoFragment=false)" +
+                "@XMLSchemaNamespacePrefix(prefix='ss', namespace='samples:schemas:simpleSchema')" +
+                "@XMLSchemaField(name='nested1simple', xpath='/ss:simpleEvent/ss:nested1', type='NODE', eventTypeName='MyNestedEventXPC')" +
+                "@XMLSchemaField(name='nested4array', xpath='//ss:nested4', type='nodeset', eventTypeName='MyNestedArrayEventXPC')" +
+                "create xml schema MyEventCreateSchema()";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    public static class EventXMLSchemaEventTransposeXPathConfiguredXPathExpression implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            try {
+                XPathNamespaceContext ctx = new XPathNamespaceContext();
+                ctx.addPrefix("n0", "samples:schemas:simpleSchema");
+
+                Node node = SupportXML.getDocument().getDocumentElement();
+
+                XPath pathOne = XPathFactory.newInstance().newXPath();
+                pathOne.setNamespaceContext(ctx);
+                XPathExpression pathExprOne = pathOne.compile("/n0:simpleEvent/n0:nested1");
+                Node result = (Node) pathExprOne.evaluate(node, XPathConstants.NODE);
+                //System.out.println("Result:\n" + SchemaUtil.serialize(result));
+
+                XPath pathTwo = XPathFactory.newInstance().newXPath();
+                pathTwo.setNamespaceContext(ctx);
+                XPathExpression pathExprTwo = pathTwo.compile("/n0:simpleEvent/n0:nested1/n0:prop1");
+                String resultTwo = (String) pathExprTwo.evaluate(result, XPathConstants.STRING);
+                //System.out.println("Result 2: <" + resultTwo + ">");
+
+                XPath pathThree = XPathFactory.newInstance().newXPath();
+                pathThree.setNamespaceContext(ctx);
+                XPathExpression pathExprThree = pathThree.compile("/n0:simpleEvent/n0:nested3");
+                String resultThress = (String) pathExprThree.evaluate(result, XPathConstants.STRING);
+                //System.out.println("Result 3: <" + resultThress + ">");
+            } catch (Throwable t) {
+                fail();
+            }
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
+
+        env.compileDeploy("@name('insert') insert into Nested3Stream select nested1simple, nested4array from " + eventTypeName + "#lastevent", path);
+        env.compileDeploy("@name('sw') select * from " + eventTypeName + "#lastevent", path);
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("insert").getEventType());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("sw").getEventType());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
@@ -82,7 +139,7 @@ public class EventXMLSchemaEventTransposeXPathConfigured implements RegressionEx
         }, fragmentTypeNested4Item.getFragmentType().getPropertyDescriptors());
         SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested4Item.getFragmentType());
 
-        SupportXML.sendDefaultEvent(env.eventService(), "ABC", "MyXMLEventXPC");
+        SupportXML.sendDefaultEvent(env.eventService(), "ABC", eventTypeName);
 
         EventBean received = env.statement("insert").iterator().next();
         EPAssertionUtil.assertProps(received, "nested1simple.prop1,nested1simple.prop2,nested1simple.attr1,nested1simple.nested2.prop3[1]".split(","), new Object[]{"SAMPLE_V1", true, "SAMPLE_ATTR1", 4});
@@ -114,34 +171,5 @@ public class EventXMLSchemaEventTransposeXPathConfigured implements RegressionEx
         assertEquals("b", nested4arrayItem.get("id"));
 
         env.undeployAll();
-    }
-
-    private void runAssertionXPathExpression() {
-        try {
-            XPathNamespaceContext ctx = new XPathNamespaceContext();
-            ctx.addPrefix("n0", "samples:schemas:simpleSchema");
-
-            Node node = SupportXML.getDocument().getDocumentElement();
-
-            XPath pathOne = XPathFactory.newInstance().newXPath();
-            pathOne.setNamespaceContext(ctx);
-            XPathExpression pathExprOne = pathOne.compile("/n0:simpleEvent/n0:nested1");
-            Node result = (Node) pathExprOne.evaluate(node, XPathConstants.NODE);
-            //System.out.println("Result:\n" + SchemaUtil.serialize(result));
-
-            XPath pathTwo = XPathFactory.newInstance().newXPath();
-            pathTwo.setNamespaceContext(ctx);
-            XPathExpression pathExprTwo = pathTwo.compile("/n0:simpleEvent/n0:nested1/n0:prop1");
-            String resultTwo = (String) pathExprTwo.evaluate(result, XPathConstants.STRING);
-            //System.out.println("Result 2: <" + resultTwo + ">");
-
-            XPath pathThree = XPathFactory.newInstance().newXPath();
-            pathThree.setNamespaceContext(ctx);
-            XPathExpression pathExprThree = pathThree.compile("/n0:simpleEvent/n0:nested3");
-            String resultThress = (String) pathExprThree.evaluate(result, XPathConstants.STRING);
-            //System.out.println("Result 3: <" + resultThress + ">");
-        } catch (Throwable t) {
-            fail();
-        }
     }
 }

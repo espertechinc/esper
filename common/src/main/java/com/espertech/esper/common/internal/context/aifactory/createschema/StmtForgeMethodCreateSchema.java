@@ -55,7 +55,7 @@ public class StmtForgeMethodCreateSchema implements StmtForgeMethod {
         }
 
         EPLValidationUtil.validateTableExists(services.getTableCompileTimeResolver(), spec.getSchemaName());
-        EventTypeForgablesPair eventTypeForgablesPair = handleCreateSchema(spec, packageName, services);
+        EventTypeForgablesPair eventTypeForgablesPair = handleCreateSchema(spec, services);
 
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented());
 
@@ -78,13 +78,13 @@ public class StmtForgeMethodCreateSchema implements StmtForgeMethod {
         return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    private EventTypeForgablesPair handleCreateSchema(CreateSchemaDesc spec, String packageName, StatementCompileTimeServices services)
+    private EventTypeForgablesPair handleCreateSchema(CreateSchemaDesc spec, StatementCompileTimeServices services)
             throws ExprValidationException {
 
         EventTypeForgablesPair pair;
         try {
             if (spec.getAssignedType() != CreateSchemaDesc.AssignedType.VARIANT) {
-                pair = EventTypeUtility.createNonVariantType(false, spec, packageName, base, services);
+                pair = EventTypeUtility.createNonVariantType(false, spec, base, services);
             } else {
                 EventType eventType = handleVariantType(spec, services);
                 pair = new EventTypeForgablesPair(eventType, Collections.emptyList());

@@ -17,20 +17,51 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-public class EventXMLNoSchemaEventTransposeXPathConfigured implements RegressionExecution {
+public class EventXMLNoSchemaEventTransposeXPathConfigured {
 
-    public void run(RegressionEnvironment env) {
+    public static Collection<RegressionExecution> executions() {
+        ArrayList<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EventXMLNoSchemaEventTransposeXPathConfiguredPreconfig());
+        execs.add(new EventXMLNoSchemaEventTransposeXPathConfiguredCreateSchema());
+        return execs;
+    }
 
-        env.compileDeploy("@name('insert') insert into Nested3Stream select nested1simple, nested4array from MyXMLEvent");
-        env.compileDeploy("@name('s0') select * from MyXMLEvent");
+    public static class EventXMLNoSchemaEventTransposeXPathConfiguredPreconfig implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "MyXMLEvent", new RegressionPath());
+        }
+    }
+
+    public static class EventXMLNoSchemaEventTransposeXPathConfiguredCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype " +
+                "@XMLSchema(rootElementName='simpleEvent')" +
+                "@XMLSchemaNamespacePrefix(prefix='ss', namespace='samples:schemas:simpleSchema')" +
+                "@XMLSchemaField(name='nested1simple', xpath='/ss:simpleEvent/ss:nested1', type='node', eventTypeName='MyNestedEvent')" +
+                "@XMLSchemaField(name='nested4array', xpath='//ss:nested4', type='nodeset', eventTypeName='MyNestedArrayEvent')" +
+                "create xml schema MyEventCreateSchema();\n";
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy(epl, path);
+            runAssertion(env, "MyEventCreateSchema", path);
+        }
+    }
+
+    private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
+
+        env.compileDeploy("@name('insert') insert into Nested3Stream select nested1simple, nested4array from " + eventTypeName, path);
+        env.compileDeploy("@name('s0') select * from " + eventTypeName, path);
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("insert").getEventType());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
@@ -48,7 +79,7 @@ public class EventXMLNoSchemaEventTransposeXPathConfigured implements Regression
         assertEquals(0, fragmentTypeNested4.getFragmentType().getPropertyDescriptors().length);
         SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested4.getFragmentType());
 
-        SupportXML.sendDefaultEvent(env.eventService(), "ABC", "MyXMLEvent");
+        SupportXML.sendDefaultEvent(env.eventService(), "ABC", eventTypeName);
 
         EventBean received = env.iterator("insert").next();
         EPAssertionUtil.assertProps(received, "nested1simple.prop1,nested1simple.prop2,nested1simple.attr1,nested1simple.nested2.prop3[1]".split(","), new Object[]{"SAMPLE_V1", "true", "SAMPLE_ATTR1", "4"});
