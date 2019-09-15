@@ -72,7 +72,19 @@ public class EPLOtherCreateSchema {
         execs.add(new EPLOtherCreateSchemaVariantType());
         execs.add(new EPLOtherCreateSchemaSameCRC());
         execs.add(new EPLOtherCreateSchemaBeanImport());
+        execs.add(new EPLOtherCreateSchemaCopyFromDeepWithValueObject());
         return execs;
+    }
+
+    private static class EPLOtherCreateSchemaCopyFromDeepWithValueObject implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create schema SchemaA (account string, foo " + MyLocalValueObject.class.getName() + ");\n" +
+                "create schema SchemaB (symbol string) copyfrom SchemaA;\n" +
+                "create schema SchemaC () copyfrom SchemaB;\n" +
+                "create schema SchemaD () copyfrom SchemaB;\n" +
+                "insert into SchemaD select account, " + EPLOtherCreateSchema.class.getName() + ".getLocalValueObject() as foo, symbol from SchemaC;\n";
+            env.compileDeploy(epl).undeployAll();
+        }
     }
 
     private static class EPLOtherCreateSchemaBeanImport implements RegressionExecution {
@@ -768,5 +780,13 @@ public class EPLOtherCreateSchema {
         public String col1;
         public int col2;
         public int col3col4;
+    }
+
+    public static MyLocalValueObject getLocalValueObject() {
+        return new MyLocalValueObject();
+    }
+
+    public static class MyLocalValueObject {
+
     }
 }

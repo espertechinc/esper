@@ -22,11 +22,11 @@ import com.espertech.esper.regressionlib.suite.epl.other.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
-import com.espertech.esper.regressionlib.support.lrreport.Rectangle;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 

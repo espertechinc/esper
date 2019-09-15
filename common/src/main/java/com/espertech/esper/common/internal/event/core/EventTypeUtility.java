@@ -561,15 +561,20 @@ public class EventTypeUtility {
                 if (existing != null) {
                     throw new ExprValidationException("Property by name '" + prop.getPropertyName() + "' is defined twice by adding type '" + typeToMerge.getName() + "'");
                 }
-
                 FragmentEventType fragment = typeToMerge.getFragmentType(prop.getPropertyName());
                 if (fragment == null) {
                     continue;
                 }
-                if (fragment.isIndexed()) {
-                    typing.put(prop.getPropertyName(), new EventType[]{fragment.getFragmentType()});
+                // for native-type fragments (classes) we use the original type as available from map or object-array
+                if (typeToMerge instanceof BaseNestableEventType && fragment.isNative()) {
+                    BaseNestableEventType baseNestable = (BaseNestableEventType) typeToMerge;
+                    typing.put(prop.getPropertyName(), baseNestable.getTypes().get(prop.getPropertyName()));
                 } else {
-                    typing.put(prop.getPropertyName(), fragment.getFragmentType());
+                    if (fragment.isIndexed()) {
+                        typing.put(prop.getPropertyName(), new EventType[]{fragment.getFragmentType()});
+                    } else {
+                        typing.put(prop.getPropertyName(), fragment.getFragmentType());
+                    }
                 }
             }
 
