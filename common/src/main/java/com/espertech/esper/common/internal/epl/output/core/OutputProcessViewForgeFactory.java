@@ -31,6 +31,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolverNonHA;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,7 @@ public class OutputProcessViewForgeFactory {
             outputStrategyPostProcessForge = new OutputStrategyPostProcessForge(isRouted, insertIntoStreamSelector, selectStreamSelector, routeToFront, table, audit);
         }
 
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultEventType, statementRawInfo, services.getSerdeResolver());
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultEventType, statementRawInfo, SerdeCompileTimeResolverNonHA.INSTANCE);
         MultiKeyClassRef distinctMultiKey = multiKeyPlan.getClassRef();
         additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
 
