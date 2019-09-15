@@ -40,7 +40,7 @@ public class ContextControllerHashFactory extends ContextControllerFactoryBase {
         return new ContextControllerHashImpl(this, contextManagerRealization);
     }
 
-    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, AgentInstanceContext agentInstanceContextStatement) {
+    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, Map<Integer, ContextControllerStatementDesc> statements, AgentInstanceContext agentInstanceContextStatement) {
         // determine whether create-named-window
         boolean isCreateWindow = optionalStatementDesc != null && optionalStatementDesc.getLightweight().getStatementContext().getStatementInformationals().getStatementType() == StatementType.CREATE_WINDOW;
         ContextControllerDetailHashItem foundPartition = null;

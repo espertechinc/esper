@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
@@ -24,11 +25,14 @@ import com.espertech.esper.common.internal.context.controller.condition.ContextC
 import com.espertech.esper.common.internal.context.mgr.ContextControllerStatementDesc;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.filterspec.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+
+import java.util.Map;
 
 public class ContextControllerKeyedUtil {
 
@@ -137,18 +141,29 @@ public class ContextControllerKeyedUtil {
         return propertyTypes;
     }
 
-    public static FilterValueSetParam[][] getAddendumFilters(Object getterKey, FilterSpecActivatable filtersSpec, ContextControllerDetailKeyed keyedSpec, boolean includePartition, ContextControllerStatementDesc optionalStatementDesc, AgentInstanceContext agentInstanceContext) {
+    public static FilterValueSetParam[][] getAddendumFilters(Object getterKey, FilterSpecActivatable filtersSpec, ContextControllerDetailKeyed keyedSpec, boolean includePartition, ContextControllerStatementDesc optionalStatementDesc, Map<Integer, ContextControllerStatementDesc> statements, AgentInstanceContext agentInstanceContext) {
 
         // determine whether create-named-window
         boolean isCreateWindow = optionalStatementDesc != null && optionalStatementDesc.getLightweight().getStatementContext().getStatementInformationals().getStatementType() == StatementType.CREATE_WINDOW;
         ContextControllerDetailKeyedItem foundPartition = null;
 
         if (!isCreateWindow) {
-            for (ContextControllerDetailKeyedItem partitionItem : keyedSpec.getItems()) {
-                boolean typeOrSubtype = EventTypeUtility.isTypeOrSubTypeOf(filtersSpec.getFilterForEventType(), partitionItem.getFilterSpecActivatable().getFilterForEventType());
-                if (typeOrSubtype) {
-                    foundPartition = partitionItem;
-                    break;
+            if (filtersSpec.getFilterForEventType().getMetadata().getTypeClass() == EventTypeTypeClass.NAMED_WINDOW) {
+                String declaredAsName = findNamedWindowDeclaredAsName(statements, filtersSpec.getFilterForEventType().getMetadata().getName());
+                for (ContextControllerDetailKeyedItem partitionItem : keyedSpec.getItems()) {
+                    if (partitionItem.getFilterSpecActivatable().getFilterForEventType().getName().equals(declaredAsName)) {
+                        foundPartition = partitionItem;
+                        break;
+                    }
+                }
+            }
+            if (foundPartition == null) {
+                for (ContextControllerDetailKeyedItem partitionItem : keyedSpec.getItems()) {
+                    boolean typeOrSubtype = EventTypeUtility.isTypeOrSubTypeOf(filtersSpec.getFilterForEventType(), partitionItem.getFilterSpecActivatable().getFilterForEventType());
+                    if (typeOrSubtype) {
+                        foundPartition = partitionItem;
+                        break;
+                    }
                 }
             }
         } else {
@@ -186,6 +201,19 @@ public class ContextControllerKeyedUtil {
         }
 
         return addendum;
+    }
+
+    private static String findNamedWindowDeclaredAsName(Map<Integer, ContextControllerStatementDesc> statements, String name) {
+        for (Map.Entry<Integer, ContextControllerStatementDesc> stmtEntry : statements.entrySet()) {
+            StatementContext ctx = stmtEntry.getValue().getLightweight().getStatementContext();
+            if (ctx.getStatementType() == StatementType.CREATE_WINDOW) {
+                StatementAgentInstanceFactoryCreateNW factory = (StatementAgentInstanceFactoryCreateNW) ctx.getStatementAIFactoryProvider().getFactory();
+                if (factory.getStatementEventType().getName().equals(name)) {
+                    return factory.getAsEventTypeName();
+                }
+            }
+        }
+        return null;
     }
 
     public static ContextControllerDetailKeyedItem findInitMatchingKey(ContextControllerDetailKeyedItem[] items, ContextConditionDescriptorFilter init) {

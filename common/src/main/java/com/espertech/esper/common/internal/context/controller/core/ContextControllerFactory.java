@@ -28,7 +28,7 @@ public interface ContextControllerFactory {
 
     ContextController create(ContextManagerRealization contextManagerRealization);
 
-    FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, AgentInstanceContext agentInstanceContextStatement);
+    FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, Map<Integer, ContextControllerStatementDesc> statements, AgentInstanceContext agentInstanceContextStatement);
 
     void populateContextProperties(Map<String, Object> props, Object allPartitionKey);
 

@@ -44,7 +44,7 @@ public class ContextControllerCategoryFactory extends ContextControllerFactoryBa
         return new ContextControllerCategoryImpl(contextManagerRealization, this);
     }
 
-    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, AgentInstanceContext agentInstanceContextStatement) {
+    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, Map<Integer, ContextControllerStatementDesc> statements, AgentInstanceContext agentInstanceContextStatement) {
         if (!forStatement) {
             if (!EventTypeUtility.isTypeOrSubTypeOf(filterSpec.getFilterForEventType(), categorySpec.getFilterSpecActivatable().getFilterForEventType())) {
                 return null;

@@ -56,13 +56,14 @@ public class ContextManagerUtil {
     }
 
     public static IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]> computeAddendumForStatement(ContextControllerStatementDesc statementDesc,
+                                                                                                              Map<Integer, ContextControllerStatementDesc> statements,
                                                                                                               ContextControllerFactory[] controllerFactories,
                                                                                                               Object[] allPartitionKeys,
                                                                                                               AgentInstanceContext agentInstanceContextCreate) {
         Map<Integer, FilterSpecActivatable> filters = statementDesc.getLightweight().getStatementContext().getFilterSpecActivatables();
         IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]> map = new IdentityHashMap<>(CollectionUtil.capacityHashMap(filters.size()));
         for (Map.Entry<Integer, FilterSpecActivatable> filter : filters.entrySet()) {
-            FilterValueSetParam[][] addendum = computeAddendum(allPartitionKeys, filter.getValue(), true, statementDesc, controllerFactories, agentInstanceContextCreate);
+            FilterValueSetParam[][] addendum = computeAddendum(allPartitionKeys, filter.getValue(), true, statementDesc, controllerFactories, statements, agentInstanceContextCreate);
             if (addendum != null && addendum.length > 0) {
                 map.put(filter.getValue(), addendum);
             }
@@ -71,13 +72,13 @@ public class ContextManagerUtil {
     }
 
     public static FilterValueSetParam[][] computeAddendumNonStmt(Object[] partitionKeys, FilterSpecActivatable filterCallback, ContextManagerRealization realization) {
-        return computeAddendum(partitionKeys, filterCallback, false, null, realization.getContextManager().getContextDefinition().getControllerFactories(), realization.getAgentInstanceContextCreate());
+        return computeAddendum(partitionKeys, filterCallback, false, null, realization.getContextManager().getContextDefinition().getControllerFactories(), realization.getContextManager().getStatements(), realization.getAgentInstanceContextCreate());
     }
 
-    private static FilterValueSetParam[][] computeAddendum(Object[] parentPartitionKeys, FilterSpecActivatable filterCallback, boolean forStatement, ContextControllerStatementDesc optionalStatementDesc, ContextControllerFactory[] controllerFactories, AgentInstanceContext agentInstanceContextCreate) {
+    private static FilterValueSetParam[][] computeAddendum(Object[] parentPartitionKeys, FilterSpecActivatable filterCallback, boolean forStatement, ContextControllerStatementDesc optionalStatementDesc, ContextControllerFactory[] controllerFactories, Map<Integer, ContextControllerStatementDesc> statements, AgentInstanceContext agentInstanceContextCreate) {
         FilterValueSetParam[][] result = new FilterValueSetParam[0][];
         for (int i = 0; i < parentPartitionKeys.length; i++) {
-            FilterValueSetParam[][] addendumForController = controllerFactories[i].populateFilterAddendum(filterCallback, forStatement, i + 1, parentPartitionKeys[i], optionalStatementDesc, agentInstanceContextCreate);
+            FilterValueSetParam[][] addendumForController = controllerFactories[i].populateFilterAddendum(filterCallback, forStatement, i + 1, parentPartitionKeys[i], optionalStatementDesc, statements, agentInstanceContextCreate);
             result = FilterAddendumUtil.multiplyAddendum(result, addendumForController);
         }
         return result;

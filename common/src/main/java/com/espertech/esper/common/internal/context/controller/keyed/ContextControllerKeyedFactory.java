@@ -42,7 +42,7 @@ public class ContextControllerKeyedFactory extends ContextControllerFactoryBase 
         return new ContextControllerKeyedImpl(this, contextManagerRealization);
     }
 
-    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, AgentInstanceContext agentInstanceContextStatement) {
+    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, Map<Integer, ContextControllerStatementDesc> statements, AgentInstanceContext agentInstanceContextStatement) {
         if (!forStatement) {
             boolean found = false;
             List<FilterSpecActivatable> filters = keyedSpec.getFilterSpecActivatables();
@@ -59,7 +59,7 @@ public class ContextControllerKeyedFactory extends ContextControllerFactoryBase 
 
         boolean includePartitionKey = forStatement || nestingLevel != factoryContext.getNestingLevel();
         Object getterKey = getGetterKey(partitionKey);
-        return ContextControllerKeyedUtil.getAddendumFilters(getterKey, filterSpec, keyedSpec, includePartitionKey, optionalStatementDesc, agentInstanceContextStatement);
+        return ContextControllerKeyedUtil.getAddendumFilters(getterKey, filterSpec, keyedSpec, includePartitionKey, optionalStatementDesc, statements, agentInstanceContextStatement);
     }
 
     public void populateContextProperties(Map<String, Object> props, Object partitionKey) {

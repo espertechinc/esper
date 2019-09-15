@@ -157,7 +157,7 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
 
     public AgentInstanceFilterProxy computeFilterAddendum(ContextControllerStatementDesc statement, Object[] contextPartitionKeys) {
         Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = agentInstanceContext ->
-                ContextManagerUtil.computeAddendumForStatement(statement, contextDefinition.getControllerFactories(), contextPartitionKeys, agentInstanceContext);
+                ContextManagerUtil.computeAddendumForStatement(statement, statements, contextDefinition.getControllerFactories(), contextPartitionKeys, agentInstanceContext);
         return new AgentInstanceFilterProxyImpl(generator);
     }
 

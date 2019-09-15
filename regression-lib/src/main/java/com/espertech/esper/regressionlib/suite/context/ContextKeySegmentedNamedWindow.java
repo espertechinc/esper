@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ContextKeySegmentedNamedWindow {
@@ -30,6 +31,7 @@ public class ContextKeySegmentedNamedWindow {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ContextKeyedNamedWindowBasic());
+        execs.add(new ContextKeyedNamedWindowNonPattern());
         execs.add(new ContextKeyedNamedWindowPattern());
         execs.add(new ContextKeyedNamedWindowFAF());
         execs.add(new ContextKeyedSubqueryNamedWindowIndexUnShared());
@@ -77,19 +79,15 @@ public class ContextKeySegmentedNamedWindow {
         }
     }
 
+    private static class ContextKeyedNamedWindowNonPattern implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertionNamedWindow(env, "MyWindow as a");
+        }
+    }
+
     private static class ContextKeyedNamedWindowPattern implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            // Esper-695
-            RegressionPath path = new RegressionPath();
-            String eplTwo =
-                "create context Ctx partition by theString from SupportBean;\n" +
-                    "context Ctx create window MyWindow#unique(intPrimitive) as SupportBean;" +
-                    "context Ctx select irstream * from pattern [MyWindow];";
-            env.compileDeploy(eplTwo, path);
-            tryInvalidCreateWindow(env, path);
-            tryInvalidCreateWindow(env, path); // making sure all is cleaned up
-
-            env.undeployAll();
+            runAssertionNamedWindow(env, "pattern [every a=MyWindow]");
         }
     }
 
@@ -151,6 +149,33 @@ public class ContextKeySegmentedNamedWindow {
 
         env.sendEventBean(new SupportBean("G1", 20));
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 20, "s2"});
+    }
+
+    private static void runAssertionNamedWindow(RegressionEnvironment env, String fromClause) {
+        RegressionPath path = new RegressionPath();
+        String epl = "create context Ctx partition by theString from SupportBean;\n" +
+            "@name('window') context Ctx create window MyWindow#keepall as SupportBean;" +
+            "@name('insert') context Ctx insert into MyWindow select * from SupportBean;" +
+            "@name('s0') context Ctx select irstream context.key1 as c0, a.intPrimitive as c1 from " + fromClause;
+        env.compileDeploy(epl, path).addListener("s0");
+        String[] fields = "c0,c1".split(",");
+
+        env.sendEventBean(new SupportBean("E1", 1));
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E1", 1});
+
+        env.sendEventBean(new SupportBean("E2", 2));
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E2", 2});
+
+        env.sendEventBean(new SupportBean("E1", 3));
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E1", 3});
+
+        env.sendEventBean(new SupportBean("E2", 4));
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E2", 4});
+
+        tryInvalidCreateWindow(env, path);
+        tryInvalidCreateWindow(env, path); // making sure all is cleaned up
+
+        env.undeployAll();
     }
 
     private static void tryInvalidCreateWindow(RegressionEnvironment env, RegressionPath path) {

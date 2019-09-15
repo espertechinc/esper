@@ -45,7 +45,7 @@ public class ContextControllerInitTermFactory extends ContextControllerFactoryBa
         return new ContextControllerInitTermNonOverlap(this, contextManagerRealization);
     }
 
-    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, AgentInstanceContext agentInstanceContextStatement) {
+    public FilterValueSetParam[][] populateFilterAddendum(FilterSpecActivatable filterSpec, boolean forStatement, int nestingLevel, Object partitionKey, ContextControllerStatementDesc optionalStatementDesc, Map<Integer, ContextControllerStatementDesc> statements, AgentInstanceContext agentInstanceContextStatement) {
         // none
         return null;
     }
