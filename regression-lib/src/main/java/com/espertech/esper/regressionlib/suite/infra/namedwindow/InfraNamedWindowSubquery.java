@@ -28,10 +28,8 @@ import static org.junit.Assert.assertTrue;
 public class InfraNamedWindowSubquery {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        /* TODO
         execs.add(new InfraSubqueryTwoConsumerWindow());
         execs.add(new InfraSubqueryLateConsumerAggregation());
-         */
         execs.add(new InfraSubqueryWithFilterInParens());
         return execs;
     }
