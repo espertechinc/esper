@@ -89,7 +89,11 @@ public class SubSelectHelperActivations {
                 }
 
                 if (!namedSpec.getFilterExpressions().isEmpty() || processorDisableIndexShare || disableIndexShare) {
-                    ViewableActivatorForge activatorNamedWindow = new ViewableActivatorNamedWindowForge(namedSpec, nwinfo, null, null, true, namedSpec.getOptPropertyEvaluator());
+                    ExprNode filterEvaluator = null;
+                    if (!namedSpec.getFilterExpressions().isEmpty()) {
+                        filterEvaluator = ExprNodeUtilityMake.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions());
+                    }
+                    ViewableActivatorForge activatorNamedWindow = new ViewableActivatorNamedWindowForge(namedSpec, nwinfo, filterEvaluator, null, true, namedSpec.getOptPropertyEvaluator());
                     ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
                     List<ViewFactoryForge> forges = viewForgeDesc.getForges();
                     additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());

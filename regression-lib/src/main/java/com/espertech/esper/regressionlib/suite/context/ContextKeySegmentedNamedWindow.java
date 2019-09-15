@@ -12,18 +12,17 @@ package com.espertech.esper.regressionlib.suite.context;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportGroupSubgroupEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ContextKeySegmentedNamedWindow {
@@ -161,16 +160,16 @@ public class ContextKeySegmentedNamedWindow {
         String[] fields = "c0,c1".split(",");
 
         env.sendEventBean(new SupportBean("E1", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E1", 1});
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
 
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E2", 2});
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
 
         env.sendEventBean(new SupportBean("E1", 3));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E1", 3});
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 3});
 
         env.sendEventBean(new SupportBean("E2", 4));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"E2", 4});
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 4});
 
         tryInvalidCreateWindow(env, path);
         tryInvalidCreateWindow(env, path); // making sure all is cleaned up

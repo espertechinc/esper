@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -27,9 +28,36 @@ import static org.junit.Assert.assertTrue;
 public class InfraNamedWindowSubquery {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
+        /* TODO
         execs.add(new InfraSubqueryTwoConsumerWindow());
         execs.add(new InfraSubqueryLateConsumerAggregation());
+         */
+        execs.add(new InfraSubqueryWithFilterInParens());
         return execs;
+    }
+
+    private static class InfraSubqueryWithFilterInParens implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create window MyWindow#keepall as SupportBean;\n" +
+                         "@name('insert') insert into MyWindow select * from SupportBean;\n" +
+                         "@name('s0') select exists (select * from MyWindow(theString='E1')) as c0 from SupportBean_S0;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, false);
+
+            env.sendEventBean(new SupportBean("E2", 1));
+            sendAssert(env, false);
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            sendAssert(env, true);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, boolean expected) {
+            env.sendEventBean(new SupportBean_S0(0));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        }
     }
 
     private static class InfraSubqueryTwoConsumerWindow implements RegressionExecution {
