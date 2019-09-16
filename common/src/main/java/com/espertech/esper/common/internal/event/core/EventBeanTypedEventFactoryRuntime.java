@@ -18,8 +18,10 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
 import com.espertech.esper.common.internal.event.json.core.JsonEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.common.internal.event.xml.XMLEventBean;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import org.w3c.dom.Node;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class EventBeanTypedEventFactoryRuntime implements EventBeanTypedEventFactory {
@@ -50,7 +52,18 @@ public class EventBeanTypedEventFactoryRuntime implements EventBeanTypedEventFac
     }
 
     public EventBean adapterForTypedWrapper(EventBean decoratedUnderlying, Map<String, Object> map, EventType wrapperEventType) {
-        return new WrapperEventBean(decoratedUnderlying, map, wrapperEventType);
+        if (decoratedUnderlying instanceof DecoratingEventBean) {
+            DecoratingEventBean wrapper = (DecoratingEventBean) decoratedUnderlying;
+            if (!wrapper.getDecoratingProperties().isEmpty()) {
+                if (map.isEmpty()) {
+                    map = new HashMap<>(CollectionUtil.capacityHashMap(wrapper.getDecoratingProperties().size()));
+                }
+                map.putAll(wrapper.getDecoratingProperties());
+            }
+            return new WrapperEventBean(wrapper.getUnderlyingEvent(), map, wrapperEventType);
+        } else {
+            return new WrapperEventBean(decoratedUnderlying, map, wrapperEventType);
+        }
     }
 
     public EventBean adapterForTypedJson(Object underlying, EventType eventType) {

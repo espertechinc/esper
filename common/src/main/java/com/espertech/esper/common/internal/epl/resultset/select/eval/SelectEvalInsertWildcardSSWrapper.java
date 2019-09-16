@@ -19,8 +19,10 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprForgeContext;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorCodegenSymbol;
+import com.espertech.esper.common.internal.event.core.DecoratingEventBean;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
@@ -49,6 +51,15 @@ public class SelectEvalInsertWildcardSSWrapper extends SelectEvalBaseMap {
      */
     public static EventBean processSelectExprSSWrapper(Map<String, Object> props, EventBean[] eventsPerStream, boolean emptyExpressions, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventType resultEventType) {
         EventBean theEvent = eventsPerStream[0];
+        DecoratingEventBean wrapper = (DecoratingEventBean) theEvent;
+        if (wrapper != null) {
+            Map<String, Object> map = wrapper.getDecoratingProperties();
+            if (emptyExpressions && !map.isEmpty()) {
+                props = new HashMap<>(map);
+            } else {
+                props.putAll(map);
+            }
+        }
         return eventBeanTypedEventFactory.adapterForTypedWrapper(theEvent, props, resultEventType);
     }
 }

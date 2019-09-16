@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -23,13 +24,56 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class EPLInsertIntoWrapper {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new EPLInsertIntoWrapperBean());
         execs.add(new EPLInsertInto3StreamWrapper());
+        execs.add(new EPLInsertIntoOnSplitForkJoin());
         return execs;
+    }
+
+    public static class EPLInsertIntoOnSplitForkJoin implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@Name('A') \n" +
+                "on SupportBean_S0 event insert into AStream select transpose(" + EPLInsertIntoWrapper.class.getName() + ".transpose(event));\n" +
+                "\n" +
+                "@Name('B') on AStream insert into BStream select * where propOne;\n" +
+                "\n" +
+                "@Name('C') select * from AStream;\n" +
+                "\n" +
+                "@Name('D') \n" +
+                "on BStream insert into DStreamOne \n" +
+                "select * where propTwo\n" +
+                "insert into DStreamTwo select * where not propTwo;\n" +
+                "\n" +
+                "@Name('E') on DStreamTwo\n" +
+                "insert into FinalStream select * insert into otherstream select * output all;\n" +
+                "\n" +
+                "@Name('F') on DStreamOne\n" +
+                "insert into FStreamOne select * where propThree\n" +
+                "insert into FStreamTwo select * where not propThree;\n" +
+                "\n" +
+                "@Name('G') on FStreamTwo\n" +
+                "insert into FinalStream select * insert into otherstream select * output all;\n" +
+                "\n" +
+                "@name('final') select * from FinalStream;\n";
+            env.compileDeploy(epl).addListener("final");
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean_S0(1, "true", "true", "false"));
+            assertEquals(1, env.listener("final").assertOneGetNewAndReset().get("id"));
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportBean_S0(1, "true", "true", "true"));
+            assertFalse(env.listener("final").isInvoked());
+
+            env.undeployAll();
+        }
     }
 
     public static class EPLInsertIntoWrapperBean implements RegressionExecution {
@@ -88,4 +132,37 @@ public class EPLInsertIntoWrapper {
         }
     }
 
+    public static MyEvent transpose(SupportBean_S0 bean) {
+        return new MyEvent(bean.getId(), bean.getP00().equals("true"), bean.getP01().equals("true"), bean.getP02().equals("true"));
+    }
+
+    public static class MyEvent {
+        private final int id;
+        private final boolean propOne;
+        private final boolean propTwo;
+        private final boolean propThree;
+
+        public MyEvent(int id, boolean propOne, boolean propTwo, boolean propThree) {
+            this.id = id;
+            this.propOne = propOne;
+            this.propTwo = propTwo;
+            this.propThree = propThree;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public boolean isPropOne() {
+            return propOne;
+        }
+
+        public boolean isPropTwo() {
+            return propTwo;
+        }
+
+        public boolean isPropThree() {
+            return propThree;
+        }
+    }
 }

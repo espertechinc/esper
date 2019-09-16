@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class WrapperEventTypeUtil {
@@ -31,6 +32,19 @@ public class WrapperEventTypeUtil {
      * @return wrapper type
      */
     public static WrapperEventType makeWrapper(EventTypeMetadata metadata, EventType underlyingEventType, Map<String, Object> propertyTypesMayPrimitive, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EventTypeNameResolver eventTypeNameResolver) {
+        // If we are wrapping an underlying type that is itself a wrapper, then this is a special case
+        if (underlyingEventType instanceof WrapperEventType) {
+            WrapperEventType underlyingWrapperType = (WrapperEventType) underlyingEventType;
+
+            // the underlying type becomes the type already wrapped
+            // properties are a superset of the wrapped properties and the additional properties
+            underlyingEventType = underlyingWrapperType.getUnderlyingEventType();
+            Map<String, Object> propertiesSuperset = new HashMap<String, Object>();
+            propertiesSuperset.putAll(underlyingWrapperType.getUnderlyingMapType().getTypes());
+            propertiesSuperset.putAll(propertyTypesMayPrimitive);
+            propertyTypesMayPrimitive = propertiesSuperset;
+        }
+
         Map<String, Object> verified = BaseNestableEventUtil.resolvePropertyTypes(propertyTypesMayPrimitive, eventTypeNameResolver);
         return new WrapperEventType(metadata, underlyingEventType, verified, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
