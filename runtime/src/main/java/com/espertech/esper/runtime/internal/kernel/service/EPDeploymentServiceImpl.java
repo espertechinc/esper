@@ -87,7 +87,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
                 throw new EPDeployDeploymentExistsException("Deployment by id '" + deploymentId + "' already exists");
             }
 
-            deployerResult = Deployer.deployFresh(deploymentId, currentStatementId, compiled, options.getStatementNameRuntime(), options.getStatementUserObjectRuntime(), options.getStatementSubstitutionParameter(), runtime);
+            deployerResult = Deployer.deployFresh(deploymentId, currentStatementId, compiled, options.getStatementNameRuntime(), options.getStatementUserObjectRuntime(), options.getStatementSubstitutionParameter(), options.getDeploymentClassLoaderOption(), runtime);
             statementIdRecovery.setCurrentStatementId(currentStatementId + deployerResult.getStatements().length);
 
             // dispatch event

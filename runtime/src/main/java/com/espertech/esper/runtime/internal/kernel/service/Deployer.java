@@ -97,20 +97,20 @@ public class Deployer {
 
     private final static Logger log = LoggerFactory.getLogger(Deployer.class);
 
-    public static DeploymentInternal deployFresh(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, EPRuntimeSPI epRuntime) throws EPDeployException {
-        return deploy(false, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, epRuntime);
+    public static DeploymentInternal deployFresh(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, DeploymentClassLoaderOption deploymentClassLoaderOption, EPRuntimeSPI epRuntime) throws EPDeployException {
+        return deploy(false, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, deploymentClassLoaderOption, epRuntime);
     }
 
-    public static DeploymentInternal deployRecover(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, EPRuntimeSPI epRuntime) throws EPDeployException {
-        return deploy(true, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, epRuntime);
+    public static DeploymentInternal deployRecover(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, DeploymentClassLoaderOption deploymentClassLoaderOption, EPRuntimeSPI epRuntime) throws EPDeployException {
+        return deploy(true, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, deploymentClassLoaderOption, epRuntime);
     }
 
-    private static DeploymentInternal deploy(boolean recovery, String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, EPRuntimeSPI epRuntime) throws EPDeployException {
+    private static DeploymentInternal deploy(boolean recovery, String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, DeploymentClassLoaderOption deploymentClassLoaderOption, EPRuntimeSPI epRuntime) throws EPDeployException {
         // set variable local version
         epRuntime.getServicesContext().getVariableManagementService().setLocalVersion();
 
         try {
-            return deploySafe(recovery, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, epRuntime);
+            return deploySafe(recovery, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, deploymentClassLoaderOption, epRuntime);
         } catch (EPDeployException ex) {
             throw ex;
         } catch (Throwable t) {
@@ -125,8 +125,17 @@ public class Deployer {
                                                  StatementNameRuntimeOption statementNameResolverRuntime,
                                                  StatementUserObjectRuntimeOption userObjectResolverRuntime,
                                                  StatementSubstitutionParameterOption substitutionParameterResolver,
+                                                 DeploymentClassLoaderOption deploymentClassLoaderOption,
                                                  EPRuntimeSPI epRuntime) throws PathException, EPDeployException {
-        ModuleProviderResult provider = ModuleProviderUtil.analyze(compiled, epRuntime.getServicesContext().getClassLoaderParent());
+        ClassLoader deploymentClassLoader = epRuntime.getServicesContext().getClassLoaderParent();
+        if (deploymentClassLoaderOption != null) {
+            deploymentClassLoader = deploymentClassLoaderOption.getClassLoader(new DeploymentClassLoaderContext(epRuntime.getServicesContext().getClassLoaderParent(), epRuntime.getServicesContext().getConfigSnapshot()));
+            if (deploymentClassLoader == null) {
+                throw new EPDeployException("Deployment classloader option returned a null value for the classloader");
+            }
+        }
+
+        ModuleProviderResult provider = ModuleProviderUtil.analyze(compiled, deploymentClassLoader);
         String moduleName = provider.getModuleProvider().getModuleName();
         EPServicesContext services = epRuntime.getServicesContext();
 

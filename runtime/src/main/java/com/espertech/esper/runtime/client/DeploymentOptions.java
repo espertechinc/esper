@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.runtime.client;
 
+import com.espertech.esper.runtime.client.option.DeploymentClassLoaderOption;
 import com.espertech.esper.runtime.client.option.StatementNameRuntimeOption;
 import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
 import com.espertech.esper.runtime.client.option.StatementUserObjectRuntimeOption;
@@ -25,6 +26,7 @@ public class DeploymentOptions {
     private StatementNameRuntimeOption statementNameRuntime;
     private StatementSubstitutionParameterOption statementSubstitutionParameter;
     private LockStrategy deploymentLockStrategy = LockStrategyDefault.INSTANCE;
+    private DeploymentClassLoaderOption deploymentClassLoaderOption;
 
     /**
      * Returns the deployment id if one should be assigned; A null value causes the runtime to generate and assign a deployment id.
@@ -125,6 +127,15 @@ public class DeploymentOptions {
      */
     public DeploymentOptions setStatementSubstitutionParameter(StatementSubstitutionParameterOption statementSubstitutionParameter) {
         this.statementSubstitutionParameter = statementSubstitutionParameter;
+        return this;
+    }
+
+    public DeploymentClassLoaderOption getDeploymentClassLoaderOption() {
+        return deploymentClassLoaderOption;
+    }
+
+    public DeploymentOptions setDeploymentClassLoaderOption(DeploymentClassLoaderOption deploymentClassLoaderOption) {
+        this.deploymentClassLoaderOption = deploymentClassLoaderOption;
         return this;
     }
 }

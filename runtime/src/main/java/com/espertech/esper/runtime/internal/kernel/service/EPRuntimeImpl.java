@@ -384,7 +384,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
             DeploymentInternal deployerResult;
             try {
-                deployerResult = Deployer.deployRecover(entry.getKey(), entry.getValue().getStatementIdFirstStatement(), entry.getValue().getCompiled(), statementNameResolver, userObjectResolver, substitutionParameterResolver, this);
+                deployerResult = Deployer.deployRecover(entry.getKey(), entry.getValue().getStatementIdFirstStatement(), entry.getValue().getCompiled(), statementNameResolver, userObjectResolver, substitutionParameterResolver, null, this);
             } catch (EPDeployException ex) {
                 throw new EPException(ex.getMessage(), ex);
             }

@@ -56,4 +56,8 @@ public class ParentClassLoader extends ClassLoader {
             classes.remove(className);
         }
     }
+
+    public Map<String, Class> getClasses() {
+        return classes;
+    }
 }
