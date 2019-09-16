@@ -44,7 +44,7 @@ public class InfraNamedWindowLateStartIndex implements RegressionExecution {
         String eplSubqueryNoIndexShare = "@name('s1') select (select id from AWindow(p00='x') as aw where aw.id = s0.id) " +
             "from SupportBean_S0 as s0 unidirectional";
         env.compileDeploy(eplSubqueryNoIndexShare, path).addListener("s1");
-        assertEquals(1, SupportCountAccessEvent.getAndResetCountGetterCalled());
+        assertEquals(2, SupportCountAccessEvent.getAndResetCountGetterCalled());
 
         env.sendEventBean(new SupportBean_S0(-1, "x"));
         env.undeployAll();
@@ -55,7 +55,7 @@ public class InfraNamedWindowLateStartIndex implements RegressionExecution {
         String eplSubqueryWithIndexShare = "@name('s2') select (select id from AWindow(p00='x') as aw where aw.id = s0.id) " +
             "from SupportBean_S0 as s0 unidirectional";
         env.compileDeploy(eplSubqueryWithIndexShare, path).addListener("s2");
-        assertEquals(1, SupportCountAccessEvent.getAndResetCountGetterCalled());
+        assertEquals(2, SupportCountAccessEvent.getAndResetCountGetterCalled());
 
         env.sendEventBean(new SupportBean_S0(-1, "x"));
         assertTrue(env.listener("s2").isInvoked());
