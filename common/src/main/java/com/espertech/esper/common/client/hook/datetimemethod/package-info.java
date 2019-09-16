@@ -14,4 +14,4 @@
  * Date-time method extension API.
  * </p>
  */
-package com.espertech.esper.common.client.hook.aggfunc;
+package com.espertech.esper.common.client.hook.datetimemethod;

@@ -8,11 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.client.hook.enummethod;
 
 /**
- * Lambda parameter type defines what value "v" assumes in an expression such as <code>mymethod(v =&gt; ...)</code>,
- * or what value "a" or "b" assume in an expression such as <code>mymethod( (a,b) =&gt; ...)</code>.
+ * <p>
+ * Enumeration method extension API.
+ * </p>
  */
-public interface EnumMethodLambdaParameterType {
-}
+package com.espertech.esper.common.client.hook.enummethod;

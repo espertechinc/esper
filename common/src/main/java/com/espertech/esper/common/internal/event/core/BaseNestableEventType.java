@@ -59,7 +59,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
      * @param endTimestampPropertyName   end timestamp
      * @param getterFactory              getter factory
      * @param beanEventTypeFactory       bean factory
-     * @param publicFields
+     * @param publicFields true if the properties that are classes are public field default access
      */
     public BaseNestableEventType(EventTypeMetadata metadata,
                                  Map<String, Object> propertyTypes,

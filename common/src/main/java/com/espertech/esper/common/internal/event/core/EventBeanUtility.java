@@ -486,7 +486,7 @@ public class EventBeanUtility {
      * @param propertyType         property return type
      * @param genericType          property generic type parameter, or null if none
      * @param beanEventTypeFactory for event types
-     * @param publicFields
+     * @param publicFields indicator whether classes are public-field-property-accessible
      * @return fragment type
      */
     public static FragmentEventType createNativeFragmentType(Class propertyType, Class genericType, BeanEventTypeFactory beanEventTypeFactory, boolean publicFields) {

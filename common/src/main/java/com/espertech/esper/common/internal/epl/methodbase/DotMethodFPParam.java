@@ -24,8 +24,8 @@ public class DotMethodFPParam implements Serializable {
 
     /**
      * Ctor.
-     * @param lambdaParamNum number of parameters that are lambda-parameters, i.e. zero for no-lambda, or 1 for "a => ..." or
-     *                       2 for "(a,b) => ..."
+     * @param lambdaParamNum number of parameters that are lambda-parameters, i.e. zero for no-lambda, or 1 for "a =&gt; ..." or
+     *                       2 for "(a,b) =&gt; ..."
      * @param description parameter description
      * @param paramType parameter type
      */

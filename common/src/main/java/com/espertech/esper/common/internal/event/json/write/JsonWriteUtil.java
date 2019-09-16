@@ -1324,6 +1324,7 @@ public class JsonWriteUtil {
      *
      * @param writer writer
      * @param nested value
+     * @param nestedFactory  writer for nested object
      * @throws IOException io error
      */
     public static void writeNested(JsonWriter writer, Object nested, JsonDelegateFactory nestedFactory) throws IOException {
@@ -1354,6 +1355,7 @@ public class JsonWriteUtil {
      *
      * @param writer  writer
      * @param nesteds value
+     * @param nestedFactory writer for nested object
      * @throws IOException io error
      */
     public static void writeNestedArray(JsonWriter writer, Object[] nesteds, JsonDelegateFactory nestedFactory) throws IOException {

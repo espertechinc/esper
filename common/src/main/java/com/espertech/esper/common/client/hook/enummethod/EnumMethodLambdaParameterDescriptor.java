@@ -13,7 +13,7 @@ package com.espertech.esper.common.client.hook.enummethod;
 /**
  * For use with lambda parameters, the descriptor identifies a specific lambda parameter.
  * <p>
- *     For instance "mymethod(1, (v, i) => 2)" the parameter number is 1 amd the lambda parameter number
+ *     For instance <code>mymethod(1, (v, i) =&gt; 2)</code> the parameter number is 1 amd the lambda parameter number
  *     is zero for "v" and one for "i".
  * </p>
  */
