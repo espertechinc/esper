@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.lang.reflect.Array;
@@ -38,6 +39,9 @@ public class JsonFieldGetterHelperProvided {
         if (prop == null) {
             return null;
         }
+        if (fragmentType instanceof JsonEventType) {
+            return factory.adapterForTypedJson(prop, fragmentType);
+        }
         return factory.adapterForTypedBean(prop, fragmentType);
     }
 
@@ -55,9 +59,16 @@ public class JsonFieldGetterHelperProvided {
         }
         int len = Array.getLength(value);
         EventBean[] events = new EventBean[len];
-        for (int i = 0; i < len; i++) {
-            Object item = Array.get(value, i);
-            events[i] = factory.adapterForTypedBean(item, fragmentType);
+        if (fragmentType instanceof JsonEventType) {
+            for (int i = 0; i < len; i++) {
+                Object item = Array.get(value, i);
+                events[i] = factory.adapterForTypedJson(item, fragmentType);
+            }
+        } else {
+            for (int i = 0; i < len; i++) {
+                Object item = Array.get(value, i);
+                events[i] = factory.adapterForTypedBean(item, fragmentType);
+            }
         }
         return events;
     }

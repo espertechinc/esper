@@ -18,9 +18,11 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCodegenField;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 
 import java.lang.reflect.Field;
 
@@ -56,9 +58,19 @@ public class JsonGetterSimpleProvidedWFragmentSimple extends JsonGetterSimplePro
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
         CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(fragmentType, EPStatementInitServices.REF));
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(field.getDeclaringClass(), "record").getBlock()
+        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(field.getDeclaringClass(), "record");
+        method.getBlock()
             .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
-            .ifRefNullReturnNull("value")
-            .methodReturn(exprDotMethod(factory, "adapterForTypedBean", ref("value"), eventType));
+            .ifRefNullReturnNull("value");
+        String adapterMethod;
+        if (fragmentType instanceof BeanEventType) {
+            adapterMethod = "adapterForTypedBean";
+        } else if (fragmentType instanceof JsonEventType) {
+            adapterMethod = "adapterForTypedJson";
+        } else {
+            throw new IllegalStateException("Unrecognized fragment event type " + fragmentType);
+        }
+        method.getBlock().methodReturn(exprDotMethod(factory, adapterMethod, ref("value"), eventType));
+        return method;
     }
 }
