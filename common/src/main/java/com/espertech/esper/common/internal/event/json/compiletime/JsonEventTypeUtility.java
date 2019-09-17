@@ -159,7 +159,7 @@ public class JsonEventTypeUtility {
         String underlyingClassNameFull = optionalUnderlyingProvided == null ? services.getPackageName() + "." + underlyingClassNameSimple : optionalUnderlyingProvided.getName();
         String delegateClassNameFull = services.getPackageName() + "." + delegateClassNameSimple;
         String delegateFactoryClassNameFull = services.getPackageName() + "." + delegateFactoryClassNameSimple;
-        String serdeClassNameFull = services.getPackageName() + "." + jsonClassNameSimple + "__Serde";
+        String serdeClassNameFull = services.getPackageName() + "." + jsonClassNameSimple + "__" + metadata.getName() + "__Serde"; // include event type name as underlying-class may occur multiple times
 
         JsonEventTypeDetail detail = new JsonEventTypeDetail(underlyingClassNameFull, optionalUnderlyingProvided, delegateClassNameFull, delegateFactoryClassNameFull, serdeClassNameFull, fieldDescriptors, dynamic, numFieldsSuperType);
         EventTypeNestableGetterFactoryJson getterFactoryJson = new EventTypeNestableGetterFactoryJson(detail);
