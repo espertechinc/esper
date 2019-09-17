@@ -59,7 +59,6 @@ import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMeta
 import com.espertech.esper.common.internal.epl.variable.core.VariableCollector;
 import com.espertech.esper.common.internal.epl.variable.core.VariableCollectorImpl;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
-import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryRuntime;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
@@ -151,7 +150,7 @@ public class Deployer {
         Set<String> deploymentIdDependencies = resolveDependencies(moduleDependencies, services);
 
         // keep protected types
-        BeanEventTypeFactoryPrivate beanEventTypeFactory = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(services.getEventTypeAvroHandler()), services.getEventTypeFactory(), services.getBeanEventTypeStemService());
+        BeanEventTypeFactoryPrivate beanEventTypeFactory = new BeanEventTypeFactoryPrivate(services.getEventBeanTypedEventFactory(), services.getEventTypeFactory(), services.getBeanEventTypeStemService());
 
         // initialize module event types
         Map<String, EventType> moduleEventTypes = new LinkedHashMap<>();
