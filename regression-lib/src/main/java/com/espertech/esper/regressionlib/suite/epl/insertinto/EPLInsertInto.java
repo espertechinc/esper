@@ -498,9 +498,7 @@ public class EPLInsertInto {
             tryAssertionJoinWildcard(env, true, null);
 
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                if (rep.isJsonProvidedClassEvent()) {
-                    tryAssertionJoinWildcard(env, false, rep);
-                }
+                tryAssertionJoinWildcard(env, false, rep);
             }
         }
     }
