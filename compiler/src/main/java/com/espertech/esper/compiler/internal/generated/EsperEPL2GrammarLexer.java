@@ -1,4 +1,4 @@
-// Generated from EsperEPL2Grammar.g by ANTLR 4.7.1
+// Generated from EsperEPL2Grammar.g by ANTLR 4.7.2
 
 /*
  ***************************************************************************************
@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class EsperEPL2GrammarLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.7.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -72,113 +72,123 @@ public class EsperEPL2GrammarLexer extends Lexer {
 		"DEFAULT_MODE"
 	};
 
-	public static final String[] ruleNames = {
-		"CREATE", "WINDOW", "IN_SET", "BETWEEN", "LIKE", "REGEXP", "ESCAPE", "OR_EXPR", 
-		"AND_EXPR", "NOT_EXPR", "EVERY_EXPR", "EVERY_DISTINCT_EXPR", "WHERE", 
-		"AS", "SUM", "AVG", "MAX", "MIN", "COALESCE", "MEDIAN", "STDDEV", "AVEDEV", 
-		"COUNT", "SELECT", "CASE", "ELSE", "WHEN", "THEN", "END", "FROM", "OUTER", 
-		"INNER", "JOIN", "LEFT", "RIGHT", "FULL", "ON", "IS", "BY", "GROUP", "HAVING", 
-		"DISTINCT", "ALL", "ANY", "SOME", "OUTPUT", "EVENTS", "FIRST", "LAST", 
-		"INSERT", "INTO", "VALUES", "ORDER", "ASC", "DESC", "RSTREAM", "ISTREAM", 
-		"IRSTREAM", "SCHEMA", "UNIDIRECTIONAL", "RETAINUNION", "RETAININTERSECTION", 
-		"PATTERN", "SQL", "METADATASQL", "PREVIOUS", "PREVIOUSTAIL", "PREVIOUSCOUNT", 
-		"PREVIOUSWINDOW", "PRIOR", "EXISTS", "WEEKDAY", "LW", "INSTANCEOF", "TYPEOF", 
-		"CAST", "CURRENT_TIMESTAMP", "DELETE", "SNAPSHOT", "SET", "VARIABLE", 
-		"TABLE", "UNTIL", "AT", "INDEX", "TIMEPERIOD_YEAR", "TIMEPERIOD_YEARS", 
-		"TIMEPERIOD_MONTH", "TIMEPERIOD_MONTHS", "TIMEPERIOD_WEEK", "TIMEPERIOD_WEEKS", 
-		"TIMEPERIOD_DAY", "TIMEPERIOD_DAYS", "TIMEPERIOD_HOUR", "TIMEPERIOD_HOURS", 
-		"TIMEPERIOD_MINUTE", "TIMEPERIOD_MINUTES", "TIMEPERIOD_SEC", "TIMEPERIOD_SECOND", 
-		"TIMEPERIOD_SECONDS", "TIMEPERIOD_MILLISEC", "TIMEPERIOD_MILLISECOND", 
-		"TIMEPERIOD_MILLISECONDS", "TIMEPERIOD_MICROSEC", "TIMEPERIOD_MICROSECOND", 
-		"TIMEPERIOD_MICROSECONDS", "BOOLEAN_TRUE", "BOOLEAN_FALSE", "VALUE_NULL", 
-		"ROW_LIMIT_EXPR", "OFFSET", "UPDATE", "MATCH_RECOGNIZE", "MATCH_RECOGNIZE_PERMUTE", 
-		"MEASURES", "DEFINE", "PARTITION", "MATCHES", "AFTER", "FOR", "WHILE", 
-		"USING", "MERGE", "MATCHED", "EXPRESSIONDECL", "NEWKW", "START", "CONTEXT", 
-		"INITIATED", "TERMINATED", "DATAFLOW", "CUBE", "ROLLUP", "GROUPING", "GROUPING_ID", 
-		"SETS", "FOLLOWMAX_BEGIN", "FOLLOWMAX_END", "FOLLOWED_BY", "GOES", "EQUALS", 
-		"SQL_NE", "QUESTION", "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LCURLY", 
-		"RCURLY", "COLON", "COMMA", "EQUAL", "LNOT", "BNOT", "NOT_EQUAL", "DIV", 
-		"DIV_ASSIGN", "PLUS", "PLUS_ASSIGN", "INC", "MINUS", "MINUS_ASSIGN", "DEC", 
-		"STAR", "STAR_ASSIGN", "MOD", "MOD_ASSIGN", "GE", "GT", "LE", "LT", "BXOR", 
-		"BXOR_ASSIGN", "BOR", "BOR_ASSIGN", "LOR", "BAND", "BAND_ASSIGN", "LAND", 
-		"SEMI", "DOT", "NUM_LONG", "NUM_DOUBLE", "NUM_FLOAT", "ESCAPECHAR", "ESCAPEBACKTICK", 
-		"ATCHAR", "HASHCHAR", "WS", "SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", 
-		"QUOTED_STRING_LITERAL", "STRING_LITERAL", "EscapeSequence", "IDENT", 
-		"IntegerLiteral", "FloatingPointLiteral", "OctalEscape", "UnicodeEscape", 
-		"DecimalIntegerLiteral", "HexIntegerLiteral", "OctalIntegerLiteral", "BinaryIntegerLiteral", 
-		"IntegerTypeSuffix", "DecimalNumeral", "Digits", "Digit", "NonZeroDigit", 
-		"DigitOrUnderscore", "Underscores", "HexNumeral", "HexDigits", "HexDigit", 
-		"HexDigitOrUnderscore", "OctalNumeral", "OctalDigits", "OctalDigit", "OctalDigitOrUnderscore", 
-		"BinaryNumeral", "BinaryDigits", "BinaryDigit", "BinaryDigitOrUnderscore", 
-		"DecimalFloatingPointLiteral", "ExponentPart", "ExponentIndicator", "SignedInteger", 
-		"Sign", "FloatTypeSuffix", "HexadecimalFloatingPointLiteral", "HexSignificand", 
-		"BinaryExponent", "BinaryExponentIndicator"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"CREATE", "WINDOW", "IN_SET", "BETWEEN", "LIKE", "REGEXP", "ESCAPE", 
+			"OR_EXPR", "AND_EXPR", "NOT_EXPR", "EVERY_EXPR", "EVERY_DISTINCT_EXPR", 
+			"WHERE", "AS", "SUM", "AVG", "MAX", "MIN", "COALESCE", "MEDIAN", "STDDEV", 
+			"AVEDEV", "COUNT", "SELECT", "CASE", "ELSE", "WHEN", "THEN", "END", "FROM", 
+			"OUTER", "INNER", "JOIN", "LEFT", "RIGHT", "FULL", "ON", "IS", "BY", 
+			"GROUP", "HAVING", "DISTINCT", "ALL", "ANY", "SOME", "OUTPUT", "EVENTS", 
+			"FIRST", "LAST", "INSERT", "INTO", "VALUES", "ORDER", "ASC", "DESC", 
+			"RSTREAM", "ISTREAM", "IRSTREAM", "SCHEMA", "UNIDIRECTIONAL", "RETAINUNION", 
+			"RETAININTERSECTION", "PATTERN", "SQL", "METADATASQL", "PREVIOUS", "PREVIOUSTAIL", 
+			"PREVIOUSCOUNT", "PREVIOUSWINDOW", "PRIOR", "EXISTS", "WEEKDAY", "LW", 
+			"INSTANCEOF", "TYPEOF", "CAST", "CURRENT_TIMESTAMP", "DELETE", "SNAPSHOT", 
+			"SET", "VARIABLE", "TABLE", "UNTIL", "AT", "INDEX", "TIMEPERIOD_YEAR", 
+			"TIMEPERIOD_YEARS", "TIMEPERIOD_MONTH", "TIMEPERIOD_MONTHS", "TIMEPERIOD_WEEK", 
+			"TIMEPERIOD_WEEKS", "TIMEPERIOD_DAY", "TIMEPERIOD_DAYS", "TIMEPERIOD_HOUR", 
+			"TIMEPERIOD_HOURS", "TIMEPERIOD_MINUTE", "TIMEPERIOD_MINUTES", "TIMEPERIOD_SEC", 
+			"TIMEPERIOD_SECOND", "TIMEPERIOD_SECONDS", "TIMEPERIOD_MILLISEC", "TIMEPERIOD_MILLISECOND", 
+			"TIMEPERIOD_MILLISECONDS", "TIMEPERIOD_MICROSEC", "TIMEPERIOD_MICROSECOND", 
+			"TIMEPERIOD_MICROSECONDS", "BOOLEAN_TRUE", "BOOLEAN_FALSE", "VALUE_NULL", 
+			"ROW_LIMIT_EXPR", "OFFSET", "UPDATE", "MATCH_RECOGNIZE", "MATCH_RECOGNIZE_PERMUTE", 
+			"MEASURES", "DEFINE", "PARTITION", "MATCHES", "AFTER", "FOR", "WHILE", 
+			"USING", "MERGE", "MATCHED", "EXPRESSIONDECL", "NEWKW", "START", "CONTEXT", 
+			"INITIATED", "TERMINATED", "DATAFLOW", "CUBE", "ROLLUP", "GROUPING", 
+			"GROUPING_ID", "SETS", "FOLLOWMAX_BEGIN", "FOLLOWMAX_END", "FOLLOWED_BY", 
+			"GOES", "EQUALS", "SQL_NE", "QUESTION", "LPAREN", "RPAREN", "LBRACK", 
+			"RBRACK", "LCURLY", "RCURLY", "COLON", "COMMA", "EQUAL", "LNOT", "BNOT", 
+			"NOT_EQUAL", "DIV", "DIV_ASSIGN", "PLUS", "PLUS_ASSIGN", "INC", "MINUS", 
+			"MINUS_ASSIGN", "DEC", "STAR", "STAR_ASSIGN", "MOD", "MOD_ASSIGN", "GE", 
+			"GT", "LE", "LT", "BXOR", "BXOR_ASSIGN", "BOR", "BOR_ASSIGN", "LOR", 
+			"BAND", "BAND_ASSIGN", "LAND", "SEMI", "DOT", "NUM_LONG", "NUM_DOUBLE", 
+			"NUM_FLOAT", "ESCAPECHAR", "ESCAPEBACKTICK", "ATCHAR", "HASHCHAR", "WS", 
+			"SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", "QUOTED_STRING_LITERAL", 
+			"STRING_LITERAL", "EscapeSequence", "IDENT", "IntegerLiteral", "FloatingPointLiteral", 
+			"OctalEscape", "UnicodeEscape", "DecimalIntegerLiteral", "HexIntegerLiteral", 
+			"OctalIntegerLiteral", "BinaryIntegerLiteral", "IntegerTypeSuffix", "DecimalNumeral", 
+			"Digits", "Digit", "NonZeroDigit", "DigitOrUnderscore", "Underscores", 
+			"HexNumeral", "HexDigits", "HexDigit", "HexDigitOrUnderscore", "OctalNumeral", 
+			"OctalDigits", "OctalDigit", "OctalDigitOrUnderscore", "BinaryNumeral", 
+			"BinaryDigits", "BinaryDigit", "BinaryDigitOrUnderscore", "DecimalFloatingPointLiteral", 
+			"ExponentPart", "ExponentIndicator", "SignedInteger", "Sign", "FloatTypeSuffix", 
+			"HexadecimalFloatingPointLiteral", "HexSignificand", "BinaryExponent", 
+			"BinaryExponentIndicator"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'create'", "'window'", "'in'", "'between'", "'like'", "'regexp'", 
-		"'escape'", "'or'", "'and'", "'not'", "'every'", "'every-distinct'", "'where'", 
-		"'as'", "'sum'", "'avg'", "'max'", "'min'", "'coalesce'", "'median'", 
-		"'stddev'", "'avedev'", "'count'", "'select'", "'case'", "'else'", "'when'", 
-		"'then'", "'end'", "'from'", "'outer'", "'inner'", "'join'", "'left'", 
-		"'right'", "'full'", "'on'", "'is'", "'by'", "'group'", "'having'", "'distinct'", 
-		"'all'", "'any'", "'some'", "'output'", "'events'", "'first'", "'last'", 
-		"'insert'", "'into'", "'values'", "'order'", "'asc'", "'desc'", "'rstream'", 
-		"'istream'", "'irstream'", "'schema'", "'unidirectional'", "'retain-union'", 
-		"'retain-intersection'", "'pattern'", "'sql'", "'metadatasql'", "'prev'", 
-		"'prevtail'", "'prevcount'", "'prevwindow'", "'prior'", "'exists'", "'weekday'", 
-		"'lastweekday'", "'instanceof'", "'typeof'", "'cast'", "'current_timestamp'", 
-		"'delete'", "'snapshot'", "'set'", "'variable'", "'table'", "'until'", 
-		"'at'", "'index'", "'year'", "'years'", "'month'", "'months'", "'week'", 
-		"'weeks'", "'day'", "'days'", "'hour'", "'hours'", "'minute'", "'minutes'", 
-		"'sec'", "'second'", "'seconds'", "'msec'", "'millisecond'", "'milliseconds'", 
-		"'usec'", "'microsecond'", "'microseconds'", "'true'", "'false'", "'null'", 
-		"'limit'", "'offset'", "'update'", "'match_recognize'", "'match_recognize_permute'", 
-		"'measures'", "'define'", "'partition'", "'matches'", "'after'", "'for'", 
-		"'while'", "'using'", "'merge'", "'matched'", "'expression'", "'new'", 
-		"'start'", "'context'", "'initiated'", "'terminated'", "'dataflow'", "'cube'", 
-		"'rollup'", "'grouping'", "'grouping_id'", "'sets'", "'-['", "']>'", "'->'", 
-		"'=>'", "'='", "'<>'", "'?'", "'('", "')'", "'['", "']'", "'{'", "'}'", 
-		"':'", "','", "'=='", "'!'", "'~'", "'!='", "'/'", "'/='", "'+'", "'+='", 
-		"'++'", "'-'", "'-='", "'--'", "'*'", "'*='", "'%'", "'%='", "'>='", "'>'", 
-		"'<='", "'<'", "'^'", "'^='", "'|'", "'|='", "'||'", "'&'", "'&='", "'&&'", 
-		"';'", "'.'", "'\u18FF'", "'\u18FE'", "'\u18FD'", "'\\'", "'`'", "'@'", 
-		"'#'"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, "CREATE", "WINDOW", "IN_SET", "BETWEEN", "LIKE", "REGEXP", "ESCAPE", 
-		"OR_EXPR", "AND_EXPR", "NOT_EXPR", "EVERY_EXPR", "EVERY_DISTINCT_EXPR", 
-		"WHERE", "AS", "SUM", "AVG", "MAX", "MIN", "COALESCE", "MEDIAN", "STDDEV", 
-		"AVEDEV", "COUNT", "SELECT", "CASE", "ELSE", "WHEN", "THEN", "END", "FROM", 
-		"OUTER", "INNER", "JOIN", "LEFT", "RIGHT", "FULL", "ON", "IS", "BY", "GROUP", 
-		"HAVING", "DISTINCT", "ALL", "ANY", "SOME", "OUTPUT", "EVENTS", "FIRST", 
-		"LAST", "INSERT", "INTO", "VALUES", "ORDER", "ASC", "DESC", "RSTREAM", 
-		"ISTREAM", "IRSTREAM", "SCHEMA", "UNIDIRECTIONAL", "RETAINUNION", "RETAININTERSECTION", 
-		"PATTERN", "SQL", "METADATASQL", "PREVIOUS", "PREVIOUSTAIL", "PREVIOUSCOUNT", 
-		"PREVIOUSWINDOW", "PRIOR", "EXISTS", "WEEKDAY", "LW", "INSTANCEOF", "TYPEOF", 
-		"CAST", "CURRENT_TIMESTAMP", "DELETE", "SNAPSHOT", "SET", "VARIABLE", 
-		"TABLE", "UNTIL", "AT", "INDEX", "TIMEPERIOD_YEAR", "TIMEPERIOD_YEARS", 
-		"TIMEPERIOD_MONTH", "TIMEPERIOD_MONTHS", "TIMEPERIOD_WEEK", "TIMEPERIOD_WEEKS", 
-		"TIMEPERIOD_DAY", "TIMEPERIOD_DAYS", "TIMEPERIOD_HOUR", "TIMEPERIOD_HOURS", 
-		"TIMEPERIOD_MINUTE", "TIMEPERIOD_MINUTES", "TIMEPERIOD_SEC", "TIMEPERIOD_SECOND", 
-		"TIMEPERIOD_SECONDS", "TIMEPERIOD_MILLISEC", "TIMEPERIOD_MILLISECOND", 
-		"TIMEPERIOD_MILLISECONDS", "TIMEPERIOD_MICROSEC", "TIMEPERIOD_MICROSECOND", 
-		"TIMEPERIOD_MICROSECONDS", "BOOLEAN_TRUE", "BOOLEAN_FALSE", "VALUE_NULL", 
-		"ROW_LIMIT_EXPR", "OFFSET", "UPDATE", "MATCH_RECOGNIZE", "MATCH_RECOGNIZE_PERMUTE", 
-		"MEASURES", "DEFINE", "PARTITION", "MATCHES", "AFTER", "FOR", "WHILE", 
-		"USING", "MERGE", "MATCHED", "EXPRESSIONDECL", "NEWKW", "START", "CONTEXT", 
-		"INITIATED", "TERMINATED", "DATAFLOW", "CUBE", "ROLLUP", "GROUPING", "GROUPING_ID", 
-		"SETS", "FOLLOWMAX_BEGIN", "FOLLOWMAX_END", "FOLLOWED_BY", "GOES", "EQUALS", 
-		"SQL_NE", "QUESTION", "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LCURLY", 
-		"RCURLY", "COLON", "COMMA", "EQUAL", "LNOT", "BNOT", "NOT_EQUAL", "DIV", 
-		"DIV_ASSIGN", "PLUS", "PLUS_ASSIGN", "INC", "MINUS", "MINUS_ASSIGN", "DEC", 
-		"STAR", "STAR_ASSIGN", "MOD", "MOD_ASSIGN", "GE", "GT", "LE", "LT", "BXOR", 
-		"BXOR_ASSIGN", "BOR", "BOR_ASSIGN", "LOR", "BAND", "BAND_ASSIGN", "LAND", 
-		"SEMI", "DOT", "NUM_LONG", "NUM_DOUBLE", "NUM_FLOAT", "ESCAPECHAR", "ESCAPEBACKTICK", 
-		"ATCHAR", "HASHCHAR", "WS", "SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", 
-		"QUOTED_STRING_LITERAL", "STRING_LITERAL", "IDENT", "IntegerLiteral", 
-		"FloatingPointLiteral"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'create'", "'window'", "'in'", "'between'", "'like'", "'regexp'", 
+			"'escape'", "'or'", "'and'", "'not'", "'every'", "'every-distinct'", 
+			"'where'", "'as'", "'sum'", "'avg'", "'max'", "'min'", "'coalesce'", 
+			"'median'", "'stddev'", "'avedev'", "'count'", "'select'", "'case'", 
+			"'else'", "'when'", "'then'", "'end'", "'from'", "'outer'", "'inner'", 
+			"'join'", "'left'", "'right'", "'full'", "'on'", "'is'", "'by'", "'group'", 
+			"'having'", "'distinct'", "'all'", "'any'", "'some'", "'output'", "'events'", 
+			"'first'", "'last'", "'insert'", "'into'", "'values'", "'order'", "'asc'", 
+			"'desc'", "'rstream'", "'istream'", "'irstream'", "'schema'", "'unidirectional'", 
+			"'retain-union'", "'retain-intersection'", "'pattern'", "'sql'", "'metadatasql'", 
+			"'prev'", "'prevtail'", "'prevcount'", "'prevwindow'", "'prior'", "'exists'", 
+			"'weekday'", "'lastweekday'", "'instanceof'", "'typeof'", "'cast'", "'current_timestamp'", 
+			"'delete'", "'snapshot'", "'set'", "'variable'", "'table'", "'until'", 
+			"'at'", "'index'", "'year'", "'years'", "'month'", "'months'", "'week'", 
+			"'weeks'", "'day'", "'days'", "'hour'", "'hours'", "'minute'", "'minutes'", 
+			"'sec'", "'second'", "'seconds'", "'msec'", "'millisecond'", "'milliseconds'", 
+			"'usec'", "'microsecond'", "'microseconds'", "'true'", "'false'", "'null'", 
+			"'limit'", "'offset'", "'update'", "'match_recognize'", "'match_recognize_permute'", 
+			"'measures'", "'define'", "'partition'", "'matches'", "'after'", "'for'", 
+			"'while'", "'using'", "'merge'", "'matched'", "'expression'", "'new'", 
+			"'start'", "'context'", "'initiated'", "'terminated'", "'dataflow'", 
+			"'cube'", "'rollup'", "'grouping'", "'grouping_id'", "'sets'", "'-['", 
+			"']>'", "'->'", "'=>'", "'='", "'<>'", "'?'", "'('", "')'", "'['", "']'", 
+			"'{'", "'}'", "':'", "','", "'=='", "'!'", "'~'", "'!='", "'/'", "'/='", 
+			"'+'", "'+='", "'++'", "'-'", "'-='", "'--'", "'*'", "'*='", "'%'", "'%='", 
+			"'>='", "'>'", "'<='", "'<'", "'^'", "'^='", "'|'", "'|='", "'||'", "'&'", 
+			"'&='", "'&&'", "';'", "'.'", "'\u18FF'", "'\u18FE'", "'\u18FD'", "'\\'", 
+			"'`'", "'@'", "'#'"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, "CREATE", "WINDOW", "IN_SET", "BETWEEN", "LIKE", "REGEXP", "ESCAPE", 
+			"OR_EXPR", "AND_EXPR", "NOT_EXPR", "EVERY_EXPR", "EVERY_DISTINCT_EXPR", 
+			"WHERE", "AS", "SUM", "AVG", "MAX", "MIN", "COALESCE", "MEDIAN", "STDDEV", 
+			"AVEDEV", "COUNT", "SELECT", "CASE", "ELSE", "WHEN", "THEN", "END", "FROM", 
+			"OUTER", "INNER", "JOIN", "LEFT", "RIGHT", "FULL", "ON", "IS", "BY", 
+			"GROUP", "HAVING", "DISTINCT", "ALL", "ANY", "SOME", "OUTPUT", "EVENTS", 
+			"FIRST", "LAST", "INSERT", "INTO", "VALUES", "ORDER", "ASC", "DESC", 
+			"RSTREAM", "ISTREAM", "IRSTREAM", "SCHEMA", "UNIDIRECTIONAL", "RETAINUNION", 
+			"RETAININTERSECTION", "PATTERN", "SQL", "METADATASQL", "PREVIOUS", "PREVIOUSTAIL", 
+			"PREVIOUSCOUNT", "PREVIOUSWINDOW", "PRIOR", "EXISTS", "WEEKDAY", "LW", 
+			"INSTANCEOF", "TYPEOF", "CAST", "CURRENT_TIMESTAMP", "DELETE", "SNAPSHOT", 
+			"SET", "VARIABLE", "TABLE", "UNTIL", "AT", "INDEX", "TIMEPERIOD_YEAR", 
+			"TIMEPERIOD_YEARS", "TIMEPERIOD_MONTH", "TIMEPERIOD_MONTHS", "TIMEPERIOD_WEEK", 
+			"TIMEPERIOD_WEEKS", "TIMEPERIOD_DAY", "TIMEPERIOD_DAYS", "TIMEPERIOD_HOUR", 
+			"TIMEPERIOD_HOURS", "TIMEPERIOD_MINUTE", "TIMEPERIOD_MINUTES", "TIMEPERIOD_SEC", 
+			"TIMEPERIOD_SECOND", "TIMEPERIOD_SECONDS", "TIMEPERIOD_MILLISEC", "TIMEPERIOD_MILLISECOND", 
+			"TIMEPERIOD_MILLISECONDS", "TIMEPERIOD_MICROSEC", "TIMEPERIOD_MICROSECOND", 
+			"TIMEPERIOD_MICROSECONDS", "BOOLEAN_TRUE", "BOOLEAN_FALSE", "VALUE_NULL", 
+			"ROW_LIMIT_EXPR", "OFFSET", "UPDATE", "MATCH_RECOGNIZE", "MATCH_RECOGNIZE_PERMUTE", 
+			"MEASURES", "DEFINE", "PARTITION", "MATCHES", "AFTER", "FOR", "WHILE", 
+			"USING", "MERGE", "MATCHED", "EXPRESSIONDECL", "NEWKW", "START", "CONTEXT", 
+			"INITIATED", "TERMINATED", "DATAFLOW", "CUBE", "ROLLUP", "GROUPING", 
+			"GROUPING_ID", "SETS", "FOLLOWMAX_BEGIN", "FOLLOWMAX_END", "FOLLOWED_BY", 
+			"GOES", "EQUALS", "SQL_NE", "QUESTION", "LPAREN", "RPAREN", "LBRACK", 
+			"RBRACK", "LCURLY", "RCURLY", "COLON", "COMMA", "EQUAL", "LNOT", "BNOT", 
+			"NOT_EQUAL", "DIV", "DIV_ASSIGN", "PLUS", "PLUS_ASSIGN", "INC", "MINUS", 
+			"MINUS_ASSIGN", "DEC", "STAR", "STAR_ASSIGN", "MOD", "MOD_ASSIGN", "GE", 
+			"GT", "LE", "LT", "BXOR", "BXOR_ASSIGN", "BOR", "BOR_ASSIGN", "LOR", 
+			"BAND", "BAND_ASSIGN", "LAND", "SEMI", "DOT", "NUM_LONG", "NUM_DOUBLE", 
+			"NUM_FLOAT", "ESCAPECHAR", "ESCAPEBACKTICK", "ATCHAR", "HASHCHAR", "WS", 
+			"SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", "QUOTED_STRING_LITERAL", 
+			"STRING_LITERAL", "IDENT", "IntegerLiteral", "FloatingPointLiteral"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
 	/**

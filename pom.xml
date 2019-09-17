@@ -33,12 +33,12 @@
 		<maven.surefire.plugin.version>2.4.3</maven.surefire.plugin.version>
 		<puppycrawl.tools.checkstyle.version>8.18</puppycrawl.tools.checkstyle.version>
 
-		<antlr4-runtime.version>4.7.1</antlr4-runtime.version>
-		<avro.version>1.8.2</avro.version>
-		<janino.version>3.0.10</janino.version>
+		<antlr4-runtime.version>4.7.2</antlr4-runtime.version>
+		<avro.version>1.9.1</avro.version>
+		<janino.version>3.1.0</janino.version>
 		<log4j.version>1.2.17</log4j.version>
-		<mysql-connector-java.version>5.1.28</mysql-connector-java.version>
-		<slf4j-api.version>1.7.25</slf4j-api.version>
+		<mysql-connector-java.version>8.0.17</mysql-connector-java.version>
+		<slf4j-api.version>1.7.26</slf4j-api.version>
 
 		<!-- Testing dependencies versions -->
 		<junit.version>4.11</junit.version>

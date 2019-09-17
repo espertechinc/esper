@@ -1,5 +1,11 @@
 Esper Changelog
 ===================
+Changes in version 8.3.0
+------------------------
+  - The following dependent jar files are upgraded:
+    - SLF4J is now 1.7.26 (slf4j-api-1.7.26.jar, optionally use with Log4J by adding slf4j-log4j12-1.7.26.jar, previously at slf4j-api-1.7.25.jar)
+    - ANTLR is now 4.7.2 (antlr4-runtime-4.7.2.jar, previously antlr-runtime-4.7.1.jar)  
+    - Janino is now 3.1.0 (commons-compiler-3.1.0.jar and janino-3.1.0.jar, previously *3.0.10.jar)  
 
 Changes in version 8.2.0
 ------------------------

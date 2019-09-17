@@ -1,4 +1,4 @@
-// Generated from EsperEPL2Grammar.g by ANTLR 4.7.1
+// Generated from EsperEPL2Grammar.g by ANTLR 4.7.2
 
 /*
  ***************************************************************************************
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class EsperEPL2GrammarParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.7.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -153,140 +153,150 @@ public class EsperEPL2GrammarParser extends Parser {
 		RULE_numberconstant = 249, RULE_stringconstant = 250, RULE_jsonvalue = 251, 
 		RULE_jsonobject = 252, RULE_jsonarray = 253, RULE_jsonelements = 254, 
 		RULE_jsonmembers = 255, RULE_jsonpair = 256;
-	public static final String[] ruleNames = {
-		"startEPLExpressionRule", "startEventPropertyRule", "startJsonValueRule", 
-		"expressionDecl", "expressionDialect", "expressionDef", "expressionLambdaDecl", 
-		"expressionTypeAnno", "annotationEnum", "elementValuePairsEnum", "elementValuePairEnum", 
-		"elementValueEnum", "elementValueArrayEnum", "eplExpression", "contextExpr", 
-		"selectExpr", "onExpr", "onStreamExpr", "updateExpr", "updateDetails", 
-		"onMergeExpr", "mergeItem", "mergeMatched", "mergeMatchedItem", "onMergeDirectInsert", 
-		"mergeUnmatched", "mergeUnmatchedItem", "mergeInsert", "onSelectExpr", 
-		"onUpdateExpr", "onSelectInsertExpr", "onSelectInsertFromClause", "outputClauseInsert", 
-		"onDeleteExpr", "onSetExpr", "onSetAssignmentList", "onSetAssignment", 
-		"onExprFrom", "createWindowExpr", "createWindowExprModelAfter", "createIndexExpr", 
-		"createIndexColumnList", "createIndexColumn", "createVariableExpr", "createTableExpr", 
-		"createTableColumnList", "createTableColumn", "createColumnList", "createColumnListElement", 
-		"createSelectionList", "createSelectionListElement", "createSchemaExpr", 
-		"createSchemaDef", "fafDelete", "fafUpdate", "fafInsert", "createDataflow", 
-		"gopList", "gop", "gopParams", "gopParamsItemList", "gopParamsItem", "gopParamsItemMany", 
-		"gopParamsItemAs", "gopOut", "gopOutItem", "gopOutTypeList", "gopOutTypeParam", 
-		"gopOutTypeItem", "gopDetail", "gopConfig", "createContextExpr", "createExpressionExpr", 
-		"createContextDetail", "contextContextNested", "createContextChoice", 
-		"createContextDistinct", "createContextRangePoint", "createContextFilter", 
-		"createContextPartitionItem", "createContextCoalesceItem", "createContextGroupItem", 
-		"createContextPartitionInit", "createContextPartitionTerm", "createSchemaQual", 
-		"variantList", "variantListElement", "intoTableExpr", "insertIntoExpr", 
-		"columnList", "fromClause", "regularJoin", "outerJoinList", "outerJoin", 
-		"outerJoinIdent", "outerJoinIdentPair", "whereClause", "selectClause", 
-		"selectionList", "selectionListElement", "selectionListElementExpr", "selectionListElementAnno", 
-		"streamSelector", "streamExpression", "forExpr", "patternInclusionExpression", 
-		"databaseJoinExpression", "methodJoinExpression", "viewExpressions", "viewExpressionWNamespace", 
-		"viewExpressionOptNamespace", "viewWParameters", "groupByListExpr", "groupByListChoice", 
-		"groupByCubeOrRollup", "groupByGroupingSets", "groupBySetsChoice", "groupByCombinableExpr", 
-		"orderByListExpr", "orderByListElement", "havingClause", "outputLimit", 
-		"outputLimitAndTerm", "outputLimitAfter", "rowLimit", "crontabLimitParameterSetList", 
-		"crontabLimitParameterSet", "whenClause", "elseClause", "matchRecog", 
-		"matchRecogPartitionBy", "matchRecogMeasures", "matchRecogMeasureItem", 
-		"matchRecogMatchesSelection", "matchRecogPattern", "matchRecogMatchesAfterSkip", 
-		"matchRecogMatchesInterval", "matchRecogPatternAlteration", "matchRecogPatternConcat", 
-		"matchRecogPatternUnary", "matchRecogPatternNested", "matchRecogPatternPermute", 
-		"matchRecogPatternAtom", "matchRecogPatternRepeat", "matchRecogDefine", 
-		"matchRecogDefineItem", "expression", "caseExpression", "evalOrExpression", 
-		"evalAndExpression", "bitWiseExpression", "negatedExpression", "evalEqualsExpression", 
-		"evalRelationalExpression", "inSubSelectQuery", "concatenationExpr", "additiveExpression", 
-		"multiplyExpression", "unaryExpression", "unaryMinus", "substitutionCanChain", 
-		"chainedFunction", "newAssign", "rowSubSelectExpression", "subSelectGroupExpression", 
-		"existsSubSelectExpression", "subQueryExpr", "subSelectFilterExpr", "arrayExpression", 
-		"builtinFunc", "firstLastWindowAggregation", "eventPropertyOrLibFunction", 
-		"libFunction", "libFunctionWithClass", "libFunctionNoClass", "funcIdentTop", 
-		"funcIdentInner", "funcIdentChained", "libFunctionArgs", "libFunctionArgItem", 
-		"betweenList", "patternExpression", "followedByExpression", "followedByRepeat", 
-		"orExpression", "andExpression", "matchUntilExpression", "qualifyExpression", 
-		"guardPostFix", "distinctExpressionList", "distinctExpressionAtom", "atomicExpression", 
-		"observerExpression", "guardWhereExpression", "guardWhileExpression", 
-		"matchUntilRange", "eventFilterExpression", "propertyExpression", "propertyExpressionAtomic", 
-		"propertyExpressionSelect", "propertySelectionList", "propertySelectionListElement", 
-		"propertyStreamSelector", "typeExpressionAnnotation", "patternFilterExpression", 
-		"patternFilterAnnotation", "classIdentifierWithDimensions", "dimensions", 
-		"classIdentifier", "expressionListWithNamed", "expressionListWithNamedWithTime", 
-		"expressionWithNamed", "expressionWithNamedWithTime", "expressionNamedParameter", 
-		"expressionNamedParameterWithTime", "expressionList", "expressionWithTimeList", 
-		"expressionWithTime", "expressionWithTimeInclLast", "expressionQualifyable", 
-		"lastWeekdayOperand", "lastOperand", "frequencyOperand", "rangeOperand", 
-		"lastOperator", "weekDayOperator", "numericParameterList", "numericListParameter", 
-		"eventProperty", "eventPropertyAtomic", "eventPropertyIdent", "identOrTicked", 
-		"keywordAllowedIdent", "escapableStr", "escapableIdent", "timePeriod", 
-		"yearPart", "monthPart", "weekPart", "dayPart", "hourPart", "minutePart", 
-		"secondPart", "millisecondPart", "microsecondPart", "number", "substitution", 
-		"substitutionSlashIdent", "constant", "numberconstant", "stringconstant", 
-		"jsonvalue", "jsonobject", "jsonarray", "jsonelements", "jsonmembers", 
-		"jsonpair"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"startEPLExpressionRule", "startEventPropertyRule", "startJsonValueRule", 
+			"expressionDecl", "expressionDialect", "expressionDef", "expressionLambdaDecl", 
+			"expressionTypeAnno", "annotationEnum", "elementValuePairsEnum", "elementValuePairEnum", 
+			"elementValueEnum", "elementValueArrayEnum", "eplExpression", "contextExpr", 
+			"selectExpr", "onExpr", "onStreamExpr", "updateExpr", "updateDetails", 
+			"onMergeExpr", "mergeItem", "mergeMatched", "mergeMatchedItem", "onMergeDirectInsert", 
+			"mergeUnmatched", "mergeUnmatchedItem", "mergeInsert", "onSelectExpr", 
+			"onUpdateExpr", "onSelectInsertExpr", "onSelectInsertFromClause", "outputClauseInsert", 
+			"onDeleteExpr", "onSetExpr", "onSetAssignmentList", "onSetAssignment", 
+			"onExprFrom", "createWindowExpr", "createWindowExprModelAfter", "createIndexExpr", 
+			"createIndexColumnList", "createIndexColumn", "createVariableExpr", "createTableExpr", 
+			"createTableColumnList", "createTableColumn", "createColumnList", "createColumnListElement", 
+			"createSelectionList", "createSelectionListElement", "createSchemaExpr", 
+			"createSchemaDef", "fafDelete", "fafUpdate", "fafInsert", "createDataflow", 
+			"gopList", "gop", "gopParams", "gopParamsItemList", "gopParamsItem", 
+			"gopParamsItemMany", "gopParamsItemAs", "gopOut", "gopOutItem", "gopOutTypeList", 
+			"gopOutTypeParam", "gopOutTypeItem", "gopDetail", "gopConfig", "createContextExpr", 
+			"createExpressionExpr", "createContextDetail", "contextContextNested", 
+			"createContextChoice", "createContextDistinct", "createContextRangePoint", 
+			"createContextFilter", "createContextPartitionItem", "createContextCoalesceItem", 
+			"createContextGroupItem", "createContextPartitionInit", "createContextPartitionTerm", 
+			"createSchemaQual", "variantList", "variantListElement", "intoTableExpr", 
+			"insertIntoExpr", "columnList", "fromClause", "regularJoin", "outerJoinList", 
+			"outerJoin", "outerJoinIdent", "outerJoinIdentPair", "whereClause", "selectClause", 
+			"selectionList", "selectionListElement", "selectionListElementExpr", 
+			"selectionListElementAnno", "streamSelector", "streamExpression", "forExpr", 
+			"patternInclusionExpression", "databaseJoinExpression", "methodJoinExpression", 
+			"viewExpressions", "viewExpressionWNamespace", "viewExpressionOptNamespace", 
+			"viewWParameters", "groupByListExpr", "groupByListChoice", "groupByCubeOrRollup", 
+			"groupByGroupingSets", "groupBySetsChoice", "groupByCombinableExpr", 
+			"orderByListExpr", "orderByListElement", "havingClause", "outputLimit", 
+			"outputLimitAndTerm", "outputLimitAfter", "rowLimit", "crontabLimitParameterSetList", 
+			"crontabLimitParameterSet", "whenClause", "elseClause", "matchRecog", 
+			"matchRecogPartitionBy", "matchRecogMeasures", "matchRecogMeasureItem", 
+			"matchRecogMatchesSelection", "matchRecogPattern", "matchRecogMatchesAfterSkip", 
+			"matchRecogMatchesInterval", "matchRecogPatternAlteration", "matchRecogPatternConcat", 
+			"matchRecogPatternUnary", "matchRecogPatternNested", "matchRecogPatternPermute", 
+			"matchRecogPatternAtom", "matchRecogPatternRepeat", "matchRecogDefine", 
+			"matchRecogDefineItem", "expression", "caseExpression", "evalOrExpression", 
+			"evalAndExpression", "bitWiseExpression", "negatedExpression", "evalEqualsExpression", 
+			"evalRelationalExpression", "inSubSelectQuery", "concatenationExpr", 
+			"additiveExpression", "multiplyExpression", "unaryExpression", "unaryMinus", 
+			"substitutionCanChain", "chainedFunction", "newAssign", "rowSubSelectExpression", 
+			"subSelectGroupExpression", "existsSubSelectExpression", "subQueryExpr", 
+			"subSelectFilterExpr", "arrayExpression", "builtinFunc", "firstLastWindowAggregation", 
+			"eventPropertyOrLibFunction", "libFunction", "libFunctionWithClass", 
+			"libFunctionNoClass", "funcIdentTop", "funcIdentInner", "funcIdentChained", 
+			"libFunctionArgs", "libFunctionArgItem", "betweenList", "patternExpression", 
+			"followedByExpression", "followedByRepeat", "orExpression", "andExpression", 
+			"matchUntilExpression", "qualifyExpression", "guardPostFix", "distinctExpressionList", 
+			"distinctExpressionAtom", "atomicExpression", "observerExpression", "guardWhereExpression", 
+			"guardWhileExpression", "matchUntilRange", "eventFilterExpression", "propertyExpression", 
+			"propertyExpressionAtomic", "propertyExpressionSelect", "propertySelectionList", 
+			"propertySelectionListElement", "propertyStreamSelector", "typeExpressionAnnotation", 
+			"patternFilterExpression", "patternFilterAnnotation", "classIdentifierWithDimensions", 
+			"dimensions", "classIdentifier", "expressionListWithNamed", "expressionListWithNamedWithTime", 
+			"expressionWithNamed", "expressionWithNamedWithTime", "expressionNamedParameter", 
+			"expressionNamedParameterWithTime", "expressionList", "expressionWithTimeList", 
+			"expressionWithTime", "expressionWithTimeInclLast", "expressionQualifyable", 
+			"lastWeekdayOperand", "lastOperand", "frequencyOperand", "rangeOperand", 
+			"lastOperator", "weekDayOperator", "numericParameterList", "numericListParameter", 
+			"eventProperty", "eventPropertyAtomic", "eventPropertyIdent", "identOrTicked", 
+			"keywordAllowedIdent", "escapableStr", "escapableIdent", "timePeriod", 
+			"yearPart", "monthPart", "weekPart", "dayPart", "hourPart", "minutePart", 
+			"secondPart", "millisecondPart", "microsecondPart", "number", "substitution", 
+			"substitutionSlashIdent", "constant", "numberconstant", "stringconstant", 
+			"jsonvalue", "jsonobject", "jsonarray", "jsonelements", "jsonmembers", 
+			"jsonpair"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'create'", "'window'", "'in'", "'between'", "'like'", "'regexp'", 
-		"'escape'", "'or'", "'and'", "'not'", "'every'", "'every-distinct'", "'where'", 
-		"'as'", "'sum'", "'avg'", "'max'", "'min'", "'coalesce'", "'median'", 
-		"'stddev'", "'avedev'", "'count'", "'select'", "'case'", "'else'", "'when'", 
-		"'then'", "'end'", "'from'", "'outer'", "'inner'", "'join'", "'left'", 
-		"'right'", "'full'", "'on'", "'is'", "'by'", "'group'", "'having'", "'distinct'", 
-		"'all'", "'any'", "'some'", "'output'", "'events'", "'first'", "'last'", 
-		"'insert'", "'into'", "'values'", "'order'", "'asc'", "'desc'", "'rstream'", 
-		"'istream'", "'irstream'", "'schema'", "'unidirectional'", "'retain-union'", 
-		"'retain-intersection'", "'pattern'", "'sql'", "'metadatasql'", "'prev'", 
-		"'prevtail'", "'prevcount'", "'prevwindow'", "'prior'", "'exists'", "'weekday'", 
-		"'lastweekday'", "'instanceof'", "'typeof'", "'cast'", "'current_timestamp'", 
-		"'delete'", "'snapshot'", "'set'", "'variable'", "'table'", "'until'", 
-		"'at'", "'index'", "'year'", "'years'", "'month'", "'months'", "'week'", 
-		"'weeks'", "'day'", "'days'", "'hour'", "'hours'", "'minute'", "'minutes'", 
-		"'sec'", "'second'", "'seconds'", "'msec'", "'millisecond'", "'milliseconds'", 
-		"'usec'", "'microsecond'", "'microseconds'", "'true'", "'false'", "'null'", 
-		"'limit'", "'offset'", "'update'", "'match_recognize'", "'match_recognize_permute'", 
-		"'measures'", "'define'", "'partition'", "'matches'", "'after'", "'for'", 
-		"'while'", "'using'", "'merge'", "'matched'", "'expression'", "'new'", 
-		"'start'", "'context'", "'initiated'", "'terminated'", "'dataflow'", "'cube'", 
-		"'rollup'", "'grouping'", "'grouping_id'", "'sets'", "'-['", "']>'", "'->'", 
-		"'=>'", "'='", "'<>'", "'?'", "'('", "')'", "'['", "']'", "'{'", "'}'", 
-		"':'", "','", "'=='", "'!'", "'~'", "'!='", "'/'", "'/='", "'+'", "'+='", 
-		"'++'", "'-'", "'-='", "'--'", "'*'", "'*='", "'%'", "'%='", "'>='", "'>'", 
-		"'<='", "'<'", "'^'", "'^='", "'|'", "'|='", "'||'", "'&'", "'&='", "'&&'", 
-		"';'", "'.'", "'\u18FF'", "'\u18FE'", "'\u18FD'", "'\\'", "'`'", "'@'", 
-		"'#'"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, "CREATE", "WINDOW", "IN_SET", "BETWEEN", "LIKE", "REGEXP", "ESCAPE", 
-		"OR_EXPR", "AND_EXPR", "NOT_EXPR", "EVERY_EXPR", "EVERY_DISTINCT_EXPR", 
-		"WHERE", "AS", "SUM", "AVG", "MAX", "MIN", "COALESCE", "MEDIAN", "STDDEV", 
-		"AVEDEV", "COUNT", "SELECT", "CASE", "ELSE", "WHEN", "THEN", "END", "FROM", 
-		"OUTER", "INNER", "JOIN", "LEFT", "RIGHT", "FULL", "ON", "IS", "BY", "GROUP", 
-		"HAVING", "DISTINCT", "ALL", "ANY", "SOME", "OUTPUT", "EVENTS", "FIRST", 
-		"LAST", "INSERT", "INTO", "VALUES", "ORDER", "ASC", "DESC", "RSTREAM", 
-		"ISTREAM", "IRSTREAM", "SCHEMA", "UNIDIRECTIONAL", "RETAINUNION", "RETAININTERSECTION", 
-		"PATTERN", "SQL", "METADATASQL", "PREVIOUS", "PREVIOUSTAIL", "PREVIOUSCOUNT", 
-		"PREVIOUSWINDOW", "PRIOR", "EXISTS", "WEEKDAY", "LW", "INSTANCEOF", "TYPEOF", 
-		"CAST", "CURRENT_TIMESTAMP", "DELETE", "SNAPSHOT", "SET", "VARIABLE", 
-		"TABLE", "UNTIL", "AT", "INDEX", "TIMEPERIOD_YEAR", "TIMEPERIOD_YEARS", 
-		"TIMEPERIOD_MONTH", "TIMEPERIOD_MONTHS", "TIMEPERIOD_WEEK", "TIMEPERIOD_WEEKS", 
-		"TIMEPERIOD_DAY", "TIMEPERIOD_DAYS", "TIMEPERIOD_HOUR", "TIMEPERIOD_HOURS", 
-		"TIMEPERIOD_MINUTE", "TIMEPERIOD_MINUTES", "TIMEPERIOD_SEC", "TIMEPERIOD_SECOND", 
-		"TIMEPERIOD_SECONDS", "TIMEPERIOD_MILLISEC", "TIMEPERIOD_MILLISECOND", 
-		"TIMEPERIOD_MILLISECONDS", "TIMEPERIOD_MICROSEC", "TIMEPERIOD_MICROSECOND", 
-		"TIMEPERIOD_MICROSECONDS", "BOOLEAN_TRUE", "BOOLEAN_FALSE", "VALUE_NULL", 
-		"ROW_LIMIT_EXPR", "OFFSET", "UPDATE", "MATCH_RECOGNIZE", "MATCH_RECOGNIZE_PERMUTE", 
-		"MEASURES", "DEFINE", "PARTITION", "MATCHES", "AFTER", "FOR", "WHILE", 
-		"USING", "MERGE", "MATCHED", "EXPRESSIONDECL", "NEWKW", "START", "CONTEXT", 
-		"INITIATED", "TERMINATED", "DATAFLOW", "CUBE", "ROLLUP", "GROUPING", "GROUPING_ID", 
-		"SETS", "FOLLOWMAX_BEGIN", "FOLLOWMAX_END", "FOLLOWED_BY", "GOES", "EQUALS", 
-		"SQL_NE", "QUESTION", "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LCURLY", 
-		"RCURLY", "COLON", "COMMA", "EQUAL", "LNOT", "BNOT", "NOT_EQUAL", "DIV", 
-		"DIV_ASSIGN", "PLUS", "PLUS_ASSIGN", "INC", "MINUS", "MINUS_ASSIGN", "DEC", 
-		"STAR", "STAR_ASSIGN", "MOD", "MOD_ASSIGN", "GE", "GT", "LE", "LT", "BXOR", 
-		"BXOR_ASSIGN", "BOR", "BOR_ASSIGN", "LOR", "BAND", "BAND_ASSIGN", "LAND", 
-		"SEMI", "DOT", "NUM_LONG", "NUM_DOUBLE", "NUM_FLOAT", "ESCAPECHAR", "ESCAPEBACKTICK", 
-		"ATCHAR", "HASHCHAR", "WS", "SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", 
-		"QUOTED_STRING_LITERAL", "STRING_LITERAL", "IDENT", "IntegerLiteral", 
-		"FloatingPointLiteral"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'create'", "'window'", "'in'", "'between'", "'like'", "'regexp'", 
+			"'escape'", "'or'", "'and'", "'not'", "'every'", "'every-distinct'", 
+			"'where'", "'as'", "'sum'", "'avg'", "'max'", "'min'", "'coalesce'", 
+			"'median'", "'stddev'", "'avedev'", "'count'", "'select'", "'case'", 
+			"'else'", "'when'", "'then'", "'end'", "'from'", "'outer'", "'inner'", 
+			"'join'", "'left'", "'right'", "'full'", "'on'", "'is'", "'by'", "'group'", 
+			"'having'", "'distinct'", "'all'", "'any'", "'some'", "'output'", "'events'", 
+			"'first'", "'last'", "'insert'", "'into'", "'values'", "'order'", "'asc'", 
+			"'desc'", "'rstream'", "'istream'", "'irstream'", "'schema'", "'unidirectional'", 
+			"'retain-union'", "'retain-intersection'", "'pattern'", "'sql'", "'metadatasql'", 
+			"'prev'", "'prevtail'", "'prevcount'", "'prevwindow'", "'prior'", "'exists'", 
+			"'weekday'", "'lastweekday'", "'instanceof'", "'typeof'", "'cast'", "'current_timestamp'", 
+			"'delete'", "'snapshot'", "'set'", "'variable'", "'table'", "'until'", 
+			"'at'", "'index'", "'year'", "'years'", "'month'", "'months'", "'week'", 
+			"'weeks'", "'day'", "'days'", "'hour'", "'hours'", "'minute'", "'minutes'", 
+			"'sec'", "'second'", "'seconds'", "'msec'", "'millisecond'", "'milliseconds'", 
+			"'usec'", "'microsecond'", "'microseconds'", "'true'", "'false'", "'null'", 
+			"'limit'", "'offset'", "'update'", "'match_recognize'", "'match_recognize_permute'", 
+			"'measures'", "'define'", "'partition'", "'matches'", "'after'", "'for'", 
+			"'while'", "'using'", "'merge'", "'matched'", "'expression'", "'new'", 
+			"'start'", "'context'", "'initiated'", "'terminated'", "'dataflow'", 
+			"'cube'", "'rollup'", "'grouping'", "'grouping_id'", "'sets'", "'-['", 
+			"']>'", "'->'", "'=>'", "'='", "'<>'", "'?'", "'('", "')'", "'['", "']'", 
+			"'{'", "'}'", "':'", "','", "'=='", "'!'", "'~'", "'!='", "'/'", "'/='", 
+			"'+'", "'+='", "'++'", "'-'", "'-='", "'--'", "'*'", "'*='", "'%'", "'%='", 
+			"'>='", "'>'", "'<='", "'<'", "'^'", "'^='", "'|'", "'|='", "'||'", "'&'", 
+			"'&='", "'&&'", "';'", "'.'", "'\u18FF'", "'\u18FE'", "'\u18FD'", "'\\'", 
+			"'`'", "'@'", "'#'"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, "CREATE", "WINDOW", "IN_SET", "BETWEEN", "LIKE", "REGEXP", "ESCAPE", 
+			"OR_EXPR", "AND_EXPR", "NOT_EXPR", "EVERY_EXPR", "EVERY_DISTINCT_EXPR", 
+			"WHERE", "AS", "SUM", "AVG", "MAX", "MIN", "COALESCE", "MEDIAN", "STDDEV", 
+			"AVEDEV", "COUNT", "SELECT", "CASE", "ELSE", "WHEN", "THEN", "END", "FROM", 
+			"OUTER", "INNER", "JOIN", "LEFT", "RIGHT", "FULL", "ON", "IS", "BY", 
+			"GROUP", "HAVING", "DISTINCT", "ALL", "ANY", "SOME", "OUTPUT", "EVENTS", 
+			"FIRST", "LAST", "INSERT", "INTO", "VALUES", "ORDER", "ASC", "DESC", 
+			"RSTREAM", "ISTREAM", "IRSTREAM", "SCHEMA", "UNIDIRECTIONAL", "RETAINUNION", 
+			"RETAININTERSECTION", "PATTERN", "SQL", "METADATASQL", "PREVIOUS", "PREVIOUSTAIL", 
+			"PREVIOUSCOUNT", "PREVIOUSWINDOW", "PRIOR", "EXISTS", "WEEKDAY", "LW", 
+			"INSTANCEOF", "TYPEOF", "CAST", "CURRENT_TIMESTAMP", "DELETE", "SNAPSHOT", 
+			"SET", "VARIABLE", "TABLE", "UNTIL", "AT", "INDEX", "TIMEPERIOD_YEAR", 
+			"TIMEPERIOD_YEARS", "TIMEPERIOD_MONTH", "TIMEPERIOD_MONTHS", "TIMEPERIOD_WEEK", 
+			"TIMEPERIOD_WEEKS", "TIMEPERIOD_DAY", "TIMEPERIOD_DAYS", "TIMEPERIOD_HOUR", 
+			"TIMEPERIOD_HOURS", "TIMEPERIOD_MINUTE", "TIMEPERIOD_MINUTES", "TIMEPERIOD_SEC", 
+			"TIMEPERIOD_SECOND", "TIMEPERIOD_SECONDS", "TIMEPERIOD_MILLISEC", "TIMEPERIOD_MILLISECOND", 
+			"TIMEPERIOD_MILLISECONDS", "TIMEPERIOD_MICROSEC", "TIMEPERIOD_MICROSECOND", 
+			"TIMEPERIOD_MICROSECONDS", "BOOLEAN_TRUE", "BOOLEAN_FALSE", "VALUE_NULL", 
+			"ROW_LIMIT_EXPR", "OFFSET", "UPDATE", "MATCH_RECOGNIZE", "MATCH_RECOGNIZE_PERMUTE", 
+			"MEASURES", "DEFINE", "PARTITION", "MATCHES", "AFTER", "FOR", "WHILE", 
+			"USING", "MERGE", "MATCHED", "EXPRESSIONDECL", "NEWKW", "START", "CONTEXT", 
+			"INITIATED", "TERMINATED", "DATAFLOW", "CUBE", "ROLLUP", "GROUPING", 
+			"GROUPING_ID", "SETS", "FOLLOWMAX_BEGIN", "FOLLOWMAX_END", "FOLLOWED_BY", 
+			"GOES", "EQUALS", "SQL_NE", "QUESTION", "LPAREN", "RPAREN", "LBRACK", 
+			"RBRACK", "LCURLY", "RCURLY", "COLON", "COMMA", "EQUAL", "LNOT", "BNOT", 
+			"NOT_EQUAL", "DIV", "DIV_ASSIGN", "PLUS", "PLUS_ASSIGN", "INC", "MINUS", 
+			"MINUS_ASSIGN", "DEC", "STAR", "STAR_ASSIGN", "MOD", "MOD_ASSIGN", "GE", 
+			"GT", "LE", "LT", "BXOR", "BXOR_ASSIGN", "BOR", "BOR_ASSIGN", "LOR", 
+			"BAND", "BAND_ASSIGN", "LAND", "SEMI", "DOT", "NUM_LONG", "NUM_DOUBLE", 
+			"NUM_FLOAT", "ESCAPECHAR", "ESCAPEBACKTICK", "ATCHAR", "HASHCHAR", "WS", 
+			"SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", "QUOTED_STRING_LITERAL", 
+			"STRING_LITERAL", "IDENT", "IntegerLiteral", "FloatingPointLiteral"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
 	/**
@@ -562,6 +572,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
+
 	public static class StartEPLExpressionRuleContext extends ParserRuleContext {
 		public EplExpressionContext eplExpression() {
 			return getRuleContext(EplExpressionContext.class,0);
@@ -1135,6 +1146,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ElementValuePairsEnumContext elementValuePairsEnum() {
 			return getRuleContext(ElementValuePairsEnumContext.class,0);
 		}
@@ -1274,6 +1287,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		public KeywordAllowedIdentContext keywordAllowedIdent() {
 			return getRuleContext(KeywordAllowedIdentContext.class,0);
 		}
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public ElementValueEnumContext elementValueEnum() {
 			return getRuleContext(ElementValueEnumContext.class,0);
 		}
@@ -1401,11 +1415,17 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ElementValueArrayEnumContext extends ParserRuleContext {
+		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
+		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
 		public List<ElementValueEnumContext> elementValueEnum() {
 			return getRuleContexts(ElementValueEnumContext.class);
 		}
 		public ElementValueEnumContext elementValueEnum(int i) {
 			return getRuleContext(ElementValueEnumContext.class,i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
 		public ElementValueArrayEnumContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
