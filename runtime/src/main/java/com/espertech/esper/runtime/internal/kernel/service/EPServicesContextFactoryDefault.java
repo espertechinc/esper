@@ -125,7 +125,7 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
         return PatternFactoryServiceImpl.INSTANCE;
     }
 
-    protected EventTypeFactory makeEventTypeFactory(RuntimeExtensionServices runtimeExt, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, DeploymentLifecycleServiceImpl deploymentLifecycleService) {
+    protected EventTypeFactory makeEventTypeFactory(RuntimeExtensionServices runtimeExt, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, DeploymentLifecycleServiceImpl deploymentLifecycleService, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
         return EventTypeFactoryImpl.INSTANCE;
     }
 

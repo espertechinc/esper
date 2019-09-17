@@ -138,7 +138,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
     protected abstract ViewFactoryService makeViewFactoryService();
 
-    protected abstract EventTypeFactory makeEventTypeFactory(RuntimeExtensionServices runtimeExt, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, DeploymentLifecycleServiceImpl deploymentLifecycleService);
+    protected abstract EventTypeFactory makeEventTypeFactory(RuntimeExtensionServices runtimeExt, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, DeploymentLifecycleServiceImpl deploymentLifecycleService, EventBeanTypedEventFactory eventBeanTypedEventFactory);
 
     protected abstract EventTypeResolvingBeanFactory makeEventTypeResolvingBeanFactory(EventTypeRepository eventTypeRepository, EventTypeAvroHandler eventTypeAvroHandler);
 
@@ -204,7 +204,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         EventBeanTypedEventFactory eventBeanTypedEventFactory = makeEventBeanTypedEventFactory(eventTypeAvroHandler);
         BeanEventTypeStemService beanEventTypeStemService = BeanEventTypeRepoUtil.makeBeanEventTypeStemService(configs, resolvedBeanEventTypes, eventBeanTypedEventFactory);
         EventTypeRepositoryImpl eventTypeRepositoryPreconfigured = new EventTypeRepositoryImpl(false);
-        EventTypeFactory eventTypeFactory = makeEventTypeFactory(epServicesHA.getRuntimeExtensionServices(), eventTypeRepositoryPreconfigured, deploymentLifecycleService);
+        EventTypeFactory eventTypeFactory = makeEventTypeFactory(epServicesHA.getRuntimeExtensionServices(), eventTypeRepositoryPreconfigured, deploymentLifecycleService, eventBeanTypedEventFactory);
         BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate = new BeanEventTypeFactoryPrivate(eventBeanTypedEventFactory, eventTypeFactory, beanEventTypeStemService);
         EventTypeRepositoryBeanTypeUtil.buildBeanTypes(beanEventTypeStemService, eventTypeRepositoryPreconfigured, resolvedBeanEventTypes, beanEventTypeFactoryPrivate, configs.getCommon().getEventTypesBean());
         EventTypeRepositoryMapTypeUtil.buildMapTypes(eventTypeRepositoryPreconfigured, configs.getCommon().getMapTypeConfigurations(), configs.getCommon().getEventTypesMapEvents(), configs.getCommon().getEventTypesNestableMapEvents(), beanEventTypeFactoryPrivate, classpathImportServiceRuntime);
