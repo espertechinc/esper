@@ -51,7 +51,7 @@ public class TestConfig extends TestCase {
         assertEquals("jdbc:mysql://localhost/test", dsFactory.getProperties().getProperty("url"));
         assertEquals("myusername", dsFactory.getProperties().getProperty("username"));
         assertEquals("mypassword", dsFactory.getProperties().getProperty("password"));
-        assertEquals("com.mysql.jdbc.Driver", dsFactory.getProperties().getProperty("driverClassName"));
+        assertEquals("com.mysql.cj.jdbc.Driver", dsFactory.getProperties().getProperty("driverClassName"));
         assertEquals("2", dsFactory.getProperties().getProperty("initialSize"));
         assertEquals((Boolean) true, connection.getConnectionSettings().getAutoCommit());
         assertEquals("TEST", connection.getConnectionSettings().getCatalog());

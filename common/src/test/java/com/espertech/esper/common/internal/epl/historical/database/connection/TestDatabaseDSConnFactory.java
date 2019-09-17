@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.database.connection;
 
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
 import com.espertech.esper.common.internal.supportunit.util.SupportInitialContextFactory;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

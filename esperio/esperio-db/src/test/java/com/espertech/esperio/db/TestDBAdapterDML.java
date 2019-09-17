@@ -34,7 +34,7 @@ public class TestDBAdapterDML extends TestCase {
     public void testDML() throws InterruptedException, SQLException, NamingException {
         String esperIODBConfig = "<esperio-db-configuration>\n" +
             "<jdbc-connection name=\"db1\">\n" +
-            "<drivermanager-connection class-name=\"com.mysql.jdbc.Driver\" url=\"jdbc:mysql://localhost/test\" user=\"root\" password=\"password\"/>\n" +
+            "<drivermanager-connection class-name=\"com.mysql.cj.jdbc.Driver\" url=\"jdbc:mysql://localhost/test\" user=\"root\" password=\"password\"/>\n" +
             "<connection-settings auto-commit=\"true\" catalog=\"TEST\"/>" +
             "</jdbc-connection>\n" +
             "<dml connection=\"db1\" stream=\"SupportDBBean\" name=\"MyInsertQuery\" retry=\"10\" retry-interval-sec=\"0.1\">\n" +

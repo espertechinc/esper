@@ -13,7 +13,6 @@ package com.espertech.esper.compiler.internal.util;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
-import org.codehaus.commons.compiler.ICookable;
 import org.codehaus.janino.ClassLoaderIClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
@@ -41,8 +40,8 @@ public class JaninoCompiler {
         try {
 
             String optionalFileName = null;
-            if (Boolean.getBoolean(ICookable.SYSTEM_PROPERTY_SOURCE_DEBUGGING_ENABLE)) {
-                String dirName = System.getProperty(ICookable.SYSTEM_PROPERTY_SOURCE_DEBUGGING_DIR);
+            if (Boolean.getBoolean(Scanner.SYSTEM_PROPERTY_SOURCE_DEBUGGING_ENABLE)) {
+                String dirName = System.getProperty(Scanner.SYSTEM_PROPERTY_SOURCE_DEBUGGING_DIR);
                 if (dirName == null) {
                     dirName = System.getProperty("java.io.tmpdir");
                 }
@@ -73,12 +72,12 @@ public class JaninoCompiler {
             }
 
             org.codehaus.janino.Scanner scanner = new Scanner(optionalFileName, new ByteArrayInputStream(
-                    code.getBytes("UTF-8")), "UTF-8");
+                code.getBytes("UTF-8")), "UTF-8");
 
             ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(classes, classLoader);
             UnitCompiler unitCompiler = new UnitCompiler(
-                    new Parser(scanner).parseCompilationUnit(),
-                    new ClassLoaderIClassLoader(cl));
+                new Parser(scanner).parseAbstractCompilationUnit(),
+                new ClassLoaderIClassLoader(cl));
             ClassFile[] classFiles = unitCompiler.compileUnit(true, true, true);
             for (int i = 0; i < classFiles.length; i++) {
                 classes.put(classFiles[i].getThisClassName(), classFiles[i].toByteArray());

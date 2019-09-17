@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.historical.database.connection;
 public class SupportDatabaseURL {
     public final static String DBUSER = "root";
     public final static String DBPWD = "password";
-    public final static String DRIVER = "com.mysql.jdbc.Driver";
+    public final static String DRIVER = "com.mysql.cj.jdbc.Driver";
     public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password";
     public final static String PARTURL = "jdbc:mysql://localhost/test";
 }
