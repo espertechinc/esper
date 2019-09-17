@@ -16,6 +16,7 @@ import java.io.Serializable;
  * Configuration information for plugging in a custom date-time-method.
  */
 public class ConfigurationCompilerPlugInDateTimeMethod implements Serializable {
+    private static final long serialVersionUID = -4579063488141566429L;
     private String name;
     private String forgeClassName;
 

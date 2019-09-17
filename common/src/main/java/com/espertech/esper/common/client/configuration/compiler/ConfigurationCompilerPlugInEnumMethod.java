@@ -16,6 +16,7 @@ import java.io.Serializable;
  * Configuration information for plugging in a custom enum-method.
  */
 public class ConfigurationCompilerPlugInEnumMethod implements Serializable {
+    private static final long serialVersionUID = -4414046491655942924L;
     private String name;
     private String forgeClassName;
 
