@@ -16,4 +16,4 @@ fi
 
 SOURCEPATH=../src/main/java
 
-${JAVA_HOME}/bin/javac -cp ${CLASSPATH} -d ../target/classes -source 1.8 -sourcepath ${SOURCEPATH} ${SOURCEPATH}/com/espertech/esper/example/stocktickermain/StockTickerMain.java
+${JAVA_HOME}/bin/javac -cp ${CLASSPATH} -d ../target/classes -source 1.8 -sourcepath ${SOURCEPATH} ${SOURCEPATH}/com/espertech/esper/example/stockticker/StockTickerMain.java
