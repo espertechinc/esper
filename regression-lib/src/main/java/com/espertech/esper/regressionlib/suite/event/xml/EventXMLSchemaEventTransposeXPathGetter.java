@@ -71,7 +71,7 @@ public class EventXMLSchemaEventTransposeXPathGetter {
         assertNull(type.getFragmentType("nested1"));
         assertNull(type.getFragmentType("nested1.nested2"));
 
-        SupportXML.sendDefaultEvent(env.eventService(), "ABC", "TestXMLSchemaTypeWithSS");
+        SupportXML.sendDefaultEvent(env.eventService(), "ABC", eventTypeName);
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").iterator().next());
 
         env.undeployAll();
