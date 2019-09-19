@@ -1,5 +1,6 @@
 Esper Changelog
 ===================
+
 Changes in version 8.3.0
 ------------------------
   - The following dependent jar files are upgraded:
@@ -7,6 +8,20 @@ Changes in version 8.3.0
     - ANTLR is now 4.7.2 (antlr4-runtime-4.7.2.jar, previously antlr-runtime-4.7.1.jar)  
     - Janino is now 3.1.0 (commons-compiler-3.1.0.jar and janino-3.1.0.jar, previously *3.0.10.jar)  
     - Avro (optional) is now 1.9.1 (avro-1.9.1.jar, previously avro-1.8.2)
+  - Support for create-xml-schema allowing dynamic XML type definition
+  - Support for defining a deployment-specific class loader
+  - Support for defining new enumeration methods
+  - Support for defining new datetime methods
+  - Support for using application-provided classes with JSON event type
+  - Support for customizing JSON parsing
+  - Reduced memory use when there are many partitions
+  - Fixed issue #166 Partitioned context with pattern that reacts on named window events not applying partition-related filters
+  - Fixed issue #169 Subquery against named window ignores filter criteria that are placed in parens
+  - Fixed issue NDJ-568-23909 Bean event types mismatch error inserting into existing stream
+  - Fixed issue WXG-492-37246 Serde for select-distinct should not be required
+  - Fixed issue YHA-580-65208: Event type incompatible after using copy-from with class-type properties for Map schema
+  - Fixed issue DQK-539-38630 NPE parsing JSON having array value that should not be there
+  - Many other smaller improvements not listed here
 
 Changes in version 8.2.0
 ------------------------
