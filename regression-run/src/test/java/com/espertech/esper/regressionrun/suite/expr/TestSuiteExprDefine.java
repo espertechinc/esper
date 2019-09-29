@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.suite.expr.define.ExprDefineAliasFor;
 import com.espertech.esper.regressionlib.suite.expr.define.ExprDefineBasic;
 import com.espertech.esper.regressionlib.suite.expr.define.ExprDefineLambdaLocReport;
+import com.espertech.esper.regressionlib.suite.expr.define.ExprDefineValueParameter;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.lrreport.LRUtil;
 import com.espertech.esper.regressionlib.support.lrreport.LocationReport;
@@ -49,6 +50,10 @@ public class TestSuiteExprDefine extends TestCase {
         RegressionRunner.run(session, new ExprDefineLambdaLocReport());
     }
 
+    public void testExprDefineValueParameter() {
+        RegressionRunner.run(session, ExprDefineValueParameter.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
             SupportBean_ST0.class, SupportBean_ST1.class, SupportBean_ST0_Container.class, SupportCollection.class,
@@ -57,5 +62,6 @@ public class TestSuiteExprDefine extends TestCase {
         }
 
         configuration.getCommon().addImport(LRUtil.class);
+        configuration.getCommon().addImport(ExprDefineValueParameter.ExprDefineLocalService.class);
     }
 }

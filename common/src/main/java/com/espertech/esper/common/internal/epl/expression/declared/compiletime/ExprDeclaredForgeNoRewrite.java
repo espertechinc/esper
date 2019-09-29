@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstantType;
 
@@ -23,11 +24,11 @@ public class ExprDeclaredForgeNoRewrite extends ExprDeclaredForgeBase {
         super(parent, innerForge, isCache, audit, statementName);
     }
 
-    public EventBean[] getEventsPerStreamRewritten(EventBean[] eventsPerStream) {
+    public EventBean[] getEventsPerStreamRewritten(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return eventsPerStream;
     }
 
-    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenExpression isNewData, CodegenExpression exprEvalCtx, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return eventsPerStream;
     }
 

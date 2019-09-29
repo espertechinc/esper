@@ -48,9 +48,9 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
     private transient ExprEnumerationEval innerEvaluatorLambdaLazy;
     private transient ExprTypableReturnEval innerEvaluatorTypableLazy;
 
-    public abstract EventBean[] getEventsPerStreamRewritten(EventBean[] eventsPerStream);
+    public abstract EventBean[] getEventsPerStreamRewritten(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
-    protected abstract CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    protected abstract CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenExpression isNewData, CodegenExpression exprEvalCtx, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 
     public ExprDeclaredForgeBase(ExprDeclaredNodeImpl parent, ExprForge innerForge, boolean isCache, boolean audit, String statementName) {
         this.parent = parent;
@@ -114,7 +114,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
 
     public final Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         initInnerEvaluator();
-        eventsPerStream = getEventsPerStreamRewritten(eventsPerStream);
+        eventsPerStream = getEventsPerStreamRewritten(eventsPerStream, isNewData, context);
         return innerEvaluatorLazy.evaluate(eventsPerStream, isNewData, context);
     }
 
@@ -158,7 +158,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
+                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, refIsNewData, refExprEvalCtx, methodNode, codegenClassScope))
                 .methodReturn(localMethod(evaluateCodegenRewritten(requiredType, methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
         return localMethod(methodNode);
     }
@@ -199,7 +199,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
 
     public final Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         initInnerEvaluatorLambda();
-        eventsPerStream = getEventsPerStreamRewritten(eventsPerStream);
+        eventsPerStream = getEventsPerStreamRewritten(eventsPerStream, isNewData, context);
         Collection<EventBean> result = innerEvaluatorLambdaLazy.evaluateGetROCollectionEvents(eventsPerStream, isNewData, context);
         return result;
     }
@@ -210,7 +210,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
+                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, refIsNewData, refExprEvalCtx, methodNode, codegenClassScope))
                 .methodReturn(localMethod(evaluateGetROCollectionEventsCodegenRewritten(methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
         return localMethod(methodNode);
     }
@@ -245,7 +245,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         initInnerEvaluatorLambda();
-        eventsPerStream = getEventsPerStreamRewritten(eventsPerStream);
+        eventsPerStream = getEventsPerStreamRewritten(eventsPerStream, isNewData, context);
         return innerEvaluatorLambdaLazy.evaluateGetROCollectionScalar(eventsPerStream, isNewData, context);
     }
 
@@ -255,7 +255,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
+                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, refIsNewData, refExprEvalCtx, methodNode, codegenClassScope))
                 .methodReturn(localMethod(evaluateGetROCollectionScalarCodegenRewritten(methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
         return localMethod(methodNode);
     }

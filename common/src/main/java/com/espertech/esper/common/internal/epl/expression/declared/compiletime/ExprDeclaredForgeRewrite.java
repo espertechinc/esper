@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstantType;
 
@@ -29,7 +30,7 @@ public class ExprDeclaredForgeRewrite extends ExprDeclaredForgeBase {
         this.streamAssignments = streamAssignments;
     }
 
-    public EventBean[] getEventsPerStreamRewritten(EventBean[] eps) {
+    public EventBean[] getEventsPerStreamRewritten(EventBean[] eps, boolean isNewData, ExprEvaluatorContext context) {
 
         // rewrite streams
         EventBean[] events = new EventBean[streamAssignments.length];
@@ -44,7 +45,7 @@ public class ExprDeclaredForgeRewrite extends ExprDeclaredForgeBase {
         return ExprForgeConstantType.NONCONST;
     }
 
-    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenExpression isNewData, CodegenExpression exprEvalCtx, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenBlock block = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewrite.class, codegenClassScope).addParam(EventBean[].class, "eps").getBlock()
                 .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(streamAssignments.length)));
         for (int i = 0; i < streamAssignments.length; i++) {

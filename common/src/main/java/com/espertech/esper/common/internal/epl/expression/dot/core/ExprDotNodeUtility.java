@@ -23,6 +23,7 @@ import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
@@ -55,9 +56,17 @@ public class ExprDotNodeUtility {
     public static ObjectArrayEventType makeTransientOAType(String enumMethod, String propertyName, Class type, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
         Map<String, Object> propsResult = new HashMap<>();
         propsResult.put(propertyName, JavaClassHelper.getBoxedType(type));
-        String eventTypeName = services.getEventTypeNameGeneratorStatement().getAnonymousTypeNameEnumMethod(enumMethod, propertyName);
+        return makeTransientOATypeInternal(enumMethod, propsResult, propertyName, statementRawInfo, services);
+    }
+
+    public static ObjectArrayEventType makeTransientOAType(String enumMethod, Map<String, Object> boxedPropertyTypes, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+        return makeTransientOATypeInternal(enumMethod, boxedPropertyTypes, CodeGenerationIDGenerator.generateClassNameUUID(), statementRawInfo, services);
+    }
+
+    private static ObjectArrayEventType makeTransientOATypeInternal(String enumMethod, Map<String, Object> boxedPropertyTypes, String eventTypeNameUUid, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+        String eventTypeName = services.getEventTypeNameGeneratorStatement().getAnonymousTypeNameEnumMethod(enumMethod, eventTypeNameUUid);
         EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, statementRawInfo.getModuleName(), EventTypeTypeClass.ENUMDERIVED, EventTypeApplicationType.OBJECTARR, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
-        ObjectArrayEventType oatype = BaseNestableEventUtil.makeOATypeCompileTime(metadata, propsResult, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
+        ObjectArrayEventType oatype = BaseNestableEventUtil.makeOATypeCompileTime(metadata, boxedPropertyTypes, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
         services.getEventTypeCompileTimeRegistry().newType(oatype);
         return oatype;
     }

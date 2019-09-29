@@ -136,6 +136,29 @@ public class ExprNodeUtilityCodegen {
         return evaluator;
     }
 
+    public static CodegenMethod codegenEvalMethodReturnObjectArray(ExprForge[] forges, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+        CodegenMethod evaluateMethod = method.makeChild(Object[].class, generator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+
+        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
+        CodegenMethod exprMethod = evaluateMethod.makeChildWithScope(Object[].class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+
+        CodegenExpression[] expressions = new CodegenExpression[forges.length];
+        for (int i = 0; i < forges.length; i++) {
+            expressions[i] = forges[i].evaluateCodegen(forges[i].getEvaluationType(), exprMethod, exprSymbol, classScope);
+        }
+        exprSymbol.derivedSymbolsCodegen(evaluateMethod, exprMethod.getBlock(), classScope);
+
+        exprMethod.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(forges.length)));
+        for (int i = 0; i < forges.length; i++) {
+            CodegenExpression result = expressions[i];
+            exprMethod.getBlock().assignArrayElement("values", constant(i), result);
+        }
+        exprMethod.getBlock().methodReturn(ref("values"));
+        evaluateMethod.getBlock().methodReturn(localMethod(exprMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+
+        return evaluateMethod;
+    }
+
     public static CodegenMethod codegenMapSelect(ExprNode[] selectClause, String[] selectAsNames, Class generator, CodegenMethodScope parent, CodegenClassScope classScope) {
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
         CodegenMethod method = parent.makeChildWithScope(Map.class, generator, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);

@@ -23,14 +23,17 @@ import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDes
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDeclaredOrLambdaNode;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeUtility;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentVisitorWParent;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
+import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Expression instance as declared elsewhere.
  */
 public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNode, ExprDeclaredOrLambdaNode, ExprFilterOptimizableNode, ExprNodeInnerNodeProvider, ExprConstantNode {
+    private final static String INTERNAL_VALUE_STREAMNAME = "esper_declared_expr_internal";
     private final ExpressionDeclItem prototypeWVisibility;
     private List<ExprNode> chainParameters;
     private transient ExprForge forge;
@@ -155,36 +159,75 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         // validate parameter count
         checkParameterCount();
 
-        // create context for expression body
-        EventType[] eventTypes = new EventType[prototype.getParametersNames().length];
-        String[] streamNames = new String[prototype.getParametersNames().length];
-        boolean[] isIStreamOnly = new boolean[prototype.getParametersNames().length];
-        int[] streamsIdsPerStream = new int[prototype.getParametersNames().length];
-        boolean allStreamIdsMatch = true;
-
+        // collect event and value (non-event) parameters
+        List<Integer> valueParameters = new ArrayList<>();
+        List<Integer> eventParameters = new ArrayList<>();
         for (int i = 0; i < prototype.getParametersNames().length; i++) {
             ExprNode parameter = chainParameters.get(i);
-            streamNames[i] = prototype.getParametersNames()[i];
+            if (!(parameter instanceof ExprStreamUnderlyingNode) && !(parameter instanceof ExprWildcard)) {
+                valueParameters.add(i);
+            } else {
+                eventParameters.add(i);
+            }
+        }
+
+        // determine value event type for holding non-event parameter values, if any
+        ObjectArrayEventType valueEventType = null;
+        List<ExprNode> valueExpressions = new ArrayList<>(valueParameters.size());
+        if (!valueParameters.isEmpty()) {
+            Map<String, Object> valuePropertyTypes = new LinkedHashMap<>();
+            for (int index : valueParameters) {
+                String name = prototype.getParametersNames()[index];
+                ExprNode expr = chainParameters.get(index);
+                Class result = JavaClassHelper.getBoxedType(expr.getForge().getEvaluationType());
+                valuePropertyTypes.put(name, result);
+                valueExpressions.add(expr);
+            }
+            valueEventType = ExprDotNodeUtility.makeTransientOAType(prototypeWVisibility.getName(), valuePropertyTypes, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+        }
+
+        // create context for expression body
+        int numEventTypes = eventParameters.size() + (valueEventType == null ? 0 : 1);
+        EventType[] eventTypes = new EventType[numEventTypes];
+        String[] streamNames = new String[numEventTypes];
+        boolean[] isIStreamOnly = new boolean[numEventTypes];
+        int[] streamsIdsPerStream = new int[numEventTypes];
+        boolean allStreamIdsMatch = true;
+
+        int offsetEventType = 0;
+        if (valueEventType != null) {
+            offsetEventType = 1;
+            eventTypes[0] = valueEventType;
+            streamNames[0] = INTERNAL_VALUE_STREAMNAME;
+            isIStreamOnly[0] = true;
+            streamsIdsPerStream[0] = -1;
+            allStreamIdsMatch = false;
+        }
+
+        for (int index : eventParameters) {
+            ExprNode parameter = chainParameters.get(index);
+            streamNames[offsetEventType] = prototype.getParametersNames()[index];
 
             if (parameter instanceof ExprStreamUnderlyingNode) {
                 ExprStreamUnderlyingNode und = (ExprStreamUnderlyingNode) parameter;
-                eventTypes[i] = validationContext.getStreamTypeService().getEventTypes()[und.getStreamId()];
-                isIStreamOnly[i] = validationContext.getStreamTypeService().getIStreamOnly()[und.getStreamId()];
-                streamsIdsPerStream[i] = und.getStreamId();
+                eventTypes[offsetEventType] = validationContext.getStreamTypeService().getEventTypes()[und.getStreamId()];
+                isIStreamOnly[offsetEventType] = validationContext.getStreamTypeService().getIStreamOnly()[und.getStreamId()];
+                streamsIdsPerStream[offsetEventType] = und.getStreamId();
             } else if (parameter instanceof ExprWildcard) {
                 if (validationContext.getStreamTypeService().getEventTypes().length != 1) {
                     throw new ExprValidationException("Expression '" + prototype.getName() + "' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead");
                 }
-                eventTypes[i] = validationContext.getStreamTypeService().getEventTypes()[0];
-                isIStreamOnly[i] = validationContext.getStreamTypeService().getIStreamOnly()[0];
-                streamsIdsPerStream[i] = 0;
+                eventTypes[offsetEventType] = validationContext.getStreamTypeService().getEventTypes()[0];
+                isIStreamOnly[offsetEventType] = validationContext.getStreamTypeService().getIStreamOnly()[0];
+                streamsIdsPerStream[offsetEventType] = 0;
             } else {
-                throw new ExprValidationException("Expression '" + prototype.getName() + "' requires a stream name as a parameter");
+                throw new IllegalStateException("Unrecognized event-parameter expression");
             }
 
-            if (streamsIdsPerStream[i] != i) {
+            if (streamsIdsPerStream[offsetEventType] != index) {
                 allStreamIdsMatch = false;
             }
+            offsetEventType++;
         }
 
         StreamTypeService streamTypeService = validationContext.getStreamTypeService();
@@ -212,11 +255,13 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         if (expressionBodyCopy.getForge().getForgeConstantType().isConstant()) {
             // pre-evaluated
             forge = new ExprDeclaredForgeConstant(this, expressionBodyCopy.getForge().getEvaluationType(), prototype, expressionBodyCopy.getForge().getExprEvaluator().evaluate(null, true, null), audit, statementName);
-        } else if (prototype.getParametersNames().length == 0 ||
-                (allStreamIdsMatch && prototype.getParametersNames().length == streamTypeService.getEventTypes().length)) {
+        } else if ((valueEventType == null && prototype.getParametersNames().length == 0) || allStreamIdsMatch) {
             forge = new ExprDeclaredForgeNoRewrite(this, expressionBodyCopy.getForge(), isCache, audit, statementName);
-        } else {
+        } else if (valueEventType == null) {
             forge = new ExprDeclaredForgeRewrite(this, expressionBodyCopy.getForge(), isCache, streamsIdsPerStream, audit, statementName);
+        } else {
+            // cache is always false
+            forge = new ExprDeclaredForgeRewriteWValue(this, expressionBodyCopy.getForge(), false, audit, statementName, streamsIdsPerStream, valueEventType, valueExpressions);
         }
         return null;
     }
@@ -294,7 +339,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         ExpressionDeclItem prototype = prototypeWVisibility;
         if (chainParameters.size() != prototype.getParametersNames().length) {
             throw new ExprValidationException("Parameter count mismatches for declared expression '" + prototype.getName() + "', expected " +
-                    prototype.getParametersNames().length + " parameters but received " + chainParameters.size() + " parameters");
+                prototype.getParametersNames().length + " parameters but received " + chainParameters.size() + " parameters");
         }
     }
 
@@ -332,9 +377,9 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
             CodegenMethod exprMethod = CodegenLegoMethodExpression.codegenExpression(exprForge, method, codegenClassScope);
 
             method.getBlock()
-                    .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))
-                    .assignArrayElement(ref("events"), constant(0), ref("bean"))
-                    .methodReturn(localMethod(exprMethod, ref("events"), constantTrue(), constantNull()));
+                .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))
+                .assignArrayElement(ref("events"), constant(0), ref("bean"))
+                .methodReturn(localMethod(exprMethod, ref("events"), constantTrue(), constantNull()));
 
             return localMethod(method, beanExpression);
         }
