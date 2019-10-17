@@ -33,7 +33,6 @@ public class ExprDefineValueParameter {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        /* TODO
         execs.add(new ExprDefineValueParameterV());
         execs.add(new ExprDefineValueParameterVV());
         execs.add(new ExprDefineValueParameterVVV());
@@ -44,7 +43,6 @@ public class ExprDefineValueParameter {
         execs.add(new ExprDefineValueParameterEVEVE());
         execs.add(new ExprDefineValueParameterInvalid());
         execs.add(new ExprDefineValueParameterCache());
-         */
         execs.add(new ExprDefineValueParameterVariable());
         return execs;
     }
