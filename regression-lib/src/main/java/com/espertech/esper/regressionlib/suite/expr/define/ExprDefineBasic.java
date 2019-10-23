@@ -362,7 +362,7 @@ public class ExprDefineBasic {
             tryAssertionSubqueryCorrelated(env, eplDeclare);
 
             String eplAlias = "@name('s0') expression subqOne alias for {(select id from SupportBean_ST0#keepall where p00 = t.intPrimitive)} " +
-                "select theString as val0, subqOne(t) as val1 from SupportBean as t";
+                "select theString as val0, subqOne() as val1 from SupportBean as t";
             tryAssertionSubqueryCorrelated(env, eplAlias);
         }
 
@@ -889,14 +889,14 @@ public class ExprDefineBasic {
             epl = "expression abc {intPrimitive} select abc() from SupportBean sb";
             tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc()': Error validating expression declaration 'abc': Failed to validate declared expression body expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream [expression abc {intPrimitive} select abc() from SupportBean sb]");
 
-            epl = "expression abc {x=>x} select abc(1) from SupportBean sb";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc(1)': Expression 'abc' requires a stream name as a parameter [expression abc {x=>x} select abc(1) from SupportBean sb]");
-
             epl = "expression abc {x=>intPrimitive} select * from SupportBean sb where abc(sb)";
             tryInvalidCompile(env, epl, "Filter expression not returning a boolean value: 'abc(sb)' [expression abc {x=>intPrimitive} select * from SupportBean sb where abc(sb)]");
 
             epl = "expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent sb1, SupportBean#lastevent sb2 where abc(*)";
             tryInvalidCompile(env, epl, "Error validating expression: Failed to validate filter expression 'abc(*)': Expression 'abc' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead [expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent sb1, SupportBean#lastevent sb2 where abc(*)]");
+
+            epl = "expression ABC alias for {1} select ABC(t) from SupportBean as t";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'ABC': Expression 'ABC is an expression-alias and does not allow parameters [expression ABC alias for {1} select ABC(t) from SupportBean as t]");
         }
     }
 

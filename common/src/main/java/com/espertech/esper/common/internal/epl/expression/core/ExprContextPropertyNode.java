@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
-public interface ExprContextPropertyNode {
+public interface ExprContextPropertyNode extends ExprEnumerationForgeProvider {
     EventPropertyGetterSPI getGetter();
 
     String getPropertyName();

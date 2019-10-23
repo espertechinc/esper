@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventType;
 /**
  * Represents an stream selector that returns the streams underlying event, or null if undefined.
  */
-public interface ExprStreamUnderlyingNode extends ExprNode, ExprStreamRefNode {
+public interface ExprStreamUnderlyingNode extends ExprNode, ExprStreamRefNode, ExprEnumerationForgeProvider {
     public int getStreamId();
 
     public EventType getEventType();

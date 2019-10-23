@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
-/**
- * Expression for use as wildcard (*).
- */
-public interface ExprWildcard extends ExprEnumerationForgeProvider {
+public interface ExprEnumerationForgeProvider {
+    /**
+     * Returns the enumeration forge provider, or null if not applicable
+     * @return forge provider
+     */
+    ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext);
 }

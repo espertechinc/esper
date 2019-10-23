@@ -12,10 +12,12 @@ package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstantType;
@@ -23,19 +25,19 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstant
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprDeclaredForgeRewrite extends ExprDeclaredForgeBase {
-    private final int[] streamAssignments;
+    private final ExprEnumerationForge[] eventEnumerationForges;
 
-    public ExprDeclaredForgeRewrite(ExprDeclaredNodeImpl parent, ExprForge innerForge, boolean isCache, int[] streamAssignments, boolean audit, String statementName) {
+    public ExprDeclaredForgeRewrite(ExprDeclaredNodeImpl parent, ExprForge innerForge, boolean isCache, ExprEnumerationForge[] eventEnumerationForges, boolean audit, String statementName) {
         super(parent, innerForge, isCache, audit, statementName);
-        this.streamAssignments = streamAssignments;
+        this.eventEnumerationForges = eventEnumerationForges;
     }
 
     public EventBean[] getEventsPerStreamRewritten(EventBean[] eps, boolean isNewData, ExprEvaluatorContext context) {
 
         // rewrite streams
-        EventBean[] events = new EventBean[streamAssignments.length];
-        for (int i = 0; i < streamAssignments.length; i++) {
-            events[i] = eps[streamAssignments[i]];
+        EventBean[] events = new EventBean[eventEnumerationForges.length];
+        for (int i = 0; i < eventEnumerationForges.length; i++) {
+            events[i] = eventEnumerationForges[i].getExprEvaluatorEnumeration().evaluateGetEventBean(eps, isNewData, context);
         }
 
         return events;
@@ -45,12 +47,13 @@ public class ExprDeclaredForgeRewrite extends ExprDeclaredForgeBase {
         return ExprForgeConstantType.NONCONST;
     }
 
-    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenExpression isNewData, CodegenExpression exprEvalCtx, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewrite.class, codegenClassScope).addParam(EventBean[].class, "eps").getBlock()
-                .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(streamAssignments.length)));
-        for (int i = 0; i < streamAssignments.length; i++) {
-            block.assignArrayElement("events", constant(i), arrayAtIndex(ref("eps"), constant(streamAssignments[i])));
+    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod method = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewrite.class, codegenClassScope);
+        method.getBlock().declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(eventEnumerationForges.length)));
+        for (int i = 0; i < eventEnumerationForges.length; i++) {
+            method.getBlock().assignArrayElement("events", constant(i), eventEnumerationForges[i].evaluateGetEventBeanCodegen(method, exprSymbol, codegenClassScope));
         }
-        return localMethodBuild(block.methodReturn(ref("events"))).pass(eventsPerStream).call();
+        method.getBlock().methodReturn(ref("events"));
+        return localMethod(method);
     }
 }

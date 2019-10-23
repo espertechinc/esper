@@ -31,4 +31,8 @@ public interface ExprNodeVisitor {
      * @param exprNode is the expression node to visit
      */
     public void visit(ExprNode exprNode);
+
+    default boolean isWalkDeclExprParam() {
+        return true;
+    }
 }

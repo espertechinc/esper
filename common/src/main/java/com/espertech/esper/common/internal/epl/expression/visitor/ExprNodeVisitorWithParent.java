@@ -32,4 +32,8 @@ public interface ExprNodeVisitorWithParent {
      * @param parentExprNode parent to visit
      */
     public void visit(ExprNode exprNode, ExprNode parentExprNode);
+
+    default boolean isWalkDeclExprParam() {
+        return true;
+    }
 }

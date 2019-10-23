@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
@@ -27,14 +28,14 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprDeclaredForgeRewriteWValue extends ExprDeclaredForgeBase {
-    private final int[] streamAssignments;
+    private final ExprEnumerationForge[] eventEnumerationForges;
     private final ObjectArrayEventType valueEventType;
     private final List<ExprNode> valueExpressions;
     private ExprEvaluator[] evaluators;
 
-    public ExprDeclaredForgeRewriteWValue(ExprDeclaredNodeImpl parent, ExprForge innerForge, boolean isCache, boolean audit, String statementName, int[] streamAssignments, ObjectArrayEventType valueEventType, List<ExprNode> valueExpressions) {
+    public ExprDeclaredForgeRewriteWValue(ExprDeclaredNodeImpl parent, ExprForge innerForge, boolean isCache, boolean audit, String statementName, ExprEnumerationForge[] eventEnumerationForges, ObjectArrayEventType valueEventType, List<ExprNode> valueExpressions) {
         super(parent, innerForge, isCache, audit, statementName);
-        this.streamAssignments = streamAssignments;
+        this.eventEnumerationForges = eventEnumerationForges;
         this.valueEventType = valueEventType;
         this.valueExpressions = valueExpressions;
     }
@@ -49,10 +50,9 @@ public class ExprDeclaredForgeRewriteWValue extends ExprDeclaredForgeBase {
             props[i] = evaluators[i].evaluate(eps, isNewData, context);
         }
 
-        EventBean[] events = new EventBean[streamAssignments.length];
-        events[0] = new ObjectArrayEventBean(props, valueEventType);
-        for (int i = 0; i < streamAssignments.length; i++) {
-            events[i] = eps[streamAssignments[i]];
+        EventBean[] events = new EventBean[eventEnumerationForges.length];
+        for (int i = 0; i < eventEnumerationForges.length; i++) {
+            events[i] = eventEnumerationForges[i].getExprEvaluatorEnumeration().evaluateGetEventBean(eps, isNewData, context);
         }
 
         return events;
@@ -62,23 +62,22 @@ public class ExprDeclaredForgeRewriteWValue extends ExprDeclaredForgeBase {
         return ExprForgeConstantType.NONCONST;
     }
 
-    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenExpression isNewData, CodegenExpression exprEvalCtx, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewriteWValue.class, codegenClassScope)
-            .addParam(EventBean[].class, "eps")
-            .addParam(boolean.class, "newData")
-            .addParam(ExprEvaluatorContext.class, "ctx");
+    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod method = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewriteWValue.class, codegenClassScope);
         CodegenExpressionField valueType = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(valueEventType, EPStatementInitServices.REF)));
 
-        CodegenMethod methodValueEval = ExprNodeUtilityCodegen.codegenEvalMethodReturnObjectArray(ExprNodeUtilityQuery.getForges(valueExpressions.toArray(new ExprNode[0])), method, ExprDeclaredForgeRewriteWValue.class, codegenClassScope);
         method.getBlock()
-            .declareVar(Object[].class, "props", localMethod(methodValueEval, ref("eps"), ref("newData"), ref("ctx")))
-            .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(streamAssignments.length)))
+            .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(valueExpressions.size())))
+            .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(eventEnumerationForges.length)))
             .assignArrayElement("events", constant(0), newInstance(ObjectArrayEventBean.class, ref("props"), valueType));
-        for (int i = 1; i < streamAssignments.length; i++) {
-            method.getBlock().assignArrayElement("events", constant(i), arrayAtIndex(ref("eps"), constant(streamAssignments[i])));
+        for (int i = 0; i < valueExpressions.size(); i++) {
+            method.getBlock().assignArrayElement("props", constant(i), valueExpressions.get(i).getForge().evaluateCodegen(Object.class, method, exprSymbol, codegenClassScope));
+        }
+        for (int i = 1; i < eventEnumerationForges.length; i++) {
+            method.getBlock().assignArrayElement("events", constant(i), eventEnumerationForges[i].evaluateGetEventBeanCodegen(method, exprSymbol, codegenClassScope));
         }
         method.getBlock().methodReturn(ref("events"));
 
-        return localMethodBuild(method).pass(eventsPerStream).pass(isNewData).pass(exprEvalCtx).call();
+        return localMethod(method);
     }
 }

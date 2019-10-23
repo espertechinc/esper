@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
+import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -28,11 +29,13 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
     private final int streamNum;
     private final Class resultType;
     private final EventPropertyGetterSPI getter;
+    private final EventTypeSPI eventType;
 
-    public ExprIdentNodeEvaluatorContext(int streamNum, Class resultType, EventPropertyGetterSPI getter) {
+    public ExprIdentNodeEvaluatorContext(int streamNum, Class resultType, EventPropertyGetterSPI getter, EventTypeSPI eventType) {
         this.streamNum = streamNum;
         this.resultType = resultType;
         this.getter = getter;
+        this.eventType = eventType;
     }
 
     public boolean evaluatePropertyExists(EventBean[] eventsPerStream, boolean isNewData) {
@@ -55,9 +58,9 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         methodNode.getBlock()
-                .ifCondition(notEqualsNull(refExprEvalCtx))
-                .blockReturn(CodegenLegoCast.castSafeFromObjectType(resultType, getter.eventBeanGetCodegen(exprDotMethod(refExprEvalCtx, "getContextProperties"), methodNode, codegenClassScope)))
-                .methodReturn(constantNull());
+            .ifCondition(notEqualsNull(refExprEvalCtx))
+            .blockReturn(CodegenLegoCast.castSafeFromObjectType(resultType, getter.eventBeanGetCodegen(exprDotMethod(refExprEvalCtx, "getContextProperties"), methodNode, codegenClassScope)))
+            .methodReturn(constantNull());
         return localMethod(methodNode);
     }
 
@@ -74,5 +77,9 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
     }
 
     public void setOptionalEvent(boolean optionalEvent) {
+    }
+
+    public EventTypeSPI getEventType() {
+        return eventType;
     }
 }

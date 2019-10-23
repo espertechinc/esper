@@ -748,7 +748,7 @@ public class SubSelectHelperForgePlanner {
         for (ExprDeclaredNode declaration : declaredExpressions) {
             ExprNodeSubselectDeclaredNoTraverseVisitor visitor = new ExprNodeSubselectDeclaredNoTraverseVisitor(declaration);
             visitor.reset();
-            declaration.accept(visitor);
+            declaration.acceptNoVisitParams(visitor);
             if (!visitor.getSubselects().contains(subselect)) {
                 continue;
             }

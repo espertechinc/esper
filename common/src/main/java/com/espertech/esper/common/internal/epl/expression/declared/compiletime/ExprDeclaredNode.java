@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
+import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitorWithParent;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,4 +38,7 @@ public interface ExprDeclaredNode extends ExprNode {
     public LinkedHashMap<String, Integer> getOuterStreamNames(Map<String, Integer> outerStreamNames) throws ExprValidationException;
 
     public ExprNode getBody();
+
+    public void acceptNoVisitParams(ExprNodeVisitor visitor);
+    public void acceptNoVisitParams(ExprNodeVisitorWithParent visitor);
 }

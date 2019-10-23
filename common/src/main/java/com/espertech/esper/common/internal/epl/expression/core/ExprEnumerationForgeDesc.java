@@ -10,8 +10,26 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
-/**
- * Expression for use as wildcard (*).
- */
-public interface ExprWildcard extends ExprEnumerationForgeProvider {
+public class ExprEnumerationForgeDesc {
+    private final ExprEnumerationForge forge;
+    private final boolean istreamOnly;
+    private final int directIndexStreamNumber;
+
+    public ExprEnumerationForgeDesc(ExprEnumerationForge forge, boolean istreamOnly, int directIndexStreamNumber) {
+        this.forge = forge;
+        this.istreamOnly = istreamOnly;
+        this.directIndexStreamNumber = directIndexStreamNumber;
+    }
+
+    public ExprEnumerationForge getForge() {
+        return forge;
+    }
+
+    public boolean isIstreamOnly() {
+        return istreamOnly;
+    }
+
+    public int getDirectIndexStreamNumber() {
+        return directIndexStreamNumber;
+    }
 }

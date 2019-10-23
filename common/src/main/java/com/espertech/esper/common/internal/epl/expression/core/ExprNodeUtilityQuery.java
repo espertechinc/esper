@@ -268,7 +268,7 @@ public class ExprNodeUtilityQuery {
         Map<ExprDeclaredNode, List<ExprDeclaredNode>> calledToCallerMap = new HashMap<ExprDeclaredNode, List<ExprDeclaredNode>>();
         for (ExprDeclaredNode node : declaredExpressions) {
             visitor.reset();
-            node.accept(visitor);
+            node.acceptNoVisitParams(visitor);
             for (ExprDeclaredNode called : visitor.getDeclaredExpressions()) {
                 if (called == node) {
                     continue;

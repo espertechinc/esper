@@ -118,7 +118,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
 
     public EventType getEventTypeSingle(StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
         if (selectClause == null) {
-            return null;
+            return rawEventType;
         }
         if (this.getSubselectAggregationType() != SubqueryAggregationType.FULLY_AGGREGATED_NOPROPS) {
             return null;

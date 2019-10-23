@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -21,6 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
+import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 
@@ -31,11 +31,11 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     private final EventPropertyGetterSPI propertyGetter;
     protected final Class returnType;
     private final ExprIdentNode identNode;
-    private final EventType eventType;
+    private final EventTypeSPI eventType;
     private boolean optionalEvent;
     private boolean audit;
 
-    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode, EventType eventType, boolean optionalEvent, boolean audit) {
+    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode, EventTypeSPI eventType, boolean optionalEvent, boolean audit) {
         this.streamNum = streamNum;
         this.propertyGetter = propertyGetter;
         this.returnType = returnType;
@@ -139,4 +139,7 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         return false;
     }
 
+    public EventTypeSPI getEventType() {
+        return eventType;
+    }
 }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -127,5 +128,19 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
 
         ExprContextPropertyNodeImpl that = (ExprContextPropertyNodeImpl) node;
         return propertyName.equals(that.propertyName);
+    }
+
+    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
+        EventTypeSPI eventType = (EventTypeSPI) validationContext.getContextDescriptor().getContextPropertyRegistry().getContextEventType();
+        if (eventType == null) {
+            return null;
+        }
+        FragmentEventType fragmentEventType = eventType.getFragmentType(propertyName);
+        if (fragmentEventType == null || fragmentEventType.isIndexed()) {
+            return null;
+        }
+        ExprContextPropertyNodeFragmentEnumerationForge forge = new ExprContextPropertyNodeFragmentEnumerationForge(propertyName, fragmentEventType.getFragmentType(), getter);
+        return new ExprEnumerationForgeDesc(forge, true, -1);
+
     }
 }

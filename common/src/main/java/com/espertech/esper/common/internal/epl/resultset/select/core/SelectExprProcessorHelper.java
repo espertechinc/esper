@@ -1351,15 +1351,6 @@ public class SelectExprProcessorHelper {
         }
 
         final ExprEnumerationForge enumEval = (ExprEnumerationForge) forge;
-        final EventType eventTypeSingle = enumEval.getEventTypeSingle(args.getStatementRawInfo(), args.getCompileTimeServices());
-        if (eventTypeSingle != null) {
-            final TableMetaData tableMetadata = args.getTableCompileTimeResolver().resolveTableFromEventType(eventTypeSingle);
-            if (tableMetadata == null) {
-                ExprEvalEnumerationAtBeanSingleForge beanForge = new ExprEvalEnumerationAtBeanSingleForge(enumEval, eventTypeSingle);
-                return new TypeAndForgePair(eventTypeSingle, beanForge);
-            }
-            throw new IllegalStateException("Unrecognized enumeration source returning table row-typed values");
-        }
 
         final EventType eventTypeColl = enumEval.getEventTypeCollection(args.getStatementRawInfo(), args.getCompileTimeServices());
         if (eventTypeColl != null) {
@@ -1370,6 +1361,16 @@ public class SelectExprProcessorHelper {
             }
             ExprEvalEnumerationAtBeanCollTable tableForge = new ExprEvalEnumerationAtBeanCollTable(enumEval, tableMetadata);
             return new TypeAndForgePair(new EventType[]{tableMetadata.getPublicEventType()}, tableForge);
+        }
+
+        final EventType eventTypeSingle = enumEval.getEventTypeSingle(args.getStatementRawInfo(), args.getCompileTimeServices());
+        if (eventTypeSingle != null) {
+            final TableMetaData tableMetadata = args.getTableCompileTimeResolver().resolveTableFromEventType(eventTypeSingle);
+            if (tableMetadata == null) {
+                ExprEvalEnumerationAtBeanSingleForge beanForge = new ExprEvalEnumerationAtBeanSingleForge(enumEval, eventTypeSingle);
+                return new TypeAndForgePair(eventTypeSingle, beanForge);
+            }
+            throw new IllegalStateException("Unrecognized enumeration source returning table row-typed values");
         }
 
         return null;

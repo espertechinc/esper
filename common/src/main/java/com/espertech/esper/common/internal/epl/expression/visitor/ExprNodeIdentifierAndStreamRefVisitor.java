@@ -47,7 +47,6 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
     public void visit(ExprNode exprNode) {
         if (exprNode instanceof ExprIdentNode) {
             ExprIdentNode identNode = (ExprIdentNode) exprNode;
-
             int streamId = identNode.getStreamId();
             String propertyName = identNode.getResolvedPropertyName();
             checkAllocatedRefs();
@@ -66,6 +65,10 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
         if (refs != null) {
             refs.clear();
         }
+    }
+
+    public boolean isWalkDeclExprParam() {
+        return false;
     }
 
     private void checkAllocatedRefs() {

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
+import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 
 public interface ExprIdentNodeEvaluator extends ExprEvaluator {
     public boolean evaluatePropertyExists(EventBean[] eventsPerStream, boolean isNewData);
@@ -31,4 +32,6 @@ public interface ExprIdentNodeEvaluator extends ExprEvaluator {
     public CodegenExpression codegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public void setOptionalEvent(boolean optionalEvent);
+
+    public EventTypeSPI getEventType();
 }

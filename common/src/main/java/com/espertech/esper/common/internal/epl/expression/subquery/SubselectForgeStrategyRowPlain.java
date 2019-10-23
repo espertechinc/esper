@@ -190,11 +190,28 @@ public class SubselectForgeStrategyRowPlain extends SubselectForgeStrategyRowBas
     }
 
     public CodegenExpression evaluateGetBeanCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod method = parent.makeChild(EventBean.class, this.getClass(), classScope);
+
         if (subselect.selectClause == null) {
-            return constantNull();
+            if (subselect.filterExpr == null) {
+                method.getBlock()
+                    .ifCondition(relational(exprDotMethod(symbols.getAddMatchingEvents(method), "size"), CodegenExpressionRelational.CodegenRelational.GT, constant(1)))
+                    .blockReturn(constantNull())
+                    .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols)
+                    .methodReturn(staticMethod(EventBeanUtility.class, "getNonemptyFirstEvent", symbols.getAddMatchingEvents(method)));
+                return localMethod(method);
+            }
+
+            CodegenExpression filter = ExprNodeUtilityCodegen.codegenEvaluator(subselect.filterExpr, method, this.getClass(), classScope);
+            method.getBlock()
+                .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols)
+                .declareVar(EventBean.class, "subSelectResult", staticMethod(EventBeanUtility.class, "evaluateFilterExpectSingleMatch",
+                    REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddMatchingEvents(method), symbols.getAddExprEvalCtx(method),
+                    filter))
+                .methodReturn(ref("subSelectResult"));
+            return localMethod(method);
         }
 
-        CodegenMethod method = parent.makeChild(EventBean.class, this.getClass(), classScope);
         CodegenExpressionField eventBeanSvc = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
         CodegenExpressionField typeMember = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(subselect.subselectMultirowType, EPStatementInitServices.REF));
 
@@ -214,7 +231,7 @@ public class SubselectForgeStrategyRowPlain extends SubselectForgeStrategyRowBas
                 .declareVar(EventBean.class, "subSelectResult", staticMethod(EventBeanUtility.class, "evaluateFilterExpectSingleMatch",
                         REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddMatchingEvents(method), symbols.getAddExprEvalCtx(method),
                         filter))
-                .ifRefNullReturnNull("subselectResult")
+                .ifRefNullReturnNull("subSelectResult")
                 .declareVar(Map.class, "row", localMethod(subselect.evaluateRowCodegen(method, classScope), REF_EVENTS_SHIFTED, constantTrue(), symbols.getAddExprEvalCtx(method)))
                 .declareVar(EventBean.class, "bean", exprDotMethod(eventBeanSvc, "adapterForTypedMap", ref("row"), typeMember))
                 .methodReturn(ref("bean"));

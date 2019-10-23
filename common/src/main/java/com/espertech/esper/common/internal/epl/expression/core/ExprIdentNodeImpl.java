@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.client.annotation.AuditEnum;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -89,7 +90,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             throw new IllegalArgumentException("Ident-node constructor could not locate property " + propertyName);
         }
         Class propertyType = eventType.getPropertyType(propertyName);
-        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(propertyType), this, eventType, true, false);
+        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(propertyType), this, (EventTypeSPI) eventType, true, false);
     }
 
     public ExprForge getForge() {
@@ -208,7 +209,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         }
 
         boolean audit = AuditEnum.PROPERTY.getAudit(validationContext.getAnnotations()) != null;
-        evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this, eventType, validationContext.getStreamTypeService().isOptionalStreams(), audit);
+        evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this, (EventTypeSPI) eventType, validationContext.getStreamTypeService().isOptionalStreams(), audit);
 
         // if running in a context, take the property value from context
         if (validationContext.getContextDescriptor() != null && !validationContext.isFilterExpression()) {
@@ -217,7 +218,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             if (contextPropertyName != null) {
                 EventTypeSPI contextType = (EventTypeSPI) validationContext.getContextDescriptor().getContextPropertyRegistry().getContextEventType();
                 Class type = JavaClassHelper.getBoxedType(contextType.getPropertyType(contextPropertyName));
-                evaluator = new ExprIdentNodeEvaluatorContext(streamNum, type, contextType.getGetterSPI(contextPropertyName));
+                evaluator = new ExprIdentNodeEvaluatorContext(streamNum, type, contextType.getGetterSPI(contextPropertyName), (EventTypeSPI) eventType);
             }
         }
         return null;
@@ -340,5 +341,14 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
 
     public ExprIdentNodeEvaluator getExprEvaluatorIdent() {
         return evaluator;
+    }
+
+    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
+        FragmentEventType fragmentEventType = evaluator.getEventType().getFragmentType(getResolvedPropertyName());
+        if (fragmentEventType == null || fragmentEventType.isIndexed()) {
+            return null;
+        }
+        ExprIdentNodeFragmentTypeEnumerationForge forge = new ExprIdentNodeFragmentTypeEnumerationForge(resolvedPropertyName, getStreamId(), fragmentEventType.getFragmentType(), evaluator.getEventType().getGetterSPI(resolvedPropertyName));
+        return new ExprEnumerationForgeDesc(forge, validationContext.getStreamTypeService().getIStreamOnly()[getStreamId()], -1);
     }
 }

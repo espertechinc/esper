@@ -53,6 +53,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     private transient ExprForge forge;
     private ExprNode expressionBodyCopy;
     private transient ExprValidationContext exprValidationContext;
+    private boolean allStreamIdsMatch;
 
     public ExprDeclaredNodeImpl(ExpressionDeclItem prototype, List<ExprNode> chainParameters, ContextCompileTimeDescriptor contextDescriptor, ExprNode expressionBodyCopy) {
         this.prototypeWVisibility = prototype;
@@ -130,6 +131,9 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         this.exprValidationContext = validationContext;
         ExpressionDeclItem prototype = prototypeWVisibility;
         if (prototype.isAlias()) {
+            if (!chainParameters.isEmpty()) {
+                throw new ExprValidationException("Expression '" + prototype.getName() + " is an expression-alias and does not allow parameters");
+            }
             try {
                 expressionBodyCopy = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.ALIASEXPRBODY, expressionBodyCopy, validationContext);
             } catch (ExprValidationException ex) {
@@ -164,10 +168,15 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         List<Integer> eventParameters = new ArrayList<>();
         for (int i = 0; i < prototype.getParametersNames().length; i++) {
             ExprNode parameter = chainParameters.get(i);
-            if (!(parameter instanceof ExprStreamUnderlyingNode) && !(parameter instanceof ExprWildcard)) {
-                valueParameters.add(i);
-            } else {
+            if (parameter instanceof ExprWildcard) {
+                if (validationContext.getStreamTypeService().getEventTypes().length != 1) {
+                    throw new ExprValidationException("Expression '" + prototype.getName() + "' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead");
+                }
+            }
+            if (isEventProviding(parameter, validationContext)) {
                 eventParameters.add(i);
+            } else {
+                valueParameters.add(i);
             }
         }
 
@@ -191,8 +200,8 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         EventType[] eventTypes = new EventType[numEventTypes];
         String[] streamNames = new String[numEventTypes];
         boolean[] isIStreamOnly = new boolean[numEventTypes];
-        int[] streamsIdsPerStream = new int[numEventTypes];
-        boolean allStreamIdsMatch = true;
+        ExprEnumerationForge[] eventEnumerationForges = new ExprEnumerationForge[numEventTypes];
+        allStreamIdsMatch = true;
 
         int offsetEventType = 0;
         if (valueEventType != null) {
@@ -200,38 +209,43 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
             eventTypes[0] = valueEventType;
             streamNames[0] = INTERNAL_VALUE_STREAMNAME;
             isIStreamOnly[0] = true;
-            streamsIdsPerStream[0] = -1;
             allStreamIdsMatch = false;
         }
 
+        boolean forceOptionalStream = false;
         for (int index : eventParameters) {
             ExprNode parameter = chainParameters.get(index);
             streamNames[offsetEventType] = prototype.getParametersNames()[index];
+            int streamId;
+            boolean istreamOnlyFlag;
+            ExprEnumerationForge forge;
 
-            if (parameter instanceof ExprStreamUnderlyingNode) {
-                ExprStreamUnderlyingNode und = (ExprStreamUnderlyingNode) parameter;
-                eventTypes[offsetEventType] = validationContext.getStreamTypeService().getEventTypes()[und.getStreamId()];
-                isIStreamOnly[offsetEventType] = validationContext.getStreamTypeService().getIStreamOnly()[und.getStreamId()];
-                streamsIdsPerStream[offsetEventType] = und.getStreamId();
-            } else if (parameter instanceof ExprWildcard) {
-                if (validationContext.getStreamTypeService().getEventTypes().length != 1) {
-                    throw new ExprValidationException("Expression '" + prototype.getName() + "' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead");
-                }
-                eventTypes[offsetEventType] = validationContext.getStreamTypeService().getEventTypes()[0];
-                isIStreamOnly[offsetEventType] = validationContext.getStreamTypeService().getIStreamOnly()[0];
-                streamsIdsPerStream[offsetEventType] = 0;
+            if (parameter instanceof ExprEnumerationForgeProvider) {
+                ExprEnumerationForgeProvider enumerationForgeProvider = (ExprEnumerationForgeProvider) parameter;
+                ExprEnumerationForgeDesc desc = enumerationForgeProvider.getEnumerationForge(validationContext);
+                forge = desc.getForge();
+                streamId = desc.getDirectIndexStreamNumber();
+                istreamOnlyFlag = desc.isIstreamOnly();
             } else {
-                throw new IllegalStateException("Unrecognized event-parameter expression");
+                forge = (ExprEnumerationForge) parameter.getForge();
+                istreamOnlyFlag = false;
+                streamId = -1;
+                forceOptionalStream = true; // since they may return null, i.e. subquery returning no row or multiple rows etc.
             }
 
-            if (streamsIdsPerStream[offsetEventType] != index) {
+            isIStreamOnly[offsetEventType] = istreamOnlyFlag;
+            eventEnumerationForges[offsetEventType] = forge;
+            eventTypes[offsetEventType] = forge.getEventTypeSingle(validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+
+            if (streamId != index) {
                 allStreamIdsMatch = false;
             }
             offsetEventType++;
         }
 
         StreamTypeService streamTypeService = validationContext.getStreamTypeService();
-        StreamTypeServiceImpl copyTypes = new StreamTypeServiceImpl(eventTypes, streamNames, isIStreamOnly, streamTypeService.isOnDemandStreams(), streamTypeService.isOptionalStreams());
+        boolean optionalStream = forceOptionalStream || streamTypeService.isOptionalStreams();
+        StreamTypeServiceImpl copyTypes = new StreamTypeServiceImpl(eventTypes, streamNames, isIStreamOnly, streamTypeService.isOnDemandStreams(), optionalStream);
         copyTypes.setRequireStreamNames(true);
 
         // validate expression body in this context
@@ -258,12 +272,30 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         } else if ((valueEventType == null && prototype.getParametersNames().length == 0) || allStreamIdsMatch) {
             forge = new ExprDeclaredForgeNoRewrite(this, expressionBodyCopy.getForge(), isCache, audit, statementName);
         } else if (valueEventType == null) {
-            forge = new ExprDeclaredForgeRewrite(this, expressionBodyCopy.getForge(), isCache, streamsIdsPerStream, audit, statementName);
+            forge = new ExprDeclaredForgeRewrite(this, expressionBodyCopy.getForge(), isCache, eventEnumerationForges, audit, statementName);
         } else {
             // cache is always false
-            forge = new ExprDeclaredForgeRewriteWValue(this, expressionBodyCopy.getForge(), false, audit, statementName, streamsIdsPerStream, valueEventType, valueExpressions);
+            forge = new ExprDeclaredForgeRewriteWValue(this, expressionBodyCopy.getForge(), false, audit, statementName, eventEnumerationForges, valueEventType, valueExpressions);
         }
         return null;
+    }
+
+    private boolean isEventProviding(ExprNode parameter, ExprValidationContext validationContext) throws ExprValidationException {
+        if (parameter instanceof ExprEnumerationForgeProvider) {
+            ExprEnumerationForgeProvider provider = (ExprEnumerationForgeProvider) parameter;
+            ExprEnumerationForgeDesc desc = provider.getEnumerationForge(validationContext);
+            if (desc == null) {
+                return false;
+            }
+            EventType eventType = desc.getForge().getEventTypeSingle(validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+            return eventType != null;
+        }
+        ExprForge forge = parameter.getForge();
+        if (forge instanceof ExprEnumerationForge) {
+            ExprEnumerationForge enumerationForge = (ExprEnumerationForge) forge;
+            return enumerationForge.getEventTypeSingle(validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService()) != null;
+        }
+        return false;
     }
 
     public boolean getFilterLookupEligible() {
@@ -294,6 +326,13 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public void accept(ExprNodeVisitor visitor) {
+        acceptNoVisitParams(visitor);
+        if (walkParams(visitor)) {
+            ExprNodeUtilityQuery.acceptParams(visitor, chainParameters);
+        }
+    }
+
+    public void acceptNoVisitParams(ExprNodeVisitor visitor) {
         super.accept(visitor);
         if (this.getChildNodes().length == 0) {
             expressionBodyCopy.accept(visitor);
@@ -301,6 +340,13 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public void accept(ExprNodeVisitorWithParent visitor) {
+        acceptNoVisitParams(visitor);
+        if (walkParams(visitor)) {
+            ExprNodeUtilityQuery.acceptParams(visitor, chainParameters);
+        }
+    }
+
+    public void acceptNoVisitParams(ExprNodeVisitorWithParent visitor) {
         super.accept(visitor);
         if (this.getChildNodes().length == 0) {
             expressionBodyCopy.accept(visitor);
@@ -383,5 +429,17 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
 
             return localMethod(method, beanExpression);
         }
+    }
+
+    private boolean walkParams(ExprNodeVisitor visitor) {
+        // we do not walk parameters when all stream ids match and the visitor skips declared-expression parameters
+        // this is because parameters are streams and don't need to be collected by some visitors
+        return visitor.isWalkDeclExprParam() || !allStreamIdsMatch;
+    }
+
+    private boolean walkParams(ExprNodeVisitorWithParent visitor) {
+        // we do not walk parameters when all stream ids match and the visitor skips declared-expression parameters
+        // this is because parameters are streams and don't need to be collected by some visitors
+        return visitor.isWalkDeclExprParam() || !allStreamIdsMatch;
     }
 }

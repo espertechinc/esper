@@ -173,4 +173,10 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
         }
         return this.streamName.equals(other.streamName);
     }
+
+    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
+        return new ExprEnumerationForgeDesc(new ExprStreamUnderlyingNodeEnumerationForge(streamName, streamNum, eventType),
+            validationContext.getStreamTypeService().getIStreamOnly()[getStreamId()],
+            getStreamId());
+    }
 }

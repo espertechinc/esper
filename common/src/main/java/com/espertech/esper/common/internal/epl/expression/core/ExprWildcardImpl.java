@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -26,6 +27,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Expression for use within crontab to specify a wildcard.
  */
 public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEvaluator, ExprWildcard {
+
+    private EventType eventType;
 
     public ExprWildcardImpl() {
     }
@@ -51,6 +54,9 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEva
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (validationContext.getStreamTypeService().getEventTypes().length > 0) {
+            eventType = validationContext.getStreamTypeService().getEventTypes()[0];
+        }
         return null;
     }
 
@@ -76,5 +82,17 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEva
 
     public Class getEvaluationType() {
         return WildcardParameter.class;
+    }
+
+    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
+        if (eventType == null) {
+            return null;
+        }
+        if (validationContext.getStreamTypeService().getEventTypes().length > 1) {
+            return null;
+        }
+        return new ExprEnumerationForgeDesc(new ExprStreamUnderlyingNodeEnumerationForge("*", 0, eventType),
+            validationContext.getStreamTypeService().getIStreamOnly()[0],
+            0);
     }
 }

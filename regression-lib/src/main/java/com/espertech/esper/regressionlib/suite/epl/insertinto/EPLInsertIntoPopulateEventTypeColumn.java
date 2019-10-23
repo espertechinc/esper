@@ -13,12 +13,12 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 public class EPLInsertIntoPopulateEventTypeColumn {
     public static List<RegressionExecution> executions() {
@@ -285,9 +285,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         if (filter) {
             assertEquals("x2", received);
         } else {
-            if (!received.equals("x1") && !received.equals("x2")) {
-                fail();
-            }
+            assertNull(received); // this should not take the first event and according to SQL standard returns null
         }
 
         env.undeployAll();

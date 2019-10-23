@@ -28,6 +28,7 @@ import static com.espertech.esper.common.internal.support.SupportEventTypeAssert
 import static com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum.TYPE;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ExprDefineValueParameter {
 
@@ -44,7 +45,21 @@ public class ExprDefineValueParameter {
         execs.add(new ExprDefineValueParameterInvalid());
         execs.add(new ExprDefineValueParameterCache());
         execs.add(new ExprDefineValueParameterVariable());
+        execs.add(new ExprDefineValueParameterSubquery());
         return execs;
+    }
+
+    private static class ExprDefineValueParameterSubquery implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') expression cc { (v1, v2) -> v1 || v2} " +
+                "select cc((select p00 from SupportBean_S0#lastevent), (select p01 from SupportBean_S0#lastevent)) as c0 from SupportBean_S1";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean_S1(0));
+            assertNull(env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprDefineValueParameterV implements RegressionExecution {
