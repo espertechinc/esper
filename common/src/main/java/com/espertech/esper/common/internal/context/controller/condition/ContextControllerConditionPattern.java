@@ -47,7 +47,7 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         this.controller = controller;
     }
 
-    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider) {
+    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider, Map<String, Object> optionalTriggeringPattern) {
         if (patternStopCallback != null) {
             patternStopCallback.stop();
         }
@@ -61,6 +61,9 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         MatchedEventMapImpl matchedEventMap = new MatchedEventMapImpl(pattern.getPatternContext().getMatchedEventMapMeta());
         if (optionalTriggeringEvent != null && endConditionMatchEventProvider != null) {
             endConditionMatchEventProvider.populateEndConditionFromTrigger(matchedEventMap, optionalTriggeringEvent);
+        }
+        if (optionalTriggeringPattern != null && endConditionMatchEventProvider != null) {
+            endConditionMatchEventProvider.populateEndConditionFromTrigger(matchedEventMap, optionalTriggeringPattern);
         }
 
         // capture any callbacks that may occur right after start

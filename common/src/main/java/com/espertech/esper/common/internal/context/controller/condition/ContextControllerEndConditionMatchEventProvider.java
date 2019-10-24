@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.context.controller.condition;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
+import java.util.Map;
+
 public interface ContextControllerEndConditionMatchEventProvider {
     void populateEndConditionFromTrigger(MatchedEventMap map, EventBean triggeringEvent);
+    void populateEndConditionFromTrigger(MatchedEventMap map, Map<String, Object> triggeringPattern);
 }

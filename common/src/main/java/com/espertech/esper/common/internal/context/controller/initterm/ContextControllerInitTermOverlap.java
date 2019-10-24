@@ -53,7 +53,7 @@ public class ContextControllerInitTermOverlap extends ContextControllerInitTermB
         initTermSvc.mgmtCreate(path, parentPartitionKeys);
 
         ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(path, parentPartitionKeys, factory.initTermSpec.getStartCondition(), this, this, true);
-        boolean isTriggeringEventMatchesFilter = startCondition.activate(optionalTriggeringEvent, null);
+        boolean isTriggeringEventMatchesFilter = startCondition.activate(optionalTriggeringEvent, null, optionalTriggeringPattern);
         initTermSvc.mgmtUpdSetStartCondition(path, startCondition);
 
         if (isTriggeringEventMatchesFilter || startCondition.isImmediate()) {
@@ -99,7 +99,7 @@ public class ContextControllerInitTermOverlap extends ContextControllerInitTermB
 
         // For overlapping mode, make sure we activate again or stay activated
         if (!startCondition.isRunning()) {
-            startCondition.activate(optionalTriggeringEvent, null);
+            startCondition.activate(optionalTriggeringEvent, null, optionalTriggeringPattern);
         }
 
         List<AgentInstance> agentInstances = instantiateAndActivateEndCondition(controllerPath, optionalTriggeringEvent, optionalTriggeringPattern, optionalTriggeringPattern, startCondition);

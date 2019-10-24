@@ -39,7 +39,7 @@ public class ContextControllerInitTermNonOverlap extends ContextControllerInitTe
 
         if (!currentlyRunning) {
             initTermSvc.mgmtUpdSetStartCondition(path, startCondition);
-            boolean isTriggeringEventMatchesFilter = startCondition.activate(optionalTriggeringEvent, null);
+            boolean isTriggeringEventMatchesFilter = startCondition.activate(optionalTriggeringEvent, null, optionalTriggeringPattern);
             if (isTriggeringEventMatchesFilter) {
                 rangeNotificationStart(path, optionalTriggeringEvent, null, null, null);
             }
@@ -98,7 +98,7 @@ public class ContextControllerInitTermNonOverlap extends ContextControllerInitTe
             ContextConditionDescriptor startDesc = factory.initTermSpec.getStartCondition();
             ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(controllerPath, partitionKeys, startDesc, this, this, true);
             if (!startCondition.isImmediate()) {
-                startCondition.activate(optionalTriggeringEvent, null);
+                startCondition.activate(optionalTriggeringEvent, null, optionalTriggeringPattern);
                 initTermSvc.mgmtUpdSetStartCondition(controllerPath, startCondition);
             } else {
                 // we do not forward triggering events of termination

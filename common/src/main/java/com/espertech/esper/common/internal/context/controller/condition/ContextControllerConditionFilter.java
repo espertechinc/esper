@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filtersvc.FilterHandleCallback;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class ContextControllerConditionFilter implements ContextControllerConditionNonHA {
 
@@ -41,7 +42,7 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
         this.controller = controller;
     }
 
-    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider) {
+    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider, Map<String, Object> optionalTriggeringPattern) {
         AgentInstanceContext agentInstanceContext = controller.getRealization().getAgentInstanceContextCreate();
 
         FilterHandleCallback filterCallback = new FilterHandleCallback() {

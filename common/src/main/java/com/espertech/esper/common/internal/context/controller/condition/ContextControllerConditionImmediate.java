@@ -12,13 +12,15 @@ package com.espertech.esper.common.internal.context.controller.condition;
 
 import com.espertech.esper.common.client.EventBean;
 
+import java.util.Map;
+
 public class ContextControllerConditionImmediate implements ContextControllerConditionNonHA {
     public final static ContextControllerConditionImmediate INSTANCE = new ContextControllerConditionImmediate();
 
     private ContextControllerConditionImmediate() {
     }
 
-    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider) {
+    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider, Map<String, Object> optionalTriggeringPattern) {
         return false;
     }
 

@@ -20,6 +20,8 @@ import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
 import com.espertech.esper.common.internal.schedule.ScheduleObjectType;
 import com.espertech.esper.common.internal.schedule.ScheduleSpec;
 
+import java.util.Map;
+
 public class ContextControllerConditionCrontabImpl implements ContextControllerConditionNonHA, ContextControllerConditionCrontab {
     public final static String NAME_AUDITPROVIDER_SCHEDULE = "context-condition crontab";
 
@@ -41,7 +43,7 @@ public class ContextControllerConditionCrontabImpl implements ContextControllerC
         this.controller = controller;
     }
 
-    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider) {
+    public boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider, Map<String, Object> optionalTriggeringPattern) {
         ScheduleHandleCallback scheduleCallback = new ScheduleHandleCallback() {
             public void scheduledTrigger() {
                 AgentInstanceContext agentInstanceContext = controller.getRealization().getAgentInstanceContextCreate();

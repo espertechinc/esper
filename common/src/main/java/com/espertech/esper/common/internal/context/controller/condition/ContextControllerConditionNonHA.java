@@ -12,8 +12,10 @@ package com.espertech.esper.common.internal.context.controller.condition;
 
 import com.espertech.esper.common.client.EventBean;
 
+import java.util.Map;
+
 public interface ContextControllerConditionNonHA extends ContextControllerCondition {
-    boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider);
+    boolean activate(EventBean optionalTriggeringEvent, ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider, Map<String, Object> optionalTriggeringPattern);
 
     void deactivate();
 

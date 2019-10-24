@@ -147,10 +147,14 @@ public class ContextControllerKeyedImpl extends ContextControllerKeyed {
                 public void populateEndConditionFromTrigger(MatchedEventMap map, EventBean triggeringEvent) {
                     ContextControllerKeyedUtil.populatePriorMatch(optionalInitCondAsName, map, triggeringEvent);
                 }
+
+                public void populateEndConditionFromTrigger(MatchedEventMap map, Map<String, Object> triggeringPattern) {
+                    // not required for keyed controller
+                }
             };
         }
 
-        terminationCondition.activate(triggeringEvent, endConditionMatchEventProvider);
+        terminationCondition.activate(triggeringEvent, endConditionMatchEventProvider, null);
 
         return terminationCondition;
     }

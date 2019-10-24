@@ -15,15 +15,16 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
-import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.regressionlib.support.context.AgentInstanceAssertionUtil;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
@@ -72,7 +73,93 @@ public class ContextInitTerm {
         execs.add(new ContextStartEndStartNowCalMonthScoped());
         execs.add(new ContextInitTermAggregationGrouped());
         execs.add(new ContextInitTermPrevPrior());
+        execs.add(new ContextStartEndPatternCorrelated());
+        execs.add(new ContextInitTermPatternCorrelated());
         return execs;
+    }
+
+    private static class ContextStartEndPatternCorrelated implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext\n" +
+                "start pattern [a=SupportBean_S0 or b=SupportBean_S1]\n" +
+                "end pattern [SupportBean_S2(id=a.id) or SupportBean_S3(id=b.id)];\n" +
+                "@name('s0') context MyContext select * from SupportBean";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean_S1(100));
+            sendAssertSB(env, true);
+            env.sendEventBean(new SupportBean_S2(100));
+            sendAssertSB(env, true);
+            env.sendEventBean(new SupportBean_S3(101));
+            sendAssertSB(env, true);
+            env.sendEventBean(new SupportBean_S3(100));
+            sendAssertSB(env, false);
+
+            env.sendEventBean(new SupportBean_S0(200));
+            sendAssertSB(env, true);
+            env.sendEventBean(new SupportBean_S2(201));
+            env.sendEventBean(new SupportBean_S3(200));
+            sendAssertSB(env, true);
+            env.sendEventBean(new SupportBean_S2(200));
+            sendAssertSB(env, false);
+
+            env.undeployAll();
+        }
+
+        private void sendAssertSB(RegressionEnvironment env, boolean received) {
+            env.sendEventBean(new SupportBean());
+            assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        }
+    }
+
+    private static class ContextInitTermPatternCorrelated implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+
+            // Sample alternative epl without pattern is:
+            //   create context ACtx
+            //   initiated by SupportBean(intPrimitive = 0) as a
+            //   terminated by SupportBean(theString=a.theString, intPrimitive = 1);
+            //   @name('s0') context ACtx select * from SupportBean_S0(p00=context.a.theString);
+
+            String epl = "create context ACtx\n" +
+                "initiated by pattern[every a=SupportBean(intPrimitive = 0)]\n" +
+                "terminated by pattern[SupportBean(theString=a.theString, intPrimitive = 1)];\n" +
+                "@name('s0') context ACtx select * from SupportBean_S0(p00=context.a.theString);\n";
+
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("G1", 0));
+            sendAssertS0(env, "G1", true);
+            sendAssertS0(env, "X", false);
+
+            env.milestone(0);
+
+            sendAssertS0(env, "G1", true);
+            sendAssertS0(env, "X", false);
+            env.sendEventBean(new SupportBean("G1", 1));
+            sendAssertS0(env, "G1", false);
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportBean("G2", 0));
+            sendAssertS0(env, "G1", false);
+            sendAssertS0(env, "G2", true);
+
+            env.milestone(0);
+
+            sendAssertS0(env, "G2", true);
+            sendAssertS0(env, "X", false);
+            env.sendEventBean(new SupportBean("G2", 1));
+            sendAssertS0(env, "G1", false);
+            sendAssertS0(env, "G2", false);
+
+            env.undeployAll();
+        }
+
+        private void sendAssertS0(RegressionEnvironment env, String p00, boolean received) {
+            env.sendEventBean(new SupportBean_S0(1, p00));
+            assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        }
     }
 
     private static class ContextInitTermNoTerminationCondition implements RegressionExecution {
