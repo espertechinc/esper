@@ -21,9 +21,9 @@ IOLIB=../../../dependencies/esperio-springjms/lib
 
 CLASSPATH=.
 CLASSPATH=$CLASSPATH:../target/classes
-CLASSPATH=$CLASSPATH:../../../esper-common-8.3.0.jar
-CLASSPATH=$CLASSPATH:../../../esper-compiler-8.3.0.jar
-CLASSPATH=$CLASSPATH:../../../esper-runtime-8.3.0.jar
+CLASSPATH=$CLASSPATH:../../../esper-common-8.4.0.jar
+CLASSPATH=$CLASSPATH:../../../esper-compiler-8.4.0.jar
+CLASSPATH=$CLASSPATH:../../../esper-runtime-8.4.0.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/slf4j-api-1.7.26.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/slf4j-log4j12-1.7.26.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/log4j-1.2.17.jar
