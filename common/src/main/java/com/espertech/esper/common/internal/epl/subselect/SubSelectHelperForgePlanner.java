@@ -82,12 +82,12 @@ public class SubSelectHelperForgePlanner {
     private final static String MSG_SUBQUERY_REQUIRES_WINDOW = "Subqueries require one or more views to limit the stream, consider declaring a length or time window (applies to correlated or non-fully-aggregated subqueries)";
 
     public static SubSelectHelperForgePlan planSubSelect(StatementBaseInfo statement,
-                                                                              Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation,
-                                                                              String[] outerStreamNames,
-                                                                              EventType[] outerEventTypesSelect,
-                                                                              String[] outerEventTypeNamees,
-                                                                              StatementCompileTimeServices compileTimeServices)
-            throws ExprValidationException, ViewProcessingException {
+                                                         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation,
+                                                         String[] outerStreamNames,
+                                                         EventType[] outerEventTypesSelect,
+                                                         String[] outerEventTypeNamees,
+                                                         StatementCompileTimeServices compileTimeServices)
+        throws ExprValidationException, ViewProcessingException {
 
         ExprDeclaredNode[] declaredExpressions = statement.getStatementSpec().getDeclaredExpressions();
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = new LinkedHashMap<>();
@@ -104,7 +104,7 @@ public class SubSelectHelperForgePlanner {
 
             try {
                 SubSelectFactoryForgeDesc forgeDesc = planSubSelectInternal(
-                        subselect, subSelectActivation, outerStreamNames, outerEventTypesSelect, outerEventTypeNamees, declaredExpressions, statement.getContextPropertyRegistry(), declaredExpressionCallHierarchy, statement, compileTimeServices);
+                    subselect, subSelectActivation, outerStreamNames, outerEventTypesSelect, outerEventTypeNamees, declaredExpressions, statement.getContextPropertyRegistry(), declaredExpressionCallHierarchy, statement, compileTimeServices);
                 subselectForges.put(entry.getKey(), forgeDesc.getSubSelectFactoryForge());
                 additionalForgeables.addAll(forgeDesc.getAdditionalForgeables());
             } catch (Exception ex) {
@@ -116,16 +116,16 @@ public class SubSelectHelperForgePlanner {
     }
 
     private static SubSelectFactoryForgeDesc planSubSelectInternal(ExprSubselectNode subselect,
-                                                               SubSelectActivationPlan subselectActivation,
-                                                               String[] outerStreamNames,
-                                                               EventType[] outerEventTypesSelect,
-                                                               String[] outerEventTypeNamees,
-                                                               ExprDeclaredNode[] declaredExpressions,
-                                                               ContextPropertyRegistry contextPropertyRegistry,
-                                                               Map<ExprDeclaredNode, List<ExprDeclaredNode>> declaredExpressionCallHierarchy,
-                                                               StatementBaseInfo statement,
-                                                               StatementCompileTimeServices services)
-            throws ExprValidationException {
+                                                                   SubSelectActivationPlan subselectActivation,
+                                                                   String[] outerStreamNames,
+                                                                   EventType[] outerEventTypesSelect,
+                                                                   String[] outerEventTypeNamees,
+                                                                   ExprDeclaredNode[] declaredExpressions,
+                                                                   ContextPropertyRegistry contextPropertyRegistry,
+                                                                   Map<ExprDeclaredNode, List<ExprDeclaredNode>> declaredExpressionCallHierarchy,
+                                                                   StatementBaseInfo statement,
+                                                                   StatementCompileTimeServices services)
+        throws ExprValidationException {
         boolean queryPlanLogging = services.getConfiguration().getCommon().getLogging().isEnableQueryPlan();
         if (queryPlanLogging && QUERY_PLAN_LOG.isInfoEnabled()) {
             QUERY_PLAN_LOG.info("For statement '" + statement.getStatementNumber() + "' subquery " + subselect.getSubselectNumber());
@@ -203,8 +203,8 @@ public class SubSelectHelperForgePlanner {
         boolean hasNonAggregatedProperties;
 
         ExprValidationContext validationContext = new ExprValidationContextBuilder(subselectTypeService, statement.getStatementRawInfo(), services)
-                .withViewResourceDelegate(viewResourceDelegateSubselect).withAllowBindingConsumption(true)
-                .withMemberName(new ExprValidationMemberNameQualifiedSubquery(subqueryNum)).build();
+            .withViewResourceDelegate(viewResourceDelegateSubselect).withAllowBindingConsumption(true)
+            .withMemberName(new ExprValidationMemberNameQualifiedSubquery(subqueryNum)).build();
         List<ExprAggregateNode> aggExprNodesSelect = new ArrayList<>(2);
 
         for (int i = 0; i < selectClauseSpec.getSelectExprList().length; i++) {
@@ -286,7 +286,7 @@ public class SubSelectHelperForgePlanner {
                 throw new ExprValidationException("Subquery multi-column select is not allowed in this context.");
             }
             if (subselectSpec.getGroupByExpressions() == null && selectExpressions.size() > 1 &&
-                    aggExprNodesSelect.size() > 0 && hasNonAggregatedProperties) {
+                aggExprNodesSelect.size() > 0 && hasNonAggregatedProperties) {
                 throw new ExprValidationException("Subquery with multi-column select requires that either all or none of the selected columns are under aggregation, unless a group-by clause is also specified");
             }
             subselect.setSelectClause(selectExpressions.toArray(new ExprNode[selectExpressions.size()]));
@@ -376,10 +376,10 @@ public class SubSelectHelperForgePlanner {
             }
 
             aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.emptyMap(),
-                    Collections.emptyList(), groupByExpressions, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef(), aggExpressionNodesHaving, Collections.emptyList(),
-                    groupKeyExpressions, hasGroupBy, annotations, services.getVariableCompileTimeResolver(), true, subselectSpec.getRaw().getWhereClause(), subselectSpec.getRaw().getHavingClause(),
-                    subselectTypeService.getEventTypes(), null, subselectSpec.getRaw().getOptionalContextName(), null, null, false, false, false,
-                    services.getClasspathImportServiceCompileTime(), statement.getStatementRawInfo(), services.getSerdeResolver());
+                Collections.emptyList(), groupByExpressions, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef(), aggExpressionNodesHaving, Collections.emptyList(),
+                groupKeyExpressions, hasGroupBy, annotations, services.getVariableCompileTimeResolver(), true, subselectSpec.getRaw().getWhereClause(), subselectSpec.getRaw().getHavingClause(),
+                subselectTypeService.getEventTypes(), null, subselectSpec.getRaw().getOptionalContextName(), null, null, false, false, false,
+                services.getClasspathImportServiceCompileTime(), statement.getStatementRawInfo(), services.getSerdeResolver());
             additionalForgeables.addAll(aggregationServiceForgeDesc.getAdditionalForgeables());
 
             // assign select-clause
@@ -471,7 +471,7 @@ public class SubSelectHelperForgePlanner {
                     disableIndexShare = false;
                 }
 
-                if (!disableIndexShare && namedWindow.isEnableIndexShare()) {
+                if ((!disableIndexShare && namedWindow.isEnableIndexShare()) || (services.isFireAndForget())) {
                     validateContextAssociation(statement.getContextName(), namedWindow.getContextName(), "named window '" + namedWindow.getEventType().getName() + "'");
                     if (queryPlanLogging && QUERY_PLAN_LOG.isInfoEnabled()) {
                         QUERY_PLAN_LOG.info("prefering shared index");
@@ -480,11 +480,13 @@ public class SubSelectHelperForgePlanner {
                     ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(allStreamNames, statement.getStatementRawInfo(), services);
                     SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
                     SubSelectStrategyFactoryIndexShareForge strategyForge = new SubSelectStrategyFactoryIndexShareForge(subqueryNum, subselectActivation, outerEventTypesSelect, namedWindow, null,
-                            fullTableScan, indexHint, joinedPropPlan, filterExprEval, groupByNodes, aggregationServiceForgeDesc, statement, services);
+                        fullTableScan, indexHint, joinedPropPlan, filterExprEval, groupByNodes, aggregationServiceForgeDesc, statement, services);
                     additionalForgeables.addAll(strategyForge.getAdditionalForgeables());
                     SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
                     return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
                 }
+            } else if (services.isFireAndForget()) {
+                throw new ExprValidationException("Subqueries in fire-and-forget queries do not allow filter expressions");
             }
         }
 
@@ -496,7 +498,7 @@ public class SubSelectHelperForgePlanner {
             ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(allStreamNames, statement.getStatementRawInfo(), services);
             SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
             SubSelectStrategyFactoryIndexShareForge strategyForge = new SubSelectStrategyFactoryIndexShareForge(subqueryNum, subselectActivation, outerEventTypesSelect, null, tableSpec.getTable(),
-                    fullTableScan, indexHint, joinedPropPlan, filterExprEval, groupByNodes, aggregationServiceForgeDesc, statement, services);
+                fullTableScan, indexHint, joinedPropPlan, filterExprEval, groupByNodes, aggregationServiceForgeDesc, statement, services);
             additionalForgeables.addAll(strategyForge.getAdditionalForgeables());
             SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
             return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
@@ -526,15 +528,15 @@ public class SubSelectHelperForgePlanner {
         Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> indexPair = new Pair<>(indexDesc.getTableForge(), indexDesc.getLookupForge());
 
         SubSelectStrategyFactoryForge strategyForge = new SubSelectStrategyFactoryLocalViewPreloadedForge(viewForges, viewResourceDelegateDesc, indexPair,
-                filterExpr, correlatedSubquery, aggregationServiceForgeDesc,  /* viewResourceDelegateVerified */ subqueryNum, groupByNodes, namedWindow,
-                namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
+            filterExpr, correlatedSubquery, aggregationServiceForgeDesc,  /* viewResourceDelegateVerified */ subqueryNum, groupByNodes, namedWindow,
+            namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
 
         SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
         return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
     }
 
     private static void validateSubqueryDataWindow(ExprSubselectNode subselectNode, boolean correlatedSubquery, boolean hasNonAggregatedProperties, ExprNodePropOrStreamSet propertiesGroupBy, ExprNodePropOrStreamSet nonAggregatedPropsSelect)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // validation applies only to type+filter subqueries that have no data window
         StreamSpecCompiled streamSpec = subselectNode.getStatementSpecCompiled().getStreamSpecs()[0];
         if (!(streamSpec instanceof FilterStreamSpecCompiled) || streamSpec.getViewSpecs().length > 0) {
@@ -574,16 +576,16 @@ public class SubSelectHelperForgePlanner {
     }
 
     private static SubqueryIndexForgeDesc determineSubqueryIndexFactory(ExprNode filterExpr,
-                                                                                                                            EventType viewableEventType,
-                                                                                                                            EventType[] outerEventTypes,
-                                                                                                                            StreamTypeService subselectTypeService,
-                                                                                                                            boolean fullTableScan,
-                                                                                                                            boolean queryPlanLogging,
-                                                                                                                            Set<String> optionalUniqueProps,
-                                                                                                                            StatementBaseInfo statement,
-                                                                                                                            ExprSubselectNode subselect,
-                                                                                                                            StatementCompileTimeServices services)
-            throws ExprValidationException {
+                                                                        EventType viewableEventType,
+                                                                        EventType[] outerEventTypes,
+                                                                        StreamTypeService subselectTypeService,
+                                                                        boolean fullTableScan,
+                                                                        boolean queryPlanLogging,
+                                                                        Set<String> optionalUniqueProps,
+                                                                        StatementBaseInfo statement,
+                                                                        ExprSubselectNode subselect,
+                                                                        StatementCompileTimeServices services)
+        throws ExprValidationException {
         SubqueryIndexForgeDesc desc = determineSubqueryIndexInternalFactory(filterExpr, viewableEventType, outerEventTypes, subselectTypeService, fullTableScan, optionalUniqueProps, statement, subselect, services);
 
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statement.getStatementSpec().getAnnotations(), services.getClasspathImportServiceCompileTime());
@@ -594,9 +596,9 @@ public class SubSelectHelperForgePlanner {
             if (hook != null) {
                 String strategyName = desc.getLookupForge().getClass().getSimpleName();
                 hook.subquery(new QueryPlanIndexDescSubquery(
-                        new IndexNameAndDescPair[]{
-                            new IndexNameAndDescPair(null, desc.getTableForge().getEventTableClass().getSimpleName())
-                        }, subselect.getSubselectNumber(), strategyName));
+                    new IndexNameAndDescPair[]{
+                        new IndexNameAndDescPair(null, desc.getTableForge().getEventTableClass().getSimpleName())
+                    }, subselect.getSubselectNumber(), strategyName));
             }
         }
 
@@ -604,13 +606,13 @@ public class SubSelectHelperForgePlanner {
     }
 
     private static String validateContextAssociation(String optionalProvidedContextName, String entityDeclaredContextName, String entityDesc)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (entityDeclaredContextName != null) {
             if (optionalProvidedContextName == null || !optionalProvidedContextName.equals(entityDeclaredContextName)) {
                 throw new ExprValidationException("Mismatch in context specification, the context for the " + entityDesc + " is '" +
-                        entityDeclaredContextName + "' and the query specifies " +
-                        (optionalProvidedContextName == null ? "no context " :
-                                "context '" + optionalProvidedContextName + "'"));
+                    entityDeclaredContextName + "' and the query specifies " +
+                    (optionalProvidedContextName == null ? "no context " :
+                        "context '" + optionalProvidedContextName + "'"));
             }
         }
         return null;
@@ -625,7 +627,7 @@ public class SubSelectHelperForgePlanner {
                                                                                 StatementBaseInfo statement,
                                                                                 ExprSubselectNode subselectNode,
                                                                                 StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         int subqueryNumber = subselectNode.getSubselectNumber();
 
         // No filter expression means full table scan
@@ -731,7 +733,7 @@ public class SubSelectHelperForgePlanner {
         }
 
         SubordTableLookupStrategyFactoryForge subqTableLookupStrategyFactory = SubordinateTableLookupStrategyUtil.getLookupStrategy(outerEventTypes,
-                hashKeyList, hashCoercionDesc, hashMultikeyClasses, rangeKeyList, rangeCoercionDesc, inKeywordSingleIdxKeys, inKeywordMultiIdxKey, false);
+            hashKeyList, hashCoercionDesc, hashMultikeyClasses, rangeKeyList, rangeCoercionDesc, inKeywordSingleIdxKeys, inKeywordMultiIdxKey, false);
 
         return new SubqueryIndexForgeDesc(eventTableFactory, subqTableLookupStrategyFactory, additionalForgeables);
     }
@@ -743,7 +745,7 @@ public class SubSelectHelperForgePlanner {
                                                                 ExprSubselectNode subselect,
                                                                 String subexpressionStreamName,
                                                                 EventType eventType)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Find that subselect within that any of the expression declarations
         for (ExprDeclaredNode declaration : declaredExpressions) {
             ExprNodeSubselectDeclaredNoTraverseVisitor visitor = new ExprNodeSubselectDeclaredNoTraverseVisitor(declaration);

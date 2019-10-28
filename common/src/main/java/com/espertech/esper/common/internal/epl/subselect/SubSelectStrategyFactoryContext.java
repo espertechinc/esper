@@ -10,18 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.subselect;
 
-import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
-import com.espertech.esper.common.internal.epl.lookup.LookupStrategyDesc;
-import com.espertech.esper.common.internal.view.core.Viewable;
+import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
+import com.espertech.esper.common.internal.epl.index.base.EventTableIndexService;
 
-import java.util.List;
-
-public interface SubSelectStrategyFactory {
-    void ready(SubSelectStrategyFactoryContext subselectFactoryContext, EventType eventType);
-
-    SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient);
-
-    LookupStrategyDesc getLookupStrategyDesc();
+public interface SubSelectStrategyFactoryContext {
+    EventTableIndexService getEventTableIndexService();
+    EventTableFactoryFactoryContext getEventTableFactoryContext();
 }

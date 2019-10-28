@@ -53,7 +53,7 @@ public class FAFQueryMethodSelectExecNoContextJoin implements FAFQueryMethodSele
         }
 
         // get RSP
-        ResultSetProcessor resultSetProcessor = processorWithAssign(select.getResultSetProcessorFactoryProvider(), agentInstanceContext, assignerSetter, select.getTableAccesses());
+        ResultSetProcessor resultSetProcessor = processorWithAssign(select.getResultSetProcessorFactoryProvider(), agentInstanceContext, assignerSetter, select.getTableAccesses(), select.getSubselects());
 
         // determine join
         JoinSetComposerDesc joinSetComposerDesc = select.getJoinSetComposerPrototype().create(viewablePerStream, true, agentInstanceContext, false);

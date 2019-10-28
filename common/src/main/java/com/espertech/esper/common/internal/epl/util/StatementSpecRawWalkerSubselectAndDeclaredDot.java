@@ -55,6 +55,21 @@ public class StatementSpecRawWalkerSubselectAndDeclaredDot {
 
         // walk streams
         walkStreamSpecs(spec, visitor);
+
+        // walk FAF
+        walkFAFSpec(spec.getFireAndForgetSpec(), visitor);
+    }
+
+    private static void walkFAFSpec(FireAndForgetSpec fireAndForgetSpec, ExprNodeSubselectDeclaredDotVisitor visitor) {
+        if (fireAndForgetSpec == null) {
+            return;
+        }
+        if (fireAndForgetSpec instanceof FireAndForgetSpecUpdate) {
+            FireAndForgetSpecUpdate update = (FireAndForgetSpecUpdate) fireAndForgetSpec;
+            for (OnTriggerSetAssignment assignment : update.getAssignments()) {
+                assignment.getExpression().accept(visitor);
+            }
+        }
     }
 
     public static void walkStreamSpecs(StatementSpecRaw spec, ExprNodeSubselectDeclaredDotVisitor visitor) throws ExprValidationException {

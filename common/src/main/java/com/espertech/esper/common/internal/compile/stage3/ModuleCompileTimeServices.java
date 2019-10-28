@@ -57,6 +57,7 @@ public class ModuleCompileTimeServices {
     private final EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry;
     private final EventTypeCompileTimeResolver eventTypeCompileTimeResolver;
     private final EventTypeRepositoryImpl eventTypeRepositoryPreconfigured;
+    private final boolean fireAndForget;
     private final IndexCompileTimeRegistry indexCompileTimeRegistry;
     private final ModuleDependenciesCompileTime moduleDependencies;
     private final ModuleAccessModifierService moduleVisibilityRules;
@@ -77,7 +78,7 @@ public class ModuleCompileTimeServices {
 
     private final DataFlowCompileTimeRegistry dataFlowCompileTimeRegistry = new DataFlowCompileTimeRegistry();
 
-    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, ParentClassLoader parentClassLoader, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
+    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, boolean fireAndForget, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, ParentClassLoader parentClassLoader, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
         this.parentClassLoader = parentClassLoader;
         this.compilerServices = compilerServices;
         this.configuration = configuration;
@@ -93,6 +94,7 @@ public class ModuleCompileTimeServices {
         this.eventTypeCompileTimeRegistry = eventTypeCompileTimeRegistry;
         this.eventTypeCompileTimeResolver = eventTypeCompileTimeResolver;
         this.eventTypeRepositoryPreconfigured = eventTypeRepositoryPreconfigured;
+        this.fireAndForget = fireAndForget;
         this.indexCompileTimeRegistry = indexCompileTimeRegistry;
         this.moduleDependencies = moduleDependencies;
         this.moduleVisibilityRules = moduleVisibilityRules;
@@ -127,6 +129,7 @@ public class ModuleCompileTimeServices {
         this.eventTypeCompileTimeRegistry = null;
         this.eventTypeCompileTimeResolver = null;
         this.eventTypeRepositoryPreconfigured = null;
+        this.fireAndForget = false;
         this.indexCompileTimeRegistry = null;
         this.serdeEventTypeRegistry = null;
         this.serdeResolver = null;
@@ -195,6 +198,10 @@ public class ModuleCompileTimeServices {
 
     public EventTypeRepositoryImpl getEventTypeRepositoryPreconfigured() {
         return eventTypeRepositoryPreconfigured;
+    }
+
+    public boolean isFireAndForget() {
+        return fireAndForget;
     }
 
     public IndexCompileTimeRegistry getIndexCompileTimeRegistry() {

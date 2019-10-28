@@ -10,8 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.index.base;
 
-import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
 
-public interface EventTableFactoryFactory {
-    EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext);
+import java.lang.annotation.Annotation;
+
+public interface EventTableFactoryFactoryContext {
+    EventTableIndexService getEventTableIndexService();
+    RuntimeSettingsService getRuntimeSettingsService();
+    Annotation[] getAnnotations();
 }

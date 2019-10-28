@@ -34,7 +34,7 @@ public class StatementLifecycleSvcUtil {
         return tableCompileTimeResolver.resolve(statementSpecRaw.getInsertIntoDesc().getEventTypeName()) != null;
     }
 
-    private static boolean isSubqueryWithTable(List<ExprSubselectNode> subselectNodes, TableCompileTimeResolver tableCompileTimeResolver) {
+    public static boolean isSubqueryWithTable(List<ExprSubselectNode> subselectNodes, TableCompileTimeResolver tableCompileTimeResolver) {
         for (ExprSubselectNode node : subselectNodes) {
             FilterStreamSpecRaw spec = (FilterStreamSpecRaw) node.getStatementSpecRaw().getStreamSpecs().get(0);
             if (tableCompileTimeResolver.resolve(spec.getRawFilterSpec().getEventTypeName()) != null) {

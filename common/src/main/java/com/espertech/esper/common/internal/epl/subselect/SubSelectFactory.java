@@ -64,6 +64,10 @@ public class SubSelectFactory implements StatementReadyCallback {
         strategyFactory.ready(statementContext, activator.getEventType());
     }
 
+    public void ready(SubSelectStrategyFactoryContext subselectFactoryContext, boolean recovery) {
+        strategyFactory.ready(subselectFactoryContext, activator.getEventType());
+    }
+
     public AIRegistryRequirementSubquery getRegistryRequirements() {
         return new AIRegistryRequirementSubquery(hasAggregation, hasPrior, hasPrevious, strategyFactory.getLookupStrategyDesc());
     }

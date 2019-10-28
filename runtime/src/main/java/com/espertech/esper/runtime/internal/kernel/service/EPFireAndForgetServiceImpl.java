@@ -54,7 +54,7 @@ public class EPFireAndForgetServiceImpl implements EPFireAndForgetService {
         FAFQueryMethodProvider queryMethodProvider = fafProvider.getQueryMethodProvider();
         EPRuntimeHelperFAF.validateSubstitutionParams(queryMethodProvider);
         FAFQueryMethod queryMethod = queryMethodProvider.getQueryMethod();
-        queryMethod.ready();
+        queryMethod.ready(services.getStatementContextRuntimeServices());
         return new EPPreparedQueryImpl(serviceStatusProvider, queryMethodProvider, queryMethod, services);
     }
 
@@ -62,7 +62,7 @@ public class EPFireAndForgetServiceImpl implements EPFireAndForgetService {
         FAFProvider fafProvider = EPRuntimeHelperFAF.queryMethod(compiled, services);
         FAFQueryMethodProvider queryMethodProvider = fafProvider.getQueryMethodProvider();
         FAFQueryMethod queryMethod = queryMethodProvider.getQueryMethod();
-        queryMethod.ready();
+        queryMethod.ready(services.getStatementContextRuntimeServices());
         return new EPFireAndForgetPreparedQueryParameterizedImpl(serviceStatusProvider, queryMethodProvider.getSubstitutionFieldSetter(), queryMethod, queryMethodProvider.getQueryInformationals());
     }
 
@@ -92,7 +92,7 @@ public class EPFireAndForgetServiceImpl implements EPFireAndForgetService {
         FAFQueryMethodProvider queryMethodProvider = fafProvider.getQueryMethodProvider();
         EPRuntimeHelperFAF.validateSubstitutionParams(queryMethodProvider);
         FAFQueryMethod queryMethod = queryMethodProvider.getQueryMethod();
-        queryMethod.ready();
+        queryMethod.ready(services.getStatementContextRuntimeServices());
         EPPreparedQueryResult result = queryMethod.execute(serviceStatusProvider, queryMethodProvider.getSubstitutionFieldSetter(), contextPartitionSelectors, services.getContextManagementService());
         return new EPQueryResultImpl(result);
     }

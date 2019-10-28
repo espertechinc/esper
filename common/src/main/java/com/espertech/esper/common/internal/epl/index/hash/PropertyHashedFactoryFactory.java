@@ -14,9 +14,9 @@ import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
-import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
+import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class PropertyHashedFactoryFactory extends EventTableFactoryFactoryBase {
 
@@ -39,8 +39,8 @@ public class PropertyHashedFactoryFactory extends EventTableFactoryFactoryBase {
         this.keySerde = keySerde;
     }
 
-    public EventTableFactory create(EventType eventType, StatementContext statementContext) {
-        return statementContext.getEventTableIndexService().createHashedOnly(indexedStreamNum, eventType, indexProps,
-                indexTypes, transformFireAndForget, keySerde, unique, null, valueGetter, null, isFireAndForget, statementContext);
+    public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
+        return eventTableFactoryContext.getEventTableIndexService().createHashedOnly(indexedStreamNum, eventType, indexProps,
+                indexTypes, transformFireAndForget, keySerde, unique, null, valueGetter, null, isFireAndForget, eventTableFactoryContext);
     }
 }

@@ -15,9 +15,17 @@ import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.client.context.ContextPartitionSelectorAll;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.mgr.ContextManager;
+import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
+import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
+import com.espertech.esper.common.internal.epl.index.base.EventTableIndexService;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectFactory;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectStrategyFactoryContext;
+import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
 
+import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.Map;
 
 public class FAFQueryMethodUtil {
 
@@ -28,5 +36,32 @@ public class FAFQueryMethodUtil {
 
     public static EPException runtimeDestroyed() {
         return new EPException("Runtime has already been destroyed");
+    }
+
+    static void initializeSubselects(StatementContextRuntimeServices svc, Annotation[] annotations, Map<Integer, SubSelectFactory> subselects) {
+        SubSelectStrategyFactoryContext context = new SubSelectStrategyFactoryContext() {
+            public EventTableIndexService getEventTableIndexService() {
+                return svc.getEventTableIndexService();
+            }
+
+            public EventTableFactoryFactoryContext getEventTableFactoryContext() {
+                return new EventTableFactoryFactoryContext() {
+                    public EventTableIndexService getEventTableIndexService() {
+                        return svc.getEventTableIndexService();
+                    }
+
+                    public RuntimeSettingsService getRuntimeSettingsService() {
+                        return svc.getRuntimeSettingsService();
+                    }
+
+                    public Annotation[] getAnnotations() {
+                        return annotations;
+                    }
+                };
+            }
+        };
+        for (Map.Entry<Integer, SubSelectFactory> subselect : subselects.entrySet()) {
+            subselect.getValue().ready(context, false);
+        }
     }
 }

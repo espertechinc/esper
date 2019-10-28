@@ -18,12 +18,15 @@ import com.espertech.esper.common.internal.compile.stage1.Compilable;
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamSpec;
+import com.espertech.esper.common.internal.compile.stage2.StatementLifecycleSvcUtil;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessorForge;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessorForgeFactory;
@@ -40,6 +43,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
+import com.espertech.esper.common.internal.epl.subselect.*;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
@@ -49,10 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Starts and provides the stop method for EPL statements.
@@ -74,6 +75,7 @@ public class FAFQueryMethodSelectDesc {
     private final MultiKeyClassRef distinctMultiKey;
     private Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges;
     private final List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+    private final Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges;
 
     public FAFQueryMethodSelectDesc(StatementSpecCompiled statementSpec,
                                     Compilable compilable,
@@ -92,6 +94,7 @@ public class FAFQueryMethodSelectDesc {
         for (StreamSpecCompiled streamSpec : statementSpec.getStreamSpecs()) {
             hasTableAccess |= streamSpec instanceof TableQueryStreamSpec;
         }
+        hasTableAccess |= StatementLifecycleSvcUtil.isSubqueryWithTable(statementSpec.getSubselectNodes(), services.getTableCompileTimeResolver());
         this.isDistinct = statementSpec.getSelectClauseCompiled().isDistinct();
 
         FAFQueryMethodHelper.validateFAFQuery(statementSpec);
@@ -99,6 +102,7 @@ public class FAFQueryMethodSelectDesc {
         int numStreams = statementSpec.getStreamSpecs().length;
         EventType[] typesPerStream = new EventType[numStreams];
         String[] namesPerStream = new String[numStreams];
+        String[] eventTypeNames = new String[numStreams];
         processors = new FireAndForgetProcessorForge[numStreams];
         consumerFilters = new ExprNode[numStreams];
 
@@ -123,6 +127,7 @@ public class FAFQueryMethodSelectDesc {
             }
             namesPerStream[i] = streamName;
             typesPerStream[i] = processors[i].getEventTypeRSPInputEvents();
+            eventTypeNames[i] = typesPerStream[i].getName();
 
             List<ExprNode> consumerFilterExprs;
             if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
@@ -152,6 +157,18 @@ public class FAFQueryMethodSelectDesc {
                 }
             }
         }
+
+        // handle subselects
+        // first we create streams for subselects, if there are any
+        StatementBaseInfo base = new StatementBaseInfo(compilable, statementSpec, null, statementRawInfo, null);
+        List<NamedWindowConsumerStreamSpec> subqueryNamedWindowConsumers = new ArrayList<>();
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(Collections.emptyList(), subqueryNamedWindowConsumers, base, services);
+        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
+        additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
+
+        SubSelectHelperForgePlan subSelectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, namesPerStream, typesPerStream, eventTypeNames, services);
+        subselectForges = subSelectForgePlan.getSubselects();
+        additionalForgeables.addAll(subSelectForgePlan.getAdditionalForgeables());
 
         // obtain result set processor
         boolean[] isIStreamOnly = new boolean[namesPerStream.length];
@@ -241,5 +258,9 @@ public class FAFQueryMethodSelectDesc {
 
     public MultiKeyClassRef getDistinctMultiKey() {
         return distinctMultiKey;
+    }
+
+    public Map<ExprSubselectNode, SubSelectFactoryForge> getSubselectForges() {
+        return subselectForges;
     }
 }

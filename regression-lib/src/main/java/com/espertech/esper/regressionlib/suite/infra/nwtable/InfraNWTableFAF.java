@@ -192,10 +192,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             epl = "selectoo man";
             tryInvalidFAFCompile(env, path, epl, "Incorrect syntax near 'selectoo' [selectoo man]");
-
-            epl = "select (select * from MyInfra) from MyInfra";
-            tryInvalidFAFCompile(env, path, epl, "Subqueries are not a supported feature of on-demand queries [select (select * from MyInfra) from MyInfra]");
-
+            
             epl = "select * from MyInfra output every 10 seconds";
             tryInvalidFAFCompile(env, path, epl, "Output rate limiting is not a supported feature of on-demand queries [select * from MyInfra output every 10 seconds]");
 

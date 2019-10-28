@@ -126,9 +126,6 @@ public class StatementRawCompiler {
         if (isSubquery && !visitor.getSubselects().isEmpty()) {
             throw new StatementSpecCompileException("Invalid nested subquery, subquery-within-subquery is not supported", compilable.toEPL());
         }
-        if (isOnDemandQuery && !visitor.getSubselects().isEmpty()) {
-            throw new StatementSpecCompileException("Subqueries are not a supported feature of on-demand queries", compilable.toEPL());
-        }
         for (ExprSubselectNode subselectNode : visitor.getSubselects()) {
             if (!subselectNodes.contains(subselectNode)) {
                 subselectNodes.add(subselectNode);

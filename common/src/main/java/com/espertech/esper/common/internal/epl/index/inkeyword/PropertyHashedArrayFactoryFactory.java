@@ -13,9 +13,9 @@ package com.espertech.esper.common.internal.epl.index.inkeyword;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
-import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactory;
+import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFactory {
     protected final int streamNum;
@@ -36,7 +36,7 @@ public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFacto
         this.isFireAndForget = isFireAndForget;
     }
 
-    public EventTableFactory create(EventType eventType, StatementContext statementContext) {
-        return statementContext.getEventTableIndexService().createInArray(streamNum, eventType, propertyNames, propertyTypes, propertySerdes, unique, propertyGetters, isFireAndForget, statementContext);
+    public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
+        return eventTableFactoryContext.getEventTableIndexService().createInArray(streamNum, eventType, propertyNames, propertyTypes, propertySerdes, unique, propertyGetters, isFireAndForget, eventTableFactoryContext);
     }
 }

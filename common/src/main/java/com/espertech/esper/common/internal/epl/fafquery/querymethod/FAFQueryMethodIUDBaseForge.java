@@ -17,24 +17,26 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScop
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.faf.StmtClassForgeableQueryMethodProvider;
 import com.espertech.esper.common.internal.compile.stage1.Compilable;
-import com.espertech.esper.common.internal.compile.stage1.spec.FireAndForgetSpecDelete;
-import com.espertech.esper.common.internal.compile.stage1.spec.FireAndForgetSpecUpdate;
-import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamSpec;
+import com.espertech.esper.common.internal.compile.stage1.spec.*;
+import com.espertech.esper.common.internal.compile.stage2.StatementLifecycleSvcUtil;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessorForge;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessorForgeFactory;
 import com.espertech.esper.common.internal.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
+import com.espertech.esper.common.internal.epl.subselect.*;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyUtil;
@@ -43,6 +45,7 @@ import com.espertech.esper.common.internal.statement.helper.EPStatementStartMeth
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +63,8 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
     protected final Annotation[] annotations;
     protected boolean hasTableAccess;
     protected final Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges;
+    private final Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges;
+    private final List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
     protected abstract void initExec(String aliasName, StatementSpecCompiled spec, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException;
 
@@ -78,6 +83,7 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
             spec.getRaw().getFireAndForgetSpec() instanceof FireAndForgetSpecDelete) {
             hasTableAccess |= spec.getStreamSpecs()[0] instanceof TableQueryStreamSpec;
         }
+        hasTableAccess |= StatementLifecycleSvcUtil.isSubqueryWithTable(spec.getSubselectNodes(), services.getTableCompileTimeResolver());
 
         // validate general FAF criteria
         FAFQueryMethodHelper.validateFAFQuery(spec);
@@ -95,6 +101,21 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
         if (streamSpec.getOptionalStreamName() != null) {
             aliasName = streamSpec.getOptionalStreamName();
         }
+
+        // activate subselect activations
+        StatementBaseInfo base = new StatementBaseInfo(compilable, spec, null, statementRawInfo, null);
+        List<NamedWindowConsumerStreamSpec> subqueryNamedWindowConsumers = new ArrayList<>();
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(Collections.emptyList(), subqueryNamedWindowConsumers, base, services);
+        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
+        additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
+
+        // plan subselects
+        String[] namesPerStream = new String[] {aliasName};
+        EventType[] typesPerStream = new EventType[] {processor.getEventTypePublic()};
+        String[] eventTypeNames = new String[] {typesPerStream[0].getName()};
+        SubSelectHelperForgePlan subSelectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, namesPerStream, typesPerStream, eventTypeNames, services);
+        subselectForges = subSelectForgePlan.getSubselects();
+        additionalForgeables.addAll(subSelectForgePlan.getAdditionalForgeables());
 
         // compile filter to optimize access to named window
         StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{aliasName}, new boolean[]{true}, true, false);
@@ -118,6 +139,9 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
 
     public final List<StmtClassForgeable> makeForgeables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope) {
         List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
+            forgeables.add(additional.make(packageScope, classPostfix));
+        }
         forgeables.add(new StmtClassForgeableQueryMethodProvider(queryMethodProviderClassName, packageScope, this));
         return forgeables;
     }
@@ -131,7 +155,8 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
             .exprDotMethod(queryMethod, "setQueryGraph", queryGraph == null ? constantNull() : queryGraph.make(method, symbols, classScope))
             .exprDotMethod(queryMethod, "setInternalEventRouteDest", exprDotMethod(symbols.getAddInitSvc(method), EPStatementInitServices.GETINTERNALEVENTROUTEDEST))
             .exprDotMethod(queryMethod, "setTableAccesses", ExprTableEvalStrategyUtil.codegenInitMap(tableAccessForges, this.getClass(), method, symbols, classScope))
-            .exprDotMethod(queryMethod, "setHasTableAccess", constant(hasTableAccess));
+            .exprDotMethod(queryMethod, "setHasTableAccess", constant(hasTableAccess))
+            .exprDotMethod(queryMethod, "setSubselects", SubSelectFactoryForge.codegenInitMap(subselectForges, this.getClass(), method, symbols, classScope));
         makeInlineSpecificSetter(queryMethod, method, symbols, classScope);
         method.getBlock().methodReturn(queryMethod);
     }

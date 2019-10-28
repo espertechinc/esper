@@ -28,6 +28,7 @@ import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResult
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.historical.database.connection.DatabaseConfigServiceRuntime;
 import com.espertech.esper.common.internal.epl.historical.datacache.HistoricalDataCacheFactory;
+import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableIndexService;
 import com.espertech.esper.common.internal.epl.namedwindow.consume.NamedWindowConsumerManagementService;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowManagementService;
@@ -36,6 +37,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.rowrecog.state.RowRecogStatePoolStmtSvc;
 import com.espertech.esper.common.internal.epl.rowrecog.state.RowRecogStateRepoFactory;
 import com.espertech.esper.common.internal.epl.script.core.AgentInstanceScriptContext;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectStrategyFactoryContext;
 import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.table.core.TableManagementService;
 import com.espertech.esper.common.internal.epl.variable.core.VariableManagementService;
@@ -70,7 +72,7 @@ import javax.naming.Context;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class StatementContext implements ExprEvaluatorContext {
+public class StatementContext implements ExprEvaluatorContext, SubSelectStrategyFactoryContext, EventTableFactoryFactoryContext {
     private final ContextRuntimeDescriptor contextRuntimeDescriptor;
     private final String deploymentId;
     private final int statementId;
@@ -455,5 +457,9 @@ public class StatementContext implements ExprEvaluatorContext {
 
     public String getModuleName() {
         return moduleName;
+    }
+
+    public EventTableFactoryFactoryContext getEventTableFactoryContext() {
+        return this;
     }
 }

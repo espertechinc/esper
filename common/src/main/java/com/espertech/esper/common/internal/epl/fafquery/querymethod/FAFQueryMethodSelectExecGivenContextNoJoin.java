@@ -20,10 +20,7 @@ import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetP
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodSelectExecUtil.processorWithAssign;
 import static com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodUtil.agentInstanceIds;
@@ -54,9 +51,7 @@ public class FAFQueryMethodSelectExecGivenContextNoJoin implements FAFQueryMetho
         ResultSetProcessor resultSetProcessor = null;
         for (ContextPartitionResult contextPartitionResult : contextPartitionResults) {
 
-            if (resultSetProcessor == null) {
-                resultSetProcessor = processorWithAssign(select.getResultSetProcessorFactoryProvider(), contextPartitionResult.getContext(), assignerSetter, select.getTableAccesses());
-            }
+            resultSetProcessor = processorWithAssign(select.getResultSetProcessorFactoryProvider(), contextPartitionResult.getContext(), assignerSetter, select.getTableAccesses(), select.getSubselects());
 
             Collection<EventBean> snapshot = contextPartitionResult.getEvents();
             if (select.getWhereClause() != null) {

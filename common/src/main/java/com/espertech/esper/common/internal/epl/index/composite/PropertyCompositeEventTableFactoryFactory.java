@@ -13,9 +13,9 @@ package com.espertech.esper.common.internal.epl.index.composite;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
-import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactory;
+import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class PropertyCompositeEventTableFactoryFactory implements EventTableFactoryFactory {
     private final int indexedStreamNum;
@@ -44,8 +44,8 @@ public class PropertyCompositeEventTableFactoryFactory implements EventTableFact
         this.rangeKeySerdes = rangeKeySerdes;
     }
 
-    public EventTableFactory create(EventType eventType, StatementContext statementContext) {
-        return statementContext.getEventTableIndexService().createComposite(indexedStreamNum, eventType,
+    public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
+        return eventTableFactoryContext.getEventTableIndexService().createComposite(indexedStreamNum, eventType,
                 keyProps, keyTypes, keyGetter, null, keySerde,
                 rangeProps, rangeTypes, rangeGetters, rangeKeySerdes,
                 null, isFireAndForget);

@@ -174,7 +174,10 @@ public class OnTriggerWindowUtil {
             return;
         }
         if (!onExprContextName.equals(desiredContextName)) {
-            throw new ExprValidationException("Cannot create on-trigger expression: " + title + " was declared with context '" + desiredContextName + "', please use the same context instead");
+            String text = desiredContextName == null ?
+                "without a context" :
+                "with context '" + desiredContextName + "', please use the same context instead";
+            throw new ExprValidationException("Cannot create on-trigger expression: " + title + " was declared " + text);
         }
     }
 }

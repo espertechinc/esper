@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.lookupplansubord;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableUtil;
@@ -70,8 +69,8 @@ public class SubordinateQueryPlannerUtil {
                 IndexNameAndDescPair[] pairs = getPairs(strategy.getIndexes());
                 SubordTableLookupStrategyFactoryForge inner = strategy.getStrategy().getOptionalInnerStrategy();
                 hook.infraOnExpr(new QueryPlanIndexDescOnExpr(pairs,
-                        strategy.getStrategy().getClass().getSimpleName(),
-                        inner == null ? null : inner.getClass().getSimpleName()));
+                    strategy.getStrategy().getClass().getSimpleName(),
+                    inner == null ? null : inner.getClass().getSimpleName()));
             }
         }
     }
@@ -145,8 +144,7 @@ public class SubordinateQueryPlannerUtil {
             hashesDesc[i] = hashJoinedProps[index];
             hashPropCoercionTypes[i] = indexedKeyProps[i].getCoercionType();
             ExprForge keyForge = hashesDesc[i].getHashKey().getKeyExpr().getForge();
-            ExprEvaluator evaluatorHashkey = keyForge.getExprEvaluator();
-            if (evaluatorHashkey != null && JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()) != JavaClassHelper.getBoxedType(keyForge.getEvaluationType())) {   // we allow null evaluator
+            if (JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()) != JavaClassHelper.getBoxedType(keyForge.getEvaluationType())) {   // we allow null evaluator
                 isCoerceHash = true;
             }
         }
@@ -170,7 +168,7 @@ public class SubordinateQueryPlannerUtil {
         }
 
         return new IndexKeyInfo(Arrays.asList(hashesDesc),
-                new CoercionDesc(isCoerceHash, hashPropCoercionTypes), Arrays.asList(rangesDesc), new CoercionDesc(isCoerceRange, rangePropCoercionTypes));
+            new CoercionDesc(isCoerceHash, hashPropCoercionTypes), Arrays.asList(rangesDesc), new CoercionDesc(isCoerceRange, rangePropCoercionTypes));
     }
 
     public static EventTable[] realizeTables(SubordinateQueryIndexDesc[] indexDescriptors,

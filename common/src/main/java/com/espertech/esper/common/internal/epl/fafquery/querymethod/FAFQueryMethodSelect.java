@@ -14,16 +14,20 @@ import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
+import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototype;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectFactory;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodUtil.initializeSubselects;
 
 /**
  * Starts and provides the stop method for EPL statements.
@@ -41,6 +45,7 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
     private boolean hasTableAccess;
     private boolean isDistinct;
     private EventPropertyValueGetter distinctKeyGetter;
+    private Map<Integer, SubSelectFactory> subselects;
 
     private FAFQueryMethodSelectExec selectExec;
 
@@ -101,7 +106,7 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
         return resultSetProcessorFactoryProvider.getResultEventType();
     }
 
-    public void ready() {
+    public void ready(StatementContextRuntimeServices svc) {
         boolean hasContext = false;
         for (int i = 0; i < processors.length; i++) {
             hasContext |= processors[i].getContextName() != null;
@@ -129,6 +134,10 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
                 throw new UnsupportedOperationException("Query target is unpartitioned");
             }
             selectExec = FAFQueryMethodSelectExecGivenContextNoJoin.INSTANCE;
+        }
+
+        if (!subselects.isEmpty()) {
+            initializeSubselects(svc, annotations, subselects);
         }
     }
 
@@ -195,5 +204,13 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
 
     public EventPropertyValueGetter getDistinctKeyGetter() {
         return distinctKeyGetter;
+    }
+
+    public Map<Integer, SubSelectFactory> getSubselects() {
+        return subselects;
+    }
+
+    public void setSubselects(Map<Integer, SubSelectFactory> subselects) {
+        this.subselects = subselects;
     }
 }

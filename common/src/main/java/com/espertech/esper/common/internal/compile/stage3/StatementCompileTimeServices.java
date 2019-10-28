@@ -210,4 +210,8 @@ public class StatementCompileTimeServices {
     public XMLFragmentEventTypeFactory getXmlFragmentEventTypeFactory() {
         return services.getXmlFragmentEventTypeFactory();
     }
+
+    public boolean isFireAndForget() {
+        return services.isFireAndForget();
+    }
 }

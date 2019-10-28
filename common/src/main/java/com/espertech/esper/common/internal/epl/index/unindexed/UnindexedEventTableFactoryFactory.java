@@ -11,9 +11,9 @@
 package com.espertech.esper.common.internal.epl.index.unindexed;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
+import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class UnindexedEventTableFactoryFactory extends EventTableFactoryFactoryBase {
 
@@ -21,7 +21,7 @@ public class UnindexedEventTableFactoryFactory extends EventTableFactoryFactoryB
         super(indexedStreamNum, subqueryNum, isFireAndForget);
     }
 
-    public EventTableFactory create(EventType eventType, StatementContext statementContext) {
-        return statementContext.getEventTableIndexService().createUnindexed(indexedStreamNum, eventType, null, isFireAndForget, statementContext);
+    public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
+        return eventTableFactoryContext.getEventTableIndexService().createUnindexed(indexedStreamNum, eventType, null, isFireAndForget, eventTableFactoryContext);
     }
 }

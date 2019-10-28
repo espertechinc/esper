@@ -48,7 +48,7 @@ public class FAFQueryMethodSelectExecSomeContextNoJoin implements FAFQueryMethod
         }
 
         // get RSP
-        ResultSetProcessor resultSetProcessor = processorWithAssign(select.getResultSetProcessorFactoryProvider(), agentInstanceContext, assignerSetter, select.getTableAccesses());
+        ResultSetProcessor resultSetProcessor = processorWithAssign(select.getResultSetProcessorFactoryProvider(), agentInstanceContext, assignerSetter, select.getTableAccesses(), select.getSubselects());
 
         if (select.getWhereClause() != null) {
             events = filtered(events, select.getWhereClause(), agentInstanceContext);

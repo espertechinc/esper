@@ -52,6 +52,9 @@ public class SubSelectHelperActivations {
             ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(-1, true, subqueryNumber, streamSpec.getOptions(), null, statement.getStatementRawInfo(), services);
 
             if (streamSpec instanceof FilterStreamSpecCompiled) {
+                if (services.isFireAndForget()) {
+                    throw new ExprValidationException("Fire-and-forget queries only allow subqueries against named windows and tables");
+                }
                 FilterStreamSpecCompiled filterStreamSpec = (FilterStreamSpecCompiled) statementSpec.getStreamSpecs()[0];
 
                 // Register filter, create view factories
@@ -88,7 +91,7 @@ public class SubSelectHelperActivations {
                     disableIndexShare = false;
                 }
 
-                if (!namedSpec.getFilterExpressions().isEmpty() || processorDisableIndexShare || disableIndexShare) {
+                if ((!namedSpec.getFilterExpressions().isEmpty() || processorDisableIndexShare || disableIndexShare) && (!services.isFireAndForget())) {
                     ExprNode filterEvaluator = null;
                     if (!namedSpec.getFilterExpressions().isEmpty()) {
                         filterEvaluator = ExprNodeUtilityMake.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions());

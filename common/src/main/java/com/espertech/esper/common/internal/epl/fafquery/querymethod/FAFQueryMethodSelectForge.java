@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessorForge;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyUtil;
 
 import java.lang.annotation.Annotation;
@@ -79,6 +80,7 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
                 .exprDotMethod(select, "setHasTableAccess", constant(desc.isHasTableAccess()))
                 .exprDotMethod(select, "setDistinct", constant(desc.isDistinct()))
                 .exprDotMethod(select, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(desc.isDistinct(), desc.getResultSetProcessor().getResultEventType(), desc.getDistinctMultiKey(), method, classScope))
+                .exprDotMethod(select, "setSubselects", SubSelectFactoryForge.codegenInitMap(desc.getSubselectForges(), this.getClass(), method, symbols, classScope))
                 .methodReturn(select);
     }
 }

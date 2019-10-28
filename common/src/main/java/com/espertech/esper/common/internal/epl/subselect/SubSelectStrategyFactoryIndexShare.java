@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
-import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -63,7 +62,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
         this.filterExprEval = filterExprEval;
     }
 
-    public void ready(StatementContext statementContext, EventType eventType) {
+    public void ready(SubSelectStrategyFactoryContext subselectFactoryContext, EventType eventType) {
         // no action
     }
 

@@ -17,10 +17,15 @@ import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryAssignmentsImpl;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
 import com.espertech.esper.common.internal.context.util.InternalEventRouteDest;
+import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetInstance;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectFactory;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryResult;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperStart;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperStart;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategy;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactory;
@@ -29,6 +34,8 @@ import com.espertech.esper.common.internal.util.CollectionUtil;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodUtil.initializeSubselects;
 
 /**
  * Starts and provides the stop method for EPL statements.
@@ -41,6 +48,7 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
     private Annotation[] annotations;
     private Map<Integer, ExprTableEvalStrategyFactory> tableAccesses;
     private boolean hasTableAccess;
+    private Map<Integer, SubSelectFactory> subselects;
 
     public void setContextName(String contextName) {
         this.contextName = contextName;
@@ -70,10 +78,20 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
         this.hasTableAccess = hasTableAccess;
     }
 
+    public Map<Integer, SubSelectFactory> getSubselects() {
+        return subselects;
+    }
+
+    public void setSubselects(Map<Integer, SubSelectFactory> subselects) {
+        this.subselects = subselects;
+    }
+
     protected abstract EventBean[] execute(FireAndForgetInstance fireAndForgetProcessorInstance);
 
-    public void ready() {
-        // no action
+    public void ready(StatementContextRuntimeServices services) {
+        if (!subselects.isEmpty()) {
+            initializeSubselects(services, annotations, subselects);
+        }
     }
 
     public EPPreparedQueryResult execute(AtomicBoolean serviceStatusProvider, FAFQueryMethodAssignerSetter assignerSetter, ContextPartitionSelector[] contextPartitionSelectors, ContextManagementService contextManagementService) {
@@ -166,7 +184,11 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
         // start table-access
         Map<Integer, ExprTableEvalStrategy> tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContext);
 
+        // start subselects
+        List<AgentInstanceStopCallback> subselectStopCallbacks = new ArrayList<>(2);
+        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, subselectStopCallbacks, false);
+
         // assign
-        assignerSetter.assign(new StatementAIFactoryAssignmentsImpl(null, null, null, Collections.emptyMap(), tableAccessEvals, null));
+        assignerSetter.assign(new StatementAIFactoryAssignmentsImpl(null, null, null, subselectActivations, tableAccessEvals, null));
     }
 }
