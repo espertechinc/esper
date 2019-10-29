@@ -25,17 +25,38 @@ import java.util.List;
 public class ExprDotForgeSelectFrom extends ExprDotForgeEnumMethodBase {
 
     public EventType[] getAddStreamTypes(DotMethodFP footprint, int parameterNum, EnumMethodEnum enumMethod, String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
-        return ExprDotNodeUtility.getSingleLambdaParamEventType(enumMethodUsedName, goesToNames, inputEventType, collectionComponentType, statementRawInfo, services);
+        if (goesToNames.size() == 1) {
+            return ExprDotNodeUtility.getSingleLambdaParamEventType(enumMethodUsedName, goesToNames, inputEventType, collectionComponentType, statementRawInfo, services);
+        }
+
+        EventType firstParamType;
+        if (inputEventType == null) {
+            firstParamType = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(0), collectionComponentType, statementRawInfo, services);
+        } else {
+            firstParamType = inputEventType;
+        }
+
+        ObjectArrayEventType indexEventType = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(1), int.class, statementRawInfo, services);
+        return new EventType[]{firstParamType, indexEventType};
     }
 
     public EnumForge getEnumForge(DotMethodFP footprint, EnumMethodDesc enumMethodEnum, StreamTypeService streamTypeService, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
         ExprDotEvalParamLambda first = (ExprDotEvalParamLambda) bodiesAndParameters.get(0);
         Class returnType = first.getBodyForge().getEvaluationType();
         super.setTypeInfo(EPTypeHelper.collectionOfSingleValue(returnType));
-        if (inputEventType == null) {
-            return new EnumSelectFromScalarLambdaForge(first.getBodyForge(), first.getStreamCountIncoming(),
-                    (ObjectArrayEventType) first.getGoesToTypes()[0]);
+
+        if (inputEventType != null) {
+            if (first.getGoesToNames().size() == 1) {
+                return new EnumSelectFromEventsForge(first.getBodyForge(), first.getStreamCountIncoming());
+            }
+            return new EnumSelectFromIndexEventsForge(first.getBodyForge(), first.getStreamCountIncoming(), (ObjectArrayEventType) first.getGoesToTypes()[1]);
         }
-        return new EnumSelectFromEventsForge(first.getBodyForge(), first.getStreamCountIncoming());
+
+        if (first.getGoesToNames().size() == 1) {
+            return new EnumSelectFromScalarLambdaForge(first.getBodyForge(), first.getStreamCountIncoming(),
+                (ObjectArrayEventType) first.getGoesToTypes()[0]);
+        }
+        return new EnumSelectFromScalarIndexForge(first.getBodyForge(), first.getStreamCountIncoming(), (ObjectArrayEventType) first.getGoesToTypes()[0],
+            (ObjectArrayEventType) first.getGoesToTypes()[1]);
     }
 }

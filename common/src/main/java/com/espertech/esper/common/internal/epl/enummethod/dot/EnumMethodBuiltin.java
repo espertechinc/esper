@@ -35,12 +35,12 @@ public enum EnumMethodBuiltin {
     MOSTFREQUENT("mostFrequent", ExprDotForgeMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
     LEASTFREQUENT("leastFrequent", ExprDotForgeMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
 
-    SELECTFROM("selectFrom", ExprDotForgeSelectFrom.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
+    SELECTFROM("selectFrom", ExprDotForgeSelectFrom.class, EnumMethodEnumParams.SELECTFROM),
 
     FIRST("firstOf", ExprDotForgeFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
     LAST("lastOf", ExprDotForgeFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
-    MINBY("minBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
-    MAXBY("maxBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
+    MINBY("minBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.MINBY_MAXBY),
+    MAXBY("maxBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.MINBY_MAXBY),
 
     TAKE("take", ExprDotForgeTakeAndTakeLast.class, EnumMethodEnumParams.TAKE),
     TAKELAST("takeLast", ExprDotForgeTakeAndTakeLast.class, EnumMethodEnumParams.TAKELAST),

@@ -50,9 +50,16 @@ public class EnumMethodEnumParams {
         new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
     };
 
-    public static final DotMethodFP[] SELECTFROM_MINBY_MAXBY = new DotMethodFP[]{
+    public static final DotMethodFP[] MINBY_MAXBY = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
         new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+    };
+
+    public static final DotMethodFP[] SELECTFROM = new DotMethodFP[]{
+        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
     };
 
     public static final DotMethodFP[] AVERAGE_SUMOF = new DotMethodFP[]{

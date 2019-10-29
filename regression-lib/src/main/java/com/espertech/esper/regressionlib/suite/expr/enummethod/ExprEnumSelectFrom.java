@@ -27,7 +27,58 @@ public class ExprEnumSelectFrom {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumNew());
         execs.add(new ExprEnumSelect());
+        execs.add(new ExprEnumEventSelectWIndex());
+        execs.add(new ExprEnumScalarSelectWIndex());
         return execs;
+    }
+
+    private static class ExprEnumScalarSelectWIndex implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0".split(",");
+            String eplFragment = "@name('s0') select strvals.selectFrom( (v, i) => v || '_' || Integer.toString(i)) as c0 " +
+                "from SupportCollection";
+            env.compileDeploy(eplFragment).addListener("s0");
+
+            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class});
+
+            env.sendEventBean(SupportCollection.makeString("E1,E2,E3"));
+            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "c0", "E1_0", "E2_1", "E3_2");
+            env.listener("s0").reset();
+
+            env.sendEventBean(SupportCollection.makeString(""));
+            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "c0", new String[0]);
+            env.listener("s0").reset();
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ExprEnumEventSelectWIndex implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String eplFragment = "@name('s0') select " +
+                "contained.selectFrom( (v, i) => new {c0=v.id,c1=i}) as val0 " +
+                "from SupportBean_ST0_Container";
+            env.compileDeploy(eplFragment).addListener("s0");
+
+            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Collection.class});
+
+            env.sendEventBean(SupportBean_ST0_Container.make3Value("E1,12,0", "E2,11,0", "E3,2,0"));
+            EPAssertionUtil.assertPropsPerRow(toMapArray(env.listener("s0").assertOneGetNewAndReset().get("val0")), "c0,c1".split(","),
+                new Object[][]{{"E1", 0}, {"E2", 1}, {"E3", 2}});
+
+            env.sendEventBean(SupportBean_ST0_Container.make3Value("E4,0,1"));
+            EPAssertionUtil.assertPropsPerRow(toMapArray(env.listener("s0").assertOneGetNewAndReset().get("val0")), "c0,c1".split(","),
+                new Object[][]{{"E4", 0}});
+
+            env.sendEventBean(SupportBean_ST0_Container.make3Value(null));
+            EPAssertionUtil.assertPropsPerRow(toMapArray(env.listener("s0").assertOneGetNewAndReset().get("val0")), "c0,c1".split(","), null);
+
+            env.sendEventBean(SupportBean_ST0_Container.make3Value());
+            EPAssertionUtil.assertPropsPerRow(toMapArray(env.listener("s0").assertOneGetNewAndReset().get("val0")), "c0,c1".split(","),
+                new Object[0][]);
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprEnumNew implements RegressionExecution {
