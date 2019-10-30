@@ -20,9 +20,11 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.common.internal.epl.streamtype.PropertyResolutionDescriptor;
+import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeUtil;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
@@ -343,12 +345,12 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         return evaluator;
     }
 
-    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
+    public ExprEnumerationForgeDesc getEnumerationForge(StreamTypeService streamTypeService, ContextCompileTimeDescriptor contextDescriptor) {
         FragmentEventType fragmentEventType = evaluator.getEventType().getFragmentType(getResolvedPropertyName());
         if (fragmentEventType == null || fragmentEventType.isIndexed()) {
             return null;
         }
         ExprIdentNodeFragmentTypeEnumerationForge forge = new ExprIdentNodeFragmentTypeEnumerationForge(resolvedPropertyName, getStreamId(), fragmentEventType.getFragmentType(), evaluator.getEventType().getGetterSPI(resolvedPropertyName));
-        return new ExprEnumerationForgeDesc(forge, validationContext.getStreamTypeService().getIStreamOnly()[getStreamId()], -1);
+        return new ExprEnumerationForgeDesc(forge, streamTypeService.getIStreamOnly()[getStreamId()], -1);
     }
 }

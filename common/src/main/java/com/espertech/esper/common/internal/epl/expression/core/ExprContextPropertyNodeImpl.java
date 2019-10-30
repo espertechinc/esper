@@ -18,8 +18,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
@@ -130,8 +132,8 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
         return propertyName.equals(that.propertyName);
     }
 
-    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
-        EventTypeSPI eventType = (EventTypeSPI) validationContext.getContextDescriptor().getContextPropertyRegistry().getContextEventType();
+    public ExprEnumerationForgeDesc getEnumerationForge(StreamTypeService streamTypeService, ContextCompileTimeDescriptor contextDescriptor) {
+        EventTypeSPI eventType = (EventTypeSPI) contextDescriptor.getContextPropertyRegistry().getContextEventType();
         if (eventType == null) {
             return null;
         }

@@ -97,6 +97,10 @@ public class TestSuiteEPLInsertInto extends TestCase {
         RegressionRunner.run(session, EPLInsertIntoWrapper.executions());
     }
 
+    public void testEPLInsertIntoEventTypedColumnFromProp() {
+        RegressionRunner.run(session, EPLInsertIntoEventTypedColumnFromProp.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportObjectArrayOneDim.class, SupportBeanSimple.class,
             SupportBean_A.class, SupportRFIDEvent.class, SupportBean_S0.class, SupportBean_S1.class,

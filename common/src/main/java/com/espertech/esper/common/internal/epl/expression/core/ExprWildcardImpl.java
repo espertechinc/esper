@@ -16,7 +16,9 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.type.WildcardParameter;
 
 import java.io.StringWriter;
@@ -84,15 +86,15 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEva
         return WildcardParameter.class;
     }
 
-    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
+    public ExprEnumerationForgeDesc getEnumerationForge(StreamTypeService streamTypeService, ContextCompileTimeDescriptor contextDescriptor) {
         if (eventType == null) {
             return null;
         }
-        if (validationContext.getStreamTypeService().getEventTypes().length > 1) {
+        if (streamTypeService.getEventTypes().length > 1) {
             return null;
         }
         return new ExprEnumerationForgeDesc(new ExprStreamUnderlyingNodeEnumerationForge("*", 0, eventType),
-            validationContext.getStreamTypeService().getIStreamOnly()[0],
+            streamTypeService.getIStreamOnly()[0],
             0);
     }
 }

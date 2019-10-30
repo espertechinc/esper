@@ -163,7 +163,7 @@ public class InfraOnMergeHelperForge {
         EventType dummyTypeNoProperties = BaseNestableEventUtil.makeMapTypeCompileTime(eventTypeMetadata, Collections.<String, Object>emptyMap(), null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
         EventType[] eventTypes = new EventType[]{dummyTypeNoProperties, triggeringEventType};
         String[] streamNames = new String[]{UuidGenerator.generate(), triggeringStreamName};
-        StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[1], false, false);
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[eventTypes.length], false, false);
 
         // Get select expr processor
         SelectClauseElementCompiled[] selectClause = selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]);

@@ -192,7 +192,7 @@ public class SelectExprProcessorHelper {
             // if there is insert-into specification, use that
             if (insertIntoDesc != null) {
                 // handle insert-into, with well-defined target event-typed column, and enumeration
-                TypeAndForgePair pair = handleInsertIntoEnumeration(spec.getProvidedName(), insertIntoTargetsPerCol[i], forge);
+                TypeAndForgePair pair = handleInsertIntoEnumeration(spec.getProvidedName(), insertIntoTargetsPerCol[i], expr, forge);
                 if (pair != null) {
                     expressionReturnTypes[i] = pair.getType();
                     exprForges[i] = pair.getForge();
@@ -1180,13 +1180,31 @@ public class SelectExprProcessorHelper {
         return new TypeAndForgePair(mapType, newForge);
     }
 
-    private TypeAndForgePair handleInsertIntoEnumeration(String insertIntoColName, EPType insertIntoTarget, ExprForge forge)
+    private TypeAndForgePair handleInsertIntoEnumeration(String insertIntoColName, EPType insertIntoTarget, ExprNode expr, ExprForge forge)
         throws ExprValidationException {
-        if (!(forge instanceof ExprEnumerationForge) || insertIntoTarget == null || (!EPTypeHelper.isCarryEvent(insertIntoTarget))) {
+        if (insertIntoTarget == null || (!EPTypeHelper.isCarryEvent(insertIntoTarget))) {
+            return null;
+        }
+        final EventType targetType = EPTypeHelper.getEventType(insertIntoTarget);
+
+        final ExprEnumerationForge enumeration;
+        if (forge instanceof ExprEnumerationForge) {
+            enumeration = (ExprEnumerationForge) forge;
+        } else if (expr instanceof ExprEnumerationForgeProvider) {
+            ExprEnumerationForgeProvider provider = (ExprEnumerationForgeProvider) expr;
+            ExprEnumerationForgeDesc desc = provider.getEnumerationForge(args.getTypeService(), args.getContextDescriptor());
+            if (desc == null || desc.getForge() == null) {
+                return null;
+            }
+            enumeration = desc.getForge();
+            EventType sourceType = enumeration.getEventTypeSingle(args.getStatementRawInfo(), args.getCompileTimeServices());
+            if (sourceType == null || !EventTypeUtility.isTypeOrSubTypeOf(sourceType, targetType)) {
+                return null;
+            }
+        } else {
             return null;
         }
 
-        final ExprEnumerationForge enumeration = (ExprEnumerationForge) forge;
         final EventType eventTypeSingle = enumeration.getEventTypeSingle(args.getStatementRawInfo(), args.getCompileTimeServices());
         final EventType eventTypeColl = enumeration.getEventTypeCollection(args.getStatementRawInfo(), args.getCompileTimeServices());
         final EventType sourceType = eventTypeSingle != null ? eventTypeSingle : eventTypeColl;
@@ -1198,7 +1216,6 @@ public class SelectExprProcessorHelper {
         }
 
         // check type info
-        final EventType targetType = EPTypeHelper.getEventType(insertIntoTarget);
         checkTypeCompatible(insertIntoColName, targetType, sourceType);
 
         // handle collection target - produce EventBean[]

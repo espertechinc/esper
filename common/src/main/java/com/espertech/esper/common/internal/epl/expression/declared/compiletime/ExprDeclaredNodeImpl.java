@@ -222,7 +222,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
 
             if (parameter instanceof ExprEnumerationForgeProvider) {
                 ExprEnumerationForgeProvider enumerationForgeProvider = (ExprEnumerationForgeProvider) parameter;
-                ExprEnumerationForgeDesc desc = enumerationForgeProvider.getEnumerationForge(validationContext);
+                ExprEnumerationForgeDesc desc = enumerationForgeProvider.getEnumerationForge(validationContext.getStreamTypeService(), validationContext.getContextDescriptor());
                 forge = desc.getForge();
                 streamId = desc.getDirectIndexStreamNumber();
                 istreamOnlyFlag = desc.isIstreamOnly();
@@ -283,7 +283,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     private boolean isEventProviding(ExprNode parameter, ExprValidationContext validationContext) throws ExprValidationException {
         if (parameter instanceof ExprEnumerationForgeProvider) {
             ExprEnumerationForgeProvider provider = (ExprEnumerationForgeProvider) parameter;
-            ExprEnumerationForgeDesc desc = provider.getEnumerationForge(validationContext);
+            ExprEnumerationForgeDesc desc = provider.getEnumerationForge(validationContext.getStreamTypeService(), validationContext.getContextDescriptor());
             if (desc == null) {
                 return false;
             }

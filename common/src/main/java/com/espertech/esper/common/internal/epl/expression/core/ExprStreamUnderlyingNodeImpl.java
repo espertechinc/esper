@@ -17,7 +17,9 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
 
 import java.io.StringWriter;
@@ -174,9 +176,9 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
         return this.streamName.equals(other.streamName);
     }
 
-    public ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext) {
+    public ExprEnumerationForgeDesc getEnumerationForge(StreamTypeService streamTypeService, ContextCompileTimeDescriptor contextDescriptor) {
         return new ExprEnumerationForgeDesc(new ExprStreamUnderlyingNodeEnumerationForge(streamName, streamNum, eventType),
-            validationContext.getStreamTypeService().getIStreamOnly()[getStreamId()],
+            streamTypeService.getIStreamOnly()[getStreamId()],
             getStreamId());
     }
 }

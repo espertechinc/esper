@@ -10,10 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
+import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
+
 public interface ExprEnumerationForgeProvider {
     /**
      * Returns the enumeration forge provider, or null if not applicable
      * @return forge provider
+     * @param streamTypeService stream type service
+     * @param contextDescriptor context descriptor
      */
-    ExprEnumerationForgeDesc getEnumerationForge(ExprValidationContext validationContext);
+    ExprEnumerationForgeDesc getEnumerationForge(StreamTypeService streamTypeService, ContextCompileTimeDescriptor contextDescriptor);
 }
