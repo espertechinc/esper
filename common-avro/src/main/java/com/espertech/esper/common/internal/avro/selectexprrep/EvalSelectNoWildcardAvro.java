@@ -27,7 +27,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalByGetterFragment;
 import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalStreamInsertNamedWindow;
-import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalStreamInsertUnd;
+import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalStreamInsertBean;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprForgeContext;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprInsertEventBeanFactory;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorCodegenSymbol;
@@ -65,8 +65,8 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessorForge {
 
             if (forge instanceof ExprEvalByGetterFragment) {
                 forges[i] = handleFragment((ExprEvalByGetterFragment) forge);
-            } else if (forge instanceof ExprEvalStreamInsertUnd) {
-                ExprEvalStreamInsertUnd und = (ExprEvalStreamInsertUnd) forge;
+            } else if (forge instanceof ExprEvalStreamInsertBean) {
+                ExprEvalStreamInsertBean und = (ExprEvalStreamInsertBean) forge;
                 forges[i] = new SelectExprInsertEventBeanFactory.ExprForgeStreamUnderlying(und.getStreamNum(), Object.class);
             } else if (forge instanceof SelectExprProcessorTypableMapForge) {
                 SelectExprProcessorTypableMapForge typableMap = (SelectExprProcessorTypableMapForge) forge;

@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -25,7 +26,41 @@ public class EPLInsertIntoEventTypedColumnFromProp {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new EPLInsertIntoEventTypedColumnOnMerge());
+        execs.add(new EPLInsertIntoPOJOTypedColumnOnMerge());
         return execs;
+    }
+
+    private static class EPLInsertIntoPOJOTypedColumnOnMerge implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "create schema CarOutputStream(status string, outputevent " + SupportBean.class.getName() + ");\n" +
+                    "create table StatusTable(theString string primary key, lastevent " + SupportBean.class.getName() + ");\n" +
+                    "on SupportBean as ce merge StatusTable as st where ce.theString = st.theString \n" +
+                    "  when matched \n" +
+                    "    then update set lastevent = ce \n" +
+                    "  when not matched \n" +
+                    "    then insert select ce.theString as theString, ce as lastevent\n" +
+                    "    then insert into CarOutputStream select 'online' as status, ce as outputevent;\n" +
+                    "insert into CarTimeoutStream select e.* \n" +
+                    "  from pattern[every e=SupportBean -> (timer:interval(1 minutes) and not SupportBean(theString = e.theString))];\n" +
+                    "on CarTimeoutStream as cts merge StatusTable as st where cts.theString = st.theString \n" +
+                    "  when matched \n" +
+                    "    then delete \n" +
+                    "    then insert into CarOutputStream select 'offline' as status, lastevent as outputevent;\n" +
+                    "@name('s0') select * from CarOutputStream";
+            env.advanceTime(0);
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            assertReceivedPojo(env.listener("s0").assertOneGetNewAndReset(), "online", "E1");
+
+            env.milestone(0);
+
+            env.advanceTime(60000);
+            assertReceivedPojo(env.listener("s0").assertOneGetNewAndReset(), "offline", "E1");
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLInsertIntoEventTypedColumnOnMerge implements RegressionExecution {
@@ -48,22 +83,30 @@ public class EPLInsertIntoEventTypedColumnFromProp {
             env.advanceTime(0);
             env.compileDeploy(epl).addListener("s0");
 
-            sendCar(env, "C1");
-            assertReceived(env.listener("s0").assertOneGetNewAndReset(), "online", "C1");
+            sendCarMap(env, "C1");
+            assertReceivedMap(env.listener("s0").assertOneGetNewAndReset(), "online", "C1");
+
+            env.milestone(0);
 
             env.advanceTime(60000);
-            assertReceived(env.listener("s0").assertOneGetNewAndReset(), "offline", "C1");
+            assertReceivedMap(env.listener("s0").assertOneGetNewAndReset(), "offline", "C1");
 
             env.undeployAll();
         }
     }
 
-    private static void assertReceived(EventBean received, String status, String carId) {
+    private static void assertReceivedMap(EventBean received, String status, String carId) {
         assertEquals(status, received.get("status"));
+        Object got = received.get("outputevent");
         assertEquals(carId, ((Map) received.get("outputevent")).get("carId"));
     }
 
-    private static void sendCar(RegressionEnvironment env, String carId) {
+    private static void assertReceivedPojo(EventBean received, String status, String carId) {
+        assertEquals(status, received.get("status"));
+        assertEquals(carId, ((SupportBean) received.get("outputevent")).getTheString());
+    }
+
+    private static void sendCarMap(RegressionEnvironment env, String carId) {
         env.sendEventMap(CollectionUtil.buildMap("carId", carId, "tracked", true), "CarEvent");
     }
 }

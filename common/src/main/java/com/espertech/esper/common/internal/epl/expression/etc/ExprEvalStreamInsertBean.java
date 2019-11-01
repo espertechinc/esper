@@ -22,12 +22,12 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprEvalStreamInsertUnd implements ExprForgeInstrumentable {
+public class ExprEvalStreamInsertBean implements ExprForgeInstrumentable {
     private final ExprStreamUnderlyingNode undNode;
     private final int streamNum;
     private final Class returnType;
 
-    public ExprEvalStreamInsertUnd(ExprStreamUnderlyingNode undNode, int streamNum, Class returnType) {
+    public ExprEvalStreamInsertBean(ExprStreamUnderlyingNode undNode, int streamNum, Class returnType) {
         this.undNode = undNode;
         this.streamNum = streamNum;
         this.returnType = returnType;
@@ -38,14 +38,12 @@ public class ExprEvalStreamInsertUnd implements ExprForgeInstrumentable {
     }
 
     public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, ExprEvalStreamInsertUnd.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, ExprEvalStreamInsertBean.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-            .ifCondition(equalsNull(refEPS)).blockReturn(constantNull())
-            .declareVar(EventBean.class, "bean", arrayAtIndex(refEPS, constant(streamNum)))
-            .ifRefNullReturnNull("bean")
-            .methodReturn(cast(returnType, exprDotUnderlying(ref("bean"))));
+                .ifCondition(equalsNull(refEPS)).blockReturn(constantNull())
+                .methodReturn(arrayAtIndex(refEPS, constant(streamNum)));
         return localMethod(methodNode);
     }
 
@@ -58,7 +56,7 @@ public class ExprEvalStreamInsertUnd implements ExprForgeInstrumentable {
     }
 
     public Class getEvaluationType() {
-        return returnType;
+        return EventBean.class;
     }
 
     public Class getUnderlyingReturnType() {

@@ -177,7 +177,9 @@ public class SelectExprProcessorHelper {
         }
 
         // Obtain insert-into per-column type information, when available
-        EPType[] insertIntoTargetsPerCol = determineInsertedEventTypeTargets(insertIntoTargetType, selectionList);
+        EPTypesAndPropertyDescPair insertInfo = determineInsertedEventTypeTargets(insertIntoTargetType, selectionList, insertIntoDesc);
+        EPType[] insertIntoTargetsPerCol = insertInfo.insertIntoTargetsPerCol;
+        EventPropertyDescriptor[] insertIntoPropertyDescriptors = insertInfo.propertyDescriptors;
 
         // Get expression nodes
         ExprForge[] exprForges = new ExprForge[selectionList.size()];
@@ -340,7 +342,7 @@ public class SelectExprProcessorHelper {
         // This is a special case for stream selection: select a, b from A as a, B as b
         // We'd like to maintain 'A' and 'B' EventType in the Map type, and 'a' and 'b' EventBeans in the event bean
         for (int i = 0; i < selectionList.size(); i++) {
-            Pair<ExprForge, Object> pair = handleUnderlyingStreamInsert(exprForges[i]);
+            Pair<ExprForge, Object> pair = handleUnderlyingStreamInsert(exprForges[i], insertIntoPropertyDescriptors[i], insertIntoTargetsPerCol[i]);
             if (pair != null) {
                 exprForges[i] = pair.getFirst();
                 expressionReturnTypes[i] = pair.getSecond();
@@ -1057,8 +1059,8 @@ public class SelectExprProcessorHelper {
             Class sourceColumnType;
             if (forge instanceof SelectExprProcessorTypableForge) {
                 sourceColumnType = ((SelectExprProcessorTypableForge) forge).getUnderlyingEvaluationType();
-            } else if (forge instanceof ExprEvalStreamInsertUnd) {
-                sourceColumnType = ((ExprEvalStreamInsertUnd) forge).getUnderlyingReturnType();
+            } else if (forge instanceof ExprEvalStreamInsertBean) {
+                sourceColumnType = ((ExprEvalStreamInsertBean) forge).getUnderlyingReturnType();
             } else {
                 sourceColumnType = forge.getEvaluationType();
             }
@@ -1088,7 +1090,7 @@ public class SelectExprProcessorHelper {
         return "type '" + resultEventType.getName() + "'";
     }
 
-    private Pair<ExprForge, Object> handleUnderlyingStreamInsert(ExprForge exprEvaluator) {
+    private Pair<ExprForge, Object> handleUnderlyingStreamInsert(ExprForge exprEvaluator, EventPropertyDescriptor optionalInsertedTargetProp, EPType optionalInsertedTargetEPType) {
         if (!(exprEvaluator instanceof ExprStreamUnderlyingNode)) {
             return null;
         }
@@ -1105,7 +1107,13 @@ public class SelectExprProcessorHelper {
             forge = new ExprEvalStreamInsertTable(streamNum, tableMetadata, returnType);
         } else if (namedWindowAsType == null) {
             eventTypeStream = args.getTypeService().getEventTypes()[streamNum];
-            forge = new ExprEvalStreamInsertUnd(undNode, streamNum, returnType);
+            if (optionalInsertedTargetProp != null &&
+                JavaClassHelper.isSubclassOrImplementsInterface(eventTypeStream.getUnderlyingType(), optionalInsertedTargetProp.getPropertyType()) &&
+                (optionalInsertedTargetEPType == null || EPTypeHelper.getEventType(optionalInsertedTargetEPType) != eventTypeStream)) {
+                return new Pair<>(new ExprEvalStreamInsertUnd(undNode, streamNum, returnType), returnType);
+            } else {
+                forge = new ExprEvalStreamInsertBean(undNode, streamNum, returnType);
+            }
         } else {
             eventTypeStream = namedWindowAsType;
             forge = new ExprEvalStreamInsertNamedWindow(streamNum, namedWindowAsType, returnType);
@@ -1122,19 +1130,23 @@ public class SelectExprProcessorHelper {
         return nw.getOptionalEventTypeAs();
     }
 
-    private static EPType[] determineInsertedEventTypeTargets(EventType targetType, List<SelectClauseExprCompiledSpec> selectionList) {
+    private static EPTypesAndPropertyDescPair determineInsertedEventTypeTargets(EventType targetType, List<SelectClauseExprCompiledSpec> selectionList, InsertIntoDesc insertIntoDesc) {
         EPType[] targets = new EPType[selectionList.size()];
+        EventPropertyDescriptor[] propertyDescriptors = new EventPropertyDescriptor[selectionList.size()];
         if (targetType == null) {
-            return targets;
+            return new EPTypesAndPropertyDescPair(targets, propertyDescriptors);
         }
 
         for (int i = 0; i < selectionList.size(); i++) {
             SelectClauseExprCompiledSpec expr = selectionList.get(i);
-            if (expr.getProvidedName() == null) {
+
+            String providedName = expr.getProvidedName();
+            if (providedName == null) {
                 continue;
             }
 
-            EventPropertyDescriptor desc = targetType.getPropertyDescriptor(expr.getProvidedName());
+            EventPropertyDescriptor desc = targetType.getPropertyDescriptor(providedName);
+            propertyDescriptors[i] = desc;
             if (desc == null) {
                 continue;
             }
@@ -1143,7 +1155,7 @@ public class SelectExprProcessorHelper {
                 continue;
             }
 
-            FragmentEventType fragmentEventType = targetType.getFragmentType(expr.getProvidedName());
+            FragmentEventType fragmentEventType = targetType.getFragmentType(providedName);
             if (fragmentEventType == null) {
                 continue;
             }
@@ -1155,7 +1167,7 @@ public class SelectExprProcessorHelper {
             }
         }
 
-        return targets;
+        return new EPTypesAndPropertyDescPair(targets, propertyDescriptors);
     }
 
     private TypeAndForgePair handleTypableExpression(ExprForge forge, int expressionNum, EventTypeNameGeneratorStatement eventTypeNameGeneratorStatement)
@@ -1190,7 +1202,8 @@ public class SelectExprProcessorHelper {
         final ExprEnumerationForge enumeration;
         if (forge instanceof ExprEnumerationForge) {
             enumeration = (ExprEnumerationForge) forge;
-        } else if (expr instanceof ExprEnumerationForgeProvider) {
+        } else if (expr instanceof ExprEnumerationForgeProvider && !(expr instanceof ExprStreamUnderlyingNode)) {
+            // ExprStreamUnderlyingNode specifically is handled elsewhere
             ExprEnumerationForgeProvider provider = (ExprEnumerationForgeProvider) expr;
             ExprEnumerationForgeDesc desc = provider.getEnumerationForge(args.getTypeService(), args.getContextDescriptor());
             if (desc == null || desc.getForge() == null) {
@@ -1453,6 +1466,25 @@ public class SelectExprProcessorHelper {
 
         public ExprForge getForge() {
             return forge;
+        }
+    }
+
+
+    private static class EPTypesAndPropertyDescPair {
+        private final EPType[] insertIntoTargetsPerCol;
+        private final EventPropertyDescriptor[] propertyDescriptors;
+
+        public EPTypesAndPropertyDescPair(EPType[] insertIntoTargetsPerCol, EventPropertyDescriptor[] propertyDescriptors) {
+            this.insertIntoTargetsPerCol = insertIntoTargetsPerCol;
+            this.propertyDescriptors = propertyDescriptors;
+        }
+
+        public EPType[] getInsertIntoTargetsPerCol() {
+            return insertIntoTargetsPerCol;
+        }
+
+        public EventPropertyDescriptor[] getPropertyDescriptors() {
+            return propertyDescriptors;
         }
     }
 }
