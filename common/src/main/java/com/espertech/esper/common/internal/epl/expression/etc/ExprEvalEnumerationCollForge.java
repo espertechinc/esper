@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.resultset.select.typable.SelectExprProcessorTypableForge;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -25,7 +26,7 @@ import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprEvalEnumerationCollForge implements ExprForge {
+public class ExprEvalEnumerationCollForge implements ExprForge, SelectExprProcessorTypableForge {
     protected final ExprEnumerationForge enumerationForge;
     private final EventType targetType;
     private final boolean firstRowOnly;
@@ -60,11 +61,18 @@ public class ExprEvalEnumerationCollForge implements ExprForge {
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
+    public Class getUnderlyingEvaluationType() {
         if (firstRowOnly) {
             return targetType.getUnderlyingType();
         }
         return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
+    }
+
+    public Class getEvaluationType() {
+        if (firstRowOnly) {
+            return EventBean.class;
+        }
+        return EventBean[].class;
     }
 
     public ExprNodeRenderable getForgeRenderable() {

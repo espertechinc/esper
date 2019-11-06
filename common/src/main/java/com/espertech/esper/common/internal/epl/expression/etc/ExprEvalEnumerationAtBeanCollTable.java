@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.resultset.select.typable.SelectExprProcessorTypableForge;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
 import com.espertech.esper.common.internal.epl.table.core.TableMetadataInternalEventToPublic;
@@ -28,7 +29,7 @@ import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprEvalEnumerationAtBeanCollTable implements ExprForge {
+public class ExprEvalEnumerationAtBeanCollTable implements ExprForge, SelectExprProcessorTypableForge {
     protected final ExprEnumerationForge enumerationForge;
     protected final TableMetaData table;
 
@@ -65,8 +66,12 @@ public class ExprEvalEnumerationAtBeanCollTable implements ExprForge {
 
     }
 
-    public Class getEvaluationType() {
+    public Class getUnderlyingEvaluationType() {
         return JavaClassHelper.getArrayType(table.getPublicEventType().getUnderlyingType());
+    }
+
+    public Class getEvaluationType() {
+        return EventBean[].class;
     }
 
     public ExprNodeRenderable getForgeRenderable() {

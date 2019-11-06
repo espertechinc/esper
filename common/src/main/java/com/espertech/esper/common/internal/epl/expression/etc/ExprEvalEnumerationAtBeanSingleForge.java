@@ -10,14 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.expression.etc;
 
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.resultset.select.typable.SelectExprProcessorTypableForge;
 
-public class ExprEvalEnumerationAtBeanSingleForge implements ExprForge {
+public class ExprEvalEnumerationAtBeanSingleForge implements ExprForge, SelectExprProcessorTypableForge {
     protected final ExprEnumerationForge enumerationForge;
     private final EventType eventTypeSingle;
 
@@ -35,6 +37,10 @@ public class ExprEvalEnumerationAtBeanSingleForge implements ExprForge {
     }
 
     public Class getEvaluationType() {
+        return EventBean.class;
+    }
+
+    public Class getUnderlyingEvaluationType() {
         return eventTypeSingle.getUnderlyingType();
     }
 

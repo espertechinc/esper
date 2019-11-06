@@ -1109,7 +1109,7 @@ public class SelectExprProcessorHelper {
             eventTypeStream = args.getTypeService().getEventTypes()[streamNum];
             if (optionalInsertedTargetProp != null &&
                 JavaClassHelper.isSubclassOrImplementsInterface(eventTypeStream.getUnderlyingType(), optionalInsertedTargetProp.getPropertyType()) &&
-                (optionalInsertedTargetEPType == null || EPTypeHelper.getEventType(optionalInsertedTargetEPType) != eventTypeStream)) {
+                (optionalInsertedTargetEPType == null || !EventTypeUtility.isTypeOrSubTypeOf(eventTypeStream, EPTypeHelper.getEventType(optionalInsertedTargetEPType)))) {
                 return new Pair<>(new ExprEvalStreamInsertUnd(undNode, streamNum, returnType), returnType);
             } else {
                 forge = new ExprEvalStreamInsertBean(undNode, streamNum, returnType);
@@ -1140,7 +1140,13 @@ public class SelectExprProcessorHelper {
         for (int i = 0; i < selectionList.size(); i++) {
             SelectClauseExprCompiledSpec expr = selectionList.get(i);
 
-            String providedName = expr.getProvidedName();
+            String providedName = null;
+            if (expr.getProvidedName() != null) {
+                providedName = expr.getProvidedName();
+            } else if (insertIntoDesc.getColumnNames().size() > i) {
+                providedName = insertIntoDesc.getColumnNames().get(i);
+            }
+
             if (providedName == null) {
                 continue;
             }

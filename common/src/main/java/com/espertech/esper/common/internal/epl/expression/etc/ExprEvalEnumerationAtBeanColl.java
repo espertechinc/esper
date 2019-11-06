@@ -18,13 +18,14 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.resultset.select.typable.SelectExprProcessorTypableForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprEvalEnumerationAtBeanColl implements ExprForge {
+public class ExprEvalEnumerationAtBeanColl implements ExprForge, SelectExprProcessorTypableForge {
     protected final ExprEnumerationForge enumerationForge;
     private final EventType eventTypeColl;
 
@@ -53,6 +54,10 @@ public class ExprEvalEnumerationAtBeanColl implements ExprForge {
     }
 
     public Class getEvaluationType() {
+        return EventBean[].class;
+    }
+
+    public Class getUnderlyingEvaluationType() {
         return JavaClassHelper.getArrayType(eventTypeColl.getUnderlyingType());
     }
 
