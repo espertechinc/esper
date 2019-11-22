@@ -112,7 +112,7 @@ public class OutputStrategyPostProcessForge {
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpression resolveTable = table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method));
         return newInstance(OutputStrategyPostProcessFactory.class, constant(isRouted),
-                enumValue(SelectClauseStreamSelectorEnum.class, insertIntoStreamSelector.name()),
+            insertIntoStreamSelector == null ? constantNull() : enumValue(SelectClauseStreamSelectorEnum.class, insertIntoStreamSelector.name()),
                 enumValue(SelectClauseStreamSelectorEnum.class, selectStreamSelector.name()),
                 constant(routeToFront), resolveTable);
     }

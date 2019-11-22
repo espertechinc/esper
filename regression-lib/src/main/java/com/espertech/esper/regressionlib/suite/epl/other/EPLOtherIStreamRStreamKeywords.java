@@ -36,7 +36,15 @@ public class EPLOtherIStreamRStreamKeywords {
         execs.add(new EPLOtherIStreamOnly());
         execs.add(new EPLOtherIStreamInsertIntoRStream());
         execs.add(new EPLOtherIStreamJoin());
+        execs.add(new EPLOtherRStreamOutputSnapshot());
         return execs;
+    }
+
+    private static class EPLOtherRStreamOutputSnapshot implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "select rstream * from SupportBean#time(30 minutes) output snapshot";
+            env.compileDeploy(epl).undeployAll();
+        }
     }
 
     private static class EPLOtherRStreamOnlyOM implements RegressionExecution {
