@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAf
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 
 import java.lang.reflect.Method;
 
@@ -34,10 +35,10 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
     private final ExprDotForge[] chainForges;
     private final ExprDotStaticMethodWrap resultWrapLambda;
     private final boolean rethrowExceptions;
-    private final Object targetObject;
+    private final ValueAndFieldDesc targetObject;
     private final String optionalStatementName;
 
-    public ExprDotNodeForgeStaticMethod(ExprNode parent, boolean isReturnsConstantResult, String classOrPropertyName, Method staticMethod, ExprForge[] childForges, boolean isConstantParameters, ExprDotForge[] chainForges, ExprDotStaticMethodWrap resultWrapLambda, boolean rethrowExceptions, Object targetObject, String optionalStatementName) {
+    public ExprDotNodeForgeStaticMethod(ExprNode parent, boolean isReturnsConstantResult, String classOrPropertyName, Method staticMethod, ExprForge[] childForges, boolean isConstantParameters, ExprDotForge[] chainForges, ExprDotStaticMethodWrap resultWrapLambda, boolean rethrowExceptions, ValueAndFieldDesc targetObject, String optionalStatementName) {
         this.parent = parent;
         this.isReturnsConstantResult = isReturnsConstantResult;
         this.classOrPropertyName = classOrPropertyName;
@@ -108,7 +109,7 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
         return rethrowExceptions;
     }
 
-    public Object getTargetObject() {
+    public ValueAndFieldDesc getTargetObject() {
         return targetObject;
     }
 

@@ -12,20 +12,21 @@ package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.util.EnumValue;
+import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 public class ClasspathImportCompileTimeUtil {
 
-    public static Object resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, boolean isAnnotation)
+    public static ValueAndFieldDesc resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, boolean isAnnotation)
             throws ExprValidationException {
         EnumValue enumValue = resolveIdentAsEnum(constant, classpathImportService, isAnnotation);
         if (enumValue == null) {
             return null;
         }
         try {
-            return enumValue.getEnumField().get(null);
+            return new ValueAndFieldDesc(enumValue.getEnumField().get(null), enumValue.getEnumField());
         } catch (IllegalAccessException e) {
             throw new ExprValidationException("Exception accessing field '" + enumValue.getEnumField().getName() + "': " + e.getMessage(), e);
         }

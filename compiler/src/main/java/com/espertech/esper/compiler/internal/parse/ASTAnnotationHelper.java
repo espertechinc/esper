@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.settings.ClasspathImportCompileTimeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
 
 import java.util.ArrayList;
@@ -79,17 +80,18 @@ public class ASTAnnotationHelper {
 
     private static Object walkClassIdent(EsperEPL2GrammarParser.ClassIdentifierContext ctx, ClasspathImportServiceCompileTime classpathImportService) {
         String enumValueText = ctx.getText();
-        Object enumValue;
+        ValueAndFieldDesc enumValueAndField;
         try {
-            enumValue = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(enumValueText, classpathImportService, true);
+            enumValueAndField = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(enumValueText, classpathImportService, true);
         } catch (ExprValidationException e) {
             throw ASTWalkException.from("Annotation value '" + enumValueText + "' is not recognized as an enumeration value, please check imports or use a primitive or string type");
         }
-        if (enumValue != null) {
-            return enumValue;
+        if (enumValueAndField != null) {
+            return enumValueAndField.getValue();
         }
 
         // resolve as class
+        Object enumValue = null;
         if (enumValueText.endsWith(".class") && enumValueText.length() > 6) {
             try {
                 String name = enumValueText.substring(0, enumValueText.length() - 6);

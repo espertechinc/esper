@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeForgeStaticMethodEval;
+import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 
 import java.lang.reflect.Method;
 
@@ -56,7 +57,7 @@ public class StaticMethodCallHelper {
                 constant(statementName), constant(reflectionMethod.getName()), constant(paramTypes), constant(classOrPropertyName), ref("argArray"), ref("t"), constant(rethrow));
     }
 
-    public static CodegenExpression codegenInvokeExpression(Object optionalTargetObject, Method reflectionMethod, StaticMethodCodegenArgDesc[] args, CodegenClassScope codegenClassScope) {
+    public static CodegenExpression codegenInvokeExpression(ValueAndFieldDesc optionalTargetObject, Method reflectionMethod, StaticMethodCodegenArgDesc[] args, CodegenClassScope codegenClassScope) {
         CodegenExpression[] expressions = new CodegenExpression[args.length];
         for (int i = 0; i < expressions.length; i++) {
             expressions[i] = ref(args[i].getBlockRefName());
@@ -65,10 +66,10 @@ public class StaticMethodCallHelper {
         if (optionalTargetObject == null) {
             return staticMethod(reflectionMethod.getDeclaringClass(), reflectionMethod.getName(), expressions);
         } else {
-            if (optionalTargetObject.getClass().isEnum()) {
+            if (optionalTargetObject.getValue() != null && optionalTargetObject.getValue().getClass().isEnum()) {
                 return exprDotMethod(enumValue(optionalTargetObject.getClass(), optionalTargetObject.toString()), reflectionMethod.getName(), expressions);
             } else {
-                return exprDotMethod(constant(optionalTargetObject), reflectionMethod.getName(), expressions);
+                return exprDotMethod(publicConstValue(optionalTargetObject.getField().getDeclaringClass(), optionalTargetObject.getField().getName()), reflectionMethod.getName(), expressions);
             }
         }
     }

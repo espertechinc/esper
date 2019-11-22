@@ -60,7 +60,7 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
         // The method is static so the object it is invoked on
         // can be null
         try {
-            Object result = forge.getStaticMethod().invoke(forge.getTargetObject(), args);
+            Object result = forge.getStaticMethod().invoke(forge.getTargetObject().getValue(), args);
 
             result = ExprDotNodeUtility.evaluateChainWithWrap(forge.getResultWrapLambda(), result, null, forge.getStaticMethod().getReturnType(), chainEval, forge.getChainForges(), eventsPerStream, isNewData, exprEvaluatorContext);
 
@@ -168,7 +168,7 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
         // The method is static so the object it is invoked on
         // can be null
         try {
-            return forge.getStaticMethod().invoke(forge.getTargetObject(), args);
+            return forge.getStaticMethod().invoke(forge.getTargetObject().getValue(), args);
         } catch (InvocationTargetException | IllegalAccessException e) {
             staticMethodEvalHandleInvocationException(forge.getOptionalStatementName(), forge.getStaticMethod().getName(), forge.getStaticMethod().getParameterTypes(), forge.getClassOrPropertyName(), args, e, forge.isRethrowExceptions());
         }

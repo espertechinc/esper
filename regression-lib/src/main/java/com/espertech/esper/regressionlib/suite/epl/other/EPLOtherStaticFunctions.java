@@ -62,7 +62,21 @@ public class EPLOtherStaticFunctions {
         execs.add(new EPLOtherNestedFunction());
         execs.add(new EPLOtherPassthru());
         execs.add(new EPLOtherPrimitiveConversion());
+        execs.add(new EPLOtherStaticFuncWCurrentTimeStamp());
         return execs;
+    }
+
+    private static class EPLOtherStaticFuncWCurrentTimeStamp implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(1000);
+            String epl = "@name('s0') select java.time.format.DateTimeFormatter.ISO_INSTANT.format(java.time.Instant.ofEpochMilli(current_timestamp())) as c0 from SupportBean";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean());
+            assertEquals("1970-01-01T00:00:01Z", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherPrimitiveConversion implements RegressionExecution {

@@ -44,6 +44,7 @@ import com.espertech.esper.common.internal.settings.ClasspathImportCompileTimeUt
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.SettingsApplicationDotMethod;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -370,8 +371,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         }
 
         // try resolve as enumeration class with value
-        Object enumconstant = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getClasspathImportService(), false);
-        if (enumconstant != null) {
+        ValueAndFieldDesc enumconstantDesc = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getClasspathImportService(), false);
+        if (enumconstantDesc != null) {
 
             // try resolve method
             final ExprChainedSpec methodSpec = modifiedChain.get(0);
@@ -382,7 +383,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 }
             };
             EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(),
+            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(enumconstantDesc.getValue().getClass().getName(), enumconstantDesc.getValue().getClass(), methodSpec.getName(),
                 methodSpec.getParameters(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
             // method resolved, hook up
@@ -392,7 +393,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
             ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
             forge = new ExprDotNodeForgeStaticMethod(this, false, firstItem.getName(), methodDesc.getReflectionMethod(),
-                methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstant, validationContext.getStatementName());
+                methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstantDesc, validationContext.getStatementName());
             return null;
         }
 
