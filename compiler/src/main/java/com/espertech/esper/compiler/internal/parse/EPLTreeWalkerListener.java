@@ -79,6 +79,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.espertech.esper.common.internal.util.StringValue.unescapeBacktick;
+
 /**
  * Called during the walks of a EPL expression AST tree as specified in the grammar file.
  * Constructs filter and view specifications etc.
@@ -1156,6 +1158,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                 expressions.add(expr);
             }
             String[] columns = columnNames.toArray(new String[columnNames.size()]);
+            for (int i = 0; i < columns.length; i++) {
+                columns[i] = unescapeBacktick(columns[i]);
+            }
             ExprNewStructNode newNode = new ExprNewStructNode(columns);
             newNode.addChildNodes(expressions);
             astExprNodeMap.put(ctx, newNode);

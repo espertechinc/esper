@@ -21,7 +21,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import org.apache.avro.generic.GenericData;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,8 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ExprCoreNewStruct {
 
@@ -41,7 +39,23 @@ public class ExprCoreNewStruct {
         execs.add(new ExprCoreNewStructDefaultColumnsAndSODA());
         execs.add(new ExprCoreNewStructNewWithCase());
         execs.add(new ExprCoreNewStructInvalid());
+        execs.add(new ExprCoreNewStructWithBacktick());
         return execs;
+    }
+
+    private static class ExprCoreNewStructWithBacktick implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select new { `a` = theString, `b.c` = theString, `}` = theString } as c0 from SupportBean";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("E1", 0));
+            Map<String, Object> c0 = (Map<String, Object>) env.listener("s0").assertOneGetNewAndReset().get("c0");
+            assertEquals("E1", c0.get("a"));
+            assertEquals("E1", c0.get("b.c"));
+            assertEquals("E1", c0.get("}"));
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprCoreNewStructNewWRepresentation implements RegressionExecution {
@@ -76,20 +90,20 @@ public class ExprCoreNewStruct {
                 " when \"B\" then new{theString,intPrimitive = 10,col2=theString||\"B\" } " +
                 "end from SupportBean as sb";
             env.compileDeploy(epl).addListener("s0");
-            Assert.assertEquals("case theString when \"A\" then new{theString=\"Q\",intPrimitive,col2=theString||\"A\"} when \"B\" then new{theString,intPrimitive=10,col2=theString||\"B\"} end", env.statement("s0").getEventType().getPropertyNames()[0]);
+            assertEquals("case theString when \"A\" then new{theString=\"Q\",intPrimitive,col2=theString||\"A\"} when \"B\" then new{theString,intPrimitive=10,col2=theString||\"B\"} end", env.statement("s0").getEventType().getPropertyNames()[0]);
             env.undeployAll();
         }
     }
 
     private static void tryAssertionDefault(RegressionEnvironment env) {
 
-        Assert.assertEquals(Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
+        assertEquals(Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
         FragmentEventType fragType = env.statement("s0").getEventType().getFragmentType("val0");
         assertFalse(fragType.isIndexed());
         assertFalse(fragType.isNative());
-        Assert.assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
-        Assert.assertEquals(Integer.class, fragType.getFragmentType().getPropertyType("intPrimitive"));
-        Assert.assertEquals(String.class, fragType.getFragmentType().getPropertyType("col2"));
+        assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
+        assertEquals(Integer.class, fragType.getFragmentType().getPropertyType("intPrimitive"));
+        assertEquals(String.class, fragType.getFragmentType().getPropertyType("col2"));
 
         String[] fieldsInner = "theString,intPrimitive,col2".split(",");
         env.sendEventBean(new SupportBean("E1", 1));
@@ -149,12 +163,12 @@ public class ExprCoreNewStruct {
     private static void tryAssertion(RegressionEnvironment env, String epl, AtomicInteger milestone) {
         env.compileDeploy(epl).addListener("s0").milestone(milestone.getAndIncrement());
 
-        Assert.assertEquals(Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
+        assertEquals(Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
         FragmentEventType fragType = env.statement("s0").getEventType().getFragmentType("val0");
         assertFalse(fragType.isIndexed());
         assertFalse(fragType.isNative());
-        Assert.assertEquals(String.class, fragType.getFragmentType().getPropertyType("col1"));
-        Assert.assertEquals(Integer.class, fragType.getFragmentType().getPropertyType("col2"));
+        assertEquals(String.class, fragType.getFragmentType().getPropertyType("col1"));
+        assertEquals(Integer.class, fragType.getFragmentType().getPropertyType("col2"));
 
         String[] fieldsInner = "col1,col2".split(",");
         env.sendEventBean(new SupportBean("E1", 1));
@@ -176,15 +190,15 @@ public class ExprCoreNewStruct {
         String epl = rep.getAnnotationTextWJsonProvided(MyLocalJsonProvided.class) + "@name('s0') select new { theString = 'x' || theString || 'x', intPrimitive = intPrimitive + 2} as val0 from SupportBean as sb";
         env.compileDeploy(epl).addListener("s0").milestone(milestone.getAndIncrement());
 
-        Assert.assertEquals(rep.isAvroEvent() ? GenericData.Record.class : Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
+        assertEquals(rep.isAvroEvent() ? GenericData.Record.class : Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
         FragmentEventType fragType = env.statement("s0").getEventType().getFragmentType("val0");
         if (rep == EventRepresentationChoice.JSONCLASSPROVIDED) {
             assertNull(fragType);
         } else {
             assertFalse(fragType.isIndexed());
             assertFalse(fragType.isNative());
-            Assert.assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
-            Assert.assertEquals(Integer.class, JavaClassHelper.getBoxedType(fragType.getFragmentType().getPropertyType("intPrimitive")));
+            assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
+            assertEquals(Integer.class, JavaClassHelper.getBoxedType(fragType.getFragmentType().getPropertyType("intPrimitive")));
         }
 
         String[] fieldsInner = "theString,intPrimitive".split(",");
@@ -193,8 +207,8 @@ public class ExprCoreNewStruct {
         if (rep.isAvroEvent()) {
             SupportAvroUtil.avroToJson(event);
             GenericData.Record inner = (GenericData.Record) event.get("val0");
-            Assert.assertEquals("xE1x", inner.get("theString"));
-            Assert.assertEquals(-3, inner.get("intPrimitive"));
+            assertEquals("xE1x", inner.get("theString"));
+            assertEquals(-3, inner.get("intPrimitive"));
         } else {
             EPAssertionUtil.assertPropsMap((Map) event.get("val0"), fieldsInner, new Object[]{"xE1x", -3});
         }
