@@ -11,12 +11,14 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMemberWCol;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -27,8 +29,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
-import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
 import java.io.DataInput;
@@ -243,7 +243,7 @@ public class AggregationServiceFactoryCompiler {
         // make state-update
         CodegenMethod applyEnterMethod = makeStateUpdate(!isGenerateTableEnter, AggregationCodegenUpdateType.APPLYENTER, methodForges, methodFactories, accessFactories, classScope, namedMethods);
         CodegenMethod applyLeaveMethod = makeStateUpdate(!isGenerateTableEnter, AggregationCodegenUpdateType.APPLYLEAVE, methodForges, methodFactories, accessFactories, classScope, namedMethods);
-        CodegenMethod clearMethod = makeStateUpdate(!isGenerateTableEnter, AggregationCodegenUpdateType.CLEAR, methodForges, methodFactories, accessFactories, classScope, namedMethods);
+        CodegenMethod clearMethod = makeStateUpdate(true, AggregationCodegenUpdateType.CLEAR, methodForges, methodFactories, accessFactories, classScope, namedMethods);
 
         // get-access-state
         CodegenMethod getAccessStateMethod = makeGetAccessState(numMethodFactories, accessFactories, classScope);
@@ -251,6 +251,7 @@ public class AggregationServiceFactoryCompiler {
         // make state-update for tables
         CodegenMethod enterAggMethod = makeTableMethod(isGenerateTableEnter, AggregationCodegenTableUpdateType.ENTER, methodFactories, classScope);
         CodegenMethod leaveAggMethod = makeTableMethod(isGenerateTableEnter, AggregationCodegenTableUpdateType.LEAVE, methodFactories, classScope);
+        CodegenMethod resetAggMethod = makeTableResetMethod(isGenerateTableEnter, methodFactories, accessFactories, classScope);
         CodegenMethod enterAccessMethod = makeTableAccess(isGenerateTableEnter, AggregationCodegenTableUpdateType.ENTER, numMethodFactories, accessFactories, classScope, namedMethods);
         CodegenMethod leaveAccessMethod = makeTableAccess(isGenerateTableEnter, AggregationCodegenTableUpdateType.LEAVE, numMethodFactories, accessFactories, classScope, namedMethods);
 
@@ -266,6 +267,7 @@ public class AggregationServiceFactoryCompiler {
         CodegenStackGenerator.recursiveBuildStack(clearMethod, "clear", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(enterAggMethod, "enterAgg", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(leaveAggMethod, "leaveAgg", innerMethods);
+        CodegenStackGenerator.recursiveBuildStack(resetAggMethod, "reset", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(enterAccessMethod, "enterAccess", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(leaveAccessMethod, "leaveAccess", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getAccessStateMethod, "getAccessState", innerMethods);
@@ -304,6 +306,40 @@ public class AggregationServiceFactoryCompiler {
                 factory.getAggregator().applyTableLeaveCodegen(value, evaluationTypes, updateMethod, classScope);
             }
             blocks[i].localMethod(updateMethod, value).blockReturnNoValue();
+        }
+
+        return method;
+    }
+
+    private static CodegenMethod makeTableResetMethod(boolean isGenerateTableEnter, AggregationForgeFactory[] methodFactories, AggregationStateFactoryForge[] accessFactories, CodegenClassScope classScope) {
+        CodegenMethod method = CodegenMethod.makeParentNode(void.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "column");
+        if (!isGenerateTableEnter) {
+            method.getBlock().methodThrowUnsupported();
+            return method;
+        }
+
+        List<CodegenMethod> methods = new ArrayList<>();
+
+        if (methodFactories != null) {
+            for (AggregationForgeFactory factory : methodFactories) {
+                CodegenMethod resetMethod = method.makeChild(void.class, factory.getAggregator().getClass(), classScope);
+                factory.getAggregator().clearCodegen(resetMethod, classScope);
+                methods.add(resetMethod);
+            }
+        }
+
+        if (accessFactories != null) {
+            for (AggregationStateFactoryForge accessFactory: accessFactories) {
+                CodegenMethod resetMethod = method.makeChild(void.class, accessFactory.getAggregator().getClass(), classScope);
+                accessFactory.getAggregator().clearCodegen(resetMethod, classScope);
+                methods.add(resetMethod);
+            }
+        }
+
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("column"), methods.size(), false);
+        int count = 0;
+        for (CodegenMethod getValue : methods) {
+            blocks[count++].expression(localMethod(getValue));
         }
 
         return method;

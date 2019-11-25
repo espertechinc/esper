@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidationBase;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionNode;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -78,7 +79,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         if (validationContext.getStreamTypeService().hasTableTypes() &&
             validationContext.getTableCompileTimeResolver() != null &&
             chainSpec.size() > 1 && chainSpec.get(0).isProperty()) {
-            Pair<ExprNode, List<ExprChainedSpec>> tableNode = TableCompileTimeUtil.getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.getClasspathImportService(), validationContext.getTableCompileTimeResolver());
+            Pair<ExprNode, List<ExprChainedSpec>> tableNode = TableCompileTimeUtil.getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.isAllowTableAggReset(), validationContext.getTableCompileTimeResolver());
             if (tableNode != null) {
                 ExprNode node = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.DOTNODE, tableNode.getFirst(), validationContext);
                 if (tableNode.getSecond().isEmpty()) {
@@ -465,10 +466,17 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 return null;
             }
             TableMetadataColumnAggregation columnAggregation = (TableMetadataColumnAggregation) column;
-            if (columnAggregation.isMethodAgg() || !columnAggregation.getAggregationPortableValidation().isAggregationMethod(aggMethodName, aggMethodParams, validationContext)) {
-                return null;
+            if (aggMethodName.toLowerCase(Locale.ENGLISH).equals("reset")) {
+                if (!validationContext.isAllowTableAggReset()) {
+                    throw new ExprValidationException(AggregationPortableValidationBase.INVALID_TABLE_AGG_RESET);
+                }
+                aggregationMethodForge = new ExprDotNodeAggregationMethodForgeTableReset(this, aggMethodName, aggMethodParams, columnAggregation.getAggregationPortableValidation(), tableSubprop, columnAggregation);
+            } else {
+                if (columnAggregation.isMethodAgg() || !columnAggregation.getAggregationPortableValidation().isAggregationMethod(aggMethodName, aggMethodParams, validationContext)) {
+                    return null;
+                }
+                aggregationMethodForge = new ExprDotNodeAggregationMethodForgeTableIdent(this, aggMethodName, aggMethodParams, columnAggregation.getAggregationPortableValidation(), tableSubprop, columnAggregation);
             }
-            aggregationMethodForge = new ExprDotNodeAggregationMethodForgeTableIdent(this, aggMethodName, aggMethodParams, columnAggregation.getAggregationPortableValidation(), tableSubprop, columnAggregation);
         } else if (rootNode instanceof ExprTableAccessNodeSubprop) {
             // handle table-column via table-access
             ExprTableAccessNodeSubprop tableSubprop = (ExprTableAccessNodeSubprop) rootNode;

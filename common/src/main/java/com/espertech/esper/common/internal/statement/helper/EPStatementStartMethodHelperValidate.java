@@ -63,9 +63,9 @@ public class EPStatementStartMethodHelperValidate {
         }
     }
 
-    public static ExprNode validateExprNoAgg(ExprNodeOrigin exprNodeOrigin, ExprNode exprNode, StreamTypeService streamTypeService, String errorMsg, boolean allowTableConsumption, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
+    public static ExprNode validateExprNoAgg(ExprNodeOrigin exprNodeOrigin, ExprNode exprNode, StreamTypeService streamTypeService, String errorMsg, boolean allowTableConsumption, boolean allowTableAggReset, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
         ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, raw, compileTimeServices)
-                .withAllowBindingConsumption(allowTableConsumption).build();
+                .withAllowBindingConsumption(allowTableConsumption).withAllowTableAggReset(allowTableAggReset).build();
         ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(exprNodeOrigin, exprNode, validationContext);
         validateNoAggregations(validated, errorMsg);
         return validated;

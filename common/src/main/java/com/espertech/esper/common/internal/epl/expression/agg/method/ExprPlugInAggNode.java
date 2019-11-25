@@ -65,7 +65,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprPlug
                 hasDataWindows = false;
             }
 
-            if (child instanceof ExprWildcard) {
+            if (child instanceof ExprWildcard && validationContext.getStreamTypeService().getEventTypes().length > 0) {
                 ExprAggMultiFunctionUtil.checkWildcardNotJoinOrSubquery(validationContext.getStreamTypeService(), functionName);
                 parameterTypes[count] = validationContext.getStreamTypeService().getEventTypes()[0].getUnderlyingType();
                 isConstant[count] = false;

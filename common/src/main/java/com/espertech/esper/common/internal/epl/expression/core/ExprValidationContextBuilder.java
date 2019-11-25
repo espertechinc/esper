@@ -26,6 +26,7 @@ public final class ExprValidationContextBuilder {
     private boolean disablePropertyExpressionEventCollCache;
     private boolean allowRollupFunctions;
     private boolean allowBindingConsumption;
+    private boolean allowTableAggReset;
     private String intoTableName;
     private boolean isFilterExpression;
     private boolean isResettingAggregations;
@@ -65,6 +66,11 @@ public final class ExprValidationContextBuilder {
         return this;
     }
 
+    public ExprValidationContextBuilder withAllowTableAggReset(boolean allowTableAggReset) {
+        this.allowTableAggReset = allowTableAggReset;
+        return this;
+    }
+
     public ExprValidationContextBuilder withIntoTableName(String intoTableName) {
         this.intoTableName = intoTableName;
         return this;
@@ -92,6 +98,6 @@ public final class ExprValidationContextBuilder {
 
     public ExprValidationContext build() {
         return new ExprValidationContext(streamTypeService, viewResourceDelegate, contextDescriptor, disablePropertyExpressionEventCollCache, allowRollupFunctions,
-                allowBindingConsumption, isResettingAggregations, intoTableName, isFilterExpression, memberName, aggregationFutureNameAlreadySet, statementRawInfo, compileTimeServices);
+                allowBindingConsumption, allowTableAggReset, isResettingAggregations, intoTableName, isFilterExpression, memberName, aggregationFutureNameAlreadySet, statementRawInfo, compileTimeServices);
     }
 }

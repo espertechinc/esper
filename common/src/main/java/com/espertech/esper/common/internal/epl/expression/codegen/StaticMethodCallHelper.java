@@ -67,7 +67,7 @@ public class StaticMethodCallHelper {
             return staticMethod(reflectionMethod.getDeclaringClass(), reflectionMethod.getName(), expressions);
         } else {
             if (optionalTargetObject.getValue() != null && optionalTargetObject.getValue().getClass().isEnum()) {
-                return exprDotMethod(enumValue(optionalTargetObject.getClass(), optionalTargetObject.toString()), reflectionMethod.getName(), expressions);
+                return exprDotMethod(enumValue(optionalTargetObject.getValue().getClass(), optionalTargetObject.getValue().toString()), reflectionMethod.getName(), expressions);
             } else {
                 return exprDotMethod(publicConstValue(optionalTargetObject.getField().getDeclaringClass(), optionalTargetObject.getField().getName()), reflectionMethod.getName(), expressions);
             }

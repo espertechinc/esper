@@ -1990,7 +1990,7 @@ public class StatementSpecMapper {
             // determine table use
             List<ExprChainedSpec> workChain = new ArrayList<ExprChainedSpec>(chain);
             String tableNameCandidate = workChain.get(0).getName();
-            Pair<ExprTableAccessNode, List<ExprChainedSpec>> pair = TableCompileTimeUtil.checkTableNameGetLibFunc(mapContext.getTableCompileTimeResolver(), mapContext.getClasspathImportService(), mapContext.getPlugInAggregations(),
+            Pair<ExprTableAccessNode, List<ExprChainedSpec>> pair = TableCompileTimeUtil.checkTableNameGetLibFunc(mapContext.getTableCompileTimeResolver(), mapContext.getPlugInAggregations(),
                     tableNameCandidate, workChain);
             if (pair != null) {
                 mapContext.getTableExpressions().add(pair.getFirst());

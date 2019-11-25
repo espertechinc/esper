@@ -182,7 +182,7 @@ public class OnTriggerPlanValidator {
 
             if (matchedItem.getOptionalMatchCond() != null) {
                 StreamTypeService matchValidStreams = matchedItem.isMatchedUnmatched() ? twoStreamTypeSvc : insertOnlyTypeSvc;
-                matchedItem.setOptionalMatchCond(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHCOND, matchedItem.getOptionalMatchCond(), matchValidStreams, exprNodeErrorMessage, true, statementRawInfo, services));
+                matchedItem.setOptionalMatchCond(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHCOND, matchedItem.getOptionalMatchCond(), matchValidStreams, exprNodeErrorMessage, true, false, statementRawInfo, services));
                 if (!matchedItem.isMatchedUnmatched()) {
                     EPStatementStartMethodHelperValidate.validateSubqueryExcludeOuterStream(matchedItem.getOptionalMatchCond());
                 }
@@ -192,15 +192,15 @@ public class OnTriggerPlanValidator {
                 if (item instanceof OnTriggerMergeActionDelete) {
                     OnTriggerMergeActionDelete delete = (OnTriggerMergeActionDelete) item;
                     if (delete.getOptionalWhereClause() != null) {
-                        delete.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, delete.getOptionalWhereClause(), twoStreamTypeSvc, exprNodeErrorMessage, true, statementRawInfo, services));
+                        delete.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, delete.getOptionalWhereClause(), twoStreamTypeSvc, exprNodeErrorMessage, true, false, statementRawInfo, services));
                     }
                 } else if (item instanceof OnTriggerMergeActionUpdate) {
                     OnTriggerMergeActionUpdate update = (OnTriggerMergeActionUpdate) item;
                     if (update.getOptionalWhereClause() != null) {
-                        update.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, update.getOptionalWhereClause(), twoStreamTypeSvc, exprNodeErrorMessage, true, statementRawInfo, services));
+                        update.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, update.getOptionalWhereClause(), twoStreamTypeSvc, exprNodeErrorMessage, true, false, statementRawInfo, services));
                     }
                     for (OnTriggerSetAssignment assignment : update.getAssignments()) {
-                        assignment.setExpression(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.UPDATEASSIGN, assignment.getExpression(), assignmentStreamTypeSvc, exprNodeErrorMessage, true, statementRawInfo, services));
+                        assignment.setExpression(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.UPDATEASSIGN, assignment.getExpression(), assignmentStreamTypeSvc, exprNodeErrorMessage, true, true, statementRawInfo, services));
                     }
                 } else if (item instanceof OnTriggerMergeActionInsert) {
                     OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) item;
@@ -208,7 +208,7 @@ public class OnTriggerPlanValidator {
                     StreamTypeService insertTypeSvc = getInsertStreamService(insert.getOptionalStreamName(), namedWindowName, insertOnlyTypeSvc, twoStreamTypeSvc);
 
                     if (insert.getOptionalWhereClause() != null) {
-                        insert.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, insert.getOptionalWhereClause(), insertTypeSvc, exprNodeErrorMessage, true, statementRawInfo, services));
+                        insert.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, insert.getOptionalWhereClause(), insertTypeSvc, exprNodeErrorMessage, true, false, statementRawInfo, services));
                     }
 
                     List<SelectClauseElementCompiled> compiledSelect = validateInsertSelect(insert.getSelectClause(), insertTypeSvc, insert.getColumns(), statementRawInfo, services);

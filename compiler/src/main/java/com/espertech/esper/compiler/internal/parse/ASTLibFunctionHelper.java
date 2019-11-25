@@ -264,7 +264,7 @@ public class ASTLibFunctionHelper {
         }
 
         // try table
-        Pair<ExprTableAccessNode, List<ExprChainedSpec>> tableInfo = TableCompileTimeUtil.checkTableNameGetLibFunc(mapEnv.getTableCompileTimeResolver(), classpathImportService, plugInAggregations, firstFunction, chain);
+        Pair<ExprTableAccessNode, List<ExprChainedSpec>> tableInfo = TableCompileTimeUtil.checkTableNameGetLibFunc(mapEnv.getTableCompileTimeResolver(), plugInAggregations, firstFunction, chain);
         if (tableInfo != null) {
             statementSpec.getTableExpressions().add(tableInfo.getFirst());
             chain = tableInfo.getSecond();

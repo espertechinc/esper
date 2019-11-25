@@ -52,7 +52,7 @@ public class AggregatorAccessCountMinSketch implements AggregatorAccess {
     }
 
     public void clearCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().methodThrowUnsupported();
+        method.getBlock().assignRef(state, exprDotMethod(spec, "makeAggState"));
     }
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {

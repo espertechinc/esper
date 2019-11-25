@@ -27,7 +27,6 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.property.IndexedProperty;
 import com.espertech.esper.common.internal.event.property.Property;
 import com.espertech.esper.common.internal.event.property.PropertyParser;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.util.LazyAllocatedMap;
 import com.espertech.esper.common.internal.util.StringValue;
 import com.espertech.esper.common.internal.util.ValidationException;
@@ -37,6 +36,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidationBase.INVALID_TABLE_AGG_RESET;
+import static com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidationBase.INVALID_TABLE_AGG_RESET_PARAMS;
+
 public class TableCompileTimeUtil {
 
     public static StreamTypeServiceImpl streamTypeFromTableColumn(EventType containedEventType) {
@@ -44,11 +46,10 @@ public class TableCompileTimeUtil {
     }
 
     public static Pair<ExprTableAccessNode, List<ExprChainedSpec>> checkTableNameGetLibFunc(
-            TableCompileTimeResolver tableService,
-            ClasspathImportServiceCompileTime classpathImportService,
-            LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
-            String classIdent,
-            List<ExprChainedSpec> chain) {
+        TableCompileTimeResolver tableService,
+        LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+        String classIdent,
+        List<ExprChainedSpec> chain) {
 
         int index = StringValue.unescapedIndexOfDot(classIdent);
 
@@ -82,16 +83,33 @@ public class TableCompileTimeUtil {
 
     public static Pair<ExprNode, List<ExprChainedSpec>> getTableNodeChainable(StreamTypeService streamTypeService,
                                                                               List<ExprChainedSpec> chainSpec,
-                                                                              ClasspathImportServiceCompileTime classpathImportService,
+                                                                              boolean allowTableAggReset,
                                                                               TableCompileTimeResolver tableCompileTimeResolver)
             throws ExprValidationException {
         chainSpec = new ArrayList<>(chainSpec);
 
         String unresolvedPropertyName = chainSpec.get(0).getName();
+        int tableStreamNum = streamTypeService.getStreamNumForStreamName(unresolvedPropertyName);
+        if (chainSpec.size() == 2 && tableStreamNum != -1) {
+            TableMetaData tableMetadata = tableCompileTimeResolver.resolveTableFromEventType(streamTypeService.getEventTypes()[tableStreamNum]);
+            if (tableMetadata != null && chainSpec.get(1).getName().toLowerCase(Locale.ENGLISH).equals("reset")) {
+                if (!allowTableAggReset) {
+                    throw new ExprValidationException(INVALID_TABLE_AGG_RESET);
+                }
+                if (!chainSpec.get(1).getParameters().isEmpty()) {
+                    throw new ExprValidationException(INVALID_TABLE_AGG_RESET_PARAMS);
+                }
+                ExprTableResetRowAggNode node = new ExprTableResetRowAggNode(tableMetadata, tableStreamNum);
+                chainSpec.clear();
+                return new Pair<>(node, chainSpec);
+            }
+        }
+
         StreamTableColWStreamName col = findTableColumnMayByPrefixed(streamTypeService, unresolvedPropertyName, tableCompileTimeResolver);
         if (col == null) {
             return null;
         }
+
         StreamTableColPair pair = col.getPair();
         if (pair.getColumn() instanceof TableMetadataColumnAggregation) {
             TableMetadataColumnAggregation agg = (TableMetadataColumnAggregation) pair.getColumn();

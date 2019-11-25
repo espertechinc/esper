@@ -39,6 +39,7 @@ public class ExprValidationContext {
     private final boolean disablePropertyExpressionEventCollCache;
     private final boolean allowRollupFunctions;
     private final boolean allowBindingConsumption;
+    private final boolean allowTableAggReset;
     private final boolean isResettingAggregations;
     private final boolean isExpressionNestedAudit;
     private final boolean isExpressionAudit;
@@ -53,6 +54,7 @@ public class ExprValidationContext {
     public ExprValidationContext(StreamTypeService streamTypeService, ExprValidationContext ctx) {
         this(streamTypeService, ctx.getViewResourceDelegate(), ctx.contextDescriptor,
                 ctx.disablePropertyExpressionEventCollCache, ctx.allowRollupFunctions, ctx.allowBindingConsumption,
+                ctx.allowTableAggReset,
                 ctx.isResettingAggregations, ctx.intoTableName, ctx.isFilterExpression, ctx.memberName,
                 ctx.aggregationFutureNameAlreadySet,
                 ctx.statementRawInfo, ctx.compileTimeServices);
@@ -64,6 +66,7 @@ public class ExprValidationContext {
                                     boolean disablePropertyExpressionEventCollCache,
                                     boolean allowRollupFunctions,
                                     boolean allowBindingConsumption,
+                                    boolean allowTableAggReset,
                                     boolean isUnidirectionalJoin,
                                     String intoTableName,
                                     boolean isFilterExpression,
@@ -77,6 +80,7 @@ public class ExprValidationContext {
         this.disablePropertyExpressionEventCollCache = disablePropertyExpressionEventCollCache;
         this.allowRollupFunctions = allowRollupFunctions;
         this.allowBindingConsumption = allowBindingConsumption;
+        this.allowTableAggReset = allowTableAggReset;
         this.isResettingAggregations = isUnidirectionalJoin;
         this.intoTableName = intoTableName;
         this.isFilterExpression = isFilterExpression;
@@ -191,5 +195,9 @@ public class ExprValidationContext {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public boolean isAllowTableAggReset() {
+        return allowTableAggReset;
     }
 }

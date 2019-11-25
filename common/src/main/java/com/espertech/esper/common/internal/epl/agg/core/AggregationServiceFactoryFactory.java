@@ -112,14 +112,15 @@ public class AggregationServiceFactoryFactory {
         // Equivalent-to functions are for example "select sum(a*b), 5*sum(a*b)".
         // Reducing the total number of aggregation functions.
         List<AggregationServiceAggExpressionDesc> aggregations = new ArrayList<AggregationServiceAggExpressionDesc>();
+        boolean intoTableNonRollup = groupByRollupDesc == null && intoTableSpec != null;
         for (ExprAggregateNode selectAggNode : selectAggregateExprNodes) {
-            addEquivalent(selectAggNode, aggregations);
+            addEquivalent(selectAggNode, aggregations, intoTableNonRollup);
         }
         for (ExprAggregateNode havingAggNode : havingAggregateExprNodes) {
-            addEquivalent(havingAggNode, aggregations);
+            addEquivalent(havingAggNode, aggregations, intoTableNonRollup);
         }
         for (ExprAggregateNode orderByAggNode : orderByAggregateExprNodes) {
-            addEquivalent(orderByAggNode, aggregations);
+            addEquivalent(orderByAggNode, aggregations, intoTableNonRollup);
         }
 
         // Construct a list of evaluation node for the aggregation functions (regular agg).
@@ -152,7 +153,7 @@ public class AggregationServiceFactoryFactory {
             ExprTableNodeUtil.validateExpressions(intoTableSpec.getName(), groupByTypes, "group-by", groupByNodes, keyTypes, "group-by");
 
             // determine how this binds to existing aggregations, assign column numbers
-            BindingMatchResult bindingMatchResult = matchBindingsAssignColumnNumbers(intoTableSpec, metadata, aggregations, selectClauseNamedNodes, methodAggForgesList, declaredExpressions, classpathImportService, raw.getStatementName(), isFireAndForget);
+            BindingMatchResult bindingMatchResult = matchBindingsAssignColumnNumbers(intoTableSpec, metadata, aggregations, selectClauseNamedNodes, methodAggForgesList, declaredExpressions, classpathImportService, raw.getStatementName());
 
             // return factory
             AggregationServiceFactoryForge serviceForge = new AggregationServiceFactoryForgeTable(metadata, bindingMatchResult.getMethodPairs(), bindingMatchResult.getTargetStates(), bindingMatchResult.getAgents(), groupByRollupDesc);
@@ -252,7 +253,7 @@ public class AggregationServiceFactoryFactory {
         return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions, additionalForgeables);
     }
 
-    private static void addEquivalent(ExprAggregateNode aggNodeToAdd, List<AggregationServiceAggExpressionDesc> equivalencyList) {
+    private static void addEquivalent(ExprAggregateNode aggNodeToAdd, List<AggregationServiceAggExpressionDesc> equivalencyList, boolean intoTableNonRollup) {
         // Check any same aggregation nodes among all aggregation clauses
         boolean foundEquivalent = false;
         for (AggregationServiceAggExpressionDesc existing : equivalencyList) {
@@ -286,7 +287,7 @@ public class AggregationServiceFactoryFactory {
             break;
         }
 
-        if (!foundEquivalent) {
+        if (!foundEquivalent || intoTableNonRollup) {
             equivalencyList.add(new AggregationServiceAggExpressionDesc(aggNodeToAdd, aggNodeToAdd.getFactory()));
         }
     }
@@ -366,8 +367,7 @@ public class AggregationServiceFactoryFactory {
                                                                        List<ExprForge[]> methodAggForgesList,
                                                                        List<ExprDeclaredNode> declaredExpressions,
                                                                        ClasspathImportService classpathImportService,
-                                                                       String statementName,
-                                                                       boolean isFireAndForget)
+                                                                       String statementName)
             throws ExprValidationException {
         Map<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation> methodAggs = new LinkedHashMap<>();
         Map<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation> accessAggs = new LinkedHashMap<>();

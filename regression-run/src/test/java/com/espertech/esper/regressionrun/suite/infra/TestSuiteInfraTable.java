@@ -205,6 +205,10 @@ public class TestSuiteInfraTable extends TestCase {
         RegressionRunner.run(session, new InfraTableMTUngroupedAccessReadIntoTableWriteFilterUse());
     }
 
+    public void testInfraTableResetAggregationState() {
+        RegressionRunner.run(session, InfraTableResetAggregationState.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
             SupportIntrusionEvent.class, SupportTrafficEvent.class, SupportMySortValueEvent.class,

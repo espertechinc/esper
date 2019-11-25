@@ -17,13 +17,19 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
+import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
+import java.util.Locale;
+
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public abstract class AggregationPortableValidationBase implements AggregationPortableValidation {
+    public static final String INVALID_TABLE_AGG_RESET = "The table aggregation'reset' method is only available for the on-merge update action";
+    public static final String INVALID_TABLE_AGG_RESET_PARAMS = "The table aggregation 'reset' method does not allow parameters";
+
     protected boolean distinct;
 
     protected abstract Class typeOf();
@@ -65,6 +71,24 @@ public abstract class AggregationPortableValidationBase implements AggregationPo
     }
 
     public AggregationMultiFunctionMethodDesc validateAggregationMethod(ExprValidationContext validationContext, String aggMethodName, ExprNode[] params) throws ExprValidationException {
+        if (aggMethodName.toLowerCase(Locale.ENGLISH).equals("reset")) {
+            if (!validationContext.isAllowTableAggReset()) {
+                throw new ExprValidationException(INVALID_TABLE_AGG_RESET);
+            }
+            if (params.length != 0) {
+                throw new ExprValidationException(INVALID_TABLE_AGG_RESET_PARAMS);
+            }
+            AggregationMethodForge reader = new AggregationMethodForge() {
+                public Class getResultType() {
+                    return void.class;
+                }
+
+                public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+                    return constantNull();
+                }
+            };
+            return new AggregationMultiFunctionMethodDesc(reader, null, null, null);
+        }
         throw new ExprValidationException("Aggregation-method not supported for this type of aggregation");
     }
 }

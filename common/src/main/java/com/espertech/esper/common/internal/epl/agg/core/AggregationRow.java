@@ -49,4 +49,6 @@ public interface AggregationRow {
     long getLastUpdateTime();
 
     void setLastUpdateTime(long currentTime);
+
+    void reset(int column);
 }
