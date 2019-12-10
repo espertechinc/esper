@@ -176,7 +176,7 @@ public class CompilerHelperServices {
 
         for (EPCompiled unit : path.getCompileds()) {
             deploymentNumber++;
-            ModuleProviderResult provider = ModuleProviderUtil.analyze(unit, classLoaderParent);
+            ModuleProviderCLPair provider = ModuleProviderUtil.analyze(unit, classLoaderParent);
             String unitModuleName = provider.getModuleProvider().getModuleName();
 
             // initialize event types

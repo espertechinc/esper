@@ -11,8 +11,10 @@
 package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.client.EPCompiled;
+import com.espertech.esper.common.client.EPCompiledManifest;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.context.util.UndeployPreconditionException;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.DependencyGraph;
 import com.espertech.esper.runtime.client.*;
@@ -39,28 +41,63 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         this.runtime = runtime;
     }
 
+    public EPDeploymentRollout rollout(Collection<EPDeploymentRolloutCompiled> items) throws EPDeployException {
+        return rollout(items, new RolloutOptions());
+    }
+
+    public EPDeploymentRollout rollout(Collection<EPDeploymentRolloutCompiled> items, RolloutOptions options) throws EPDeployException {
+        if (options == null) {
+            options = new RolloutOptions();
+        }
+        validateRuntimeAlive();
+        int rollItemNum = 0;
+        for (EPDeploymentRolloutCompiled item : items) {
+            checkManifest(rollItemNum++, item.getCompiled().getManifest());
+        }
+
+        try {
+            options.getRolloutLockStrategy().acquire(services.getEventProcessingRWLock());
+        } catch (Exception e) {
+            throw new EPDeployLockException(e.getMessage(), e);
+        }
+
+        DeployerRolloutDeploymentResult rolloutResult;
+        try {
+            StatementIdRecoveryService statementIdRecovery = services.getEpServicesHA().getStatementIdRecoveryService();
+            Integer currentStatementId = statementIdRecovery.getCurrentStatementId();
+            if (currentStatementId == null) {
+                currentStatementId = 1;
+            }
+
+            rolloutResult = DeployerRollout.rollout(currentStatementId, items, runtime);
+            statementIdRecovery.setCurrentStatementId(currentStatementId + rolloutResult.getNumStatements());
+
+            // dispatch event
+            for (int i = 0; i < rolloutResult.getDeployments().length; i++) {
+                dispatchOnDeploymentEvent(rolloutResult.getDeployments()[i], i);
+            }
+        } finally {
+            options.getRolloutLockStrategy().release(services.getEventProcessingRWLock());
+        }
+
+        EPDeploymentRolloutItem[] deployments = new EPDeploymentRolloutItem[items.size()];
+        for (int i = 0; i < rolloutResult.getDeployments().length; i++) {
+            EPDeployment deployment = makeDeployment(rolloutResult.getDeployments()[i]);
+            deployments[i] = new EPDeploymentRolloutItem(deployment);
+        }
+        return new EPDeploymentRollout(deployments);
+    }
+
     public EPDeployment deploy(EPCompiled compiled) throws EPDeployException {
         return deploy(compiled, new DeploymentOptions());
     }
 
     public EPDeployment deploy(EPCompiled compiled, DeploymentOptions options) throws EPDeployException {
-
-        if (runtime.isDestroyed()) {
-            throw new EPRuntimeDestroyedException(runtime.getURI());
+        if (options == null) {
+            options = new DeploymentOptions();
         }
-
-        try {
-            RuntimeVersion.checkVersion(compiled.getManifest().getCompilerVersion());
-        } catch (RuntimeVersion.VersionException ex) {
-            throw new EPDeployDeploymentVersionException(ex.getMessage(), ex);
-        }
-
-        if (compiled.getManifest().getModuleProviderClassName() == null) {
-            if (compiled.getManifest().getQueryProviderClassName() != null) {
-                throw new EPDeployException("Cannot deploy EPL that was compiled as a fire-and-forget query, make sure to use the 'compile' method of the compiler");
-            }
-            throw new EPDeployException("Failed to find module provider class name in manifest (is this a compiled module?)");
-        }
+        validateRuntimeAlive();
+        checkManifest(-1, compiled.getManifest());
 
         try {
             options.getDeploymentLockStrategy().acquire(services.getEventProcessingRWLock());
@@ -76,29 +113,17 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
                 currentStatementId = 1;
             }
 
-            String deploymentId;
-            if (options.getDeploymentId() == null) {
-                deploymentId = UUID.randomUUID().toString();
-            } else {
-                deploymentId = options.getDeploymentId();
-            }
-
-            if (services.getDeploymentLifecycleService().getDeploymentById(deploymentId) != null) {
-                throw new EPDeployDeploymentExistsException("Deployment by id '" + deploymentId + "' already exists");
-            }
-
+            String deploymentId = DeployerHelperResolver.determineDeploymentIdCheckExists(-1, options, runtime.getServicesContext().getDeploymentLifecycleService());
             deployerResult = Deployer.deployFresh(deploymentId, currentStatementId, compiled, options.getStatementNameRuntime(), options.getStatementUserObjectRuntime(), options.getStatementSubstitutionParameter(), options.getDeploymentClassLoaderOption(), runtime);
             statementIdRecovery.setCurrentStatementId(currentStatementId + deployerResult.getStatements().length);
 
             // dispatch event
-            dispatchOnDeploymentEvent(deployerResult);
+            dispatchOnDeploymentEvent(deployerResult, -1);
         } finally {
             options.getDeploymentLockStrategy().release(services.getEventProcessingRWLock());
         }
 
-        EPStatement[] copy = new EPStatement[deployerResult.getStatements().length];
-        System.arraycopy(deployerResult.getStatements(), 0, copy, 0, deployerResult.getStatements().length);
-        return new EPDeployment(deployerResult.getDeploymentId(), deployerResult.getModuleProvider().getModuleName(), deployerResult.getModulePropertiesCached(), copy, CollectionUtil.copyArray(deployerResult.getDeploymentIdDependencies()), new Date(System.currentTimeMillis()));
+        return makeDeployment(deployerResult);
     }
 
     public EPStatement getStatement(String deploymentId, String statementName) {
@@ -270,7 +295,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
             services.getEpServicesHA().getDeploymentRecoveryService().remove(deploymentId);
             services.getDeploymentLifecycleService().undeploy(deploymentId);
 
-            dispatchOnUndeploymentEvent(deployment);
+            dispatchOnUndeploymentEvent(deployment, -1);
 
             // rethrow exception if configured
             if (undeployException != null && services.getConfigSnapshot().getRuntime().getExceptionHandling().getUndeployRethrowPolicy() == RETHROW_FIRST) {
@@ -302,14 +327,14 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         services.getDeploymentLifecycleService().getListeners().clear();
     }
 
-    private void dispatchOnDeploymentEvent(DeploymentInternal deployed) {
+    private void dispatchOnDeploymentEvent(DeploymentInternal deployed, int rolloutItemNumber) {
         CopyOnWriteArrayList<DeploymentStateListener> listeners = services.getDeploymentLifecycleService().getListeners();
         if (listeners.isEmpty()) {
             return;
         }
         EPStatement[] stmts = deployed.getStatements();
         DeploymentStateEventDeployed event = new DeploymentStateEventDeployed(services.getRuntimeURI(),
-            deployed.getDeploymentId(), deployed.getModuleProvider().getModuleName(), stmts);
+            deployed.getDeploymentId(), deployed.getModuleProvider().getModuleName(), stmts, rolloutItemNumber);
         for (DeploymentStateListener listener : listeners) {
             try {
                 listener.onDeployment(event);
@@ -319,14 +344,14 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         }
     }
 
-    private void dispatchOnUndeploymentEvent(DeploymentInternal result) {
+    private void dispatchOnUndeploymentEvent(DeploymentInternal result, int rolloutItemNumber) {
         CopyOnWriteArrayList<DeploymentStateListener> listeners = services.getDeploymentLifecycleService().getListeners();
         if (listeners.isEmpty()) {
             return;
         }
         EPStatement[] statements = result.getStatements();
         DeploymentStateEventUndeployed event = new DeploymentStateEventUndeployed(services.getRuntimeURI(),
-            result.getDeploymentId(), result.getModuleProvider().getModuleName(), statements);
+            result.getDeploymentId(), result.getModuleProvider().getModuleName(), statements, rolloutItemNumber);
         for (DeploymentStateListener listener : listeners) {
             try {
                 listener.onUndeployment(event);
@@ -338,5 +363,38 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
 
     private void handleDeploymentEventListenerException(String typeOfOperation, Throwable t) {
         log.error("Application-provided deployment state listener reported an exception upon receiving the " + typeOfOperation + " event, logging and ignoring the exception, detail: " + t.getMessage(), t);
+    }
+
+    private void validateRuntimeAlive() {
+        if (runtime.isDestroyed()) {
+            throw new EPRuntimeDestroyedException(runtime.getURI());
+        }
+    }
+
+    private void checkManifest(int rolloutItemNumber, EPCompiledManifest manifest) throws EPDeployException {
+        try {
+            RuntimeVersion.checkVersion(manifest.getCompilerVersion());
+        } catch (RuntimeVersion.VersionException ex) {
+            throw new EPDeployDeploymentVersionException(ex.getMessage(), ex, rolloutItemNumber);
+        }
+
+        if (manifest.getModuleProviderClassName() == null) {
+            if (manifest.getQueryProviderClassName() != null) {
+                throw new EPDeployException("Cannot deploy EPL that was compiled as a fire-and-forget query, make sure to use the 'compile' method of the compiler", rolloutItemNumber);
+            }
+            throw new EPDeployException("Failed to find module provider class name in manifest (is this a compiled module?)", rolloutItemNumber);
+        }
+
+        try {
+            services.getEventSerdeFactory().verifyHADeployment(manifest.isTargetHA());
+        } catch (ExprValidationException ex) {
+            throw new EPDeployException(ex.getMessage(), ex, rolloutItemNumber);
+        }
+    }
+
+    private EPDeployment makeDeployment(DeploymentInternal deployerResult) {
+        EPStatement[] copy = new EPStatement[deployerResult.getStatements().length];
+        System.arraycopy(deployerResult.getStatements(), 0, copy, 0, deployerResult.getStatements().length);
+        return new EPDeployment(deployerResult.getDeploymentId(), deployerResult.getModuleProvider().getModuleName(), deployerResult.getModulePropertiesCached(), copy, CollectionUtil.copyArray(deployerResult.getDeploymentIdDependencies()), new Date(System.currentTimeMillis()));
     }
 }

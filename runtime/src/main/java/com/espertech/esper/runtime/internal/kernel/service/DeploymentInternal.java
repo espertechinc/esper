@@ -14,10 +14,13 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.module.ModuleProperty;
 import com.espertech.esper.common.internal.context.module.ModuleIndexMeta;
 import com.espertech.esper.common.internal.context.module.ModuleProvider;
+import com.espertech.esper.common.internal.context.module.ModuleProviderCLPair;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.runtime.client.EPStatement;
 
 import java.util.Map;
+import java.util.Set;
 
 public class DeploymentInternal {
     private final String deploymentId;
@@ -52,6 +55,15 @@ public class DeploymentInternal {
         this.modulePropertiesCached = modulePropertiesCached;
         this.deploymentTypes = deploymentTypes;
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public static DeploymentInternal from(String deploymentId, EPStatement[] statements, Set<String> deploymentIdDependencies, DeployerModulePaths modulePaths, DeployerModuleEPLObjects moduleEPLObjects, ModuleProviderCLPair moduleProvider) {
+        String[] deploymentIdDependenciesArray = deploymentIdDependencies.toArray(new String[deploymentIdDependencies.size()]);
+        return new DeploymentInternal(deploymentId, statements, deploymentIdDependenciesArray,
+            CollectionUtil.toArray(modulePaths.getPathNamedWindows()), CollectionUtil.toArray(modulePaths.getPathTables()), CollectionUtil.toArray(modulePaths.getPathVariables()),
+            CollectionUtil.toArray(modulePaths.getPathContexts()), CollectionUtil.toArray(modulePaths.getPathEventTypes()), CollectionUtil.toArray(modulePaths.getPathExprDecl()),
+            NameAndParamNum.toArray(modulePaths.getPathScripts()), ModuleIndexMeta.toArray(moduleEPLObjects.getModuleIndexes()), moduleProvider.getModuleProvider(),
+            moduleProvider.getModuleProvider().getModuleProperties(), modulePaths.getDeploymentTypes(), System.currentTimeMillis());
     }
 
     public String getDeploymentId() {

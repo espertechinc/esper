@@ -18,13 +18,16 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.runtime.client.EPDeployDeploymentVersionException;
 import com.espertech.esper.runtime.client.EPDeployException;
+import com.espertech.esper.runtime.client.EPDeploymentRolloutCompiled;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
+import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ClientDeployVersion {
@@ -49,11 +52,22 @@ public class ClientDeployVersion {
                 throw new RuntimeException(ex);
             }
 
+            String versionMismatchMsg = "Major or minor version of compiler and runtime mismatch; The runtime version is 8.4.0 and the compiler version of the compiled unit is 8.0.0";
             try {
                 env.runtime().getDeploymentService().deploy(compiled);
                 fail();
             } catch (EPDeployDeploymentVersionException ex) {
-                assertMessage(ex, "Major or minor version of compiler and runtime mismatch; The runtime version is 8.4.0 and the compiler version of the compiled unit is 8.0.0");
+                assertMessage(ex, versionMismatchMsg);
+            } catch (EPDeployException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            try {
+                env.runtime().getDeploymentService().rollout(Collections.singletonList(new EPDeploymentRolloutCompiled(compiled)));
+                fail();
+            } catch (EPDeployDeploymentVersionException ex) {
+                assertEquals(-1, ex.getRolloutItemNumber());
+                assertMessage(ex, versionMismatchMsg);
             } catch (EPDeployException ex) {
                 throw new RuntimeException(ex);
             }

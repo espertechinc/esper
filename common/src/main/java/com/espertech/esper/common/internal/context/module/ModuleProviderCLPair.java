@@ -12,11 +12,11 @@ package com.espertech.esper.common.internal.context.module;
 
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 
-public class ModuleProviderResult {
+public class ModuleProviderCLPair {
     private final ByteArrayProvidingClassLoader classLoader;
     private final ModuleProvider moduleProvider;
 
-    public ModuleProviderResult(ByteArrayProvidingClassLoader classLoader, ModuleProvider moduleProvider) {
+    public ModuleProviderCLPair(ByteArrayProvidingClassLoader classLoader, ModuleProvider moduleProvider) {
         this.classLoader = classLoader;
         this.moduleProvider = moduleProvider;
     }

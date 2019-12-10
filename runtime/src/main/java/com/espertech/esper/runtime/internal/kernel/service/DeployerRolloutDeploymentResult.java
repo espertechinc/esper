@@ -8,26 +8,22 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.regressionlib.framework;
+package com.espertech.esper.runtime.internal.kernel.service;
 
-import com.espertech.esper.common.client.EPCompiled;
+public class DeployerRolloutDeploymentResult {
+    private final int numStatements;
+    private final DeploymentInternal[] deployments;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class RegressionPath {
-    private final List<EPCompiled> compileds = new ArrayList<>();
-
-    public RegressionPath add(EPCompiled compiled) {
-        compileds.add(compiled);
-        return this;
+    public DeployerRolloutDeploymentResult(int numStatements, DeploymentInternal[] deployments) {
+        this.numStatements = numStatements;
+        this.deployments = deployments;
     }
 
-    public List<EPCompiled> getCompileds() {
-        return compileds;
+    public int getNumStatements() {
+        return numStatements;
     }
 
-    public void clear() {
-        compileds.clear();
+    public DeploymentInternal[] getDeployments() {
+        return deployments;
     }
 }

@@ -26,6 +26,7 @@ import com.espertech.esper.regressionlib.support.client.SupportRuntimeStateListe
 import com.espertech.esper.runtime.client.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -124,6 +125,15 @@ public class ClientRuntimeRuntimeProvider {
 
             try {
                 runtimeTwo.getDeploymentService();
+                fail();
+            } catch (EPRuntimeDestroyedException ex) {
+                // expected
+            }
+
+            try {
+                adminOne.rollout(Collections.singletonList(new EPDeploymentRolloutCompiled(compiled)));
+                fail();
+            } catch (EPDeployException ex) {
                 fail();
             } catch (EPRuntimeDestroyedException ex) {
                 // expected

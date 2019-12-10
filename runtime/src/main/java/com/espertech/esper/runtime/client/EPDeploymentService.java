@@ -12,6 +12,7 @@ package com.espertech.esper.runtime.client;
 
 import com.espertech.esper.common.client.EPCompiled;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -31,7 +32,7 @@ public interface EPDeploymentService {
      * Deploy a compiled module and with the provided options.
      *
      * @param compiled byte code
-     * @param options  deployment options
+     * @param options deployment options
      * @return deployment
      * @throws EPDeployException when the deployment failed
      */
@@ -132,4 +133,40 @@ public interface EPDeploymentService {
      * @return true for deployed, false for not deployed
      */
     boolean isDeployed(String deploymentId);
+
+    /**
+     * Roll-out multiple deployments. See {@link #rollout(Collection, RolloutOptions)}.
+     * @param items compiled units and deployment options
+     * @return deployment
+     * @throws EPDeployException when any of the deployments failed
+     */
+    EPDeploymentRollout rollout(Collection<EPDeploymentRolloutCompiled> items) throws EPDeployException;
+
+    /**
+     * Roll-out multiple deployments.
+     * <p>
+     *     Deploys each compiled module, either deploying all compilation units or deploying none of the compilation units.
+     * </p>
+     * <p>
+     *     Does not reorder compilation units and expects compilation units to be ordered according to module dependencies (if any).
+     * </p>
+     * <p>
+     *     The step-by-step is as allows:
+     * </p>
+     * <ol>
+     *     <li>For each compilation unit, determine the deployment id or use the deployment id when provided in the deployment options; Check that all deployment ids do not already exist</li>
+     *     <li>For each compilation unit, load compilation unit via classloader and validate basic class-related information such as manifest information and version</li>
+     *     <li>For each compilation unit, check deployment preconditions and resolve deployment dependencies on EPL objects</li>
+     *     <li>For each compilation unit, initialize statement-internal objects</li>
+     *     <li>For each compilation unit, perform internal deployment of each statement of each module</li>
+     * </ol>
+     * <p>
+     *     In case any of the above steps fail the runtime completely rolls back all changes.
+     * </p>
+     * @param items compiled units and deployment options
+     * @param options rollout options
+     * @return deployment
+     * @throws EPDeployException when any of the deployments failed
+     */
+    EPDeploymentRollout rollout(Collection<EPDeploymentRolloutCompiled> items, RolloutOptions options) throws EPDeployException;
 }

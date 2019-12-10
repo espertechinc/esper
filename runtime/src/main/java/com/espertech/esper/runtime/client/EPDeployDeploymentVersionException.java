@@ -20,17 +20,9 @@ public class EPDeployDeploymentVersionException extends EPDeployException {
      *
      * @param message message
      * @param ex exception
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public EPDeployDeploymentVersionException(String message, Exception ex) {
-        super(message, ex);
-    }
-
-    /**
-     * Ctor.
-     *
-     * @param message message
-     */
-    public EPDeployDeploymentVersionException(String message) {
-        super(message);
+    public EPDeployDeploymentVersionException(String message, Exception ex, int rolloutItemNumber) {
+        super(message, ex, rolloutItemNumber);
     }
 }

@@ -10,29 +10,28 @@
  */
 package com.espertech.esper.runtime.client;
 
+import java.util.Collection;
+
 /**
- * Deploy exception to indicate that a precondition is not satisfied
+ * Contains the result of a rollout as described in {@link EPDeploymentService#rollout(Collection, RolloutOptions)},
+ * captures the rollout result wherein the deployment result of each compilation unit is provided by {@link EPDeploymentRolloutItem}.
  */
-public class EPDeployPreconditionException extends EPDeployException {
+public class EPDeploymentRollout {
+    private final EPDeploymentRolloutItem[] items;
 
     /**
      * Ctor.
-     *
-     * @param message message
-     * @param rolloutItemNumber rollout item number when using rollout
+     * @param items deployment items
      */
-    public EPDeployPreconditionException(String message, int rolloutItemNumber) {
-        super("A precondition is not satisfied: " + message, rolloutItemNumber);
+    public EPDeploymentRollout(EPDeploymentRolloutItem[] items) {
+        this.items = items;
     }
 
     /**
-     * Ctor.
-     *
-     * @param message message
-     * @param cause   cause
-     * @param rolloutItemNumber rollout item number when using rollout
+     * Returns the deployment items
+     * @return deployment items
      */
-    public EPDeployPreconditionException(String message, Throwable cause, int rolloutItemNumber) {
-        super("A precondition is not satisfied: " + message, cause, rolloutItemNumber);
+    public EPDeploymentRolloutItem[] getItems() {
+        return items;
     }
 }

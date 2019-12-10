@@ -583,6 +583,7 @@ public class ClientCompileSubstitutionParams {
             env.deployment().deploy(compiled);
             fail();
         } catch (EPDeploySubstitutionParameterException ex) {
+            assertEquals(-1, ex.getRolloutItemNumber());
             assertEquals("Substitution parameters have not been provided: Statement 's0' has 1 substitution parameters", ex.getMessage());
         } catch (EPDeployException ex) {
             throw new RuntimeException(ex);

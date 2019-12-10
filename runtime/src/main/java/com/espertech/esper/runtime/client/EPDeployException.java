@@ -14,23 +14,28 @@ package com.espertech.esper.runtime.client;
  * Exception during a deploy operation by {@link EPDeploymentService#deploy}
  */
 public class EPDeployException extends Exception {
+    private final int rolloutItemNumber;
 
     /**
      * Ctor.
      *
      * @param message message
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public EPDeployException(String message) {
+    public EPDeployException(String message, int rolloutItemNumber) {
         super(message);
+        this.rolloutItemNumber = rolloutItemNumber;
     }
 
     /**
      * Ctor.
      *
      * @param cause cause
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public EPDeployException(Throwable cause) {
+    public EPDeployException(Throwable cause, int rolloutItemNumber) {
         super(cause);
+        this.rolloutItemNumber = rolloutItemNumber;
     }
 
     /**
@@ -38,8 +43,18 @@ public class EPDeployException extends Exception {
      *
      * @param message message
      * @param cause   cause
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public EPDeployException(String message, Throwable cause) {
+    public EPDeployException(String message, Throwable cause, int rolloutItemNumber) {
         super(message, cause);
+        this.rolloutItemNumber = rolloutItemNumber;
+    }
+
+    /**
+     * Returns the rollout item number, or -1 when not using rollout
+     * @return number, starting at zero
+     */
+    public int getRolloutItemNumber() {
+        return rolloutItemNumber;
     }
 }

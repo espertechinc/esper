@@ -30,6 +30,7 @@ import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeCompileRefle
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -87,11 +88,18 @@ public class ClientRuntimeItself {
             EPCompiled compiledFAF = env.compileFAF("select * from SomeWindow", path);
             EPCompiled compiledModule = env.compile("select * from SomeWindow", path);
 
+            String msgInvalidDeployFAF = "Cannot deploy EPL that was compiled as a fire-and-forget query, make sure to use the 'compile' method of the compiler";
             try {
                 env.runtime().getDeploymentService().deploy(compiledFAF);
                 fail();
             } catch (EPDeployException ex) {
-                assertEquals("Cannot deploy EPL that was compiled as a fire-and-forget query, make sure to use the 'compile' method of the compiler", ex.getMessage());
+                assertEquals(msgInvalidDeployFAF, ex.getMessage());
+            }
+            try {
+                env.runtime().getDeploymentService().rollout(Collections.singletonList(new EPDeploymentRolloutCompiled(compiledFAF)));
+                fail();
+            } catch (EPDeployException ex) {
+                assertEquals(msgInvalidDeployFAF, ex.getMessage());
             }
 
             try {

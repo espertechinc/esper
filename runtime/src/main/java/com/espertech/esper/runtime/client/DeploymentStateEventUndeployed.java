@@ -22,8 +22,9 @@ public class DeploymentStateEventUndeployed extends DeploymentStateEvent {
      * @param deploymentId deployment id
      * @param moduleName   module name
      * @param statements   statements
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public DeploymentStateEventUndeployed(String runtimeURI, String deploymentId, String moduleName, EPStatement[] statements) {
-        super(runtimeURI, deploymentId, moduleName, statements);
+    public DeploymentStateEventUndeployed(String runtimeURI, String deploymentId, String moduleName, EPStatement[] statements, int rolloutItemNumber) {
+        super(runtimeURI, deploymentId, moduleName, statements, rolloutItemNumber);
     }
 }

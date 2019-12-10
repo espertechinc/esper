@@ -29,7 +29,29 @@ public class SupportDeploymentStateListener implements DeploymentStateListener {
         events.add(event);
     }
 
-    public static List<DeploymentStateEvent> getEvents() {
-        return events;
+    public static List<DeploymentStateEvent> getEventsAndReset() {
+        List<DeploymentStateEvent> copy = events;
+        events = new ArrayList<>();
+        return copy;
+    }
+
+    public static void reset() {
+        events = new ArrayList<>();
+    }
+
+    public static DeploymentStateEvent getSingleEventAndReset() {
+        List<DeploymentStateEvent> copy = getEventsAndReset();
+        if (copy.size() != 1) {
+            throw new IllegalStateException("Expected single event");
+        }
+        return copy.get(0);
+    }
+
+    public static List<DeploymentStateEvent> getNEventsAndReset(int numExpected) {
+        List<DeploymentStateEvent> copy = getEventsAndReset();
+        if (copy.size() != numExpected) {
+            throw new IllegalStateException("Expected " + numExpected + " events but received " + copy.size());
+        }
+        return copy;
     }
 }

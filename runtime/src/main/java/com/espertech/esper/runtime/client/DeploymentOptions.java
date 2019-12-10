@@ -19,6 +19,9 @@ import com.espertech.esper.runtime.client.util.LockStrategyDefault;
 
 /**
  * Option holder for use with {@link EPDeploymentService#deploy}.
+ * <p>
+ *     The lock strategy is only relevant for {@link EPDeploymentService#deploy} and not for {@link EPDeploymentService#rollout}, use {@link RolloutOptions instead}.
+ * </p>
  */
 public class DeploymentOptions {
     private String deploymentId;
@@ -92,7 +95,9 @@ public class DeploymentOptions {
 
     /**
      * Return the deployment lock strategy, the default is {@link LockStrategyDefault}
-     *
+     * <p>
+     *     The lock strategy is only relevant for {@link EPDeploymentService#deploy} and not for {@link EPDeploymentService#rollout}, use {@link RolloutOptions instead}.
+     * </p>
      * @return lock strategy
      */
     public LockStrategy getDeploymentLockStrategy() {
@@ -101,6 +106,9 @@ public class DeploymentOptions {
 
     /**
      * Sets the deployment lock strategy, the default is {@link LockStrategyDefault}
+     * <p>
+     *     The lock strategy is only relevant for {@link EPDeploymentService#deploy} and not for {@link EPDeploymentService#rollout}, use {@link RolloutOptions instead}.
+     * </p>
      *
      * @param deploymentLockStrategy lock strategy
      * @return itself
@@ -130,10 +138,19 @@ public class DeploymentOptions {
         return this;
     }
 
+    /**
+     * Returns the class loader option
+     * @return class loader option
+     */
     public DeploymentClassLoaderOption getDeploymentClassLoaderOption() {
         return deploymentClassLoaderOption;
     }
 
+    /**
+     * Sets the class loader option
+     * @param  deploymentClassLoaderOption class loader option
+     * @return itself
+     */
     public DeploymentOptions setDeploymentClassLoaderOption(DeploymentClassLoaderOption deploymentClassLoaderOption) {
         this.deploymentClassLoaderOption = deploymentClassLoaderOption;
         return this;

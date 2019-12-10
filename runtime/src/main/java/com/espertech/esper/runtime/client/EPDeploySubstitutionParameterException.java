@@ -19,9 +19,10 @@ public class EPDeploySubstitutionParameterException extends EPDeployException {
      * Ctor
      *
      * @param message message
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public EPDeploySubstitutionParameterException(String message) {
-        this(message, null);
+    public EPDeploySubstitutionParameterException(String message, int rolloutItemNumber) {
+        this(message, null, rolloutItemNumber);
     }
 
     /**
@@ -29,8 +30,9 @@ public class EPDeploySubstitutionParameterException extends EPDeployException {
      *
      * @param message message
      * @param cause   cause
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public EPDeploySubstitutionParameterException(String message, Throwable cause) {
-        super("Substitution parameters have not been provided: " + message, cause);
+    public EPDeploySubstitutionParameterException(String message, Throwable cause, int rolloutItemNumber) {
+        super("Substitution parameters have not been provided: " + message, cause, rolloutItemNumber);
     }
 }

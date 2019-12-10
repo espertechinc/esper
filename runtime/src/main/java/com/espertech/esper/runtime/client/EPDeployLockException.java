@@ -21,6 +21,6 @@ public class EPDeployLockException extends EPDeployException {
      * @param cause   cause
      */
     public EPDeployLockException(String message, Throwable cause) {
-        super(message, cause);
+        super(message, cause, -1);
     }
 }

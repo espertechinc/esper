@@ -19,8 +19,9 @@ public class EPDeployDeploymentExistsException extends EPDeployException {
      * Ctor.
      *
      * @param message message
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public EPDeployDeploymentExistsException(String message) {
-        super(message);
+    public EPDeployDeploymentExistsException(String message, int rolloutItemNumber) {
+        super(message, rolloutItemNumber);
     }
 }

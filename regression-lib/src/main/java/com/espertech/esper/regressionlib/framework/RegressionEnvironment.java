@@ -24,6 +24,7 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -84,6 +85,8 @@ public interface RegressionEnvironment {
     RegressionEnvironment deploy(EPCompiled compiled);
 
     RegressionEnvironment deploy(EPCompiled compiled, DeploymentOptions options);
+
+    RegressionEnvironment rollout(List<EPDeploymentRolloutCompiled> items, RolloutOptions options);
 
     String deployGetId(EPCompiled compiled);
 

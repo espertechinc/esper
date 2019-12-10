@@ -10,29 +10,30 @@
  */
 package com.espertech.esper.runtime.client;
 
+import com.espertech.esper.runtime.client.util.LockStrategy;
+import com.espertech.esper.runtime.client.util.LockStrategyDefault;
+
 /**
- * Deploy exception to indicate that a precondition is not satisfied
+ * Option holder for use with {@link EPDeploymentService#rollout} ()}.
  */
-public class EPDeployPreconditionException extends EPDeployException {
+public class RolloutOptions {
+    private LockStrategy rolloutLockStrategy = LockStrategyDefault.INSTANCE;
 
     /**
-     * Ctor.
+     * Return the rollout lock strategy, the default is {@link LockStrategyDefault}
      *
-     * @param message message
-     * @param rolloutItemNumber rollout item number when using rollout
+     * @return lock strategy
      */
-    public EPDeployPreconditionException(String message, int rolloutItemNumber) {
-        super("A precondition is not satisfied: " + message, rolloutItemNumber);
+    public LockStrategy getRolloutLockStrategy() {
+        return rolloutLockStrategy;
     }
 
     /**
-     * Ctor.
+     * Sets the rollout lock strategy, the default is {@link LockStrategyDefault}
      *
-     * @param message message
-     * @param cause   cause
-     * @param rolloutItemNumber rollout item number when using rollout
+     * @param rolloutLockStrategy lock strategy
      */
-    public EPDeployPreconditionException(String message, Throwable cause, int rolloutItemNumber) {
-        super("A precondition is not satisfied: " + message, cause, rolloutItemNumber);
+    public void setRolloutLockStrategy(LockStrategy rolloutLockStrategy) {
+        this.rolloutLockStrategy = rolloutLockStrategy;
     }
 }

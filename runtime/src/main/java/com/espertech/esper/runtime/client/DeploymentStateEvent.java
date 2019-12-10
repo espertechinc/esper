@@ -18,6 +18,7 @@ public abstract class DeploymentStateEvent {
     private final String deploymentId;
     private final String moduleName;
     private final EPStatement[] statements;
+    private final int rolloutItemNumber;
 
     /**
      * Ctor
@@ -26,12 +27,14 @@ public abstract class DeploymentStateEvent {
      * @param deploymentId deployment id
      * @param moduleName   module name
      * @param statements   statements
+     * @param rolloutItemNumber rollout item number when using rollout
      */
-    public DeploymentStateEvent(String runtimeURI, String deploymentId, String moduleName, EPStatement[] statements) {
+    public DeploymentStateEvent(String runtimeURI, String deploymentId, String moduleName, EPStatement[] statements, int rolloutItemNumber) {
         this.runtimeURI = runtimeURI;
         this.deploymentId = deploymentId;
         this.moduleName = moduleName;
         this.statements = statements;
+        this.rolloutItemNumber = rolloutItemNumber;
     }
 
     /**
@@ -68,5 +71,13 @@ public abstract class DeploymentStateEvent {
      */
     public EPStatement[] getStatements() {
         return statements;
+    }
+
+    /**
+     * Returns the rollout item number, or -1 when not using rollout
+     * @return number, starting at zero
+     */
+    public int getRolloutItemNumber() {
+        return rolloutItemNumber;
     }
 }

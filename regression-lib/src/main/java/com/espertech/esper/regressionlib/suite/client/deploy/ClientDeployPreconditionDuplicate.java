@@ -23,6 +23,7 @@ import com.espertech.esper.runtime.client.EPDeployPreconditionException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ClientDeployPreconditionDuplicate {
@@ -152,6 +153,7 @@ public class ClientDeployPreconditionDuplicate {
             env.runtime().getDeploymentService().deploy(compiled);
             fail();
         } catch (EPDeployPreconditionException ex) {
+            assertEquals(-1, ex.getRolloutItemNumber());
             if (!message.equals("skip")) {
                 SupportMessageAssertUtil.assertMessage(ex.getMessage(), message);
             }

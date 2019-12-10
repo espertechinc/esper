@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 
 public class ModuleProviderUtil {
-    public static ModuleProviderResult analyze(EPCompiled compiled, ClassLoader classLoaderParent) {
+    public static ModuleProviderCLPair analyze(EPCompiled compiled, ClassLoader classLoaderParent) {
         ByteArrayProvidingClassLoader classLoader = new ByteArrayProvidingClassLoader(compiled.getClasses(), classLoaderParent);
         String resourceClassName = compiled.getManifest().getModuleProviderClassName();
 
@@ -35,6 +35,6 @@ public class ModuleProviderUtil {
             throw new EPException(e);
         }
 
-        return new ModuleProviderResult(classLoader, moduleResource);
+        return new ModuleProviderCLPair(classLoader, moduleResource);
     }
 }

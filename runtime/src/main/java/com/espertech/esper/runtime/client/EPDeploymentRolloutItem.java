@@ -8,26 +8,30 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.regressionlib.framework;
+package com.espertech.esper.runtime.client;
 
-import com.espertech.esper.common.client.EPCompiled;
+import java.util.Collection;
 
-import java.util.ArrayList;
-import java.util.List;
+/**
+ * The result item of a rollout as described in {@link EPDeploymentService#rollout(Collection, RolloutOptions)},
+ * captures the rollout result of a single compilation unit that was deployed as part of a rollout.
+ */
+public class EPDeploymentRolloutItem {
+    private final EPDeployment deployment;
 
-public class RegressionPath {
-    private final List<EPCompiled> compileds = new ArrayList<>();
-
-    public RegressionPath add(EPCompiled compiled) {
-        compileds.add(compiled);
-        return this;
+    /**
+     * Ctor.
+     * @param deployment deployment
+     */
+    public EPDeploymentRolloutItem(EPDeployment deployment) {
+        this.deployment = deployment;
     }
 
-    public List<EPCompiled> getCompileds() {
-        return compileds;
-    }
-
-    public void clear() {
-        compileds.clear();
+    /**
+     * Returns the deployment.
+     * @return deployment
+     */
+    public EPDeployment getDeployment() {
+        return deployment;
     }
 }

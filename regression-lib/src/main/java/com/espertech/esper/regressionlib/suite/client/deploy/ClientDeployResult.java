@@ -21,6 +21,7 @@ import com.espertech.esper.runtime.client.option.StatementNameRuntimeContext;
 import com.espertech.esper.runtime.client.option.StatementNameRuntimeOption;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.espertech.esper.compiler.internal.parse.ParseHelper.NEWLINE;
@@ -45,6 +46,7 @@ public class ClientDeployResult {
                 env.runtime().getDeploymentService().deploy(compiled, new DeploymentOptions().setDeploymentId("ABC"));
                 fail();
             } catch (EPDeployDeploymentExistsException ex) {
+                assertEquals(-1, ex.getRolloutItemNumber());
                 SupportMessageAssertUtil.assertMessage(ex, "Deployment by id 'ABC' already exists");
             } catch (EPDeployException ex) {
                 throw new RuntimeException(ex);
@@ -83,25 +85,16 @@ public class ClientDeployResult {
 
     private static class ClientDeployStateListener implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportDeploymentStateListener.getEvents().clear();
+            SupportDeploymentStateListener.reset();
             SupportDeploymentStateListener listener = new SupportDeploymentStateListener();
             env.deployment().addDeploymentStateListener(listener);
 
             env.compileDeploy("@name('s0') select * from SupportBean");
             String deploymentId = env.deploymentId("s0");
-
-            DeploymentStateEventDeployed deployed = (DeploymentStateEventDeployed) SupportDeploymentStateListener.getEvents().get(0);
-            SupportDeploymentStateListener.getEvents().clear();
-            assertEquals(deploymentId, deployed.getDeploymentId());
-            assertEquals("default", deployed.getRuntimeURI());
-            assertEquals(1, deployed.getStatements().length);
+            assertEvent(SupportDeploymentStateListener.getSingleEventAndReset(), true, deploymentId, "default", 1, -1);
 
             env.undeployAll();
-            DeploymentStateEventUndeployed undeployed = (DeploymentStateEventUndeployed) SupportDeploymentStateListener.getEvents().get(0);
-            SupportDeploymentStateListener.getEvents().clear();
-            assertEquals(deploymentId, undeployed.getDeploymentId());
-            assertEquals("default", undeployed.getRuntimeURI());
-            assertEquals(1, undeployed.getStatements().length);
+            assertEvent(SupportDeploymentStateListener.getSingleEventAndReset(), false, deploymentId, "default", 1, -1);
 
             env.deployment().getDeploymentStateListeners().next();
             env.deployment().removeDeploymentStateListener(listener);
@@ -110,6 +103,16 @@ public class ClientDeployResult {
             env.deployment().addDeploymentStateListener(listener);
             env.deployment().removeAllDeploymentStateListeners();
             assertFalse(env.deployment().getDeploymentStateListeners().hasNext());
+
+            env.deployment().addDeploymentStateListener(listener);
+            EPCompiled compiledOne = env.compile("@name('s0') select * from SupportBean;\n @name('s1') select * from SupportBean;\n");
+            EPCompiled compiledTwo = env.compile("@name('s2') select * from SupportBean");
+            List<EPDeploymentRolloutCompiled> rolloutItems = Arrays.asList(new EPDeploymentRolloutCompiled(compiledOne), new EPDeploymentRolloutCompiled(compiledTwo));
+            env.rollout(rolloutItems, null);
+            List<DeploymentStateEvent> events = SupportDeploymentStateListener.getNEventsAndReset(2);
+            assertEvent(events.get(0), true, env.deploymentId("s0"), "default", 2, 0);
+            assertEvent(events.get(1), true, env.deploymentId("s2"), "default", 1, 1);
+            env.deployment().removeAllDeploymentStateListeners();
 
             env.undeployAll();
         }
@@ -171,5 +174,13 @@ public class ClientDeployResult {
             }
         }
         return statements;
+    }
+
+    private static void assertEvent(DeploymentStateEvent event, boolean isDeploy, String deploymentId, String runtimeURI, int numStatements, int rolloutItemNumber) {
+        assertEquals(isDeploy ? DeploymentStateEventDeployed.class : DeploymentStateEventUndeployed.class, event.getClass());
+        assertEquals(deploymentId, event.getDeploymentId());
+        assertEquals(runtimeURI, event.getRuntimeURI());
+        assertEquals(numStatements, event.getStatements().length);
+        assertEquals(rolloutItemNumber, event.getRolloutItemNumber());
     }
 }

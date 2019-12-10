@@ -34,6 +34,7 @@ import org.junit.Assert;
 import org.w3c.dom.Node;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -465,6 +466,15 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
             return EPCompilerProvider.getCompiler().compile(module, new CompilerArguments(configuration));
         } catch (Throwable t) {
             throw new RuntimeException(t);
+        }
+    }
+
+    public RegressionEnvironment rollout(List<EPDeploymentRolloutCompiled> items, RolloutOptions options) {
+        try {
+            runtime.getDeploymentService().rollout(items, options);
+            return this;
+        } catch (EPDeployException ex) {
+            throw notExpected(ex);
         }
     }
 

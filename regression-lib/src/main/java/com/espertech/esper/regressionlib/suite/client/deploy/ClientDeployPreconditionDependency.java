@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
@@ -19,7 +20,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeployPreconditionException;
 
@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ClientDeployPreconditionDependency {
@@ -200,6 +201,7 @@ public class ClientDeployPreconditionDependency {
             env.runtime().getDeploymentService().deploy(compiled);
             fail();
         } catch (EPDeployPreconditionException ex) {
+            assertEquals(-1, ex.getRolloutItemNumber());
             if (!message.equals("skip")) {
                 SupportMessageAssertUtil.assertMessage(ex.getMessage(), message);
             }
