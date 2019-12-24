@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.client;
 
 import com.espertech.esper.common.client.EPCompiled;
+import com.espertech.esper.common.client.EPException;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -169,4 +170,30 @@ public interface EPDeploymentService {
      * @throws EPDeployException when any of the deployments failed
      */
     EPDeploymentRollout rollout(Collection<EPDeploymentRolloutCompiled> items, RolloutOptions options) throws EPDeployException;
+
+    /**
+     * Obtain information about other deployments that are depending on the given deployment,
+     * i.e. EPL objects that this deployment provides to other deployments.
+     * This method acquires the runtime-wide event processing read lock for the duration.
+     * Does not return dependencies on predefined EPL objects such as configured event types or variables.
+     * Does not return deployment-internal dependencies i.e. dependencies on EPL objects that are defined by the same deployment.
+     *
+     * @param deploymentId deployment id
+     * @return dependencies or null if the deployment is not found
+     * @throws EPException when the required lock cannot be obtained
+     */
+    EPDeploymentDependencyProvided getDeploymentDependenciesProvided(String deploymentId) throws EPException;
+
+    /**
+     * Obtain information about the dependencies that the given deployment has on other deployments,
+     * i.e. EPL objects that this deployment consumes from other deployments.
+     * This method acquires the runtime-wide event processing read lock for the duration.
+     * Does not return dependencies on predefined EPL objects such as configured event types or variables.
+     * Does not return deployment-internal dependencies i.e. dependencies on EPL objects that are defined by the same deployment.
+     *
+     * @param deploymentId deployment id
+     * @return dependencies or null if the deployment is not found
+     * @throws EPException when the required lock cannot be obtained
+     */
+    EPDeploymentDependencyConsumed getDeploymentDependenciesConsumed(String deploymentId) throws EPException;
 }

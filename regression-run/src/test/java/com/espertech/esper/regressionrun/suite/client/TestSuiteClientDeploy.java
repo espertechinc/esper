@@ -73,6 +73,10 @@ public class TestSuiteClientDeploy extends TestCase {
         RegressionRunner.run(session, ClientDeployRollout.executions());
     }
 
+    public void testClientDeployListDependencies() {
+        RegressionRunner.run(session, ClientDeployListDependencies.executions());
+    }
+
     private void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class}) {
             configuration.getCommon().addEventType(clazz);

@@ -95,6 +95,14 @@ public class EventTableIndexMetadata {
         entry.addReferringDeployment(deploymentId);
     }
 
+    public EventTableIndexMetadataEntry getIndexEntryByName(String indexName) {
+        Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> entry = findIndex(indexName);
+        if (entry == null) {
+            return null;
+        }
+        return entry.getValue();
+    }
+
     public IndexMultiKey getIndexByName(String indexName) {
         Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> entry = findIndex(indexName);
         if (entry == null) {

@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.espertech.esper.common.client.util.UndeployRethrowPolicy.RETHROW_FIRST;
+import static com.espertech.esper.runtime.internal.kernel.service.DeploymentHelperDependencies.getDependenciesConsumed;
+import static com.espertech.esper.runtime.internal.kernel.service.DeploymentHelperDependencies.getDependenciesProvided;
 
 public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
     private static final Logger log = LoggerFactory.getLogger(EPDeploymentServiceImpl.class);
@@ -325,6 +327,30 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
 
     public void removeAllDeploymentStateListeners() {
         services.getDeploymentLifecycleService().getListeners().clear();
+    }
+
+    public EPDeploymentDependencyProvided getDeploymentDependenciesProvided(String selfDeploymentId) {
+        if (selfDeploymentId == null) {
+            throw new IllegalArgumentException("deployment-id is null");
+        }
+        services.getEventProcessingRWLock().acquireReadLock();
+        try {
+            return getDependenciesProvided(selfDeploymentId, services);
+        } finally {
+            services.getEventProcessingRWLock().releaseReadLock();
+        }
+    }
+
+    public EPDeploymentDependencyConsumed getDeploymentDependenciesConsumed(String selfDeploymentId) {
+        if (selfDeploymentId == null) {
+            throw new IllegalArgumentException("deployment-id is null");
+        }
+        services.getEventProcessingRWLock().acquireReadLock();
+        try {
+            return getDependenciesConsumed(selfDeploymentId, services);
+        } finally {
+            services.getEventProcessingRWLock().releaseReadLock();
+        }
     }
 
     private void dispatchOnDeploymentEvent(DeploymentInternal deployed, int rolloutItemNumber) {
