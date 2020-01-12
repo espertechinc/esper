@@ -13,17 +13,12 @@ package com.espertech.esper.common.internal.view.timebatch;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
-import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
+import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodDeltaResult;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
 import com.espertech.esper.common.internal.schedule.ScheduleObjectType;
 import com.espertech.esper.common.internal.view.core.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -43,7 +38,7 @@ import java.util.Iterator;
  * If there are no events in the current and prior batch, the view will not invoke the update method of child views.
  * In that case also, no next callback is scheduled with the scheduling service until the next event arrives.
  */
-public class TimeBatchView extends ViewSupport implements AgentInstanceStopCallback, DataWindowView {
+public class TimeBatchView extends ViewSupport implements AgentInstanceMgmtCallback, DataWindowView {
     // View parameters
     private final TimeBatchViewFactory factory;
     private final AgentInstanceContext agentInstanceContext;
@@ -151,8 +146,8 @@ public class TimeBatchView extends ViewSupport implements AgentInstanceStopCallb
         // there have been any events in this or the last interval do we schedule a callback,
         // such as to not waste resources when no events arrive.
         if ((!currentBatch.isEmpty()) || ((lastBatch != null) && (!lastBatch.isEmpty()))
-                ||
-                factory.isForceUpdate) {
+            ||
+            factory.isForceUpdate) {
             scheduleCallback();
             isCallbackScheduled = true;
         }
@@ -181,7 +176,7 @@ public class TimeBatchView extends ViewSupport implements AgentInstanceStopCallb
 
     public final String toString() {
         return this.getClass().getName() +
-                " initialReferencePoint=" + factory.optionalReferencePoint;
+            " initialReferencePoint=" + factory.optionalReferencePoint;
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {
@@ -215,9 +210,11 @@ public class TimeBatchView extends ViewSupport implements AgentInstanceStopCallb
         }
     }
 
+    public void transfer(AgentInstanceTransferServices services) {
+        // no action
+    }
+
     public ViewFactory getViewFactory() {
         return factory;
     }
-
-    private static final Logger log = LoggerFactory.getLogger(TimeBatchView.class);
 }

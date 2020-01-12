@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.kernel.thread;
 
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
+import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceHelper;
 import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
 import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class TimerUnitSingle implements TimerUnit {
 
     public void run() {
         try {
-            EPEventServiceImpl.processStatementScheduleSingle(handleCallback, services);
+            EPEventServiceHelper.processStatementScheduleSingle(handleCallback, services);
 
             runtime.dispatch();
 

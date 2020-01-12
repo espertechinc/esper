@@ -117,7 +117,7 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
             ContextControllerStatementDesc statementDesc = statementEntry.getValue();
 
             Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = agentInstanceContext ->
-                    ContextManagerUtil.computeAddendumForStatement(statementDesc, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), allPartitionKeys, agentInstanceContext);
+                ContextManagerUtil.computeAddendumForStatement(statementDesc, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), allPartitionKeys, agentInstanceContext);
             AgentInstanceFilterProxy proxy = new AgentInstanceFilterProxyImpl(generator);
 
             AgentInstance agentInstance = AgentInstanceUtil.startStatement(contextManager.getStatementContextCreate().getStatementContextRuntimeServices(), assignedContextId, statementDesc, contextBean, proxy);
@@ -187,7 +187,7 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
 
             // create filter proxies
             Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = agentInstanceContext ->
-                    ContextManagerUtil.computeAddendumForStatement(statement, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), partitionKeys, agentInstanceContext);
+                ContextManagerUtil.computeAddendumForStatement(statement, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), partitionKeys, agentInstanceContext);
             AgentInstanceFilterProxy proxy = new AgentInstanceFilterProxyImpl(generator);
 
             // start
@@ -288,5 +288,22 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
         }
         keysPerContext[nestingLevel - 1] = partitionKey;
         return keysPerContext;
+    }
+
+    public void transfer(AgentInstanceTransferServices xfer) {
+        contextControllers[0].transfer(IntSeqKeyRoot.INSTANCE, contextControllers.length > 1, xfer);
+    }
+
+    public void transferRecursive(IntSeqKey controllerPath, int subpathOrAgentInstanceId, ContextController originator, AgentInstanceTransferServices xfer) {
+        if (controllerPath.length() != originator.getFactory().getFactoryEnv().getNestingLevel() - 1) {
+            throw new IllegalStateException("Unrecognized controller path");
+        }
+        int nestingLevel = originator.getFactory().getFactoryEnv().getNestingLevel();   // starts at 1 for root
+        if (nestingLevel >= contextControllers.length) {
+            return;
+        }
+        ContextController childController = contextControllers[nestingLevel];
+        IntSeqKey subPath = controllerPath.addToEnd(subpathOrAgentInstanceId);
+        childController.transfer(subPath, nestingLevel < contextControllers.length - 1, xfer);
     }
 }

@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.metric.EPMetricsService;
 import com.espertech.esper.common.client.variable.EPVariableService;
 import com.espertech.esper.runtime.client.EPEventTypeService;
 import com.espertech.esper.runtime.client.EPFireAndForgetService;
+import com.espertech.esper.runtime.internal.kernel.stage.EPStageServiceSPI;
 
 class EPRuntimeEnv {
     private final EPServicesContext services;
@@ -25,8 +26,9 @@ class EPRuntimeEnv {
     private final EPVariableService variableService;
     private final EPMetricsService metricsService;
     private final EPFireAndForgetService fireAndForgetService;
+    private final EPStageServiceSPI stageService;
 
-    public EPRuntimeEnv(EPServicesContext services, EPEventServiceSPI eventService, EPDeploymentServiceSPI deploymentService, EPEventTypeService eventTypeService, EPContextPartitionService contextPartitionService, EPVariableService variableService, EPMetricsService metricsService, EPFireAndForgetService fireAndForgetService) {
+    public EPRuntimeEnv(EPServicesContext services, EPEventServiceSPI eventService, EPDeploymentServiceSPI deploymentService, EPEventTypeService eventTypeService, EPContextPartitionService contextPartitionService, EPVariableService variableService, EPMetricsService metricsService, EPFireAndForgetService fireAndForgetService, EPStageServiceSPI stageService) {
         this.services = services;
         this.eventService = eventService;
         this.deploymentService = deploymentService;
@@ -35,6 +37,7 @@ class EPRuntimeEnv {
         this.variableService = variableService;
         this.metricsService = metricsService;
         this.fireAndForgetService = fireAndForgetService;
+        this.stageService = stageService;
     }
 
     public EPServicesContext getServices() {
@@ -71,5 +74,9 @@ class EPRuntimeEnv {
 
     public EPFireAndForgetService getFireAndForgetService() {
         return fireAndForgetService;
+    }
+
+    public EPStageServiceSPI getStageService() {
+        return stageService;
     }
 }

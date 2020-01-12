@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.kernel.thread;
 
 import com.espertech.esper.common.internal.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceHelper;
 import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
 import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class TimerUnitMultiple implements TimerUnit {
 
     public void run() {
         try {
-            EPEventServiceImpl.processStatementScheduleMultiple(handle, callbackObject, services);
+            EPEventServiceHelper.processStatementScheduleMultiple(handle, callbackObject, services);
 
             // Let listeners know of results
             runtime.dispatch();

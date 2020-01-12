@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFilterEntry;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.mgr.ContextPartitionInstantiationResult;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceUtil;
 
 import java.util.Collection;
@@ -106,5 +107,21 @@ public class ContextControllerHashImpl extends ContextControllerHash {
 
     public void destroy() {
         hashSvc.destroy();
+    }
+
+    public void transfer(IntSeqKey path, boolean transferChildContexts, AgentInstanceTransferServices xfer) {
+        if (!factory.getHashSpec().isPreallocate()) {
+            ContextControllerFilterEntry[] filterEntries = hashSvc.mgmtGetFilters(path);
+            ContextControllerDetailHashItem[] hashItems = factory.getHashSpec().getItems();
+            for (int i = 0; i < hashItems.length; i++) {
+                filterEntries[i].transfer(hashItems[i].getFilterSpecActivatable(), xfer);
+            }
+        }
+
+        if (!transferChildContexts) {
+            return;
+        }
+
+        visitPartitions(path, (hash, subpathOrCPId) -> realization.transferRecursive(path, subpathOrCPId, this, xfer));
     }
 }

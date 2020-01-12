@@ -21,6 +21,7 @@ import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
+import com.espertech.esper.runtime.client.EPStageService;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Iterator;
@@ -106,6 +107,8 @@ public interface RegressionEnvironment {
 
     RegressionEnvironment sendEventBean(Object event, String typeName);
 
+    RegressionEnvironment sendEventBeanStage(String stageUri, Object event);
+
     RegressionEnvironment sendEventMap(Map<String, Object> values, String typeName);
 
     RegressionEnvironment sendEventXMLDOM(org.w3c.dom.Node document, String typeName);
@@ -115,6 +118,8 @@ public interface RegressionEnvironment {
     RegressionEnvironment sendEventJson(String json, String typeName);
 
     RegressionEnvironment advanceTime(long msec);
+
+    RegressionEnvironment advanceTimeStage(String stageUri, long msec);
 
     RegressionEnvironment advanceTimeSpan(long msec);
 
@@ -131,6 +136,8 @@ public interface RegressionEnvironment {
     Iterator<EventBean> iterator(String statementName);
 
     SupportListener listener(String statementName);
+
+    SupportListener listenerStage(String stageUri, String statementName);
 
     String deploymentId(String statementName);
 
@@ -153,4 +160,6 @@ public interface RegressionEnvironment {
     EPDeploymentService deployment();
 
     SupportListener listenerNew();
+
+    EPStageService stageService();
 }

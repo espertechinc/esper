@@ -27,8 +27,8 @@ import java.util.concurrent.*;
  */
 public class TestFilterServiceMT extends TestCase {
     public void testFilterService() throws Exception {
-        runAssertionAddRemoveFilter(new FilterServiceLockCoarse(false));
-        runAssertionAddRemoveFilter(new FilterServiceLockFine(false));
+        runAssertionAddRemoveFilter(new FilterServiceLockCoarse(-1));
+        runAssertionAddRemoveFilter(new FilterServiceLockFine(-1));
     }
 
     private void runAssertionAddRemoveFilter(final FilterService service) throws Exception {

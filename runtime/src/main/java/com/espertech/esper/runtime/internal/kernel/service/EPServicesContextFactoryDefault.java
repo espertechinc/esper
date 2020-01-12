@@ -72,6 +72,8 @@ import com.espertech.esper.runtime.internal.deploymentlifesvc.ListenerRecoverySe
 import com.espertech.esper.runtime.internal.deploymentlifesvc.StatementIdRecoveryServiceImpl;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterServiceLockCoarse;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterServiceSPI;
+import com.espertech.esper.runtime.internal.kernel.stage.StageRecoveryService;
+import com.espertech.esper.runtime.internal.kernel.stage.StageRecoveryServiceImpl;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementFactory;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementFactoryDefault;
 import com.espertech.esper.runtime.internal.kernel.thread.ThreadingService;
@@ -90,7 +92,7 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
     }
 
     protected EPServicesHA initHA(String runtimeURI, Configuration configurationSnapshot, RuntimeEnvContext runtimeEnvContext, ManagedReadWriteLock eventProcessingRWLock, RuntimeSettingsService runtimeSettingsService) {
-        return new EPServicesHA(RuntimeExtensionServicesNoHA.INSTANCE, DeploymentRecoveryServiceImpl.INSTANCE, ListenerRecoveryServiceImpl.INSTANCE, new StatementIdRecoveryServiceImpl(), null);
+        return new EPServicesHA(RuntimeExtensionServicesNoHA.INSTANCE, DeploymentRecoveryServiceImpl.INSTANCE, ListenerRecoveryServiceImpl.INSTANCE, new StatementIdRecoveryServiceImpl(), null, null);
     }
 
     protected ViewableActivatorFactory initViewableActivatorFactory() {
@@ -98,7 +100,7 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
     }
 
     protected FilterServiceSPI makeFilterService(RuntimeExtensionServices runtimeExt, EventTypeRepository eventTypeRepository, StatementLifecycleServiceImpl statementLifecycleService, RuntimeSettingsService runtimeSettingsService, EventTypeIdResolver eventTypeIdResolver, FilterSharedLookupableRepository filterSharedLookupableRepository) {
-        return new FilterServiceLockCoarse(false);
+        return new FilterServiceLockCoarse(-1);
     }
 
     public EPEventServiceImpl createEPRuntime(EPServicesContext services, AtomicBoolean serviceStatusProvider) {
@@ -134,7 +136,7 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
     }
 
     protected SchedulingServiceSPI makeSchedulingService(EPServicesHA epServicesHA, TimeSourceService timeSourceService, RuntimeExtensionServices runtimeExt, RuntimeSettingsService runtimeSettingsService, StatementContextResolver statementContextResolver) {
-        return new SchedulingServiceImpl(timeSourceService);
+        return new SchedulingServiceImpl(-1, timeSourceService);
     }
 
     protected FilterBooleanExpressionFactory makeFilterBooleanExpressionFactory(StatementLifecycleServiceImpl statementLifecycleService) {
@@ -220,6 +222,10 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
 
     protected EventSerdeFactory makeEventSerdeFactory(RuntimeExtensionServices ext) {
         return EventSerdeFactoryDefault.INSTANCE;
+    }
+
+    protected StageRecoveryService makeStageRecoveryService(EPServicesHA epServicesHA) {
+        return StageRecoveryServiceImpl.INSTANCE;
     }
 }
 

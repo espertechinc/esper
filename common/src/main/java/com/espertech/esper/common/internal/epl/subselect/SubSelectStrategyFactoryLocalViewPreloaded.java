@@ -14,8 +14,9 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -119,7 +120,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         eventTableIndexService = subselectFactoryContext.getEventTableIndexService();
     }
 
-    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
+    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
 
         // create factory chain context to hold callbacks specific to "prior" and "prev"
         AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactories, agentInstanceContext, viewResourceDelegate);
@@ -132,9 +133,13 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, agentInstanceContext.getClasspathImportServiceRuntime(), true, subqueryNumber, null);
 
             final AggregationService aggregationServiceStoppable = aggregationService;
-            stopCallbackList.add(new AgentInstanceStopCallback() {
+            stopCallbackList.add(new AgentInstanceMgmtCallback() {
                 public void stop(AgentInstanceStopServices services) {
                     aggregationServiceStoppable.stop();
+                }
+
+                public void transfer(AgentInstanceTransferServices services) {
+                    // no action
                 }
             });
         }
@@ -172,7 +177,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
 
         // create index/holder table
         final EventTable[] index = eventTableFactory.makeEventTables(agentInstanceContext, subqueryNumber);
-        stopCallbackList.add(new SubqueryIndexStopCallback(index));
+        stopCallbackList.add(new SubqueryIndexMgmtCallback(index));
 
         // create strategy
         SubordTableLookupStrategy strategy = lookupStrategyFactory.makeStrategy(index, agentInstanceContext, null);

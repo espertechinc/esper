@@ -29,6 +29,8 @@ import java.util.*;
  * can lead to callbacks added/removed asynchronously.
  */
 public final class SchedulingServiceImpl implements SchedulingServiceSPI {
+    private final int stageId;
+
     // Map of time and handle
     private final SortedMap<Long, SortedMap<Long, ScheduleHandle>> timeHandleMap;
 
@@ -43,7 +45,8 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI {
      *
      * @param timeSourceService time source provider
      */
-    public SchedulingServiceImpl(TimeSourceService timeSourceService) {
+    public SchedulingServiceImpl(int stageId, TimeSourceService timeSourceService) {
+        this.stageId = stageId;
         this.timeHandleMap = new TreeMap<Long, SortedMap<Long, ScheduleHandle>>();
         this.handleSetMap = new HashMap<ScheduleHandle, SortedMap<Long, ScheduleHandle>>();
         // initialize time to just before now as there is a check for duplicate external time events
@@ -146,28 +149,17 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI {
         }
     }
 
-    public ScheduleSet take(Set<Integer> statementIds) {
-        List<ScheduleSetEntry> list = new ArrayList<ScheduleSetEntry>();
+    public void transfer(Set<Integer> statementIds, SchedulingServiceSPI schedulingService) {
         long currentTime = getTime();
+        long targetTime = schedulingService.getTime();
         for (Map.Entry<Long, SortedMap<Long, ScheduleHandle>> schedule : timeHandleMap.entrySet()) {
             for (Map.Entry<Long, ScheduleHandle> entry : schedule.getValue().entrySet()) {
                 if (statementIds.contains(entry.getValue().getStatementId())) {
-                    long relative = schedule.getKey() - currentTime;
-                    list.add(new ScheduleSetEntry(relative, entry.getKey(), entry.getValue()));
+                    long relative = ScheduleTransferHelper.computeTransferTime(currentTime, targetTime, schedule.getKey());
+                    remove(entry.getValue(), entry.getKey());
+                    schedulingService.add(relative, entry.getValue(), entry.getKey());
                 }
             }
-        }
-
-        for (ScheduleSetEntry entry : list) {
-            remove(entry.getHandle(), entry.getScheduleSlot());
-        }
-
-        return new ScheduleSet(list);
-    }
-
-    public void apply(ScheduleSet scheduleSet) {
-        for (ScheduleSetEntry entry : scheduleSet.getList()) {
-            add(entry.getTime(), entry.getHandle(), entry.getScheduleSlot());
         }
     }
 

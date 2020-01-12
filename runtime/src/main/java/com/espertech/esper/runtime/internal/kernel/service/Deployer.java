@@ -28,8 +28,6 @@ import com.espertech.esper.runtime.client.option.StatementNameRuntimeOption;
 import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
 import com.espertech.esper.runtime.client.option.StatementUserObjectRuntimeOption;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,13 +36,12 @@ import java.util.Set;
 
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperInitStatement.initializeStatements;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperInitializeEPLObjects.initializeEPLObjects;
+import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperInitializeEPLObjects.validateStagedEPLObjects;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperResolver.resolveDependencies;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperStatement.deployStatements;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperUpdatePath.updatePath;
 
 public class Deployer {
-
-    private final static Logger log = LoggerFactory.getLogger(Deployer.class);
 
     public static DeploymentInternal deployFresh(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, DeploymentClassLoaderOption deploymentClassLoaderOption, EPRuntimeSPI epRuntime) throws EPDeployException {
         return deploy(false, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, deploymentClassLoaderOption, epRuntime);
@@ -88,6 +85,9 @@ public class Deployer {
 
         // initialize EPL objects defined by module
         DeployerModuleEPLObjects moduleEPLObjects = initializeEPLObjects(moduleProvider, deploymentId, services);
+
+        // determine staged EPL object overlap
+        validateStagedEPLObjects(moduleEPLObjects, moduleProvider.getModuleProvider().getModuleName(), -1, epRuntime.getStageService());
 
         // add EPL objects defined by module to path
         DeployerModulePaths modulePaths = updatePath(-1, moduleEPLObjects, moduleName, deploymentId, services);

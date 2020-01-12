@@ -106,7 +106,7 @@ public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInst
     }
 
     public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        final List<AgentInstanceStopCallback> stopCallbacks = new ArrayList<>();
+        final List<AgentInstanceMgmtCallback> stopCallbacks = new ArrayList<>();
 
         //String windowName = statementSpec.getCreateWindowDesc().getWindowName();
         Viewable finalView;
@@ -142,7 +142,7 @@ public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInst
             finalView = viewables.getLast();
 
             // If this is a virtual data window implementation, bind it to the context for easy lookup
-            AgentInstanceStopCallback envStopCallback = null;
+            AgentInstanceMgmtCallback envStopCallback = null;
             if (finalView instanceof VirtualDWView) {
                 final String objectName = "/virtualdw/" + namedWindowName;
                 final VirtualDWView virtualDWView = (VirtualDWView) finalView;
@@ -151,32 +151,11 @@ public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInst
                 } catch (NamingException e) {
                     throw new ViewProcessingException("Invalid name for adding to context:" + e.getMessage(), e);
                 }
-                envStopCallback = new AgentInstanceStopCallback() {
-                    public void stop(AgentInstanceStopServices stopServices) {
-                        try {
-                            virtualDWView.destroy();
-                            stopServices.getAgentInstanceContext().getRuntimeEnvContext().unbind(objectName);
-                        } catch (NamingException e) {
-                        }
-                    }
-                };
+                envStopCallback = new CreateNWVirtualDWMgmtCallback(virtualDWView, objectName);
             }
-            final AgentInstanceStopCallback environmentStopCallback = envStopCallback;
 
             // destroy the instance
-            AgentInstanceStopCallback allInOneStopMethod = new AgentInstanceStopCallback() {
-                public void stop(AgentInstanceStopServices services) {
-                    NamedWindowInstance instance = namedWindow.getNamedWindowInstance(agentInstanceContext);
-                    if (instance == null) {
-                        log.warn("Named window processor by name '" + namedWindowName + "' has not been found");
-                    } else {
-                        instance.destroy();
-                    }
-                    if (environmentStopCallback != null) {
-                        environmentStopCallback.stop(services);
-                    }
-                }
-            };
+            AgentInstanceMgmtCallback allInOneStopMethod = new CreateNWAllInOneMgmtCallback(namedWindow, envStopCallback);
             stopCallbacks.add(allInOneStopMethod);
 
             // Attach tail view
@@ -198,12 +177,12 @@ public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInst
             }
 
         } catch (RuntimeException ex) {
-            AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+            AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
             AgentInstanceUtil.stopSafe(stopCallback, agentInstanceContext);
             throw new EPException(ex.getMessage(), ex);
         }
 
-        AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+        AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
         return new StatementAgentInstanceFactoryCreateNWResult(
                 finalView, stopCallback, agentInstanceContext, eventStreamParentViewable, topView, namedWindowInstance, viewableActivationResult);
     }
@@ -247,5 +226,49 @@ public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInst
 
     public String getAsEventTypeName() {
         return asEventType == null ? null : asEventType.getName();
+    }
+
+    public static class CreateNWVirtualDWMgmtCallback implements AgentInstanceMgmtCallback {
+        private final VirtualDWView virtualDWView;
+        private final String objectName;
+
+        public CreateNWVirtualDWMgmtCallback(VirtualDWView virtualDWView, String objectName) {
+            this.virtualDWView = virtualDWView;
+            this.objectName = objectName;
+        }
+
+        public void stop(AgentInstanceStopServices stopServices) {
+            try {
+                virtualDWView.destroy();
+                stopServices.getAgentInstanceContext().getRuntimeEnvContext().unbind(objectName);
+            } catch (NamingException e) {
+            }
+        }
+    }
+
+    public static class CreateNWAllInOneMgmtCallback implements AgentInstanceMgmtCallback {
+        private final NamedWindow namedWindow;
+        private final AgentInstanceMgmtCallback optionalEnvStopCallback;
+
+        public CreateNWAllInOneMgmtCallback(NamedWindow namedWindow, AgentInstanceMgmtCallback optionalEnvStopCallback) {
+            this.namedWindow = namedWindow;
+            this.optionalEnvStopCallback = optionalEnvStopCallback;
+        }
+
+        public void stop(AgentInstanceStopServices services) {
+            NamedWindowInstance instance = namedWindow.getNamedWindowInstance(services.getAgentInstanceContext());
+            if (instance == null) {
+                log.warn("Named window processor by name '" + namedWindow.getName() + "' has not been found");
+            } else {
+                instance.destroy();
+            }
+            if (optionalEnvStopCallback != null) {
+                optionalEnvStopCallback.stop(services);
+            }
+        }
+
+        public void transfer(AgentInstanceTransferServices services) {
+            // no action required
+        }
     }
 }

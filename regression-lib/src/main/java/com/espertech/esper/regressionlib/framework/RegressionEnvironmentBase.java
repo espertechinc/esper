@@ -28,6 +28,7 @@ import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.support.util.SupportAdminUtil;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
+import com.espertech.esper.runtime.client.stage.EPStage;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
@@ -124,6 +125,18 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return this;
     }
 
+    public RegressionEnvironment sendEventBeanStage(String stageUri, Object event) {
+        if (stageUri == null) {
+            return sendEventBean(event);
+        }
+        EPStage stage = runtime.getStageService().getExistingStage(stageUri);
+        if (stage == null) {
+            throw new RuntimeException("Failed to find stage '" + stageUri + "'");
+        }
+        stage.getEventService().sendEventBean(event, event.getClass().getSimpleName());
+        return this;
+    }
+
     public RegressionEnvironment sendEventBean(Object event, String typeName) {
         runtime.getEventService().sendEventBean(event, typeName);
         return this;
@@ -183,8 +196,25 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return this;
     }
 
+    public RegressionEnvironment advanceTimeStage(String stageUri, long msec) {
+        if (stageUri == null) {
+            advanceTime(msec);
+            return this;
+        }
+        EPStage stage = runtime.getStageService().getExistingStage(stageUri);
+        if (stage == null) {
+            throw new RuntimeException("Failed to find stage '" + stageUri + "'");
+        }
+        stage.getEventService().advanceTime(msec);
+        return this;
+    }
+
     public SupportListener listener(String statementName) {
         return getRequireStatementListener(statementName, runtime);
+    }
+
+    public SupportListener listenerStage(String stageUri, String statementName) {
+        return getRequireStatementListener(statementName, stageUri, runtime);
     }
 
     public String deploymentId(String statementName) {
@@ -195,6 +225,12 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     public RegressionEnvironment undeployAll() {
         try {
             runtime.getDeploymentService().undeployAll();
+
+            String[] stageURIs = runtime.getStageService().getStageURIs();
+            for (String uri : stageURIs) {
+                EPStage stage = runtime.getStageService().getExistingStage(uri);
+                stage.destroy();
+            }
         } catch (EPUndeployException ex) {
             throw notExpected(ex);
         }
@@ -434,6 +470,10 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
 
     public EPEventService eventService() {
         return runtime.getEventService();
+    }
+
+    public EPStageService stageService() {
+        return runtime.getStageService();
     }
 
     public EPCompiled compileWCheckedEx(String epl) throws EPCompileException {

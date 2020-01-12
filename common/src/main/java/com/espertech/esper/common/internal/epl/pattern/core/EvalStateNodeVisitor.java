@@ -52,6 +52,4 @@ public interface EvalStateNodeVisitor {
     void visitEvery(EvalEveryFactoryNode factoryNode, EvalStateNode stateNode, MatchedEventMap beginState, Object... stateFlat);
 
     void visitEveryDistinct(EvalEveryDistinctFactoryNode factoryNode, EvalStateNode stateNode, MatchedEventMap beginState, Collection keySetCollection);
-
-    void visitAudit();
 }

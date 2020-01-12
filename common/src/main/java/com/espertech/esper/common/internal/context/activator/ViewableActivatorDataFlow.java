@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.context.activator;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.view.core.Viewable;
 import com.espertech.esper.common.internal.view.core.ViewableDefaultImpl;
 
@@ -29,7 +29,7 @@ public class ViewableActivatorDataFlow implements ViewableActivator {
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
         Viewable viewable = new ViewableDefaultImpl(eventType);
-        return new ViewableActivationResult(viewable, AgentInstanceStopCallback.INSTANCE_NO_ACTION, null, false, false, null, null);
+        return new ViewableActivationResult(viewable, AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null);
     }
 
     public void setEventType(EventType eventType) {

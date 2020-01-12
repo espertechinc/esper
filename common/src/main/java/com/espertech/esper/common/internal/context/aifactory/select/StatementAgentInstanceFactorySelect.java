@@ -135,7 +135,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
     }
 
     public StatementAgentInstanceFactorySelectResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        List<AgentInstanceStopCallback> stopCallbacks = new ArrayList<>();
+        List<AgentInstanceMgmtCallback> stopCallbacks = new ArrayList<>();
         List<StatementAgentInstancePreload> preloadList = new ArrayList<StatementAgentInstancePreload>();
         int numStreams = viewableActivators.length;
 
@@ -197,7 +197,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
 
         // result-set-processing
         Pair<ResultSetProcessor, AggregationService> processorPair = StatementAgentInstanceFactoryUtil.startResultSetAndAggregation(resultSetProcessorFactoryProvider, agentInstanceContext, false, null);
-        stopCallbacks.add(new SelectStopCallback(processorPair));
+        stopCallbacks.add(new SelectMgmtCallback(processorPair));
 
         // join versus non-join
         JoinSetComposer joinSetComposer;
@@ -222,7 +222,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
             handlePreloads(preloadList, aggregated, joinPreloadMethod, activationResults, agentInstanceContext, processorPair.getFirst());
         }
 
-        AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+        AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
 
         // clean up empty holder
         if (CollectionUtil.isArrayAllNull(priorEvalStrategies)) {
@@ -347,11 +347,11 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
     private JoinPlanResult handleJoin(Viewable[] streamViews,
                                       ResultSetProcessor resultSetProcessor,
                                       AgentInstanceContext agentInstanceContext,
-                                      List<AgentInstanceStopCallback> stopCallbacks,
+                                      List<AgentInstanceMgmtCallback> stopCallbacks,
                                       boolean isRecoveringResilient) {
         final JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(streamViews, false, agentInstanceContext, isRecoveringResilient);
 
-        stopCallbacks.add(new AgentInstanceStopCallback() {
+        stopCallbacks.add(new AgentInstanceMgmtCallback() {
             public void stop(AgentInstanceStopServices services) {
                 joinSetComposerDesc.getJoinSetComposer().destroy();
             }
@@ -526,11 +526,11 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         }
     }
 
-    private static class SelectStopCallback implements AgentInstanceStopCallback {
+    private static class SelectMgmtCallback implements AgentInstanceMgmtCallback {
         private final ResultSetProcessor resultSetProcessor;
         private final AggregationService aggregationService;
 
-        public SelectStopCallback(Pair<ResultSetProcessor, AggregationService> processorPair) {
+        public SelectMgmtCallback(Pair<ResultSetProcessor, AggregationService> processorPair) {
             resultSetProcessor = processorPair.getFirst();
             aggregationService = processorPair.getSecond();
         }
@@ -538,6 +538,10 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         public void stop(AgentInstanceStopServices services) {
             resultSetProcessor.stop();
             aggregationService.stop();
+        }
+
+        public void transfer(AgentInstanceTransferServices services) {
+            // no action
         }
     }
 }

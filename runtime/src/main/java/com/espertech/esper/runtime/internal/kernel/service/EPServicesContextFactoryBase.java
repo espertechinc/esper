@@ -100,6 +100,7 @@ import com.espertech.esper.common.internal.view.core.ViewFactoryService;
 import com.espertech.esper.common.internal.view.previous.ViewServicePreviousFactory;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.DeploymentLifecycleServiceImpl;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterServiceSPI;
+import com.espertech.esper.runtime.internal.kernel.stage.StageRecoveryService;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementFactory;
 import com.espertech.esper.runtime.internal.kernel.thread.ThreadingService;
 import com.espertech.esper.runtime.internal.metrics.stmtmetrics.MetricReportingServiceImpl;
@@ -184,11 +185,13 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
     protected abstract EventSerdeFactory makeEventSerdeFactory(RuntimeExtensionServices ext);
 
+    protected abstract StageRecoveryService makeStageRecoveryService(EPServicesHA epServicesHA);
+
     public EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configs) {
 
         RuntimeEnvContext runtimeEnvContext = new RuntimeEnvContext();
-        ManagedReadWriteLock eventProcessingRWLock = new ManagedReadWriteLock("EventProcLock", false);
-        DeploymentLifecycleServiceImpl deploymentLifecycleService = new DeploymentLifecycleServiceImpl();
+        ManagedReadWriteLock eventProcessingRWLock = new ManagedReadWriteLock("EventProcLock", configs.getRuntime().getThreading().isRuntimeFairlock());
+        DeploymentLifecycleServiceImpl deploymentLifecycleService = new DeploymentLifecycleServiceImpl(-1);
 
         RuntimeSettingsService runtimeSettingsService = makeRuntimeSettingsService(configs);
 
@@ -220,7 +223,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
         StatementLifecycleServiceImpl statementLifecycleService = new StatementLifecycleServiceImpl();
 
-        EventTypeIdResolver idResolver = new EventTypeIdResolver() {
+        EventTypeIdResolver eventTypeIdResolver = new EventTypeIdResolver() {
             public EventType getTypeById(long eventTypeIdPublic, long eventTypeIdProtected) {
                 if (eventTypeIdProtected == -1) {
                     return eventTypeRepositoryPreconfigured.getTypeById(eventTypeIdPublic);
@@ -231,7 +234,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         };
         FilterSharedBoolExprRepository filterSharedBoolExprRepository = makeFilterSharedBoolExprRepository();
         FilterSharedLookupableRepository filterSharedLookupableRepository = makeFilterSharedLookupableRepository();
-        FilterServiceSPI filterServiceSPI = makeFilterService(epServicesHA.getRuntimeExtensionServices(), eventTypeRepositoryPreconfigured, statementLifecycleService, runtimeSettingsService, idResolver, filterSharedLookupableRepository);
+        FilterServiceSPI filterServiceSPI = makeFilterService(epServicesHA.getRuntimeExtensionServices(), eventTypeRepositoryPreconfigured, statementLifecycleService, runtimeSettingsService, eventTypeIdResolver, filterSharedLookupableRepository);
         FilterBooleanExpressionFactory filterBooleanExpressionFactory = makeFilterBooleanExpressionFactory(statementLifecycleService);
 
         StatementResourceHolderBuilder statementResourceHolderBuilder = makeStatementResourceHolderBuilder();
@@ -327,6 +330,8 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         EventTypeSerdeRepository eventTypeSerdeRepository = makeEventTypeSerdeRepository(eventTypeRepositoryPreconfigured, eventTypePathRegistry);
         ParentClassLoader classLoaderParent = new ParentClassLoader(classpathImportServiceRuntime.getClassLoader());
 
+        StageRecoveryService stageRecoveryService = makeStageRecoveryService(epServicesHA);
+
         return new EPServicesContext(aggregationServiceFactoryService,
                 beanEventTypeFactoryPrivate,
                 beanEventTypeStemService,
@@ -357,6 +362,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
                 eventTableIndexService,
                 eventTypeAvroHandler,
                 eventTypeFactory,
+                eventTypeIdResolver,
                 eventTypePathRegistry,
                 eventTypeRepositoryPreconfigured,
                 eventTypeResolvingBeanFactory,
@@ -383,6 +389,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
                 rowRecogStatePoolEngineSvc,
                 schedulingService,
                 scriptPathRegistry,
+                stageRecoveryService,
                 statementLifecycleService,
                 statementAgentInstanceLockFactory,
                 statementResourceHolderBuilder,

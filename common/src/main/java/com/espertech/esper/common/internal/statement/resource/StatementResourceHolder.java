@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.statement.resource;
 
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.prior.PriorEvalStrategy;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposer;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class StatementResourceHolder {
     private final AgentInstanceContext agentInstanceContext;
-    private final AgentInstanceStopCallback agentInstanceStopCallback;
+    private final AgentInstanceMgmtCallback agentInstanceStopCallback;
     private final Viewable finalView;
     private AggregationService aggregationService;
     private final PriorEvalStrategy[] priorEvalStrategies;
@@ -48,7 +48,7 @@ public class StatementResourceHolder {
     private ContextManagerRealization contextManagerRealization;
     private JoinSetComposer joinSetComposer;
 
-    public StatementResourceHolder(AgentInstanceContext agentInstanceContext, AgentInstanceStopCallback agentInstanceStopCallback, Viewable finalView, AggregationService aggregationService, PriorEvalStrategy[] priorEvalStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy rowRecogPreviousStrategy) {
+    public StatementResourceHolder(AgentInstanceContext agentInstanceContext, AgentInstanceMgmtCallback agentInstanceStopCallback, Viewable finalView, AggregationService aggregationService, PriorEvalStrategy[] priorEvalStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy rowRecogPreviousStrategy) {
         this.agentInstanceContext = agentInstanceContext;
         this.agentInstanceStopCallback = agentInstanceStopCallback;
         this.finalView = finalView;
@@ -58,7 +58,7 @@ public class StatementResourceHolder {
         this.rowRecogPreviousStrategy = rowRecogPreviousStrategy;
     }
 
-    public AgentInstanceStopCallback getAgentInstanceStopCallback() {
+    public AgentInstanceMgmtCallback getAgentInstanceStopCallback() {
         return agentInstanceStopCallback;
     }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.condition;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 
 import java.util.Map;
 
@@ -41,5 +42,8 @@ public class ContextControllerConditionImmediate implements ContextControllerCon
 
     public ContextConditionDescriptor getDescriptor() {
         return ContextConditionDescriptorImmediate.INSTANCE;
+    }
+
+    public void transfer(AgentInstanceTransferServices xfer) {
     }
 }

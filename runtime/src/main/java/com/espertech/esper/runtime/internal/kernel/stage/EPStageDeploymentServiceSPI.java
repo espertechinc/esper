@@ -8,15 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.context.util;
+package com.espertech.esper.runtime.internal.kernel.stage;
 
-public class AgentInstanceStopCallbackNoAction implements AgentInstanceStopCallback {
-    public final static AgentInstanceStopCallbackNoAction INSTANCE = new AgentInstanceStopCallbackNoAction();
+import com.espertech.esper.runtime.client.stage.EPStageDeploymentService;
+import com.espertech.esper.runtime.internal.kernel.service.DeploymentInternal;
 
-    private AgentInstanceStopCallbackNoAction() {
-    }
+import java.util.Map;
 
-    public void stop(AgentInstanceStopServices services) {
-        // no action
-    }
+public interface EPStageDeploymentServiceSPI extends EPStageDeploymentService {
+    Map<String, DeploymentInternal> getDeploymentMap();
 }

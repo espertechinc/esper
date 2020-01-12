@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.mgr.ContextPartitionVisitor;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 
 import java.util.Map;
 
@@ -24,6 +25,8 @@ public interface ContextController {
     void deactivate(IntSeqKey path, boolean terminateChildContexts);
 
     void visitSelectedPartitions(IntSeqKey path, ContextPartitionSelector selector, ContextPartitionVisitor visitor, ContextPartitionSelector[] selectorPerLevel);
+
+    void transfer(IntSeqKey path, boolean transferChildContexts, AgentInstanceTransferServices xfer);
 
     ContextControllerFactory getFactory();
 

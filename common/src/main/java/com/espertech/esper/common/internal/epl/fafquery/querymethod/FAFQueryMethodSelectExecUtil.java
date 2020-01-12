@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryUtil;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryAssignmentsImpl;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
@@ -54,7 +54,7 @@ public class FAFQueryMethodSelectExecUtil {
         Pair<ResultSetProcessor, AggregationService> pair = StatementAgentInstanceFactoryUtil.startResultSetAndAggregation(processorProvider, agentInstanceContext, false, null);
 
         // start subselects
-        List<AgentInstanceStopCallback> subselectStopCallbacks = new ArrayList<>(2);
+        List<AgentInstanceMgmtCallback> subselectStopCallbacks = new ArrayList<>(2);
         Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, subselectStopCallbacks, false);
 
         // assign

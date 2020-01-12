@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.core;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.join.base.JoinExecutionStrategy;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetIndicator;
 import com.espertech.esper.common.internal.epl.output.condition.OutputCondition;
@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.statement.dispatch.UpdateDispatchView
 import com.espertech.esper.common.internal.view.core.View;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
-public abstract class OutputProcessView implements View, JoinSetIndicator, AgentInstanceStopCallback, OutputProcessViewTerminable {
+public abstract class OutputProcessView implements View, JoinSetIndicator, AgentInstanceMgmtCallback, OutputProcessViewTerminable {
     protected Viewable parentView;
     protected UpdateDispatchView child;
     protected JoinExecutionStrategy joinExecutionStrategy;

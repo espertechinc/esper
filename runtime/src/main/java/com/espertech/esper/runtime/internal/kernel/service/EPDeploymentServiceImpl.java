@@ -29,8 +29,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.espertech.esper.common.client.util.UndeployRethrowPolicy.RETHROW_FIRST;
-import static com.espertech.esper.runtime.internal.kernel.service.DeploymentHelperDependencies.getDependenciesConsumed;
-import static com.espertech.esper.runtime.internal.kernel.service.DeploymentHelperDependencies.getDependenciesProvided;
+import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperDependencies.getDependenciesConsumed;
+import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperDependencies.getDependenciesProvided;
 
 public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
     private static final Logger log = LoggerFactory.getLogger(EPDeploymentServiceImpl.class);
@@ -147,14 +147,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
     }
 
     public EPDeployment getDeployment(String deploymentId) {
-        DeploymentInternal deployed = services.getDeploymentLifecycleService().getDeploymentById(deploymentId);
-        if (deployed == null) {
-            return null;
-        }
-        EPStatement[] stmts = deployed.getStatements();
-        EPStatement[] copy = new EPStatement[stmts.length];
-        System.arraycopy(stmts, 0, copy, 0, stmts.length);
-        return new EPDeployment(deploymentId, deployed.getModuleProvider().getModuleName(), deployed.getModulePropertiesCached(), copy, CollectionUtil.copyArray(deployed.getDeploymentIdDependencies()), new Date(deployed.getLastUpdateDate()));
+        return EPDeploymentServiceUtil.toDeployment(services.getDeploymentLifecycleService(), deploymentId);
     }
 
     public boolean isDeployed(String deploymentId) {
@@ -246,6 +239,10 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
     private void undeployRemoveInternal(String deploymentId, UndeploymentOptions options) throws EPUndeployException {
         DeploymentInternal deployment = services.getDeploymentLifecycleService().getDeploymentById(deploymentId);
         if (deployment == null) {
+            String stageUri = services.getStageRecoveryService().deploymentGetStage(deploymentId);
+            if (stageUri != null) {
+                throw new EPUndeployPreconditionException("Deployment id '" + deploymentId + "' is staged and cannot be undeployed");
+            }
             throw new EPUndeployNotFoundException("Deployment id '" + deploymentId + "' cannot be found");
         }
         EPStatement[] statements = deployment.getStatements();
@@ -295,7 +292,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
 
             // remove deployment
             services.getEpServicesHA().getDeploymentRecoveryService().remove(deploymentId);
-            services.getDeploymentLifecycleService().undeploy(deploymentId);
+            services.getDeploymentLifecycleService().removeDeployment(deploymentId);
 
             dispatchOnUndeploymentEvent(deployment, -1);
 
@@ -335,7 +332,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         }
         services.getEventProcessingRWLock().acquireReadLock();
         try {
-            return getDependenciesProvided(selfDeploymentId, services);
+            return getDependenciesProvided(selfDeploymentId, services, services.getDeploymentLifecycleService());
         } finally {
             services.getEventProcessingRWLock().releaseReadLock();
         }
@@ -347,7 +344,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         }
         services.getEventProcessingRWLock().acquireReadLock();
         try {
-            return getDependenciesConsumed(selfDeploymentId, services);
+            return getDependenciesConsumed(selfDeploymentId, services, services.getDeploymentLifecycleService());
         } finally {
             services.getEventProcessingRWLock().releaseReadLock();
         }

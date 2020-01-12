@@ -14,6 +14,9 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.view.core.EventStream;
@@ -84,7 +87,8 @@ public class ViewableActivatorPattern implements ViewableActivator {
 
         EvalRootState rootState = rootNode.start(callback, patternContext, isRecoveringResilient);
 
-        return new ViewableActivationResult(sourceEventStream, services -> rootState.stop(), rootState, suppressSameEventMatches, discardPartialsOnMatch, rootState, null);
+        ViewableActivatorPatternMgmt mgmt = new ViewableActivatorPatternMgmt(rootState);
+        return new ViewableActivationResult(sourceEventStream, mgmt, rootState, suppressSameEventMatches, discardPartialsOnMatch, rootState, null);
     }
 
     public EventType getEventType() {
@@ -105,5 +109,21 @@ public class ViewableActivatorPattern implements ViewableActivator {
 
     public boolean isCanIterate() {
         return isCanIterate;
+    }
+
+    public static class ViewableActivatorPatternMgmt implements AgentInstanceMgmtCallback {
+        private final EvalRootState rootState;
+
+        public ViewableActivatorPatternMgmt(EvalRootState rootState) {
+            this.rootState = rootState;
+        }
+
+        public void stop(AgentInstanceStopServices services) {
+            rootState.stop();
+        }
+
+        public void transfer(AgentInstanceTransferServices services) {
+            rootState.accept(new EvalStateNodeVisitorStageTransfer(services));
+        }
     }
 }

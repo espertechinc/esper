@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ContextControllerKeyedSvcLevelOne implements ContextControllerKeyedSvc {
     private final static Object[] EMPTY_PARTITION_KEYS = new Object[0];
@@ -69,6 +70,12 @@ public class ContextControllerKeyedSvcLevelOne implements ContextControllerKeyed
     public void keyVisit(IntSeqKey controllerPath, BiConsumer<Object, Integer> keyAndSubpathOrCPId) {
         for (Map.Entry<Object, ContextControllerKeyedSvcEntry> entry : keys.entrySet()) {
             keyAndSubpathOrCPId.accept(entry.getKey(), entry.getValue().getSubpathOrCPId());
+        }
+    }
+
+    public void keyVisitEntry(IntSeqKey controllerPath, Consumer<ContextControllerKeyedSvcEntry> consumer) {
+        for (Map.Entry<Object, ContextControllerKeyedSvcEntry> entry : keys.entrySet()) {
+            consumer.accept(entry.getValue());
         }
     }
 

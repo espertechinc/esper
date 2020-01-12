@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.internal.context.module.RuntimeExtensionServices;
+import com.espertech.esper.runtime.internal.kernel.stage.EPStageServiceSPI;
 
 public interface RuntimeExtensionServicesSPI extends RuntimeExtensionServices {
     /**
@@ -20,7 +21,7 @@ public interface RuntimeExtensionServicesSPI extends RuntimeExtensionServices {
      * @param runtimeSPI      runtime SPI
      * @param adminSPI        admin SPI
      */
-    public void init(EPServicesContext servicesContext, EPEventServiceSPI runtimeSPI, EPDeploymentServiceSPI adminSPI);
+    public void init(EPServicesContext servicesContext, EPEventServiceSPI runtimeSPI, EPDeploymentServiceSPI adminSPI, EPStageServiceSPI stageServiceSPI);
 
     /**
      * Invoked to destroy the extension services, when an existing runtime is initialized.

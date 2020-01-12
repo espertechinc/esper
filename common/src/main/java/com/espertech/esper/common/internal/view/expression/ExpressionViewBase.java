@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
@@ -31,7 +31,7 @@ import com.espertech.esper.common.internal.view.core.ViewSupport;
 /**
  * This view is a moving window extending the into the past until the expression passed to it returns false.
  */
-public abstract class ExpressionViewBase extends ViewSupport implements DataWindowView, AgentInstanceStopCallback, VariableChangeCallback {
+public abstract class ExpressionViewBase extends ViewSupport implements DataWindowView, AgentInstanceMgmtCallback, VariableChangeCallback {
 
     protected final ExpressionViewFactoryBase factory;
     protected final ViewUpdatedCollection viewUpdatedCollection;
@@ -63,7 +63,7 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
                 final String variableName = variable.getMetaData().getVariableName();
                 final int agentInstanceId = agentInstanceContext.getAgentInstanceId();
                 agentInstanceContext.getStatementContext().getVariableManagementService().registerCallback(variable.getDeploymentId(), variableName, agentInstanceId, this);
-                agentInstanceContext.getAgentInstanceContext().addTerminationCallback(new AgentInstanceStopCallback() {
+                agentInstanceContext.getAgentInstanceContext().addTerminationCallback(new AgentInstanceMgmtCallback() {
                     public void stop(AgentInstanceStopServices services) {
                         services.getAgentInstanceContext().getVariableManagementService().unregisterCallback(variableDepId, variableName, agentInstanceId, ExpressionViewBase.this);
                     }

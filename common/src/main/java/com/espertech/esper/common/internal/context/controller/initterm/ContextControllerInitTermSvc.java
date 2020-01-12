@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.initterm;
 
 import com.espertech.esper.common.internal.collection.IntSeqKey;
+import com.espertech.esper.common.internal.context.controller.condition.ContextControllerCondition;
 import com.espertech.esper.common.internal.context.controller.condition.ContextControllerConditionNonHA;
 
 import java.util.Collection;
@@ -37,5 +38,9 @@ public interface ContextControllerInitTermSvc {
 
     void endVisit(IntSeqKey controllerPath, BiConsumer<ContextControllerInitTermPartitionKey, Integer> partKeyAndCPId);
 
+    void endVisitConditions(IntSeqKey controllerPath, BiConsumer<ContextControllerConditionNonHA, Integer> partKeyAndCPId);
+
     void destroy();
+
+    ContextControllerCondition mgmtGetStartCondition(IntSeqKey conditionPath);
 }

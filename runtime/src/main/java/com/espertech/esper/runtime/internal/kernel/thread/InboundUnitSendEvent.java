@@ -11,7 +11,8 @@
 package com.espertech.esper.runtime.internal.kernel.thread;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
+import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapped;
+import com.espertech.esper.runtime.internal.kernel.service.EPServicesEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,27 +23,22 @@ public class InboundUnitSendEvent implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendEvent.class);
     private final Object theEvent;
     private final String eventTypeName;
-    private final EPEventServiceImpl runtime;
+    private final EPRuntimeEventProcessWrapped runtime;
+    private final EPServicesEvaluation services;
 
-    /**
-     * Ctor.
-     *
-     * @param theEvent      to process
-     * @param runtime       to process event
-     * @param eventTypeName type name
-     */
-    public InboundUnitSendEvent(Object theEvent, String eventTypeName, EPEventServiceImpl runtime) {
+    public InboundUnitSendEvent(Object theEvent, String eventTypeName, EPRuntimeEventProcessWrapped runtime, EPServicesEvaluation services) {
         this.theEvent = theEvent;
-        this.runtime = runtime;
         this.eventTypeName = eventTypeName;
+        this.runtime = runtime;
+        this.services = services;
     }
 
     public void run() {
         try {
-            EventBean eventBean = runtime.getServices().getEventTypeResolvingBeanFactory().adapterForBean(theEvent, eventTypeName);
+            EventBean eventBean = services.getEventTypeResolvingBeanFactory().adapterForBean(theEvent, eventTypeName);
             runtime.processWrappedEvent(eventBean);
         } catch (Throwable t) {
-            runtime.getServices().getExceptionHandlingService().handleInboundPoolException(runtime.getRuntimeURI(), t, theEvent);
+            services.getExceptionHandlingService().handleInboundPoolException(runtime.getURI(), t, theEvent);
             log.error("Unexpected error processing unwrapped event: " + t.getMessage(), t);
         }
     }

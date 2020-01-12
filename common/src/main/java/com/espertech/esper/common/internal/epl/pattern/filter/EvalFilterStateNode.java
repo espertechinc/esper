@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.pattern.filter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackFilter;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
@@ -195,5 +196,16 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         isStarted = false;
         long filtersVersion = filterService.getFiltersVersion();
         evalFilterNode.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+    }
+
+    @Override
+    public void transfer(AgentInstanceTransferServices services) {
+        if (handle == null) {
+            return;
+        }
+        FilterSpecActivatable filterSpec = evalFilterNode.getFactoryNode().getFilterSpec();
+        FilterValueSetParam[][] filterValues = filterSpec.getValueSet(beginState, evalFilterNode.getAddendumFilters(), services.getAgentInstanceContext(), services.getAgentInstanceContext().getStatementContextFilterEvalEnv());
+        services.getAgentInstanceContext().getFilterService().remove(handle, filterSpec.getFilterForEventType(), filterValues);
+        services.getTargetFilterService().add(filterSpec.getFilterForEventType(), filterValues, handle);
     }
 }

@@ -14,6 +14,7 @@ public class ScheduleVisit {
     private long timestamp;
     private int statementId;
     private int agentInstanceId;
+    private Object haPair;
 
     public int getAgentInstanceId() {
         return agentInstanceId;
@@ -37,5 +38,13 @@ public class ScheduleVisit {
 
     public void setStatementId(int statementId) {
         this.statementId = statementId;
+    }
+
+    public void setHAPair(Object pair) {
+        this.haPair = pair;
+    }
+
+    public Object getHaPair() {
+        return haPair;
     }
 }

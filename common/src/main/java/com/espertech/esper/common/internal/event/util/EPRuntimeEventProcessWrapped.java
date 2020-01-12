@@ -29,4 +29,6 @@ public interface EPRuntimeEventProcessWrapped {
      * @param theEvent routed event
      */
     public void routeEventBean(EventBean theEvent);
+
+    public String getURI();
 }

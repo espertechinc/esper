@@ -113,7 +113,7 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         TableInstance tableState = agentInstanceContext.getTableManagementService().allocateTableInstance(table, agentInstanceContext);
         TableInstanceViewable finalView = new TableInstanceViewable(table, tableState);
 
-        AgentInstanceStopCallback stop = new AgentInstanceStopCallback() {
+        AgentInstanceMgmtCallback stop = new AgentInstanceMgmtCallback() {
             public void stop(AgentInstanceStopServices services) {
                 TableInstance instance = table.getTableInstance(agentInstanceContext.getAgentInstanceId());
                 if (instance == null) {

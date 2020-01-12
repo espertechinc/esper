@@ -52,6 +52,22 @@ public class PathRegistry<K, E> {
         existing.add(moduleName, entity, deploymentId);
     }
 
+    public void addEntry(K entityKey, String moduleName, PathDeploymentEntry<E> entity)
+        throws PathException {
+        checkModuleNameParameter(moduleName);
+        PathModuleEntry<E> existing = entities.get(entityKey);
+        if (existing == null) {
+            existing = new PathModuleEntry<>();
+            entities.put(entityKey, existing);
+        } else {
+            String existingDeploymentId = existing.getDeploymentId(moduleName);
+            if (existingDeploymentId != null) {
+                throw new PathExceptionAlreadyRegistered(entityKey.toString(), objectType, moduleName);
+            }
+        }
+        existing.add(moduleName, entity);
+    }
+
     public Pair<E, String> getAnyModuleExpectSingle(K entityKey, Set<String> moduleUses) throws PathException {
         PathModuleEntry<E> existing = entities.get(entityKey);
         return existing == null ? null : existing.getAnyModuleExpectSingle(entityKey.toString(), objectType, moduleUses);
@@ -61,6 +77,12 @@ public class PathRegistry<K, E> {
         checkModuleNameParameter(moduleName);
         PathModuleEntry<E> existing = entities.get(entityKey);
         return existing == null ? null : existing.getWithModule(moduleName);
+    }
+
+    public PathDeploymentEntry<E> getEntryWithModule(K entityKey, String moduleName) {
+        checkModuleNameParameter(moduleName);
+        PathModuleEntry<E> existing = entities.get(entityKey);
+        return existing == null ? null : existing.getEntryWithModule(moduleName);
     }
 
     public String getDeploymentId(K entityEntity, String moduleName) {

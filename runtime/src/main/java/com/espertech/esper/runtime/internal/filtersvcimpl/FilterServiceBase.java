@@ -34,6 +34,7 @@ import java.util.function.Supplier;
  */
 public abstract class FilterServiceBase implements FilterServiceSPI {
     private final FilterServiceGranularLockFactory lockFactory;
+    private final int stageId;
     private static final Logger log = LoggerFactory.getLogger(FilterServiceBase.class);
     private final EventTypeIndexBuilder indexBuilder;
     private final EventTypeIndex eventTypeIndex;
@@ -41,10 +42,11 @@ public abstract class FilterServiceBase implements FilterServiceSPI {
     private volatile long filtersVersion = 1;
     private final CopyOnWriteArraySet<FilterServiceListener> filterServiceListeners;
 
-    protected FilterServiceBase(FilterServiceGranularLockFactory lockFactory, boolean allowIsolation) {
+    protected FilterServiceBase(FilterServiceGranularLockFactory lockFactory, int stageId) {
         this.lockFactory = lockFactory;
+        this.stageId = stageId;
         eventTypeIndex = new EventTypeIndex(lockFactory);
-        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex, allowIsolation);
+        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex);
         filterServiceListeners = new CopyOnWriteArraySet<FilterServiceListener>();
     }
 

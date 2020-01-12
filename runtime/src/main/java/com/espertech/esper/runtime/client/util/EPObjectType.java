@@ -17,33 +17,47 @@ public enum EPObjectType {
     /**
      * Context.
      */
-    CONTEXT(),
+    CONTEXT("context"),
     /**
      * Named window.
      */
-    NAMEDWINDOW(),
+    NAMEDWINDOW("named window"),
     /**
      * Event type.
      */
-    EVENTTYPE(),
+    EVENTTYPE("event type"),
     /**
      * Table.
      */
-    TABLE(),
+    TABLE("table"),
     /**
      * Variable
      */
-    VARIABLE(),
+    VARIABLE("variable"),
     /**
      * Expression.
      */
-    EXPRESSION(),
+    EXPRESSION("expression"),
     /**
      * Script.
      */
-    SCRIPT(),
+    SCRIPT("script"),
     /**
      * Index.
      */
-    INDEX();
+    INDEX("index");
+
+    private final String prettyName;
+
+    EPObjectType(String prettyName) {
+        this.prettyName = prettyName;
+    }
+
+    /**
+     * Returns the pretty-print name
+     * @return name
+     */
+    public String getPrettyName() {
+        return prettyName;
+    }
 }

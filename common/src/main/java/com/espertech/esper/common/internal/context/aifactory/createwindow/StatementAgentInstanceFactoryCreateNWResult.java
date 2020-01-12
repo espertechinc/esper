@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.context.aifactory.createwindow;
 import com.espertech.esper.common.internal.context.activator.ViewableActivationResult;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowInstance;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryResult;
 import com.espertech.esper.common.internal.view.core.Viewable;
@@ -28,7 +28,7 @@ public class StatementAgentInstanceFactoryCreateNWResult extends StatementAgentI
     private final ViewableActivationResult viewableActivationResult;
 
     public StatementAgentInstanceFactoryCreateNWResult(Viewable finalView,
-                                                       AgentInstanceStopCallback stopCallback,
+                                                       AgentInstanceMgmtCallback stopCallback,
                                                        AgentInstanceContext agentInstanceContext,
                                                        Viewable eventStreamParentViewable,
                                                        Viewable topView,

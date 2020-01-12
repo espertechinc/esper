@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.output.condition;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -66,7 +66,7 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
                 final String theVariableDepId = variable.getDeploymentId();
                 final String theVariableName = variable.getMetaData().getVariableName();
                 agentInstanceContext.getVariableManagementService().registerCallback(theVariableDepId, theVariableName, agentInstanceContext.getAgentInstanceId(), this);
-                agentInstanceContext.addTerminationCallback(new AgentInstanceStopCallback() {
+                agentInstanceContext.addTerminationCallback(new AgentInstanceMgmtCallback() {
                     public void stop(AgentInstanceStopServices services) {
                         services.getAgentInstanceContext().getVariableManagementService().unregisterCallback(theVariableDepId, theVariableName, agentInstanceContext.getAgentInstanceId(), OutputConditionExpression.this);
                     }

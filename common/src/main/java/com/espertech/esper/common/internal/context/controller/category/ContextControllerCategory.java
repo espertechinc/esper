@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.context.mgr.ContextControllerSelector
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.mgr.ContextPartitionInstantiationResult;
 import com.espertech.esper.common.internal.context.mgr.ContextPartitionVisitor;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 
 import java.util.Map;
 
@@ -117,5 +118,18 @@ public abstract class ContextControllerCategory extends ContextControllerBase {
 
     public void destroy() {
         categorySvc.destroy();
+    }
+
+    public final void transfer(IntSeqKey path, boolean transferChildContexts, AgentInstanceTransferServices xfer) {
+        if (!transferChildContexts) {
+            // nothing to do
+            return;
+        }
+        int[] ids = categorySvc.mgmtGetSubpathOrCPIds(path);
+        if (ids != null) {
+            for (int id : ids) {
+                realization.transferRecursive(path, id, this, xfer);
+            }
+        }
     }
 }

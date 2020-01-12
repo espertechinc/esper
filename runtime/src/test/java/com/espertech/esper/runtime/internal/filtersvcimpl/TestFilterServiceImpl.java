@@ -40,7 +40,7 @@ public class TestFilterServiceImpl extends TestCase {
     private Vector<int[]> matchesExpected;
 
     public void setUp() {
-        filterService = new FilterServiceLockCoarse(false);
+        filterService = new FilterServiceLockCoarse(-1);
 
         eventTypeOne = SupportEventTypeFactory.createBeanType(SupportBean.class);
         eventTypeTwo = SupportEventTypeFactory.createBeanType(SupportBeanSimple.class);

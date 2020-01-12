@@ -44,7 +44,7 @@ public class StatementAgentInstanceFactoryCreateSchema implements StatementAgent
     }
 
     public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        return new StatementAgentInstanceFactoryCreateSchemaResult(viewable, AgentInstanceStopCallbackNoAction.INSTANCE, agentInstanceContext);
+        return new StatementAgentInstanceFactoryCreateSchemaResult(viewable, AgentInstanceMgmtCallbackNoAction.INSTANCE, agentInstanceContext);
     }
 
     public AIRegistryRequirements getRegistryRequirements() {

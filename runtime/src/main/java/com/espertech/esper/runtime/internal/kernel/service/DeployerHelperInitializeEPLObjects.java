@@ -12,6 +12,7 @@ package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.compile.ContextCollector;
@@ -35,8 +36,15 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
+import com.espertech.esper.runtime.client.EPDeployPreconditionException;
+import com.espertech.esper.runtime.client.EPStageService;
+import com.espertech.esper.runtime.client.util.EPObjectType;
+import com.espertech.esper.runtime.internal.kernel.stage.EPStageImpl;
+import com.espertech.esper.runtime.internal.kernel.stage.EPStageServiceSPI;
+import com.espertech.esper.runtime.internal.kernel.stage.StageSpecificServices;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class DeployerHelperInitializeEPLObjects {
     public static DeployerModuleEPLObjects initializeEPLObjects(ModuleProviderCLPair provider, String deploymentId, EPServicesContext services) {
@@ -118,5 +126,43 @@ public class DeployerHelperInitializeEPLObjects {
         }
 
         return new DeployerModuleEPLObjects(beanEventTypeFactory, moduleEventTypes, moduleNamedWindows, moduleTables, moduleIndexes, moduleContexts, moduleVariables, moduleExpressions, moduleScripts, eventTypeCollector.getSerdes(), eventTypeResolver);
+    }
+
+    public static void validateStagedEPLObjects(DeployerModuleEPLObjects moduleEPLObjects, String moduleName, int rolloutItemNumber, EPStageService stageService) throws EPDeployPreconditionException {
+        EPStageServiceSPI spi = (EPStageServiceSPI) stageService;
+        if (spi.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, ContextMetaData> context : moduleEPLObjects.getModuleContexts().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.CONTEXT, svc -> svc.getContextPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        }
+        for (Map.Entry<String, NamedWindowMetaData> context : moduleEPLObjects.getModuleNamedWindows().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.NAMEDWINDOW, svc -> svc.getNamedWindowPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        }
+        for (Map.Entry<String, VariableMetaData> context : moduleEPLObjects.getModuleVariables().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.VARIABLE, svc -> svc.getVariablePathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        }
+        for (Map.Entry<String, EventType> context : moduleEPLObjects.getModuleEventTypes().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.EVENTTYPE, svc -> svc.getEventTypePathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        }
+        for (Map.Entry<String, TableMetaData> context : moduleEPLObjects.getModuleTables().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.TABLE, svc -> svc.getTablePathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        }
+        for (Map.Entry<String, ExpressionDeclItem> context : moduleEPLObjects.getModuleExpressions().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.EXPRESSION, svc -> svc.getExprDeclaredPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        }
+        for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> context : moduleEPLObjects.getModuleScripts().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.SCRIPT, svc -> svc.getScriptPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        }
+    }
+
+    private static <K, E> void checkAlreadyDefinedByStage(EPStageServiceSPI spi, EPObjectType objectType, Function<StageSpecificServices, PathRegistry<K, E>> registryFunc, K objectKey, String moduleName, int rolloutItemNumber)
+        throws EPDeployPreconditionException {
+        for (Map.Entry<String, EPStageImpl> entry : spi.getStages().entrySet()) {
+            PathRegistry<K, E> registry = registryFunc.apply(entry.getValue().getStageSpecificServices());
+            if (registry.getWithModule(objectKey, moduleName) != null) {
+                throw new EPDeployPreconditionException(objectType.getPrettyName() + " by name '" + objectKey + "' is already defined by stage '" + entry.getKey() + "'", rolloutItemNumber);
+            }
+        }
     }
 }

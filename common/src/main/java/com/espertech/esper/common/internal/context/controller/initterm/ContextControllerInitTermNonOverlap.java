@@ -16,10 +16,7 @@ import com.espertech.esper.common.internal.context.controller.condition.*;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.util.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.espertech.esper.common.internal.context.controller.initterm.ContextControllerInitTermUtil.determineCurrentlyRunning;
 

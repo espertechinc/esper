@@ -32,6 +32,10 @@ public class PathModuleEntry<E> {
         modules.put(moduleName, new PathDeploymentEntry<>(deploymentId, entity));
     }
 
+    public void add(String moduleName, PathDeploymentEntry<E> entity) {
+        modules.put(moduleName, entity);
+    }
+
     public Pair<E, String> getAnyModuleExpectSingle(String entityName, PathRegistryObjectType objectType, Set<String> moduleNames) throws PathException {
         if (modules.isEmpty()) {
             return null;
@@ -71,6 +75,10 @@ public class PathModuleEntry<E> {
     public E getWithModule(String moduleName) {
         PathDeploymentEntry<E> entry = modules.get(moduleName);
         return entry == null ? null : entry.getEntity();
+    }
+
+    public PathDeploymentEntry<E> getEntryWithModule(String moduleName) {
+        return modules.get(moduleName);
     }
 
     public boolean deleteDeployment(String deploymentId) {

@@ -11,7 +11,8 @@
 package com.espertech.esper.runtime.internal.kernel.thread;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
+import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapped;
+import com.espertech.esper.runtime.internal.kernel.service.EPServicesEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,8 @@ public class InboundUnitSendAvro implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendAvro.class);
     private final Object genericRecordDotData;
     private final String eventTypeName;
-    private final EPEventServiceImpl runtime;
+    private final EPRuntimeEventProcessWrapped runtime;
+    private final EPServicesEvaluation services;
 
     /**
      * Ctor.
@@ -31,18 +33,19 @@ public class InboundUnitSendAvro implements InboundUnitRunnable {
      * @param eventTypeName        type name
      * @param runtime              to process
      */
-    public InboundUnitSendAvro(Object genericRecordDotData, String eventTypeName, EPEventServiceImpl runtime) {
+    public InboundUnitSendAvro(Object genericRecordDotData, String eventTypeName, EPRuntimeEventProcessWrapped runtime, EPServicesEvaluation services) {
         this.eventTypeName = eventTypeName;
         this.genericRecordDotData = genericRecordDotData;
         this.runtime = runtime;
+        this.services = services;
     }
 
     public void run() {
         try {
-            EventBean eventBean = runtime.getServices().getEventTypeResolvingBeanFactory().adapterForAvro(genericRecordDotData, eventTypeName);
+            EventBean eventBean = services.getEventTypeResolvingBeanFactory().adapterForAvro(genericRecordDotData, eventTypeName);
             runtime.processWrappedEvent(eventBean);
         } catch (RuntimeException e) {
-            runtime.getServices().getExceptionHandlingService().handleInboundPoolException(runtime.getRuntimeURI(), e, genericRecordDotData);
+            services.getExceptionHandlingService().handleInboundPoolException(runtime.getURI(), e, genericRecordDotData);
             log.error("Unexpected error processing Object-array event: " + e.getMessage(), e);
         }
     }

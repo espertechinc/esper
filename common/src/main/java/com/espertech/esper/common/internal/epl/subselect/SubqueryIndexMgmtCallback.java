@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.subselect;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 
@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.epl.index.base.EventTable;
  * Implements a stop callback for use with subqueries to clear their indexes
  * when a statement is stopped.
  */
-public class SubqueryIndexStopCallback implements AgentInstanceStopCallback {
+public class SubqueryIndexMgmtCallback implements AgentInstanceMgmtCallback {
     private final EventTable[] eventIndex;
 
     /**
@@ -26,7 +26,7 @@ public class SubqueryIndexStopCallback implements AgentInstanceStopCallback {
      *
      * @param eventIndex index to clear
      */
-    public SubqueryIndexStopCallback(EventTable[] eventIndex) {
+    public SubqueryIndexMgmtCallback(EventTable[] eventIndex) {
         this.eventIndex = eventIndex;
     }
 

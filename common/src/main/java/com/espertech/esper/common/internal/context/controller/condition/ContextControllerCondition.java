@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.context.controller.condition;
 
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
+
 public interface ContextControllerCondition {
     boolean isImmediate();
 
     Long getExpectedEndTime();
 
     ContextConditionDescriptor getDescriptor();
+
+    void transfer(AgentInstanceTransferServices xfer);
 }

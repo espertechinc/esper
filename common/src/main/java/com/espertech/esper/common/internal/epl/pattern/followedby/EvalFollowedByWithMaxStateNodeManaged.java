@@ -215,4 +215,5 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
     public final String toString() {
         return "EvalFollowedByStateNode nodes=" + nodes.size();
     }
+
 }

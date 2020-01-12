@@ -16,10 +16,8 @@ import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.context.controller.core.ContextController;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerUtil;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.epl.pattern.core.EvalRootNode;
-import com.espertech.esper.common.internal.epl.pattern.core.EvalRootState;
-import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
-import com.espertech.esper.common.internal.epl.pattern.core.PatternMatchCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
+import com.espertech.esper.common.internal.epl.pattern.core.*;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMapImpl;
@@ -141,5 +139,9 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         public boolean isInvoked() {
             return isInvoked;
         }
+    }
+
+    public void transfer(AgentInstanceTransferServices xfer) {
+        patternStopCallback.accept(new EvalStateNodeVisitorStageTransfer(xfer));
     }
 }

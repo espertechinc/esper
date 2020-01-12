@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.view.intersect;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.view.core.*;
@@ -36,7 +36,7 @@ import java.util.List;
  * - the single batch-view has its newData posted to child views, and removed from all non-batch views
  * - all oldData events received from all non-batch views are removed from each view
  */
-public class IntersectBatchView extends ViewSupport implements LastPostObserver, AgentInstanceStopCallback, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer {
+public class IntersectBatchView extends ViewSupport implements LastPostObserver, AgentInstanceMgmtCallback, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer {
     protected final AgentInstanceContext agentInstanceContext;
     protected final IntersectViewFactory factory;
     protected final View[] views;
@@ -200,8 +200,8 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
 
     public void stop(AgentInstanceStopServices services) {
         for (View view : views) {
-            if (view instanceof AgentInstanceStopCallback) {
-                ((AgentInstanceStopCallback) view).stop(services);
+            if (view instanceof AgentInstanceMgmtCallback) {
+                ((AgentInstanceMgmtCallback) view).stop(services);
             }
         }
     }

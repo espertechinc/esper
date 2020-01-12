@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class GroupByViewReclaimAged extends ViewSupport implements GroupByView, AgentInstanceStopCallback {
+public class GroupByViewReclaimAged extends ViewSupport implements GroupByView, AgentInstanceMgmtCallback {
     private final GroupByViewFactory groupByViewFactory;
     private final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final MergeView mergeView;

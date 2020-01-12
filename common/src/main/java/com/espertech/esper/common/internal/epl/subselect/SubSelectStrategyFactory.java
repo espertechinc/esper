@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.lookup.LookupStrategyDesc;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public interface SubSelectStrategyFactory {
     void ready(SubSelectStrategyFactoryContext subselectFactoryContext, EventType eventType);
 
-    SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient);
+    SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient);
 
     LookupStrategyDesc getLookupStrategyDesc();
 }

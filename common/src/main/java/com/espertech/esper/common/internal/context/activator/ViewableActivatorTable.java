@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.context.activator;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
@@ -37,6 +37,6 @@ public class ViewableActivatorTable implements ViewableActivator {
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
         TableInstance state = table.getTableInstance(agentInstanceContext.getAgentInstanceId());
-        return new ViewableActivationResult(new TableStateViewableInternal(state, filterEval), AgentInstanceStopCallback.INSTANCE_NO_ACTION, null, false, false, null, null);
+        return new ViewableActivationResult(new TableStateViewableInternal(state, filterEval), AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null);
     }
 }

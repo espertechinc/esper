@@ -42,7 +42,7 @@ public class StatementAgentInstanceFactoryCreateExpression implements StatementA
     }
 
     public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        return new StatementAgentInstanceFactoryCreateExpressionResult(viewable, AgentInstanceStopCallbackNoAction.INSTANCE, agentInstanceContext);
+        return new StatementAgentInstanceFactoryCreateExpressionResult(viewable, AgentInstanceMgmtCallbackNoAction.INSTANCE, agentInstanceContext);
     }
 
     public AIRegistryRequirements getRegistryRequirements() {

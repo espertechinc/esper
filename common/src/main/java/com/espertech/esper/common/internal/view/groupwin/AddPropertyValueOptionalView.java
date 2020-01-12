@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * This view simply adds a property to the events posted to it. This is useful for the group-merge views.
  */
-public final class AddPropertyValueOptionalView extends ViewSupport implements AgentInstanceStopCallback {
+public final class AddPropertyValueOptionalView extends ViewSupport implements AgentInstanceMgmtCallback {
     private final GroupByViewFactory groupByViewFactory;
     private final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final Object propertyValues;

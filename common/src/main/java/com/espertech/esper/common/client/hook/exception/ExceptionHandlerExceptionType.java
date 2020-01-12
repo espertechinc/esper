@@ -22,5 +22,10 @@ public enum ExceptionHandlerExceptionType {
     /**
      * Exception occurred upon undeploy
      */
-    UNDEPLOY;
+    UNDEPLOY,
+
+    /**
+     * Staging-related exception.
+     */
+    STAGE;
 }

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ContextControllerKeyedSvcLevelAny implements ContextControllerKeyedSvc {
     private final Map<IntSeqKey, MgmtInfo> mgmt = new HashMap<>();
@@ -71,6 +72,14 @@ public class ContextControllerKeyedSvcLevelAny implements ContextControllerKeyed
         for (Map.Entry<ContextControllerKeyedCompositeKey, ContextControllerKeyedSvcEntry> entry : keys.entrySet()) {
             if (controllerPath.equals(entry.getKey().getPath())) {
                 keyAndSubpathOrCPId.accept(entry.getKey().getKey(), entry.getValue().getSubpathOrCPId());
+            }
+        }
+    }
+
+    public void keyVisitEntry(IntSeqKey controllerPath, Consumer<ContextControllerKeyedSvcEntry> consumer) {
+        for (Map.Entry<ContextControllerKeyedCompositeKey, ContextControllerKeyedSvcEntry> entry : keys.entrySet()) {
+            if (controllerPath.equals(entry.getKey().getPath())) {
+                consumer.accept(entry.getValue());
             }
         }
     }

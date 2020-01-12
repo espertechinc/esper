@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.createdataflow;
 
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 import java.util.Collections;
@@ -20,7 +20,7 @@ import java.util.Collections;
 public class StatementAgentInstanceFactoryCreateDataflowResult extends StatementAgentInstanceFactoryResult {
     private final DataflowDesc dataflow;
 
-    public StatementAgentInstanceFactoryCreateDataflowResult(Viewable finalView, AgentInstanceStopCallback stopCallback, AgentInstanceContext agentInstanceContext, DataflowDesc dataflow) {
+    public StatementAgentInstanceFactoryCreateDataflowResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, DataflowDesc dataflow) {
         super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, null, Collections.emptyList());
         this.dataflow = dataflow;
     }

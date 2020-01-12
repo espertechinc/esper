@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.context.aifactory.select;
 import com.espertech.esper.common.internal.context.activator.ViewableActivationResult;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstancePreload;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.prior.PriorEvalStrategy;
@@ -39,7 +39,7 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
     private final ResultSetProcessor resultSetProcessor;
 
     public StatementAgentInstanceFactorySelectResult(Viewable finalView,
-                                                     AgentInstanceStopCallback stopCallback,
+                                                     AgentInstanceMgmtCallback stopCallback,
                                                      AgentInstanceContext agentInstanceContext,
                                                      AggregationService optionalAggegationService,
                                                      Map<Integer, SubSelectFactoryResult> subselectStrategies,

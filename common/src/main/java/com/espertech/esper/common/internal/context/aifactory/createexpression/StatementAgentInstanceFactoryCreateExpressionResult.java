@@ -12,13 +12,13 @@ package com.espertech.esper.common.internal.context.aifactory.createexpression;
 
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 import java.util.Collections;
 
 public class StatementAgentInstanceFactoryCreateExpressionResult extends StatementAgentInstanceFactoryResult {
-    public StatementAgentInstanceFactoryCreateExpressionResult(Viewable finalView, AgentInstanceStopCallback stopCallback, AgentInstanceContext agentInstanceContext) {
+    public StatementAgentInstanceFactoryCreateExpressionResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext) {
         super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, Collections.emptyMap(), Collections.emptyList());
     }
 }

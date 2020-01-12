@@ -40,7 +40,7 @@ public class StatementAgentInstanceFactoryOnTriggerSplitStream extends Statement
         this.statementContext = statementContext;
     }
 
-    public InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbacks, boolean isRecoveringReslient) {
+    public InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbacks, boolean isRecoveringReslient) {
         ResultSetProcessor[] processors = new ResultSetProcessor[items.length];
         for (int i = 0; i < processors.length; i++) {
             ResultSetProcessorFactoryProvider factory = items[i].getRspFactoryProvider();

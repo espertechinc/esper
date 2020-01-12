@@ -20,39 +20,29 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimePluginLoader;
 import com.espertech.esper.common.client.context.EPContextPartitionService;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowService;
-import com.espertech.esper.common.client.meta.EventTypeApplicationType;
-import com.espertech.esper.common.client.meta.EventTypeIdPair;
-import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.metric.EPMetricsService;
 import com.espertech.esper.common.client.render.EPRenderEventService;
-import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
-import com.espertech.esper.common.client.util.PropertyResolutionStyle;
 import com.espertech.esper.common.client.variable.EPVariableService;
 import com.espertech.esper.common.internal.epl.util.EPCompilerPathableImpl;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableDeployment;
 import com.espertech.esper.common.internal.epl.variable.core.VariableRepositoryPreconfigured;
-import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
-import com.espertech.esper.common.internal.event.bean.core.BeanEventTypeStemService;
-import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
-import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
-import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryRuntime;
-import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.common.internal.util.TransientConfigurationResolver;
-import com.espertech.esper.common.internal.util.UuidGenerator;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.option.*;
 import com.espertech.esper.runtime.client.plugin.PluginLoader;
 import com.espertech.esper.runtime.client.plugin.PluginLoaderInitContext;
 import com.espertech.esper.runtime.client.util.RuntimeVersion;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.DeploymentRecoveryEntry;
+import com.espertech.esper.runtime.internal.kernel.stage.EPStageServiceImpl;
+import com.espertech.esper.runtime.internal.kernel.stage.EPStageServiceSPI;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementListenerSet;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 import com.espertech.esper.runtime.internal.kernel.thread.ThreadingService;
@@ -159,6 +149,13 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         return runtimeEnvironment.getDeploymentService();
     }
 
+    public EPStageService getStageService() throws EPRuntimeDestroyedException {
+        if (runtimeEnvironment == null) {
+            throw new EPRuntimeDestroyedException(runtimeURI);
+        }
+        return runtimeEnvironment.getStageService();
+    }
+
     public EPServicesContext getServicesContext() {
         if (runtimeEnvironment == null) {
             throw new EPRuntimeDestroyedException(runtimeURI);
@@ -191,6 +188,11 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
                 destroyEngineMetrics(runtimeEnvironment.getServices().getRuntimeURI());
             }
 
+            if (serviceStatusProvider != null) {
+                serviceStatusProvider.set(false);
+            }
+            runtimeEnvironment.getStageService().destroy();
+
             // assign null value
             EPRuntimeEnv runtimeToDestroy = runtimeEnvironment;
             runtimeToDestroy.getServices().getTimerService().stopInternalClock(false);
@@ -217,6 +219,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
             // assign null - making EPRuntime and EPAdministrator unobtainable
             runtimeEnvironment = null;
+            runtimeToDestroy.getStageService().clear();
 
             runtimeToDestroy.getRuntime().destroy();
             runtimeToDestroy.getDeploymentService().destroy();
@@ -323,7 +326,6 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         // new runtime
         EPEventServiceImpl eventService = epServicesContextFactory.createEPRuntime(services, serviceStatusProvider);
 
-
         eventService.setInternalEventRouter(services.getInternalEventRouter());
         services.setInternalEventRouteDest(eventService);
 
@@ -342,15 +344,28 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         EPVariableService variableService = new EPVariableServiceImpl(services);
         EPMetricsService metricsService = new EPMetricsServiceImpl(services);
         EPFireAndForgetService fireAndForgetService = new EPFireAndForgetServiceImpl(services, serviceStatusProvider);
+        EPStageServiceSPI stageService = new EPStageServiceImpl(services, serviceStatusProvider);
 
         // Build runtime environment
-        runtimeEnvironment = new EPRuntimeEnv(services, eventService, deploymentService, eventTypeService, contextPartitionService, variableService, metricsService, fireAndForgetService);
+        runtimeEnvironment = new EPRuntimeEnv(services, eventService, deploymentService, eventTypeService, contextPartitionService, variableService, metricsService, fireAndForgetService, stageService);
+
+        // Stage Recovery
+        Iterator<Map.Entry<String, Integer>> stageIterator = services.getStageRecoveryService().stagesIterate();
+        while (stageIterator.hasNext()) {
+            Map.Entry<String, Integer> entry = stageIterator.next();
+            Long currentTimeStage = services.getEpServicesHA().getCurrentTimeStageAsRecovered() == null ? null : services.getEpServicesHA().getCurrentTimeStageAsRecovered().get(entry.getValue());
+            if (currentTimeStage == null) {
+                currentTimeStage = services.getSchedulingService().getTime();
+            }
+            stageService.recoverStage(entry.getKey(), entry.getValue(), currentTimeStage);
+        }
 
         // Deployment Recovery
         Iterator<Map.Entry<String, DeploymentRecoveryEntry>> deploymentIterator = services.getDeploymentRecoveryService().deployments();
         Set<EventType> protectedVisibleTypes = new LinkedHashSet<>();
         while (deploymentIterator.hasNext()) {
             Map.Entry<String, DeploymentRecoveryEntry> entry = deploymentIterator.next();
+            String deploymentId = entry.getKey();
 
             StatementUserObjectRuntimeOption userObjectResolver = new StatementUserObjectRuntimeOption() {
                 public Object getUserObject(StatementUserObjectRuntimeContext env) {
@@ -384,7 +399,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
             DeploymentInternal deployerResult;
             try {
-                deployerResult = Deployer.deployRecover(entry.getKey(), entry.getValue().getStatementIdFirstStatement(), entry.getValue().getCompiled(), statementNameResolver, userObjectResolver, substitutionParameterResolver, null, this);
+                deployerResult = Deployer.deployRecover(deploymentId, entry.getValue().getStatementIdFirstStatement(), entry.getValue().getCompiled(), statementNameResolver, userObjectResolver, substitutionParameterResolver, null, this);
             } catch (EPDeployException ex) {
                 throw new EPException(ex.getMessage(), ex);
             }
@@ -394,6 +409,12 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
                     eventType.getMetadata().getTypeClass() == EventTypeTypeClass.STREAM) {
                     protectedVisibleTypes.add(eventType);
                 }
+            }
+
+            // handle staged deployments
+            String stageUri = services.getStageRecoveryService().deploymentGetStage(deploymentId);
+            if (stageUri != null) {
+                stageService.recoverDeployment(stageUri, deployerResult);
             }
         }
 
@@ -418,6 +439,9 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         // Schedule service init
         services.getSchedulingService().init();
 
+        // Stage services init
+        stageService.recoveredStageInitialize(availableTypes);
+
         // Start clocking
         if (configLastProvided.getRuntime().getThreading().isInternalTimerEnabled()) {
             services.getTimerService().startInternalClock();
@@ -428,7 +452,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
         // Initialize extension services
         if (services.getRuntimeExtensionServices() != null) {
-            ((RuntimeExtensionServicesSPI) services.getRuntimeExtensionServices()).init(services, eventService, deploymentService);
+            ((RuntimeExtensionServicesSPI) services.getRuntimeExtensionServices()).init(services, eventService, deploymentService, stageService);
         }
 
         // Start metrics reporting, if any
@@ -724,13 +748,5 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
             compileReflective = new EPRuntimeCompileReflectiveSPI(new EPRuntimeCompileReflectiveService(), this);
         }
         return compileReflective;
-    }
-
-    public BeanEventType makeBeanAnonymousType(Class clazz) {
-        BeanEventTypeStemService stemSvc = new BeanEventTypeStemService(Collections.emptyMap(), null, PropertyResolutionStyle.CASE_SENSITIVE, AccessorStyle.JAVABEAN);
-        BeanEventTypeFactoryPrivate factoryPrivate = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(null), EventTypeFactoryImpl.INSTANCE, stemSvc);
-        EventTypeMetadata metadata = new EventTypeMetadata(UuidGenerator.generate(), null, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
-        BeanEventTypeStem stem = stemSvc.getCreateStem(clazz, null);
-        return new BeanEventType(stem, metadata, factoryPrivate, null, null, null, null);
     }
 }

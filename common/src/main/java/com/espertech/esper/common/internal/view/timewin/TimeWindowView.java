@@ -14,10 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.TimeWindow;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
-import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
+import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
 import com.espertech.esper.common.internal.schedule.ScheduleObjectType;
@@ -37,7 +34,7 @@ import java.util.Iterator;
  * as the system-time-based timeWindow moves on. However child views receive updates containing new data
  * as soon as the new data arrives.
  */
-public class TimeWindowView extends ViewSupport implements DataWindowView, AgentInstanceStopCallback {
+public class TimeWindowView extends ViewSupport implements DataWindowView, AgentInstanceMgmtCallback {
     private final TimeWindowViewFactory timeWindowViewFactory;
     private final TimeWindow timeWindow;
     private final ViewUpdatedCollection viewUpdatedCollection;
@@ -145,14 +142,20 @@ public class TimeWindowView extends ViewSupport implements DataWindowView, Agent
     }
 
     private void scheduleExpiryCallback() {
-        // If we still have events in the window, schedule new callback
-        if (timeWindow.isEmpty()) {
+        long scheduleTime = computeScheduleTime();
+        if (scheduleTime == -1) {
             return;
+        }
+        scheduleCallback(scheduleTime);
+    }
+
+    private long computeScheduleTime() {
+        if (timeWindow.isEmpty()) {
+            return -1;
         }
         Long oldestTimestamp = timeWindow.getOldestTimestamp();
         long currentTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        long scheduleTime = timePeriodProvide.deltaAdd(oldestTimestamp, null, true, agentInstanceContext) + oldestTimestamp - currentTimestamp;
-        scheduleCallback(scheduleTime);
+        return timePeriodProvide.deltaAdd(oldestTimestamp, null, true, agentInstanceContext) + oldestTimestamp - currentTimestamp;
     }
 
     private void scheduleCallback(long timeAfterCurrentTime) {
@@ -182,6 +185,10 @@ public class TimeWindowView extends ViewSupport implements DataWindowView, Agent
             agentInstanceContext.getAuditProvider().scheduleRemove(agentInstanceContext, handle, ScheduleObjectType.view, timeWindowViewFactory.getViewName());
             agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
         }
+    }
+
+    public void transfer(AgentInstanceTransferServices services) {
+        // no action
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {

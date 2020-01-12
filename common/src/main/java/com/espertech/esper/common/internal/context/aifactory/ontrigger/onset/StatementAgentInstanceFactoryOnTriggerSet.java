@@ -41,7 +41,7 @@ public class StatementAgentInstanceFactoryOnTriggerSet extends StatementAgentIns
         return variableReadWrite;
     }
 
-    public InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbacks, boolean isRecoveringReslient) {
+    public InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbacks, boolean isRecoveringReslient) {
         OnSetVariableView view = new OnSetVariableView(this, agentInstanceContext);
         return new InfraOnExprBaseViewResult(view, null);
     }

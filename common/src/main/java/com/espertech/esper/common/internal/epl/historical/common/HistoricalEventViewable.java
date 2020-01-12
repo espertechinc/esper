@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.common;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.historical.datacache.HistoricalDataCache;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategy;
@@ -22,7 +22,7 @@ import com.espertech.esper.common.internal.view.core.Viewable;
 /**
  * Interface for views that poll data based on information from other streams.
  */
-public interface HistoricalEventViewable extends Viewable, AgentInstanceStopCallback {
+public interface HistoricalEventViewable extends Viewable, AgentInstanceMgmtCallback {
 
     public EventType getEventType();
 

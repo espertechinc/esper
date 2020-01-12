@@ -65,6 +65,9 @@ public interface EPDeploymentService {
 
     /**
      * Undeploy all deployments and with the default options.
+     * <p>
+     *     Does not un-deploy staged deployments.
+     * </p>
      *
      * @throws EPUndeployException when the undeployment failed, of the deployments may remain deployed
      */

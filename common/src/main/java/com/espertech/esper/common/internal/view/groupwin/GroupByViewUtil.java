@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.groupwin;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.common.internal.view.core.View;
@@ -49,8 +49,8 @@ public class GroupByViewUtil {
 
     public static void removeSubview(View view, AgentInstanceStopServices services) {
         view.setParent(null);
-        if (view instanceof AgentInstanceStopCallback) {
-            ((AgentInstanceStopCallback) view).stop(services);
+        if (view instanceof AgentInstanceMgmtCallback) {
+            ((AgentInstanceMgmtCallback) view).stop(services);
         }
         recursiveChildRemove(view, services);
     }
@@ -64,8 +64,8 @@ public class GroupByViewUtil {
             MergeView mergeView = (MergeView) child;
             mergeView.removeParentView(view);
         } else {
-            if (child instanceof AgentInstanceStopCallback) {
-                ((AgentInstanceStopCallback) child).stop(services);
+            if (child instanceof AgentInstanceMgmtCallback) {
+                ((AgentInstanceMgmtCallback) child).stop(services);
             }
             recursiveChildRemove(child, services);
         }

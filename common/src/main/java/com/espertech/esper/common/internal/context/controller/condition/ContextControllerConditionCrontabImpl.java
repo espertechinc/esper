@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.controller.core.ContextController;
 import com.espertech.esper.common.internal.context.controller.initterm.ContextControllerInitTermUtil;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
 import com.espertech.esper.common.internal.schedule.ScheduleObjectType;
@@ -91,5 +92,9 @@ public class ContextControllerConditionCrontabImpl implements ContextControllerC
 
     public ScheduleSpec[] getSchedules() {
         return scheduleSpecs;
+    }
+
+    public void transfer(AgentInstanceTransferServices xfer) {
+        // no action
     }
 }

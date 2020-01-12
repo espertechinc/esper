@@ -100,6 +100,14 @@ public interface EPRuntime {
     EPDeploymentService getDeploymentService() throws EPRuntimeDestroyedException;
 
     /**
+     * Returns the stage service, for managing stages
+     *
+     * @return stage service
+     * @throws EPRuntimeDestroyedException thrown when the runtime has been destroyed
+     */
+    EPStageService getStageService() throws EPRuntimeDestroyedException;
+
+    /**
      * Returns true if the runtime is in destroyed state, or false if not.
      *
      * @return indicator whether the runtime has been destroyed

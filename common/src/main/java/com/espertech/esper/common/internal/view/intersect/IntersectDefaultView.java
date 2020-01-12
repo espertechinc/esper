@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.view.intersect;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.view.core.*;
 
@@ -27,7 +27,7 @@ import java.util.List;
  * view retains all events that is in all of the data windows at the same time (an intersection)
  * and removes all events that leave any of the data windows.
  */
-public class IntersectDefaultView extends ViewSupport implements LastPostObserver, AgentInstanceStopCallback, DataWindowView, ViewDataVisitableContainer, IntersectViewMarker {
+public class IntersectDefaultView extends ViewSupport implements LastPostObserver, AgentInstanceMgmtCallback, DataWindowView, ViewDataVisitableContainer, IntersectViewMarker {
     protected final AgentInstanceContext agentInstanceContext;
     protected final IntersectViewFactory factory;
     protected final View[] views;
@@ -173,8 +173,8 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
 
     public void stop(AgentInstanceStopServices services) {
         for (View view : views) {
-            if (view instanceof AgentInstanceStopCallback) {
-                ((AgentInstanceStopCallback) view).stop(services);
+            if (view instanceof AgentInstanceMgmtCallback) {
+                ((AgentInstanceMgmtCallback) view).stop(services);
             }
         }
     }

@@ -8,31 +8,15 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.runtime.internal.schedulesvcimpl;
+package com.espertech.esper.common.internal.context.util;
 
-import java.util.List;
+public class AgentInstanceMgmtCallbackNoAction implements AgentInstanceMgmtCallback {
+    public final static AgentInstanceMgmtCallbackNoAction INSTANCE = new AgentInstanceMgmtCallbackNoAction();
 
-/**
- * Set of schedules.
- */
-public class ScheduleSet {
-    private List<ScheduleSetEntry> list;
-
-    /**
-     * Ctor.
-     *
-     * @param list schedules
-     */
-    public ScheduleSet(List<ScheduleSetEntry> list) {
-        this.list = list;
+    private AgentInstanceMgmtCallbackNoAction() {
     }
 
-    /**
-     * Return schedules.
-     *
-     * @return schedules
-     */
-    public List<ScheduleSetEntry> getList() {
-        return list;
+    public void stop(AgentInstanceStopServices services) {
+        // no action
     }
 }

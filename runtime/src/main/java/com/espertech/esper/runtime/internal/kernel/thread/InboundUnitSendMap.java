@@ -11,7 +11,8 @@
 package com.espertech.esper.runtime.internal.kernel.thread;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
+import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapped;
+import com.espertech.esper.runtime.internal.kernel.service.EPServicesEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,27 +25,22 @@ public class InboundUnitSendMap implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendMap.class);
     private final Map map;
     private final String eventTypeName;
-    private final EPEventServiceImpl runtime;
+    private final EPRuntimeEventProcessWrapped runtime;
+    private final EPServicesEvaluation services;
 
-    /**
-     * Ctor.
-     *
-     * @param map           to send
-     * @param eventTypeName type name
-     * @param runtime       to process
-     */
-    public InboundUnitSendMap(Map map, String eventTypeName, EPEventServiceImpl runtime) {
-        this.eventTypeName = eventTypeName;
+    public InboundUnitSendMap(Map map, String eventTypeName, EPRuntimeEventProcessWrapped runtime, EPServicesEvaluation services) {
         this.map = map;
+        this.eventTypeName = eventTypeName;
         this.runtime = runtime;
+        this.services = services;
     }
 
     public void run() {
         try {
-            EventBean eventBean = runtime.getServices().getEventTypeResolvingBeanFactory().adapterForMap(map, eventTypeName);
+            EventBean eventBean = services.getEventTypeResolvingBeanFactory().adapterForMap(map, eventTypeName);
             runtime.processWrappedEvent(eventBean);
         } catch (RuntimeException e) {
-            runtime.getServices().getExceptionHandlingService().handleInboundPoolException(runtime.getRuntimeURI(), e, map);
+            services.getExceptionHandlingService().handleInboundPoolException(runtime.getURI(), e, map);
             log.error("Unexpected error processing Map event: " + e.getMessage(), e);
         }
     }

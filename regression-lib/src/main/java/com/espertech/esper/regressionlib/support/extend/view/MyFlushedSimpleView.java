@@ -12,7 +12,7 @@ package com.espertech.esper.regressionlib.support.extend.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.common.internal.view.core.ViewSupport;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class MyFlushedSimpleView extends ViewSupport implements AgentInstanceStopCallback {
+public class MyFlushedSimpleView extends ViewSupport implements AgentInstanceMgmtCallback {
     private List<EventBean> events;
     private EventType eventType;
 

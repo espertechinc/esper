@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.StatementAgent
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirementSubquery;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirements;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceUtil;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
@@ -42,7 +42,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
     private Map<Integer, SubSelectFactory> subselects;
     private Map<Integer, ExprTableEvalStrategyFactory> tableAccesses;
 
-    public abstract InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbacks, boolean isRecoveringReslient);
+    public abstract InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbacks, boolean isRecoveringReslient);
 
     public abstract View determineFinalOutputView(AgentInstanceContext agentInstanceContext, View onExprView);
 
@@ -73,7 +73,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
     }
 
     public StatementAgentInstanceFactoryOnTriggerResult newContext(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        List<AgentInstanceStopCallback> stopCallbacks = new ArrayList<>();
+        List<AgentInstanceMgmtCallback> stopCallbacks = new ArrayList<>();
 
         View view;
         Map<Integer, SubSelectFactoryResult> subselectActivations;
@@ -102,12 +102,12 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
             // start table-access
             tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContext);
         } catch (RuntimeException ex) {
-            AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+            AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
             AgentInstanceUtil.stopSafe(stopCallback, agentInstanceContext);
             throw new EPException(ex.getMessage(), ex);
         }
 
-        AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+        AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
         return new StatementAgentInstanceFactoryOnTriggerResult(view, stopCallback, agentInstanceContext, aggregationService,
                 subselectActivations, null, null, null, tableAccessEvals, null, optPatternRoot, activationResult);
     }

@@ -17,12 +17,10 @@ public class StatementResourceService {
 
     private StatementResourceHolder resourcesUnpartitioned;
     private Map<Integer, StatementResourceHolder> resourcesPartitioned;
-    // private Map<ContextStatePathKey, EvalRootState> contextStartEndpoints;
-    // private Map<ContextStatePathKey, EvalRootState> contextEndEndpoints;
 
     public StatementResourceService(boolean partitioned) {
         if (partitioned) {
-            resourcesPartitioned = new HashMap<Integer, StatementResourceHolder>();
+            resourcesPartitioned = new HashMap<>();
         }
     }
 
@@ -33,24 +31,6 @@ public class StatementResourceService {
     public Map<Integer, StatementResourceHolder> getResourcesPartitioned() {
         return resourcesPartitioned;
     }
-
-    /*
-    public Map<ContextStatePathKey, EvalRootState> getContextEndEndpoints() {
-        return contextEndEndpoints;
-    }
-
-    public Map<ContextStatePathKey, EvalRootState> getContextStartEndpoints() {
-        return contextStartEndpoints;
-    }
-
-    public void startContextPattern(EvalRootState patternStopCallback, boolean startEndpoint, ContextStatePathKey path) {
-        this.addContextPattern(patternStopCallback, startEndpoint, path);
-    }
-
-    public void stopContextPattern(boolean startEndpoint, ContextStatePathKey path) {
-        this.removeContextPattern(startEndpoint, path);
-    }
-    */
 
     public StatementResourceHolder getPartitioned(int agentInstanceId) {
         return resourcesPartitioned.get(agentInstanceId);
@@ -77,32 +57,4 @@ public class StatementResourceService {
         resourcesUnpartitioned = null;
         return unpartitioned;
     }
-
-    /*
-    private void removeContextPattern(boolean startEndpoint, ContextStatePathKey path) {
-        if (startEndpoint) {
-            if (contextStartEndpoints != null) {
-                contextStartEndpoints.remove(path);
-            }
-        } else {
-            if (contextEndEndpoints != null) {
-                contextEndEndpoints.remove(path);
-            }
-        }
-    }
-
-    private void addContextPattern(EvalRootState rootState, boolean startEndpoint, ContextStatePathKey path) {
-        if (startEndpoint) {
-            if (contextStartEndpoints == null) {
-                contextStartEndpoints = new HashMap<ContextStatePathKey, EvalRootState>();
-            }
-            contextStartEndpoints.put(path, rootState);
-        } else {
-            if (contextEndEndpoints == null) {
-                contextEndEndpoints = new HashMap<ContextStatePathKey, EvalRootState>();
-            }
-            contextEndEndpoints.put(path, rootState);
-        }
-    }
-    */
 }

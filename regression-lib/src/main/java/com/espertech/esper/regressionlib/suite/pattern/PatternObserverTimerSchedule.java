@@ -131,7 +131,7 @@ public class PatternObserverTimerSchedule {
              * For Testing, could also use this:
              */
         /*
-        env.advanceTime(DateTime.parseDefaultMSecWZone("2001-10-01T05:51:00.000GMT-0:00")));
+        env.advanceTimeStage(DateTime.parseDefaultMSecWZone("2001-10-01T05:51:00.000GMT-0:00")));
         runtime.getDeploymentService().createEPL("select * from pattern[timer:schedule('2008-03-01T13:00:00Z/P1Y2M10DT2H30M')]").addListener(listener);
 
         long next = runtime.getRuntime().getNextScheduledTime();

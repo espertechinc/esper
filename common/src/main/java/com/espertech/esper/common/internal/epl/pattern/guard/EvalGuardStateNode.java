@@ -182,4 +182,5 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
 
         agentInstanceContext.getInstrumentationProvider().aPatternGuardGuardQuit();
     }
+
 }

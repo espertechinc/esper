@@ -18,27 +18,14 @@ import java.util.Set;
  * Service provider interface for scheduling service.
  */
 public interface SchedulingServiceSPI extends SchedulingService {
-    /**
-     * Take a statement's schedules out of the currently active set of schedules.
-     *
-     * @param statementId statements to take out
-     * @return schedules
-     */
-    public ScheduleSet take(Set<Integer> statementId);
+    Long getNearestTimeHandle();
 
-    /**
-     * Apply the set of schedules.
-     *
-     * @param scheduleSet to apply
-     */
-    public void apply(ScheduleSet scheduleSet);
-
-    public Long getNearestTimeHandle();
-
-    public void visitSchedules(ScheduleVisitor visitor);
+    void visitSchedules(ScheduleVisitor visitor);
 
     /**
      * Initialization is optional and provides a chance to preload things after statements are available.
      */
-    public void init();
+    void init();
+
+    void transfer(Set<Integer> statementIds, SchedulingServiceSPI schedulingService);
 }

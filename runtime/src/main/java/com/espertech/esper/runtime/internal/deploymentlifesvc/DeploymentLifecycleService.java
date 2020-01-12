@@ -23,7 +23,7 @@ public interface DeploymentLifecycleService {
 
     String[] getDeploymentIds();
 
-    DeploymentInternal undeploy(String deploymentId);
+    DeploymentInternal removeDeployment(String deploymentId);
 
     DeploymentInternal getDeploymentByCRC(long deploymentId);
 

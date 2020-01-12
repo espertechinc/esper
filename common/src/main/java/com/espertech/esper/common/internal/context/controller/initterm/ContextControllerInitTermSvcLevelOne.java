@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.controller.initterm;
 
 import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.collection.IntSeqKeyOne;
+import com.espertech.esper.common.internal.context.controller.condition.ContextControllerCondition;
 import com.espertech.esper.common.internal.context.controller.condition.ContextControllerConditionNonHA;
 
 import java.util.*;
@@ -53,6 +54,10 @@ public class ContextControllerInitTermSvcLevelOne implements ContextControllerIn
         return currentSubpath++;
     }
 
+    public ContextControllerCondition mgmtGetStartCondition(IntSeqKey conditionPath) {
+        return startCondition;
+    }
+
     public void endCreate(IntSeqKey endConditionPath, int subpathIdOrCPId, ContextControllerConditionNonHA endCondition, ContextControllerInitTermPartitionKey partitionKey) {
         endConditions.put(((IntSeqKeyOne) endConditionPath).getOne(), new ContextControllerInitTermSvcEntry(subpathIdOrCPId, endCondition, partitionKey));
     }
@@ -70,6 +75,12 @@ public class ContextControllerInitTermSvcLevelOne implements ContextControllerIn
     public void endVisit(IntSeqKey controllerPath, BiConsumer<ContextControllerInitTermPartitionKey, Integer> partKeyAndCPId) {
         for (Map.Entry<Integer, ContextControllerInitTermSvcEntry> entry : endConditions.entrySet()) {
             partKeyAndCPId.accept(entry.getValue().getPartitionKey(), entry.getValue().getSubpathIdOrCPId());
+        }
+    }
+
+    public void endVisitConditions(IntSeqKey controllerPath, BiConsumer<ContextControllerConditionNonHA, Integer> partKeyAndCPId) {
+        for (Map.Entry<Integer, ContextControllerInitTermSvcEntry> entry : endConditions.entrySet()) {
+            partKeyAndCPId.accept(entry.getValue().getTerminationCondition(), entry.getValue().getSubpathIdOrCPId());
         }
     }
 

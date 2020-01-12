@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.controller.core.ContextController;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerUtil;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceUtil;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackFilter;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
@@ -55,9 +56,8 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
             }
         };
 
-        FilterValueSetParam[][] addendum = ContextManagerUtil.computeAddendumNonStmt(partitionKeys, filter.getFilterSpecActivatable(), controller.getRealization());
+        FilterValueSetParam[][] filterValueSet = computeFilterValues(agentInstanceContext);
         filterHandle = new EPStatementHandleCallbackFilter(agentInstanceContext.getEpStatementAgentInstanceHandle(), filterCallback);
-        FilterValueSetParam[][] filterValueSet = filter.getFilterSpecActivatable().getValueSet(null, addendum, agentInstanceContext, agentInstanceContext.getStatementContextFilterEvalEnv());
         agentInstanceContext.getFilterService().add(filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet, filterHandle);
         long filtersVersion = agentInstanceContext.getFilterService().getFiltersVersion();
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
@@ -74,12 +74,16 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
             return;
         }
         AgentInstanceContext agentInstanceContext = controller.getRealization().getAgentInstanceContextCreate();
-        FilterValueSetParam[][] addendum = ContextManagerUtil.computeAddendumNonStmt(partitionKeys, filter.getFilterSpecActivatable(), controller.getRealization());
-        FilterValueSetParam[][] filterValueSet = filter.getFilterSpecActivatable().getValueSet(null, addendum, agentInstanceContext, agentInstanceContext.getStatementContextFilterEvalEnv());
+        FilterValueSetParam[][] filterValueSet = computeFilterValues(agentInstanceContext);
         agentInstanceContext.getFilterService().remove(filterHandle, filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet);
         filterHandle = null;
         long filtersVersion = agentInstanceContext.getStatementContext().getFilterService().getFiltersVersion();
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+    }
+
+    private FilterValueSetParam[][] computeFilterValues(AgentInstanceContext agentInstanceContext) {
+        FilterValueSetParam[][] addendum = ContextManagerUtil.computeAddendumNonStmt(partitionKeys, filter.getFilterSpecActivatable(), controller.getRealization());
+        return filter.getFilterSpecActivatable().getValueSet(null, addendum, agentInstanceContext, agentInstanceContext.getStatementContextFilterEvalEnv());
     }
 
     public boolean isImmediate() {
@@ -96,6 +100,15 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
 
     public Long getExpectedEndTime() {
         return null;
+    }
+
+    public void transfer(AgentInstanceTransferServices xfer) {
+        if (filterHandle == null) {
+            return;
+        }
+        FilterValueSetParam[][] filterValueSet = computeFilterValues(xfer.getAgentInstanceContext());
+        xfer.getAgentInstanceContext().getFilterService().remove(filterHandle, filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet);
+        xfer.getTargetFilterService().add(filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet, filterHandle);
     }
 
     private void filterMatchFound(EventBean theEvent) {

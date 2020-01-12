@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.pattern.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 import java.util.Set;
@@ -65,6 +66,10 @@ public abstract class EvalStateNode {
      * @param matchEvent set of events to check for
      */
     public abstract void removeMatch(Set<EventBean> matchEvent);
+
+    public void transfer(AgentInstanceTransferServices services) {
+        // no action is the default
+    }
 
     /**
      * Constructor.

@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.view.time_accum;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
@@ -31,7 +31,7 @@ import java.util.Set;
  * by keeping set-like semantics. See {@link TimeAccumView} for the same behavior without
  * remove stream handling.
  */
-public class TimeAccumViewRStream extends ViewSupport implements DataWindowView, AgentInstanceStopCallback {
+public class TimeAccumViewRStream extends ViewSupport implements DataWindowView, AgentInstanceMgmtCallback {
     private final TimeAccumViewFactory factory;
     private final AgentInstanceContext agentInstanceContext;
     private final long scheduleSlot;

@@ -15,10 +15,7 @@ import com.espertech.esper.common.internal.context.module.ModuleDependenciesRunt
 import com.espertech.esper.common.internal.context.module.ModuleProviderCLPair;
 import com.espertech.esper.common.internal.context.module.ModuleProviderUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
-import com.espertech.esper.runtime.client.EPDeployException;
-import com.espertech.esper.runtime.client.EPDeployPreconditionException;
-import com.espertech.esper.runtime.client.EPDeploymentRolloutCompiled;
-import com.espertech.esper.runtime.client.EPStatement;
+import com.espertech.esper.runtime.client.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,6 +25,7 @@ import static com.espertech.esper.runtime.internal.kernel.service.Deployer.addPa
 import static com.espertech.esper.runtime.internal.kernel.service.Deployer.getRecoveryInformation;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperInitStatement.initializeStatements;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperInitializeEPLObjects.initializeEPLObjects;
+import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperInitializeEPLObjects.validateStagedEPLObjects;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperResolver.resolveDependencies;
 import static com.espertech.esper.runtime.internal.kernel.service.DeployerHelperUpdatePath.updatePath;
 
@@ -60,7 +58,7 @@ public class DeployerRollout {
         DeployerRolloutInitResult[] inits = new DeployerRolloutInitResult[items.length];
         for (int i = 0; i < items.length; i++) {
             try {
-                inits[i] = resolveDependenciesInitEPLObjects(i, deploymentIds[i], moduleProviders[i], runtime.getServicesContext());
+                inits[i] = resolveDependenciesInitEPLObjects(i, deploymentIds[i], moduleProviders[i], runtime.getServicesContext(), runtime.getStageService());
             } catch (EPDeployException ex) {
                 rolloutCleanPathAndTypes(inits, deploymentIds, runtime.getServicesContext());
                 throw ex;
@@ -163,12 +161,15 @@ public class DeployerRollout {
         rolloutCleanLightweights(stmtLightweights, inits, deploymentIds, moduleProviders, services);
     }
 
-    private static DeployerRolloutInitResult resolveDependenciesInitEPLObjects(int rolloutItemNumber, String deploymentId, ModuleProviderCLPair moduleProvider, EPServicesContext services) throws EPDeployPreconditionException, PathException {
+    private static DeployerRolloutInitResult resolveDependenciesInitEPLObjects(int rolloutItemNumber, String deploymentId, ModuleProviderCLPair moduleProvider, EPServicesContext services, EPStageService stageService) throws EPDeployPreconditionException, PathException {
         ModuleDependenciesRuntime moduleDependencies = moduleProvider.getModuleProvider().getModuleDependencies();
         Set<String> deploymentIdDependencies = resolveDependencies(rolloutItemNumber, moduleDependencies, services);
 
         // initialize EPL objects defined by module
         DeployerModuleEPLObjects moduleEPLObjects = initializeEPLObjects(moduleProvider, deploymentId, services);
+
+        // determine staged EPL object overlap
+        validateStagedEPLObjects(moduleEPLObjects, moduleProvider.getModuleProvider().getModuleName(), rolloutItemNumber, stageService);
 
         // add EPL objects defined by module to path
         String moduleName = moduleProvider.getModuleProvider().getModuleName();

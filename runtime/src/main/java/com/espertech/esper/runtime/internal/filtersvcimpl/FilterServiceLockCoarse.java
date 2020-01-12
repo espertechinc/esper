@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public final class FilterServiceLockCoarse extends FilterServiceBase {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public FilterServiceLockCoarse(boolean allowIsolation) {
-        super(FilterServiceGranularLockFactoryNone.INSTANCE, allowIsolation);
+    public FilterServiceLockCoarse(int stageId) {
+        super(FilterServiceGranularLockFactoryNone.INSTANCE, stageId);
     }
 
     public void acquireWriteLock() {

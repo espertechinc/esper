@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
@@ -25,7 +25,7 @@ import com.espertech.esper.common.internal.view.core.*;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-public class FirstTimeView extends ViewSupport implements DataWindowView, AgentInstanceStopCallback {
+public class FirstTimeView extends ViewSupport implements DataWindowView, AgentInstanceMgmtCallback {
     private final FirstTimeViewFactory factory;
     private final AgentInstanceContext agentInstanceContext;
     private EPStatementHandleCallbackSchedule handle;

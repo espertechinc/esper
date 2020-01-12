@@ -110,25 +110,12 @@ public class ClientRuntimeRuntimeProvider {
             assertTrue(runtimeOne.isDestroyed());
             assertFalse(runtimeTwo.isDestroyed());
 
+            EPStageService stageTwo = runtimeTwo.getStageService();
             runtimeTwo.destroy();
             EPAssertionUtil.assertNotContains(EPRuntimeProvider.getRuntimeURIs(), uriOne, uriTwo);
             assertNull(EPRuntimeProvider.getExistingRuntime(uriTwo));
             assertTrue(runtimeOne.isDestroyed());
             assertTrue(runtimeTwo.isDestroyed());
-
-            try {
-                runtimeTwo.getEventService();
-                fail();
-            } catch (EPRuntimeDestroyedException ex) {
-                // expected
-            }
-
-            try {
-                runtimeTwo.getDeploymentService();
-                fail();
-            } catch (EPRuntimeDestroyedException ex) {
-                // expected
-            }
 
             try {
                 adminOne.rollout(Collections.singletonList(new EPDeploymentRolloutCompiled(compiled)));
@@ -148,6 +135,13 @@ public class ClientRuntimeRuntimeProvider {
                 // expected
             }
             EPAssertionUtil.assertNotContains(EPRuntimeProvider.getRuntimeURIs(), uriTwo);
+
+            tryAssertDestroyed(runtimeTwo::getEventService);
+            tryAssertDestroyed(runtimeTwo::getDeploymentService);
+            tryAssertDestroyed(runtimeTwo::getStageService);
+            tryAssertDestroyed(() -> stageTwo.getStage("x"));
+            tryAssertDestroyed(() -> stageTwo.getExistingStage("x"));
+            tryAssertDestroyed(() -> stageTwo.getStageURIs());
         }
     }
 
@@ -173,6 +167,15 @@ public class ClientRuntimeRuntimeProvider {
                 SupportMessageAssertUtil.assertMessage(ex, "Internal timer requires millisecond time resolution");
             }
             runtime.destroy();
+        }
+    }
+
+    private static void tryAssertDestroyed(Runnable r) {
+        try {
+            r.run();
+            fail();
+        } catch (EPRuntimeDestroyedException ex) {
+            // expected
         }
     }
 }

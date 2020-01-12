@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
@@ -66,7 +66,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
         // no action
     }
 
-    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
+    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
 
         AggregationService aggregationService = null;
@@ -74,7 +74,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
             aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, agentInstanceContext.getClasspathImportServiceRuntime(), true, subqueryNumber, null);
 
             final AggregationService aggregationServiceStoppable = aggregationService;
-            stopCallbackList.add(new AgentInstanceStopCallback() {
+            stopCallbackList.add(new AgentInstanceMgmtCallback() {
                 public void stop(AgentInstanceStopServices services) {
                     aggregationServiceStoppable.stop();
                 }

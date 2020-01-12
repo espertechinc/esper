@@ -160,8 +160,12 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
     }
 
     public void destroy() {
-        schedule.clear();
-        metricsExecutor.destroy();
+        if (schedule != null) {
+            schedule.clear();
+        }
+        if (metricsExecutor != null) {
+            metricsExecutor.destroy();
+        }
     }
 
     public void route(MetricEvent metricEvent) {

@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.view.timetolive;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
@@ -43,7 +43,7 @@ import java.util.TreeMap;
  * The view accepts 2 parameters. The first parameter is the field name to get the event timestamp value from,
  * the second parameter defines the interval size.
  */
-public class TimeOrderView extends ViewSupport implements DataWindowView, AgentInstanceStopCallback {
+public class TimeOrderView extends ViewSupport implements DataWindowView, AgentInstanceMgmtCallback {
     private final AgentInstanceContext agentInstanceContext;
     private final TimeOrderViewFactory factory;
     private final IStreamSortRankRandomAccess optionalSortedRandomAccess;

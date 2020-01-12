@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSkipEnum;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
@@ -36,7 +36,7 @@ import java.util.*;
 /**
  * View for match recognize support.
  */
-public class RowRecogNFAView extends ViewSupport implements AgentInstanceStopCallback, RowRecogNFAViewService, RowRecogNFAViewScheduleCallback {
+public class RowRecogNFAView extends ViewSupport implements AgentInstanceMgmtCallback, RowRecogNFAViewService, RowRecogNFAViewScheduleCallback {
     private static final Logger log = LoggerFactory.getLogger(RowRecogNFAView.class);
     private static final boolean IS_DEBUG = false;
 

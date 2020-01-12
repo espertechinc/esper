@@ -10,21 +10,21 @@
  */
 package com.espertech.esper.common.internal.context.activator;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalRootMatchRemover;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalRootState;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 public class ViewableActivationResult {
     private final Viewable viewable;
-    private final AgentInstanceStopCallback stopCallback;
+    private final AgentInstanceMgmtCallback stopCallback;
     private final EvalRootMatchRemover optEvalRootMatchRemover;
     private final boolean suppressSameEventMatches;
     private final boolean discardPartialsOnMatch;
     private final EvalRootState optionalPatternRoot;
     private final ViewableActivationResultExtension viewableActivationResultExtension;
 
-    public ViewableActivationResult(Viewable viewable, AgentInstanceStopCallback stopCallback, EvalRootMatchRemover optEvalRootMatchRemover, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, EvalRootState optionalPatternRoot, ViewableActivationResultExtension viewableActivationResultExtension) {
+    public ViewableActivationResult(Viewable viewable, AgentInstanceMgmtCallback stopCallback, EvalRootMatchRemover optEvalRootMatchRemover, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, EvalRootState optionalPatternRoot, ViewableActivationResultExtension viewableActivationResultExtension) {
         this.viewable = viewable;
         this.stopCallback = stopCallback;
         this.optEvalRootMatchRemover = optEvalRootMatchRemover;
@@ -38,7 +38,7 @@ public class ViewableActivationResult {
         return viewable;
     }
 
-    public AgentInstanceStopCallback getStopCallback() {
+    public AgentInstanceMgmtCallback getStopCallback() {
         return stopCallback;
     }
 

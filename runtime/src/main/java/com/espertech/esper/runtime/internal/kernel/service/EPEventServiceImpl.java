@@ -69,13 +69,16 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.espertech.esper.runtime.internal.kernel.service.EPEventServiceHelper.processStatementScheduleMultiple;
+import static com.espertech.esper.runtime.internal.kernel.service.EPEventServiceHelper.processStatementScheduleSingle;
+
 /**
  * Implements runtime interface. Also accepts timer callbacks for synchronizing time events with regular events
  * sent in.
  */
 public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRouteDest, TimerCallback, EPRuntimeEventProcessWrapped {
     protected static final Logger log = LoggerFactory.getLogger(EPEventServiceImpl.class);
-    private static final int MAX_FILTER_FAULT_COUNT = 10;
+    public static final int MAX_FILTER_FAULT_COUNT = 10;
 
     protected EPServicesContext services;
     private boolean inboundThreading;
@@ -179,7 +182,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
 
         initThreadLocals();
 
-        services.getThreadingService().initThreading(services, this);
+        services.getThreadingService().initThreading(getRuntimeURI(), services);
     }
 
     public EPServicesContext getServices() {
@@ -225,7 +228,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
 
         if (inboundThreading) {
-            services.getThreadingService().submitInbound(new InboundUnitSendAvro(avroGenericDataDotRecord, avroEventTypeName, this));
+            services.getThreadingService().submitInbound(new InboundUnitSendAvro(avroGenericDataDotRecord, avroEventTypeName, this, services));
         } else {
             EventBean eventBean = wrapEventAvro(avroGenericDataDotRecord, avroEventTypeName);
             processWrappedEvent(eventBean);
@@ -242,7 +245,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
 
         if (inboundThreading) {
-            services.getThreadingService().submitInbound(new InboundUnitSendJson(json, jsonEventTypeName, this));
+            services.getThreadingService().submitInbound(new InboundUnitSendJson(json, jsonEventTypeName, this, services));
         } else {
             EventBean eventBean = wrapEventJson(json, jsonEventTypeName);
             processWrappedEvent(eventBean);
@@ -260,7 +263,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
 
         if (inboundThreading) {
-            services.getThreadingService().submitInbound(new InboundUnitSendEvent(theEvent, eventTypeName, this));
+            services.getThreadingService().submitInbound(new InboundUnitSendEvent(theEvent, eventTypeName, this, services));
         } else {
             EventBean eventBean = services.getEventTypeResolvingBeanFactory().adapterForBean(theEvent, eventTypeName);
             processWrappedEvent(eventBean);
@@ -352,7 +355,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
 
         // Process event
         if (inboundThreading) {
-            services.getThreadingService().submitInbound(new InboundUnitSendDOM(node, eventTypeName, this));
+            services.getThreadingService().submitInbound(new InboundUnitSendDOM(node, eventTypeName, this, services));
         } else {
             EventBean eventBean = wrapEventBeanXMLDOM(node, eventTypeName);
             processWrappedEvent(eventBean);
@@ -369,7 +372,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
 
         if (inboundThreading) {
-            services.getThreadingService().submitInbound(new InboundUnitSendObjectArray(propertyValues, eventTypeName, this));
+            services.getThreadingService().submitInbound(new InboundUnitSendObjectArray(propertyValues, eventTypeName, this, services));
         } else {
             EventBean eventBean = wrapEventObjectArray(propertyValues, eventTypeName);
             processWrappedEvent(eventBean);
@@ -386,7 +389,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
 
         if (inboundThreading) {
-            services.getThreadingService().submitInbound(new InboundUnitSendMap(map, mapEventTypeName, this));
+            services.getThreadingService().submitInbound(new InboundUnitSendMap(map, mapEventTypeName, this, services));
         } else {
             EventBean eventBean = wrapEventMap(map, mapEventTypeName);
             processWrappedEvent(eventBean);
@@ -711,53 +714,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
         stmtCallbacks.clear();
     }
-
-    /**
-     * Processing multiple schedule matches for a statement.
-     *
-     * @param handle         statement handle
-     * @param callbackObject object containing matches
-     * @param services       runtime services
-     */
-    public static void processStatementScheduleMultiple(EPStatementAgentInstanceHandle handle, Object callbackObject, EPServicesContext services) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qTimeCP(handle, services.getSchedulingService().getTime());
-        }
-
-        handle.getStatementAgentInstanceLock().acquireWriteLock();
-        try {
-            if (!handle.isDestroyed()) {
-                if (handle.isHasVariables()) {
-                    services.getVariableManagementService().setLocalVersion();
-                }
-
-                if (callbackObject instanceof ArrayDeque) {
-                    ArrayDeque<ScheduleHandleCallback> callbackList = (ArrayDeque<ScheduleHandleCallback>) callbackObject;
-                    for (ScheduleHandleCallback callback : callbackList) {
-                        callback.scheduledTrigger();
-                    }
-                } else {
-                    ScheduleHandleCallback callback = (ScheduleHandleCallback) callbackObject;
-                    callback.scheduledTrigger();
-                }
-
-                // internal join processing, if applicable
-                handle.internalDispatch();
-            }
-        } catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, null);
-        } finally {
-            if (handle.isHasTableAccess()) {
-                services.getTableExprEvaluatorContext().releaseAcquiredLocks();
-            }
-            handle.getStatementAgentInstanceLock().releaseWriteLock();
-
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aTimeCP();
-            }
-        }
-    }
-
+    
     /**
      * Processing multiple filter matches for a statement.
      *
@@ -1146,43 +1103,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
             }
         }
     }
-
-    /**
-     * Processing single schedule matche for a statement.
-     *
-     * @param handle   statement handle
-     * @param services runtime services
-     */
-    public static void processStatementScheduleSingle(EPStatementHandleCallbackSchedule handle, EPServicesContext services) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qTimeCP(handle.getAgentInstanceHandle(), services.getSchedulingService().getTime());
-        }
-
-        StatementAgentInstanceLock statementLock = handle.getAgentInstanceHandle().getStatementAgentInstanceLock();
-        statementLock.acquireWriteLock();
-        try {
-            if (!handle.getAgentInstanceHandle().isDestroyed()) {
-                if (handle.getAgentInstanceHandle().isHasVariables()) {
-                    services.getVariableManagementService().setLocalVersion();
-                }
-
-                handle.getScheduleCallback().scheduledTrigger();
-                handle.getAgentInstanceHandle().internalDispatch();
-            }
-        } catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle.getAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS, null);
-        } finally {
-            if (handle.getAgentInstanceHandle().isHasTableAccess()) {
-                services.getTableExprEvaluatorContext().releaseAcquiredLocks();
-            }
-            handle.getAgentInstanceHandle().getStatementAgentInstanceLock().releaseWriteLock();
-
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aTimeCP();
-            }
-        }
-    }
-
+    
     private EventBean wrapEventMap(Map<String, Object> map, String eventTypeName) {
         return services.getEventTypeResolvingBeanFactory().adapterForMap(map, eventTypeName);
     }
@@ -1249,6 +1170,10 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
         EventBean theEvent = services.getEventTypeResolvingBeanFactory().adapterForJson(json, eventTypeName);
         routeEventInternal(theEvent);
+    }
+
+    public String getURI() {
+        return getRuntimeURI();
     }
 
     public EventSender getEventSender(String eventTypeName) throws EventTypeException {

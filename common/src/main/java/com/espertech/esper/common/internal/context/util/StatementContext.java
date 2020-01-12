@@ -96,8 +96,11 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
     private List<StatementFinalizeCallback> finalizeCallbacks;
     private StatementDestroyCallback destroyCallback;
     private AgentInstanceScriptContext defaultAgentInstanceScriptContext;
+    private FilterService filterService;
+    private SchedulingService schedulingService;
+    private InternalEventRouteDest internalEventRouteDest;
 
-    public StatementContext(ContextRuntimeDescriptor contextRuntimeDescriptor, String deploymentId, int statementId, String statementName, String moduleName, StatementInformationalsRuntime statementInformationals, Object userObjectRuntime, StatementContextRuntimeServices statementContextRuntimeServices, EPStatementHandle epStatementHandle, Map<Integer, FilterSpecActivatable> filterSpecActivatables, PatternSubexpressionPoolStmtSvc patternSubexpressionPoolSvc, RowRecogStatePoolStmtSvc rowRecogStatePoolStmtSvc, ScheduleBucket scheduleBucket, StatementAIResourceRegistry statementAIResourceRegistry, StatementCPCacheService statementCPCacheService, StatementAIFactoryProvider statementAIFactoryProvider, StatementResultService statementResultService, UpdateDispatchView updateDispatchView) {
+    public StatementContext(ContextRuntimeDescriptor contextRuntimeDescriptor, String deploymentId, int statementId, String statementName, String moduleName, StatementInformationalsRuntime statementInformationals, Object userObjectRuntime, StatementContextRuntimeServices statementContextRuntimeServices, EPStatementHandle epStatementHandle, Map<Integer, FilterSpecActivatable> filterSpecActivatables, PatternSubexpressionPoolStmtSvc patternSubexpressionPoolSvc, RowRecogStatePoolStmtSvc rowRecogStatePoolStmtSvc, ScheduleBucket scheduleBucket, StatementAIResourceRegistry statementAIResourceRegistry, StatementCPCacheService statementCPCacheService, StatementAIFactoryProvider statementAIFactoryProvider, StatementResultService statementResultService, UpdateDispatchView updateDispatchView, FilterService filterService, SchedulingService schedulingService, InternalEventRouteDest internalEventRouteDest) {
         this.contextRuntimeDescriptor = contextRuntimeDescriptor;
         this.deploymentId = deploymentId;
         this.statementId = statementId;
@@ -117,6 +120,9 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
         this.statementResultService = statementResultService;
         this.updateDispatchView = updateDispatchView;
         this.statementContextFilterEvalEnv = new StatementContextFilterEvalEnv(statementContextRuntimeServices.getClasspathImportServiceRuntime(), statementInformationals.getAnnotations(), statementContextRuntimeServices.getVariableManagementService(), statementContextRuntimeServices.getTableExprEvaluatorContext());
+        this.filterService = filterService;
+        this.schedulingService = schedulingService;
+        this.internalEventRouteDest = internalEventRouteDest;
     }
 
     public Annotation[] getAnnotations() {
@@ -180,7 +186,7 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
     }
 
     public FilterService getFilterService() {
-        return statementContextRuntimeServices.getFilterService();
+        return filterService;
     }
 
     public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
@@ -204,7 +210,7 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
     }
 
     public InternalEventRouteDest getInternalEventRouteDest() {
-        return statementContextRuntimeServices.getInternalEventRouteDest();
+        return internalEventRouteDest;
     }
 
     public NamedWindowConsumerManagementService getNamedWindowConsumerManagementService() {
@@ -236,7 +242,7 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
     }
 
     public SchedulingService getSchedulingService() {
-        return statementContextRuntimeServices.getSchedulingService();
+        return schedulingService;
     }
 
     public String getStatementName() {
@@ -272,7 +278,7 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
     }
 
     public TimeProvider getTimeProvider() {
-        return statementContextRuntimeServices.getTimeProvider();
+        return schedulingService;
     }
 
     public Object getUserObjectCompileTime() {
@@ -461,5 +467,17 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
 
     public EventTableFactoryFactoryContext getEventTableFactoryContext() {
         return this;
+    }
+
+    public void setFilterService(FilterService filterService) {
+        this.filterService = filterService;
+    }
+
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
+    public void setInternalEventRouteDest(InternalEventRouteDest internalEventRouteDest) {
+        this.internalEventRouteDest = internalEventRouteDest;
     }
 }

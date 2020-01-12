@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.view.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class ViewFactoryUtil {
         return viewName + " view requires a positive integer for size but received " + size;
     }
 
-    public static ViewablePair materialize(ViewFactory[] factories, Viewable eventStreamParent, AgentInstanceViewFactoryChainContext viewFactoryChainContext, List<AgentInstanceStopCallback> stopCallbacks) {
+    public static ViewablePair materialize(ViewFactory[] factories, Viewable eventStreamParent, AgentInstanceViewFactoryChainContext viewFactoryChainContext, List<AgentInstanceMgmtCallback> stopCallbacks) {
         if (factories.length == 0) {
             return new ViewablePair(eventStreamParent, eventStreamParent);
         }
@@ -45,8 +45,8 @@ public class ViewFactoryUtil {
 
         for (ViewFactory viewFactory : factories) {
             View view = viewFactory.makeView(viewFactoryChainContext);
-            if (view instanceof AgentInstanceStopCallback) {
-                stopCallbacks.add((AgentInstanceStopCallback) view);
+            if (view instanceof AgentInstanceMgmtCallback) {
+                stopCallbacks.add((AgentInstanceMgmtCallback) view);
             }
             current.setChild(view);
             view.setParent(current);

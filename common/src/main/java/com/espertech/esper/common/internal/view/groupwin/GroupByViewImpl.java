@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
@@ -41,7 +41,7 @@ import java.util.*;
  * view unto each leaf child view that merges the value key that was grouped by back into the stream
  * using the group-by field name.
  */
-public class GroupByViewImpl extends ViewSupport implements GroupByView, AgentInstanceStopCallback {
+public class GroupByViewImpl extends ViewSupport implements GroupByView, AgentInstanceMgmtCallback {
     private final static String VIEWNAME = "groupwin";
 
     private final GroupByViewFactory groupByViewFactory;

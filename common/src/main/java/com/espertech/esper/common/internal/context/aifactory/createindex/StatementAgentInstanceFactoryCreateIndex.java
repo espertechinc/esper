@@ -103,7 +103,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
     }
 
     public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        AgentInstanceStopCallback stopCallback;
+        AgentInstanceMgmtCallback stopCallback;
 
         if (namedWindow != null) {
             // handle named window index
@@ -112,7 +112,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
             if (processorInstance.getRootViewInstance().isVirtualDataWindow()) {
                 final VirtualDWView virtualDWView = processorInstance.getRootViewInstance().getVirtualDataWindow();
                 virtualDWView.handleStartIndex(indexName, explicitIndexDesc);
-                stopCallback = new AgentInstanceStopCallback() {
+                stopCallback = new AgentInstanceMgmtCallback() {
                     public void stop(AgentInstanceStopServices services) {
                         virtualDWView.handleStopIndex(indexName, explicitIndexDesc);
                     }
@@ -124,7 +124,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                     throw new EPException("Failed to create index: " + e.getMessage(), e);
                 }
 
-                stopCallback = new AgentInstanceStopCallback() {
+                stopCallback = new AgentInstanceMgmtCallback() {
                     public void stop(AgentInstanceStopServices services) {
                         NamedWindowInstance instance = namedWindow.getNamedWindowInstance(services.getAgentInstanceContext());
                         if (instance != null) {
@@ -142,7 +142,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                 throw new EPException("Failed to create index: " + ex.getMessage(), ex);
             }
 
-            stopCallback = new AgentInstanceStopCallback() {
+            stopCallback = new AgentInstanceMgmtCallback() {
                 public void stop(AgentInstanceStopServices services) {
                     TableInstance instance = table.getTableInstance(services.getAgentInstanceContext().getAgentInstanceId());
                     if (instance != null) {

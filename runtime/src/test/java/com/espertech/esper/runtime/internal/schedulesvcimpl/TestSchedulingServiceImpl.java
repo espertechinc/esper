@@ -30,7 +30,7 @@ public class TestSchedulingServiceImpl extends TestCase {
     private SupportScheduleCallback callbacks[];
 
     public void setUp() {
-        service = new SchedulingServiceImpl(new TimeSourceServiceImpl());
+        service = new SchedulingServiceImpl(-1, new TimeSourceServiceImpl());
 
         // 2-by-2 table of buckets and slots
         ScheduleBucket[] buckets = new ScheduleBucket[3];
@@ -191,7 +191,7 @@ public class TestSchedulingServiceImpl extends TestCase {
     }
 
     public void testIncorrectRemove() {
-        SchedulingServiceImpl evaluator = new SchedulingServiceImpl(new TimeSourceServiceImpl());
+        SchedulingServiceImpl evaluator = new SchedulingServiceImpl(-1, new TimeSourceServiceImpl());
         SupportScheduleCallback callback = new SupportScheduleCallback();
         evaluator.remove(callback, 0);
     }

@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.subselect;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.context.activator.ViewableActivationResult;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.lookup.LookupStrategyDesc;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategy;
@@ -23,7 +23,7 @@ import java.util.*;
 
 public class SubSelectHelperStart {
 
-    public static Map<Integer, SubSelectFactoryResult> startSubselects(Map<Integer, SubSelectFactory> subselects, AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbacks, boolean isRecoveringResilient) {
+    public static Map<Integer, SubSelectFactoryResult> startSubselects(Map<Integer, SubSelectFactory> subselects, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbacks, boolean isRecoveringResilient) {
         if (subselects == null || subselects.isEmpty()) {
             return Collections.emptyMap();
         }

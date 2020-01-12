@@ -33,11 +33,10 @@ public class EventTypeIndexBuilder {
 
     /**
      * Constructor - takes the event type index to manipulate as its parameter.
+     *  @param eventTypeIndex - index to manipulate
      *
-     * @param eventTypeIndex - index to manipulate
-     * @param allowIsolation - indicator whether isolated service provider is allowed for the runtime
      */
-    public EventTypeIndexBuilder(EventTypeIndex eventTypeIndex, boolean allowIsolation) {
+    public EventTypeIndexBuilder(EventTypeIndex eventTypeIndex) {
         this.eventTypeIndex = eventTypeIndex;
         this.callbacksLock = new ReentrantLock();
     }

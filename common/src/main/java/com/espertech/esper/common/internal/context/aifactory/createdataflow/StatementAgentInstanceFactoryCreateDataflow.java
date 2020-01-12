@@ -54,7 +54,7 @@ public class StatementAgentInstanceFactoryCreateDataflow implements StatementAge
     }
 
     public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        return new StatementAgentInstanceFactoryCreateDataflowResult(viewable, AgentInstanceStopCallbackNoAction.INSTANCE, agentInstanceContext, dataflow);
+        return new StatementAgentInstanceFactoryCreateDataflowResult(viewable, AgentInstanceMgmtCallbackNoAction.INSTANCE, agentInstanceContext, dataflow);
     }
 
     public AIRegistryRequirements getRegistryRequirements() {

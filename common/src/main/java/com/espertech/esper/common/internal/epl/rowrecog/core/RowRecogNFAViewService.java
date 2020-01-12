@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 
 /**
  * Service interface for match recognize.
  */
-public interface RowRecogNFAViewService extends AgentInstanceStopCallback {
+public interface RowRecogNFAViewService extends AgentInstanceMgmtCallback {
 
     RowRecogPreviousStrategy getPreviousEvaluationStrategy();
 

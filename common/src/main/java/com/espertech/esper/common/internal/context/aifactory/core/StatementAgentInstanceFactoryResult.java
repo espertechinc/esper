@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.core;
 
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstancePreload;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.prior.PriorEvalStrategy;
@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class StatementAgentInstanceFactoryResult {
     private final Viewable finalView;
-    private AgentInstanceStopCallback stopCallback;
+    private AgentInstanceMgmtCallback stopCallback;
     private final AgentInstanceContext agentInstanceContext;
     private final AggregationService optionalAggegationService;
     private final Map<Integer, SubSelectFactoryResult> subselectStrategies;
@@ -37,7 +37,7 @@ public class StatementAgentInstanceFactoryResult {
     private final Map<Integer, ExprTableEvalStrategy> tableAccessStrategies;
     private final List<StatementAgentInstancePreload> preloadList;
 
-    protected StatementAgentInstanceFactoryResult(Viewable finalView, AgentInstanceStopCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService optionalAggegationService, Map<Integer, SubSelectFactoryResult> subselectStrategies, PriorEvalStrategy[] priorStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy rowRecogPreviousStrategy, Map<Integer, ExprTableEvalStrategy> tableAccessStrategies, List<StatementAgentInstancePreload> preloadList) {
+    protected StatementAgentInstanceFactoryResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService optionalAggegationService, Map<Integer, SubSelectFactoryResult> subselectStrategies, PriorEvalStrategy[] priorStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy rowRecogPreviousStrategy, Map<Integer, ExprTableEvalStrategy> tableAccessStrategies, List<StatementAgentInstancePreload> preloadList) {
         this.finalView = finalView;
         this.stopCallback = stopCallback;
         this.agentInstanceContext = agentInstanceContext;
@@ -54,7 +54,7 @@ public class StatementAgentInstanceFactoryResult {
         return finalView;
     }
 
-    public AgentInstanceStopCallback getStopCallback() {
+    public AgentInstanceMgmtCallback getStopCallback() {
         return stopCallback;
     }
 
@@ -86,7 +86,7 @@ public class StatementAgentInstanceFactoryResult {
         return rowRecogPreviousStrategy;
     }
 
-    public void setStopCallback(AgentInstanceStopCallback stopCallback) {
+    public void setStopCallback(AgentInstanceMgmtCallback stopCallback) {
         this.stopCallback = stopCallback;
     }
 

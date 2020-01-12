@@ -97,8 +97,8 @@ public class ViewableActivatorFilter implements ViewableActivator {
         }
 
         EPStatementHandleCallbackFilter filterHandle = new EPStatementHandleCallbackFilter(agentInstanceContext.getEpStatementAgentInstanceHandle(), filterCallback);
-        agentInstanceContext.getStatementContext().getStatementContextRuntimeServices().getFilterService().add(filterSpec.getFilterForEventType(), filterValues, filterHandle);
-        ViewableActivatorFilterStopCallback stopCallback = new ViewableActivatorFilterStopCallback(filterHandle, filterSpec);
+        agentInstanceContext.getStatementContext().getFilterService().add(filterSpec.getFilterForEventType(), filterValues, filterHandle);
+        ViewableActivatorFilterMgmtCallback stopCallback = new ViewableActivatorFilterMgmtCallback(filterHandle, filterSpec);
         return new ViewableActivationResult(theStream, stopCallback, null, false, false, null, null);
     }
 }

@@ -13,8 +13,7 @@ package com.espertech.esper.runtime.internal.kernel.thread;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimeThreading;
 import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapped;
-import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
-import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
+import com.espertech.esper.runtime.internal.kernel.service.EPServicesEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ public class ThreadingServiceImpl implements ThreadingService {
     private ThreadPoolExecutor routeThreadPool;
     private ThreadPoolExecutor outboundThreadPool;
 
-    private EPServicesContext servicesContext;
+    private EPServicesEvaluation services;
 
     /**
      * Ctor.
@@ -73,26 +72,26 @@ public class ThreadingServiceImpl implements ThreadingService {
         return isOutboundThreading;
     }
 
-    public void initThreading(EPServicesContext services, EPEventServiceImpl runtime) {
-        this.servicesContext = services;
+    public void initThreading(String uri, EPServicesEvaluation services) {
+        this.services = services;
         if (isInboundThreading) {
             inboundQueue = makeQueue(config.getThreadPoolInboundCapacity());
-            inboundThreadPool = getThreadPool(services.getRuntimeURI(), "Inbound", inboundQueue, config.getThreadPoolInboundNumThreads());
+            inboundThreadPool = getThreadPool(uri, "Inbound", inboundQueue, config.getThreadPoolInboundNumThreads());
         }
 
         if (isTimerThreading) {
             timerQueue = makeQueue(config.getThreadPoolTimerExecCapacity());
-            timerThreadPool = getThreadPool(services.getRuntimeURI(), "TimerExec", timerQueue, config.getThreadPoolTimerExecNumThreads());
+            timerThreadPool = getThreadPool(uri, "TimerExec", timerQueue, config.getThreadPoolTimerExecNumThreads());
         }
 
         if (isRouteThreading) {
             routeQueue = makeQueue(config.getThreadPoolRouteExecCapacity());
-            routeThreadPool = getThreadPool(services.getRuntimeURI(), "RouteExec", routeQueue, config.getThreadPoolRouteExecNumThreads());
+            routeThreadPool = getThreadPool(uri, "RouteExec", routeQueue, config.getThreadPoolRouteExecNumThreads());
         }
 
         if (isOutboundThreading) {
             outboundQueue = makeQueue(config.getThreadPoolOutboundCapacity());
-            outboundThreadPool = getThreadPool(services.getRuntimeURI(), "Outbound", outboundQueue, config.getThreadPoolOutboundNumThreads());
+            outboundThreadPool = getThreadPool(uri, "Outbound", outboundQueue, config.getThreadPoolOutboundNumThreads());
         }
     }
 
@@ -201,7 +200,7 @@ public class ThreadingServiceImpl implements ThreadingService {
     }
 
     public void submitInbound(EventBean event, EPRuntimeEventProcessWrapped runtimeEventSender) {
-        submitInbound(new InboundUnitSendWrapped(event, servicesContext, runtimeEventSender));
+        submitInbound(new InboundUnitSendWrapped(event, runtimeEventSender, services));
     }
 
     private void stopPool(ThreadPoolExecutor threadPool, BlockingQueue<Runnable> queue, String name) {

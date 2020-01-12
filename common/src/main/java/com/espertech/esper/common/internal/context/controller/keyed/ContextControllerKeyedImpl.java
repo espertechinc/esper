@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.mgr.ContextPartitionInstantiationResult;
 import com.espertech.esper.common.internal.context.util.AgentInstance;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceUtil;
 import com.espertech.esper.common.internal.context.util.FilterFaultHandler;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
@@ -213,5 +214,22 @@ public class ContextControllerKeyedImpl extends ContextControllerKeyed {
         public boolean handleFilterFault(EventBean theEvent, long version) {
             return true;
         }
+    }
+
+    public void transfer(IntSeqKey path, boolean transferChildContexts, AgentInstanceTransferServices xfer) {
+        ContextControllerFilterEntry[] filters = keyedSvc.mgmtGetFilters(path);
+        for (int i = 0; i < factory.getKeyedSpec().getItems().length; i++) {
+            ContextControllerDetailKeyedItem item = factory.getKeyedSpec().getItems()[i];
+            filters[i].transfer(item.getFilterSpecActivatable(), xfer);
+        }
+        if (factory.getKeyedSpec().getOptionalTermination() != null) {
+            keyedSvc.keyVisitEntry(path, entry -> entry.getTerminationCondition().transfer(xfer));
+        }
+        if (!transferChildContexts) {
+            return;
+        }
+        keyedSvc.keyVisit(path, (partitionKey, subpathId) -> {
+            realization.transferRecursive(path, subpathId, this, xfer);
+        });
     }
 }

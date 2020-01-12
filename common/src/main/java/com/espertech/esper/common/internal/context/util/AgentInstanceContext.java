@@ -290,13 +290,13 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
         return instrumentationProvider;
     }
 
-    public Collection<AgentInstanceStopCallback> getTerminationCallbackRO() {
+    public Collection<AgentInstanceMgmtCallback> getTerminationCallbackRO() {
         if (terminationCallbacks == null) {
             return Collections.emptyList();
         } else if (terminationCallbacks instanceof Collection) {
-            return (Collection<AgentInstanceStopCallback>) terminationCallbacks;
+            return (Collection<AgentInstanceMgmtCallback>) terminationCallbacks;
         }
-        return Collections.singletonList((AgentInstanceStopCallback) terminationCallbacks);
+        return Collections.singletonList((AgentInstanceMgmtCallback) terminationCallbacks);
     }
 
     /**
@@ -307,25 +307,25 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
      *
      * @param callback to add
      */
-    public void addTerminationCallback(AgentInstanceStopCallback callback) {
+    public void addTerminationCallback(AgentInstanceMgmtCallback callback) {
         if (terminationCallbacks == null) {
             terminationCallbacks = callback;
         } else if (terminationCallbacks instanceof Collection) {
-            ((Collection<AgentInstanceStopCallback>) terminationCallbacks).add(callback);
+            ((Collection<AgentInstanceMgmtCallback>) terminationCallbacks).add(callback);
         } else {
-            AgentInstanceStopCallback cb = (AgentInstanceStopCallback) terminationCallbacks;
-            HashSet<AgentInstanceStopCallback> q = new HashSet<AgentInstanceStopCallback>(2);
+            AgentInstanceMgmtCallback cb = (AgentInstanceMgmtCallback) terminationCallbacks;
+            HashSet<AgentInstanceMgmtCallback> q = new HashSet<AgentInstanceMgmtCallback>(2);
             q.add(cb);
             q.add(callback);
             terminationCallbacks = q;
         }
     }
 
-    public void removeTerminationCallback(AgentInstanceStopCallback callback) {
+    public void removeTerminationCallback(AgentInstanceMgmtCallback callback) {
         if (terminationCallbacks == null) {
             return;
         } else if (terminationCallbacks instanceof Collection) {
-            ((Collection<AgentInstanceStopCallback>) terminationCallbacks).remove(callback);
+            ((Collection<AgentInstanceMgmtCallback>) terminationCallbacks).remove(callback);
         } else if (terminationCallbacks == callback) {
             terminationCallbacks = null;
         }

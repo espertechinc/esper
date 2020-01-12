@@ -8,12 +8,18 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.context.util;
+package com.espertech.esper.runtime.client.stage;
 
-public interface AgentInstanceStopCallback {
-    AgentInstanceStopCallback INSTANCE_NO_ACTION = services -> {
-        // no action
-    };
+/**
+ * Indicated a precondition is violated for a stage or un-stage operation.
+ */
+public class EPStagePreconditionException extends EPStageException {
 
-    void stop(AgentInstanceStopServices services);
+    /**
+     * Ctor.
+     * @param message message
+     */
+    public EPStagePreconditionException(String message) {
+        super(message);
+    }
 }

@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.runtime.internal.kernel.service;
 
+import com.espertech.esper.runtime.internal.kernel.stage.EPStageServiceSPI;
+
 public class RuntimeExtensionServicesNoHA implements RuntimeExtensionServicesSPI {
     public final static RuntimeExtensionServicesNoHA INSTANCE = new RuntimeExtensionServicesNoHA();
 
-    public void init(EPServicesContext servicesContext, EPEventServiceSPI runtimeSPI, EPDeploymentServiceSPI adminSPI) {
+    public void init(EPServicesContext servicesContext, EPEventServiceSPI runtimeSPI, EPDeploymentServiceSPI adminSPI, EPStageServiceSPI stageServiceSPI) {
     }
 
     public void destroy() {

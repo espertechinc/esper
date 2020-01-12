@@ -11,7 +11,8 @@
 package com.espertech.esper.runtime.internal.kernel.thread;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
+import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapped;
+import com.espertech.esper.runtime.internal.kernel.service.EPServicesEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,27 +23,22 @@ public class InboundUnitSendObjectArray implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendObjectArray.class);
     private final Object[] properties;
     private final String eventTypeName;
-    private final EPEventServiceImpl runtime;
+    private final EPRuntimeEventProcessWrapped runtime;
+    private final EPServicesEvaluation services;
 
-    /**
-     * Ctor.
-     *
-     * @param properties    to send
-     * @param eventTypeName type name
-     * @param runtime       to process
-     */
-    public InboundUnitSendObjectArray(Object[] properties, String eventTypeName, EPEventServiceImpl runtime) {
-        this.eventTypeName = eventTypeName;
+    public InboundUnitSendObjectArray(Object[] properties, String eventTypeName, EPRuntimeEventProcessWrapped runtime, EPServicesEvaluation services) {
         this.properties = properties;
+        this.eventTypeName = eventTypeName;
         this.runtime = runtime;
+        this.services = services;
     }
 
     public void run() {
         try {
-            EventBean eventBean = runtime.getServices().getEventTypeResolvingBeanFactory().adapterForObjectArray(properties, eventTypeName);
+            EventBean eventBean = services.getEventTypeResolvingBeanFactory().adapterForObjectArray(properties, eventTypeName);
             runtime.processWrappedEvent(eventBean);
         } catch (RuntimeException e) {
-            runtime.getServices().getExceptionHandlingService().handleInboundPoolException(runtime.getRuntimeURI(), e, properties);
+            services.getExceptionHandlingService().handleInboundPoolException(runtime.getURI(), e, properties);
             log.error("Unexpected error processing Object-array event: " + e.getMessage(), e);
         }
     }

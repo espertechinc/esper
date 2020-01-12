@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.internal.context.controller.core;
 
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackFilter;
+import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 
 public interface ContextControllerFilterEntry {
     EPStatementHandleCallbackFilter getFilterHandle();
+    void transfer(FilterSpecActivatable filterSpecActivatable, AgentInstanceTransferServices xfer);
 }

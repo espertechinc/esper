@@ -14,17 +14,17 @@ import com.espertech.esper.common.internal.view.core.Viewable;
 
 public class AgentInstance {
 
-    private final AgentInstanceStopCallback stopCallback;
+    private final AgentInstanceMgmtCallback stopCallback;
     private final AgentInstanceContext agentInstanceContext;
     private final Viewable finalView;
 
-    public AgentInstance(AgentInstanceStopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView) {
+    public AgentInstance(AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView) {
         this.stopCallback = stopCallback;
         this.agentInstanceContext = agentInstanceContext;
         this.finalView = finalView;
     }
 
-    public AgentInstanceStopCallback getStopCallback() {
+    public AgentInstanceMgmtCallback getStopCallback() {
         return stopCallback;
     }
 

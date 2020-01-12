@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
@@ -35,7 +35,7 @@ import java.util.Iterator;
  * The view is continuous, the insert stream consists of arriving events. The remove stream
  * only posts current window contents when no more events arrive for a given timer interval.
  */
-public class TimeAccumView extends ViewSupport implements DataWindowView, AgentInstanceStopCallback {
+public class TimeAccumView extends ViewSupport implements DataWindowView, AgentInstanceMgmtCallback {
     // View parameters
     private final TimeAccumViewFactory factory;
     private final AgentInstanceContext agentInstanceContext;

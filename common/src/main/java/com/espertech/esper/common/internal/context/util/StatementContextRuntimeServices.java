@@ -41,10 +41,7 @@ import com.espertech.esper.common.internal.event.util.EPRuntimeEventProcessWrapp
 import com.espertech.esper.common.internal.filterspec.FilterBooleanExpressionFactory;
 import com.espertech.esper.common.internal.filterspec.FilterSharedBoolExprRepository;
 import com.espertech.esper.common.internal.filterspec.FilterSharedLookupableRepository;
-import com.espertech.esper.common.internal.filtersvc.FilterService;
 import com.espertech.esper.common.internal.metrics.stmtmetrics.MetricReportingService;
-import com.espertech.esper.common.internal.schedule.SchedulingService;
-import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
@@ -78,13 +75,11 @@ public class StatementContextRuntimeServices {
     private final EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory;
     private final ExceptionHandlingService exceptionHandlingService;
     private final ExpressionResultCacheService expressionResultCacheService;
-    private final FilterService filterService;
     private final FilterBooleanExpressionFactory filterBooleanExpressionFactory;
     private final FilterSharedBoolExprRepository filterSharedBoolExprRepository;
     private final FilterSharedLookupableRepository filterSharedLookupableRepository;
     private final HistoricalDataCacheFactory historicalDataCacheFactory;
     private final InternalEventRouter internalEventRouter;
-    private final InternalEventRouteDest internalEventRouteDest;
     private final MetricReportingService metricReportingService;
     private final NamedWindowConsumerManagementService namedWindowConsumerManagementService;
     private final NamedWindowManagementService namedWindowManagementService;
@@ -92,7 +87,6 @@ public class StatementContextRuntimeServices {
     private final PathRegistry<String, NamedWindowMetaData> pathNamedWindowRegistry;
     private final RowRecogStateRepoFactory rowRecogStateRepoFactory;
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
-    private final SchedulingService schedulingService;
     private final StatementAgentInstanceLockFactory statementAgentInstanceLockFactory;
     private final StatementResourceHolderBuilder statementResourceHolderBuilder;
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
@@ -101,7 +95,7 @@ public class StatementContextRuntimeServices {
     private final ViewFactoryService viewFactoryService;
     private final ViewServicePreviousFactory viewServicePreviousFactory;
 
-    public StatementContextRuntimeServices(ContextManagementService contextManagementService, ContextServiceFactory contextServiceFactory, DatabaseConfigServiceRuntime databaseConfigService, DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter, EPDataFlowServiceImpl dataflowService, String runtimeURI, Context runtimeEnvContext, ClasspathImportServiceRuntime classpathImportServiceRuntime, RuntimeSettingsService runtimeSettingsService, RuntimeExtensionServices runtimeExtensionServices, Object epRuntime, EPRenderEventService epRuntimeRenderEvent, EventServiceSendEventCommon eventServiceSendEventInternal, EPRuntimeEventProcessWrapped epRuntimeEventProcessWrapped, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTableIndexService eventTableIndexService, EventTypeAvroHandler eventTypeAvroHandler, PathRegistry<String, EventType> eventTypePathRegistry, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, FilterService filterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, FilterSharedBoolExprRepository filterSharedBoolExprRepository, FilterSharedLookupableRepository filterSharedLookupableRepository, HistoricalDataCacheFactory historicalDataCacheFactory, InternalEventRouter internalEventRouter, InternalEventRouteDest internalEventRouteDest, MetricReportingService metricReportingService, NamedWindowConsumerManagementService namedWindowConsumerManagementService, NamedWindowManagementService namedWindowManagementService, PathRegistry<String, ContextMetaData> pathContextRegistry, PathRegistry<String, NamedWindowMetaData> pathNamedWindowRegistry, RowRecogStateRepoFactory rowRecogStateRepoFactory, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, SchedulingService schedulingService, StatementAgentInstanceLockFactory statementAgentInstanceLockFactory, StatementResourceHolderBuilder statementResourceHolderBuilder, TableExprEvaluatorContext tableExprEvaluatorContext, TableManagementService tableManagementService, VariableManagementService variableManagementService, ViewFactoryService viewFactoryService, ViewServicePreviousFactory viewServicePreviousFactory) {
+    public StatementContextRuntimeServices(ContextManagementService contextManagementService, ContextServiceFactory contextServiceFactory, DatabaseConfigServiceRuntime databaseConfigService, DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter, EPDataFlowServiceImpl dataflowService, String runtimeURI, Context runtimeEnvContext, ClasspathImportServiceRuntime classpathImportServiceRuntime, RuntimeSettingsService runtimeSettingsService, RuntimeExtensionServices runtimeExtensionServices, Object epRuntime, EPRenderEventService epRuntimeRenderEvent, EventServiceSendEventCommon eventServiceSendEventInternal, EPRuntimeEventProcessWrapped epRuntimeEventProcessWrapped, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTableIndexService eventTableIndexService, EventTypeAvroHandler eventTypeAvroHandler, PathRegistry<String, EventType> eventTypePathRegistry, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, FilterSharedBoolExprRepository filterSharedBoolExprRepository, FilterSharedLookupableRepository filterSharedLookupableRepository, HistoricalDataCacheFactory historicalDataCacheFactory, InternalEventRouter internalEventRouter, MetricReportingService metricReportingService, NamedWindowConsumerManagementService namedWindowConsumerManagementService, NamedWindowManagementService namedWindowManagementService, PathRegistry<String, ContextMetaData> pathContextRegistry, PathRegistry<String, NamedWindowMetaData> pathNamedWindowRegistry, RowRecogStateRepoFactory rowRecogStateRepoFactory, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, StatementAgentInstanceLockFactory statementAgentInstanceLockFactory, StatementResourceHolderBuilder statementResourceHolderBuilder, TableExprEvaluatorContext tableExprEvaluatorContext, TableManagementService tableManagementService, VariableManagementService variableManagementService, ViewFactoryService viewFactoryService, ViewServicePreviousFactory viewServicePreviousFactory) {
         this.contextManagementService = contextManagementService;
         this.contextServiceFactory = contextServiceFactory;
         this.databaseConfigService = databaseConfigService;
@@ -125,13 +119,11 @@ public class StatementContextRuntimeServices {
         this.eventTypeResolvingBeanFactory = eventTypeResolvingBeanFactory;
         this.exceptionHandlingService = exceptionHandlingService;
         this.expressionResultCacheService = expressionResultCacheService;
-        this.filterService = filterService;
         this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
         this.filterSharedBoolExprRepository = filterSharedBoolExprRepository;
         this.filterSharedLookupableRepository = filterSharedLookupableRepository;
         this.historicalDataCacheFactory = historicalDataCacheFactory;
         this.internalEventRouter = internalEventRouter;
-        this.internalEventRouteDest = internalEventRouteDest;
         this.metricReportingService = metricReportingService;
         this.namedWindowConsumerManagementService = namedWindowConsumerManagementService;
         this.namedWindowManagementService = namedWindowManagementService;
@@ -139,7 +131,6 @@ public class StatementContextRuntimeServices {
         this.pathNamedWindowRegistry = pathNamedWindowRegistry;
         this.rowRecogStateRepoFactory = rowRecogStateRepoFactory;
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
-        this.schedulingService = schedulingService;
         this.statementAgentInstanceLockFactory = statementAgentInstanceLockFactory;
         this.statementResourceHolderBuilder = statementResourceHolderBuilder;
         this.tableExprEvaluatorContext = tableExprEvaluatorContext;
@@ -173,13 +164,11 @@ public class StatementContextRuntimeServices {
         this.eventTypeResolvingBeanFactory = null;
         this.exceptionHandlingService = null;
         this.expressionResultCacheService = null;
-        this.filterService = null;
         this.filterBooleanExpressionFactory = null;
         this.filterSharedBoolExprRepository = null;
         this.filterSharedLookupableRepository = null;
         this.historicalDataCacheFactory = null;
         this.internalEventRouter = null;
-        this.internalEventRouteDest = null;
         this.metricReportingService = null;
         this.namedWindowConsumerManagementService = null;
         this.namedWindowManagementService = null;
@@ -187,7 +176,6 @@ public class StatementContextRuntimeServices {
         this.pathNamedWindowRegistry = null;
         this.rowRecogStateRepoFactory = null;
         this.resultSetProcessorHelperFactory = null;
-        this.schedulingService = null;
         this.statementAgentInstanceLockFactory = null;
         this.statementResourceHolderBuilder = null;
         this.tableExprEvaluatorContext = null;
@@ -269,10 +257,6 @@ public class StatementContextRuntimeServices {
         return expressionResultCacheService;
     }
 
-    public FilterService getFilterService() {
-        return filterService;
-    }
-
     public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
         return filterBooleanExpressionFactory;
     }
@@ -291,10 +275,6 @@ public class StatementContextRuntimeServices {
 
     public InternalEventRouter getInternalEventRouter() {
         return internalEventRouter;
-    }
-
-    public InternalEventRouteDest getInternalEventRouteDest() {
-        return internalEventRouteDest;
     }
 
     public NamedWindowConsumerManagementService getNamedWindowConsumerManagementService() {
@@ -321,20 +301,12 @@ public class StatementContextRuntimeServices {
         return resultSetProcessorHelperFactory;
     }
 
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
-    }
-
     public StatementAgentInstanceLockFactory getStatementAgentInstanceLockFactory() {
         return statementAgentInstanceLockFactory;
     }
 
     public StatementResourceHolderBuilder getStatementResourceHolderBuilder() {
         return statementResourceHolderBuilder;
-    }
-
-    public TimeProvider getTimeProvider() {
-        return schedulingService;
     }
 
     public ViewServicePreviousFactory getViewServicePreviousFactory() {

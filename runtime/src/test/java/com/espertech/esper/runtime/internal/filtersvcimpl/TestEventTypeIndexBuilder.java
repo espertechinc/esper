@@ -35,7 +35,7 @@ public class TestEventTypeIndexBuilder extends TestCase {
 
     public void setUp() {
         eventTypeIndex = new EventTypeIndex(lockFactory);
-        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex, true);
+        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex);
 
         typeOne = SupportEventTypeFactory.createBeanType(SupportBean.class);
         typeTwo = SupportEventTypeFactory.createBeanType(SupportBeanSimple.class);

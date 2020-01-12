@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public interface ContextControllerKeyedSvc {
     void mgmtCreate(IntSeqKey controllerPath, Object[] parentPartitionKeys);
@@ -40,6 +41,8 @@ public interface ContextControllerKeyedSvc {
     int keyGetSubpathOrCPId(IntSeqKey controllerPath, Object key);
 
     void keyVisit(IntSeqKey controllerPath, BiConsumer<Object, Integer> keyAndSubpathOrCPId);
+
+    void keyVisitEntry(IntSeqKey controllerPath, Consumer<ContextControllerKeyedSvcEntry> consumer);
 
     Collection<Integer> deactivate(IntSeqKey controllerPath);
 

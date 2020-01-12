@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.common.internal.view.core;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 
-public interface ViewDataVisitableContainer extends AgentInstanceStopCallback {
+public interface ViewDataVisitableContainer extends AgentInstanceMgmtCallback {
     void visitViewContainer(ViewDataVisitorContained viewDataVisitor);
 }

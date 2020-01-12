@@ -25,10 +25,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DeploymentLifecycleServiceImpl implements DeploymentLifecycleService {
     private final static Logger log = LoggerFactory.getLogger(DeploymentLifecycleServiceImpl.class);
 
+    private final int stageId;
     private final Map<String, DeploymentInternal> deploymentsByName = new HashMap<>();
     private final Map<Long, DeploymentInternal> deploymentsByCRC = new HashMap<>();
     private final CopyOnWriteArrayList<DeploymentStateListener> listeners = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<StatementListenerEventObserver> statementListeners = null;
+
+    public DeploymentLifecycleServiceImpl(int stageId) {
+        this.stageId = stageId;
+    }
 
     public void addDeployment(String deploymentId, DeploymentInternal deployment) {
         DeploymentInternal existing = deploymentsByName.get(deploymentId);
@@ -50,7 +55,7 @@ public class DeploymentLifecycleServiceImpl implements DeploymentLifecycleServic
         return keys.toArray(new String[keys.size()]);
     }
 
-    public DeploymentInternal undeploy(String deploymentId) {
+    public DeploymentInternal removeDeployment(String deploymentId) {
         DeploymentInternal deployment = deploymentsByName.remove(deploymentId);
         if (deployment != null) {
             long crc = CRC32Util.computeCRC32(deploymentId);

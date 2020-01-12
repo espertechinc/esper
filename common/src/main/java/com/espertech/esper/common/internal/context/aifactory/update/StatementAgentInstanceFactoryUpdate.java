@@ -55,10 +55,15 @@ public class StatementAgentInstanceFactoryUpdate implements StatementAgentInstan
     }
 
     public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
-        List<AgentInstanceStopCallback> stopCallbacks = new ArrayList<>();
-        stopCallbacks.add(new AgentInstanceStopCallback() {
+        List<AgentInstanceMgmtCallback> stopCallbacks = new ArrayList<>();
+        stopCallbacks.add(new AgentInstanceMgmtCallback() {
             public void stop(AgentInstanceStopServices services) {
                 agentInstanceContext.getInternalEventRouter().removePreprocessing(desc.getEventType(), desc);
+            }
+
+            public void transfer(AgentInstanceTransferServices services) {
+                services.getAgentInstanceContext().getInternalEventRouter().removePreprocessing(desc.getEventType(), desc);
+                services.getTargetInternalEventRouter().addPreprocessing(desc, viewable, agentInstanceContext.getStatementContext(), !subselects.isEmpty());
             }
         });
 
@@ -67,7 +72,7 @@ public class StatementAgentInstanceFactoryUpdate implements StatementAgentInstan
         boolean hasSubselect = !subselectActivations.isEmpty();
         agentInstanceContext.getInternalEventRouter().addPreprocessing(desc, viewable, agentInstanceContext.getStatementContext(), hasSubselect);
 
-        AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+        AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
         return new StatementAgentInstanceFactoryUpdateResult(viewable, stopCallback, agentInstanceContext, subselectActivations);
     }
 

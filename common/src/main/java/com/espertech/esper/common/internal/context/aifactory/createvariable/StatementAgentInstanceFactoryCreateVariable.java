@@ -87,7 +87,7 @@ public class StatementAgentInstanceFactoryCreateVariable implements StatementAge
         VariableManagementService variableService = agentInstanceContext.getVariableManagementService();
         String deploymentId = agentInstanceContext.getDeploymentId();
         int agentInstanceId = agentInstanceContext.getAgentInstanceId();
-        List<AgentInstanceStopCallback> stopCallbacks = new ArrayList<>(2);
+        List<AgentInstanceMgmtCallback> stopCallbacks = new ArrayList<>(2);
 
         // allocate state
         // for create-variable with contexts we allocate on new-context
@@ -98,7 +98,7 @@ public class StatementAgentInstanceFactoryCreateVariable implements StatementAge
             }
             agentInstanceContext.getVariableManagementService().allocateVariableState(agentInstanceContext.getDeploymentId(), variableName, agentInstanceContext.getAgentInstanceId(), isRecoveringResilient, initialValue, agentInstanceContext.getEventBeanTypedEventFactory());
         }
-        stopCallbacks.add(new AgentInstanceStopCallback() {
+        stopCallbacks.add(new AgentInstanceMgmtCallback() {
             public void stop(AgentInstanceStopServices services) {
                 services.getAgentInstanceContext().getVariableManagementService().deallocateVariableState(services.getAgentInstanceContext().getDeploymentId(), variableName, agentInstanceContext.getAgentInstanceId());
             }
@@ -108,7 +108,7 @@ public class StatementAgentInstanceFactoryCreateVariable implements StatementAge
         VariableReader reader = variableService.getReader(deploymentId, variableName, agentInstanceContext.getAgentInstanceId());
         CreateVariableView createVariableView = new CreateVariableView(this, agentInstanceContext, reader);
         variableService.registerCallback(deploymentId, variableName, agentInstanceContext.getAgentInstanceId(), createVariableView);
-        stopCallbacks.add(new AgentInstanceStopCallback() {
+        stopCallbacks.add(new AgentInstanceMgmtCallback() {
             public void stop(AgentInstanceStopServices services) {
                 services.getAgentInstanceContext().getVariableManagementService().unregisterCallback(deploymentId, variableName, agentInstanceId, createVariableView);
             }
@@ -120,7 +120,7 @@ public class StatementAgentInstanceFactoryCreateVariable implements StatementAge
         out.setParent(createVariableView);
         createVariableView.setChild(out);
 
-        AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
+        AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
         return new StatementAgentInstanceFactoryCreateVariableResult(out, stopCallback, agentInstanceContext);
     }
 

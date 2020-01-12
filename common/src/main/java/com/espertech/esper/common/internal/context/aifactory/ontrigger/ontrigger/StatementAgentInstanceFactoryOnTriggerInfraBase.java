@@ -95,7 +95,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerInfraBase extends St
         }
     }
 
-    public InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceStopCallback> stopCallbacks, boolean isRecoveringResilient) {
+    public InfraOnExprBaseViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbacks, boolean isRecoveringResilient) {
 
         // get instance
         NamedWindowInstance namedWindowInstance = null;
@@ -123,7 +123,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerInfraBase extends St
                         namedWindowInstance.getTailViewInstance().getAgentInstanceContext(),
                         isRecoveringResilient);
 
-                stopCallbacks.add(new AgentInstanceStopCallback() {
+                stopCallbacks.add(new AgentInstanceMgmtCallback() {
                     public void stop(AgentInstanceStopServices services) {
                         for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
                             boolean last = namedWindow.getEventTableIndexMetadata().removeIndexReference(queryPlan.getIndexDescs()[i].getIndexMultiKey(), agentInstanceContext.getDeploymentId());

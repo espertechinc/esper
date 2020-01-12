@@ -24,8 +24,6 @@ import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
 import com.espertech.esper.common.internal.view.core.Viewable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -33,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AgentInstanceUtil {
-    private static final Logger log = LoggerFactory.getLogger(AgentInstanceUtil.class);
 
     public static void evaluateEventForStatement(EventBean theEvent,
                                                  Map<String, Object> optionalTriggeringPattern,
@@ -74,7 +71,7 @@ public class AgentInstanceUtil {
         }
     }
 
-    public static void stop(AgentInstanceStopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView, boolean isStatementStop, boolean leaveLocksAcquired) {
+    public static void stop(AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView, boolean isStatementStop, boolean leaveLocksAcquired) {
 
         agentInstanceContext.getInstrumentationProvider().qContextPartitionDestroy(agentInstanceContext);
 
@@ -114,11 +111,11 @@ public class AgentInstanceUtil {
         }
     }
 
-    public static void stopSafe(AgentInstanceStopCallback stopMethod, AgentInstanceContext agentInstanceContext) {
+    public static void stopSafe(AgentInstanceMgmtCallback stopMethod, AgentInstanceContext agentInstanceContext) {
         AgentInstanceStopServices stopServices = new AgentInstanceStopServices(agentInstanceContext);
 
-        Collection<AgentInstanceStopCallback> additionalTerminations = agentInstanceContext.getTerminationCallbackRO();
-        for (AgentInstanceStopCallback stop : additionalTerminations) {
+        Collection<AgentInstanceMgmtCallback> additionalTerminations = agentInstanceContext.getTerminationCallbackRO();
+        for (AgentInstanceMgmtCallback stop : additionalTerminations) {
             try {
                 stop.stop(stopServices);
             } catch (RuntimeException e) {
@@ -133,19 +130,9 @@ public class AgentInstanceUtil {
         }
     }
 
-    public static AgentInstanceStopCallback finalizeSafeStopCallbacks(List<AgentInstanceStopCallback> stopCallbacks) {
-        AgentInstanceStopCallback[] stopCallbackArray = stopCallbacks.toArray(new AgentInstanceStopCallback[stopCallbacks.size()]);
-        return new AgentInstanceStopCallback() {
-            public void stop(AgentInstanceStopServices services) {
-                for (AgentInstanceStopCallback callback : stopCallbackArray) {
-                    try {
-                        callback.stop(services);
-                    } catch (RuntimeException e) {
-                        handleStopException(e, services.getAgentInstanceContext());
-                    }
-                }
-            }
-        };
+    public static AgentInstanceMgmtCallback finalizeSafeStopCallbacks(List<AgentInstanceMgmtCallback> stopCallbacks) {
+        AgentInstanceMgmtCallback[] stopCallbackArray = stopCallbacks.toArray(new AgentInstanceMgmtCallback[stopCallbacks.size()]);
+        return new AgentInstanceFinalizedMgmtCallback(stopCallbackArray);
     }
 
     private static void handleStopException(RuntimeException e, AgentInstanceContext agentInstanceContext) {
@@ -191,7 +178,7 @@ public class AgentInstanceUtil {
             // assign agents for expression-node based strategies
             StatementAIResourceRegistry aiResourceRegistry = statementContext.getStatementAIResourceRegistry();
             AIRegistryUtil.assignFutures(aiResourceRegistry, agentInstanceId, startResult.getOptionalAggegationService(), startResult.getPriorStrategies(), startResult.getPreviousGetterStrategies(), startResult.getSubselectStrategies(), startResult.getTableAccessStrategies(),
-                    startResult.getRowRecogPreviousStrategy());
+                startResult.getRowRecogPreviousStrategy());
 
             // execute preloads, if any
             if (startResult.getPreloadList() != null) {
@@ -240,5 +227,33 @@ public class AgentInstanceUtil {
 
     public static StatementAgentInstanceLock newLock(StatementContext statementContext) {
         return statementContext.getStatementAgentInstanceLockFactory().getStatementLock(statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.isStatelessSelect(), statementContext.getStatementType());
+    }
+
+    public static class AgentInstanceFinalizedMgmtCallback implements AgentInstanceMgmtCallback {
+        private final AgentInstanceMgmtCallback[] mgmtCallbackArray;
+
+        private AgentInstanceFinalizedMgmtCallback(AgentInstanceMgmtCallback[] mgmtCallbackArray) {
+            this.mgmtCallbackArray = mgmtCallbackArray;
+        }
+
+        public void stop(AgentInstanceStopServices services) {
+            for (AgentInstanceMgmtCallback callback : mgmtCallbackArray) {
+                try {
+                    callback.stop(services);
+                } catch (RuntimeException e) {
+                    handleStopException(e, services.getAgentInstanceContext());
+                }
+            }
+        }
+
+        public void transfer(AgentInstanceTransferServices services) {
+            for (AgentInstanceMgmtCallback callback : mgmtCallbackArray) {
+                try {
+                    callback.transfer(services);
+                } catch (RuntimeException e) {
+                    services.getAgentInstanceContext().getExceptionHandlingService().handleException(e, services.getAgentInstanceContext().getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.STAGE, null);
+                }
+            }
+        }
     }
 }

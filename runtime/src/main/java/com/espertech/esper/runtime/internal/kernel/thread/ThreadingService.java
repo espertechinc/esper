@@ -11,8 +11,7 @@
 package com.espertech.esper.runtime.internal.kernel.thread;
 
 import com.espertech.esper.common.internal.statement.thread.ThreadingCommon;
-import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl;
-import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
+import com.espertech.esper.runtime.internal.kernel.service.EPServicesEvaluation;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -29,10 +28,9 @@ public interface ThreadingService extends ThreadingCommon {
     /**
      * Initialize thread pools.
      *
-     * @param services runtime-level service context
-     * @param runtime  runtime
+     * @param uri uri
      */
-    public void initThreading(EPServicesContext services, EPEventServiceImpl runtime);
+    public void initThreading(String uri, EPServicesEvaluation services);
 
     /**
      * Returns true for timer execution threading enabled.

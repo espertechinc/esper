@@ -49,7 +49,7 @@ public class StatementAgentInstanceFactoryCreateContext implements StatementAgen
         agentInstanceContext.getEpStatementAgentInstanceHandle().setFilterFaultHandler(manager);
 
         ContextManagerRealization realization = manager.allocateNewRealization(agentInstanceContext);
-        return new StatementAgentInstanceFactoryCreateContextResult(new ZeroDepthStreamNoIterate(statementEventType), AgentInstanceStopCallback.INSTANCE_NO_ACTION, agentInstanceContext, null, null, null, null, null, null, Collections.emptyList(), realization);
+        return new StatementAgentInstanceFactoryCreateContextResult(new ZeroDepthStreamNoIterate(statementEventType), AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, agentInstanceContext, null, null, null, null, null, null, Collections.emptyList(), realization);
     }
 
     public void statementCreate(StatementContext statementContext) {

@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.collection.RefCountedSet;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.intersect.IntersectDefaultView;
@@ -32,7 +32,7 @@ import java.util.List;
  * The view is parameterized by two or more data windows. From an external viewpoint, the
  * view retains all events that is in any of the data windows (a union).
  */
-public class UnionView extends ViewSupport implements LastPostObserver, AgentInstanceStopCallback, DataWindowView, ViewDataVisitableContainer {
+public class UnionView extends ViewSupport implements LastPostObserver, AgentInstanceMgmtCallback, DataWindowView, ViewDataVisitableContainer {
     protected final AgentInstanceContext agentInstanceContext;
     private final UnionViewFactory unionViewFactory;
     protected final View[] views;
@@ -212,8 +212,8 @@ public class UnionView extends ViewSupport implements LastPostObserver, AgentIns
 
     public void stop(AgentInstanceStopServices services) {
         for (View view : views) {
-            if (view instanceof AgentInstanceStopCallback) {
-                ((AgentInstanceStopCallback) view).stop(services);
+            if (view instanceof AgentInstanceMgmtCallback) {
+                ((AgentInstanceMgmtCallback) view).stop(services);
             }
         }
     }

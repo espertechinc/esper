@@ -15,19 +15,23 @@ import com.espertech.esper.runtime.internal.deploymentlifesvc.DeploymentRecovery
 import com.espertech.esper.runtime.internal.deploymentlifesvc.ListenerRecoveryService;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.StatementIdRecoveryService;
 
+import java.util.Map;
+
 public class EPServicesHA {
     private final RuntimeExtensionServices runtimeExtensionServices;
     private final DeploymentRecoveryService deploymentRecoveryService;
     private final ListenerRecoveryService listenerRecoveryService;
     private final StatementIdRecoveryService statementIdRecoveryService;
     private final Long currentTimeAsRecovered;
+    private final Map<Integer, Long> currentTimeStageAsRecovered;
 
-    public EPServicesHA(RuntimeExtensionServices runtimeExtensionServices, DeploymentRecoveryService deploymentRecoveryService, ListenerRecoveryService listenerRecoveryService, StatementIdRecoveryService statementIdRecoveryService, Long currentTimeAsRecovered) {
+    public EPServicesHA(RuntimeExtensionServices runtimeExtensionServices, DeploymentRecoveryService deploymentRecoveryService, ListenerRecoveryService listenerRecoveryService, StatementIdRecoveryService statementIdRecoveryService, Long currentTimeAsRecovered, Map<Integer, Long> currentTimeStageAsRecovered) {
         this.runtimeExtensionServices = runtimeExtensionServices;
         this.deploymentRecoveryService = deploymentRecoveryService;
         this.listenerRecoveryService = listenerRecoveryService;
         this.statementIdRecoveryService = statementIdRecoveryService;
         this.currentTimeAsRecovered = currentTimeAsRecovered;
+        this.currentTimeStageAsRecovered = currentTimeStageAsRecovered;
     }
 
     public RuntimeExtensionServices getRuntimeExtensionServices() {
@@ -52,5 +56,9 @@ public class EPServicesHA {
 
     public void destroy() {
         ((RuntimeExtensionServicesSPI) runtimeExtensionServices).destroy();
+    }
+
+    public Map<Integer, Long> getCurrentTimeStageAsRecovered() {
+        return currentTimeStageAsRecovered;
     }
 }

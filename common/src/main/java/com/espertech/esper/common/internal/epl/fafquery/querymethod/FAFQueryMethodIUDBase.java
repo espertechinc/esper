@@ -17,7 +17,7 @@ import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryAssignmentsImpl;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.InternalEventRouteDest;
 import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetInstance;
@@ -185,7 +185,7 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
         Map<Integer, ExprTableEvalStrategy> tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContext);
 
         // start subselects
-        List<AgentInstanceStopCallback> subselectStopCallbacks = new ArrayList<>(2);
+        List<AgentInstanceMgmtCallback> subselectStopCallbacks = new ArrayList<>(2);
         Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, subselectStopCallbacks, false);
 
         // assign

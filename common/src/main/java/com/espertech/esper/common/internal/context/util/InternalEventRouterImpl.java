@@ -206,6 +206,19 @@ public class InternalEventRouterImpl implements InternalEventRouter {
         return new NullableObject<>(new InternalEventRouterPreprocessor(copyMethodForge.getCopyMethod(eventBeanTypedEventFactory), desc));
     }
 
+    public void movePreprocessing(StatementContext statementContext, InternalEventRouter internalEventRouter) {
+        List<Map.Entry<InternalEventRouterDesc, IRDescEntry>> moved = new ArrayList<>();
+        for (Map.Entry<InternalEventRouterDesc, IRDescEntry> entry : descriptors.entrySet()) {
+            if (entry.getValue().statementContext == statementContext) {
+                moved.add(entry);
+            }
+        }
+        for (Map.Entry<InternalEventRouterDesc, IRDescEntry> entry : moved) {
+            removePreprocessing(entry.getKey().getEventType(), entry.getValue().internalEventRouterDesc);
+            internalEventRouter.addPreprocessing(entry.getValue().internalEventRouterDesc, entry.getValue().outputView, statementContext, entry.getValue().hasSubselect);
+        }
+    }
+
     private static class IRDescEntry {
         private final InternalEventRouterDesc internalEventRouterDesc;
         private final InternalRoutePreprocessView outputView;

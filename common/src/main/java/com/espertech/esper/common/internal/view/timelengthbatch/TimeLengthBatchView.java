@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
@@ -36,7 +36,7 @@ import java.util.Iterator;
  * <p>
  * The view starts the first interval when the view is created.
  */
-public class TimeLengthBatchView extends ViewSupport implements AgentInstanceStopCallback, DataWindowView {
+public class TimeLengthBatchView extends ViewSupport implements AgentInstanceMgmtCallback, DataWindowView {
     private final TimeLengthBatchViewFactory factory;
     private final AgentInstanceContext agentInstanceContext;
     private final ViewUpdatedCollection viewUpdatedCollection;

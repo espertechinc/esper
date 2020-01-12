@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFilterEntry;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerUtil;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackFilter;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
@@ -73,5 +74,10 @@ public abstract class ContextControllerKeyedFilterEntry implements FilterHandleC
 
     public EPStatementHandleCallbackFilter getFilterHandle() {
         return filterHandle;
+    }
+
+    public void transfer(FilterSpecActivatable activatable, AgentInstanceTransferServices xfer) {
+        xfer.getAgentInstanceContext().getFilterService().remove(filterHandle, activatable.getFilterForEventType(), filterValueSet);
+        xfer.getTargetFilterService().add(activatable.getFilterForEventType(), filterValueSet, filterHandle);
     }
 }

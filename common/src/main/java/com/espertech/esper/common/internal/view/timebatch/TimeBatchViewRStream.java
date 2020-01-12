@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.view.timebatch;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodDeltaResult;
@@ -28,7 +28,7 @@ import java.util.LinkedHashSet;
 /**
  * Same as the {@link TimeBatchView}, this view also supports fast-remove from the batch for remove stream events.
  */
-public class TimeBatchViewRStream extends ViewSupport implements AgentInstanceStopCallback, DataWindowView {
+public class TimeBatchViewRStream extends ViewSupport implements AgentInstanceMgmtCallback, DataWindowView {
     private final TimeBatchViewFactory factory;
     private final AgentInstanceContext agentInstanceContext;
     private EPStatementHandleCallbackSchedule handle;

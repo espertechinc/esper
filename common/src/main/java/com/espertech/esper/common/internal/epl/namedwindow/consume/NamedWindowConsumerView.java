@@ -13,8 +13,9 @@ package com.espertech.esper.common.internal.epl.namedwindow.consume;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
-import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
+import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.util.FilteredEventIterator;
@@ -29,7 +30,7 @@ import java.util.Iterator;
  * <p>
  * The view simply dispatches directly to child views, and keeps the last new event for iteration.
  */
-public class NamedWindowConsumerView extends ViewSupport implements AgentInstanceStopCallback {
+public class NamedWindowConsumerView extends ViewSupport implements AgentInstanceMgmtCallback {
     private final int namedWindowConsumerId;
     private final ExprEvaluator filter;
     private final EventType eventType;
@@ -146,6 +147,10 @@ public class NamedWindowConsumerView extends ViewSupport implements AgentInstanc
 
     public void stop(AgentInstanceStopServices services) {
         consumerCallback.stopped(this);
+    }
+
+    public void transfer(AgentInstanceTransferServices services) {
+        // no action required
     }
 
     public int getNamedWindowConsumerId() {

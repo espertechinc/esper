@@ -12,13 +12,11 @@ package com.espertech.esper.common.internal.context.controller.initterm;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.collection.IntSeqKey;
-import com.espertech.esper.common.internal.context.controller.condition.ContextControllerConditionCallback;
-import com.espertech.esper.common.internal.context.controller.condition.ContextControllerConditionFactory;
-import com.espertech.esper.common.internal.context.controller.condition.ContextControllerConditionNonHA;
-import com.espertech.esper.common.internal.context.controller.condition.ContextControllerEndConditionMatchEventProvider;
+import com.espertech.esper.common.internal.context.controller.condition.*;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.mgr.ContextPartitionInstantiationResult;
 import com.espertech.esper.common.internal.context.util.AgentInstance;
+import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 
 import java.util.Collection;
 import java.util.List;
@@ -77,5 +75,24 @@ public abstract class ContextControllerInitTermBase extends ContextControllerIni
         initTermSvc.endCreate(endConditionPath, subpathIdOrCPId, endCondition, partitionKey);
 
         return result.getAgentInstances();
+    }
+
+    public final void transfer(IntSeqKey path, boolean transferChildContexts, AgentInstanceTransferServices xfer) {
+        ContextControllerCondition start = initTermSvc.mgmtGetStartCondition(path);
+        if (start != null) {
+            start.transfer(xfer);
+        }
+        initTermSvc.endVisitConditions(path, (condition, subPathId) -> {
+                if (condition != null) {
+                    condition.transfer(xfer);
+                }
+            }
+        );
+        if (!transferChildContexts) {
+            return;
+        }
+        visitPartitions(path, (partitionKey, subpathOrCPIds) -> {
+            realization.transferRecursive(path, subpathOrCPIds, this, xfer);
+        });
     }
 }

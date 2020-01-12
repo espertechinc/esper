@@ -226,7 +226,10 @@ public class DeployerHelperInitStatement {
             statementCPCacheService,
             statementProvider.getStatementAIFactoryProvider(),
             statementResultService,
-            dispatchChildView
+            dispatchChildView,
+            services.getFilterService(),
+            services.getSchedulingService(),
+            services.getInternalEventRouteDest()
         );
 
         for (StatementReadyCallback readyCallback : epInitServices.getReadyCallbacks()) {
