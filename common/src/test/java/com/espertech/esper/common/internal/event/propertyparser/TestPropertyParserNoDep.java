@@ -111,6 +111,11 @@ public class TestPropertyParserNoDep extends TestCase {
         assertEquals("f", result.getMethodName());
         assertEquals("a", result.getArgString());
 
+        result = parseMappedProperty("f('.')");
+        assertEquals(null, result.getClassName());
+        assertEquals("f",  result.getMethodName());
+        assertEquals(".", result.getArgString());
+
         assertNull(parseMappedProperty("('a')"));
         assertNull(parseMappedProperty(""));
     }

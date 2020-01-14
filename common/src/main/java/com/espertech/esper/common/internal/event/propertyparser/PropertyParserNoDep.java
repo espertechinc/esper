@@ -56,90 +56,57 @@ public class PropertyParserNoDep {
      * @return descriptor object
      */
     public static MappedPropertyParseResult parseMappedProperty(String property) {
-        // get argument
-        int indexFirstDoubleQuote = property.indexOf("\"");
-        int indexFirstSingleQuote = property.indexOf("'");
-        int startArg;
-        if ((indexFirstSingleQuote == -1) && (indexFirstDoubleQuote == -1)) {
+        // split the class and method from the parentheses and argument
+        int indexOpenParen = property.indexOf("(");
+        if (indexOpenParen == -1) {
             return null;
         }
-        if ((indexFirstSingleQuote != -1) && (indexFirstDoubleQuote != -1)) {
-            if (indexFirstSingleQuote < indexFirstDoubleQuote) {
-                startArg = indexFirstSingleQuote;
-            } else {
-                startArg = indexFirstDoubleQuote;
-            }
+        String classAndMethod = property.substring(0, indexOpenParen);
+        String parensAndArg = property.substring(indexOpenParen);
+        if (classAndMethod.length() == 0 || parensAndArg.length() == 0) {
+            return null;
+        }
+        // find the first quote
+        int startArg;
+        int indexFirstDoubleQuote = parensAndArg.indexOf("\"");
+        int indexFirstSingleQuote = parensAndArg.indexOf("'");
+        if (indexFirstSingleQuote != -1 && indexFirstDoubleQuote != -1) {
+            startArg = Math.min(indexFirstDoubleQuote, indexFirstSingleQuote);
         } else if (indexFirstSingleQuote != -1) {
             startArg = indexFirstSingleQuote;
-        } else {
+        } else if (indexFirstDoubleQuote != -1) {
             startArg = indexFirstDoubleQuote;
-        }
-
-        int indexLastDoubleQuote = property.lastIndexOf("\"");
-        int indexLastSingleQuote = property.lastIndexOf("'");
-        int endArg;
-        if ((indexLastSingleQuote == -1) && (indexLastDoubleQuote == -1)) {
-            return null;
-        }
-        if ((indexLastSingleQuote != -1) && (indexLastDoubleQuote != -1)) {
-            if (indexLastSingleQuote > indexLastDoubleQuote) {
-                endArg = indexLastSingleQuote;
-            } else {
-                endArg = indexLastDoubleQuote;
-            }
-        } else if (indexLastSingleQuote != -1) {
-            if (indexLastSingleQuote == indexFirstSingleQuote) {
-                return null;
-            }
-            endArg = indexLastSingleQuote;
         } else {
-            if (indexLastDoubleQuote == indexFirstDoubleQuote) {
-                return null;
-            }
+            return null;
+        }
+        // find the last quote
+        int endArg;
+        int indexLastDoubleQuote = parensAndArg.lastIndexOf("\"");
+        int indexLastSingleQuote = parensAndArg.lastIndexOf("'");
+        if (indexLastSingleQuote != -1 && indexLastDoubleQuote != -1) {
+            endArg = Math.max(indexLastDoubleQuote, indexLastSingleQuote);
+        } else if (indexLastSingleQuote != -1) {
+            endArg = indexLastSingleQuote;
+        } else if (indexLastDoubleQuote != -1) {
             endArg = indexLastDoubleQuote;
-        }
-        String argument = property.substring(startArg + 1, endArg);
-
-        // get method
-        String[] splitDots = property.split("[\\.]");
-        if (splitDots.length == 0) {
+        } else {
             return null;
         }
-
-        // find which element represents the method, its the element with the parenthesis
-        int indexMethod = -1;
-        for (int i = 0; i < splitDots.length; i++) {
-            if (splitDots[i].contains("(")) {
-                indexMethod = i;
-                break;
-            }
-        }
-        if (indexMethod == -1) {
+        if (startArg == endArg) {
             return null;
         }
-
-        String method = splitDots[indexMethod];
-        int indexParan = method.indexOf("(");
-        method = method.substring(0, indexParan);
+        String argument = parensAndArg.substring(startArg + 1, endArg);
+        // split the class from the method
+        int indexLastDot = classAndMethod.lastIndexOf(".");
+        if (indexLastDot == -1) {
+            // no class name
+            return new MappedPropertyParseResult(null, classAndMethod, argument);
+        }
+        String method = classAndMethod.substring(indexLastDot + 1);
         if (method.length() == 0) {
             return null;
         }
-
-        if (splitDots.length == 1) {
-            // no class name
-            return new MappedPropertyParseResult(null, method, argument);
-        }
-
-
-        // get class
-        StringBuilder clazz = new StringBuilder();
-        for (int i = 0; i < indexMethod; i++) {
-            if (i > 0) {
-                clazz.append('.');
-            }
-            clazz.append(splitDots[i]);
-        }
-
-        return new MappedPropertyParseResult(clazz.toString(), method, argument);
+        String clazz = classAndMethod.substring(0, indexLastDot);
+        return new MappedPropertyParseResult(clazz, method, argument);
     }
 }
