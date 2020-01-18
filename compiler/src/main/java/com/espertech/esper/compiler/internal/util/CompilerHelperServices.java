@@ -90,6 +90,7 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompil
 import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactoryDefault;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTimeImpl;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.TransientConfigurationResolver;
 import com.espertech.esper.common.internal.view.core.ViewEnumHelper;
@@ -356,7 +357,7 @@ public class CompilerHelperServices {
     protected static ClasspathImportServiceCompileTime makeClasspathImportService(Configuration configuration) {
         TimeAbacus timeAbacus = TimeAbacusFactory.make(configuration.getCommon().getTimeSource().getTimeUnit());
         ConfigurationCompilerExpression expression = configuration.getCompiler().getExpression();
-        ClasspathImportServiceCompileTime classpathImportService = new ClasspathImportServiceCompileTime(configuration.getCommon().getTransientConfiguration(), timeAbacus, configuration.getCommon().getEventTypeAutoNamePackages(), expression.getMathContext(), expression.isExtendedAggregation(), configuration.getCompiler().getLanguage().isSortUsingCollator()
+        ClasspathImportServiceCompileTimeImpl classpathImportService = new ClasspathImportServiceCompileTimeImpl(configuration.getCommon().getTransientConfiguration(), timeAbacus, configuration.getCommon().getEventTypeAutoNamePackages(), expression.getMathContext(), expression.isExtendedAggregation(), configuration.getCompiler().getLanguage().isSortUsingCollator()
         );
 
         // Add auto-imports

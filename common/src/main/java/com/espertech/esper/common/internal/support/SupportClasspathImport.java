@@ -11,7 +11,8 @@
 package com.espertech.esper.common.internal.support;
 
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTimeImpl;
 
 public class SupportClasspathImport {
-    public final static ClasspathImportServiceCompileTime INSTANCE = new ClasspathImportServiceCompileTime(null, null, null, null, false, false);
+    public final static ClasspathImportServiceCompileTime INSTANCE = new ClasspathImportServiceCompileTimeImpl(null, null, null, null, false, false);
 }
