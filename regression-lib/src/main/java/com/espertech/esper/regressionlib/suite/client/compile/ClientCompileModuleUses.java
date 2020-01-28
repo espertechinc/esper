@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.client.compile;
 
+import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.module.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
