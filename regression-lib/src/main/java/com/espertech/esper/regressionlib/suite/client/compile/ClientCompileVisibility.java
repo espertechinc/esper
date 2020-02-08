@@ -46,7 +46,8 @@ public class ClientCompileVisibility {
             "${PREFIX} create window MyWindow#keepall as SupportBean;\n" +
             "${PREFIX} create table MyTable as (c count(*));\n" +
             "${PREFIX} create expression MyExpr { 1 };\n" +
-            "${PREFIX} create expression double myscript(intvalue) [0];\n";
+            "${PREFIX} create expression double myscript(intvalue) [0];\n" +
+            "${PREFIX} create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\";\n";
 
     private final static String USER_EPL =
         "select 1 from MySchema;\n" +
@@ -55,7 +56,8 @@ public class ClientCompileVisibility {
             "on SupportBean update MyWindow set theString = 'a';\n" +
             "into table MyTable select count(*) as c from SupportBean;\n" +
             "select MyExpr() from SupportBean;\n" +
-            "select myscript(1) from SupportBean;\n";
+            "select myscript(1) from SupportBean;\n" +
+            "select MyClass.doIt() from SupportBean;\n";
 
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
@@ -66,7 +68,7 @@ public class ClientCompileVisibility {
         execs.add(new ClientVisibilityAnnotationProtected());
         execs.add(new ClientVisibilityAnnotationPublic());
         execs.add(new ClientVisibilityModuleNameOption());
-        execs.add(new ClientVisibilityAnnotationSendable());
+        execs.add(new ClientVisibilityAnnotationBusEventType());
         execs.add(new ClientVisibilityAnnotationInvalid());
         execs.add(new ClientVisibilityAmbiguousTwoPath());
         execs.add(new ClientVisibilityDisambiguateWithUses());
@@ -89,8 +91,7 @@ public class ClientCompileVisibility {
                 tryInvalidCompileWConfigure(config -> {
                     config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS);
                     config.getCompiler().getByteCode().setAccessModifierEventType(modifier);
-                },
-                    "create schema ABC()", message);
+                }, "create schema ABC()", message);
             }
         }
     }
@@ -151,6 +152,17 @@ public class ClientCompileVisibility {
                 "select p1 from MySchema",
                 () -> {
                 });
+
+            runAssertionDisambiguate(env,
+                "create inlined_class \"\"\" public class MyClass { " +
+                    "public static String doIt() { return \"abc\"; } }\"\"\";\n",
+                "create inlined_class \"\"\" public class MyClass { " +
+                    "public static String doIt() { return \"def\"; } }\"\"\";\n",
+                "select MyClass.doIt() as c0 from SupportBean",
+                () -> {
+                    env.sendEventBean(new SupportBean());
+                    assertEquals("def", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                });
         }
     }
 
@@ -165,7 +177,7 @@ public class ClientCompileVisibility {
         }
     }
 
-    private static class ClientVisibilityAnnotationSendable implements RegressionExecution {
+    private static class ClientVisibilityAnnotationBusEventType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@Public @BusEventType create schema MyEvent(p0 string);\n" +
                 "@name('s0') select * from MyEvent;\n").addListener("s0");
@@ -234,7 +246,8 @@ public class ClientCompileVisibility {
                 "create window MyWindow#keepall as SupportBean;\n" +
                 "create table MyTable as (c count(*));\n" +
                 "create expression MyExpr { 1 };\n" +
-                "create expression double myscript(stringvalue) [0];\n";
+                "create expression double myscript(stringvalue) [0];\n" +
+                "create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\";\n";
 
             EPCompiled modOne = env.compile("module one;\n " + commonEPL, new RegressionPath());
             EPCompiled modTwo = env.compile("module two;\n " + commonEPL, new RegressionPath());
@@ -256,6 +269,8 @@ public class ClientCompileVisibility {
                 "The declared-expression by name 'MyExpr' is ambiguous as it exists for multiple modules");
             tryInvalidCompile(env, path, "select myscript('a') from SupportBean",
                 "The script by name 'myscript' is ambiguous as it exists for multiple modules: A script by name 'myscript (1 parameters)' is exported by multiple modules");
+            tryInvalidCompile(env, path, "select MyClass.doIt() from SupportBean",
+                "Failed to validate select-clause expression 'MyClass.doIt()': The application-inlined class by name 'MyClass' is ambiguous as it exists for multiple modules: An application-inlined class by name 'MyClass' is exported by multiple modules");
         }
     }
 
@@ -330,6 +345,8 @@ public class ClientCompileVisibility {
             "Failed to validate select-clause expression 'MyExpr': Unknown single-row function, expression declaration, script or aggregation function named 'MyExpr' could not be resolved");
         tryInvalidCompile(env, path, "select myscript(1) from SupportBean",
             "Failed to validate select-clause expression 'myscript(1)': Unknown single-row function, aggregation function or mapped or indexed property named 'myscript' could not be resolved");
+        tryInvalidCompile(env, path, "select MyClass.doIt() from SupportBean",
+            "Failed to validate select-clause expression 'MyClass.doIt()': Failed to resolve 'MyClass.doIt' to a property, single-row function, aggregation function, script, stream or class name");
     }
 
     private static void runAssertionDisambiguate(RegressionEnvironment env, String firstEpl, String secondEpl, String useEpl,

@@ -33,7 +33,7 @@ public class CompileCallable implements Callable<CompilableItemResult> {
     public CompilableItemResult call() throws Exception {
         try {
             for (CodegenClass clazz : compilableItem.getClasses()) {
-                JaninoCompiler.compile(clazz, statementBytes, compileTimeServices);
+                JaninoCompiler.compile(clazz, statementBytes, statementBytes, compileTimeServices);
             }
         } catch (Throwable t) {
             return new CompilableItemResult(t);

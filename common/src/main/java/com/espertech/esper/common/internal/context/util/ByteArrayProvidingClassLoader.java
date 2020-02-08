@@ -20,6 +20,7 @@ public class ByteArrayProvidingClassLoader extends ClassLoader {
         this.classes = classes;
     }
 
+    @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         assert name != null;
 

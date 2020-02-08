@@ -18,7 +18,8 @@ public enum PathRegistryObjectType {
     VARIABLE("variable", "A"),
     EXPRDECL("declared-expression", "A"),
     SCRIPT("script", "A"),
-    INDEX("index", "An");
+    INDEX("index", "An"),
+    CLASSPROVIDED("application-inlined class", "An");
 
     private final String name;
     private final String prefix;

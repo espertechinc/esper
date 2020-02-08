@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.util;
 import com.espertech.esper.common.client.EPCompilerPathable;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.PathRegistry;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
@@ -31,10 +32,11 @@ public class EPCompilerPathableImpl implements EPCompilerPathable {
     private final PathRegistry<String, TableMetaData> tablePathRegistry;
     private final PathRegistry<String, ContextMetaData> contextPathRegistry;
     private final PathRegistry<NameAndParamNum, ExpressionScriptProvided> scriptPathRegistry;
+    private final PathRegistry<String, ClassProvided> classProvidedPathRegistry;
     private final EventTypeRepositoryImpl eventTypePreconfigured;
     private final VariableRepositoryPreconfigured variablePreconfigured;
 
-    public EPCompilerPathableImpl(PathRegistry<String, VariableMetaData> variablePathRegistry, PathRegistry<String, EventType> eventTypePathRegistry, PathRegistry<String, ExpressionDeclItem> exprDeclaredPathRegistry, PathRegistry<String, NamedWindowMetaData> namedWindowPathRegistry, PathRegistry<String, TableMetaData> tablePathRegistry, PathRegistry<String, ContextMetaData> contextPathRegistry, PathRegistry<NameAndParamNum, ExpressionScriptProvided> scriptPathRegistry, EventTypeRepositoryImpl eventTypePreconfigured, VariableRepositoryPreconfigured variablePreconfigured) {
+    public EPCompilerPathableImpl(PathRegistry<String, VariableMetaData> variablePathRegistry, PathRegistry<String, EventType> eventTypePathRegistry, PathRegistry<String, ExpressionDeclItem> exprDeclaredPathRegistry, PathRegistry<String, NamedWindowMetaData> namedWindowPathRegistry, PathRegistry<String, TableMetaData> tablePathRegistry, PathRegistry<String, ContextMetaData> contextPathRegistry, PathRegistry<NameAndParamNum, ExpressionScriptProvided> scriptPathRegistry, PathRegistry<String, ClassProvided> classProvidedPathRegistry, EventTypeRepositoryImpl eventTypePreconfigured, VariableRepositoryPreconfigured variablePreconfigured) {
         this.variablePathRegistry = variablePathRegistry;
         this.eventTypePathRegistry = eventTypePathRegistry;
         this.exprDeclaredPathRegistry = exprDeclaredPathRegistry;
@@ -42,6 +44,7 @@ public class EPCompilerPathableImpl implements EPCompilerPathable {
         this.tablePathRegistry = tablePathRegistry;
         this.contextPathRegistry = contextPathRegistry;
         this.scriptPathRegistry = scriptPathRegistry;
+        this.classProvidedPathRegistry = classProvidedPathRegistry;
         this.eventTypePreconfigured = eventTypePreconfigured;
         this.variablePreconfigured = variablePreconfigured;
     }
@@ -72,6 +75,10 @@ public class EPCompilerPathableImpl implements EPCompilerPathable {
 
     public PathRegistry<NameAndParamNum, ExpressionScriptProvided> getScriptPathRegistry() {
         return scriptPathRegistry;
+    }
+
+    public PathRegistry<String, ClassProvided> getClassProvidedPathRegistry() {
+        return classProvidedPathRegistry;
     }
 
     public EventTypeRepositoryImpl getEventTypePreconfigured() {

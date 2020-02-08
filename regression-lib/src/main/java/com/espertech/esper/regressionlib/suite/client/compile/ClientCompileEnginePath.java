@@ -65,10 +65,12 @@ public class ClientCompileEnginePath {
                 "create window MyWindow#keepall as SupportBean_S0;\n" +
                 "create table MyTable(y string);\n" +
                 "create context MyContext start SupportBean_S0 end SupportBean_S1;\n" +
-                "create expression myScript() [ 2 ]";
+                "create expression myScript() [ 2 ];\n" +
+                "create inlined_class \"\"\" public class MyClass { public static String doIt(String parameter) { return \"def\"; } }\"\"\";\n";
             env.compileDeploy(deployed, new RegressionPath());
 
-            String epl = "@name('s0') select myvariable as c0, myExpr() as c1, myScript() as c2, preconfigured_variable as c3 from SupportBean;\n" +
+            String epl = "@name('s0') select myvariable as c0, myExpr() as c1, myScript() as c2, preconfigured_variable as c3," +
+                "MyClass.doIt(theString) as c4 from SupportBean;\n" +
                 "select * from MySchema;" +
                 "on SupportBean_S1 delete from MyWindow;\n" +
                 "on SupportBean_S1 delete from MyTable;\n" +
@@ -76,8 +78,8 @@ public class ClientCompileEnginePath {
             compileDeployWEnginePath(env, epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","),
-                new Object[]{10, "abc", 2, 5});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4".split(","),
+                new Object[]{10, "abc", 2, 5, "def"});
 
             env.undeployAll();
         }

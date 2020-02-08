@@ -214,9 +214,9 @@ public class EPCompilerImpl implements EPCompilerSPI {
                     throw new EPCompileException("Module item has both an EPL expression and a statement object model");
                 }
                 if (item.getExpression() != null) {
-                    parseWalk(new CompilableEPL(item.getExpression(), item.getLineNumber()), services);
+                    parseWalk(new CompilableEPL(item.getExpression(), item.getLineNumber()), services.getStatementSpecMapEnv());
                 } else if (item.getModel() != null) {
-                    parseWalk(new CompilableSODA(item.getModel(), item.getLineNumber()), services);
+                    parseWalk(new CompilableSODA(item.getModel(), item.getLineNumber()), services.getStatementSpecMapEnv());
                     item.getModel().toEPL();
                 } else {
                     throw new EPCompileException("Module item has neither an EPL expression nor a statement object model");

@@ -17,6 +17,10 @@ import com.espertech.esper.common.internal.context.compile.ContextCompileTimeReg
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeResolver;
 import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.context.module.ModuleDependenciesCompileTime;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeRegistry;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.dataflow.core.DataFlowCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.enummethod.compile.EnumMethodCallStackHelperImpl;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeRegistry;
@@ -39,8 +43,8 @@ import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolv
 import com.espertech.esper.common.internal.event.core.EventTypeNameGeneratorStatement;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
-import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.view.core.ViewResolutionService;
 
@@ -48,6 +52,7 @@ public class StatementCompileTimeServices {
     private final ModuleCompileTimeServices services;
     private final EnumMethodCallStackHelperImpl enumMethodCallStackHelper = new EnumMethodCallStackHelperImpl();
     private final EventTypeNameGeneratorStatement eventTypeNameGeneratorStatement;
+    private ClassProvidedClasspathExtension classProvidedClasspathExtension = ClassProvidedClasspathExtensionEmpty.INSTANCE;
 
     public StatementCompileTimeServices(int statementNumber, ModuleCompileTimeServices services) {
         this.services = services;
@@ -80,6 +85,14 @@ public class StatementCompileTimeServices {
 
     public ClasspathImportServiceCompileTime getClasspathImportServiceCompileTime() {
         return services.getClasspathImportServiceCompileTime();
+    }
+
+    public ClassProvidedCompileTimeRegistry getClassProvidedCompileTimeRegistry() {
+        return services.getClassProvidedCompileTimeRegistry();
+    }
+
+    public ClassProvidedCompileTimeResolver getClassProvidedCompileTimeResolver() {
+        return services.getClassProvidedCompileTimeResolver();
     }
 
     public EnumMethodCallStackHelperImpl getEnumMethodCallStackHelper() {
@@ -213,5 +226,13 @@ public class StatementCompileTimeServices {
 
     public boolean isFireAndForget() {
         return services.isFireAndForget();
+    }
+
+    public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
+        return classProvidedClasspathExtension;
+    }
+
+    public void setClassProvidedClasspathExtension(ClassProvidedClasspathExtension classProvidedClasspathExtension) {
+        this.classProvidedClasspathExtension = classProvidedClasspathExtension;
     }
 }

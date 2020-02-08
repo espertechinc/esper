@@ -21,7 +21,7 @@ import java.util.Collections;
 public class SupportEPLTreeWalkerFactory {
     public static EPLTreeWalkerListener makeWalker(CommonTokenStream tokenStream, ClasspathImportServiceCompileTime engineImportService) {
         StatementSpecMapEnv mapEnv = SupportStatementSpecMapEnv.make(engineImportService);
-        return new EPLTreeWalkerListener(tokenStream, SelectClauseStreamSelectorEnum.ISTREAM_ONLY, Collections.emptyList(), mapEnv);
+        return new EPLTreeWalkerListener(tokenStream, SelectClauseStreamSelectorEnum.ISTREAM_ONLY, Collections.emptyList(), Collections.emptyList(), mapEnv);
     }
 
     public static EPLTreeWalkerListener makeWalker(CommonTokenStream tokenStream) {

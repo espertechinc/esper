@@ -15,7 +15,8 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.module.EPModuleEventTypeInitServicesImpl;
 import com.espertech.esper.common.internal.context.query.FAFProvider;
-import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvidedImportClassLoader;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvidedImportClassLoaderFactory;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
@@ -29,7 +30,7 @@ import java.util.Map;
 
 public class EPRuntimeHelperFAF {
     public static FAFProvider queryMethod(EPCompiled compiled, EPServicesContext services) {
-        ByteArrayProvidingClassLoader classLoader = new ByteArrayProvidingClassLoader(compiled.getClasses(), services.getClassLoaderParent());
+        ClassLoader classLoader = ClassProvidedImportClassLoaderFactory.getClassLoader(compiled.getClasses(), services.getClassLoaderParent(), services.getClassProvidedPathRegistry());
 
         try {
             RuntimeVersion.checkVersion(compiled.getManifest().getCompilerVersion());
@@ -60,6 +61,10 @@ public class EPRuntimeHelperFAF {
             fafProvider = (FAFProvider) clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new EPException(e);
+        }
+
+        if (classLoader instanceof ClassProvidedImportClassLoader) {
+            ((ClassProvidedImportClassLoader) classLoader).setImported(fafProvider.getModuleDependencies().getPathClasses());
         }
 
         // initialize event types

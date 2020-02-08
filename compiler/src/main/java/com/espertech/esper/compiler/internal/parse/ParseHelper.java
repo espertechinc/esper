@@ -32,6 +32,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser.IDENT;
+import static com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser.TRIPLEQUOTE;
+
 /**
  * Helper class for parsing an expression and walking a parse tree.
  */
@@ -91,8 +94,10 @@ public class ParseHelper {
             tree = parseRuleSelector.invokeParseRule(parser);
         } catch (RecognitionException ex) {
             tokens.fill();
-            if (rewriteScript && isContainsScriptExpression(tokens)) {
-                return handleScriptRewrite(tokens, eplStatementErrorMsg, addPleaseCheck, parseRuleSelector);
+            if (rewriteScript) {
+                if (isContainsScriptOrClassExpression(tokens)) {
+                    return handleScriptAndClassRewrite(tokens, eplStatementErrorMsg, addPleaseCheck, parseRuleSelector);
+                }
             }
             log.debug("Error parsing statement [" + expression + "]", ex);
             throw ExceptionConvertor.convertStatement(ex, eplStatementErrorMsg, addPleaseCheck, parser);
@@ -106,8 +111,10 @@ public class ParseHelper {
                 log.debug("Error parsing statement [" + eplStatementErrorMsg + "]", e);
             }
             if (e.getCause() instanceof RecognitionException) {
-                if (rewriteScript && isContainsScriptExpression(tokens)) {
-                    return handleScriptRewrite(tokens, eplStatementErrorMsg, addPleaseCheck, parseRuleSelector);
+                if (rewriteScript) {
+                    if (isContainsScriptOrClassExpression(tokens)) {
+                        return handleScriptAndClassRewrite(tokens, eplStatementErrorMsg, addPleaseCheck, parseRuleSelector);
+                    }
                 }
                 throw ExceptionConvertor.convertStatement((RecognitionException) e.getCause(), eplStatementErrorMsg, addPleaseCheck, parser);
             } else {
@@ -116,8 +123,8 @@ public class ParseHelper {
         }
 
         // if we are re-writing scripts and contain a script, then rewrite
-        if (rewriteScript && isContainsScriptExpression(tokens)) {
-            return handleScriptRewrite(tokens, eplStatementErrorMsg, addPleaseCheck, parseRuleSelector);
+        if (rewriteScript && isContainsScriptOrClassExpression(tokens)) {
+            return handleScriptAndClassRewrite(tokens, eplStatementErrorMsg, addPleaseCheck, parseRuleSelector);
         }
 
         if (log.isDebugEnabled()) {
@@ -131,13 +138,13 @@ public class ParseHelper {
             expressionWithoutAnnotation = getNoAnnotation(expression, epl.annotationEnum(), tokens);
         }
 
-        return new ParseResult(tree, expressionWithoutAnnotation, tokens, Collections.<String>emptyList());
+        return new ParseResult(tree, expressionWithoutAnnotation, tokens, Collections.emptyList(), Collections.emptyList());
     }
 
-    private static ParseResult handleScriptRewrite(CommonTokenStream tokens, String eplStatementErrorMsg, boolean addPleaseCheck, ParseRuleSelector parseRuleSelector) throws StatementSpecCompileSyntaxException {
-        ScriptResult rewriteExpression = rewriteTokensScript(tokens);
+    private static ParseResult handleScriptAndClassRewrite(CommonTokenStream tokens, String eplStatementErrorMsg, boolean addPleaseCheck, ParseRuleSelector parseRuleSelector) throws StatementSpecCompileSyntaxException {
+        ScriptOrClassResult rewriteExpression = rewriteTokensScript(tokens);
         ParseResult result = parse(rewriteExpression.getRewrittenEPL(), eplStatementErrorMsg, addPleaseCheck, parseRuleSelector, false);
-        return new ParseResult(result.getTree(), result.getExpressionWithoutAnnotations(), result.getTokenStream(), rewriteExpression.getScripts());
+        return new ParseResult(result.getTree(), result.getExpressionWithoutAnnotations(), result.getTokenStream(), rewriteExpression.getScripts(), rewriteExpression.getClasses());
     }
 
     private static String getNoAnnotation(String expression, List<EsperEPL2GrammarParser.AnnotationEnumContext> annos, CommonTokenStream tokens) {
@@ -174,15 +181,17 @@ public class ParseHelper {
         return null;
     }
 
-    private static ScriptResult rewriteTokensScript(CommonTokenStream tokens) {
-        List<String> scripts = new ArrayList<String>();
+    private static ScriptOrClassResult rewriteTokensScript(CommonTokenStream tokens) {
+        List<String> scripts = new ArrayList<>(2);
+        List<String> classes = new ArrayList<>(2);
 
-        List<UniformPair<Integer>> scriptTokenIndexRanges = new ArrayList<UniformPair<Integer>>();
-        for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).getType() == EsperEPL2GrammarParser.EXPRESSIONDECL) {
-                Token tokenBefore = getTokenBefore(i, tokens);
+        List<UniformPair<Integer>> tokenIndexRanges = new ArrayList<UniformPair<Integer>>();
+        int tokenIndex = 0;
+        while (tokenIndex < tokens.size()) {
+            if (tokens.get(tokenIndex).getType() == EsperEPL2GrammarParser.EXPRESSIONDECL) {
+                Token tokenBefore = getTokenBefore(tokenIndex, tokens);
                 boolean isCreateExpressionClause = tokenBefore != null && tokenBefore.getType() == EsperEPL2GrammarParser.CREATE;
-                Pair<String, Integer> nameAndNameStart = findScriptName(i + 1, tokens);
+                Pair<String, Integer> nameAndNameStart = findScriptName(tokenIndex + 1, tokens);
 
                 int startIndex = findStartTokenScript(nameAndNameStart.getSecond(), tokens, EsperEPL2GrammarParser.LBRACK);
                 if (startIndex != -1) {
@@ -194,14 +203,34 @@ public class ParseHelper {
                             writer.append(tokens.get(j).getText());
                         }
                         scripts.add(writer.toString());
-                        scriptTokenIndexRanges.add(new UniformPair<Integer>(startIndex, endIndex));
+                        tokenIndexRanges.add(new UniformPair<Integer>(startIndex, endIndex));
+                        tokenIndex = endIndex;
                     }
                 }
             }
+
+            if (tokens.get(tokenIndex).getType() == EsperEPL2GrammarParser.CLASSDECL) {
+                int startIndex = findTokenClass(tokenIndex, tokens);
+                if (startIndex != -1) {
+                    int endIndex = findTokenClass(startIndex + 1, tokens);
+                    if (endIndex != -1) {
+
+                        StringWriter writer = new StringWriter();
+                        for (int j = startIndex + 1; j < endIndex; j++) {
+                            writer.append(tokens.get(j).getText());
+                        }
+                        classes.add(writer.toString());
+                        tokenIndexRanges.add(new UniformPair<>(startIndex, endIndex));
+                        tokenIndex = endIndex;
+                    }
+                }
+            }
+
+            tokenIndex++;
         }
 
-        String rewrittenEPL = rewriteScripts(scriptTokenIndexRanges, tokens);
-        return new ScriptResult(rewrittenEPL, scripts);
+        String rewrittenEPL = rewriteEPL(tokenIndexRanges, tokens);
+        return new ScriptOrClassResult(rewrittenEPL, scripts, classes);
     }
 
     private static Token getTokenBefore(int i, CommonTokenStream tokens) {
@@ -220,7 +249,7 @@ public class ParseHelper {
         String lastIdent = null;
         int lastIdentIndex = 0;
         for (int i = start; i < tokens.size(); i++) {
-            if (tokens.get(i).getType() == EsperEPL2GrammarParser.IDENT) {
+            if (tokens.get(i).getType() == IDENT) {
                 lastIdent = tokens.get(i).getText();
                 lastIdentIndex = i;
             }
@@ -239,7 +268,7 @@ public class ParseHelper {
     }
 
 
-    private static String rewriteScripts(List<UniformPair<Integer>> ranges, CommonTokenStream tokens) {
+    private static String rewriteEPL(List<UniformPair<Integer>> ranges, CommonTokenStream tokens) {
         if (ranges.isEmpty()) {
             return tokens.getText();
         }
@@ -315,8 +344,17 @@ public class ParseHelper {
         return indexLast;
     }
 
-    private static boolean isContainsScriptExpression(CommonTokenStream tokens) {
+    private static boolean isContainsScriptOrClassExpression(CommonTokenStream tokens) {
         for (int i = 0; i < tokens.size(); i++) {
+            if (tokens.get(i).getType() == EsperEPL2GrammarParser.CLASSDECL) {
+                int startTokenTripleQuote = findTokenClass(i + 1, tokens);
+                if (startTokenTripleQuote != -1) {
+                    int endTokenTripleQuote = findTokenClass(startTokenTripleQuote + 1, tokens);
+                    if (endTokenTripleQuote != -1) {
+                        return true;
+                    }
+                }
+            }
             if (tokens.get(i).getType() == EsperEPL2GrammarParser.EXPRESSIONDECL) {
                 int startTokenLcurly = findStartTokenScript(i + 1, tokens, EsperEPL2GrammarParser.LCURLY);
                 int startTokenLbrack = findStartTokenScript(i + 1, tokens, EsperEPL2GrammarParser.LBRACK);
@@ -335,6 +373,16 @@ public class ParseHelper {
         int found = -1;
         for (int i = startIndex; i < tokens.size(); i++) {
             if (tokens.get(i).getType() == tokenTypeSearch) {
+                return i;
+            }
+        }
+        return found;
+    }
+
+    private static int findTokenClass(int startIndex, CommonTokenStream tokens) {
+        int found = -1;
+        for (int i = startIndex; i < tokens.size(); i++) {
+            if (tokens.get(i).getType() == TRIPLEQUOTE) {
                 return i;
             }
         }
@@ -377,13 +425,15 @@ public class ParseHelper {
         }
     }
 
-    private static class ScriptResult {
+    private static class ScriptOrClassResult {
         private final String rewrittenEPL;
         private final List<String> scripts;
+        private final List<String> classes;
 
-        private ScriptResult(String rewrittenEPL, List<String> scripts) {
+        public ScriptOrClassResult(String rewrittenEPL, List<String> scripts, List<String> classes) {
             this.rewrittenEPL = rewrittenEPL;
             this.scripts = scripts;
+            this.classes = classes;
         }
 
         public String getRewrittenEPL() {
@@ -392,6 +442,10 @@ public class ParseHelper {
 
         public List<String> getScripts() {
             return scripts;
+        }
+
+        public List<String> getClasses() {
+            return classes;
         }
     }
 

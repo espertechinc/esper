@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
@@ -114,22 +115,25 @@ public class VariableUtil {
                     type = eventType.getUnderlyingType();
                 }
             }
+
+            ClasspathImportException lastException = null;
             if (type == null) {
                 try {
-                    type = classpathImportService.resolveClass(variableTypeWArray.getClassIdentifier(), false);
+                    type = classpathImportService.resolveClass(variableTypeWArray.getClassIdentifier(), false, ClasspathExtensionEmpty.INSTANCE);
                     type = JavaClassHelper.getArrayType(type, variableTypeWArray.getArrayDimensions());
                 } catch (ClasspathImportException e) {
                     log.debug("Not found '" + type + "': " + e.getMessage(), e);
+                    lastException = e;
                     // expected
                 }
             }
             if (type == null) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                        variableTypeWArray.getClassIdentifier() + "' is not a recognized type");
+                        variableTypeWArray.getClassIdentifier() + "' is not a recognized type", lastException);
             }
             if (variableTypeWArray.getArrayDimensions() > 0 && eventType != null) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                        variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array type");
+                        variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array type", lastException);
             }
         } else {
             if (variableTypeWArray.getArrayDimensions() > 0) {

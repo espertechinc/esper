@@ -19,6 +19,8 @@ import com.espertech.esper.common.internal.context.compile.ContextCollector;
 import com.espertech.esper.common.internal.context.compile.ContextCollectorImpl;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.module.*;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvidedCollectorRuntime;
 import com.espertech.esper.common.internal.epl.expression.declared.runtime.ExprDeclaredCollectorRuntime;
 import com.espertech.esper.common.internal.epl.index.base.IndexCollectorRuntime;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowCollector;
@@ -125,7 +127,19 @@ public class DeployerHelperInitializeEPLObjects {
             throw new EPException(e);
         }
 
-        return new DeployerModuleEPLObjects(beanEventTypeFactory, moduleEventTypes, moduleNamedWindows, moduleTables, moduleIndexes, moduleContexts, moduleVariables, moduleExpressions, moduleScripts, eventTypeCollector.getSerdes(), eventTypeResolver);
+        // initialize module class-provided create-class
+        Map<String, ClassProvided> moduleClasses = new HashMap<>();
+        ClassProvidedCollectorRuntime classProvidedCollectorRuntime = new ClassProvidedCollectorRuntime(moduleClasses);
+        try {
+            provider.getModuleProvider().initializeClassProvided(new EPModuleClassProvidedInitServicesImpl(classProvidedCollectorRuntime));
+        } catch (Throwable e) {
+            throw new EPException(e);
+        }
+        for (Map.Entry<String, ClassProvided> moduleClass : moduleClasses.entrySet()) {
+            moduleClass.getValue().loadClasses(provider.getClassLoader());
+        }
+
+        return new DeployerModuleEPLObjects(beanEventTypeFactory, moduleEventTypes, moduleNamedWindows, moduleTables, moduleIndexes, moduleContexts, moduleVariables, moduleExpressions, moduleScripts, moduleClasses, eventTypeCollector.getSerdes(), eventTypeResolver);
     }
 
     public static void validateStagedEPLObjects(DeployerModuleEPLObjects moduleEPLObjects, String moduleName, int rolloutItemNumber, EPStageService stageService) throws EPDeployPreconditionException {
@@ -133,26 +147,29 @@ public class DeployerHelperInitializeEPLObjects {
         if (spi.isEmpty()) {
             return;
         }
-        for (Map.Entry<String, ContextMetaData> context : moduleEPLObjects.getModuleContexts().entrySet()) {
-            checkAlreadyDefinedByStage(spi, EPObjectType.CONTEXT, svc -> svc.getContextPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        for (Map.Entry<String, ContextMetaData> entry : moduleEPLObjects.getModuleContexts().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.CONTEXT, svc -> svc.getContextPathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
         }
-        for (Map.Entry<String, NamedWindowMetaData> context : moduleEPLObjects.getModuleNamedWindows().entrySet()) {
-            checkAlreadyDefinedByStage(spi, EPObjectType.NAMEDWINDOW, svc -> svc.getNamedWindowPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        for (Map.Entry<String, NamedWindowMetaData> entry : moduleEPLObjects.getModuleNamedWindows().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.NAMEDWINDOW, svc -> svc.getNamedWindowPathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
         }
-        for (Map.Entry<String, VariableMetaData> context : moduleEPLObjects.getModuleVariables().entrySet()) {
-            checkAlreadyDefinedByStage(spi, EPObjectType.VARIABLE, svc -> svc.getVariablePathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        for (Map.Entry<String, VariableMetaData> entry : moduleEPLObjects.getModuleVariables().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.VARIABLE, svc -> svc.getVariablePathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
         }
-        for (Map.Entry<String, EventType> context : moduleEPLObjects.getModuleEventTypes().entrySet()) {
-            checkAlreadyDefinedByStage(spi, EPObjectType.EVENTTYPE, svc -> svc.getEventTypePathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        for (Map.Entry<String, EventType> entry : moduleEPLObjects.getModuleEventTypes().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.EVENTTYPE, svc -> svc.getEventTypePathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
         }
-        for (Map.Entry<String, TableMetaData> context : moduleEPLObjects.getModuleTables().entrySet()) {
-            checkAlreadyDefinedByStage(spi, EPObjectType.TABLE, svc -> svc.getTablePathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        for (Map.Entry<String, TableMetaData> entry : moduleEPLObjects.getModuleTables().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.TABLE, svc -> svc.getTablePathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
         }
-        for (Map.Entry<String, ExpressionDeclItem> context : moduleEPLObjects.getModuleExpressions().entrySet()) {
-            checkAlreadyDefinedByStage(spi, EPObjectType.EXPRESSION, svc -> svc.getExprDeclaredPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        for (Map.Entry<String, ExpressionDeclItem> entry : moduleEPLObjects.getModuleExpressions().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.EXPRESSION, svc -> svc.getExprDeclaredPathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
         }
-        for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> context : moduleEPLObjects.getModuleScripts().entrySet()) {
-            checkAlreadyDefinedByStage(spi, EPObjectType.SCRIPT, svc -> svc.getScriptPathRegistry(), context.getKey(), moduleName, rolloutItemNumber);
+        for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> entry : moduleEPLObjects.getModuleScripts().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.SCRIPT, svc -> svc.getScriptPathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
+        }
+        for (Map.Entry<String, ClassProvided> entry : moduleEPLObjects.getModuleClasses().entrySet()) {
+            checkAlreadyDefinedByStage(spi, EPObjectType.CLASSPROVIDED, svc -> svc.getClassProvidedPathRegistry(), entry.getKey(), moduleName, rolloutItemNumber);
         }
     }
 

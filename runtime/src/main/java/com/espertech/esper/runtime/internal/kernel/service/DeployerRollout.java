@@ -48,7 +48,7 @@ public class DeployerRollout {
         for (int i = 0; i < items.length; i++) {
             ClassLoader classLoader = DeployerHelperResolver.getClassLoader(i, items[i].getOptions().getDeploymentClassLoaderOption(), runtime.getServicesContext());
             try {
-                moduleProviders[i] = ModuleProviderUtil.analyze(items[i].getCompiled(), classLoader);
+                moduleProviders[i] = ModuleProviderUtil.analyze(items[i].getCompiled(), classLoader, runtime.getServicesContext().getClassProvidedPathRegistry());
             } catch (Throwable t) {
                 rolloutCleanClassloader(deploymentIds, runtime.getServicesContext());
             }

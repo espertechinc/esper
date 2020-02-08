@@ -33,6 +33,11 @@ import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServi
 import com.espertech.esper.common.internal.context.compile.*;
 import com.espertech.esper.common.internal.context.module.*;
 import com.espertech.esper.common.internal.context.util.ParentClassLoader;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCollectorCompileTime;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeRegistry;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeResolver;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeResolverImpl;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCollectorCompileTime;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolver;
@@ -141,6 +146,7 @@ public class CompilerHelperServices {
         PathRegistry<String, VariableMetaData> pathVariables = new PathRegistry<>(PathRegistryObjectType.VARIABLE);
         PathRegistry<String, ExpressionDeclItem> pathExprDeclared = new PathRegistry<>(PathRegistryObjectType.EXPRDECL);
         PathRegistry<NameAndParamNum, ExpressionScriptProvided> pathScript = new PathRegistry<>(PathRegistryObjectType.SCRIPT);
+        PathRegistry<String, ClassProvided> pathClassProvided = new PathRegistry<>(PathRegistryObjectType.CLASSPROVIDED);
 
         // add runtime-path which is the information an existing runtime may have
         if (path.getCompilerPathables() != null) {
@@ -153,6 +159,7 @@ public class CompilerHelperServices {
                 pathTables.mergeFrom(impl.getTablePathRegistry());
                 pathContexts.mergeFrom(impl.getContextPathRegistry());
                 pathScript.mergeFrom(impl.getScriptPathRegistry());
+                pathClassProvided.mergeFrom(impl.getClassProvidedPathRegistry());
                 eventTypeRepositoryPreconfigured.mergeFrom(impl.getEventTypePreconfigured());
                 variableRepositoryPreconfigured.mergeFrom(impl.getVariablePreconfigured());
 
@@ -177,7 +184,7 @@ public class CompilerHelperServices {
 
         for (EPCompiled unit : path.getCompileds()) {
             deploymentNumber++;
-            ModuleProviderCLPair provider = ModuleProviderUtil.analyze(unit, classLoaderParent);
+            ModuleProviderCLPair provider = ModuleProviderUtil.analyze(unit, classLoaderParent, pathClassProvided);
             String unitModuleName = provider.getModuleProvider().getModuleName();
 
             // initialize event types
@@ -253,6 +260,15 @@ public class CompilerHelperServices {
                 throw new EPException(e);
             }
 
+            // initialize inlined classes
+            Map<String, ClassProvided> moduleClassProvideds = new HashMap<>();
+            ClassProvidedCollectorCompileTime classProvidedCollector = new ClassProvidedCollectorCompileTime(moduleClassProvideds, classLoaderParent);
+            try {
+                provider.getModuleProvider().initializeClassProvided(new EPModuleClassProvidedInitServicesImpl(classProvidedCollector));
+            } catch (Throwable e) {
+                throw new EPException(e);
+            }
+
             // save path-visibility event types and named windows to the path
             String deploymentId = "D" + deploymentNumber;
             try {
@@ -291,6 +307,11 @@ public class CompilerHelperServices {
                         pathScript.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
                     }
                 }
+                for (Map.Entry<String, ClassProvided> entry : moduleClassProvideds.entrySet()) {
+                    if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
+                        pathClassProvided.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                    }
+                }
             } catch (PathException ex) {
                 throw new EPCompileException("Invalid path: " + ex.getMessage(), ex, Collections.emptyList());
             }
@@ -326,6 +347,10 @@ public class CompilerHelperServices {
         ScriptCompileTimeRegistry scriptCompileTimeRegistry = new ScriptCompileTimeRegistry();
         ScriptCompileTimeResolver scriptCompileTimeResolver = new ScriptCompileTimeResolverImpl(moduleName, moduleUses, scriptCompileTimeRegistry, pathScript, moduleDependencies, isFireAndForget);
 
+        // build classes registry
+        ClassProvidedCompileTimeRegistry classProvidedCompileTimeRegistry = new ClassProvidedCompileTimeRegistry();
+        ClassProvidedCompileTimeResolver classProvidedCompileTimeResolver = new ClassProvidedCompileTimeResolverImpl(moduleName, moduleUses, classProvidedCompileTimeRegistry, pathClassProvided, moduleDependencies, isFireAndForget);
+
         // view resolution
         PluggableObjectCollection plugInViews = new PluggableObjectCollection();
         plugInViews.addViews(configuration.getCompiler().getPlugInViews(), configuration.getCompiler().getPlugInVirtualDataWindows(), classpathImportServiceCompileTime);
@@ -349,7 +374,7 @@ public class CompilerHelperServices {
         SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry = new SerdeEventTypeCompileTimeRegistryImpl(targetHA);
         SerdeCompileTimeResolver serdeResolver = targetHA ? makeSerdeResolver(configuration.getCompiler().getSerde(), configuration.getCommon().getTransientConfiguration()) : SerdeCompileTimeResolverNonHA.INSTANCE;
 
-        return new ModuleCompileTimeServices(compilerServices, configuration, contextCompileTimeRegistry, contextCompileTimeResolver, beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime, exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler, eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured, isFireAndForget, indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry, classLoaderParent,
+        return new ModuleCompileTimeServices(compilerServices, configuration, classProvidedCompileTimeRegistry, classProvidedCompileTimeResolver, contextCompileTimeRegistry, contextCompileTimeResolver, beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime, exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler, eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured, isFireAndForget, indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry, classLoaderParent,
             patternResolutionService, scriptCompileTimeRegistry, scriptCompileTimeResolver, serdeEventTypeRegistry, serdeResolver,
             tableCompileTimeRegistry, tableCompileTimeResolver, variableCompileTimeRegistry, variableCompileTimeResolver, viewResolutionService, xmlFragmentEventTypeFactory);
     }

@@ -43,7 +43,7 @@ public class ExprNewInstanceNode extends ExprNodeBase {
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         Class targetClass;
         try {
-            targetClass = validationContext.getClasspathImportService().resolveClass(classIdent, false);
+            targetClass = validationContext.getClasspathImportService().resolveClass(classIdent, false, validationContext.getClassProvidedClasspathExtension());
         } catch (ClasspathImportException e) {
             throw new ExprValidationException("Failed to resolve new-operator class name '" + classIdent + "'");
         }

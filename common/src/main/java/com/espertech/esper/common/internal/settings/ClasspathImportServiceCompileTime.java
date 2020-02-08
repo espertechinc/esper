@@ -24,7 +24,7 @@ public interface ClasspathImportServiceCompileTime extends ClasspathImportServic
 
     AdvancedIndexFactoryProvider resolveAdvancedIndexProvider(String indexTypeName) throws ClasspathImportException;
     Method resolveMethodOverloadChecked(Class clazz, String methodName) throws ClasspathImportException;
-    Method resolveMethodOverloadChecked(String className, String methodName) throws ClasspathImportException;
+    Method resolveMethodOverloadChecked(String className, String methodName, ClasspathExtension classpathExtension) throws ClasspathImportException;
     Class resolveAnnotation(String className) throws ClasspathImportException;
     Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) throws ClasspathImportException, ClasspathImportUndefinedException;
     Method resolveNonStaticMethodOverloadChecked(Class clazz, String methodName) throws ClasspathImportException;

@@ -34,12 +34,13 @@ public class DeploymentInternal {
     private final String[] pathExprDecls;
     private final NameAndParamNum[] pathScripts;
     private final ModuleIndexMeta[] pathIndexes;
+    private final String[] pathClassProvideds;
     private final ModuleProvider moduleProvider;
     private final Map<ModuleProperty, Object> modulePropertiesCached;
     private final Map<Long, EventType> deploymentTypes;
     private final long lastUpdateDate;
 
-    public DeploymentInternal(String deploymentId, EPStatement[] statements, String[] deploymentIdDependencies, String[] pathNamedWindows, String[] pathTables, String[] pathVariables, String[] pathContexts, String[] pathEventTypes, String[] pathExprDecls, NameAndParamNum[] pathScripts, ModuleIndexMeta[] pathIndexes, ModuleProvider moduleProvider, Map<ModuleProperty, Object> modulePropertiesCached, Map<Long, EventType> deploymentTypes, long lastUpdateDate) {
+    public DeploymentInternal(String deploymentId, EPStatement[] statements, String[] deploymentIdDependencies, String[] pathNamedWindows, String[] pathTables, String[] pathVariables, String[] pathContexts, String[] pathEventTypes, String[] pathExprDecls, NameAndParamNum[] pathScripts, ModuleIndexMeta[] pathIndexes, String[] pathClassProvideds, ModuleProvider moduleProvider, Map<ModuleProperty, Object> modulePropertiesCached, Map<Long, EventType> deploymentTypes, long lastUpdateDate) {
         this.deploymentId = deploymentId;
         this.statements = statements;
         this.deploymentIdDependencies = deploymentIdDependencies;
@@ -51,6 +52,7 @@ public class DeploymentInternal {
         this.pathExprDecls = pathExprDecls;
         this.pathScripts = pathScripts;
         this.pathIndexes = pathIndexes;
+        this.pathClassProvideds = pathClassProvideds;
         this.moduleProvider = moduleProvider;
         this.modulePropertiesCached = modulePropertiesCached;
         this.deploymentTypes = deploymentTypes;
@@ -62,7 +64,8 @@ public class DeploymentInternal {
         return new DeploymentInternal(deploymentId, statements, deploymentIdDependenciesArray,
             CollectionUtil.toArray(modulePaths.getPathNamedWindows()), CollectionUtil.toArray(modulePaths.getPathTables()), CollectionUtil.toArray(modulePaths.getPathVariables()),
             CollectionUtil.toArray(modulePaths.getPathContexts()), CollectionUtil.toArray(modulePaths.getPathEventTypes()), CollectionUtil.toArray(modulePaths.getPathExprDecl()),
-            NameAndParamNum.toArray(modulePaths.getPathScripts()), ModuleIndexMeta.toArray(moduleEPLObjects.getModuleIndexes()), moduleProvider.getModuleProvider(),
+            NameAndParamNum.toArray(modulePaths.getPathScripts()), ModuleIndexMeta.toArray(moduleEPLObjects.getModuleIndexes()), CollectionUtil.toArray(modulePaths.getPathClassProvideds()),
+                moduleProvider.getModuleProvider(),
             moduleProvider.getModuleProvider().getModuleProperties(), modulePaths.getDeploymentTypes(), System.currentTimeMillis());
     }
 
@@ -124,5 +127,9 @@ public class DeploymentInternal {
 
     public long getLastUpdateDate() {
         return lastUpdateDate;
+    }
+
+    public String[] getPathClassProvideds() {
+        return pathClassProvideds;
     }
 }

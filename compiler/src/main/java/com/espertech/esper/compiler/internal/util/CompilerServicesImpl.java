@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassType;
 import com.espertech.esper.common.internal.compile.stage1.CompilerServices;
+import com.espertech.esper.common.internal.compile.stage1.CompilerServicesCompileException;
 import com.espertech.esper.common.internal.compile.stage1.spec.StatementSpecRaw;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapEnv;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileException;
@@ -25,6 +26,7 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import org.codehaus.commons.compiler.CompileException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,13 +62,22 @@ public class CompilerServicesImpl implements CompilerServices {
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, null);
         CodegenClass clazz = new CodegenClass(classType, null, classNameSimple, classScope,
             Collections.emptyList(), null, new CodegenClassMethods(), Collections.emptyList());
-        JaninoCompiler.compile(clazz, classes, services);
+        JaninoCompiler.compile(clazz, classes, classes, services);
         ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(classes, services.getParentClassLoader());
         String classNameFull = services.getPackageName() + "." + classNameSimple;
         try {
             return Class.forName(classNameFull, false, cl);
         } catch (ClassNotFoundException e) {
             throw new EPException("Unexpected exception loading class " + classNameFull + ": " + e.getMessage(), e);
+        }
+    }
+
+    public void compileClass(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices services) throws CompilerServicesCompileException {
+        try {
+            JaninoCompiler.compile(code, filenameWithoutExtension, classpath, output, services);
+        } catch (RuntimeException ex) {
+            String message = ex.getMessage().replace(CompileException.class.getName() + ": ", "");
+            throw new CompilerServicesCompileException(message, ex);
         }
     }
 }

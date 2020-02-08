@@ -17,6 +17,8 @@ import com.espertech.esper.common.internal.context.compile.ContextCompileTimeRes
 import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.context.module.ModuleDependenciesCompileTime;
 import com.espertech.esper.common.internal.context.util.ParentClassLoader;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeRegistry;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.dataflow.core.DataFlowCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolver;
@@ -43,6 +45,8 @@ import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompil
 import com.espertech.esper.common.internal.view.core.ViewResolutionService;
 
 public class ModuleCompileTimeServices {
+    private final ClassProvidedCompileTimeRegistry classProvidedCompileTimeRegistry;
+    private final ClassProvidedCompileTimeResolver classProvidedCompileTimeResolver;
     private final CompilerServices compilerServices;
     private Configuration configuration;
     private final ContextCompileTimeRegistry contextCompileTimeRegistry;
@@ -78,10 +82,12 @@ public class ModuleCompileTimeServices {
 
     private final DataFlowCompileTimeRegistry dataFlowCompileTimeRegistry = new DataFlowCompileTimeRegistry();
 
-    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, boolean fireAndForget, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, ParentClassLoader parentClassLoader, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
+    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ClassProvidedCompileTimeRegistry classProvidedCompileTimeRegistry, ClassProvidedCompileTimeResolver classProvidedCompileTimeResolver, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, boolean fireAndForget, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, ParentClassLoader parentClassLoader, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
         this.parentClassLoader = parentClassLoader;
         this.compilerServices = compilerServices;
         this.configuration = configuration;
+        this.classProvidedCompileTimeRegistry = classProvidedCompileTimeRegistry;
+        this.classProvidedCompileTimeResolver = classProvidedCompileTimeResolver;
         this.contextCompileTimeRegistry = contextCompileTimeRegistry;
         this.contextCompileTimeResolver = contextCompileTimeResolver;
         this.beanEventTypeStemService = beanEventTypeStemService;
@@ -114,6 +120,8 @@ public class ModuleCompileTimeServices {
     }
 
     public ModuleCompileTimeServices() {
+        this.classProvidedCompileTimeRegistry = null;
+        this.classProvidedCompileTimeResolver = null;
         this.parentClassLoader = null;
         this.compilerServices = null;
         this.configuration = null;
@@ -154,6 +162,10 @@ public class ModuleCompileTimeServices {
 
     public BeanEventTypeFactoryPrivate getBeanEventTypeFactoryPrivate() {
         return beanEventTypeFactoryPrivate;
+    }
+
+    public ClassProvidedCompileTimeResolver getClassProvidedCompileTimeResolver() {
+        return classProvidedCompileTimeResolver;
     }
 
     public CompilerServices getCompilerServices() {
@@ -294,5 +306,9 @@ public class ModuleCompileTimeServices {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public ClassProvidedCompileTimeRegistry getClassProvidedCompileTimeRegistry() {
+        return classProvidedCompileTimeRegistry;
     }
 }

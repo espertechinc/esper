@@ -153,12 +153,16 @@ public class SAIFFInitializeBuilder {
     }
 
     public CodegenExpression build() {
+        return localMethod(buildMethod());
+    }
+
+    public CodegenMethod buildMethod() {
         if (closed) {
             throw new IllegalStateException("Builder already completed build");
         }
         closed = true;
         method.getBlock().methodReturn(ref(refName));
-        return localMethod(method);
+        return method;
     }
 
     public CodegenMethod getMethod() {

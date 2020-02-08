@@ -25,8 +25,9 @@ public class DeployerModulePaths {
     private final List<String> pathVariables;
     private final List<String> pathExprDecl;
     private final List<NameAndParamNum> pathScripts;
+    private final List<String> pathClassProvideds;
 
-    public DeployerModulePaths(Map<Long, EventType> deploymentTypes, List<String> pathEventTypes, List<String> pathNamedWindows, List<String> pathTables, List<String> pathContexts, List<String> pathVariables, List<String> pathExprDecl, List<NameAndParamNum> pathScripts) {
+    public DeployerModulePaths(Map<Long, EventType> deploymentTypes, List<String> pathEventTypes, List<String> pathNamedWindows, List<String> pathTables, List<String> pathContexts, List<String> pathVariables, List<String> pathExprDecl, List<NameAndParamNum> pathScripts, List<String> pathClassProvideds) {
         this.deploymentTypes = deploymentTypes;
         this.pathEventTypes = pathEventTypes;
         this.pathNamedWindows = pathNamedWindows;
@@ -35,6 +36,7 @@ public class DeployerModulePaths {
         this.pathVariables = pathVariables;
         this.pathExprDecl = pathExprDecl;
         this.pathScripts = pathScripts;
+        this.pathClassProvideds = pathClassProvideds;
     }
 
     public Map<Long, EventType> getDeploymentTypes() {
@@ -67,5 +69,9 @@ public class DeployerModulePaths {
 
     public List<NameAndParamNum> getPathScripts() {
         return pathScripts;
+    }
+
+    public List<String> getPathClassProvideds() {
+        return pathClassProvideds;
     }
 }

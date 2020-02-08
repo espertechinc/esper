@@ -47,9 +47,15 @@ public class CompilerHelperFAFQuery {
         // compile with statement-field first
         classes.sort((o1, o2) -> Integer.compare(o1.getClassType().getSortCode(), o2.getClassType().getSortCode()));
 
+        // add class-provided create-class to classpath
+        compileTimeServices.getClassProvidedCompileTimeResolver().addTo(moduleBytes);
+
         for (CodegenClass clazz : classes) {
-            JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
+            JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
         }
+
+        // remove path create-class class-provided byte code
+        compileTimeServices.getClassProvidedCompileTimeResolver().removeFrom(moduleBytes);
 
         return queryMethodProviderClassName;
     }

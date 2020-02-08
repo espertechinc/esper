@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
 public enum CodegenClassType {
+    APPDECLARED(5),
     KEYPROVISIONING(10),
     KEYPROVISIONINGSERDE(20),
     STATEMENTFIELDS(30),

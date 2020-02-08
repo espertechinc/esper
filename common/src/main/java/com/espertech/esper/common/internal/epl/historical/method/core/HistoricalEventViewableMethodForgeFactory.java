@@ -33,6 +33,7 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
@@ -96,7 +97,7 @@ public class HistoricalEventViewableMethodForgeFactory {
                 eventTypeNameProvidedUDFOrScript = udf.getSecond().getOptionalEventTypeName();
                 strategy = MethodPollingExecStrategyEnum.TARGET_CONST;
             } else {
-                methodReflection = classpathImportService.resolveMethodOverloadChecked(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName());
+                methodReflection = classpathImportService.resolveMethodOverloadChecked(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName(), services.getClassProvidedClasspathExtension());
                 strategy = MethodPollingExecStrategyEnum.TARGET_CONST;
             }
         } catch (ExprValidationException e) {
@@ -246,7 +247,7 @@ public class HistoricalEventViewableMethodForgeFactory {
             if (clazzWhenAvailable != null) {
                 typeGetterMethod = classpathImportService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0]);
             } else {
-                typeGetterMethod = classpathImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
+                typeGetterMethod = classpathImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0], ClasspathExtensionEmpty.INSTANCE);
             }
         } catch (Exception e) {
             throw new ExprValidationException("Could not find getter method for method invocation, expected a method by name '" + getterMethodName + "' accepting no parameters");

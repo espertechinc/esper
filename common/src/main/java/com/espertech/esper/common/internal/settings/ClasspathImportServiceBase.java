@@ -54,11 +54,11 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         validateImportAndAdd(importName, annotationImports);
     }
 
-    public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
+    public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtension classpathExtension)
             throws ClasspathImportException {
         Class clazz;
         try {
-            clazz = resolveClassInternal(className, false, false);
+            clazz = resolveClassInternal(className, false, false, classpathExtension);
         } catch (ClassNotFoundException e) {
             throw new ClasspathImportException("Could not load class by name '" + className + "', please check imports", e);
         }
@@ -70,10 +70,10 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         }
     }
 
-    public Class resolveClass(String className, boolean forAnnotation) throws ClasspathImportException {
+    public Class resolveClass(String className, boolean forAnnotation, ClasspathExtension classpathExtension) throws ClasspathImportException {
         Class clazz;
         try {
-            clazz = resolveClassInternal(className, false, forAnnotation);
+            clazz = resolveClassInternal(className, false, forAnnotation, classpathExtension);
         } catch (ClassNotFoundException e) {
             throw makeClassNotFoundEx(className, e);
         }
@@ -107,7 +107,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
      * @return class
      * @throws ClassNotFoundException if the class cannot be loaded
      */
-    protected Class resolveClassInternal(String className, boolean requireAnnotation, boolean forAnnotationUse) throws ClassNotFoundException {
+    protected Class resolveClassInternal(String className, boolean requireAnnotation, boolean forAnnotationUse, ClasspathExtension classpathExtension) throws ClassNotFoundException {
         if (forAnnotationUse) {
             String lowercase = className.toLowerCase(Locale.ENGLISH);
             if (lowercase.equals("private")) {
@@ -122,6 +122,12 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
             if (lowercase.equals("buseventtype")) {
                 return BusEventType.class;
             }
+        }
+
+        // attempt extension classes i.e. classes part of epl or otherwise not in classpath
+        Class clazzExtension = classpathExtension.findClassByName(className);
+        if (clazzExtension != null) {
+            return clazzExtension;
         }
 
         // Attempt to retrieve the class with the name as-is
@@ -181,7 +187,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
                 return clazz;
             }
 
-            return resolveClass(fullyQualClassName, false);
+            return resolveClass(fullyQualClassName, false, ClasspathExtensionEmpty.INSTANCE);
         }
     }
 

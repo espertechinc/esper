@@ -331,7 +331,7 @@ public class ExprNodeUtilityValidate {
         // Parse the mapped property format into a class name, method and single string parameter
         MappedPropertyParseResult parse = parseMappedProperty(mappedProperty.toString());
         if (parse == null) {
-            ExprConstantNode constNode = resolveIdentAsEnumConst(mappedProperty.toString(), validationContext.getClasspathImportService());
+            ExprConstantNode constNode = resolveIdentAsEnumConst(mappedProperty.toString(), validationContext.getClasspathImportService(), validationContext.getClassProvidedClasspathExtension());
             if (constNode == null) {
                 throw propertyException;
             } else {
@@ -417,9 +417,9 @@ public class ExprNodeUtilityValidate {
         return exprStream;
     }
 
-    private static ExprConstantNode resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService)
+    private static ExprConstantNode resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtension classpathExtension)
             throws ExprValidationException {
-        EnumValue enumValue = ClasspathImportCompileTimeUtil.resolveIdentAsEnum(constant, classpathImportService, false);
+        EnumValue enumValue = ClasspathImportCompileTimeUtil.resolveIdentAsEnum(constant, classpathImportService, classpathExtension, false);
         if (enumValue != null) {
             return new ExprConstantNodeImpl(enumValue);
         }

@@ -108,7 +108,7 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
     public Class resolveAnnotation(String className) throws ClasspathImportException {
         Class clazz;
         try {
-            clazz = resolveClassInternal(className, true, true);
+            clazz = resolveClassInternal(className, true, true, ClasspathExtensionEmpty.INSTANCE);
         } catch (ClassNotFoundException e) {
             throw new ClasspathImportException("Could not load annotation class by name '" + className + "', please check imports", e);
         }
@@ -127,10 +127,10 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
         return resolveMethodInternalCheckOverloads(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC);
     }
 
-    public Method resolveMethodOverloadChecked(String className, String methodName) throws ClasspathImportException {
+    public Method resolveMethodOverloadChecked(String className, String methodName, ClasspathExtension classpathExtension) throws ClasspathImportException {
         Class clazz;
         try {
-            clazz = resolveClassInternal(className, false, false);
+            clazz = resolveClassInternal(className, false, false, classpathExtension);
         } catch (ClassNotFoundException e) {
             throw new ClasspathImportException("Could not load class by name '" + className + "', please check imports", e);
         }

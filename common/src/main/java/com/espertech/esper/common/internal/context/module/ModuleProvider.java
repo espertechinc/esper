@@ -38,5 +38,7 @@ public interface ModuleProvider {
 
     void initializeScripts(EPModuleScriptInitServices svc);
 
+    void initializeClassProvided(EPModuleClassProvidedInitServices svc);
+
     List<StatementProvider> statements();
 }

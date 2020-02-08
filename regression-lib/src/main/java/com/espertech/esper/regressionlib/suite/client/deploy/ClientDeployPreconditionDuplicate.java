@@ -39,6 +39,7 @@ public class ClientDeployPreconditionDuplicate {
         execs.add(new ClientDeployPrecondDupScript());
         execs.add(new ClientDeployPrecondDupContext());
         execs.add(new ClientDeployPrecondDupIndex());
+        execs.add(new ClientDeployPrecondDupClass());
         return execs;
     }
 
@@ -105,6 +106,16 @@ public class ClientDeployPreconditionDuplicate {
             String epl = "create expression double myscript(stringvalue) [0]";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A script by name 'myscript (1 parameters)'", MODULE_NAME_UNNAMED);
+            env.undeployAll();
+        }
+    }
+
+    public static class ClientDeployPrecondDupClass implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = "create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\"";
+            env.compileDeploy(epl, path);
+            tryInvalidDeploy(env, epl, "An application-inlined class by name 'MyClass'", MODULE_NAME_UNNAMED);
             env.undeployAll();
         }
     }

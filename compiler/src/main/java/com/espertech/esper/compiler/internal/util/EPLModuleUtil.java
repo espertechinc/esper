@@ -126,8 +126,8 @@ public class EPLModuleUtil {
                 break;
             }
             if ((t.getType() == EsperEPL2GrammarParser.WS) ||
-                    (t.getType() == EsperEPL2GrammarParser.SL_COMMENT) ||
-                    (t.getType() == EsperEPL2GrammarParser.ML_COMMENT)) {
+                (t.getType() == EsperEPL2GrammarParser.SL_COMMENT) ||
+                (t.getType() == EsperEPL2GrammarParser.ML_COMMENT)) {
                 beginIndex++;
                 continue;
             }
@@ -164,9 +164,9 @@ public class EPLModuleUtil {
                 break;
             }
             if ((t.getType() != EsperEPL2GrammarParser.IDENT) &&
-                    (t.getType() != EsperEPL2GrammarParser.DOT) &&
-                    (t.getType() != EsperEPL2GrammarParser.STAR) &&
-                    (!t.getText().matches("[a-zA-Z]*"))) {
+                (t.getType() != EsperEPL2GrammarParser.DOT) &&
+                (t.getType() != EsperEPL2GrammarParser.STAR) &&
+                (!t.getText().matches("[a-zA-Z]*"))) {
                 throw getMessage(isModule, isUses, resourceName, t.getType());
             }
             buffer.append(t.getText().trim());
@@ -320,16 +320,22 @@ public class EPLModuleUtil {
     private static Set<Integer> getSkippedSemicolons(List<Token> tokens) {
         Set<Integer> result = null;
 
-        int index = -1;
-        for (Object token : tokens) {
-            index++;
-            Token t = (Token) token;
+        int index = 0;
+        while (index < tokens.size()) {
+            Token t = tokens.get(index);
             if (t.getType() == EsperEPL2GrammarParser.EXPRESSIONDECL) {
                 if (result == null) {
                     result = new HashSet<>();
                 }
-                getSkippedSemicolonsBetweenSquareBrackets(index, tokens, result);
+                index = getSkippedSemicolonsBetweenSquareBrackets(index, tokens, result);
             }
+            if (t.getType() == EsperEPL2GrammarParser.CLASSDECL) {
+                if (result == null) {
+                    result = new HashSet<>();
+                }
+                index = getSkippedSemicolonsBetweenTripleQuotes(index, tokens, result);
+            }
+            index++;
         }
 
         return result == null ? Collections.<Integer>emptySet() : result;
@@ -338,33 +344,45 @@ public class EPLModuleUtil {
     /**
      * Find content between square brackets
      */
-    private static void getSkippedSemicolonsBetweenSquareBrackets(int index, List<Token> tokens, Set<Integer> result) {
+    private static int getSkippedSemicolonsBetweenSquareBrackets(int index, List<Token> tokens, Set<Integer> result) {
         // Handle EPL expression "{text}" and script expression "[text]"
         int indexFirstCurly = indexFirstToken(index, tokens, EsperEPL2GrammarParser.LCURLY);
         int indexFirstSquare = indexFirstToken(index, tokens, EsperEPL2GrammarParser.LBRACK);
         if (indexFirstSquare == -1) {
-            return;
+            return index;
         }
         if (indexFirstCurly != -1 && indexFirstCurly < indexFirstSquare) {
-            return;
+            return index;
         }
         int indexCloseSquare = findEndSquareBrackets(indexFirstSquare, tokens);
         if (indexCloseSquare == -1) {
-            return;
+            return index;
         }
 
         if (indexFirstSquare == indexCloseSquare - 1) {
             getSkippedSemicolonsBetweenSquareBrackets(indexCloseSquare, tokens, result);
         } else {
-            int current = indexFirstSquare;
-            while (current < indexCloseSquare) {
-                Token t = tokens.get(current);
-                if (t.getType() == EsperEPL2GrammarParser.SEMI) {
-                    result.add(current);
-                }
-                current++;
-            }
+            getSkippedSemicolonsBetweenIndexes(indexFirstSquare, indexCloseSquare, tokens, result);
         }
+        return indexCloseSquare;
+    }
+
+
+    /**
+     * Find content between triple quotes
+     */
+    private static int getSkippedSemicolonsBetweenTripleQuotes(int index, List<Token> tokens, Set<Integer> result) {
+        // Handle class """{text}"""
+        int indexFirstTriple = indexFirstToken(index, tokens, EsperEPL2GrammarParser.TRIPLEQUOTE);
+        if (indexFirstTriple == -1) {
+            return index;
+        }
+        int indexCloseTriple = indexFirstToken(indexFirstTriple + 1, tokens, EsperEPL2GrammarParser.TRIPLEQUOTE);
+        if (indexCloseTriple == -1) {
+            return index;
+        }
+        getSkippedSemicolonsBetweenIndexes(indexFirstTriple, indexCloseTriple, tokens, result);
+        return indexCloseTriple;
     }
 
     private static int findEndSquareBrackets(int startIndex, List<Token> tokens) {
@@ -396,5 +414,16 @@ public class EPLModuleUtil {
             index++;
         }
         return -1;
+    }
+
+    private static void getSkippedSemicolonsBetweenIndexes(int indexOpen, int indexClose, List<Token> tokens, Set<Integer> result) {
+        int current = indexOpen;
+        while (current < indexClose) {
+            Token t = tokens.get(current);
+            if (t.getType() == EsperEPL2GrammarParser.SEMI) {
+                result.add(current);
+            }
+            current++;
+        }
     }
 }

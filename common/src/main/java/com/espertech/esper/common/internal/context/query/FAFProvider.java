@@ -12,9 +12,12 @@ package com.espertech.esper.common.internal.context.query;
 
 import com.espertech.esper.common.internal.context.module.EPModuleEventTypeInitServices;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.internal.context.module.ModuleDependenciesRuntime;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
 
 public interface FAFProvider {
+    ModuleDependenciesRuntime getModuleDependencies();
+
     void initializeEventTypes(EPModuleEventTypeInitServices svc);
 
     void initializeQuery(EPStatementInitServices epInitServices);

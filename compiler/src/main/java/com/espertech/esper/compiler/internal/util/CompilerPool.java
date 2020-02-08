@@ -41,11 +41,15 @@ class CompilerPool {
     }
 
     void submit(int statementNumber, CompilableItem item) throws InterruptedException {
+        // We are adding all class-provided classes to the output.
+        // Later we remove the create-class classes.
+        moduleBytes.putAll(item.getClassesProvided());
+
         // no thread pool, compile right there
         if (compilerThreadPool == null) {
             try {
                 for (CodegenClass clazz : item.getClasses()) {
-                    JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
+                    JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
                 }
             } finally {
                 item.getPostCompileLatch().completed(moduleBytes);

@@ -212,6 +212,7 @@ package com.espertech.esper.compiler.internal.generated;
 	parserTokenParaphases.put(TERMINATED, "'terminated'");
 	parserTokenParaphases.put(USING, "'using'");
 	parserTokenParaphases.put(EXPRESSIONDECL, "'expression'");
+	parserTokenParaphases.put(CLASSDECL, "'inlined_class'");
 	parserTokenParaphases.put(NEWKW, "'new'");
 	parserTokenParaphases.put(DATAFLOW, "'dataflow'");
 	parserTokenParaphases.put(VALUES, "'values'");
@@ -244,11 +245,16 @@ package com.espertech.esper.compiler.internal.generated;
 //----------------------------------------------------------------------------
 // Start Rules
 //----------------------------------------------------------------------------
-startEPLExpressionRule : (annotationEnum | expressionDecl)* eplExpression EOF;
+startEPLExpressionRule : (annotationEnum | expressionDecl | classDecl)* eplExpression EOF;
 
 startEventPropertyRule : eventProperty EOF;
 
 startJsonValueRule : jsonvalue EOF;
+
+//----------------------------------------------------------------------------
+// Class Declaration
+//----------------------------------------------------------------------------
+classDecl : CLASSDECL TRIPLEQUOTE stringconstant TRIPLEQUOTE;
 
 //----------------------------------------------------------------------------
 // Expression Declaration
@@ -295,6 +301,7 @@ eplExpression : contextExpr?
 		| createSchemaExpr
 		| createContextExpr
 		| createExpressionExpr
+		| createClassExpr
 		| onExpr
 		| updateExpr
 		| createDataflow
@@ -481,6 +488,8 @@ gopConfig : SELECT (COLON|EQUALS) LPAREN selectExpr RPAREN
 createContextExpr : CREATE CONTEXT name=IDENT AS? createContextDetail;
 	
 createExpressionExpr : CREATE expressionDecl;
+
+createClassExpr : CREATE classDecl;
 
 createContextDetail : createContextChoice
                 | contextContextNested COMMA contextContextNested (COMMA contextContextNested)*;
@@ -1284,6 +1293,7 @@ USING:'using';
 MERGE:'merge';
 MATCHED:'matched';
 EXPRESSIONDECL:'expression';
+CLASSDECL:'inlined_class';
 NEWKW:'new';
 START:'start';
 CONTEXT:'context';
@@ -1386,6 +1396,10 @@ QUOTED_STRING_LITERAL
 
 STRING_LITERAL
     :  '"' ( EscapeSequence | ~('\\'|'"') )* '"'
+    ;
+
+TRIPLEQUOTE
+    :  '"' '"' '"'
     ;
 
 fragment

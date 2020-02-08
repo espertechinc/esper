@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.EPException;
+
 public class ExprNodeUtilResolveExceptionHandlerDefault implements ExprNodeUtilResolveExceptionHandler {
     private final String resolvedExpression;
     private final boolean configuredAsSingleRow;
@@ -21,7 +23,7 @@ public class ExprNodeUtilResolveExceptionHandlerDefault implements ExprNodeUtilR
 
     public ExprValidationException handle(Exception e) {
         String message;
-        if (configuredAsSingleRow) {
+        if (e instanceof EPException || configuredAsSingleRow) {
             message = e.getMessage();
         } else {
             message = "Failed to resolve '" + resolvedExpression + "' to a property, single-row function, aggregation function, script, stream or class name";

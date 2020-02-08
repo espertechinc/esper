@@ -13,6 +13,7 @@ package com.espertech.esper.compiler.internal.parse;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.AnnotationDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportCompileTimeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -82,7 +83,7 @@ public class ASTAnnotationHelper {
         String enumValueText = ctx.getText();
         ValueAndFieldDesc enumValueAndField;
         try {
-            enumValueAndField = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(enumValueText, classpathImportService, true);
+            enumValueAndField = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(enumValueText, classpathImportService, ClasspathExtensionEmpty.INSTANCE, true);
         } catch (ExprValidationException e) {
             throw ASTWalkException.from("Annotation value '" + enumValueText + "' is not recognized as an enumeration value, please check imports or use a primitive or string type");
         }
@@ -95,7 +96,7 @@ public class ASTAnnotationHelper {
         if (enumValueText.endsWith(".class") && enumValueText.length() > 6) {
             try {
                 String name = enumValueText.substring(0, enumValueText.length() - 6);
-                enumValue = classpathImportService.resolveClass(name, true);
+                enumValue = classpathImportService.resolveClass(name, true, ClasspathExtensionEmpty.INSTANCE);
             } catch (ClasspathImportException e) {
                 // expected
             }

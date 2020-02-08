@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRegistry;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.resultset.core.GroupByRollupInfo;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
@@ -80,6 +81,10 @@ public class SelectProcessorArgs {
 
     public ClasspathImportServiceCompileTime getClasspathImportService() {
         return compileTimeServices.getClasspathImportServiceCompileTime();
+    }
+
+    public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
+        return compileTimeServices.getClassProvidedClasspathExtension();
     }
 
     public VariableCompileTimeResolver getVariableCompileTimeResolver() {

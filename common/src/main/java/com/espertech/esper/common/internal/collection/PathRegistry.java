@@ -165,4 +165,8 @@ public class PathRegistry<K, E> {
         }
         return new PathRegistry<>(objectType, copy);
     }
+
+    public boolean isEmpty() {
+        return entities.isEmpty();
+    }
 }

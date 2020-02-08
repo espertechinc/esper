@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
 import com.espertech.esper.common.internal.epl.enummethod.compile.EnumMethodCallStackHelperImpl;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeResolver;
@@ -111,6 +112,10 @@ public class ExprValidationContext {
 
     public ClasspathImportServiceCompileTime getClasspathImportService() {
         return compileTimeServices.getClasspathImportServiceCompileTime();
+    }
+
+    public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
+        return compileTimeServices.getClassProvidedClasspathExtension();
     }
 
     public VariableCompileTimeResolver getVariableCompileTimeResolver() {

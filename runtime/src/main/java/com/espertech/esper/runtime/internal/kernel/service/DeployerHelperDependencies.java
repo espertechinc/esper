@@ -51,6 +51,7 @@ public class DeployerHelperDependencies {
             handleConsumed(providerDeploymentId, providingDeployment.getPathEventTypes(), EPObjectType.EVENTTYPE, paths.getEventTypePathRegistry(), moduleName, selfDeploymentId, consumed, name -> name);
             handleConsumed(providerDeploymentId, providingDeployment.getPathExprDecls(), EPObjectType.EXPRESSION, paths.getExprDeclaredPathRegistry(), moduleName, selfDeploymentId, consumed, name -> name);
             handleConsumed(providerDeploymentId, providingDeployment.getPathScripts(), EPObjectType.SCRIPT, paths.getScriptPathRegistry(), moduleName, selfDeploymentId, consumed, SCRIPT_OBJECTNAME);
+            handleConsumed(providerDeploymentId, providingDeployment.getPathClassProvideds(), EPObjectType.CLASSPROVIDED, paths.getClassProvidedPathRegistry(), moduleName, selfDeploymentId, consumed, name -> name);
 
             for (ModuleIndexMeta objectName : providingDeployment.getPathIndexes()) {
                 EventTableIndexMetadata indexMetadata = getIndexMetadata(objectName, moduleName, paths);
@@ -90,6 +91,7 @@ public class DeployerHelperDependencies {
         handleProvided(selfDeployment.getPathEventTypes(), EPObjectType.EVENTTYPE, paths.getEventTypePathRegistry(), moduleName, dependencies, name -> name);
         handleProvided(selfDeployment.getPathExprDecls(), EPObjectType.EXPRESSION, paths.getExprDeclaredPathRegistry(), moduleName, dependencies, name -> name);
         handleProvided(selfDeployment.getPathScripts(), EPObjectType.SCRIPT, paths.getScriptPathRegistry(), moduleName, dependencies, SCRIPT_OBJECTNAME);
+        handleProvided(selfDeployment.getPathClassProvideds(), EPObjectType.CLASSPROVIDED, paths.getClassProvidedPathRegistry(), moduleName, dependencies, name -> name);
 
         for (ModuleIndexMeta objectName : selfDeployment.getPathIndexes()) {
             EventTableIndexMetadata indexMetadata = getIndexMetadata(objectName, moduleName, paths);

@@ -29,14 +29,18 @@ import static com.espertech.esper.compiler.internal.util.CodeGenerationUtil.code
 public class JaninoCompiler {
     private final static Logger log = LoggerFactory.getLogger(JaninoCompiler.class);
 
-    protected static void compile(CodegenClass clazz, Map<String, byte[]> classes, ModuleCompileTimeServices compileTimeServices) {
+    protected static void compile(CodegenClass clazz, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices compileTimeServices) {
         boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
-        compile(clazz, classes, withCodeLogging, compileTimeServices.getParentClassLoader());
+        String code = CodegenClassGenerator.compile(clazz);
+        compileInternal(code, clazz.getClassName(), classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), true);
     }
 
-    private static void compile(CodegenClass clazz, Map<String, byte[]> classes, boolean withCodeLogging, ClassLoader classLoader) {
-        String code = CodegenClassGenerator.compile(clazz);
+    protected static void compile(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices compileTimeServices) {
+        boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
+        compileInternal(code, filenameWithoutExtension, classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), false);
+    }
 
+    private static void compileInternal(String code, String classNameForFile, Map<String, byte[]> classpath, Map<String, byte[]> output, boolean withCodeLogging, ClassLoader classLoader, boolean withErrorLogging) {
         try {
 
             String optionalFileName = null;
@@ -45,7 +49,7 @@ public class JaninoCompiler {
                 if (dirName == null) {
                     dirName = System.getProperty("java.io.tmpdir");
                 }
-                File file = new File(dirName, clazz.getClassName() + ".java");
+                File file = new File(dirName, classNameForFile + ".java");
                 if (!file.exists()) {
                     boolean created = file.createNewFile();
                     if (!created) {
@@ -74,20 +78,22 @@ public class JaninoCompiler {
             org.codehaus.janino.Scanner scanner = new Scanner(optionalFileName, new ByteArrayInputStream(
                 code.getBytes("UTF-8")), "UTF-8");
 
-            ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(classes, classLoader);
+            ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(classpath, classLoader);
             UnitCompiler unitCompiler = new UnitCompiler(
                 new Parser(scanner).parseAbstractCompilationUnit(),
                 new ClassLoaderIClassLoader(cl));
             ClassFile[] classFiles = unitCompiler.compileUnit(true, true, true);
             for (int i = 0; i < classFiles.length; i++) {
-                classes.put(classFiles[i].getThisClassName(), classFiles[i].toByteArray());
+                output.put(classFiles[i].getThisClassName(), classFiles[i].toByteArray());
             }
 
             if (withCodeLogging) {
                 log.info("Code:\n" + codeWithLineNum(code));
             }
         } catch (Exception ex) {
-            log.error("Failed to compile: " + ex.getMessage() + "\ncode:" + codeWithLineNum(code));
+            if (withErrorLogging) {
+                log.error("Failed to compile: " + ex.getMessage() + "\ncode:" + codeWithLineNum(code));
+            }
             throw new RuntimeException(ex);
         }
     }

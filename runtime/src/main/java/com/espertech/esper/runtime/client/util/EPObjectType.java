@@ -45,7 +45,11 @@ public enum EPObjectType {
     /**
      * Index.
      */
-    INDEX("index");
+    INDEX("index"),
+    /**
+     * Application-Inlined Class.
+     */
+    CLASSPROVIDED("application-inlined class");
 
     private final String prettyName;
 

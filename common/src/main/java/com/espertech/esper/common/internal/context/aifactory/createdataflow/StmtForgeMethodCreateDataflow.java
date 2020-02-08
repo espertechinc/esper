@@ -363,12 +363,12 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
             Class forgeClass = null;
             try {
                 String forgeClassName = operatorSpec.getOperatorName() + "Forge";
-                forgeClass = services.getClasspathImportServiceCompileTime().resolveClass(forgeClassName, false);
+                forgeClass = services.getClasspathImportServiceCompileTime().resolveClass(forgeClassName, false, services.getClassProvidedClasspathExtension());
             } catch (ClasspathImportException e) {
 
                 try {
                     String forgeClassName = operatorSpec.getOperatorName();
-                    forgeClass = services.getClasspathImportServiceCompileTime().resolveClass(forgeClassName, false);
+                    forgeClass = services.getClasspathImportServiceCompileTime().resolveClass(forgeClassName, false, services.getClassProvidedClasspathExtension());
                 } catch (ClasspathImportException e2) {
                     // expected
                 }
@@ -643,7 +643,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
                     clazz = JavaClassHelper.getClassForSimpleName(typeName, services.getClasspathImportServiceCompileTime().getClassForNameProvider());
                     if (clazz == null) {
                         try {
-                            clazz = services.getClasspathImportServiceCompileTime().resolveClass(typeName, false);
+                            clazz = services.getClasspathImportServiceCompileTime().resolveClass(typeName, false, services.getClassProvidedClasspathExtension());
                         } catch (ClasspathImportException e) {
                             throw new RuntimeException("Failed to resolve type '" + typeName + "'");
                         }

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptP
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.module.ModuleIndexMeta;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -38,10 +39,11 @@ public class DeployerModuleEPLObjects {
     private final Map<String, VariableMetaData> moduleVariables;
     private final Map<String, ExpressionDeclItem> moduleExpressions;
     private final Map<NameAndParamNum, ExpressionScriptProvided> moduleScripts;
+    private final Map<String, ClassProvided> moduleClasses;
     private final List<EventTypeCollectedSerde> eventTypeSerdes;
     private final EventTypeResolverImpl eventTypeResolver;
 
-    public DeployerModuleEPLObjects(BeanEventTypeFactoryPrivate beanEventTypeFactory, Map<String, EventType> moduleEventTypes, Map<String, NamedWindowMetaData> moduleNamedWindows, Map<String, TableMetaData> moduleTables, Set<ModuleIndexMeta> moduleIndexes, Map<String, ContextMetaData> moduleContexts, Map<String, VariableMetaData> moduleVariables, Map<String, ExpressionDeclItem> moduleExpressions, Map<NameAndParamNum, ExpressionScriptProvided> moduleScripts, List<EventTypeCollectedSerde> eventTypeSerdes, EventTypeResolverImpl eventTypeResolver) {
+    public DeployerModuleEPLObjects(BeanEventTypeFactoryPrivate beanEventTypeFactory, Map<String, EventType> moduleEventTypes, Map<String, NamedWindowMetaData> moduleNamedWindows, Map<String, TableMetaData> moduleTables, Set<ModuleIndexMeta> moduleIndexes, Map<String, ContextMetaData> moduleContexts, Map<String, VariableMetaData> moduleVariables, Map<String, ExpressionDeclItem> moduleExpressions, Map<NameAndParamNum, ExpressionScriptProvided> moduleScripts, Map<String, ClassProvided> moduleClasses, List<EventTypeCollectedSerde> eventTypeSerdes, EventTypeResolverImpl eventTypeResolver) {
         this.beanEventTypeFactory = beanEventTypeFactory;
         this.moduleEventTypes = moduleEventTypes;
         this.moduleNamedWindows = moduleNamedWindows;
@@ -51,6 +53,7 @@ public class DeployerModuleEPLObjects {
         this.moduleVariables = moduleVariables;
         this.moduleExpressions = moduleExpressions;
         this.moduleScripts = moduleScripts;
+        this.moduleClasses = moduleClasses;
         this.eventTypeSerdes = eventTypeSerdes;
         this.eventTypeResolver = eventTypeResolver;
     }
@@ -89,6 +92,10 @@ public class DeployerModuleEPLObjects {
 
     public Map<NameAndParamNum, ExpressionScriptProvided> getModuleScripts() {
         return moduleScripts;
+    }
+
+    public Map<String, ClassProvided> getModuleClasses() {
+        return moduleClasses;
     }
 
     public List<EventTypeCollectedSerde> getEventTypeSerdes() {

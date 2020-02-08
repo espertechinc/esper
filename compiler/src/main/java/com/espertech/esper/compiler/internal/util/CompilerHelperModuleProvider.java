@@ -32,10 +32,10 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptP
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileException;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileSyntaxException;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.*;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.module.*;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.index.compile.IndexCompileTimeKey;
 import com.espertech.esper.common.internal.epl.index.compile.IndexDetail;
 import com.espertech.esper.common.internal.epl.index.compile.IndexDetailForge;
@@ -106,8 +106,7 @@ public class CompilerHelperModuleProvider {
                 EPCompileExceptionItem exception = null;
 
                 try {
-                    StatementCompileTimeServices statementCompileTimeServices = new StatementCompileTimeServices(statementNumber, compileTimeServices);
-                    CompilableItem compilableItem = compileItem(compilable, optionalModuleName, moduleIdentPostfix, statementNumber, statementNames, statementCompileTimeServices, compilerOptions);
+                    CompilableItem compilableItem = compileItem(compilable, optionalModuleName, moduleIdentPostfix, statementNumber, statementNames, compileTimeServices, compilerOptions);
                     className = compilableItem.getProviderClassName();
 
                     compilerPool.submit(statementNumber, compilableItem);
@@ -152,6 +151,14 @@ public class CompilerHelperModuleProvider {
 
         // compile module resource
         String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, moduleBytes, compileTimeServices);
+
+        // remove path create-class class-provided byte code
+        compileTimeServices.getClassProvidedCompileTimeResolver().removeFrom(moduleBytes);
+
+        // add class-provided create-class classes to module bytes
+        for (Map.Entry<String, ClassProvided> entry : compileTimeServices.getClassProvidedCompileTimeRegistry().getClasses().entrySet()) {
+            moduleBytes.putAll(entry.getValue().getBytes());
+        }
 
         // create module XML
         return new EPCompiledManifest(COMPILER_VERSION, moduleProviderClassName, null, compileTimeServices.getSerdeResolver().isTargetHA());
@@ -235,6 +242,14 @@ public class CompilerHelperModuleProvider {
             initializeScriptsMethod.getBlock().expression(localMethod(addScript));
         }
 
+        // register provided classes
+        ModuleClassProvidedInitializeSymbol symbolsClassProvidedInit = new ModuleClassProvidedInitializeSymbol();
+        CodegenMethod initializeClassProvidedMethod = CodegenMethod.makeParentNode(void.class, EPCompilerImpl.class, symbolsClassProvidedInit, classScope).addParam(EPModuleClassProvidedInitServices.class, ModuleClassProvidedInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<String, ClassProvided> clazz : compileTimeServices.getClassProvidedCompileTimeRegistry().getClasses().entrySet()) {
+            CodegenMethod addClassProvided = registerClassProvidedCodegen(clazz, initializeClassProvidedMethod, classScope, symbolsClassProvidedInit);
+            initializeClassProvidedMethod.getBlock().expression(localMethod(addClassProvided));
+        }
+
         // instantiate factories for statements
         CodegenMethod statementsMethod = CodegenMethod.makeParentNode(List.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         makeStatementsMethod(statementsMethod, statementClassNames, classScope);
@@ -251,10 +266,11 @@ public class CompilerHelperModuleProvider {
         CodegenStackGenerator.recursiveBuildStack(initializeVariablesMethod, "initializeVariables", methods);
         CodegenStackGenerator.recursiveBuildStack(initializeExprDeclaredMethod, "initializeExprDeclareds", methods);
         CodegenStackGenerator.recursiveBuildStack(initializeScriptsMethod, "initializeScripts", methods);
+        CodegenStackGenerator.recursiveBuildStack(initializeClassProvidedMethod, "initializeClassProvided", methods);
         CodegenStackGenerator.recursiveBuildStack(statementsMethod, "statements", methods);
 
         CodegenClass clazz = new CodegenClass(CodegenClassType.MODULEPROVIDER, ModuleProvider.class, moduleClassName, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
-        JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
+        JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), ModuleProvider.class, moduleIdentPostfix);
     }
@@ -304,6 +320,14 @@ public class CompilerHelperModuleProvider {
 
     private static CodegenExpression makeModulePropValue(Object value) {
         return SerializerUtil.expressionForUserObject(value);
+    }
+
+    private static CodegenMethod registerClassProvidedCodegen(Map.Entry<String, ClassProvided> classProvided, CodegenMethodScope parent, CodegenClassScope classScope, ModuleClassProvidedInitializeSymbol symbols) {
+        CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
+        method.getBlock()
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleClassProvidedInitServices.GETCLASSPROVIDEDCOLLECTOR)
+                .add("registerClass", constant(classProvided.getKey()), classProvided.getValue().make(method, classScope)));
+        return method;
     }
 
     private static CodegenMethod registerScriptCodegen(Map.Entry<NameAndParamNum, ExpressionScriptProvided> script, CodegenMethodScope parent, CodegenClassScope classScope, ModuleScriptInitializeSymbol symbols) {

@@ -49,8 +49,10 @@ public class StatementSpecRaw {
     private CreateContextDesc createContextDesc;
     private String optionalContextName;
     private List<ExpressionScriptProvided> scriptExpressions;
+    private List<String> classProvideds;
     private CreateDataFlowDesc createDataFlowDesc;
     private CreateExpressionDesc createExpressionDesc;
+    private String createClassProvided;
     private FireAndForgetSpec fireAndForgetSpec;
     private IntoTableSpec intoTableSpec;
     private Set<ExprTableAccessNode> tableExpressions = new HashSet<>();
@@ -455,6 +457,14 @@ public class StatementSpecRaw {
         this.scriptExpressions = scriptExpressions;
     }
 
+    public List<String> getClassProvideds() {
+        return classProvideds;
+    }
+
+    public void setClassProvideds(List<String> classProvideds) {
+        this.classProvideds = classProvideds;
+    }
+
     public CreateDataFlowDesc getCreateDataFlowDesc() {
         return createDataFlowDesc;
     }
@@ -509,5 +519,17 @@ public class StatementSpecRaw {
 
     public boolean isHasPriorExpressions() {
         return hasPriorExpressions;
+    }
+
+    public String getCreateClassProvided() {
+        return createClassProvided;
+    }
+
+    public void setCreateClassProvided(String createClassProvided) {
+        this.createClassProvided = createClassProvided;
+    }
+
+    public void setCreateClassProvided() {
+
     }
 }

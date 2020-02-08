@@ -19,6 +19,8 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
+import java.util.Map;
+
 public interface CompilerServices {
     StatementSpecRaw parseWalk(String epl, StatementSpecMapEnv mapEnv) throws StatementSpecCompileException;
 
@@ -27,4 +29,6 @@ public interface CompilerServices {
     ExprNode compileExpression(String expression, StatementCompileTimeServices services) throws ExprValidationException;
 
     Class compileStandInClass(CodegenClassType classType, String classNameSimple, ModuleCompileTimeServices services);
+
+    void compileClass(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices services) throws CompilerServicesCompileException;
 }

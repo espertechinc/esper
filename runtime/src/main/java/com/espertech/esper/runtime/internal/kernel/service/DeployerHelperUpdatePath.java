@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclIte
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.module.ModuleIndexMeta;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadata;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
@@ -45,6 +46,7 @@ public class DeployerHelperUpdatePath {
         List<String> pathVariables = new ArrayList<>(eplObjects.getModuleVariables().size());
         List<String> pathExprDecl = new ArrayList<>(eplObjects.getModuleExpressions().size());
         List<NameAndParamNum> pathScripts = new ArrayList<>(eplObjects.getModuleScripts().size());
+        List<String> pathClasses = new ArrayList<>(eplObjects.getModuleClasses().size());
 
         try {
             for (Map.Entry<String, NamedWindowMetaData> entry : eplObjects.getModuleNamedWindows().entrySet()) {
@@ -160,6 +162,16 @@ public class DeployerHelperUpdatePath {
                     validateIndexPrecondition(rolloutItemNumber, table.getIndexMetadata(), index);
                 }
             }
+            for (Map.Entry<String, ClassProvided> entry : eplObjects.getModuleClasses().entrySet()) {
+                if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
+                    try {
+                        services.getClassProvidedPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex, rolloutItemNumber);
+                    }
+                    pathClasses.add(entry.getKey());
+                }
+            }
         } catch (Throwable t) {
             Undeployer.deleteFromEventTypeBus(services, deploymentTypes);
             Undeployer.deleteFromPathRegistries(services, deploymentId);
@@ -167,7 +179,7 @@ public class DeployerHelperUpdatePath {
         }
 
         return new DeployerModulePaths(deploymentTypes, pathEventTypes, pathNamedWindows, pathTables, pathContexts,
-            pathVariables, pathExprDecl, pathScripts);
+            pathVariables, pathExprDecl, pathScripts, pathClasses);
     }
 
     private static void validateIndexPrecondition(int rolloutItemNumber, EventTableIndexMetadata indexMetadata, ModuleIndexMeta index) throws EPDeployPreconditionException {

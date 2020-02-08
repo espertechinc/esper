@@ -41,6 +41,7 @@ public class ClientDeployUndeploy {
         execs.add(new ClientUndeployPrecondDepExprDecl());
         execs.add(new ClientUndeployPrecondDepTable());
         execs.add(new ClientUndeployPrecondDepIndex());
+        execs.add(new ClientUndeployPrecondDepClass());
         return execs;
     }
 
@@ -146,6 +147,18 @@ public class ClientDeployUndeploy {
             tryDeployInvalidUndeploy(env, path, "expr", "@name('B') select (select myexpression from SupportBean#keepall) from SupportBean", "B", text);
 
             env.undeployModuleContaining("expr");
+        }
+    }
+
+    public static class ClientUndeployPrecondDepClass implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("@name('clazz') create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\"", path);
+
+            String text = "Application-inlined class 'MyClass'";
+            tryDeployInvalidUndeploy(env, path, "clazz", "@name('A') select MyClass.doIt() as col from SupportBean", "A", text);
+
+            env.undeployModuleContaining("clazz");
         }
     }
 

@@ -81,6 +81,10 @@ public class Undeployer {
                 validateIndexPrecondition(table.getIndexMetadata(), index, deploymentId);
             }
         }
+
+        for (String classProvided : deployment.getPathClassProvideds()) {
+            checkDependency(services.getClassProvidedPathRegistry(), classProvided, moduleName);
+        }
     }
 
     public static void disassociate(EPStatement[] statements) {
@@ -140,6 +144,9 @@ public class Undeployer {
         for (NameParamNumAndModule script : moduleDependencies.getPathScripts()) {
             services.getScriptPathRegistry().removeDependency(new NameAndParamNum(script.getName(), script.getParamNum()), script.getModuleName(), deploymentId);
         }
+        for (NameAndModule classDecl : moduleDependencies.getPathClasses()) {
+            services.getClassProvidedPathRegistry().removeDependency(classDecl.getName(), classDecl.getModuleName(), deploymentId);
+        }
         for (ModuleIndexMeta index : moduleDependencies.getPathIndexes()) {
             EventTableIndexMetadata indexMetadata;
             if (index.isNamedWindow()) {
@@ -184,6 +191,7 @@ public class Undeployer {
         services.getVariablePathRegistry().deleteDeployment(deploymentId);
         services.getExprDeclaredPathRegistry().deleteDeployment(deploymentId);
         services.getScriptPathRegistry().deleteDeployment(deploymentId);
+        services.getClassProvidedPathRegistry().deleteDeployment(deploymentId);
         services.getEventTypeSerdeRepository().removeSerdes(deploymentId);
     }
 

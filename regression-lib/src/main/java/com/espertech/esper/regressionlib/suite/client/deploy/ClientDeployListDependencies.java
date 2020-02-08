@@ -140,11 +140,12 @@ public class ClientDeployListDependencies {
                     "@public create expression MyExpression { 0 };\n" +
                     "@public create expression double MyScript(stringvalue) [0];\n" +
                     "@public create index MyIndexA on MyWindow(intPrimitive);\n" +
-                    "@public create index MyIndexB on MyTable(value);\n";
+                    "@public create index MyIndexB on MyTable(value);\n" +
+                    "@public create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"abc\"; } }\"\"\";\n";
             env.compileDeploy(eplProvide, path);
 
             String eplConsume = "@name('consume') context MyContext select MyVariable, count(*), MyTable['a'].value from MyWindow;\n" +
-                "select MyExpression(), MyScript('a') from MyEventType;\n" +
+                "select MyExpression(), MyScript('a'), MyClass.doIt() from MyEventType;\n" +
                 "on SupportBean as sb merge MyWindow as mw where sb.intPrimitive=mw.intPrimitive when matched then delete;\n" +
                 "on SupportBean as sb merge MyTable as mt where sb.theString=mt.value when matched then delete;\n";
             env.compileDeploy(eplConsume, path);
@@ -161,7 +162,8 @@ public class ClientDeployListDependencies {
                 makeProvided(EPObjectType.EXPRESSION, "MyExpression", deploymentIdConsume),
                 makeProvided(EPObjectType.SCRIPT, "MyScript#1", deploymentIdConsume),
                 makeProvided(EPObjectType.INDEX, "MyIndexA on named-window MyWindow", deploymentIdConsume),
-                makeProvided(EPObjectType.INDEX, "MyIndexB on table MyTable", deploymentIdConsume));
+                makeProvided(EPObjectType.INDEX, "MyIndexB on table MyTable", deploymentIdConsume),
+                makeProvided(EPObjectType.CLASSPROVIDED, "MyClass", deploymentIdConsume));
 
             assertConsumed(env, deploymentIdConsume,
                 new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, EPObjectType.NAMEDWINDOW, "MyWindow"),
@@ -172,7 +174,8 @@ public class ClientDeployListDependencies {
                 new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, EPObjectType.EXPRESSION, "MyExpression"),
                 new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, EPObjectType.SCRIPT, "MyScript#1"),
                 new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, EPObjectType.INDEX, "MyIndexA on named-window MyWindow"),
-                new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, EPObjectType.INDEX, "MyIndexB on table MyTable"));
+                new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, EPObjectType.INDEX, "MyIndexB on table MyTable"),
+                new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, EPObjectType.CLASSPROVIDED, "MyClass"));
 
             assertEqualsAnyOrder(new String[]{env.deploymentId("provide")}, env.deployment().getDeployment(deploymentIdConsume).getDeploymentIdDependencies());
 

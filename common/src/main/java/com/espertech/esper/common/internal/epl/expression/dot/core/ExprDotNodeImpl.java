@@ -372,7 +372,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         }
 
         // try resolve as enumeration class with value
-        ValueAndFieldDesc enumconstantDesc = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getClasspathImportService(), false);
+        ValueAndFieldDesc enumconstantDesc = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getClasspathImportService(), validationContext.getClassProvidedClasspathExtension(), false);
         if (enumconstantDesc != null) {
 
             // try resolve method

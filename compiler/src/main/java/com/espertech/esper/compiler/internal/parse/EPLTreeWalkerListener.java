@@ -148,18 +148,22 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     private final CommonTokenStream tokenStream;
     private final SelectClauseStreamSelectorEnum defaultStreamSelector;
     private final List<String> scriptBodies;
+    private final List<String> classBodies;
     private final List<ExpressionScriptProvided> scriptExpressions;
+    private final List<String> classProvideds;
     private final ExpressionDeclDesc expressionDeclarations;
     private final StatementSpecMapEnv mapEnv;
 
     public EPLTreeWalkerListener(CommonTokenStream tokenStream,
                                  SelectClauseStreamSelectorEnum defaultStreamSelector,
                                  List<String> scriptBodies,
+                                 List<String> classBodies,
                                  StatementSpecMapEnv mapEnv) {
         this.tokenStream = tokenStream;
         this.mapEnv = mapEnv;
         this.defaultStreamSelector = defaultStreamSelector;
         this.scriptBodies = scriptBodies;
+        this.classBodies = classBodies;
 
         if (defaultStreamSelector == null) {
             throw ASTWalkException.from("Default stream selector is null");
@@ -171,7 +175,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         expressionDeclarations = new ExpressionDeclDesc();
         statementSpec.setExpressionDeclDesc(expressionDeclarations);
         scriptExpressions = new ArrayList<>(1);
+        classProvideds = new ArrayList<>(1);
         statementSpec.setScriptExpressions(scriptExpressions);
+        statementSpec.setClassProvideds(classProvideds);
     }
 
     /**
@@ -1964,6 +1970,25 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             return new ExprIdentNodeImpl(subprop.getSubpropName(), subprop.getTableName());
         }
         throw ASTWalkException.from("Failed to validated 'on'-keyword expressions in outer join, expected identifiers only");
+    }
+
+    public void exitClassDecl(EsperEPL2GrammarParser.ClassDeclContext ctx) {
+        if (ctx.parent.getRuleIndex() == EsperEPL2GrammarParser.RULE_createClassExpr) {
+            return;
+        }
+        String clazz = ASTExpressionDeclHelper.walkClassDecl(classBodies);
+        classProvideds.add(clazz);
+    }
+
+    public void exitCreateClassExpr(EsperEPL2GrammarParser.CreateClassExprContext ctx) {
+        String classProvided = ASTExpressionDeclHelper.walkClassDecl(classBodies);
+        statementSpec.setCreateClassProvided(classProvided);
+    }
+
+    public void enterCreateClassExpr(EsperEPL2GrammarParser.CreateClassExprContext ctx) {
+    }
+
+    public void enterClassDecl(EsperEPL2GrammarParser.ClassDeclContext ctx) {
     }
 
     public void enterContextExpr(EsperEPL2GrammarParser.ContextExprContext ctx) {

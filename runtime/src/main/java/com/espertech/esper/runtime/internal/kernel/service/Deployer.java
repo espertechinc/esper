@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.context.module.ModuleDependenciesRunt
 import com.espertech.esper.common.internal.context.module.ModuleIndexMeta;
 import com.espertech.esper.common.internal.context.module.ModuleProviderCLPair;
 import com.espertech.esper.common.internal.context.module.ModuleProviderUtil;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvidedImportClassLoader;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadata;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
@@ -76,7 +77,10 @@ public class Deployer {
 
         EPServicesContext services = epRuntime.getServicesContext();
         ClassLoader deploymentClassLoader = DeployerHelperResolver.getClassLoader(-1, deploymentClassLoaderOption, services);
-        ModuleProviderCLPair moduleProvider = ModuleProviderUtil.analyze(compiled, deploymentClassLoader);
+        ModuleProviderCLPair moduleProvider = ModuleProviderUtil.analyze(compiled, deploymentClassLoader, services.getClassProvidedPathRegistry());
+        if (moduleProvider.getClassLoader() instanceof ClassProvidedImportClassLoader) {
+            ((ClassProvidedImportClassLoader) moduleProvider.getClassLoader()).setImported(moduleProvider.getModuleProvider().getModuleDependencies().getPathClasses());
+        }
         String moduleName = moduleProvider.getModuleProvider().getModuleName();
 
         // resolve external dependencies
@@ -162,6 +166,10 @@ public class Deployer {
 
         for (NameParamNumAndModule script : moduleDependencies.getPathScripts()) {
             services.getScriptPathRegistry().addDependency(new NameAndParamNum(script.getName(), script.getParamNum()), script.getModuleName(), deploymentId);
+        }
+
+        for (NameAndModule classProvided : moduleDependencies.getPathClasses()) {
+            services.getClassProvidedPathRegistry().addDependency(classProvided.getName(), classProvided.getModuleName(), deploymentId);
         }
 
         for (ModuleIndexMeta index : moduleDependencies.getPathIndexes()) {

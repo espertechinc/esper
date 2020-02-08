@@ -30,9 +30,9 @@ import static org.junit.Assert.*;
 public class ClientDeployRollout {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new ClientDeployRolloutFourInterdepModulesWStmtId());
         execs.add(new ClientDeployRolloutTwoInterdepModules());
         execs.add(new ClientDeployRolloutInvalid());
-        execs.add(new ClientDeployRolloutFourInterdepModulesWStmtId());
         return execs;
     }
 

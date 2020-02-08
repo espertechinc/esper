@@ -18,7 +18,6 @@ import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -44,7 +43,7 @@ import java.util.*;
 public class EventTypeCollectorImpl implements EventTypeCollector {
     private final Map<String, EventType> moduleEventTypes;
     private final BeanEventTypeFactory beanEventTypeFactory;
-    private final ByteArrayProvidingClassLoader classLoader;
+    private final ClassLoader classLoader;
     private final EventTypeFactory eventTypeFactory;
     private final BeanEventTypeStemService beanEventTypeStemService;
     private final EventTypeNameResolver eventTypeNameResolver;
@@ -54,7 +53,7 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
     private final List<EventTypeCollectedSerde> serdes = new ArrayList<>();
     private final ClasspathImportService classpathImportService;
 
-    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, ByteArrayProvidingClassLoader classLoader, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory, ClasspathImportService classpathImportService) {
+    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, ClassLoader classLoader, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory, ClasspathImportService classpathImportService) {
         this.moduleEventTypes = moduleEventTypes;
         this.beanEventTypeFactory = beanEventTypeFactory;
         this.classLoader = classLoader;

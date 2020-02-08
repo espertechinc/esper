@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -28,4 +29,5 @@ public interface EPServicesPath {
     PathRegistry<NameAndParamNum, ExpressionScriptProvided> getScriptPathRegistry();
     PathRegistry<String, TableMetaData> getTablePathRegistry();
     PathRegistry<String, VariableMetaData> getVariablePathRegistry();
+    PathRegistry<String, ClassProvided> getClassProvidedPathRegistry();
 }

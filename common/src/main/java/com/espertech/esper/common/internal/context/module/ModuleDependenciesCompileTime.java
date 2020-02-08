@@ -34,6 +34,7 @@ public class ModuleDependenciesCompileTime {
     private final Collection<NameAndModule> pathExpressions = new HashSet<>();
     private final Collection<ModuleIndexMeta> pathIndexes = new HashSet<>();
     private final Collection<NameParamNumAndModule> pathScripts = new HashSet<>();
+    private final Collection<NameAndModule> pathClasses = new HashSet<>();
     private final Collection<String> publicEventTypes = new HashSet<>();
     private final Collection<String> publicVariables = new HashSet<>();
 
@@ -73,6 +74,10 @@ public class ModuleDependenciesCompileTime {
         publicVariables.add(variableName);
     }
 
+    public void addPathClass(String className, String moduleName) {
+        pathClasses.add(new NameAndModule(className, moduleName));
+    }
+
     public void addPathIndex(boolean namedWindow, String infraName, String infraModuleName, String indexName, String indexModuleName, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, TableCompileTimeRegistry tableCompileTimeRegistry) {
         if (indexName == null) { // ignore unnamed non-explicit indexes
             return;
@@ -101,6 +106,7 @@ public class ModuleDependenciesCompileTime {
                 .exprDotMethod(ref("md"), "setPathExpressions", NameAndModule.makeArray(pathExpressions))
                 .exprDotMethod(ref("md"), "setPathIndexes", ModuleIndexMeta.makeArray(pathIndexes))
                 .exprDotMethod(ref("md"), "setPathScripts", NameParamNumAndModule.makeArray(pathScripts))
+                .exprDotMethod(ref("md"), "setPathClasses", NameAndModule.makeArray(pathClasses))
                 .exprDotMethod(ref("md"), "setPublicEventTypes", constant(publicEventTypes.toArray(new String[publicEventTypes.size()])))
                 .exprDotMethod(ref("md"), "setPublicVariables", constant(publicVariables.toArray(new String[publicVariables.size()])))
                 .methodReturn(ref("md"));

@@ -26,4 +26,8 @@ public class VariableTypeException extends VariableDeclarationException {
     public VariableTypeException(String msg) {
         super(msg);
     }
+
+    public VariableTypeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

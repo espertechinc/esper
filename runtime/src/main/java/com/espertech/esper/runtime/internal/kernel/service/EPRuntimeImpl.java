@@ -720,6 +720,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
             services.getTablePathRegistry().copy(),
             services.getContextPathRegistry().copy(),
             services.getScriptPathRegistry().copy(),
+            services.getClassProvidedPathRegistry().copy(),
             eventTypes,
             variables);
     }

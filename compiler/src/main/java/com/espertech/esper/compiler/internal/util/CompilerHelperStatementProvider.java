@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.compile.stage1.Compilable;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.*;
+import com.espertech.esper.common.internal.context.aifactory.createclass.StmtForgeMethodCreateClass;
 import com.espertech.esper.common.internal.context.aifactory.createcontext.StmtForgeMethodCreateContext;
 import com.espertech.esper.common.internal.context.aifactory.createdataflow.StmtForgeMethodCreateDataflow;
 import com.espertech.esper.common.internal.context.aifactory.createexpression.StmtForgeMethodCreateExpression;
@@ -40,6 +41,8 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -68,6 +71,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import static com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil.compileClassProvided;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperSingleEPL.parseWalk;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator.verifySubstitutionParams;
 
@@ -78,12 +82,29 @@ public class CompilerHelperStatementProvider {
                                       String moduleIdentPostfix,
                                       int statementNumber,
                                       Set<String> statementNames,
-                                      StatementCompileTimeServices compileTimeServices,
+                                      ModuleCompileTimeServices moduleCompileTimeServices,
                                       CompilerOptions compilerOptions)
         throws StatementSpecCompileException {
 
-        // Stage 1 - parse statement
-        StatementSpecRaw raw = parseWalk(compilable, compileTimeServices);
+        StatementCompileTimeServices compileTimeServices = new StatementCompileTimeServices(statementNumber, moduleCompileTimeServices);
+
+        // Stage 0 - parse statement
+        StatementSpecRaw raw = parseWalk(compilable, compileTimeServices.getStatementSpecMapEnv());
+
+        // Stage 1 - compile application-provided classes (both create-class as well as just class-keyword)
+        ClassProvidedPrecompileResult classesInlined;
+        ClassProvidedPrecompileResult classesCreateClass = null;
+        String classNameCreateClass = null;
+        try {
+            classesInlined = compileClassProvided(raw.getClassProvideds(), compileTimeServices, null);
+            if (raw.getCreateClassProvided() != null) {
+                classesCreateClass = compileClassProvided(Collections.singletonList(raw.getCreateClassProvided()), compileTimeServices, classesInlined);
+                classNameCreateClass = determineClassNameCreateClass(classesCreateClass, classesInlined);
+            }
+            compileTimeServices.setClassProvidedClasspathExtension(ClassProvidedPrecompileUtil.makeSvc(classesInlined, classesCreateClass, moduleCompileTimeServices.getClassProvidedCompileTimeResolver()));
+        } catch (ExprValidationException ex) {
+            throw new StatementSpecCompileException(ex.getMessage(), ex, compilable.toEPL());
+        }
 
         try {
             // Stage 2(a) - precompile: compile annotations
@@ -176,6 +197,8 @@ public class CompilerHelperStatementProvider {
                 forgeMethod = new StmtForgeMethodCreateTable(base);
             } else if (raw.getCreateExpressionDesc() != null) {
                 forgeMethod = new StmtForgeMethodCreateExpression(base);
+            } else if (raw.getCreateClassProvided() != null) {
+                forgeMethod = new StmtForgeMethodCreateClass(base, classesCreateClass, classNameCreateClass);
             } else if (raw.getCreateWindowDesc() != null) {
                 forgeMethod = new StmtForgeMethodCreateWindow(base);
             } else if (raw.getCreateContextDesc() != null) {
@@ -271,7 +294,12 @@ public class CompilerHelperStatementProvider {
             }
 
             String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), StatementProvider.class, classPostfix);
-            return new CompilableItem(statementProviderClassName, classes, postCompile);
+
+            Map<String, byte[]> additionalClasses = new HashMap<>(classesInlined.getBytes());
+            compileTimeServices.getClassProvidedCompileTimeResolver().addTo(additionalClasses);
+            compileTimeServices.getClassProvidedCompileTimeRegistry().addTo(additionalClasses);
+
+            return new CompilableItem(statementProviderClassName, classes, postCompile, additionalClasses);
         } catch (StatementSpecCompileException ex) {
             throw ex;
         } catch (ExprValidationException ex) {
@@ -282,6 +310,23 @@ public class CompilerHelperStatementProvider {
             String text = t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage();
             throw new StatementSpecCompileException(text, t, compilable.toEPL());
         }
+    }
+
+    private static String determineClassNameCreateClass(ClassProvidedPrecompileResult classesCreateClass, ClassProvidedPrecompileResult classesInlined) {
+        String className = null;
+        for (Map.Entry<String, byte[]> entry : classesCreateClass.getBytes().entrySet()) {
+            if (entry.getKey().contains("$") || classesInlined.getBytes().containsKey(entry.getKey())) {
+                continue;
+            }
+            if (className != null) {
+                throw new IllegalStateException("Found multiple classes: " + className + " and " + entry.getKey());
+            }
+            className = entry.getKey();
+        }
+        if (className == null) {
+            throw new IllegalStateException("Could not determine class name, entries are: " + classesCreateClass.getBytes().keySet());
+        }
+        return className;
     }
 
     private static void verifyForgeables(List<StmtClassForgeable> forgeables) {

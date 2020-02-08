@@ -19,9 +19,9 @@ import java.lang.reflect.Modifier;
 
 public class ClasspathImportCompileTimeUtil {
 
-    public static ValueAndFieldDesc resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, boolean isAnnotation)
+    public static ValueAndFieldDesc resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtension classpathExtension, boolean isAnnotation)
             throws ExprValidationException {
-        EnumValue enumValue = resolveIdentAsEnum(constant, classpathImportService, isAnnotation);
+        EnumValue enumValue = resolveIdentAsEnum(constant, classpathImportService, classpathExtension, isAnnotation);
         if (enumValue == null) {
             return null;
         }
@@ -32,7 +32,7 @@ public class ClasspathImportCompileTimeUtil {
         }
     }
 
-    public static EnumValue resolveIdentAsEnum(String constant, ClasspathImportServiceCompileTime classpathImportService, boolean isAnnotation) {
+    public static EnumValue resolveIdentAsEnum(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtension classpathExtension, boolean isAnnotation) {
         int lastDotIndex = constant.lastIndexOf('.');
         if (lastDotIndex == -1) {
             return null;
@@ -46,7 +46,7 @@ public class ClasspathImportCompileTimeUtil {
 
         Class clazz;
         try {
-            clazz = classpathImportService.resolveClass(className, isAnnotation);
+            clazz = classpathImportService.resolveClass(className, isAnnotation, classpathExtension);
         } catch (ClasspathImportException e) {
             return null;
         }

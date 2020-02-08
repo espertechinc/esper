@@ -23,6 +23,7 @@ public class ParseResult {
     private String expressionWithoutAnnotations;
     private CommonTokenStream tokenStream;
     private List<String> scripts;
+    private List<String> classes;
 
     /**
      * Ctor.
@@ -32,11 +33,12 @@ public class ParseResult {
      * @param scripts                      script list
      * @param tokenStream                  tokens
      */
-    public ParseResult(Tree tree, String expressionWithoutAnnotations, CommonTokenStream tokenStream, List<String> scripts) {
+    public ParseResult(Tree tree, String expressionWithoutAnnotations, CommonTokenStream tokenStream, List<String> scripts, List<String> classes) {
         this.tree = tree;
         this.expressionWithoutAnnotations = expressionWithoutAnnotations;
         this.tokenStream = tokenStream;
         this.scripts = scripts;
+        this.classes = classes;
     }
 
     /**
@@ -63,5 +65,9 @@ public class ParseResult {
 
     public List<String> getScripts() {
         return scripts;
+    }
+
+    public List<String> getClasses() {
+        return classes;
     }
 }

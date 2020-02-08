@@ -33,6 +33,7 @@ import static org.junit.Assert.fail;
 public class ClientDeployPreconditionDependency {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new ClientVisibilityDeployDepClass());
         execs.add(new ClientVisibilityDeployDepScript());
         execs.add(new ClientVisibilityDeployDepVariablePublic());
         execs.add(new ClientVisibilityDeployDepVariablePath());
@@ -45,6 +46,16 @@ public class ClientDeployPreconditionDependency {
         execs.add(new ClientVisibilityDeployDepNamedWindowOfNamedModule());
         execs.add(new ClientVisibilityDeployDepIndex());
         return execs;
+    }
+
+    public static class ClientVisibilityDeployDepClass implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compile("@name('infra') create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\";\n", path); // Note: not deploying, just adding to path
+
+            String text = "dependency application-inlined class 'MyClass'";
+            tryInvalidDeploy(env, path, "select MyClass.doIt() from SupportBean", text);
+        }
     }
 
     public static class ClientVisibilityDeployDepEventTypePublic implements RegressionExecution {

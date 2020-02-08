@@ -20,6 +20,7 @@ public class ModuleDependenciesRuntime {
     private NameAndModule[] pathVariables;
     private NameAndModule[] pathContexts;
     private NameAndModule[] pathExpressions;
+    private NameAndModule[] pathClasses;
     private ModuleIndexMeta[] pathIndexes;
     private NameParamNumAndModule[] pathScripts;
     private String[] publicEventTypes;
@@ -103,5 +104,13 @@ public class ModuleDependenciesRuntime {
 
     public void setPathScripts(NameParamNumAndModule[] pathScripts) {
         this.pathScripts = pathScripts;
+    }
+
+    public NameAndModule[] getPathClasses() {
+        return pathClasses;
+    }
+
+    public void setPathClasses(NameAndModule[] pathClasses) {
+        this.pathClasses = pathClasses;
     }
 }

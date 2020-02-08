@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.instantiator;
 
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanManufactureException;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import org.slf4j.Logger;
@@ -84,7 +85,7 @@ public class BeanInstantiatorFactory {
         String className = factoryMethodName.substring(0, lastDotIndex);
         String methodName = factoryMethodName.substring(lastDotIndex + 1);
         try {
-            Method method = classpathImportService.resolveMethodOverloadChecked(className, methodName, new Class[0], new boolean[0], new boolean[0]);
+            Method method = classpathImportService.resolveMethodOverloadChecked(className, methodName, new Class[0], new boolean[0], new boolean[0], ClasspathExtensionEmpty.INSTANCE);
             return new BeanInstantiatorForgeByReflection(method);
         } catch (ClasspathImportException e) {
             String message = "Failed to resolve configured factory method '" + methodName + "' expected to exist for class '" + className + "'";

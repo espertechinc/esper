@@ -110,7 +110,7 @@ public class ExprNodeUtilityResolve {
             if (optionalClass != null) {
                 method = services.getClasspathImportServiceCompileTime().resolveMethod(optionalClass, methodName, paramTypes, allowEventBeanType);
             } else {
-                method = services.getClasspathImportServiceCompileTime().resolveMethodOverloadChecked(className, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
+                method = services.getClasspathImportServiceCompileTime().resolveMethodOverloadChecked(className, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType, services.getClassProvidedClasspathExtension());
             }
         } catch (Exception e) {
             throw exceptionHandler.handle(e);

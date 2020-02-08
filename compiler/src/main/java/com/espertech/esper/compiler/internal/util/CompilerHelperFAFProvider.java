@@ -32,9 +32,12 @@ import com.espertech.esper.common.internal.compile.stage3.StatementTypeUtil;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.internal.context.module.ModuleDependenciesRuntime;
 import com.espertech.esper.common.internal.context.query.FAFProvider;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.*;
@@ -47,6 +50,7 @@ import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil.compileClassProvided;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperModuleProvider.makeInitEventTypes;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperStatementProvider.getNameFromAnnotation;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator.verifySubstitutionParams;
@@ -56,12 +60,21 @@ public class CompilerHelperFAFProvider {
     private final static String MEMBERNAME_QUERY_METHOD_PROVIDER = "provider";
 
     public static EPCompiled compile(Compilable compilable, ModuleCompileTimeServices services, CompilerArguments args) throws ExprValidationException, StatementSpecCompileException, EPCompileException {
-        StatementCompileTimeServices statementCompileTimeServices = new StatementCompileTimeServices(0, services);
-        StatementSpecRaw raw = CompilerHelperSingleEPL.parseWalk(compilable, statementCompileTimeServices);
+        StatementCompileTimeServices compileTimeServices = new StatementCompileTimeServices(0, services);
+        StatementSpecRaw raw = CompilerHelperSingleEPL.parseWalk(compilable, compileTimeServices.getStatementSpecMapEnv());
 
         StatementType statementType = StatementTypeUtil.getStatementType(raw);
         if (statementType != StatementType.SELECT) { // the fire-and-forget spec is null for "select" and populated for I/U/D
             throw new StatementSpecCompileException("Provided EPL expression is a continuous query expression (not an on-demand query)", compilable.toEPL());
+        }
+
+        // compile application-provided classes
+        ClassProvidedPrecompileResult classesInlined;
+        try {
+            classesInlined = compileClassProvided(raw.getClassProvideds(), compileTimeServices, null);
+            compileTimeServices.setClassProvidedClasspathExtension(ClassProvidedPrecompileUtil.makeSvc(classesInlined, null, services.getClassProvidedCompileTimeResolver()));
+        } catch (ExprValidationException ex) {
+            throw new StatementSpecCompileException(ex.getMessage(), ex, compilable.toEPL());
         }
 
         Annotation[] annotations = AnnotationUtil.compileAnnotations(raw.getAnnotations(), services.getClasspathImportServiceCompileTime(), compilable);
@@ -83,25 +96,25 @@ public class CompilerHelperFAFProvider {
         String statementNameFromAnnotation = getNameFromAnnotation(annotations);
         String statementName = statementNameFromAnnotation == null ? "q0" : statementNameFromAnnotation.trim();
         StatementRawInfo statementRawInfo = new StatementRawInfo(0, statementName, annotations, statementType, contextDescriptor, null, compilable, null);
-        StatementSpecCompiledDesc compiledDesc = StatementRawCompiler.compile(raw, compilable, false, true, annotations, visitor.getSubselects(), new ArrayList<>(raw.getTableExpressions()), statementRawInfo, statementCompileTimeServices);
+        StatementSpecCompiledDesc compiledDesc = StatementRawCompiler.compile(raw, compilable, false, true, annotations, visitor.getSubselects(), new ArrayList<>(raw.getTableExpressions()), statementRawInfo, compileTimeServices);
         StatementSpecCompiled specCompiled = compiledDesc.getCompiled();
         FireAndForgetSpec fafSpec = specCompiled.getRaw().getFireAndForgetSpec();
 
-        Map<String, byte[]> moduleBytes = new HashMap<>();
+        Map<String, byte[]> moduleBytes = new HashMap<>(classesInlined.getBytes());
         EPCompiledManifest manifest;
         String classPostfix = IdentifierUtil.getIdentifierMayStartNumeric(statementName);
 
         FAFQueryMethodForge query;
         if (specCompiled.getRaw().getInsertIntoDesc() != null) {
-            query = new FAFQueryMethodIUDInsertIntoForge(specCompiled, compilable, statementRawInfo, statementCompileTimeServices);
+            query = new FAFQueryMethodIUDInsertIntoForge(specCompiled, compilable, statementRawInfo, compileTimeServices);
         } else if (fafSpec == null) {   // null indicates a select-statement, same as continuous query
-            FAFQueryMethodSelectDesc desc = new FAFQueryMethodSelectDesc(specCompiled, compilable, statementRawInfo, statementCompileTimeServices);
+            FAFQueryMethodSelectDesc desc = new FAFQueryMethodSelectDesc(specCompiled, compilable, statementRawInfo, compileTimeServices);
             String classNameResultSetProcessor = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
             query = new FAFQueryMethodSelectForge(desc, classNameResultSetProcessor, statementRawInfo);
         } else if (fafSpec instanceof FireAndForgetSpecDelete) {
-            query = new FAFQueryMethodIUDDeleteForge(specCompiled, compilable, statementRawInfo, statementCompileTimeServices);
+            query = new FAFQueryMethodIUDDeleteForge(specCompiled, compilable, statementRawInfo, compileTimeServices);
         } else if (fafSpec instanceof FireAndForgetSpecUpdate) {
-            query = new FAFQueryMethodIUDUpdateForge(specCompiled, compilable, statementRawInfo, statementCompileTimeServices);
+            query = new FAFQueryMethodIUDUpdateForge(specCompiled, compilable, statementRawInfo, compileTimeServices);
         } else {
             throw new IllegalStateException("Unrecognized FAF code " + fafSpec);
         }
@@ -149,6 +162,10 @@ public class CompilerHelperFAFProvider {
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, fafProviderClassName);
         CodegenClassMethods methods = new CodegenClassMethods();
 
+        // provide module dependencies
+        CodegenMethod getModuleDependenciesMethod = CodegenMethod.makeParentNode(ModuleDependenciesRuntime.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        getModuleDependenciesMethod.getBlock().methodReturn(compileTimeServices.getModuleDependencies().make(getModuleDependenciesMethod, classScope));
+
         // initialize-event-types
         CodegenMethod initializeEventTypesMethod = makeInitEventTypes(classScope, compileTimeServices);
 
@@ -161,6 +178,7 @@ public class CompilerHelperFAFProvider {
         getQueryMethodProviderMethod.getBlock().methodReturn(ref(MEMBERNAME_QUERY_METHOD_PROVIDER));
 
         // build stack
+        CodegenStackGenerator.recursiveBuildStack(getModuleDependenciesMethod, "getModuleDependencies", methods);
         CodegenStackGenerator.recursiveBuildStack(initializeEventTypesMethod, "initializeEventTypes", methods);
         CodegenStackGenerator.recursiveBuildStack(initializeQueryMethod, "initializeQuery", methods);
         CodegenStackGenerator.recursiveBuildStack(getQueryMethodProviderMethod, "getQueryMethodProvider", methods);
@@ -169,7 +187,7 @@ public class CompilerHelperFAFProvider {
         members.add(new CodegenTypedParam(FAFQueryMethodProvider.class, MEMBERNAME_QUERY_METHOD_PROVIDER).setFinal(false));
 
         CodegenClass clazz = new CodegenClass(CodegenClassType.FAFPROVIDER, FAFProvider.class, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
-        JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
+        JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), FAFProvider.class, classPostfix);
     }

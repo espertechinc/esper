@@ -60,6 +60,7 @@ import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
 import com.espertech.esper.common.internal.rettype.EventMultiValuedEPType;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.util.*;
@@ -891,7 +892,7 @@ public class SelectExprProcessorHelper {
                         // The type may however be an auto-import or fully-qualified class name
                         Class clazz = null;
                         try {
-                            clazz = classpathImportService.resolveClass(insertIntoDesc.getEventTypeName(), false);
+                            clazz = classpathImportService.resolveClass(insertIntoDesc.getEventTypeName(), false, ClasspathExtensionEmpty.INSTANCE);
                         } catch (ClasspathImportException e) {
                             log.debug("Target stream name '" + insertIntoDesc.getEventTypeName() + "' is not resolved as a class name");
                         }

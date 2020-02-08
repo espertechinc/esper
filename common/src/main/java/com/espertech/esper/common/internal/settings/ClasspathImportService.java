@@ -23,13 +23,13 @@ public interface ClasspathImportService {
 
     ClassLoader getClassLoader();
 
-    Class resolveClass(String className, boolean forAnnotation) throws ClasspathImportException;
+    Class resolveClass(String className, boolean forAnnotation, ClasspathExtension classpathExtension) throws ClasspathImportException;
 
     Constructor resolveCtor(Class clazz, Class[] paramTypes) throws ClasspathImportException;
 
     Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws ClasspathImportException;
 
-    Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws ClasspathImportException;
+    Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtension classpathExtension) throws ClasspathImportException;
 
     Class resolveClassForBeanEventType(String fullyQualClassName) throws ClasspathImportException;
 }

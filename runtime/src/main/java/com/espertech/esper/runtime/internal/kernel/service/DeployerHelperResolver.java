@@ -143,6 +143,14 @@ public class DeployerHelperResolver {
             dependencies.add(depIdIndex);
         }
 
+        for (NameAndModule pathClass : moduleDependencies.getPathClasses()) {
+            String depIdClass = services.getClassProvidedPathRegistry().getDeploymentId(pathClass.getName(), pathClass.getModuleName());
+            if (depIdClass == null) {
+                throw makePreconditionExceptionPath(rolloutItemNumber, PathRegistryObjectType.CLASSPROVIDED, pathClass);
+            }
+            dependencies.add(depIdClass);
+        }
+
         return dependencies;
     }
 

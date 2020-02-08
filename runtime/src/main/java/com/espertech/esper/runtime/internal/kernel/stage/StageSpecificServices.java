@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptP
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.util.InternalEventRouteDest;
 import com.espertech.esper.common.internal.context.util.InternalEventRouter;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -52,6 +53,7 @@ public class StageSpecificServices implements EPServicesEvaluation, EPServicesPa
     private final PathRegistry<String, VariableMetaData> variablesPathRegistry = new PathRegistry<>(PathRegistryObjectType.VARIABLE);
     private final PathRegistry<String, ExpressionDeclItem> exprDeclaredPathRegistry = new PathRegistry<>(PathRegistryObjectType.EXPRDECL);
     private final PathRegistry<NameAndParamNum, ExpressionScriptProvided> scriptPathRegistry = new PathRegistry<>(PathRegistryObjectType.SCRIPT);
+    private final PathRegistry<String, ClassProvided> classProvidedPathRegistry = new PathRegistry<>(PathRegistryObjectType.CLASSPROVIDED);
     private InternalEventRouteDest internalEventRouteDest;
 
     public StageSpecificServices(DeploymentLifecycleService deploymentLifecycleService, ManagedReadWriteLock eventProcessingRWLock, FilterServiceSPI filterService, InternalEventRouter internalEventRouter, MetricReportingService metricReportingService, SchedulingServiceSPI schedulingService, StageRuntimeServices stageRuntimeServices, ThreadingService threadingService) {
@@ -144,6 +146,10 @@ public class StageSpecificServices implements EPServicesEvaluation, EPServicesPa
 
     public InternalEventRouter getInternalEventRouter() {
         return internalEventRouter;
+    }
+
+    public PathRegistry<String, ClassProvided> getClassProvidedPathRegistry() {
+        return classProvidedPathRegistry;
     }
 
     public void destroy() {

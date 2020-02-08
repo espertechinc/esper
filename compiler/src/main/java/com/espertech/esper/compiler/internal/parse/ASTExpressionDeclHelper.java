@@ -77,4 +77,8 @@ public class ASTExpressionDeclHelper {
         expr.setOptionalSoda(expression);
         return new Pair<>(expr, null);
     }
+
+    public static String walkClassDecl(List<String> classBodies) {
+        return classBodies.remove(0);
+    }
 }

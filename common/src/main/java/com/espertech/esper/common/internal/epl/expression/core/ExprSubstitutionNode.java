@@ -55,7 +55,7 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
                 type = clazz;
             } else {
                 try {
-                    type = validationContext.getClasspathImportService().resolveClass(optionalType.getClassIdentifier(), false);
+                    type = validationContext.getClasspathImportService().resolveClass(optionalType.getClassIdentifier(), false, validationContext.getClassProvidedClasspathExtension());
                 } catch (ClasspathImportException e) {
                     throw new ExprValidationException("Failed to resolve type '" + optionalType.getClassIdentifier() + "': " + e.getMessage(), e);
                 }

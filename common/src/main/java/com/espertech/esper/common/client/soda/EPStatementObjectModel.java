@@ -43,6 +43,7 @@ public class EPStatementObjectModel implements Serializable {
     private List<AnnotationPart> annotations;
     private List<ExpressionDeclaration> expressionDeclarations;
     private List<ScriptExpression> scriptExpressions;
+    private List<ClassProvidedExpression> classProvidedExpressions;
     private String contextName;
     private UpdateClause updateClause;
     private CreateVariableClause createVariable;
@@ -53,6 +54,7 @@ public class EPStatementObjectModel implements Serializable {
     private CreateContextClause createContext;
     private CreateDataFlowClause createDataFlow;
     private CreateExpressionClause createExpression;
+    private CreateClassClause createClass;
     private OnClause onExpr;
     private InsertIntoClause insertInto;
     private SelectClause selectClause;
@@ -351,6 +353,7 @@ public class EPStatementObjectModel implements Serializable {
         AnnotationPart.toEPL(writer, annotations, formatter);
         ExpressionDeclaration.toEPL(writer, expressionDeclarations, formatter);
         ScriptExpression.toEPL(writer, scriptExpressions, formatter);
+        ClassProvidedExpression.toEPL(writer, classProvidedExpressions, formatter);
 
         if (contextName != null) {
             formatter.beginContext(writer);
@@ -369,6 +372,10 @@ public class EPStatementObjectModel implements Serializable {
         } else if (createExpression != null) {
             formatter.beginCreateExpression(writer);
             createExpression.toEPL(writer);
+            return;
+        } else if (createClass != null) {
+            formatter.beginCreateExpression(writer);
+            createClass.toEPL(writer);
             return;
         } else if (createContext != null) {
             formatter.beginCreateContext(writer);
@@ -787,6 +794,14 @@ public class EPStatementObjectModel implements Serializable {
         this.scriptExpressions = scriptExpressions;
     }
 
+    public List<ClassProvidedExpression> getClassProvidedExpressions() {
+        return classProvidedExpressions;
+    }
+
+    public void setClassProvidedExpressions(List<ClassProvidedExpression> classProvidedExpressions) {
+        this.classProvidedExpressions = classProvidedExpressions;
+    }
+
     /**
      * Returns the "create dataflow" part, if present.
      *
@@ -839,6 +854,14 @@ public class EPStatementObjectModel implements Serializable {
      */
     public void setCreateExpression(CreateExpressionClause createExpression) {
         this.createExpression = createExpression;
+    }
+
+    public CreateClassClause getCreateClass() {
+        return createClass;
+    }
+
+    public void setCreateClass(CreateClassClause createClass) {
+        this.createClass = createClass;
     }
 
     /**

@@ -28,6 +28,8 @@ import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.common.client.util.TimeSourceType;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.collection.PathRegistryObjectType;
+import com.espertech.esper.common.internal.context.util.ParentClassLoader;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFactory;
@@ -332,11 +334,14 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
         StageRecoveryService stageRecoveryService = makeStageRecoveryService(epServicesHA);
 
+        PathRegistry<String, ClassProvided> classProvidedPathRegistry = new PathRegistry<>(PathRegistryObjectType.CLASSPROVIDED);
+
         return new EPServicesContext(aggregationServiceFactoryService,
                 beanEventTypeFactoryPrivate,
                 beanEventTypeStemService,
                 ClassForNameProviderDefault.INSTANCE,
                 classLoaderParent,
+                classProvidedPathRegistry,
                 configs,
                 contextManagementService,
                 pathContextRegistry,

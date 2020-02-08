@@ -24,4 +24,8 @@ public class VariableDeclarationException extends Exception {
     public VariableDeclarationException(String msg) {
         super(msg);
     }
+
+    public VariableDeclarationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

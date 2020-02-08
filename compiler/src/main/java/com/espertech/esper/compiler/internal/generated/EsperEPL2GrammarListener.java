@@ -50,6 +50,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitStartJsonValueRule(EsperEPL2GrammarParser.StartJsonValueRuleContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#classDecl}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassDecl(EsperEPL2GrammarParser.ClassDeclContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#classDecl}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassDecl(EsperEPL2GrammarParser.ClassDeclContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#expressionDecl}.
 	 * @param ctx the parse tree
 	 */
@@ -749,6 +759,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCreateExpressionExpr(EsperEPL2GrammarParser.CreateExpressionExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#createClassExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreateClassExpr(EsperEPL2GrammarParser.CreateClassExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#createClassExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreateClassExpr(EsperEPL2GrammarParser.CreateClassExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#createContextDetail}.
 	 * @param ctx the parse tree

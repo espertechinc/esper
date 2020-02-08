@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ParentClassLoader extends ClassLoader {
+public class ParentClassLoader extends java.lang.ClassLoader {
     private final Map<String, Class> classes = new HashMap<>(4);
     private final Map<String, List<String>> deploymentIds = new HashMap<>(4);
 
-    public ParentClassLoader(ClassLoader parent) {
+    public ParentClassLoader(java.lang.ClassLoader parent) {
         super(parent);
     }
 

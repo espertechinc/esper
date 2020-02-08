@@ -252,7 +252,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
                 ClasspathImportException ex = null;
                 if (clazz == null) {
                     try {
-                        clazz = classpathImportService.resolveClass(propname, false);
+                        clazz = classpathImportService.resolveClass(propname, false, services.getClassProvidedClasspathExtension());
                     } catch (ClasspathImportException e) {
                         ex = e;
                     }

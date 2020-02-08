@@ -64,6 +64,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterClassDecl(EsperEPL2GrammarParser.ClassDeclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClassDecl(EsperEPL2GrammarParser.ClassDeclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpressionDecl(EsperEPL2GrammarParser.ExpressionDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -899,6 +911,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCreateExpressionExpr(EsperEPL2GrammarParser.CreateExpressionExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCreateClassExpr(EsperEPL2GrammarParser.CreateClassExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCreateClassExpr(EsperEPL2GrammarParser.CreateClassExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

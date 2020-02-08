@@ -66,7 +66,7 @@ public class ClientDeployVersion {
                 env.runtime().getDeploymentService().rollout(Collections.singletonList(new EPDeploymentRolloutCompiled(compiled)));
                 fail();
             } catch (EPDeployDeploymentVersionException ex) {
-                assertEquals(-1, ex.getRolloutItemNumber());
+                assertEquals(0, ex.getRolloutItemNumber());
                 assertMessage(ex, versionMismatchMsg);
             } catch (EPDeployException ex) {
                 throw new RuntimeException(ex);

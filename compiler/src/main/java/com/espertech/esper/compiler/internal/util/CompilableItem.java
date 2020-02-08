@@ -13,16 +13,19 @@ package com.espertech.esper.compiler.internal.util;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 
 import java.util.List;
+import java.util.Map;
 
 public class CompilableItem {
     private final String providerClassName;
     private final List<CodegenClass> classes;
     private final CompilableItemPostCompileLatch postCompileLatch;
+    private final Map<String, byte[]> classesProvided;
 
-    public CompilableItem(String providerClassName, List<CodegenClass> classes, CompilableItemPostCompileLatch postCompileLatch) {
+    public CompilableItem(String providerClassName, List<CodegenClass> classes, CompilableItemPostCompileLatch postCompileLatch, Map<String, byte[]> classesProvided) {
         this.providerClassName = providerClassName;
         this.classes = classes;
         this.postCompileLatch = postCompileLatch;
+        this.classesProvided = classesProvided;
     }
 
     public String getProviderClassName() {
@@ -35,5 +38,9 @@ public class CompilableItem {
 
     public CompilableItemPostCompileLatch getPostCompileLatch() {
         return postCompileLatch;
+    }
+
+    public Map<String, byte[]> getClassesProvided() {
+        return classesProvided;
     }
 }
