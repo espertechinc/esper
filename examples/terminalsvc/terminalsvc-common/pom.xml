@@ -20,7 +20,7 @@
         <repository>
             <id>jboss</id>
             <name>JBoss Repository for Maven</name>
-            <url>http://repository.jboss.org/maven2/</url>
+            <url>https://repository.jboss.org/maven2/</url>
         </repository>
     </repositories>
     <dependencies>
