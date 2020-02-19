@@ -77,8 +77,8 @@ public class ExprCoreAndOrNot {
     private static void sendBeanAssert(RegressionEnvironment env, int intPrimitive, Object[] expected) {
         SupportBean bean = new SupportBean("", intPrimitive);
         env.sendEventBean(bean);
-        final String[] FIELDS = "c0,c1,c2".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, expected);
+        final String[] fields = "c0,c1,c2".split(",");
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
     }
 
     private static void sendBeanAssert(RegressionEnvironment env, String theString, boolean expected) {
