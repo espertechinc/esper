@@ -63,7 +63,23 @@ public class EPLOtherStaticFunctions {
         execs.add(new EPLOtherPassthru());
         execs.add(new EPLOtherPrimitiveConversion());
         execs.add(new EPLOtherStaticFuncWCurrentTimeStamp());
+        execs.add(new EPLOtherStaticFuncEnumConstant());
         return execs;
+    }
+
+    private static class EPLOtherStaticFuncEnumConstant implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "create map schema MyEvent(someDate Date, dateFrom string, dateTo string, minutesOfDayFrom int, minutesOfDayTo int, daysOfWeek string);\n" +
+                "select " +
+                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).isAfter(cast(dateFrom||'T00:00:00Z', zoneddatetime, dateformat:java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(java.time.ZoneId.of('CET')))) as c0,\n" +
+                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).isBefore(cast(dateTo||'T00:00:00Z', zoneddatetime, dateformat:java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(java.time.ZoneId.of('CET')))) as c1,\n" +
+                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).get(java.time.temporal.ChronoField.MINUTE_OF_DAY)>= minutesOfDayFrom as c2,\n" +
+                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).get(java.time.temporal.ChronoField.MINUTE_OF_DAY)<= minutesOfDayTo as c3,\n" +
+                "daysOfWeek.contains(java.lang.String.valueOf(java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).getDayOfWeek().getValue())) as c4\n" +
+                "from MyEvent";
+            env.compile(epl);
+        }
     }
 
     private static class EPLOtherStaticFuncWCurrentTimeStamp implements RegressionExecution {

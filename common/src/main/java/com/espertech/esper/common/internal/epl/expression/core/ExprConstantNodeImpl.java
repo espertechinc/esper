@@ -109,11 +109,11 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         if (value == null) {
             return constantNull();
         }
-        if (value.getClass().isEnum()) {
-            return enumValue(value.getClass(), value.toString());
-        }
         if (enumValue != null) {
             return publicConstValue(enumValue.getEnumClass(), enumValue.getEnumField().getName());
+        }
+        if (value.getClass().isEnum()) {
+            return enumValue(value.getClass(), value.toString());
         }
         return constant(value);
     }
