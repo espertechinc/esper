@@ -43,7 +43,7 @@ public class TestSuiteExprCore extends TestCase {
     }
 
     public void testExprCoreAndOrNot() {
-        RegressionRunner.run(session, new ExprCoreAndOrNot());
+        RegressionRunner.run(session, ExprCoreAndOrNot.executions());
     }
 
     public void testExprCoreConcat() {

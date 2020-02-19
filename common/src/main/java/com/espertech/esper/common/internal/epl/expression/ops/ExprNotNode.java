@@ -41,11 +41,13 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
         if (!JavaClassHelper.isBoolean(childType)) {
             throw new ExprValidationException("Incorrect use of NOT clause, sub-expressions do not return boolean");
         }
-        evaluator = forge.getExprEvaluator();
         return null;
     }
 
     public ExprEvaluator getExprEvaluator() {
+        if (evaluator == null) {
+            evaluator = getChildNodes()[0].getForge().getExprEvaluator();
+        }
         return this;
     }
 
