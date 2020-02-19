@@ -378,7 +378,7 @@ public class SubSelectHelperForgePlanner {
             aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.emptyMap(),
                 Collections.emptyList(), groupByExpressions, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef(), aggExpressionNodesHaving, Collections.emptyList(),
                 groupKeyExpressions, hasGroupBy, annotations, services.getVariableCompileTimeResolver(), true, subselectSpec.getRaw().getWhereClause(), subselectSpec.getRaw().getHavingClause(),
-                subselectTypeService.getEventTypes(), null, subselectSpec.getRaw().getOptionalContextName(), null, null, false, false, false,
+                subselectTypeService.getEventTypes(), null, subselectSpec.getRaw().getOptionalContextName(), null, null, false, services.isFireAndForget(), false,
                 services.getClasspathImportServiceCompileTime(), statement.getStatementRawInfo(), services.getSerdeResolver());
             additionalForgeables.addAll(aggregationServiceForgeDesc.getAdditionalForgeables());
 
