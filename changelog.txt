@@ -1,6 +1,26 @@
 Esper Changelog
 ===================
 
+Changes in version 8.4.0
+------------------------
+  - Support for EPL to contain Java class code; In-lining Java code into EPL is useful for adding imperative code for example for library methods, for integration and for extension keeping EPL and code together in one place
+  - Support for EPL for resetting table column aggregation state
+  - Support for EPL for subqueries with fire-and-forget
+  - Support for EPL for a variation of the "selectfrom" enumeration method that provides an index and count
+  - Support for EPL for passing named events, event properties and variables to an expression
+  - Support for API for staging and unstaging deployments, and for controlling time and event visiblity on the level of deployments
+  - Support for API for getting the providing- and consuming dependencies of a deployment
+  - Support for API for rollout deploying multiple compileds as a unit
+  - Fixed issue #141 Identifier escaping when using "new" not removing backticks
+  - Fixed issue #173 NullPointerException if trying to compile a statement with rstream and output in 8.3.0
+  - Fixed issue #174 janino exception while compiling query with DateTimeFormatter in 8.3.0
+  - Fixed issue #175 single-row-function not resolved with single "." string literal parameter 
+  - Fixed issue #179 Fails to compile "NOT variable.method()"
+  - Fixed issue SHW-318-74709 compile exception with ChronoField.MINUTE_OF_DAY
+  - Fixed issue ELW-805-43147 ClassCastException with custom serde casting BeanEventBean to column type for table with class-typed column where class is underlying type of event
+  - Fixed issue SCJ-651-76603 Validation fails inserting a stream name into an event-type-typed property using on-merge (expected event type but receives Map)
+  - Fixed issue DBM-210-95782 Context termination not occurring when terminated (or end) condition is correlated to a pattern in the initiated-by (or start) condition by pattern tags
+
 Changes in version 8.3.0
 ------------------------
   - The following dependent jar files are upgraded:
