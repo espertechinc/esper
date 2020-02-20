@@ -12,7 +12,7 @@
 		<commons.pool2.version>2.6.0</commons.pool2.version>
 		<httpcomponents.httpcore.version>4.4.12</httpcomponents.httpcore.version>
 		<httpcomponents.httpclient.version>4.5.10</httpcomponents.httpclient.version>
-		<kafka.clients.version>2.3.0</kafka.clients.version>
+		<kafka.clients.version>2.4.0</kafka.clients.version>
 		<spring.version>5.1.9.RELEASE</spring.version>
 	</properties>
 	<name>EsperIO</name>
