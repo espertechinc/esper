@@ -147,7 +147,7 @@
 		</zip>
 	</target>
 	
-	<target name="copydependencies" description="Build docs">
+	<target name="copydependencies" description="Copy dependencies from Maven repository to lib directory for development environments">
 		<exec dir="common" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="common-avro" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
