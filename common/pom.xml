@@ -99,6 +99,12 @@
 			<version>${mysql-connector-java.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-core</artifactId>
+			<version>${hamcrest-core.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -209,6 +215,51 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-api</artifactId>
+							<version>${slf4j-api.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-log4j12</artifactId>
+							<version>${slf4j-log4j12.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.hamcrest</groupId>
+							<artifactId>hamcrest-core</artifactId>
+							<version>${hamcrest-core.version}</version>
+   						</artifactItem>
+						<artifactItem>
+							<groupId>log4j</groupId>
+							<artifactId>log4j</artifactId>
+							<version>${log4j.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>mysql</groupId>
+							<artifactId>mysql-connector-java</artifactId>
+							<version>${mysql-connector-java.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>junit</groupId>
+							<artifactId>junit</artifactId>
+							<version>${junit.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.mockito</groupId>
+							<artifactId>mockito-all</artifactId>
+							<version>${mockito.version}</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 	</build>
 </project>

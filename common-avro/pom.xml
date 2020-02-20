@@ -230,6 +230,36 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+							<groupId>org.apache.avro</groupId>
+							<artifactId>avro</artifactId>
+							<version>${avro.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>com.fasterxml.jackson.core</groupId>
+							<artifactId>jackson-annotations</artifactId>
+							<version>${avro.jackson.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>com.fasterxml.jackson.core</groupId>
+							<artifactId>jackson-core</artifactId>
+							<version>${avro.jackson.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>com.fasterxml.jackson.core</groupId>
+							<artifactId>jackson-databind</artifactId>
+							<version>${avro.jackson.version}</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 	</build>
 </project>

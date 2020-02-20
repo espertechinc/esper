@@ -35,6 +35,7 @@
 
 		<antlr4-runtime.version>4.7.2</antlr4-runtime.version>
 		<avro.version>1.9.1</avro.version>
+		<avro.jackson.version>2.9.9</avro.jackson.version>
 		<janino.version>3.1.0</janino.version>
 		<log4j.version>1.2.17</log4j.version>
 		<mysql-connector-java.version>8.0.17</mysql-connector-java.version>
@@ -43,6 +44,7 @@
 		<!-- Testing dependencies versions -->
 		<junit.version>4.11</junit.version>
 		<mockito.version>1.10.19</mockito.version>
+		<hamcrest-core.version>1.3</hamcrest-core.version>
 	</properties>
 	<licenses>
 		<license>

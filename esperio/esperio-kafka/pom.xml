@@ -163,14 +163,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>lib</outputDirectory>
-					<excludeTransitive>true</excludeTransitive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>${maven.source.plugin.version}</version>
 				<executions>
@@ -209,6 +201,31 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+							<groupId>org.apache.kafka</groupId>
+							<artifactId>kafka-clients</artifactId>
+							<version>${kafka.clients.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.lz4</groupId>
+							<artifactId>lz4-java</artifactId>
+							<version>${kafka.lz4.version}</version>
+						</artifactItem>
+					    	<artifactItem>
+							<groupId>org.xerial.snappy</groupId>
+						    	<artifactId>snappy-java</artifactId>
+							<version>${kafka.snappy.version}</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 		<testResources>
 			<testResource>

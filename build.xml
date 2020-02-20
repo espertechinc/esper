@@ -146,5 +146,15 @@
 			<zipfileset dir="." includes="**/*.jar" excludes="**/esper*.jar"/>
 		</zip>
 	</target>
-
+	
+	<target name="copydependencies" description="Build docs">
+		<exec dir="common" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="common-avro" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="esperio/esperio-amqp" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="esperio/esperio-http" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="esperio/esperio-kafka" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="esperio/esperio-springjms" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="examples/cycledetect" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+	</target>
 </project>

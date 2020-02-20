@@ -219,6 +219,31 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+							<groupId>org.codehaus.janino</groupId>
+							<artifactId>janino</artifactId>
+							<version>${janino.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.antlr</groupId>
+							<artifactId>antlr4-runtime</artifactId>
+							<version>${antlr4-runtime.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.codehaus.janino</groupId>
+							<artifactId>commons-compiler</artifactId>
+							<version>${janino.version}</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 	</build>
 </project>

@@ -57,6 +57,21 @@
 					</systemProperties>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+							<groupId>net.sf.jgrapht</groupId>
+							<artifactId>jgrapht</artifactId>
+							<version>0.8.3</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 		<testResources>
 			<testResource>

@@ -52,7 +52,7 @@
 		<dependency>
 		    <groupId>com.rabbitmq</groupId>
 		    <artifactId>amqp-client</artifactId>
-		    <version>5.7.3</version>
+		    <version>${amqp-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.espertech</groupId>
@@ -210,6 +210,21 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+						    <groupId>com.rabbitmq</groupId>
+						    <artifactId>amqp-client</artifactId>
+						    <version>${amqp-client.version}</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 		<testResources>
 			<testResource>

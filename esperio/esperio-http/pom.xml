@@ -183,14 +183,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>lib</outputDirectory>
-					<excludeTransitive>true</excludeTransitive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>${maven.source.plugin.version}</version>
 				<executions>
@@ -229,6 +221,36 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+							<groupId>org.apache.httpcomponents</groupId>
+							<artifactId>httpcore</artifactId>
+							<version>${httpcomponents.httpcore.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.apache.httpcomponents</groupId>
+							<artifactId>httpcore-nio</artifactId>
+							<version>${httpcomponents.httpcore.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.apache.httpcomponents</groupId>
+							<artifactId>httpclient</artifactId>
+							<version>${httpcomponents.httpclient.version}</version>
+						</artifactItem>
+					    	<artifactItem>
+						    <groupId>commons-logging</groupId>
+						    <artifactId>commons-logging</artifactId>
+						    <version>${httpcomponents.commons-logging.version}</version>						
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 		<testResources>
 			<testResource>

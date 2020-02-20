@@ -183,14 +183,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>lib</outputDirectory>
-					<excludeTransitive>true</excludeTransitive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>${maven.source.plugin.version}</version>
 				<executions>
@@ -229,6 +221,36 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
+					<artifactItems>
+						<artifactItem>
+						    <groupId>org.apache.activemq</groupId>
+						    <artifactId>activemq-all</artifactId>
+						    <version>${activemq.version}</version>
+						</artifactItem>
+						<artifactItem>
+						    <groupId>org.springframework</groupId>
+						    <artifactId>spring-core</artifactId>
+						    <version>${spring.version}</version>
+						</artifactItem>
+						<artifactItem>
+						    <groupId>org.springframework</groupId>
+						    <artifactId>spring-jms</artifactId>
+						    <version>${spring.version}</version>
+						</artifactItem>
+						<artifactItem>
+						    <groupId>org.apache.commons</groupId>
+						    <artifactId>commons-pool2</artifactId>
+						    <version>${commons.pool2.version}</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>		
 		</plugins>
 		<testResources>
 			<testResource>
