@@ -6,7 +6,7 @@ antlr-runtime-4.7.2.jar
 - required for compiler (not required for runtime)
 - see ANTRL 4 license in file esper_3rdparties_compiler.license
 
-slf4j-api-1.7.26.jar
+slf4j-api-1.7.28.jar
 - Simple Logging Facade for Java (SLF4J), for logging
 - required for compiler and runtime 
 - see Apache v2 license in file esper_3rdparties_compiler.license
