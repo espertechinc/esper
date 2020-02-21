@@ -20,6 +20,7 @@ public interface RuntimeExtensionServicesSPI extends RuntimeExtensionServices {
      * @param servicesContext the runtime
      * @param runtimeSPI      runtime SPI
      * @param adminSPI        admin SPI
+     * @param stageServiceSPI stage service SPI
      */
     public void init(EPServicesContext servicesContext, EPEventServiceSPI runtimeSPI, EPDeploymentServiceSPI adminSPI, EPStageServiceSPI stageServiceSPI);
 

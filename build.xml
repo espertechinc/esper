@@ -157,4 +157,13 @@
 		<exec dir="esperio/esperio-springjms" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="examples/cycledetect" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 	</target>
+
+	<target name="generatejavadoc" description="Generate all JavaDoc">
+		<exec dir="doc/api" executable="cmd">   	<arg value="/c"/> <arg value="ant javadoc"/></exec>
+		<exec dir="esperio/doc/api" executable="cmd">   	<arg value="/c"/> <arg value="ant javadoc"/></exec>
+		<exec dir="common" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
+		<exec dir="common-avro" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
+		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
+		<exec dir="runtime" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
+	</target>
 </project>

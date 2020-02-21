@@ -44,6 +44,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI {
      * Constructor.
      *
      * @param timeSourceService time source provider
+     * @param stageId stage id or -1 when not applicable
      */
     public SchedulingServiceImpl(int stageId, TimeSourceService timeSourceService) {
         this.stageId = stageId;

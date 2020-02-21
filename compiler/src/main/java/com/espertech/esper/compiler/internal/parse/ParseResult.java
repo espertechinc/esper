@@ -32,6 +32,7 @@ public class ParseResult {
      * @param expressionWithoutAnnotations expression text no annotations, or null if same
      * @param scripts                      script list
      * @param tokenStream                  tokens
+     * @param classes                      class list
      */
     public ParseResult(Tree tree, String expressionWithoutAnnotations, CommonTokenStream tokenStream, List<String> scripts, List<String> classes) {
         this.tree = tree;

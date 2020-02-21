@@ -29,6 +29,7 @@ public interface ThreadingService extends ThreadingCommon {
      * Initialize thread pools.
      *
      * @param uri uri
+     * @param services services
      */
     public void initThreading(String uri, EPServicesEvaluation services);
 

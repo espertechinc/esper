@@ -104,6 +104,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
      * @param className         is the class name to find
      * @param requireAnnotation whether the class must be an annotation
      * @param forAnnotationUse  whether resolving class for use with annotations
+     * @param classpathExtension for additional classes
      * @return class
      * @throws ClassNotFoundException if the class cannot be loaded
      */
