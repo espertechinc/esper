@@ -216,7 +216,7 @@ public class TestEPLTreeWalker extends TestCase {
         StatementSpecRaw raw = walker.getStatementSpec();
 
         CreateVariableDesc createVarDesc = raw.getCreateVariableDesc();
-        assertEquals("sometype", createVarDesc.getVariableType());
+        assertEquals("sometype", createVarDesc.getVariableType().getClassIdentifier());
         assertEquals("var1", createVarDesc.getVariableName());
         assertTrue(createVarDesc.getAssignment() instanceof ExprConstantNode);
         assertTrue(createVarDesc.isConstant());

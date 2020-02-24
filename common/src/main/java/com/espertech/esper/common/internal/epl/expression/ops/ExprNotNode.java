@@ -45,9 +45,7 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
     }
 
     public ExprEvaluator getExprEvaluator() {
-        if (evaluator == null) {
-            evaluator = getChildNodes()[0].getForge().getExprEvaluator();
-        }
+        initEvaluator();
         return this;
     }
 
@@ -85,6 +83,7 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        initEvaluator();
         Boolean evaluated = (Boolean) evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         if (evaluated == null) {
             return null;
@@ -110,5 +109,11 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
 
     public ExprForgeConstantType getForgeConstantType() {
         return ExprForgeConstantType.NONCONST;
+    }
+
+    private void initEvaluator() {
+        if (evaluator == null) {
+            evaluator = getChildNodes()[0].getForge().getExprEvaluator();
+        }
     }
 }
