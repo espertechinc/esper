@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunct
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
 import com.espertech.esper.common.internal.epl.expression.core.ExprSubstitutionNode;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -155,5 +156,9 @@ public class StatementSpecMapContext {
 
     public boolean isAttachPatternText() {
         return mapEnv.getConfiguration().getCompiler().getByteCode().isAttachPatternEPL();
+    }
+
+    public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
+        return mapEnv.getClassProvidedClasspathExtension();
     }
 }

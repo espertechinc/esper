@@ -51,7 +51,7 @@ public class ClasspathImportUtil {
 
         Class clazz;
         try {
-            clazz = classpathImportService.resolveClass(hookClass, false, ClasspathExtensionEmpty.INSTANCE);
+            clazz = classpathImportService.resolveClass(hookClass, false, ClasspathExtensionClassEmpty.INSTANCE);
         } catch (Exception e) {
             throw new ExprValidationException("Failed to resolve hook provider of hook type '" + hookType +
                     "' import '" + hookClass + "' :" + e.getMessage());

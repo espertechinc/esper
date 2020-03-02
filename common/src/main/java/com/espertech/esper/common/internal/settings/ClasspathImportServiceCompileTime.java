@@ -24,9 +24,9 @@ public interface ClasspathImportServiceCompileTime extends ClasspathImportServic
 
     AdvancedIndexFactoryProvider resolveAdvancedIndexProvider(String indexTypeName) throws ClasspathImportException;
     Method resolveMethodOverloadChecked(Class clazz, String methodName) throws ClasspathImportException;
-    Method resolveMethodOverloadChecked(String className, String methodName, ClasspathExtension classpathExtension) throws ClasspathImportException;
+    Method resolveMethodOverloadChecked(String className, String methodName, ClasspathExtensionClass classpathExtension) throws ClasspathImportException;
     Class resolveAnnotation(String className) throws ClasspathImportException;
-    Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) throws ClasspathImportException, ClasspathImportUndefinedException;
+    Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name, ClasspathExtensionSingleRow classpathExtensionSingleRow) throws ClasspathImportException, ClasspathImportUndefinedException;
     Method resolveNonStaticMethodOverloadChecked(Class clazz, String methodName) throws ClasspathImportException;
     Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType) throws ClasspathImportException;
     Class resolveEnumMethod(String name) throws ClasspathImportException;

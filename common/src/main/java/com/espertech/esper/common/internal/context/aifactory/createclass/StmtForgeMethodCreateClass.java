@@ -31,7 +31,7 @@ public class StmtForgeMethodCreateClass extends StmtForgeMethodCreateSimpleBase 
     }
 
     protected String register(StatementCompileTimeServices services) throws ExprValidationException {
-        if (services.getClassProvidedCompileTimeResolver().resolve(className) != null) {
+        if (services.getClassProvidedCompileTimeResolver().resolveClass(className) != null) {
             throw new ExprValidationException("Class '" + className + "' has already been declared");
         }
         ClassProvided classProvided = new ClassProvided(classProvidedPrecompileResult.getBytes(), className);

@@ -10,7 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.classprovided.compiletime;
 
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
+import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 
 import java.util.Map;
 
@@ -20,7 +22,11 @@ public class ClassProvidedCompileTimeResolverEmpty implements ClassProvidedCompi
     private ClassProvidedCompileTimeResolverEmpty() {
     }
 
-    public ClassProvided resolve(String name) {
+    public ClassProvided resolveClass(String name) {
+        return null;
+    }
+
+    public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) {
         return null;
     }
 

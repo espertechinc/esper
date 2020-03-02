@@ -1659,7 +1659,8 @@ public class JavaClassHelper {
 
     private static void findAnnotatedMethodsInternal(Class currentClass, Class<? extends Annotation> annotation, Set<Method> methods) {
         for (Method method : currentClass.getDeclaredMethods()) {
-            if (isAnnotationListed(annotation, method.getDeclaredAnnotations())) {
+            Annotation[] methodAnnotations = method.getDeclaredAnnotations();
+            if (isAnnotationListed(annotation, methodAnnotations)) {
                 methods.add(method);
             }
         }

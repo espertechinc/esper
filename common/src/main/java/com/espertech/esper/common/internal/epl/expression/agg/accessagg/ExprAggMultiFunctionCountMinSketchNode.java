@@ -31,7 +31,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
@@ -218,7 +218,7 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
                     if (value != null) {
                         CountMinSketchAgentForge transform;
                         try {
-                            Class transformClass = exprValidationContext.getClasspathImportService().resolveClass((String) value, false, ClasspathExtensionEmpty.INSTANCE);
+                            Class transformClass = exprValidationContext.getClasspathImportService().resolveClass((String) value, false, ClasspathExtensionClassEmpty.INSTANCE);
                             transform = (CountMinSketchAgentForge) JavaClassHelper.instantiate(CountMinSketchAgentForge.class, transformClass);
                         } catch (Exception e) {
                             throw new ExprValidationException("Failed to instantiate agent provider: " + e.getMessage(), e);

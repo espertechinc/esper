@@ -36,8 +36,6 @@ import com.espertech.esper.common.internal.context.module.ModuleDependenciesRunt
 import com.espertech.esper.common.internal.context.query.FAFProvider;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
-import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
-import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.*;
@@ -50,7 +48,6 @@ import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
-import static com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil.compileClassProvided;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperModuleProvider.makeInitEventTypes;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperStatementProvider.getNameFromAnnotation;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator.verifySubstitutionParams;
@@ -61,20 +58,12 @@ public class CompilerHelperFAFProvider {
 
     public static EPCompiled compile(Compilable compilable, ModuleCompileTimeServices services, CompilerArguments args) throws ExprValidationException, StatementSpecCompileException, EPCompileException {
         StatementCompileTimeServices compileTimeServices = new StatementCompileTimeServices(0, services);
-        StatementSpecRaw raw = CompilerHelperSingleEPL.parseWalk(compilable, compileTimeServices.getStatementSpecMapEnv());
+        CompilerHelperSingleResult walkResult = CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(compilable, compileTimeServices);
+        StatementSpecRaw raw = walkResult.getStatementSpecRaw();
 
         StatementType statementType = StatementTypeUtil.getStatementType(raw);
         if (statementType != StatementType.SELECT) { // the fire-and-forget spec is null for "select" and populated for I/U/D
             throw new StatementSpecCompileException("Provided EPL expression is a continuous query expression (not an on-demand query)", compilable.toEPL());
-        }
-
-        // compile application-provided classes
-        ClassProvidedPrecompileResult classesInlined;
-        try {
-            classesInlined = compileClassProvided(raw.getClassProvideds(), compileTimeServices, null);
-            compileTimeServices.setClassProvidedClasspathExtension(ClassProvidedPrecompileUtil.makeSvc(classesInlined, null, services.getClassProvidedCompileTimeResolver()));
-        } catch (ExprValidationException ex) {
-            throw new StatementSpecCompileException(ex.getMessage(), ex, compilable.toEPL());
         }
 
         Annotation[] annotations = AnnotationUtil.compileAnnotations(raw.getAnnotations(), services.getClasspathImportServiceCompileTime(), compilable);
@@ -100,7 +89,7 @@ public class CompilerHelperFAFProvider {
         StatementSpecCompiled specCompiled = compiledDesc.getCompiled();
         FireAndForgetSpec fafSpec = specCompiled.getRaw().getFireAndForgetSpec();
 
-        Map<String, byte[]> moduleBytes = new HashMap<>(classesInlined.getBytes());
+        Map<String, byte[]> moduleBytes = new HashMap<>(walkResult.getClassesInlined().getBytes());
         EPCompiledManifest manifest;
         String classPostfix = IdentifierUtil.getIdentifierMayStartNumeric(statementName);
 

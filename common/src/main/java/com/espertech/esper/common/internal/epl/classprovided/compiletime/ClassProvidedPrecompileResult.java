@@ -13,25 +13,14 @@ package com.espertech.esper.common.internal.epl.classprovided.compiletime;
 import java.util.*;
 
 public class ClassProvidedPrecompileResult {
+    public final static ClassProvidedPrecompileResult EMPTY = new ClassProvidedPrecompileResult(Collections.emptyMap(), Collections.emptyList());
+
     private final Map<String, byte[]> bytes;
     private final List<Class> classes;
-
-    public ClassProvidedPrecompileResult() {
-        this.bytes = Collections.emptyMap();
-        this.classes = Collections.emptyList();
-    }
 
     public ClassProvidedPrecompileResult(Map<String, byte[]> bytes, List<Class> classes) {
         this.bytes = bytes;
         this.classes = classes;
-    }
-
-    public static ClassProvidedPrecompileResult merge(ClassProvidedPrecompileResult first, ClassProvidedPrecompileResult second) {
-        Map<String, byte[]> bytes = new HashMap<>(first.getBytes());
-        List<Class> classes = new ArrayList<>(first.classes);
-        bytes.putAll(second.getBytes());
-        classes.addAll(second.getClasses());
-        return new ClassProvidedPrecompileResult(bytes, classes);
     }
 
     public Map<String, byte[]> getBytes() {

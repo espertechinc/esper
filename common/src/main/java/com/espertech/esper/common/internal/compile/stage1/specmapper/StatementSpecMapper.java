@@ -68,7 +68,9 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTim
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
+import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
+import com.espertech.esper.common.internal.settings.ClasspathImportUndefinedException;
 import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
 import com.espertech.esper.common.internal.type.CronOperatorEnum;
 import com.espertech.esper.common.internal.type.MathArithTypeEnum;
@@ -783,7 +785,7 @@ public class StatementSpecMapper {
             return;
         }
         RowLimitClause spec = new RowLimitClause(rowLimitSpec.getNumRows(), rowLimitSpec.getOptionalOffset(),
-                rowLimitSpec.getNumRowsVariable(), rowLimitSpec.getOptionalOffsetVariable());
+            rowLimitSpec.getNumRowsVariable(), rowLimitSpec.getOptionalOffsetVariable());
         model.setRowLimitClause(spec);
     }
 
@@ -1023,7 +1025,7 @@ public class StatementSpecMapper {
             mapContext.getVariableNames().add(rowLimitClause.getOptionalOffsetRowsVariable());
         }
         raw.setRowLimitSpec(new RowLimitSpec(rowLimitClause.getNumRows(), rowLimitClause.getOptionalOffsetRows(),
-                rowLimitClause.getNumRowsVariable(), rowLimitClause.getOptionalOffsetRowsVariable()));
+            rowLimitClause.getNumRowsVariable(), rowLimitClause.getOptionalOffsetRowsVariable()));
     }
 
     private static void mapForClause(ForClause clause, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
@@ -1293,7 +1295,7 @@ public class StatementSpecMapper {
         }
         StreamSelector selector = mapFromSODA(insertIntoDesc.getStreamSelector());
         return InsertIntoClause.create(insertIntoDesc.getEventTypeName(),
-                insertIntoDesc.getColumnNames().toArray(new String[0]), selector);
+            insertIntoDesc.getColumnNames().toArray(new String[0]), selector);
     }
 
     private static void mapCreateContext(CreateContextClause createContext, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
@@ -1700,8 +1702,8 @@ public class StatementSpecMapper {
         if (expr instanceof ArithmaticExpression) {
             ArithmaticExpression arith = (ArithmaticExpression) expr;
             return new ExprMathNode(MathArithTypeEnum.parseOperator(arith.getOperator()),
-                    mapContext.getConfiguration().getCompiler().getExpression().isIntegerDivision(),
-                    mapContext.getConfiguration().getCompiler().getExpression().isDivisionByZeroReturnsNull());
+                mapContext.getConfiguration().getCompiler().getExpression().isIntegerDivision(),
+                mapContext.getConfiguration().getCompiler().getExpression().isDivisionByZeroReturnsNull());
         } else if (expr instanceof PropertyValueExpression) {
             PropertyValueExpression prop = (PropertyValueExpression) expr;
             int indexDot = StringValue.unescapedIndexOfDot(prop.getPropertyName());
@@ -1841,8 +1843,8 @@ public class StatementSpecMapper {
             List<ExprChainedSpec> chained = mapChains(method.getChain(), mapContext);
             chained.add(0, new ExprChainedSpec(method.getClassName(), Collections.emptyList(), false));
             return new ExprDotNodeImpl(chained,
-                    mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                    mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
+                mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
+                mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
         } else if (expr instanceof MinProjectionExpression) {
             MinProjectionExpression method = (MinProjectionExpression) expr;
             return new ExprMinMaxAggrNode(method.isDistinct(), MinMaxTypeEnum.MIN, expr.getChildren().size() > 1, method.isEver());
@@ -1912,7 +1914,7 @@ public class StatementSpecMapper {
         } else if (expr instanceof TimePeriodExpression) {
             TimePeriodExpression tpe = (TimePeriodExpression) expr;
             return new ExprTimePeriodImpl(tpe.isHasYears(), tpe.isHasMonths(), tpe.isHasWeeks(), tpe.isHasDays(), tpe.isHasHours(), tpe.isHasMinutes(), tpe.isHasSeconds(), tpe.isHasMilliseconds(), tpe.isHasMicroseconds(),
-                    mapContext.getClasspathImportService().getTimeAbacus());
+                mapContext.getClasspathImportService().getTimeAbacus());
         } else if (expr instanceof NewOperatorExpression) {
             NewOperatorExpression noe = (NewOperatorExpression) expr;
             return new ExprNewStructNode(noe.getColumnNames().toArray(new String[0]));
@@ -1942,7 +1944,7 @@ public class StatementSpecMapper {
 
             Pair<Class, ClasspathImportSingleRowDesc> pair;
             try {
-                pair = mapContext.getClasspathImportService().resolveSingleRow(functionName);
+                pair = mapContext.getClasspathImportService().resolveSingleRow(functionName, mapContext.getClassProvidedClasspathExtension());
             } catch (Exception e) {
                 throw new IllegalArgumentException("Function name '" + functionName + "' cannot be resolved to a single-row function: " + e.getMessage(), e);
             }
@@ -1998,17 +2000,29 @@ public class StatementSpecMapper {
             List<ExprChainedSpec> workChain = new ArrayList<>(chain);
             String tableNameCandidate = workChain.get(0).getName();
             Pair<ExprTableAccessNode, List<ExprChainedSpec>> pair = TableCompileTimeUtil.checkTableNameGetLibFunc(mapContext.getTableCompileTimeResolver(), mapContext.getPlugInAggregations(),
-                    tableNameCandidate, workChain);
+                tableNameCandidate, workChain);
             if (pair != null) {
                 mapContext.getTableExpressions().add(pair.getFirst());
                 if (pair.getSecond().isEmpty()) {
                     return pair.getFirst();
                 }
                 ExprDotNode dotNode = new ExprDotNodeImpl(pair.getSecond(),
-                        mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                        mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
+                    mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
+                    mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
                 dotNode.addChildNode(pair.getFirst());
                 return dotNode;
+            }
+
+            if (chain.size() >= 1) {
+                String name = chain.get(0).getName();
+                try {
+                    Pair<Class, ClasspathImportSingleRowDesc> singleRow = mapContext.getClasspathImportService().resolveSingleRow(name, mapContext.getClassProvidedClasspathExtension());
+                    if (singleRow != null) {
+                        return new ExprPlugInSingleRowNode(name, singleRow.getFirst(), chain, singleRow.getSecond());
+                    }
+                } catch (ClasspathImportException | ClasspathImportUndefinedException ex) {
+                    // expected
+                }
             }
 
             if (chain.size() == 1) {
@@ -2020,14 +2034,15 @@ public class StatementSpecMapper {
                     return declared.getFirst();
                 }
                 ExprNodeScript script = ExprDeclaredHelper.getExistsScript(mapContext.getConfiguration().getCompiler().getScripts().getDefaultDialect(),
-                        name, chain.get(0).getParameters(), mapContext.getScripts().values(), mapContext.getMapEnv());
+                    name, chain.get(0).getParameters(), mapContext.getScripts().values(), mapContext.getMapEnv());
                 if (script != null) {
                     return script;
                 }
             }
+
             ExprDotNode dotNode = new ExprDotNodeImpl(chain,
-                    mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                    mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
+                mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
+                mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
             VariableMetaData variable = dotNode.isVariableOpGetName(mapContext.getVariableCompileTimeResolver());
             if (variable != null) {
                 mapContext.getVariableNames().add(variable.getVariableName());
@@ -2109,9 +2124,9 @@ public class StatementSpecMapper {
             return null;
         }
         return new MatchRecognizeRegExRepeat(
-                unmapExpressionDeep(optionalRepeat.getLower(), unmapContext),
-                unmapExpressionDeep(optionalRepeat.getUpper(), unmapContext),
-                unmapExpressionDeep(optionalRepeat.getSingle(), unmapContext)
+            unmapExpressionDeep(optionalRepeat.getLower(), unmapContext),
+            unmapExpressionDeep(optionalRepeat.getUpper(), unmapContext),
+            unmapExpressionDeep(optionalRepeat.getSingle(), unmapContext)
         );
     }
 
@@ -2138,9 +2153,9 @@ public class StatementSpecMapper {
             return null;
         }
         return new RowRecogExprRepeatDesc(
-                mapExpressionDeep(optionalRepeat.getLow(), mapContext),
-                mapExpressionDeep(optionalRepeat.getHigh(), mapContext),
-                mapExpressionDeep(optionalRepeat.getSingle(), mapContext)
+            mapExpressionDeep(optionalRepeat.getLow(), mapContext),
+            mapExpressionDeep(optionalRepeat.getHigh(), mapContext),
+            mapExpressionDeep(optionalRepeat.getSingle(), mapContext)
         );
     }
 
@@ -2402,7 +2417,7 @@ public class StatementSpecMapper {
             ExprDeclaredNode declNode = (ExprDeclaredNode) expr;
             DotExpression dotExpr = new DotExpression();
             dotExpr.add(declNode.getPrototype().getName(),
-                    unmapExpressionDeep(declNode.getChainParameters(), unmapContext));
+                unmapExpressionDeep(declNode.getChainParameters(), unmapContext));
             return dotExpr;
         } else if (expr instanceof ExprNodeScript) {
             ExprNodeScript scriptNode = (ExprNodeScript) expr;
@@ -2494,7 +2509,7 @@ public class StatementSpecMapper {
             } else if (stream instanceof SQLStream) {
                 SQLStream sqlStream = (SQLStream) stream;
                 spec = new DBStatementStreamSpec(sqlStream.getStreamName(), views,
-                        sqlStream.getDatabaseName(), sqlStream.getSqlWithSubsParams(), sqlStream.getOptionalMetadataSQL());
+                    sqlStream.getDatabaseName(), sqlStream.getSqlWithSubsParams(), sqlStream.getOptionalMetadataSQL());
             } else if (stream instanceof PatternStream) {
                 PatternStream patternStream = (PatternStream) stream;
                 EvalForgeNode child = mapPatternEvalDeep(patternStream.getExpression(), mapContext);
@@ -2514,7 +2529,7 @@ public class StatementSpecMapper {
                 }
 
                 spec = new MethodStreamSpec(methodStream.getStreamName(), views, "method",
-                        methodStream.getClassName(), methodStream.getMethodName(), expressions, methodStream.getOptionalEventTypeName());
+                    methodStream.getClassName(), methodStream.getMethodName(), expressions, methodStream.getOptionalEventTypeName());
             } else {
                 throw new IllegalArgumentException("Could not map from stream " + stream + " to an internal representation");
             }
@@ -2634,12 +2649,12 @@ public class StatementSpecMapper {
             EvalObserverForgeNode observerNode = (EvalObserverForgeNode) eval;
             List<Expression> expressions = unmapExpressionDeep(observerNode.getPatternObserverSpec().getObjectParameters(), unmapContext);
             return new PatternObserverExpr(observerNode.getPatternObserverSpec().getObjectNamespace(),
-                    observerNode.getPatternObserverSpec().getObjectName(), expressions);
+                observerNode.getPatternObserverSpec().getObjectName(), expressions);
         } else if (eval instanceof EvalGuardForgeNode) {
             EvalGuardForgeNode guardNode = (EvalGuardForgeNode) eval;
             List<Expression> expressions = unmapExpressionDeep(guardNode.getPatternGuardSpec().getObjectParameters(), unmapContext);
             return new PatternGuardExpr(guardNode.getPatternGuardSpec().getObjectNamespace(),
-                    guardNode.getPatternGuardSpec().getObjectName(), expressions);
+                guardNode.getPatternGuardSpec().getObjectName(), expressions);
         } else if (eval instanceof EvalMatchUntilForgeNode) {
             EvalMatchUntilForgeNode matchUntilNode = (EvalMatchUntilForgeNode) eval;
             Expression low = matchUntilNode.getLowerBounds() != null ? unmapExpressionDeep(matchUntilNode.getLowerBounds(), unmapContext) : null;
@@ -2877,7 +2892,7 @@ public class StatementSpecMapper {
 
     private static ExpressionDeclItem mapExpressionDeclItem(ExpressionDeclaration decl, StatementSpecMapContext mapContext) {
         ExpressionDeclItem item = new ExpressionDeclItem(decl.getName(),
-                decl.isAlias() ? new String[0] : decl.getParameterNames().toArray(new String[0]), decl.isAlias());
+            decl.isAlias() ? new String[0] : decl.getParameterNames().toArray(new String[0]), decl.isAlias());
         item.setOptionalSoda(decl.getExpression());
         return item;
     }

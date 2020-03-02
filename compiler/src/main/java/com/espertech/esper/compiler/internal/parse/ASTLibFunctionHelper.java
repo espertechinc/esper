@@ -172,7 +172,7 @@ public class ASTLibFunctionHelper {
         try {
             String firstFunction = model.getChainElements().get(0).getFuncName();
             boolean firstFunctionIsProperty = !model.getChainElements().get(0).isHasLeftParen();
-            Pair<Class, ClasspathImportSingleRowDesc> classMethodPair = classpathImportService.resolveSingleRow(firstFunction);
+            Pair<Class, ClasspathImportSingleRowDesc> classMethodPair = classpathImportService.resolveSingleRow(firstFunction, mapEnv.getClassProvidedClasspathExtension());
             List<ExprChainedSpec> spec = new ArrayList<>();
             EsperEPL2GrammarParser.LibFunctionArgsContext firstArgs = model.getChainElements().get(0).getArgs();
             List<ExprNode> childExpressions = ASTLibFunctionHelper.getExprNodesLibFunc(firstArgs, astExprNodeMap);

@@ -25,7 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -265,7 +265,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         }
 
         try {
-            return validationContext.getClasspathImportService().resolveClass(returnTypeName, false, ClasspathExtensionEmpty.INSTANCE);
+            return validationContext.getClasspathImportService().resolveClass(returnTypeName, false, ClasspathExtensionClassEmpty.INSTANCE);
         } catch (ClasspathImportException e1) {
             throw new ExprValidationException("Failed to resolve return type '" + returnTypeName + "' specified for script '" + script.getName() + "'");
         }

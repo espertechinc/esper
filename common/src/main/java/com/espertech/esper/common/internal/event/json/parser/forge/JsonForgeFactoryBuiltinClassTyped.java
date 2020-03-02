@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.array.*;
 import com.espertech.esper.common.internal.event.json.parser.delegates.array2dim.*;
 import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.*;
 import com.espertech.esper.common.internal.event.json.write.*;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.util.ConstructorHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -238,7 +238,7 @@ public class JsonForgeFactoryBuiltinClassTyped {
         if (fieldAnnotation != null && type != null) {
             Class clazz;
             try {
-                clazz = services.getClasspathImportServiceCompileTime().resolveClass(fieldAnnotation.adapter(), true, ClasspathExtensionEmpty.INSTANCE);
+                clazz = services.getClasspathImportServiceCompileTime().resolveClass(fieldAnnotation.adapter(), true, ClasspathExtensionClassEmpty.INSTANCE);
             } catch (ClasspathImportException e) {
                 throw new ExprValidationException("Failed to resolve Json schema field adapter class: " + e.getMessage(), e);
             }

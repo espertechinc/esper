@@ -58,7 +58,7 @@ import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.property.*;
 import com.espertech.esper.common.internal.event.xml.*;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -505,7 +505,7 @@ public class EventTypeUtility {
         // try imports first
         Class resolved = null;
         try {
-            resolved = classpathImportService.resolveClass(typeName, false, ClasspathExtensionEmpty.INSTANCE);
+            resolved = classpathImportService.resolveClass(typeName, false, ClasspathExtensionClassEmpty.INSTANCE);
         } catch (ClasspathImportException e) {
             // expected
         }

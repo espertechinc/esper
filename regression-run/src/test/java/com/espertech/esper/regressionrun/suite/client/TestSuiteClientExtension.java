@@ -61,6 +61,10 @@ public class TestSuiteClientExtension extends TestCase {
         RegressionRunner.run(session, new ClientExtendUDFVarargs());
     }
 
+    public void testClientExtendUDFInlinedClass() {
+        RegressionRunner.run(session, ClientExtendUDFInlinedClass.executions());
+    }
+
     public void testClientExtendAggregationFunction() {
         RegressionRunner.run(session, ClientExtendAggregationFunction.executions());
     }

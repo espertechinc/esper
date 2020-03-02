@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.util.CollectionUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class PathModuleEntry<E> {
@@ -118,6 +119,12 @@ public class PathModuleEntry<E> {
     public void traverse(Consumer<E> consumer) {
         for (Map.Entry<String, PathDeploymentEntry<E>> entry : modules.entrySet()) {
             consumer.accept(entry.getValue().getEntity());
+        }
+    }
+
+    public void traverseWithModule(BiConsumer<String, E> consumer) {
+        for (Map.Entry<String, PathDeploymentEntry<E>> entry : modules.entrySet()) {
+            consumer.accept(entry.getKey(), entry.getValue().getEntity());
         }
     }
 

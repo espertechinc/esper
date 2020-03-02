@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.compile.stage1.specmapper;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.compile.stage1.CompilerServices;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeResolver;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.script.compiletime.ScriptCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeResolver;
@@ -28,8 +29,9 @@ public class StatementSpecMapEnv {
     private final TableCompileTimeResolver tableCompileTimeResolver;
     private final ScriptCompileTimeResolver scriptCompileTimeResolver;
     private final CompilerServices compilerServices;
+    private final ClassProvidedClasspathExtension classProvidedClasspathExtension;
 
-    public StatementSpecMapEnv(ClasspathImportServiceCompileTime classpathImportService, VariableCompileTimeResolver variableCompileTimeResolver, Configuration configuration, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, ContextCompileTimeResolver contextCompileTimeResolver, TableCompileTimeResolver tableCompileTimeResolver, ScriptCompileTimeResolver scriptCompileTimeResolver, CompilerServices compilerServices) {
+    public StatementSpecMapEnv(ClasspathImportServiceCompileTime classpathImportService, VariableCompileTimeResolver variableCompileTimeResolver, Configuration configuration, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, ContextCompileTimeResolver contextCompileTimeResolver, TableCompileTimeResolver tableCompileTimeResolver, ScriptCompileTimeResolver scriptCompileTimeResolver, CompilerServices compilerServices, ClassProvidedClasspathExtension classProvidedClasspathExtension) {
         this.classpathImportService = classpathImportService;
         this.variableCompileTimeResolver = variableCompileTimeResolver;
         this.configuration = configuration;
@@ -38,6 +40,7 @@ public class StatementSpecMapEnv {
         this.tableCompileTimeResolver = tableCompileTimeResolver;
         this.scriptCompileTimeResolver = scriptCompileTimeResolver;
         this.compilerServices = compilerServices;
+        this.classProvidedClasspathExtension = classProvidedClasspathExtension;
     }
 
     public ClasspathImportServiceCompileTime getClasspathImportService() {
@@ -74,5 +77,9 @@ public class StatementSpecMapEnv {
 
     public boolean isAttachPatternText() {
         return configuration.getCompiler().getByteCode().isAttachPatternEPL();
+    }
+
+    public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
+        return classProvidedClasspathExtension;
     }
 }

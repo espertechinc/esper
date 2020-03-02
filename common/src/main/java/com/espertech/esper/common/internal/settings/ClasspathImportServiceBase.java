@@ -54,7 +54,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         validateImportAndAdd(importName, annotationImports);
     }
 
-    public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtension classpathExtension)
+    public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtensionClass classpathExtension)
             throws ClasspathImportException {
         Class clazz;
         try {
@@ -70,7 +70,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         }
     }
 
-    public Class resolveClass(String className, boolean forAnnotation, ClasspathExtension classpathExtension) throws ClasspathImportException {
+    public Class resolveClass(String className, boolean forAnnotation, ClasspathExtensionClass classpathExtension) throws ClasspathImportException {
         Class clazz;
         try {
             clazz = resolveClassInternal(className, false, forAnnotation, classpathExtension);
@@ -108,7 +108,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
      * @return class
      * @throws ClassNotFoundException if the class cannot be loaded
      */
-    protected Class resolveClassInternal(String className, boolean requireAnnotation, boolean forAnnotationUse, ClasspathExtension classpathExtension) throws ClassNotFoundException {
+    protected Class resolveClassInternal(String className, boolean requireAnnotation, boolean forAnnotationUse, ClasspathExtensionClass classpathExtension) throws ClassNotFoundException {
         if (forAnnotationUse) {
             String lowercase = className.toLowerCase(Locale.ENGLISH);
             if (lowercase.equals("private")) {
@@ -188,7 +188,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
                 return clazz;
             }
 
-            return resolveClass(fullyQualClassName, false, ClasspathExtensionEmpty.INSTANCE);
+            return resolveClass(fullyQualClassName, false, ClasspathExtensionClassEmpty.INSTANCE);
         }
     }
 

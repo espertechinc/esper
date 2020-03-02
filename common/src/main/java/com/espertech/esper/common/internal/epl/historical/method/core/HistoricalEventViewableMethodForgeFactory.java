@@ -33,10 +33,7 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
-import com.espertech.esper.common.internal.settings.ClasspathImportException;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
-import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
+import com.espertech.esper.common.internal.settings.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Method;
@@ -89,7 +86,7 @@ public class HistoricalEventViewableMethodForgeFactory {
             } else if (methodStreamSpec.getClassName() == null) { // must be either UDF or script
                 Pair<Class, ClasspathImportSingleRowDesc> udf;
                 try {
-                    udf = classpathImportService.resolveSingleRow(methodStreamSpec.getMethodName());
+                    udf = classpathImportService.resolveSingleRow(methodStreamSpec.getMethodName(), services.getClassProvidedClasspathExtension());
                 } catch (ClasspathImportException ex) {
                     throw new ExprValidationException("Failed to find user-defined function '" + methodStreamSpec.getMethodName() + "': " + ex.getMessage(), ex);
                 }
@@ -247,7 +244,7 @@ public class HistoricalEventViewableMethodForgeFactory {
             if (clazzWhenAvailable != null) {
                 typeGetterMethod = classpathImportService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0]);
             } else {
-                typeGetterMethod = classpathImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0], ClasspathExtensionEmpty.INSTANCE);
+                typeGetterMethod = classpathImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0], ClasspathExtensionClassEmpty.INSTANCE);
             }
         } catch (Exception e) {
             throw new ExprValidationException("Could not find getter method for method invocation, expected a method by name '" + getterMethodName + "' accepting no parameters");

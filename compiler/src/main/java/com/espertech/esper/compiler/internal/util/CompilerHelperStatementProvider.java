@@ -42,7 +42,6 @@ import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
-import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -71,8 +70,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-import static com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil.compileClassProvided;
-import static com.espertech.esper.compiler.internal.util.CompilerHelperSingleEPL.parseWalk;
+import static com.espertech.esper.compiler.internal.util.CompilerHelperSingleEPL.parseCompileInlinedClassesWalk;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator.verifySubstitutionParams;
 
 public class CompilerHelperStatementProvider {
@@ -88,22 +86,12 @@ public class CompilerHelperStatementProvider {
 
         StatementCompileTimeServices compileTimeServices = new StatementCompileTimeServices(statementNumber, moduleCompileTimeServices);
 
-        // Stage 0 - parse statement
-        StatementSpecRaw raw = parseWalk(compilable, compileTimeServices.getStatementSpecMapEnv());
-
-        // Stage 1 - compile application-provided classes (both create-class as well as just class-keyword)
-        ClassProvidedPrecompileResult classesInlined;
-        ClassProvidedPrecompileResult classesCreateClass = null;
+        // Stage 0 - parse and compile-inline-classes and walk statement
+        CompilerHelperSingleResult walked = parseCompileInlinedClassesWalk(compilable, compileTimeServices);
+        StatementSpecRaw raw = walked.getStatementSpecRaw();
         String classNameCreateClass = null;
-        try {
-            classesInlined = compileClassProvided(raw.getClassProvideds(), compileTimeServices, null);
-            if (raw.getCreateClassProvided() != null) {
-                classesCreateClass = compileClassProvided(Collections.singletonList(raw.getCreateClassProvided()), compileTimeServices, classesInlined);
-                classNameCreateClass = determineClassNameCreateClass(classesCreateClass, classesInlined);
-            }
-            compileTimeServices.setClassProvidedClasspathExtension(ClassProvidedPrecompileUtil.makeSvc(classesInlined, classesCreateClass, moduleCompileTimeServices.getClassProvidedCompileTimeResolver()));
-        } catch (ExprValidationException ex) {
-            throw new StatementSpecCompileException(ex.getMessage(), ex, compilable.toEPL());
+        if (raw.getCreateClassProvided() != null) {
+            classNameCreateClass = determineClassNameCreateClass(walked.getClassesInlined());
         }
 
         try {
@@ -198,7 +186,7 @@ public class CompilerHelperStatementProvider {
             } else if (raw.getCreateExpressionDesc() != null) {
                 forgeMethod = new StmtForgeMethodCreateExpression(base);
             } else if (raw.getCreateClassProvided() != null) {
-                forgeMethod = new StmtForgeMethodCreateClass(base, classesCreateClass, classNameCreateClass);
+                forgeMethod = new StmtForgeMethodCreateClass(base, walked.getClassesInlined(), classNameCreateClass);
             } else if (raw.getCreateWindowDesc() != null) {
                 forgeMethod = new StmtForgeMethodCreateWindow(base);
             } else if (raw.getCreateContextDesc() != null) {
@@ -295,7 +283,7 @@ public class CompilerHelperStatementProvider {
 
             String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), StatementProvider.class, classPostfix);
 
-            Map<String, byte[]> additionalClasses = new HashMap<>(classesInlined.getBytes());
+            Map<String, byte[]> additionalClasses = new HashMap<>(walked.getClassesInlined().getBytes());
             compileTimeServices.getClassProvidedCompileTimeResolver().addTo(additionalClasses);
             compileTimeServices.getClassProvidedCompileTimeRegistry().addTo(additionalClasses);
 
@@ -312,21 +300,16 @@ public class CompilerHelperStatementProvider {
         }
     }
 
-    private static String determineClassNameCreateClass(ClassProvidedPrecompileResult classesCreateClass, ClassProvidedPrecompileResult classesInlined) {
+    private static String determineClassNameCreateClass(ClassProvidedPrecompileResult classesInlined) {
         String className = null;
-        for (Map.Entry<String, byte[]> entry : classesCreateClass.getBytes().entrySet()) {
-            if (entry.getKey().contains("$") || classesInlined.getBytes().containsKey(entry.getKey())) {
+        for (int i = classesInlined.getClasses().size() - 1; i >= 0; i--) {
+            Class clazz = classesInlined.getClasses().get(i);
+            if (clazz.getName().contains("$")) {
                 continue;
             }
-            if (className != null) {
-                throw new IllegalStateException("Found multiple classes: " + className + " and " + entry.getKey());
-            }
-            className = entry.getKey();
+            return clazz.getName();
         }
-        if (className == null) {
-            throw new IllegalStateException("Could not determine class name, entries are: " + classesCreateClass.getBytes().keySet());
-        }
-        return className;
+        throw new IllegalStateException("Could not determine class name, entries are: " + classesInlined.getBytes().keySet());
     }
 
     private static void verifyForgeables(List<StmtClassForgeable> forgeables) {

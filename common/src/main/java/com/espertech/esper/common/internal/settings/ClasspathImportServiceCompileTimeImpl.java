@@ -87,7 +87,11 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
         enumMethods.put(dtmMethodName.toLowerCase(Locale.ENGLISH), config);
     }
 
-    public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) throws ClasspathImportException, ClasspathImportUndefinedException {
+    public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name, ClasspathExtensionSingleRow classpathExtensionSingleRow) throws ClasspathImportException, ClasspathImportUndefinedException {
+        Pair<Class, ClasspathImportSingleRowDesc> inlined = classpathExtensionSingleRow.resolveSingleRow(name);
+        if (inlined != null) {
+            return inlined;
+        }
         ClasspathImportSingleRowDesc pair = singleRowFunctions.get(name);
         if (pair == null) {
             pair = singleRowFunctions.get(name.toLowerCase(Locale.ENGLISH));
@@ -108,7 +112,7 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
     public Class resolveAnnotation(String className) throws ClasspathImportException {
         Class clazz;
         try {
-            clazz = resolveClassInternal(className, true, true, ClasspathExtensionEmpty.INSTANCE);
+            clazz = resolveClassInternal(className, true, true, ClasspathExtensionClassEmpty.INSTANCE);
         } catch (ClassNotFoundException e) {
             throw new ClasspathImportException("Could not load annotation class by name '" + className + "', please check imports", e);
         }
@@ -127,7 +131,7 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
         return resolveMethodInternalCheckOverloads(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC);
     }
 
-    public Method resolveMethodOverloadChecked(String className, String methodName, ClasspathExtension classpathExtension) throws ClasspathImportException {
+    public Method resolveMethodOverloadChecked(String className, String methodName, ClasspathExtensionClass classpathExtension) throws ClasspathImportException {
         Class clazz;
         try {
             clazz = resolveClassInternal(className, false, false, classpathExtension);

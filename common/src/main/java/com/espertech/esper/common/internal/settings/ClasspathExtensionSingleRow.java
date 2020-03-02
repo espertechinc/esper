@@ -8,22 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.classprovided.compiletime;
+package com.espertech.esper.common.internal.settings;
 
-import java.util.Collections;
-import java.util.Map;
+import com.espertech.esper.common.internal.collection.Pair;
 
-public class ClassProvidedClasspathExtensionEmpty implements ClassProvidedClasspathExtension {
-    public final static ClassProvidedClasspathExtension INSTANCE = new ClassProvidedClasspathExtensionEmpty();
-
-    private ClassProvidedClasspathExtensionEmpty() {
-    }
-
-    public Class findClassByName(String className) {
-        return null;
-    }
-
-    public Map<String, byte[]> getBytes() {
-        return Collections.emptyMap();
-    }
+public interface ClasspathExtensionSingleRow {
+    Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name);
 }

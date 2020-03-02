@@ -361,7 +361,7 @@ public class ExprNodeUtilityValidate {
         // There is no class name, try a single-row function
         String functionName = parse.getMethodName();
         try {
-            Pair<Class, ClasspathImportSingleRowDesc> classMethodPair = validationContext.getClasspathImportService().resolveSingleRow(functionName);
+            Pair<Class, ClasspathImportSingleRowDesc> classMethodPair = validationContext.getClasspathImportService().resolveSingleRow(functionName, validationContext.getClassProvidedClasspathExtension());
             List<ExprNode> parameters = Collections.singletonList((ExprNode) new ExprConstantNodeImpl(parse.getArgString()));
             List<ExprChainedSpec> chain = Collections.singletonList(new ExprChainedSpec(classMethodPair.getSecond().getMethodName(), parameters, false));
             ExprNode result = new ExprPlugInSingleRowNode(functionName, classMethodPair.getFirst(), chain, classMethodPair.getSecond());
@@ -417,7 +417,7 @@ public class ExprNodeUtilityValidate {
         return exprStream;
     }
 
-    private static ExprConstantNode resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtension classpathExtension)
+    private static ExprConstantNode resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension)
             throws ExprValidationException {
         EnumValue enumValue = ClasspathImportCompileTimeUtil.resolveIdentAsEnum(constant, classpathImportService, classpathExtension, false);
         if (enumValue != null) {

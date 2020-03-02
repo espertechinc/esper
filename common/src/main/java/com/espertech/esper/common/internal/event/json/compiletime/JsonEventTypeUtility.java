@@ -39,7 +39,7 @@ import com.espertech.esper.common.internal.event.json.parser.forge.JsonForgeFact
 import com.espertech.esper.common.internal.event.json.parser.forge.JsonForgeFactoryEventTypeTyped;
 import com.espertech.esper.common.internal.event.json.write.JsonWriteForgeNull;
 import com.espertech.esper.common.internal.event.map.MapEventType;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.ConstructorHelper;
@@ -273,7 +273,7 @@ public class JsonEventTypeUtility {
         throws ExprValidationException {
         if (jsonSchema != null && !jsonSchema.className().trim().isEmpty()) {
             try {
-                return services.getClasspathImportServiceCompileTime().resolveClass(jsonSchema.className(), true, ClasspathExtensionEmpty.INSTANCE);
+                return services.getClasspathImportServiceCompileTime().resolveClass(jsonSchema.className(), true, ClasspathExtensionClassEmpty.INSTANCE);
             } catch (ClasspathImportException e) {
                 throw new ExprValidationException("Failed to resolve JSON event class '" + jsonSchema.className() + "': " + e.getMessage(), e);
             }

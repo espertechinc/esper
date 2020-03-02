@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier;
 
 public class ClasspathImportCompileTimeUtil {
 
-    public static ValueAndFieldDesc resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtension classpathExtension, boolean isAnnotation)
+    public static ValueAndFieldDesc resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension, boolean isAnnotation)
             throws ExprValidationException {
         EnumValue enumValue = resolveIdentAsEnum(constant, classpathImportService, classpathExtension, isAnnotation);
         if (enumValue == null) {
@@ -32,7 +32,7 @@ public class ClasspathImportCompileTimeUtil {
         }
     }
 
-    public static EnumValue resolveIdentAsEnum(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtension classpathExtension, boolean isAnnotation) {
+    public static EnumValue resolveIdentAsEnum(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension, boolean isAnnotation) {
         int lastDotIndex = constant.lastIndexOf('.');
         if (lastDotIndex == -1) {
             return null;

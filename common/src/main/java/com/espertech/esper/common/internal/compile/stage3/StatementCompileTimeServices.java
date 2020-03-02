@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.context.compile.ContextCompileTimeRes
 import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.context.module.ModuleDependenciesCompileTime;
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
-import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtensionImpl;
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.dataflow.core.DataFlowCompileTimeRegistry;
@@ -52,11 +52,12 @@ public class StatementCompileTimeServices {
     private final ModuleCompileTimeServices services;
     private final EnumMethodCallStackHelperImpl enumMethodCallStackHelper = new EnumMethodCallStackHelperImpl();
     private final EventTypeNameGeneratorStatement eventTypeNameGeneratorStatement;
-    private ClassProvidedClasspathExtension classProvidedClasspathExtension = ClassProvidedClasspathExtensionEmpty.INSTANCE;
+    private final ClassProvidedClasspathExtension classProvidedClasspathExtension;
 
     public StatementCompileTimeServices(int statementNumber, ModuleCompileTimeServices services) {
         this.services = services;
         this.eventTypeNameGeneratorStatement = new EventTypeNameGeneratorStatement(statementNumber);
+        this.classProvidedClasspathExtension = new ClassProvidedClasspathExtensionImpl(services.getClassProvidedCompileTimeResolver());
     }
 
     public BeanEventTypeStemService getBeanEventTypeStemService() {
@@ -157,7 +158,8 @@ public class StatementCompileTimeServices {
 
     public StatementSpecMapEnv getStatementSpecMapEnv() {
         return new StatementSpecMapEnv(services.getClasspathImportServiceCompileTime(), services.getVariableCompileTimeResolver(), services.getConfiguration(),
-                services.getExprDeclaredCompileTimeResolver(), services.getContextCompileTimeResolver(), services.getTableCompileTimeResolver(), services.getScriptCompileTimeResolver(), services.getCompilerServices());
+                services.getExprDeclaredCompileTimeResolver(), services.getContextCompileTimeResolver(), services.getTableCompileTimeResolver(), services.getScriptCompileTimeResolver(), services.getCompilerServices(),
+            classProvidedClasspathExtension);
     }
 
     public ScriptCompileTimeResolver getScriptCompileTimeResolver() {
@@ -230,9 +232,5 @@ public class StatementCompileTimeServices {
 
     public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
         return classProvidedClasspathExtension;
-    }
-
-    public void setClassProvidedClasspathExtension(ClassProvidedClasspathExtension classProvidedClasspathExtension) {
-        this.classProvidedClasspathExtension = classProvidedClasspathExtension;
     }
 }

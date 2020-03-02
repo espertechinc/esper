@@ -10,10 +10,6 @@
  */
 package com.espertech.esper.common.internal.settings;
 
-public class ClasspathExtensionEmpty implements ClasspathExtension {
-    public final static ClasspathExtensionEmpty INSTANCE = new ClasspathExtensionEmpty();
-
-    public Class findClassByName(String className) {
-        return null;
-    }
+public interface ClasspathExtensionClass {
+    Class findClassByName(String className);
 }

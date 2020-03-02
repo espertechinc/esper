@@ -45,14 +45,14 @@ public class ContextControllerHashUtil {
             Pair<Class, ClasspathImportSingleRowDesc> hashSingleRowFunction = null;
             if (hashFunction == null) {
                 try {
-                    hashSingleRowFunction = services.getClasspathImportServiceCompileTime().resolveSingleRow(hashFuncName);
+                    hashSingleRowFunction = services.getClasspathImportServiceCompileTime().resolveSingleRow(hashFuncName, services.getClassProvidedClasspathExtension());
                 } catch (Exception e) {
                     // expected
                 }
 
                 if (hashSingleRowFunction == null) {
                     throw new ExprValidationException("For context '" + contextName + "' expected a hash function that is any of {" + HashFunctionEnum.getStringList() +
-                            "} or a plug-in single-row function or script but received '" + hashFuncName + "'");
+                        "} or a plug-in single-row function or script but received '" + hashFuncName + "'");
                 }
             }
 
@@ -75,7 +75,7 @@ public class ContextControllerHashUtil {
                 }
             } else if (hashSingleRowFunction != null) {
                 getter = new ContextControllerHashedGetterSingleRowForge(hashSingleRowFunction, item.getFunction().getParameters(),
-                        hashedSpec.getGranularity(), item.getFilterSpecCompiled().getFilterForEventType(), statementRawInfo, services);
+                    hashedSpec.getGranularity(), item.getFilterSpecCompiled().getFilterForEventType(), statementRawInfo, services);
             } else {
                 throw new IllegalArgumentException("Unrecognized hash code function '" + hashFuncName + "'");
             }

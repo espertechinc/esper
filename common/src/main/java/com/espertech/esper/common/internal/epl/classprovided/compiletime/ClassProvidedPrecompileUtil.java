@@ -22,7 +22,7 @@ public class ClassProvidedPrecompileUtil {
     public static ClassProvidedPrecompileResult compileClassProvided(List<String> classTexts, StatementCompileTimeServices compileTimeServices, ClassProvidedPrecompileResult optionalPrior)
         throws ExprValidationException {
         if (classTexts == null || classTexts.isEmpty()) {
-            return new ClassProvidedPrecompileResult(Collections.emptyMap(), Collections.emptyList());
+            return ClassProvidedPrecompileResult.EMPTY;
         }
 
         int index = -1;
@@ -72,19 +72,5 @@ public class ClassProvidedPrecompileUtil {
 
     private static ExprValidationException handleException(Exception ex, String action, String classText) {
         return new ExprValidationException(action + ": " + ex.getMessage() + " for class [\"\"\"" + classText + "\"\"\"]", ex);
-    }
-
-    public static ClassProvidedClasspathExtension makeSvc(ClassProvidedPrecompileResult classesInlined, ClassProvidedPrecompileResult classesCreateClass, ClassProvidedCompileTimeResolver resolver) {
-        if (classesInlined.getBytes().isEmpty() && classesCreateClass == null && resolver.isEmpty()) {
-            return ClassProvidedClasspathExtensionEmpty.INSTANCE;
-        }
-        if (classesCreateClass == null) {
-            return new ClassProvidedClasspathExtensionImpl(classesInlined, resolver);
-        }
-        if (classesInlined.getBytes().isEmpty()) {
-            return new ClassProvidedClasspathExtensionImpl(classesCreateClass, resolver);
-        }
-        ClassProvidedPrecompileResult merged = ClassProvidedPrecompileResult.merge(classesInlined, classesCreateClass);
-        return new ClassProvidedClasspathExtensionImpl(merged, resolver);
     }
 }

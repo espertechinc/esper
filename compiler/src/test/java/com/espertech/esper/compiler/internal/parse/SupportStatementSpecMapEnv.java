@@ -13,6 +13,8 @@ package com.espertech.esper.compiler.internal.parse;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapEnv;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeResolverEmpty;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtensionImpl;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.epl.script.compiletime.ScriptCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeResolverEmpty;
@@ -29,7 +31,8 @@ public class SupportStatementSpecMapEnv {
                 ContextCompileTimeResolverEmpty.INSTANCE,
                 TableCompileTimeResolverEmpty.INSTANCE,
                 ScriptCompileTimeResolverEmpty.INSTANCE,
-                null);
+                null,
+                new ClassProvidedClasspathExtensionImpl(ClassProvidedCompileTimeResolverEmpty.INSTANCE));
     }
 
     public static StatementSpecMapEnv make() {

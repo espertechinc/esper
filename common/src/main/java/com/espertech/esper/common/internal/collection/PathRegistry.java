@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class PathRegistry<K, E> {
@@ -136,6 +137,12 @@ public class PathRegistry<K, E> {
     public void traverse(Consumer<E> consumer) {
         for (Map.Entry<K, PathModuleEntry<E>> entry : entities.entrySet()) {
             entry.getValue().traverse(consumer);
+        }
+    }
+
+    public void traverseWithModule(BiConsumer<String, E> consumer) {
+        for (Map.Entry<K, PathModuleEntry<E>> entry : entities.entrySet()) {
+            entry.getValue().traverseWithModule(consumer);
         }
     }
 

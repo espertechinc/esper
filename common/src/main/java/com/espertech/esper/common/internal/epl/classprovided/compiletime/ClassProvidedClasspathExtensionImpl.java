@@ -10,31 +10,40 @@
  */
 package com.espertech.esper.common.internal.epl.classprovided.compiletime;
 
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionSingleRowDesc;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionSingleRowHelper;
+import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspathExtension {
-    private final List<Class> classes;
-    private final Map<String, byte[]> bytes;
     private final ClassProvidedCompileTimeResolver resolver;
+    private final List<Class> classes = new ArrayList<>(2);
+    private final Map<String, byte[]> bytes = new LinkedHashMap<>();
+    private final Map<String, ClasspathExtensionSingleRowDesc> singleRowFunctionExtensions = new HashMap<>(2);
 
-    public ClassProvidedClasspathExtensionImpl(ClassProvidedPrecompileResult classes, ClassProvidedCompileTimeResolver resolver) {
-        this.classes = classes.getClasses();
-        this.bytes = classes.getBytes();
+    public ClassProvidedClasspathExtensionImpl(ClassProvidedCompileTimeResolver resolver) {
         this.resolver = resolver;
     }
 
+    public void add(List<Class> classes, Map<String, byte[]> bytes) throws ExprValidationException {
+        this.classes.addAll(classes);
+        this.bytes.putAll(bytes); // duplicate class names checked at compile-time
+        ClasspathExtensionSingleRowHelper.processAnnotations(classes, null, singleRowFunctionExtensions);
+    }
+
     public Class findClassByName(String className) {
-        // Check inlined classes
+        // check inlined classes
         for (Class clazz : classes) {
             if (clazz.getName().equals(className)) {
                 return clazz;
             }
         }
-        // Check path classes
-        ClassProvided provided = resolver.resolve(className);
+        // check same-module (create inlined_class) or path classes
+        ClassProvided provided = resolver.resolveClass(className);
         if (provided != null) {
             for (Class clazz : provided.getClassesMayNull()) {
                 if (clazz.getName().equals(className)) {
@@ -43,6 +52,16 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
             }
         }
         return null;
+    }
+
+    public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) {
+        // check local
+        ClasspathExtensionSingleRowDesc desc = singleRowFunctionExtensions.get(name);
+        if (desc != null) {
+            return desc.getAsPair();
+        }
+        // check same-module (create inlined_class) or path classes
+        return resolver.resolveSingleRow(name);
     }
 
     public Map<String, byte[]> getBytes() {

@@ -26,6 +26,8 @@ import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileEx
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeResolverEmpty;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtensionImpl;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.epl.script.compiletime.ScriptCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeResolverEmpty;
@@ -47,7 +49,6 @@ import java.util.*;
 
 import static com.espertech.esper.compiler.internal.util.CompilerHelperServices.getCompileTimeServices;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperServices.makeClasspathImportService;
-import static com.espertech.esper.compiler.internal.util.CompilerHelperSingleEPL.parseWalk;
 
 public class EPCompilerImpl implements EPCompilerSPI {
 
@@ -105,7 +106,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
 
     public EPStatementObjectModel eplToModel(String stmtText, Configuration configuration) throws EPCompileException {
         try {
-            StatementSpecMapEnv mapEnv = new StatementSpecMapEnv(makeClasspathImportService(configuration), VariableCompileTimeResolverEmpty.INSTANCE, configuration, ExprDeclaredCompileTimeResolverEmpty.INSTANCE, ContextCompileTimeResolverEmpty.INSTANCE, TableCompileTimeResolverEmpty.INSTANCE, ScriptCompileTimeResolverEmpty.INSTANCE, new CompilerServicesImpl());
+            StatementSpecMapEnv mapEnv = new StatementSpecMapEnv(makeClasspathImportService(configuration), VariableCompileTimeResolverEmpty.INSTANCE, configuration, ExprDeclaredCompileTimeResolverEmpty.INSTANCE, ContextCompileTimeResolverEmpty.INSTANCE, TableCompileTimeResolverEmpty.INSTANCE, ScriptCompileTimeResolverEmpty.INSTANCE, new CompilerServicesImpl(), new ClassProvidedClasspathExtensionImpl(ClassProvidedCompileTimeResolverEmpty.INSTANCE));
             StatementSpecRaw statementSpec = CompilerHelperSingleEPL.parseWalk(stmtText, mapEnv);
             StatementSpecUnMapResult unmapped = StatementSpecMapper.unmap(statementSpec);
             return unmapped.getObjectModel();
@@ -214,9 +215,9 @@ public class EPCompilerImpl implements EPCompilerSPI {
                     throw new EPCompileException("Module item has both an EPL expression and a statement object model");
                 }
                 if (item.getExpression() != null) {
-                    parseWalk(new CompilableEPL(item.getExpression(), item.getLineNumber()), services.getStatementSpecMapEnv());
+                    CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(new CompilableEPL(item.getExpression(), item.getLineNumber()), services);
                 } else if (item.getModel() != null) {
-                    parseWalk(new CompilableSODA(item.getModel(), item.getLineNumber()), services.getStatementSpecMapEnv());
+                    CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(new CompilableSODA(item.getModel(), item.getLineNumber()), services);
                     item.getModel().toEPL();
                 } else {
                     throw new EPCompileException("Module item has neither an EPL expression nor a statement object model");

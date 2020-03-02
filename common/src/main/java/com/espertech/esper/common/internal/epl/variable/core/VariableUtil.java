@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
@@ -119,7 +119,7 @@ public class VariableUtil {
             ClasspathImportException lastException = null;
             if (type == null) {
                 try {
-                    type = classpathImportService.resolveClass(variableTypeWArray.getClassIdentifier(), false, ClasspathExtensionEmpty.INSTANCE);
+                    type = classpathImportService.resolveClass(variableTypeWArray.getClassIdentifier(), false, ClasspathExtensionClassEmpty.INSTANCE);
                     type = JavaClassHelper.getArrayType(type, variableTypeWArray.getArrayDimensions());
                 } catch (ClasspathImportException e) {
                     log.debug("Not found '" + type + "': " + e.getMessage(), e);

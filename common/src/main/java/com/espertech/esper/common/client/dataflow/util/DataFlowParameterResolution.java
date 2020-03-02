@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowOperatorParameterProviderContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpInitializeContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.util.ClassInstantiationException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -163,7 +163,7 @@ public class DataFlowParameterResolution {
 
         Class theClass;
         try {
-            theClass = context.getAgentInstanceContext().getClasspathImportServiceRuntime().resolveClass(className, false, ClasspathExtensionEmpty.INSTANCE);
+            theClass = context.getAgentInstanceContext().getClasspathImportServiceRuntime().resolveClass(className, false, ClasspathExtensionClassEmpty.INSTANCE);
         } catch (ClasspathImportException e) {
             throw new EPException("Failed to find class for parameter '" + name + "': " + e.getMessage(), e);
         }
