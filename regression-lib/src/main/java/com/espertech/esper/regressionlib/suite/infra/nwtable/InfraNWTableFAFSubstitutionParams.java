@@ -15,16 +15,15 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQueryParameterized;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
 import java.util.ArrayList;

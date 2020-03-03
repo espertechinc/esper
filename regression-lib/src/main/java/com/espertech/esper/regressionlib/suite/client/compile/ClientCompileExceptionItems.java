@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.client.compile;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompileExceptionItem;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 

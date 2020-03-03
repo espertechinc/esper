@@ -19,7 +19,6 @@ import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.util.apachecommonstext.StringEscapeUtils;
 import com.espertech.esper.compiler.client.CompilerArguments;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import junit.framework.TestCase;

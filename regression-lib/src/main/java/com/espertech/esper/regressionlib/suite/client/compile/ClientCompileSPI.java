@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.compiler.internal.util.EPCompilerSPI;
 import com.espertech.esper.compiler.internal.util.EPCompilerSPIExpression;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;

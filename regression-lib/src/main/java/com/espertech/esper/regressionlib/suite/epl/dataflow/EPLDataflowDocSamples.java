@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementFormatter;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 

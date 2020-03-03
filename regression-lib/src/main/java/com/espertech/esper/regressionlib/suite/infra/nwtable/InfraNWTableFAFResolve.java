@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResul
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.compiler.client.option.ModuleUsesContext;
 import com.espertech.esper.compiler.client.option.ModuleUsesOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;

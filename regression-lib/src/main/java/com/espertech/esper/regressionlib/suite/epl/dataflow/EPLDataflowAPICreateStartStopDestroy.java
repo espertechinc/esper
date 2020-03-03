@@ -16,11 +16,10 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationEx
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowService;
 import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 

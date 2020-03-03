@@ -32,7 +32,6 @@ import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.compiler.client.CompilerArguments;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -616,7 +615,7 @@ public class EPLOtherCreateSchema {
     private static void tryAssertionNestableMapArray(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
         String schema =
-                "@name('innerType') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNestableArray.class) + " create schema MyInnerType as (inn1 string[], inn2 int[]);\n" +
+            "@name('innerType') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNestableArray.class) + " create schema MyInnerType as (inn1 string[], inn2 int[]);\n" +
                 "@name('outerType') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNestableOuter.class) + " create schema MyOuterType as (col1 MyInnerType, col2 MyInnerType[]);\n";
         env.compileDeployWBusPublicType(schema, path);
 
