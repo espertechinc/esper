@@ -21,10 +21,7 @@ import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
-import com.espertech.esper.compiler.client.CompilerArguments;
-import com.espertech.esper.compiler.client.CompilerOptions;
-import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.compiler.client.EPCompilerProvider;
+import com.espertech.esper.compiler.client.*;
 import com.espertech.esper.regressionlib.support.util.SupportAdminUtil;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -47,10 +44,12 @@ import static org.junit.Assert.fail;
 public abstract class RegressionEnvironmentBase implements RegressionEnvironment {
     protected Configuration configuration;
     protected EPRuntime runtime;
+    
+    public abstract EPCompiler getCompiler();
 
     public Module parseModule(String moduleText) {
         try {
-            return EPCompilerProvider.getCompiler().parseModule(moduleText);
+            return getCompiler().parseModule(moduleText);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
@@ -59,7 +58,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     public EPCompiled compileFAF(String query, RegressionPath path) {
         CompilerArguments args = getArgsNoExport(path);
         try {
-            return EPCompilerProvider.getCompiler().compileQuery(query, args);
+            return getCompiler().compileQuery(query, args);
         } catch (Throwable t) {
             throw notExpected(t);
         }
@@ -68,7 +67,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     public EPCompiled compileFAF(EPStatementObjectModel model, RegressionPath path) {
         CompilerArguments args = getArgsNoExport(path);
         try {
-            return EPCompilerProvider.getCompiler().compileQuery(model, args);
+            return getCompiler().compileQuery(model, args);
         } catch (Throwable t) {
             throw notExpected(t);
         }
@@ -388,7 +387,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         try {
             Module module = new Module();
             module.getItems().add(new ModuleItem(model));
-            return EPCompilerProvider.getCompiler().compile(module, args);
+            return getCompiler().compile(module, args);
         } catch (Throwable t) {
             throw notExpected(t);
         }
@@ -425,7 +424,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     public EPCompiled compile(String epl, CompilerArguments arguments) {
         try {
             arguments.setConfiguration(configuration);
-            return EPCompilerProvider.getCompiler().compile(epl, arguments);
+            return getCompiler().compile(epl, arguments);
         } catch (EPCompileException t) {
             throw notExpected(t);
         }
@@ -449,7 +448,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
 
     public EPStatementObjectModel eplToModel(String epl) {
         try {
-            EPStatementObjectModel model = EPCompilerProvider.getCompiler().eplToModel(epl, getConfiguration());
+            EPStatementObjectModel model = getCompiler().eplToModel(epl, getConfiguration());
             return SerializableObjectCopier.copyMayFail(model); // copy to test serializability
         } catch (EPCompileException t) {
             throw notExpected(t);
@@ -485,12 +484,12 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         if (path != null) {
             args.getPath().addAll(path.getCompileds());
         }
-        return EPCompilerProvider.getCompiler().compile(epl, args);
+        return getCompiler().compile(epl, args);
     }
 
     public Module readModule(String filename) {
         try {
-            return EPCompilerProvider.getCompiler().readModule(filename, this.getClass().getClassLoader());
+            return getCompiler().readModule(filename, this.getClass().getClassLoader());
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
@@ -503,7 +502,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
 
     public EPCompiled compile(Module module) {
         try {
-            return EPCompilerProvider.getCompiler().compile(module, new CompilerArguments(configuration));
+            return getCompiler().compile(module, new CompilerArguments(configuration));
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
@@ -529,13 +528,13 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     private EPCompiled tryCompile(String epl, Consumer<CompilerOptions> options) {
         try {
             if (options == null) {
-                return EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments(this.getConfiguration()));
+                return getCompiler().compile(epl, new CompilerArguments(this.getConfiguration()));
             }
 
             CompilerArguments args = new CompilerArguments(getConfiguration());
             options.accept(args.getOptions());
 
-            return EPCompilerProvider.getCompiler().compile(epl, args);
+            return getCompiler().compile(epl, args);
         } catch (Throwable t) {
             throw notExpected(t);
         }

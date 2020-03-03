@@ -82,13 +82,13 @@ public class ClientCompileVisibility {
             tryInvalidCompile(env, "@Private @BusEventType create schema ABC()", message);
             tryInvalidCompile(env, "@BusEventType create schema ABC()", message);
 
-            tryInvalidCompileWConfigure(config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
+            tryInvalidCompileWConfigure(env, config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
                 "@private create schema ABC()", message);
-            tryInvalidCompileWConfigure(config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
+            tryInvalidCompileWConfigure(env, config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
                 "@protected create schema ABC()", message);
 
             for (NameAccessModifier modifier : new NameAccessModifier[]{NameAccessModifier.PROTECTED, NameAccessModifier.PRIVATE}) {
-                tryInvalidCompileWConfigure(config -> {
+                tryInvalidCompileWConfigure(env, config -> {
                     config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS);
                     config.getCompiler().getByteCode().setAccessModifierEventType(modifier);
                 }, "create schema ABC()", message);
@@ -282,7 +282,7 @@ public class ClientCompileVisibility {
             args.getOptions().setAccessModifierVariable(ctx -> NameAccessModifier.PUBLIC).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC);
             EPCompiled compiled;
             try {
-                compiled = EPCompilerProvider.getCompiler().compile(
+                compiled = env.getCompiler().compile(
                     "create variable int preconfigured_variable;\n" +
                         "create schema SupportBean_S1 as (p0 string);\n", args);
             } catch (EPCompileException e) {
@@ -371,7 +371,7 @@ public class ClientCompileVisibility {
         try {
             CompilerArguments args = new CompilerArguments(env.getConfiguration());
             args.getOptions().setModuleName(ctx -> "abc");
-            compiledBoth = EPCompilerProvider.getCompiler().compile(epl, args);
+            compiledBoth = env.getCompiler().compile(epl, args);
         } catch (EPCompileException ex) {
             throw new RuntimeException();
         }
@@ -382,12 +382,12 @@ public class ClientCompileVisibility {
         env.undeployAll();
     }
 
-    private static void tryInvalidCompileWConfigure(Consumer<Configuration> configurer, String epl, String message) {
+    private static void tryInvalidCompileWConfigure(RegressionEnvironment env, Consumer<Configuration> configurer, String epl, String message) {
         try {
             Configuration configuration = new Configuration();
             configurer.accept(configuration);
             CompilerArguments args = new CompilerArguments(configuration);
-            EPCompilerProvider.getCompiler().compile(epl, args);
+            env.getCompiler().compile(epl, args);
         } catch (EPCompileException ex) {
             SupportMessageAssertUtil.assertMessage(ex, message);
         }

@@ -36,7 +36,7 @@ public class ClientCompileSPI {
 
     private static class ClientCompileSPIExpression implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            EPCompilerSPI compiler = (EPCompilerSPI) EPCompilerProvider.getCompiler();
+            EPCompilerSPI compiler = (EPCompilerSPI) env.getCompiler();
 
             EPCompilerSPIExpression expressionCompiler = null;
             try {

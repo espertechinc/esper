@@ -353,7 +353,7 @@ public class ClientRuntimeStatementAnnotation {
 
     private static void tryInvalidAnnotation(RegressionEnvironment env, String stmtText, boolean isSyntax, String message) {
         try {
-            EPCompilerProvider.getCompiler().compile(stmtText, new CompilerArguments(env.getConfiguration()));
+            env.getCompiler().compile(stmtText, new CompilerArguments(env.getConfiguration()));
             fail();
         } catch (EPCompileException ex) {
             EPCompileExceptionItem first = ex.getItems().get(0);

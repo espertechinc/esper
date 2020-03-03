@@ -11,6 +11,8 @@
 package com.espertech.esper.regressionrun.runner;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.compiler.client.EPCompiler;
+import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironmentBase;
 import com.espertech.esper.runtime.client.EPRuntime;
@@ -24,6 +26,10 @@ public class RegressionEnvironmentEsper extends RegressionEnvironmentBase {
 
     public RegressionEnvironmentEsper(Configuration configuration, EPRuntime runtime) {
         super(configuration, runtime);
+    }
+
+    public EPCompiler getCompiler() {
+        return EPCompilerProvider.getCompiler();
     }
 
     public RegressionEnvironment milestone(int num) {

@@ -47,7 +47,7 @@ public class ClientCompileExceptionItems {
                 "  col1 WrongTwo\n" +
                 ");\n";
             try {
-                EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments());
+                env.getCompiler().compile(epl, new CompilerArguments());
                 fail();
             } catch (EPCompileException ex) {
                 assertMessage(ex, "Nestable type configuration encountered an unexpected property type name 'Wrong' for property 'col1'");
@@ -63,7 +63,7 @@ public class ClientCompileExceptionItems {
             String epl = "create schema MySchemaOne (col1 Wrong);\n" +
                 "create schema MySchemaTwo (col1 WrongTwo);\n";
             try {
-                EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments());
+                env.getCompiler().compile(epl, new CompilerArguments());
                 fail();
             } catch (EPCompileException ex) {
                 assertMessage(ex, "Nestable type configuration encountered an unexpected property type name 'Wrong' for property 'col1'");
@@ -77,7 +77,7 @@ public class ClientCompileExceptionItems {
     public static class ClientCompileExeptionEPLWNewline implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             try {
-                EPCompilerProvider.getCompiler().compile("XX\nX", new CompilerArguments());
+                env.getCompiler().compile("XX\nX", new CompilerArguments());
                 fail();
             } catch (EPCompileException ex) {
                 assertMessage(ex, "Incorrect syntax near 'XX' [XX X]");

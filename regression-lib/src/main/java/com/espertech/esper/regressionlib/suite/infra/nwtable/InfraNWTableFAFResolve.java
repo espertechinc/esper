@@ -73,7 +73,7 @@ public class InfraNWTableFAFResolve implements IndexBackingTableInfo {
                 }
             });
             args.getPath().add(env.runtime().getRuntimePath());
-            return EPCompilerProvider.getCompiler().compileQuery(query, args);
+            return env.getCompiler().compileQuery(query, args);
         } catch (EPCompileException ex) {
             throw new RuntimeException(ex);
         }

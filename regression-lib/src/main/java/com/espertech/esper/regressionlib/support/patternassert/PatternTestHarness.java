@@ -94,7 +94,7 @@ public class PatternTestHarness {
                     model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation(statementName)));
                     Module module = new Module();
                     module.getItems().add(new ModuleItem(model));
-                    compiled = EPCompilerProvider.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
+                    compiled = env.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
                 } else {
                     if (testStyle == PatternTestStyle.USE_EPL) {
                         String text = nameAnnotation + "@Audit('pattern') @Audit('pattern-instances') select * from pattern [" + epl + "]";
@@ -106,14 +106,14 @@ public class PatternTestHarness {
                         epl = text;
                     } else if (testStyle == PatternTestStyle.COMPILE_TO_MODEL) {
                         String text = nameAnnotation + "select * from pattern [" + epl + "]";
-                        EPStatementObjectModel mymodel = EPCompilerProvider.getCompiler().eplToModel(text, env.getConfiguration());
+                        EPStatementObjectModel mymodel = env.getCompiler().eplToModel(text, env.getConfiguration());
                         Module module = new Module();
                         module.getItems().add(new ModuleItem(mymodel));
-                        compiled = EPCompilerProvider.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
+                        compiled = env.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
                         epl = text;
                     } else if (testStyle == PatternTestStyle.COMPILE_TO_EPL) {
                         String text = "select * from pattern [" + epl + "]";
-                        EPStatementObjectModel mymodel = EPCompilerProvider.getCompiler().eplToModel(text, env.getConfiguration());
+                        EPStatementObjectModel mymodel = env.getCompiler().eplToModel(text, env.getConfiguration());
                         String reverse = nameAnnotation + mymodel.toEPL();
                         compiled = env.compile(reverse);
                         epl = reverse;

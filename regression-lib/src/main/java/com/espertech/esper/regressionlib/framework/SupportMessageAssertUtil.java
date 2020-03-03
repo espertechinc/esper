@@ -186,6 +186,6 @@ public class SupportMessageAssertUtil {
     private static void compileFAFInternal(RegressionEnvironment env, RegressionPath path, String epl) throws EPCompileException {
         CompilerArguments args = new CompilerArguments(env.getConfiguration());
         args.getPath().addAll(path.getCompileds());
-        EPCompilerProvider.getCompiler().compileQuery(epl, args);
+        env.getCompiler().compileQuery(epl, args);
     }
 }

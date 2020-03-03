@@ -65,7 +65,7 @@ public class ClientDeployPreconditionDependency {
 
             EPCompiled compiled;
             try {
-                compiled = EPCompilerProvider.getCompiler().compile("select * from SomeEvent", new CompilerArguments(configuration));
+                compiled = env.getCompiler().compile("select * from SomeEvent", new CompilerArguments(configuration));
             } catch (EPCompileException e) {
                 throw new RuntimeException(e);
             }
@@ -82,7 +82,7 @@ public class ClientDeployPreconditionDependency {
 
             EPCompiled compiled;
             try {
-                compiled = EPCompilerProvider.getCompiler().compile("select mypublicvariable from SupportBean", new CompilerArguments(configuration));
+                compiled = env.getCompiler().compile("select mypublicvariable from SupportBean", new CompilerArguments(configuration));
             } catch (EPCompileException e) {
                 throw new RuntimeException(e);
             }

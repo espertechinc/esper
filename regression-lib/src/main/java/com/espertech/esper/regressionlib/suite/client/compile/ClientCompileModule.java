@@ -65,7 +65,7 @@ public class ClientCompileModule {
 
             Module module;
             try {
-                module = EPCompilerProvider.getCompiler().readModule(input, resource);
+                module = env.getCompiler().readModule(input, resource);
                 module.setUri("uri1");
                 module.setArchiveName("archive1");
                 module.setModuleUserObjectCompileTime("obj1");
@@ -272,7 +272,7 @@ public class ClientCompileModule {
 
     private static class ClientCompileModuleParseFail implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidIO("regression/dummy_not_there.epl",
+            tryInvalidIO(env, "regression/dummy_not_there.epl",
                 "Failed to find resource 'regression/dummy_not_there.epl' in classpath");
 
             tryInvalidParse(env, "regression/test_module_1_fail.epl",
@@ -312,9 +312,9 @@ public class ClientCompileModule {
         tryInvalidCompile(env, epl, "Failed to parse: Unrecognized control characters found in text, failed to parse text ");
     }
 
-    private static void tryInvalidIO(String resource, String message) {
+    private static void tryInvalidIO(RegressionEnvironment env, String resource, String message) {
         try {
-            EPCompilerProvider.getCompiler().readModule(resource, ClientCompileModule.class.getClassLoader());
+            env.getCompiler().readModule(resource, ClientCompileModule.class.getClassLoader());
             fail();
         } catch (IOException ex) {
             assertEquals(message, ex.getMessage());
@@ -325,7 +325,7 @@ public class ClientCompileModule {
 
     private static void tryInvalidParse(RegressionEnvironment env, String resource, String message) {
         try {
-            EPCompilerProvider.getCompiler().readModule(resource, env.getClass().getClassLoader());
+            env.getCompiler().readModule(resource, env.getClass().getClassLoader());
             fail();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -384,7 +384,7 @@ public class ClientCompileModule {
 
     private static EPCompiled compileModule(RegressionEnvironment env, Module module) {
         try {
-            return EPCompilerProvider.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
+            return env.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
         } catch (EPCompileException ex) {
             throw new RuntimeException(ex);
         }

@@ -19,6 +19,7 @@ import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.compiler.client.EPCompiler;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.EPStageService;
@@ -32,6 +33,8 @@ import java.util.function.Consumer;
 
 public interface RegressionEnvironment {
     Configuration getConfiguration();
+
+    EPCompiler getCompiler();
 
     EPCompiled compile(String epl, CompilerArguments arguments);
 

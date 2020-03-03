@@ -687,7 +687,7 @@ public class EPLOtherCreateSchema {
                 CompilerArguments args = new CompilerArguments();
                 args.setConfiguration(env.getConfiguration());
                 args.getOptions().setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC).setBusModifierEventType(ctx -> EventTypeBusModifier.BUS);
-                compiled = EPCompilerProvider.getCompiler().compile(module, args);
+                compiled = env.getCompiler().compile(module, args);
             }
         } catch (Throwable t) {
             throw new RuntimeException(t);

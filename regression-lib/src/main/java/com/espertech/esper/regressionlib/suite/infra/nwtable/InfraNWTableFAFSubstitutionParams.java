@@ -303,7 +303,7 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
         try {
             CompilerArguments args = new CompilerArguments(env.getConfiguration());
             args.getPath().addAll(path.getCompileds());
-            EPCompilerProvider.getCompiler().compileQuery(faf, args);
+            env.getCompiler().compileQuery(faf, args);
             fail();
         } catch (EPCompileException ex) {
             assertMessage(ex, expected);

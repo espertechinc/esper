@@ -122,7 +122,7 @@ public class EPLDataflowDocSamples {
 
     private static void tryEpl(RegressionEnvironment env, String epl) {
         try {
-            EPCompilerProvider.getCompiler().parseModule(epl);
+            env.getCompiler().parseModule(epl);
         } catch (Throwable t) {
             fail(t.getMessage());
         }

@@ -81,7 +81,7 @@ public class ClientCompileSyntaxValidate {
             Module module = new Module();
             module.getItems().add(new ModuleItem("select * from NoSuchEvent"));
             try {
-                EPCompilerProvider.getCompiler().syntaxValidate(module, null);
+                env.getCompiler().syntaxValidate(module, null);
             } catch (EPCompileException e) {
                 throw new RuntimeException(e);
             }
@@ -89,7 +89,7 @@ public class ClientCompileSyntaxValidate {
             module = new Module();
             module.getItems().add(new ModuleItem("xxx"));
             try {
-                EPCompilerProvider.getCompiler().syntaxValidate(module, null);
+                env.getCompiler().syntaxValidate(module, null);
                 fail();
             } catch (EPCompileException ex) {
                 SupportMessageAssertUtil.assertMessage(ex, "Incorrect syntax near 'xxx'");
@@ -99,7 +99,7 @@ public class ClientCompileSyntaxValidate {
             EPStatementObjectModel model = new EPStatementObjectModel();
             module.getItems().add(new ModuleItem(model));
             try {
-                EPCompilerProvider.getCompiler().syntaxValidate(module, null);
+                env.getCompiler().syntaxValidate(module, null);
                 fail();
             } catch (EPCompileException ex) {
                 SupportMessageAssertUtil.assertMessage(ex, "Select-clause has not been defined");

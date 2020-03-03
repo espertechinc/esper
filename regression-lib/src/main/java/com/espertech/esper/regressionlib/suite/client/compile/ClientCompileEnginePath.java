@@ -38,8 +38,8 @@ public class ClientCompileEnginePath {
 
     public static class ClientCompileEnginePathPreconfiguredEventTypeFromPath implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            createStmt(env.runtime(), "@Name('A') @public create table MyTableAggs(theString String primary key, thecnt count(*), thewin window(*) @type(SupportBean))");
-            createStmt(env.runtime(), "@Name('B') into table MyTableAggs select count(*) as thecnt, window(*) as thewin from SupportBean#keepall() group by theString");
+            createStmt(env, "@Name('A') @public create table MyTableAggs(theString String primary key, thecnt count(*), thewin window(*) @type(SupportBean))");
+            createStmt(env, "@Name('B') into table MyTableAggs select count(*) as thecnt, window(*) as thewin from SupportBean#keepall() group by theString");
 
             env.undeployAll();
         }
@@ -47,11 +47,11 @@ public class ClientCompileEnginePath {
 
     public static class ClientCompileEnginePathInfraWithIndex implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            createStmt(env.runtime(), "@Name('Create') @public create table MyTable(id String primary key, theGroup int primary key)");
-            createStmt(env.runtime(), "@Name('Index') create unique index I1 on MyTable(id)");
+            createStmt(env, "@Name('Create') @public create table MyTable(id String primary key, theGroup int primary key)");
+            createStmt(env, "@Name('Index') create unique index I1 on MyTable(id)");
 
-            createStmt(env.runtime(), "@Name('Create') @public create window MyWindow#keepall as SupportBean");
-            createStmt(env.runtime(), "@Name('Index') create unique index I1 on MyWindow(theString)");
+            createStmt(env, "@Name('Create') @public create window MyWindow#keepall as SupportBean");
+            createStmt(env, "@Name('Index') create unique index I1 on MyWindow(theString)");
 
             env.undeployAll();
         }
@@ -99,16 +99,16 @@ public class ClientCompileEnginePath {
     private static EPCompiled compileWEnginePathAndEmptyConfig(RegressionEnvironment env, String epl) throws EPCompileException {
         CompilerArguments args = new CompilerArguments(env.getConfiguration());
         args.getPath().add(env.runtime().getRuntimePath());
-        return EPCompilerProvider.getCompiler().compile(epl, args);
+        return env.getCompiler().compile(epl, args);
     }
 
-    private static EPDeployment createStmt(EPRuntime runtime, String epl) {
+    private static EPDeployment createStmt(RegressionEnvironment env, String epl) {
         try {
-            Configuration configuration = runtime.getConfigurationDeepCopy();
+            Configuration configuration = env.runtime().getConfigurationDeepCopy();
             CompilerArguments args = new CompilerArguments(configuration);
-            args.getPath().add(runtime.getRuntimePath());
-            EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            return runtime.getDeploymentService().deploy(compiled);
+            args.getPath().add(env.runtime().getRuntimePath());
+            EPCompiled compiled = env.getCompiler().compile(epl, args);
+            return env.runtime().getDeploymentService().deploy(compiled);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

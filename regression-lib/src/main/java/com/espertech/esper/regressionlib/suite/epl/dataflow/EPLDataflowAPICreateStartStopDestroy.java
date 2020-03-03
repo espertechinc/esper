@@ -90,7 +90,7 @@ public class EPLDataflowAPICreateStartStopDestroy {
 
             Module module = null;
             try {
-                module = EPCompilerProvider.getCompiler().parseModule(epl);
+                module = env.getCompiler().parseModule(epl);
             } catch (Exception e) {
                 fail(e.getMessage());
             }
