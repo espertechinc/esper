@@ -19,18 +19,14 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.runtime.client.EPDeploymentDependencyConsumed;
-import com.espertech.esper.runtime.client.EPDeploymentDependencyProvided;
+import com.espertech.esper.regressionlib.support.client.SupportDeploymentDependencies;
 import com.espertech.esper.runtime.client.util.EPObjectType;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
-import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertEqualsAnyOrder;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ClientExtendUDFInlinedClass {
     public static Collection<RegressionExecution> executions() {
@@ -123,12 +119,7 @@ public class ClientExtendUDFInlinedClass {
             sendAssertIntMultiply(env, 13, 13 * 13);
 
             // assert dependencies
-            String deploymentIdSelect = env.deploymentId("s0");
-            String deploymentIdClazz = env.deploymentId("clazz");
-            EPDeploymentDependencyConsumed consumed = env.runtime().getDeploymentService().getDeploymentDependenciesConsumed(deploymentIdSelect);
-            assertEqualsAnyOrder(new EPDeploymentDependencyConsumed.Item[]{new EPDeploymentDependencyConsumed.Item(deploymentIdClazz, EPObjectType.CLASSPROVIDED, "MultiplyHelper")}, consumed.getDependencies().toArray());
-            EPDeploymentDependencyProvided provided = env.runtime().getDeploymentService().getDeploymentDependenciesProvided(deploymentIdClazz);
-            assertEqualsAnyOrder(new EPDeploymentDependencyProvided.Item[]{new EPDeploymentDependencyProvided.Item(EPObjectType.CLASSPROVIDED, "MultiplyHelper", Collections.singleton(deploymentIdSelect))}, provided.getDependencies().toArray());
+            SupportDeploymentDependencies.assertSingle(env, "s0", "clazz", EPObjectType.CLASSPROVIDED, "MultiplyHelper");
 
             env.undeployAll();
         }
@@ -153,11 +144,7 @@ public class ClientExtendUDFInlinedClass {
 
             sendAssertIntMultiply(env, 6, 36);
 
-            String deploymentId = env.deploymentId("s0");
-            EPDeploymentDependencyConsumed consumed = env.runtime().getDeploymentService().getDeploymentDependenciesConsumed(deploymentId);
-            assertTrue(consumed.getDependencies().isEmpty());
-            EPDeploymentDependencyProvided provided = env.runtime().getDeploymentService().getDeploymentDependenciesProvided(deploymentId);
-            assertTrue(provided.getDependencies().isEmpty());
+            SupportDeploymentDependencies.assertEmpty(env, "s0");
 
             env.undeployAll();
         }

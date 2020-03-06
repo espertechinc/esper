@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunct
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprPlugInMultiFunctionAggNode;
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprPlugInAggNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionAggregationFunction;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.ClasspathImportUndefinedException;
@@ -30,9 +31,10 @@ public class ASTAggregationHelper {
     public static ExprNode tryResolveAsAggregation(ClasspathImportServiceCompileTime classpathImportService,
                                                    boolean distinct,
                                                    String functionName,
-                                                   LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations) {
+                                                   LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+                                                   ClasspathExtensionAggregationFunction classpathExtensionAggregationFunction) {
         try {
-            AggregationFunctionForge aggregationFactory = classpathImportService.resolveAggregationFunction(functionName);
+            AggregationFunctionForge aggregationFactory = classpathImportService.resolveAggregationFunction(functionName, classpathExtensionAggregationFunction);
             return new ExprPlugInAggNode(distinct, aggregationFactory, functionName);
         } catch (ClasspathImportUndefinedException e) {
             // Not an aggregation function

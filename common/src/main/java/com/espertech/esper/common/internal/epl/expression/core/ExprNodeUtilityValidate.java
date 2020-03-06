@@ -382,7 +382,7 @@ public class ExprNodeUtilityValidate {
 
         // Try an aggregation function factory
         try {
-            AggregationFunctionForge aggregationForge = validationContext.getClasspathImportService().resolveAggregationFunction(parse.getMethodName());
+            AggregationFunctionForge aggregationForge = validationContext.getClasspathImportService().resolveAggregationFunction(parse.getMethodName(), validationContext.getClassProvidedClasspathExtension());
             ExprNode result = new ExprPlugInAggNode(false, aggregationForge, parse.getMethodName());
             result.addChildNode(new ExprConstantNodeImpl(parse.getArgString()));
 

@@ -86,7 +86,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprPlug
         try {
             // the aggregation function factory is transient, obtain if not provided
             if (aggregationFunctionForge == null) {
-                aggregationFunctionForge = validationContext.getClasspathImportService().resolveAggregationFunction(functionName);
+                aggregationFunctionForge = validationContext.getClasspathImportService().resolveAggregationFunction(functionName, validationContext.getClassProvidedClasspathExtension());
             }
 
             aggregationFunctionForge.validate(context);

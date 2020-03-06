@@ -301,6 +301,8 @@ public class ParseHelper {
                     writer.append("\\'");
                     writer.append(t.getText().substring(1, t.getText().length() - 1));
                     writer.append("\\'");
+                } else if (t.getType() == EsperEPL2GrammarParser.STRING_LITERAL) {
+                    writer.append(t.getText().replace("'", "\\'"));
                 } else {
                     writer.append(t.getText());
                 }

@@ -254,7 +254,7 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
     }
 
     private Method resolveMethodInternalCheckOverloads(Class clazz, String methodName, MethodModifiers methodModifiers)
-            throws ClasspathImportException {
+        throws ClasspathImportException {
         Method[] methods = clazz.getMethods();
         Set<Method> overloadeds = null;
         Method methodByName = null;
@@ -302,26 +302,34 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
         return provider;
     }
 
-    public AggregationFunctionForge resolveAggregationFunction(String functionName) throws ClasspathImportUndefinedException, ClasspathImportException {
-        ConfigurationCompilerPlugInAggregationFunction desc = aggregationFunctions.get(functionName);
-        if (desc == null) {
-            desc = aggregationFunctions.get(functionName.toLowerCase(Locale.ENGLISH));
-        }
-        if (desc == null || desc.getForgeClassName() == null) {
-            throw new ClasspathImportUndefinedException("A function named '" + functionName + "' is not defined");
-        }
+    public AggregationFunctionForge resolveAggregationFunction(String functionName, ClasspathExtensionAggregationFunction extension) throws ClasspathImportUndefinedException, ClasspathImportException {
+        Class inlined = extension.resolveAggregationFunction(functionName);
 
-        String className = desc.getForgeClassName();
-        Class clazz;
-        try {
-            clazz = getClassForNameProvider().classForName(className);
-        } catch (ClassNotFoundException ex) {
-            throw new ClasspathImportException("Could not load aggregation factory class by name '" + className + "'", ex);
+        Class forgeClass;
+        String className;
+        if (inlined != null) {
+            forgeClass = inlined;
+            className = inlined.getName();
+        } else {
+            ConfigurationCompilerPlugInAggregationFunction desc = aggregationFunctions.get(functionName);
+            if (desc == null) {
+                desc = aggregationFunctions.get(functionName.toLowerCase(Locale.ENGLISH));
+            }
+            if (desc == null || desc.getForgeClassName() == null) {
+                throw new ClasspathImportUndefinedException("A function named '" + functionName + "' is not defined");
+            }
+
+            className = desc.getForgeClassName();
+            try {
+                forgeClass = getClassForNameProvider().classForName(className);
+            } catch (ClassNotFoundException ex) {
+                throw new ClasspathImportException("Could not load aggregation factory class by name '" + className + "'", ex);
+            }
         }
 
         Object object;
         try {
-            object = clazz.newInstance();
+            object = forgeClass.newInstance();
         } catch (InstantiationException e) {
             throw new ClasspathImportException("Error instantiating aggregation factory class by name '" + className + "'", e);
         } catch (IllegalAccessException e) {

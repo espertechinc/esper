@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.classprovided.compiletime;
 
+import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.hook.aggfunc.ExtensionAggregationFunction;
+import com.espertech.esper.common.client.hook.singlerowfunc.ExtensionSingleRowFunction;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionSingleRowDesc;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionSingleRowHelper;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
 
@@ -23,7 +25,8 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
     private final ClassProvidedCompileTimeResolver resolver;
     private final List<Class> classes = new ArrayList<>(2);
     private final Map<String, byte[]> bytes = new LinkedHashMap<>();
-    private final Map<String, ClasspathExtensionSingleRowDesc> singleRowFunctionExtensions = new HashMap<>(2);
+    private Map<String, Pair<Class, ExtensionSingleRowFunction>> singleRowFunctionExtensions = Collections.emptyMap();
+    private Map<String, Pair<Class, ExtensionAggregationFunction>> aggregationFunctionExtensions = Collections.emptyMap();
 
     public ClassProvidedClasspathExtensionImpl(ClassProvidedCompileTimeResolver resolver) {
         this.resolver = resolver;
@@ -32,7 +35,30 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
     public void add(List<Class> classes, Map<String, byte[]> bytes) throws ExprValidationException {
         this.classes.addAll(classes);
         this.bytes.putAll(bytes); // duplicate class names checked at compile-time
-        ClasspathExtensionSingleRowHelper.processAnnotations(classes, null, singleRowFunctionExtensions);
+
+        try {
+            JavaClassHelper.traverseAnnotations(classes, ExtensionSingleRowFunction.class, (clazz, annotation) -> {
+                if (singleRowFunctionExtensions.isEmpty()) {
+                    singleRowFunctionExtensions = new HashMap<>(2);
+                }
+                if (singleRowFunctionExtensions.containsKey(annotation.name())) {
+                    throw new EPException("The plug-in single-row function '" + annotation.name() + "' occurs multiple times");
+                }
+                singleRowFunctionExtensions.put(annotation.name(), new Pair<>(clazz, annotation));
+            });
+
+            JavaClassHelper.traverseAnnotations(classes, ExtensionAggregationFunction.class, (clazz, annotation) -> {
+                if (aggregationFunctionExtensions.isEmpty()) {
+                    aggregationFunctionExtensions = new HashMap<>(2);
+                }
+                if (aggregationFunctionExtensions.containsKey(annotation.name())) {
+                    throw new EPException("The plug-in aggregation function '" + annotation.name() + "' occurs multiple times");
+                }
+                aggregationFunctionExtensions.put(annotation.name(), new Pair<>(clazz, annotation));
+            });
+        } catch (EPException ex) {
+            throw new ExprValidationException(ex.getMessage(), ex);
+        }
     }
 
     public Class findClassByName(String className) {
@@ -56,12 +82,22 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
 
     public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) {
         // check local
-        ClasspathExtensionSingleRowDesc desc = singleRowFunctionExtensions.get(name);
-        if (desc != null) {
-            return desc.getAsPair();
+        Pair<Class, ExtensionSingleRowFunction> pair = singleRowFunctionExtensions.get(name);
+        if (pair != null) {
+            return new Pair<>(pair.getFirst(), new ClasspathImportSingleRowDesc(pair.getFirst(), pair.getSecond()));
         }
         // check same-module (create inlined_class) or path classes
         return resolver.resolveSingleRow(name);
+    }
+
+    public Class resolveAggregationFunction(String name) {
+        // check local
+        Pair<Class, ExtensionAggregationFunction> pair = aggregationFunctionExtensions.get(name);
+        if (pair != null) {
+            return pair.getFirst();
+        }
+        // check same-module (create inlined_class) or path classes
+        return resolver.resolveAggregationFunction(name);
     }
 
     public Map<String, byte[]> getBytes() {

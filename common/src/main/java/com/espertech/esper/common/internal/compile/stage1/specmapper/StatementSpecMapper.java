@@ -1952,7 +1952,7 @@ public class StatementSpecMapper {
             return new ExprPlugInSingleRowNode(functionName, pair.getFirst(), chain, pair.getSecond());
         } else if (expr instanceof PlugInProjectionExpression) {
             PlugInProjectionExpression node = (PlugInProjectionExpression) expr;
-            ExprNode exprNode = ASTAggregationHelper.tryResolveAsAggregation(mapContext.getClasspathImportService(), node.isDistinct(), node.getFunctionName(), mapContext.getPlugInAggregations());
+            ExprNode exprNode = ASTAggregationHelper.tryResolveAsAggregation(mapContext.getClasspathImportService(), node.isDistinct(), node.getFunctionName(), mapContext.getPlugInAggregations(), mapContext.getClassProvidedClasspathExtension());
             if (exprNode == null) {
                 throw new EPException("Error resolving aggregation function named '" + node.getFunctionName() + "'");
             }

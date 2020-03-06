@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.client.hook.singlerowfunc.ExtensionSingleRowFunction;
 
 import java.io.Serializable;
 
@@ -25,6 +26,10 @@ public class ClasspathImportSingleRowDesc implements Serializable {
     private final ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable filterOptimizable;
     private final boolean rethrowExceptions;
     private final String optionalEventTypeName;
+
+    public ClasspathImportSingleRowDesc(Class clazz, ExtensionSingleRowFunction anno) {
+        this(clazz.getName(), anno.methodName(), anno.valueCache(), anno.filterOptimizable(), anno.rethrowExceptions(), anno.eventTypeName());
+    }
 
     public ClasspathImportSingleRowDesc(String className, String methodName, ConfigurationCompilerPlugInSingleRowFunction.ValueCache valueCache, ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions, String optionalEventTypeName) {
         this.className = className;

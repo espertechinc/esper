@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -1733,5 +1734,28 @@ public class JavaClassHelper {
             getObjectValuePretty(val, writer);
         }
         writer.append("]");
+    }
+
+    public static <T> void traverseAnnotations(List<Class> classes, Class<T> annotationClass, BiConsumer<Class, T> consumer) {
+        walkAnnotations(classes, (annotation, clazz) -> {
+            if (annotation.annotationType() == annotationClass) {
+                consumer.accept(clazz, (T) annotation);
+            }
+        });
+    }
+
+    private static void walkAnnotations(List<Class> classes, AnnotationConsumer consumer) {
+        if (classes == null) {
+            return;
+        }
+        for (Class clazz : classes) {
+            for (Annotation annotation : clazz.getDeclaredAnnotations()) {
+                consumer.accept(annotation, clazz);
+            }
+        }
+    }
+
+    public interface AnnotationConsumer {
+        void accept(Annotation annotation, Class clazz);
     }
 }

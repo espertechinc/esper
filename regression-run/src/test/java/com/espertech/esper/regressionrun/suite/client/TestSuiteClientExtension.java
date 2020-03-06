@@ -69,6 +69,10 @@ public class TestSuiteClientExtension extends TestCase {
         RegressionRunner.run(session, ClientExtendAggregationFunction.executions());
     }
 
+    public void testClientExtendAggregationInlinedClass() {
+        RegressionRunner.run(session, ClientExtendAggregationInlinedClass.executions());
+    }
+
     public void testClientExtendAggregationMultiFunction() {
         RegressionRunner.run(session, ClientExtendAggregationMultiFunction.executions());
     }

@@ -217,7 +217,7 @@ public class ASTLibFunctionHelper {
         firstFunction = chain.get(0).getName();
 
         // try plug-in aggregation function
-        ExprNode aggregationNode = ASTAggregationHelper.tryResolveAsAggregation(classpathImportService, distinct, firstFunction, plugInAggregations);
+        ExprNode aggregationNode = ASTAggregationHelper.tryResolveAsAggregation(classpathImportService, distinct, firstFunction, plugInAggregations, mapEnv.getClassProvidedClasspathExtension());
         if (aggregationNode != null) {
             ExprChainedSpec firstSpec = chain.remove(0);
             aggregationNode.addChildNodes(firstSpec.getParameters());

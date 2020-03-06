@@ -30,6 +30,10 @@ public class ClassProvidedCompileTimeResolverEmpty implements ClassProvidedCompi
         return null;
     }
 
+    public Class resolveAggregationFunction(String name) {
+        return null;
+    }
+
     public boolean isEmpty() {
         return true;
     }

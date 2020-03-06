@@ -21,7 +21,7 @@ public interface AggregationFunctionForge {
      *
      * @param functionName assigned
      */
-    void setFunctionName(String functionName);
+    default void setFunctionName(String functionName) {};
 
     /**
      * Implemented by plug-in aggregation functions to allow such functions to validate the
