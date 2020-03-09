@@ -59,20 +59,20 @@ public class ContextKeySegmentedAggregate {
             env.addListener("s0");
 
             env.sendEventBean(makeEvent("G1", 1, 10L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 1, new Object[]{10L}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 1, new Long[]{10L}});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("G1", 2, 100L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 2, new Object[]{100L}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 2, new Long[]{100L}});
 
             env.sendEventBean(makeEvent("G2", 1, 200L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G2", 1, new Object[]{200L}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G2", 1, new Long[]{200L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("G1", 1, 11L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 1, new Object[]{10L, 11L}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 1, new Long[]{10L, 11L}});
 
             env.undeployAll();
         }
@@ -442,11 +442,11 @@ public class ContextKeySegmentedAggregate {
 
             env.sendEventBean(new SupportBean("G1", 2));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", new Object[]{2}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", new Integer[]{2}});
 
             env.sendEventBean(new SupportBean("G1", 3));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 5});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", new Object[]{2, 3}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", new Integer[]{2, 3}});
             assertPartitionInfo(env);
 
             env.milestone(1);
@@ -454,31 +454,31 @@ public class ContextKeySegmentedAggregate {
             assertPartitionInfo(env);
             env.sendEventBean(new SupportBean("G2", 10));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G2", 10});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", new Object[]{10}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", new Integer[]{10}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G2", 11));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G2", 21});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", new Object[]{10, 11}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", new Integer[]{10, 11}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("G1", 4));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 9});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", new Object[]{2, 3, 4}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", new Integer[]{2, 3, 4}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("G3", 100));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G3", 100});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", new Object[]{100}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", new Integer[]{100}});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("G3", 101));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G3", 201});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", new Object[]{100, 101}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", new Integer[]{100, 101}});
 
             env.undeployModuleContaining("S1");
             env.undeployModuleContaining("S2");
@@ -512,77 +512,77 @@ public class ContextKeySegmentedAggregate {
 
             env.sendEventBean(makeEvent("G1", 1, 10L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, 10L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, new Object[]{10L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, new Long[]{10L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, 10L});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("G2", 1, 25L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G2", 1, 25L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", 1, new Object[]{25L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", 1, new Long[]{25L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G2", 1, 25L});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("G1", 2, 2L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, 2L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, new Object[]{2L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, new Long[]{2L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, 2L});
 
             env.milestone(2);
 
             env.sendEventBean(makeEvent("G2", 2, 100L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, 100L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, new Object[]{100L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, new Long[]{100L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, 100L});
 
             env.milestone(3);
 
             env.sendEventBean(makeEvent("G1", 1, 10L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, 20L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, new Object[]{10L, 10L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, new Long[]{10L, 10L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, 10L});
 
             env.milestone(4);
 
             env.sendEventBean(makeEvent("G1", 2, 3L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, 5L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, new Object[]{2L, 3L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, new Long[]{2L, 3L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, 5L});
 
             env.milestone(5);
 
             env.sendEventBean(makeEvent("G2", 2, 101L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, 201L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, new Object[]{100L, 101L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, new Long[]{100L, 101L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, 201L});
 
             env.milestone(6);
 
             env.sendEventBean(makeEvent("G3", 1, -1L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, -1L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, new Object[]{-1L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, new Long[]{-1L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, -1L});
 
             env.milestone(7);
 
             env.sendEventBean(makeEvent("G3", 2, -2L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G3", 2, -2L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", 2, new Object[]{-2L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", 2, new Long[]{-2L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G3", 2, -2L});
 
             env.milestone(8);
 
             env.sendEventBean(makeEvent("G3", 1, -3L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, -4L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, new Object[]{-1L, -3L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, new Long[]{-1L, -3L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G3", 1, -4L});
 
             env.milestone(9);
 
             env.sendEventBean(makeEvent("G1", 2, 3L));
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, 8L});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, new Object[]{2L, 3L, 3L}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, new Long[]{2L, 3L, 3L}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, 5L});
 
             env.undeployAll();

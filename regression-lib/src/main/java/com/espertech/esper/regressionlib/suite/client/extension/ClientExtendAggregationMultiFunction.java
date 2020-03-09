@@ -185,11 +185,11 @@ public class ClientExtendAggregationMultiFunction {
 
             env.sendEventBean(new SupportBean("E1", 1));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalarArray, new Object[]{
-                new String[]{"E1"}, new int[]{1}, true, true});
+                new String[]{"E1"}, new Integer[]{1}, true, true});
 
             env.sendEventBean(new SupportBean("E2", 2));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalarArray, new Object[]{
-                new String[]{"E1", "E2"}, new int[]{1, 2}, false, false});
+                new String[]{"E1", "E2"}, new Integer[]{1, 2}, false, false});
 
             env.undeployAll();
         }

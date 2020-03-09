@@ -219,37 +219,37 @@ public class ResultSetQueryTypeRowPerGroup {
 
             env.sendEventBean(new SupportBean("E1", 1));
             EPAssertionUtil.assertProps(env.listener("S0").assertOneGetNewAndReset(), fieldsOne, new Object[]{1});
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new int[]{1}});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{1, new int[]{1}});
-            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{1, new int[]{1}});
+            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{1}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{1, new Integer[]{1}});
+            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{1, new Integer[]{1}});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 2));
             EPAssertionUtil.assertProps(env.listener("S0").assertOneGetNewAndReset(), fieldsOne, new Object[]{3});
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new int[]{1, 2}});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{3, new int[]{1, 2}});
-            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{3, new int[]{1, 2}});
+            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{1, 2}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{3, new Integer[]{1, 2}});
+            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{3, new Integer[]{1, 2}});
 
             env.sendEventBean(new SupportBean("E2", 4));
             EPAssertionUtil.assertProps(env.listener("S0").assertOneGetNewAndReset(), fieldsOne, new Object[]{4});
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new int[]{4}});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{4, new int[]{4}});
-            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{4, new int[]{4}});
+            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{4}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{4, new Integer[]{4}});
+            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{4, new Integer[]{4}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 5));
             EPAssertionUtil.assertProps(env.listener("S0").assertOneGetNewAndReset(), fieldsOne, new Object[]{9});
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new int[]{4, 5}});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{9, new int[]{4, 5}});
-            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{9, new int[]{4, 5}});
+            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{4, 5}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{9, new Integer[]{4, 5}});
+            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{9, new Integer[]{4, 5}});
 
             env.sendEventBean(new SupportBean("E1", 6));
             EPAssertionUtil.assertProps(env.listener("S0").assertOneGetNewAndReset(), fieldsOne, new Object[]{9});
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new int[]{1, 2, 6}});
-            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{9, new int[]{1, 2, 6}});
-            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{9, new int[]{1, 2, 6}});
+            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{1, 2, 6}});
+            EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{9, new Integer[]{1, 2, 6}});
+            EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{9, new Integer[]{1, 2, 6}});
 
             env.undeployAll();
         }

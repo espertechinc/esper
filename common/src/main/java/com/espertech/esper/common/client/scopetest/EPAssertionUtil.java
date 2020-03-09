@@ -21,6 +21,8 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.*;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.getArrayComponentTypeInnermost;
+
 /**
  * Assertion methods for event processing applications.
  */
@@ -1342,6 +1344,13 @@ public class EPAssertionUtil {
             Object[] valueArray = toObjectArray(expected);
             Object[] eventPropArray = toObjectArray(actual);
             assertEqualsExactOrder(message, valueArray, eventPropArray);
+
+            Class componentTypeExpected = getArrayComponentTypeInnermost(expected.getClass());
+            if (componentTypeExpected != Object.class) {
+                Class componentTypeActual = getArrayComponentTypeInnermost(actual.getClass());
+                ScopeTestHelper.assertEquals(message + ": component type mismatch " + componentTypeExpected.getName() + " vs " + componentTypeActual.getName(),
+                    componentTypeExpected, componentTypeActual);
+            }
             return;
         }
         ScopeTestHelper.assertEquals(message, expected, actual);

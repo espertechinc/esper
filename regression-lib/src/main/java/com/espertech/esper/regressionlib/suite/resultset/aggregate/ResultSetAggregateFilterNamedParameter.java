@@ -509,24 +509,24 @@ public class ResultSetAggregateFilterNamedParameter {
             env.sendEventBean(new SupportBean_S1(0));
 
             sendEventAssert(env, "X1", 1, fields, new Object[]{null, null, null, null, null, null});
-            sendEventAssert(env, "B2", 2, fields, new Object[]{null, null, null, 2, 2, new int[]{2}});
+            sendEventAssert(env, "B2", 2, fields, new Object[]{null, null, null, 2, 2, new Integer[]{2}});
 
             env.milestone(0);
 
-            sendEventAssert(env, "B3", 3, fields, new Object[]{null, null, null, 2, 3, new int[]{2, 3}});
-            sendEventAssert(env, "A4", 4, fields, new Object[]{4, 4, new int[]{4}, 2, 3, new int[]{2, 3}});
-            sendEventAssert(env, "B5", 5, fields, new Object[]{4, 4, new int[]{4}, 2, 5, new int[]{2, 3, 5}});
+            sendEventAssert(env, "B3", 3, fields, new Object[]{null, null, null, 2, 3, new Integer[]{2, 3}});
+            sendEventAssert(env, "A4", 4, fields, new Object[]{4, 4, new Integer[]{4}, 2, 3, new Integer[]{2, 3}});
+            sendEventAssert(env, "B5", 5, fields, new Object[]{4, 4, new Integer[]{4}, 2, 5, new Integer[]{2, 3, 5}});
 
             env.milestone(1);
 
-            sendEventAssert(env, "A6", 6, fields, new Object[]{4, 6, new int[]{4, 6}, 2, 5, new int[]{2, 3, 5}});
-            sendEventAssert(env, "X2", 7, fields, new Object[]{4, 6, new int[]{4, 6}, 3, 5, new int[]{3, 5}});
-            sendEventAssert(env, "X3", 8, fields, new Object[]{4, 6, new int[]{4, 6}, 5, 5, new int[]{5}});
+            sendEventAssert(env, "A6", 6, fields, new Object[]{4, 6, new Integer[]{4, 6}, 2, 5, new Integer[]{2, 3, 5}});
+            sendEventAssert(env, "X2", 7, fields, new Object[]{4, 6, new Integer[]{4, 6}, 3, 5, new Integer[]{3, 5}});
+            sendEventAssert(env, "X3", 8, fields, new Object[]{4, 6, new Integer[]{4, 6}, 5, 5, new Integer[]{5}});
 
             env.milestone(2);
 
-            sendEventAssert(env, "X4", 9, fields, new Object[]{6, 6, new int[]{6}, 5, 5, new int[]{5}});
-            sendEventAssert(env, "X5", 10, fields, new Object[]{6, 6, new int[]{6}, null, null, null});
+            sendEventAssert(env, "X4", 9, fields, new Object[]{6, 6, new Integer[]{6}, 5, 5, new Integer[]{5}});
+            sendEventAssert(env, "X5", 10, fields, new Object[]{6, 6, new Integer[]{6}, null, null, null});
             sendEventAssert(env, "X6", 11, fields, new Object[]{null, null, null, null, null, null});
 
             env.undeployAll();

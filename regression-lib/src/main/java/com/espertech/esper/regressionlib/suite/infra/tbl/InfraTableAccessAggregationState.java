@@ -84,19 +84,19 @@ public class InfraTableAccessAggregationState {
             SupportBean b1 = makeSendBean(env, "E1", 10);
             env.sendEventBean(new SupportBean_S0(0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{b1, new Object[]{b1}, b1, 10, new int[]{10}, 10});
+                new Object[]{b1, new Object[]{b1}, b1, 10, new Integer[]{10}, 10});
 
             SupportBean b2 = makeSendBean(env, "E1", 20);
             env.sendEventBean(new SupportBean_S0(0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{b2, new Object[]{b1, b2}, b1, 20, new int[]{10, 20}, 10});
+                new Object[]{b2, new Object[]{b1, b2}, b1, 20, new Integer[]{10, 20}, 10});
 
             env.milestone(0);
 
             SupportBean b3 = makeSendBean(env, "E1", 30);
             env.sendEventBean(new SupportBean_S0(0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{b3, new Object[]{b2, b3}, b2, 30, new int[]{20, 30}, 20});
+                new Object[]{b3, new Object[]{b2, b3}, b2, 30, new Integer[]{20, 30}, 20});
 
             env.undeployAll();
         }

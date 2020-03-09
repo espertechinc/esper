@@ -483,34 +483,34 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", new int[]{10}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", new Integer[]{10}});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", new int[]{10, 100}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", new Integer[]{10, 100}});
 
             env.milestone(2);
 
             sendSupportBean_A(env, "E2");    // delete E2
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E2", new int[]{10}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E2", new Integer[]{10}});
 
             env.milestone(3);
 
             sendSupportBean(env, "E3", 50);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", new int[]{10, 50}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", new Integer[]{10, 50}});
 
             env.milestone(4);
 
             env.milestone(5);  // no change
 
             sendSupportBean_A(env, "E1");    // delete E1
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E1", new int[]{50}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E1", new Integer[]{50}});
 
             env.milestone(6);
 
             sendSupportBean(env, "E4", -1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", new int[]{50, -1}});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", new Integer[]{50, -1}});
 
             env.undeployAll();
         }

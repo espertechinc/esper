@@ -273,7 +273,7 @@ public class InfraTableOnMerge {
 
         // merge for varagg[10]
         env.sendEventBean(new SupportBean("E1", 10));
-        EPAssertionUtil.assertProps(env.listener("merge").assertOneGetNewAndReset(), fieldsTable, new Object[]{10, "v1", 1000, new int[]{1, 2}, null});
+        EPAssertionUtil.assertProps(env.listener("merge").assertOneGetNewAndReset(), fieldsTable, new Object[]{10, "v1", 1000, new Integer[]{1, 2}, null});
 
         // assert key "10"
         env.sendEventBean(new SupportBean_S0(10));
@@ -290,8 +290,8 @@ public class InfraTableOnMerge {
 
         // update for varagg[10]
         env.sendEventBean(new SupportBean("U2", 10));
-        EPAssertionUtil.assertProps(env.listener("merge").getLastNewData()[0], fieldsTable, new Object[]{10, "v2", 2000, new int[]{3, 4}, 50});
-        EPAssertionUtil.assertProps(env.listener("merge").getAndResetLastOldData()[0], fieldsTable, new Object[]{10, "v1", 1000, new int[]{1, 2}, 50});
+        EPAssertionUtil.assertProps(env.listener("merge").getLastNewData()[0], fieldsTable, new Object[]{10, "v2", 2000, new Integer[]{3, 4}, 50});
+        EPAssertionUtil.assertProps(env.listener("merge").getAndResetLastOldData()[0], fieldsTable, new Object[]{10, "v1", 1000, new Integer[]{1, 2}, 50});
 
         env.milestone(1);
 
@@ -300,7 +300,7 @@ public class InfraTableOnMerge {
 
         // delete for varagg[10]
         env.sendEventBean(new SupportBean("D3", 10));
-        EPAssertionUtil.assertProps(env.listener("merge").assertOneGetOldAndReset(), fieldsTable, new Object[]{10, "v2", 2000, new int[]{3, 4}, 50});
+        EPAssertionUtil.assertProps(env.listener("merge").assertOneGetOldAndReset(), fieldsTable, new Object[]{10, "v2", 2000, new Integer[]{3, 4}, 50});
 
         env.milestone(2);
 
