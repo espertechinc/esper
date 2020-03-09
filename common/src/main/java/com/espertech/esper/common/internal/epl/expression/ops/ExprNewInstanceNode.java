@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManufacturerFactory;
 import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManufacturerFactoryFactory;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
@@ -23,11 +24,13 @@ import java.io.StringWriter;
 public class ExprNewInstanceNode extends ExprNodeBase {
 
     private final String classIdent;
+    private final boolean array;
 
-    private transient ExprNewInstanceNodeForge forge;
+    private transient ExprForge forge;
 
-    public ExprNewInstanceNode(String classIdent) {
+    public ExprNewInstanceNode(String classIdent, boolean array) {
         this.classIdent = classIdent;
+        this.array = array;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -41,14 +44,32 @@ public class ExprNewInstanceNode extends ExprNodeBase {
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        Class targetClass;
-        try {
-            targetClass = validationContext.getClasspathImportService().resolveClass(classIdent, false, validationContext.getClassProvidedClasspathExtension());
-        } catch (ClasspathImportException e) {
-            throw new ExprValidationException("Failed to resolve new-operator class name '" + classIdent + "'");
+        Class targetClass = null;
+        InstanceManufacturerFactory manufacturerFactory = null;
+        if (array) {
+            targetClass = JavaClassHelper.getPrimitiveClassForName(classIdent);
+            for (ExprNode child : getChildNodes()) {
+                Class evalType = child.getForge().getEvaluationType();
+                if (JavaClassHelper.getBoxedType(evalType) != Integer.class) {
+                    String message = "New-keyword with an array-type result requires an Integer-typed dimension but received type '" + JavaClassHelper.getClassNameFullyQualPretty(evalType) + "'";
+                    throw new ExprValidationException(message);
+                }
+            }
         }
-        InstanceManufacturerFactory manufacturerFactory = InstanceManufacturerFactoryFactory.getManufacturer(targetClass, validationContext.getClasspathImportService(), this.getChildNodes());
-        forge = new ExprNewInstanceNodeForge(this, targetClass, manufacturerFactory);
+        if (targetClass == null) {
+            try {
+                targetClass = validationContext.getClasspathImportService().resolveClass(classIdent, false, validationContext.getClassProvidedClasspathExtension());
+            } catch (ClasspathImportException e) {
+                throw new ExprValidationException("Failed to resolve new-operator class name '" + classIdent + "'");
+            }
+        }
+
+        if (!array) {
+            manufacturerFactory = InstanceManufacturerFactoryFactory.getManufacturer(targetClass, validationContext.getClasspathImportService(), this.getChildNodes());
+            forge = new ExprNewInstanceNodeNonArrayForge(this, targetClass, manufacturerFactory);
+        } else {
+            forge = new ExprNewInstanceNodeArrayForge(this, targetClass, JavaClassHelper.getArrayType(targetClass, getChildNodes().length));
+        }
         return null;
     }
 
@@ -66,16 +87,28 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         }
 
         ExprNewInstanceNode other = (ExprNewInstanceNode) node;
-        return other.classIdent.equals(this.classIdent);
+        return other.classIdent.equals(this.classIdent) && other.array == this.array;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("new ");
         writer.write(classIdent);
-        ExprNodeUtilityPrint.toExpressionStringParams(writer, this.getChildNodes());
+        if (!array) {
+            ExprNodeUtilityPrint.toExpressionStringParams(writer, this.getChildNodes());
+        } else {
+            for (ExprNode child : this.getChildNodes()) {
+                writer.write("[");
+                child.toEPL(writer, ExprPrecedenceEnum.UNARY);
+                writer.write("]");
+            }
+        }
     }
 
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
+    }
+
+    public boolean isArray() {
+        return array;
     }
 }

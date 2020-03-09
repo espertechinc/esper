@@ -1173,8 +1173,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         }
         if (ctx.NEWKW() != null && ctx.classIdentifier() != null) {
             String classIdent = ASTUtil.unescapeClassIdent(ctx.classIdentifier());
+            boolean array = !ctx.LBRACK().isEmpty();
             ExprNode exprNode;
-            ExprNode newNode = new ExprNewInstanceNode(classIdent);
+            ExprNode newNode = new ExprNewInstanceNode(classIdent, array);
             if (ctx.chainedFunction() != null) {
                 List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(ctx.chainedFunction().libFunctionNoClass(), astExprNodeMap);
                 ExprDotNode dotNode = new ExprDotNodeImpl(chainSpec, mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),

@@ -20,20 +20,20 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstant
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderable;
 import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManufacturerFactory;
 
-public class ExprNewInstanceNodeForge implements ExprForge {
+public class ExprNewInstanceNodeNonArrayForge implements ExprForge {
 
     private final ExprNewInstanceNode parent;
     private final Class targetClass;
     private final InstanceManufacturerFactory manufacturerFactory;
 
-    public ExprNewInstanceNodeForge(ExprNewInstanceNode parent, Class targetClass, InstanceManufacturerFactory manufacturerFactory) {
+    public ExprNewInstanceNodeNonArrayForge(ExprNewInstanceNode parent, Class targetClass, InstanceManufacturerFactory manufacturerFactory) {
         this.parent = parent;
         this.targetClass = targetClass;
         this.manufacturerFactory = manufacturerFactory;
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return new ExprNewInstanceNodeForgeEval(this, manufacturerFactory.makeEvaluator());
+        return new ExprNewInstanceNodeNonArrayForgeEval(this, manufacturerFactory.makeEvaluator());
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

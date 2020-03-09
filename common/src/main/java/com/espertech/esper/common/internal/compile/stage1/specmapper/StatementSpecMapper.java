@@ -1920,7 +1920,7 @@ public class StatementSpecMapper {
             return new ExprNewStructNode(noe.getColumnNames().toArray(new String[0]));
         } else if (expr instanceof NewInstanceOperatorExpression) {
             NewInstanceOperatorExpression noe = (NewInstanceOperatorExpression) expr;
-            return new ExprNewInstanceNode(noe.getClassName());
+            return new ExprNewInstanceNode(noe.getClassName(), noe.isArray());
         } else if (expr instanceof CompareListExpression) {
             CompareListExpression exp = (CompareListExpression) expr;
             if ((exp.getOperator().equals("=")) || (exp.getOperator().equals("!="))) {
@@ -2356,7 +2356,7 @@ public class StatementSpecMapper {
             return new CrontabParameterExpression(ScheduleItemType.WILDCARD);
         } else if (expr instanceof ExprNewInstanceNode) {
             ExprNewInstanceNode newNode = (ExprNewInstanceNode) expr;
-            return new NewInstanceOperatorExpression(newNode.getClassIdent());
+            return new NewInstanceOperatorExpression(newNode.getClassIdent(), newNode.isArray());
         } else if (expr instanceof ExprNewStructNode) {
             ExprNewStructNode newNode = (ExprNewStructNode) expr;
             return new NewOperatorExpression(new ArrayList<>(Arrays.asList(newNode.getColumnNames())));

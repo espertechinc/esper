@@ -18,12 +18,12 @@ import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManuf
 /**
  * Represents the "new Class(...)" operator in an expression tree.
  */
-public class ExprNewInstanceNodeForgeEval implements ExprEvaluator {
+public class ExprNewInstanceNodeNonArrayForgeEval implements ExprEvaluator {
 
-    private final ExprNewInstanceNodeForge forge;
+    private final ExprNewInstanceNodeNonArrayForge forge;
     private final InstanceManufacturer manufacturer;
 
-    public ExprNewInstanceNodeForgeEval(ExprNewInstanceNodeForge forge, InstanceManufacturer manufacturer) {
+    public ExprNewInstanceNodeNonArrayForgeEval(ExprNewInstanceNodeNonArrayForge forge, InstanceManufacturer manufacturer) {
         this.forge = forge;
         this.manufacturer = manufacturer;
     }
@@ -31,5 +31,4 @@ public class ExprNewInstanceNodeForgeEval implements ExprEvaluator {
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return manufacturer.make(eventsPerStream, isNewData, exprEvaluatorContext);
     }
-
 }

@@ -11,21 +11,19 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportObjectCtor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
+import static org.junit.Assert.*;
 
 public class ExprCoreNewInstance {
 
@@ -35,7 +33,68 @@ public class ExprCoreNewInstance {
         executions.add(new ExecCoreNewInstanceKeyword(false));
         executions.add(new ExecCoreNewInstanceStreamAlias());
         executions.add(new ExecCoreNewInstanceInvalid());
+        executions.add(new ExecCoreNewInstanceArraySized(false));
+        executions.add(new ExecCoreNewInstanceArraySized(true));
+        executions.add(new ExecCoreNewInstanceArrayInvalid());
         return executions;
+    }
+
+    private static class ExecCoreNewInstanceArraySized implements RegressionExecution {
+        boolean soda;
+
+        public ExecCoreNewInstanceArraySized(boolean soda) {
+            this.soda = soda;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select " +
+                "new double[1], " +
+                "new Integer[2*2] as c1, " +
+                "new java.util.Calendar[intPrimitive] as c2, " +
+                "new double[1][2], " +
+                "new java.util.Calendar[intPrimitive][intPrimitive] as c4 " +
+                "from SupportBean";
+            env.compileDeploy(soda, epl).addListener("s0");
+
+            EventType out = env.statement("s0").getEventType();
+            assertEquals(double[].class, out.getPropertyType("new double[1]"));
+            assertEquals(Integer[].class, out.getPropertyType("c1"));
+            assertEquals(Calendar[].class, out.getPropertyType("c2"));
+            assertEquals(double[][].class, out.getPropertyType("new double[1][2]"));
+            assertEquals(Calendar[][].class, out.getPropertyType("c4"));
+
+            env.sendEventBean(new SupportBean("E1", 2));
+            EventBean event = env.listener("s0").assertOneGetNewAndReset();
+            assertProps(event, "new double[1],c1,c2,new double[1][2],c4".split(","),
+                new Object[] {new double[1], new Integer[4], new Calendar[2], new double[1][2], new Calendar[2][2]});
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ExecCoreNewInstanceArrayInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[] from SupportBean",
+                "Incorrect syntax near ']'");
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[1, 2, 3] from SupportBean",
+                "Incorrect syntax near ',' expecting a right angle bracket ']'");
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double['a'] from SupportBean",
+                "Failed to validate select-clause expression 'new double[\"a\"]': New-keyword with an array-type result requires an Integer-typed dimension but received type 'java.lang.String'");
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[1]['a'] from SupportBean", "skip");
+
+            String epl = "@name('s0') select new double[intBoxed] from SupportBean";
+            env.compileDeploy(epl).addListener("s0");
+            try {
+                env.sendEventBean(new SupportBean());
+                fail();
+            } catch (RuntimeException ex) {
+                // expected, rethrown
+                assertTrue(ex.getMessage().contains("new-array received a null value for dimension"));
+            }
+            env.undeployAll();
+        }
     }
 
     private static class ExecCoreNewInstanceInvalid implements RegressionExecution {

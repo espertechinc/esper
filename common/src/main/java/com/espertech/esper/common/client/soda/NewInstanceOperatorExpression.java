@@ -19,6 +19,7 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
 
     private static final long serialVersionUID = 4725168176516142366L;
     private String className;
+    private boolean array;
 
     /**
      * Ctor.
@@ -34,6 +35,18 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
      */
     public NewInstanceOperatorExpression(String className) {
         this.className = className;
+    }
+
+    /**
+     * Ctor.
+     * <p>
+     *
+     * @param className the class name
+     * @param array for array initialization, the child nodes providing the dimensions
+     */
+    public NewInstanceOperatorExpression(String className, boolean array) {
+        this.className = className;
+        this.array = array;
     }
 
     /**
@@ -54,6 +67,22 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
         this.className = className;
     }
 
+    /**
+     * Returns the array flag, with child nodes providing dimensions
+     * @return flag
+     */
+    public boolean isArray() {
+        return array;
+    }
+
+    /**
+     * Set the array flag, with child nodes providing dimensions
+     * @param array flag
+     */
+    public void setArray(boolean array) {
+        this.array = array;
+    }
+
     public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
@@ -61,8 +90,16 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("new ");
         writer.write(className);
-        writer.write("(");
-        ExpressionBase.toPrecedenceFreeEPL(this.getChildren(), writer);
-        writer.write(")");
+        if (!array) {
+            writer.write("(");
+            ExpressionBase.toPrecedenceFreeEPL(this.getChildren(), writer);
+            writer.write(")");
+        } else {
+            for (Expression expression : this.getChildren()) {
+                writer.write("[");
+                expression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
+                writer.write("]");
+            }
+        }
     }
 }

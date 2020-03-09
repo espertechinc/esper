@@ -807,6 +807,7 @@ unaryExpression : unaryMinus
 		| existsSubSelectExpression
 		| NEWKW LCURLY newAssign (COMMA newAssign)* RCURLY
 		| NEWKW classIdentifier LPAREN (expression (COMMA expression)*)? RPAREN chainedFunction?
+		| NEWKW classIdentifier LBRACK expression RBRACK (LBRACK expression RBRACK)?
 		| b=IDENT LBRACK expression (COMMA expression)* RBRACK chainedFunction?
 		| jsonobject
 		;
