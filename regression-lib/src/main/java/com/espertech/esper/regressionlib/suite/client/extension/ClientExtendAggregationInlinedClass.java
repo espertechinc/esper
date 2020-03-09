@@ -127,7 +127,6 @@ public class ClientExtendAggregationInlinedClass {
             String epl = "@name('s0')\n" +
                 INLINEDCLASS_CONCAT +
                 "select concat(theString) as c0 from SupportBean";
-            System.out.println(epl);
             env.compileDeploy(epl).addListener("s0");
 
             sendAssertConcat(env, "A", "A");
