@@ -75,11 +75,11 @@ public class EPLSubselectMultirow {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new int[]{10, 15, 6}});   // length window 3
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new Integer[]{10, 15, 6}});   // length window 3
 
             env.sendEventBean(new SupportBean("T1", 5));
             env.sendEventBean(new SupportBean_S0(0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new int[]{15, 6, 5}});   // length window 3
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new Integer[]{15, 6, 5}});   // length window 3
 
             env.undeployAll();
         }
