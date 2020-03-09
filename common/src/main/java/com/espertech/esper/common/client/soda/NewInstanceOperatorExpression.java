@@ -14,12 +14,18 @@ import java.io.StringWriter;
 
 /**
  * The "new instance" operator instantiates a host language object.
+ * <p>
+ *     Set a array dimension value greater zero for new array.
+ *     If the child node is a single {@link ArrayExpression}, the expression is "new array[] {...}".
+ *     If the child node is not a single {@link ArrayExpression}, the expression is "new array[...][...]".
+ *     For 2-dimensionnal array initialization, put {@link ArrayExpression} inside {@link ArrayExpression}, i.e. the expression is "new array[] {{...}, {...}}".
+ * </p>
  */
 public class NewInstanceOperatorExpression extends ExpressionBase {
 
     private static final long serialVersionUID = 4725168176516142366L;
     private String className;
-    private boolean array;
+    private int numArrayDimensions;
 
     /**
      * Ctor.
@@ -42,11 +48,11 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
      * <p>
      *
      * @param className the class name
-     * @param array for array initialization, the child nodes providing the dimensions
+     * @param numArrayDimensions for array initialization set a dimension value greater zero
      */
-    public NewInstanceOperatorExpression(String className, boolean array) {
+    public NewInstanceOperatorExpression(String className, int numArrayDimensions) {
         this.className = className;
-        this.array = array;
+        this.numArrayDimensions = numArrayDimensions;
     }
 
     /**
@@ -68,19 +74,19 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
     }
 
     /**
-     * Returns the array flag, with child nodes providing dimensions
-     * @return flag
+     * Returns the array dimension, with child nodes providing either dimensions or array initialization values
+     * @return array dimensions, zero for not-an-array
      */
-    public boolean isArray() {
-        return array;
+    public int getNumArrayDimensions() {
+        return numArrayDimensions;
     }
 
     /**
-     * Set the array flag, with child nodes providing dimensions
-     * @param array flag
+     * Sets the array dimension, with child nodes providing either dimensions or array initialization values
+     * @param numArrayDimensions array dimensions, zero for not-an-array
      */
-    public void setArray(boolean array) {
-        this.array = array;
+    public void setNumArrayDimensions(int numArrayDimensions) {
+        this.numArrayDimensions = numArrayDimensions;
     }
 
     public ExpressionPrecedenceEnum getPrecedence() {
@@ -90,15 +96,23 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("new ");
         writer.write(className);
-        if (!array) {
+        if (numArrayDimensions == 0) {
             writer.write("(");
             ExpressionBase.toPrecedenceFreeEPL(this.getChildren(), writer);
             writer.write(")");
         } else {
-            for (Expression expression : this.getChildren()) {
-                writer.write("[");
-                expression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-                writer.write("]");
+            if (this.getChildren().size() == 1 && this.getChildren().get(0) instanceof ArrayExpression) {
+                for (int i = 0; i < numArrayDimensions; i++) {
+                    writer.write("[]");
+                }
+                writer.write(" ");
+                getChildren().get(0).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
+            } else {
+                for (Expression expression : this.getChildren()) {
+                    writer.write("[");
+                    expression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
+                    writer.write("]");
+                }
             }
         }
     }

@@ -38,6 +38,9 @@ public class ExprNewInstanceNodeArrayForgeEval implements ExprEvaluator {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (forge.getParent().isArrayInitializedByExpr()) {
+            return forge.getParent().getChildNodes()[0].getForge().getExprEvaluator().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        }
         ExprNode[] children = forge.getParent().getChildNodes();
         int[] dimensions = new int[children.length];
         for (int i = 0; i < children.length; i++) {
@@ -51,6 +54,9 @@ public class ExprNewInstanceNodeArrayForgeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression evaluateCodegen(Class requiredType, ExprNewInstanceNodeArrayForge forge, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        if (forge.getParent().isArrayInitializedByExpr()) {
+            return forge.getParent().getChildNodes()[0].getForge().evaluateCodegen(requiredType, parent, symbols, classScope);
+        }
         CodegenMethod method = parent.makeChild(requiredType, ExprNewInstanceNodeArrayForgeEval.class, classScope);
         ExprNode[] dimensions = forge.getParent().getChildNodes();
 

@@ -24,6 +24,7 @@ import java.util.List;
 public class ExprArrayNode extends ExprNodeBase {
 
     private transient ExprArrayNodeForge forge;
+    private Class optionalRequiredType;
 
     /**
      * Ctor.
@@ -56,7 +57,11 @@ public class ExprArrayNode extends ExprNodeBase {
 
         // Can be an empty array with no content
         if (this.getChildNodes().length == 0) {
-            forge = new ExprArrayNodeForge(this, Object.class, CollectionUtil.OBJECTARRAY_EMPTY);
+            if (optionalRequiredType == null) {
+                forge = new ExprArrayNodeForge(this, Object.class, CollectionUtil.OBJECTARRAY_EMPTY);
+            } else {
+                forge = new ExprArrayNodeForge(this, optionalRequiredType, Array.newInstance(optionalRequiredType, 0));
+            }
             return null;
         }
 
@@ -70,20 +75,31 @@ public class ExprArrayNode extends ExprNodeBase {
         boolean mustCoerce = false;
         SimpleNumberCoercer coercer = null;
         try {
-            arrayReturnType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
+            if (optionalRequiredType == null) {
+                arrayReturnType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
 
-            // Determine if we need to coerce numbers when one type doesn't match any other type
-            if (JavaClassHelper.isNumeric(arrayReturnType)) {
-                mustCoerce = false;
-                for (Class comparedType : comparedTypes) {
-                    if (comparedType != arrayReturnType) {
-                        mustCoerce = true;
+                // Determine if we need to coerce numbers when one type doesn't match any other type
+                if (JavaClassHelper.isNumeric(arrayReturnType)) {
+                    mustCoerce = false;
+                    for (Class comparedType : comparedTypes) {
+                        if (comparedType != arrayReturnType) {
+                            mustCoerce = true;
+                        }
+                    }
+                    if (mustCoerce) {
+                        coercer = SimpleNumberCoercerFactory.getCoercer(null, arrayReturnType);
                     }
                 }
-                if (mustCoerce) {
-                    coercer = SimpleNumberCoercerFactory.getCoercer(null, arrayReturnType);
+            } else {
+                arrayReturnType = optionalRequiredType;
+                Class arrayBoxedType = JavaClassHelper.getBoxedType(arrayReturnType);
+                for (Class comparedType : comparedTypes) {
+                    if (!JavaClassHelper.isAssignmentCompatible(JavaClassHelper.getBoxedType(comparedType), arrayBoxedType)) {
+                        throw new ExprValidationException("Array element type mismatch: Expecting type " + JavaClassHelper.getClassNameFullyQualPretty(arrayReturnType) + " but received type " + JavaClassHelper.getClassNameFullyQualPretty(comparedType));
+                    }
                 }
             }
+
         } catch (CoercionException ex) {
             // expected, such as mixing String and int values, or Java classes (not boxed) and primitives
             // use Object[] in such cases
@@ -116,7 +132,14 @@ public class ExprArrayNode extends ExprNodeBase {
                         Array.set(constantResult, i, coercedResult);
                     }
                 } else {
-                    Array.set(constantResult, i, results[i]);
+                    if (arrayReturnType.isPrimitive() && results[i] == null) {
+                        throw new ExprValidationException("Array element type mismatch: Expecting type " + JavaClassHelper.getClassNameFullyQualPretty(arrayReturnType) + " but received null");
+                    }
+                    try {
+                        Array.set(constantResult, i, results[i]);
+                    } catch (IllegalArgumentException ex) {
+                        throw new ExprValidationException("Array element type mismatch: Expecting type " + JavaClassHelper.getClassNameFullyQualPretty(arrayReturnType) + " but received type " + JavaClassHelper.getClassNameFullyQualPretty(results[i].getClass()));
+                    }
                 }
             }
         }
@@ -144,5 +167,13 @@ public class ExprArrayNode extends ExprNodeBase {
             return false;
         }
         return true;
+    }
+
+    public void setOptionalRequiredType(Class optionalRequiredType) {
+        this.optionalRequiredType = optionalRequiredType;
+    }
+
+    public Class getOptionalRequiredType() {
+        return optionalRequiredType;
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -28,6 +29,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEval {
 
+    private final static String PRIMITIVE_ARRAY_NULL_MSG = "new-array received a null value as an array element of an array of primitives";
+
     private final ExprArrayNodeForge forge;
     private final ExprEvaluator[] evaluators;
 
@@ -43,6 +46,7 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Object array = Array.newInstance(forge.getArrayReturnType(), evaluators.length);
         int index = 0;
+        boolean requiresPrimitive = forge.getParent().getOptionalRequiredType() != null && forge.getParent().getOptionalRequiredType().isPrimitive();
         for (ExprEvaluator child : evaluators) {
             Object result = child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             if (result != null) {
@@ -52,6 +56,10 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
                     Array.set(array, index, coercedResult);
                 } else {
                     Array.set(array, index, result);
+                }
+            } else {
+                if (requiresPrimitive) {
+                    throw new EPException(PRIMITIVE_ARRAY_NULL_MSG);
                 }
             }
             index++;
@@ -63,6 +71,7 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
         CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprArrayNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(forge.getEvaluationType(), "array", newArrayByLength(forge.getArrayReturnType(), constant(forge.getForgeRenderable().getChildNodes().length)));
+        boolean requiresPrimitive = forge.getParent().getOptionalRequiredType() != null && forge.getParent().getOptionalRequiredType().isPrimitive();
         for (int i = 0; i < forge.getForgeRenderable().getChildNodes().length; i++) {
             ExprForge child = forge.getForgeRenderable().getChildNodes()[i].getForge();
             Class childType = child.getEvaluationType();
@@ -81,6 +90,9 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
                     ifNotNull.assignArrayElement("array", constant(i), ref(refname));
                 } else {
                     ifNotNull.assignArrayElement("array", constant(i), forge.getCoercer().coerceCodegen(ref(refname), child.getEvaluationType()));
+                }
+                if (requiresPrimitive) {
+                    block.ifCondition(equalsNull(ref(refname))).blockThrow(newInstance(EPException.class, constant(PRIMITIVE_ARRAY_NULL_MSG)));
                 }
             }
         }

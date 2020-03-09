@@ -24,13 +24,14 @@ import java.io.StringWriter;
 public class ExprNewInstanceNode extends ExprNodeBase {
 
     private final String classIdent;
-    private final boolean array;
+    private final int numArrayDimensions;
+    private boolean arrayInitializedByExpr;
 
     private transient ExprForge forge;
 
-    public ExprNewInstanceNode(String classIdent, boolean array) {
+    public ExprNewInstanceNode(String classIdent, int numArrayDimensions) {
         this.classIdent = classIdent;
-        this.array = array;
+        this.numArrayDimensions = numArrayDimensions;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -44,17 +45,10 @@ public class ExprNewInstanceNode extends ExprNodeBase {
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        // Resolve target class
         Class targetClass = null;
-        InstanceManufacturerFactory manufacturerFactory = null;
-        if (array) {
+        if (numArrayDimensions != 0) {
             targetClass = JavaClassHelper.getPrimitiveClassForName(classIdent);
-            for (ExprNode child : getChildNodes()) {
-                Class evalType = child.getForge().getEvaluationType();
-                if (JavaClassHelper.getBoxedType(evalType) != Integer.class) {
-                    String message = "New-keyword with an array-type result requires an Integer-typed dimension but received type '" + JavaClassHelper.getClassNameFullyQualPretty(evalType) + "'";
-                    throw new ExprValidationException(message);
-                }
-            }
         }
         if (targetClass == null) {
             try {
@@ -64,12 +58,56 @@ public class ExprNewInstanceNode extends ExprNodeBase {
             }
         }
 
-        if (!array) {
-            manufacturerFactory = InstanceManufacturerFactoryFactory.getManufacturer(targetClass, validationContext.getClasspathImportService(), this.getChildNodes());
+        // handle non-array
+        if (numArrayDimensions == 0) {
+            InstanceManufacturerFactory manufacturerFactory = InstanceManufacturerFactoryFactory.getManufacturer(targetClass, validationContext.getClasspathImportService(), this.getChildNodes());
             forge = new ExprNewInstanceNodeNonArrayForge(this, targetClass, manufacturerFactory);
-        } else {
-            forge = new ExprNewInstanceNodeArrayForge(this, targetClass, JavaClassHelper.getArrayType(targetClass, getChildNodes().length));
+            return null;
         }
+
+        // determine array initialized or not
+        Class targetClassArray = JavaClassHelper.getArrayType(targetClass, numArrayDimensions);
+        if (getChildNodes().length == 1 && getChildNodes()[0] instanceof ExprArrayNode) {
+            arrayInitializedByExpr = true;
+        } else {
+            for (ExprNode child : getChildNodes()) {
+                Class evalType = child.getForge().getEvaluationType();
+                if (JavaClassHelper.getBoxedType(evalType) != Integer.class) {
+                    String message = "New-keyword with an array-type result requires an Integer-typed dimension but received type '" + JavaClassHelper.getClassNameFullyQualPretty(evalType) + "'";
+                    throw new ExprValidationException(message);
+                }
+            }
+        }
+
+        // handle array initialized by dimension only
+        if (!arrayInitializedByExpr) {
+            forge = new ExprNewInstanceNodeArrayForge(this, targetClass, targetClassArray);
+            return null;
+        }
+
+        // handle array initialized by array expression
+        if (numArrayDimensions < 1 || numArrayDimensions > 2) {
+            throw new IllegalStateException("Num-array-dimensions unexpected at " + numArrayDimensions);
+        }
+        ExprArrayNode arrayNode = (ExprArrayNode) getChildNodes()[0];
+
+        // handle 2-dimensional array validation
+        if (numArrayDimensions == 2) {
+            for (ExprNode inner : arrayNode.getChildNodes()) {
+                if (!(inner instanceof ExprArrayNode)) {
+                    throw new ExprValidationException("Two-dimensional array element does not allow element expression '" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(inner) + "'");
+                }
+                ExprArrayNode innerArray = (ExprArrayNode) inner;
+                innerArray.setOptionalRequiredType(targetClass);
+                innerArray.validate(validationContext);
+            }
+            arrayNode.setOptionalRequiredType(targetClassArray.getComponentType());
+        } else {
+            arrayNode.setOptionalRequiredType(targetClass);
+        }
+        arrayNode.validate(validationContext);
+
+        forge = new ExprNewInstanceNodeArrayForge(this, targetClass, targetClassArray);
         return null;
     }
 
@@ -87,19 +125,24 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         }
 
         ExprNewInstanceNode other = (ExprNewInstanceNode) node;
-        return other.classIdent.equals(this.classIdent) && other.array == this.array;
+        return other.classIdent.equals(this.classIdent) && other.numArrayDimensions == this.numArrayDimensions;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("new ");
         writer.write(classIdent);
-        if (!array) {
+        if (numArrayDimensions == 0) {
             ExprNodeUtilityPrint.toExpressionStringParams(writer, this.getChildNodes());
         } else {
-            for (ExprNode child : this.getChildNodes()) {
-                writer.write("[");
-                child.toEPL(writer, ExprPrecedenceEnum.UNARY);
-                writer.write("]");
+            if (arrayInitializedByExpr) {
+                writer.write("[] ");
+                this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.UNARY);
+            } else {
+                for (ExprNode child : this.getChildNodes()) {
+                    writer.write("[");
+                    child.toEPL(writer, ExprPrecedenceEnum.UNARY);
+                    writer.write("]");
+                }
             }
         }
     }
@@ -108,7 +151,11 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean isArray() {
-        return array;
+    public int getNumArrayDimensions() {
+        return numArrayDimensions;
+    }
+
+    public boolean isArrayInitializedByExpr() {
+        return arrayInitializedByExpr;
     }
 }

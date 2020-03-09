@@ -35,8 +35,118 @@ public class ExprCoreNewInstance {
         executions.add(new ExecCoreNewInstanceInvalid());
         executions.add(new ExecCoreNewInstanceArraySized(false));
         executions.add(new ExecCoreNewInstanceArraySized(true));
+        executions.add(new ExecCoreNewInstanceArrayInitOneDim(false));
+        executions.add(new ExecCoreNewInstanceArrayInitOneDim(true));
+        executions.add(new ExecCoreNewInstanceArrayInitTwoDim(false));
+        executions.add(new ExecCoreNewInstanceArrayInitTwoDim(true));
         executions.add(new ExecCoreNewInstanceArrayInvalid());
         return executions;
+    }
+
+    private static class ExecCoreNewInstanceArrayInitTwoDim implements RegressionExecution {
+        boolean soda;
+
+        public ExecCoreNewInstanceArrayInitTwoDim(boolean soda) {
+            this.soda = soda;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select " +
+                "new char[][] {} as c0, " +
+                "new double[][] {{1}} as c1, " +
+                "new int[][] {{1},{intPrimitive,10}} as c2, " +
+                "new float[][] {{},{1},{2.0f}} as c3, " +
+                "new long[][] {{1L,Long.MAX_VALUE,-1L}} as c4, " +
+                "new String[][] {} as c5, " +
+                "new String[][] {{},{},{\"x\"},{}} as c6, " +
+                "new String[][] {{\"x\",\"y\"},{\"z\"}} as c7, " +
+                "new Integer[][] {{intPrimitive,intPrimitive+1},{intPrimitive+2,intPrimitive+3}} as c8, " +
+                "new java.util.Calendar[][] {} as c9, " +
+                "new Object[][] {{}} as c10, " +
+                "new Object[][] {{1}} as c11, " +
+                "new Object[][] {{\"x\"},{1},{10L}} as c12 " +
+                "from SupportBean";
+            env.compileDeploy(soda, epl).addListener("s0");
+
+            EventType out = env.statement("s0").getEventType();
+            assertEquals(char[][].class, out.getPropertyType("c0"));
+            assertEquals(double[][].class, out.getPropertyType("c1"));
+            assertEquals(int[][].class, out.getPropertyType("c2"));
+            assertEquals(float[][].class, out.getPropertyType("c3"));
+            assertEquals(long[][].class, out.getPropertyType("c4"));
+            assertEquals(String[][].class, out.getPropertyType("c5"));
+            assertEquals(String[][].class, out.getPropertyType("c6"));
+            assertEquals(String[][].class, out.getPropertyType("c7"));
+            assertEquals(Integer[][].class, out.getPropertyType("c8"));
+            assertEquals(Calendar[][].class, out.getPropertyType("c9"));
+            assertEquals(Object[][].class, out.getPropertyType("c10"));
+            assertEquals(Object[][].class, out.getPropertyType("c11"));
+            assertEquals(Object[][].class, out.getPropertyType("c12"));
+
+            env.sendEventBean(new SupportBean("E1", 2));
+            EventBean event = env.listener("s0").assertOneGetNewAndReset();
+            assertProps(event, "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12".split(","),
+                new Object[]{new char[][]{}, new double[][]{{1}}, new int[][]{{1}, {2, 10}},
+                    new float[][]{{}, {1}, {2.0f}}, new long[][]{{1L, Long.MAX_VALUE, -1L}}, new String[][]{},
+                    new String[][]{{}, {}, {"x"}, {}}, new String[][]{{"x", "y"}, {"z"}}, new Integer[][]{{2, 2 + 1}, {2 + 2, 2 + 3}},
+                    new java.util.Calendar[][]{}, new Object[][]{{}}, new Object[][]{{1}},
+                    new Object[][]{{"x"}, {1}, {10L}}
+                });
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ExecCoreNewInstanceArrayInitOneDim implements RegressionExecution {
+        boolean soda;
+
+        public ExecCoreNewInstanceArrayInitOneDim(boolean soda) {
+            this.soda = soda;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select " +
+                "new char[] {} as c0, " +
+                "new double[] {1} as c1, " +
+                "new int[] {1,intPrimitive,10} as c2, " +
+                "new float[] {1,2.0f} as c3, " +
+                "new long[] {1L,Long.MAX_VALUE,-1L} as c4, " +
+                "new String[] {} as c5, " +
+                "new String[] {\"x\"} as c6, " +
+                "new String[] {\"x\",\"y\"} as c7, " +
+                "new Integer[] {intPrimitive,intPrimitive+1,intPrimitive+2,intPrimitive+3} as c8, " +
+                "new java.util.Calendar[] {} as c9, " +
+                "new Object[] {} as c10, " +
+                "new Object[] {1} as c11, " +
+                "new Object[] {\"x\",1,10L} as c12 " +
+                "from SupportBean";
+            env.compileDeploy(soda, epl).addListener("s0");
+
+            EventType out = env.statement("s0").getEventType();
+            assertEquals(char[].class, out.getPropertyType("c0"));
+            assertEquals(double[].class, out.getPropertyType("c1"));
+            assertEquals(int[].class, out.getPropertyType("c2"));
+            assertEquals(float[].class, out.getPropertyType("c3"));
+            assertEquals(long[].class, out.getPropertyType("c4"));
+            assertEquals(String[].class, out.getPropertyType("c5"));
+            assertEquals(String[].class, out.getPropertyType("c6"));
+            assertEquals(String[].class, out.getPropertyType("c7"));
+            assertEquals(Integer[].class, out.getPropertyType("c8"));
+            assertEquals(Calendar[].class, out.getPropertyType("c9"));
+            assertEquals(Object[].class, out.getPropertyType("c10"));
+            assertEquals(Object[].class, out.getPropertyType("c11"));
+            assertEquals(Object[].class, out.getPropertyType("c12"));
+
+            env.sendEventBean(new SupportBean("E1", 2));
+            EventBean event = env.listener("s0").assertOneGetNewAndReset();
+            assertProps(event, "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12".split(","),
+                new Object[]{new char[0], new double[]{1}, new int[]{1, 2, 10},
+                    new float[]{1, 2}, new long[]{1, Long.MAX_VALUE, -1}, new String[0],
+                    new String[]{"x"}, new String[]{"x", "y"}, new Integer[]{2, 3, 4, 5},
+                    new Calendar[0], new Object[0], new Object[]{1}, new Object[]{"x", 1, 10L}});
+
+            env.undeployAll();
+        }
     }
 
     private static class ExecCoreNewInstanceArraySized implements RegressionExecution {
@@ -66,7 +176,7 @@ public class ExprCoreNewInstance {
             env.sendEventBean(new SupportBean("E1", 2));
             EventBean event = env.listener("s0").assertOneGetNewAndReset();
             assertProps(event, "new double[1],c1,c2,new double[1][2],c4".split(","),
-                new Object[] {new double[1], new Integer[4], new Calendar[2], new double[1][2], new Calendar[2][2]});
+                new Object[]{new double[1], new Integer[4], new Calendar[2], new double[1][2], new Calendar[2][2]});
 
             env.undeployAll();
         }
@@ -74,8 +184,10 @@ public class ExprCoreNewInstance {
 
     private static class ExecCoreNewInstanceArrayInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            // Dimension-provided
+            //
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[] from SupportBean",
-                "Incorrect syntax near ']'");
+                "Incorrect syntax near 'from' (a reserved keyword) expecting a left curly bracket '{' but found 'from' at line 1 column 20");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[1, 2, 3] from SupportBean",
                 "Incorrect syntax near ',' expecting a right angle bracket ']'");
@@ -84,14 +196,47 @@ public class ExprCoreNewInstance {
                 "Failed to validate select-clause expression 'new double[\"a\"]': New-keyword with an array-type result requires an Integer-typed dimension but received type 'java.lang.String'");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[1]['a'] from SupportBean", "skip");
 
-            String epl = "@name('s0') select new double[intBoxed] from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            // Initializers-provided
+            //
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[] {null} from SupportBean",
+                "Failed to validate select-clause expression 'new double[] {null}': Array element type mismatch: Expecting type double but received null");
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {1} from SupportBean",
+                "Failed to validate select-clause expression 'new String[] {1}': Array element type mismatch: Expecting type java.lang.String but received type int");
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {intPrimitive} from SupportBean",
+                "Failed to validate select-clause expression 'new String[] {intPrimitive}': Array element type mismatch: Expecting type java.lang.String but received type java.lang.Integer");
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[][] {intPrimitive} from SupportBean",
+                "Failed to validate select-clause expression 'new String[] {intPrimitive}': Two-dimensional array element does not allow element expression 'intPrimitive'");
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[][] {{intPrimitive}} from SupportBean",
+                "Failed to validate select-clause expression 'new String[] {{intPrimitive}}': Array element type mismatch: Expecting type java.lang.String but received type java.lang.Integer");
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {{'x'}} from SupportBean",
+                "Failed to validate select-clause expression 'new String[] {{\"x\"}}': Array element type mismatch: Expecting type java.lang.String but received type java.lang.String(Array)");
+
+            // Runtime null handling
+            //
+            String eplNullDimension = "@name('s0') select new double[intBoxed] from SupportBean";
+            env.compileDeploy(eplNullDimension).addListener("s0");
             try {
                 env.sendEventBean(new SupportBean());
                 fail();
             } catch (RuntimeException ex) {
                 // expected, rethrown
                 assertTrue(ex.getMessage().contains("new-array received a null value for dimension"));
+            }
+            env.undeployAll();
+
+            String eplNullValuePrimitiveArray = "@name('s0') select new double[] {intBoxed} from SupportBean";
+            env.compileDeploy(eplNullValuePrimitiveArray).addListener("s0");
+            try {
+                env.sendEventBean(new SupportBean());
+                fail();
+            } catch (RuntimeException ex) {
+                // expected, rethrown
+                assertTrue(ex.getMessage().contains("new-array received a null value"));
             }
             env.undeployAll();
         }

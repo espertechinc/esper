@@ -36,7 +36,7 @@ public class ExprArrayNodeForge implements ExprForgeInstrumentable, ExprEnumerat
     private final SimpleNumberCoercer coercer;
     private final Object constantResult;
 
-    public ExprArrayNodeForge(ExprArrayNode parent, Class arrayReturnType, Object[] constantResult) {
+    public ExprArrayNodeForge(ExprArrayNode parent, Class arrayReturnType, Object constantResult) {
         this.parent = parent;
         this.arrayReturnType = arrayReturnType;
         this.constantResult = constantResult;
@@ -133,6 +133,10 @@ public class ExprArrayNodeForge implements ExprForgeInstrumentable, ExprEnumerat
         } else {
             return new ExprArrayNodeForgeEval(this, ExprNodeUtilityQuery.getEvaluatorsNoCompile(parent.getChildNodes()));
         }
+    }
+
+    public ExprArrayNode getParent() {
+        return parent;
     }
 
     public EventType getEventTypeCollection(StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {

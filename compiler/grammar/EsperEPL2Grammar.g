@@ -808,6 +808,7 @@ unaryExpression : unaryMinus
 		| NEWKW LCURLY newAssign (COMMA newAssign)* RCURLY
 		| NEWKW classIdentifier LPAREN (expression (COMMA expression)*)? RPAREN chainedFunction?
 		| NEWKW classIdentifier LBRACK expression RBRACK (LBRACK expression RBRACK)?
+		| NEWKW classIdentifier LBRACK RBRACK (LBRACK RBRACK)? arrayExpression
 		| b=IDENT LBRACK expression (COMMA expression)* RBRACK chainedFunction?
 		| jsonobject
 		;
@@ -835,9 +836,9 @@ subSelectFilterExpr
 @init  { paraphrases.push("subquery filter specification"); }
 @after { paraphrases.pop(); }
 		: eventFilterExpression viewExpressions? (AS identOrTicked | identOrTicked)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
-		
-arrayExpression : LCURLY (expression (COMMA expression)* )? RCURLY chainedFunction?;
 
+arrayExpression : LCURLY (expression (COMMA expression)* )? RCURLY chainedFunction?;
+		
 builtinFunc : SUM LPAREN (ALL | DISTINCT)? expressionListWithNamed RPAREN   			#builtin_sum
 		| AVG LPAREN (ALL | DISTINCT)? expressionListWithNamed RPAREN			#builtin_avg
 		| COUNT LPAREN (a=ALL | d=DISTINCT)? expressionListWithNamed RPAREN		#builtin_cnt
