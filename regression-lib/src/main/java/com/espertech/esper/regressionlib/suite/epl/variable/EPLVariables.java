@@ -68,9 +68,25 @@ public class EPLVariables {
         execs.add(new EPLVariableWVarargs());
         execs.add(new EPLVariableArraySet(false));
         execs.add(new EPLVariableArraySet(true));
+        execs.add(new EPLVariableArraySetBoxed());
         execs.add(new EPLVariableArraySetInvalid());
 
         return execs;
+    }
+
+    private static class EPLVariableArraySetBoxed implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                    "create variable java.lang.Double[] dbls = new java.lang.Double[3];\n" +
+                    "@priority(1) on SupportBean set dbls[intPrimitive] = 1;\n" +
+                    "@name('s0') select dbls as c0 from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLVariableArraySetInvalid implements RegressionExecution {

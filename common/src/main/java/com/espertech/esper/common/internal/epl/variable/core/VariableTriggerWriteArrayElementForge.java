@@ -17,16 +17,20 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
+import com.espertech.esper.common.internal.util.TypeWidenerFactory;
+import com.espertech.esper.common.internal.util.TypeWidenerSPI;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class VariableTriggerWriteArrayElementForge extends VariableTriggerWriteForge {
     private final String variableName;
     private final ExprForge indexExpression;
+    private final TypeWidenerSPI widener;
 
-    public VariableTriggerWriteArrayElementForge(String variableName, ExprForge indexExpression) {
+    public VariableTriggerWriteArrayElementForge(String variableName, ExprForge indexExpression, TypeWidenerSPI widener) {
         this.variableName = variableName;
         this.indexExpression = indexExpression;
+        this.widener = widener;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -36,6 +40,7 @@ public class VariableTriggerWriteArrayElementForge extends VariableTriggerWriteF
             .exprDotMethod(ref("desc"), "setVariableName", constant(variableName))
             .exprDotMethod(ref("desc"), "setIndexExpression",
                 ExprNodeUtilityCodegen.codegenEvaluator(indexExpression, method, VariableTriggerWriteArrayElementForge.class, classScope))
+            .exprDotMethod(ref("desc"), "setTypeWidener", widener == null ? constantNull() : TypeWidenerFactory.codegenWidener(widener, method, this.getClass(), classScope))
             .methodReturn(ref("desc"));
         return localMethod(method);
     }

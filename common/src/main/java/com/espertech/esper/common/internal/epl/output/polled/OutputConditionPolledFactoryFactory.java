@@ -40,7 +40,7 @@ public class OutputConditionPolledFactoryFactory {
         if (outputLimitSpec.getRateType() == OutputLimitRateType.CRONTAB) {
             return new OutputConditionPolledCrontabFactoryForge(outputLimitSpec.getCrontabAtSchedule(), statementRawInfo, compileTimeServices);
         } else if (outputLimitSpec.getRateType() == OutputLimitRateType.WHEN_EXPRESSION) {
-            return new OutputConditionPolledExpressionFactoryForge(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), compileTimeServices);
+            return new OutputConditionPolledExpressionFactoryForge(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), statementRawInfo.getStatementName(), compileTimeServices);
         } else if (outputLimitSpec.getRateType() == OutputLimitRateType.EVENTS) {
             int rate = -1;
             if (outputLimitSpec.getRate() != null) {

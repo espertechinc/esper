@@ -47,7 +47,7 @@ public class OutputConditionPolledExpressionFactoryForge implements OutputCondit
      * @param services           services
      * @throws ExprValidationException when validation fails
      */
-    public OutputConditionPolledExpressionFactoryForge(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, StatementCompileTimeServices services)
+    public OutputConditionPolledExpressionFactoryForge(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, String statementName, StatementCompileTimeServices services)
             throws ExprValidationException {
         this.whenExpressionNode = whenExpressionNode.getForge();
 
@@ -66,7 +66,7 @@ public class OutputConditionPolledExpressionFactoryForge implements OutputCondit
         }
 
         if (assignments != null) {
-            variableReadWritePackage = new VariableReadWritePackageForge(assignments, services);
+            variableReadWritePackage = new VariableReadWritePackageForge(assignments, statementName, services);
         } else {
             variableReadWritePackage = null;
         }

@@ -120,6 +120,9 @@ public class VariableReadWritePackage {
                         Object arrayValue = reader.getValue();
                         if (arrayValue != null) {
                             if (index < Array.getLength(arrayValue)) {
+                                if (writeDesc.getTypeWidener() != null) {
+                                    value = writeDesc.getTypeWidener().widen(value);
+                                }
                                 Array.set(arrayValue, index, value);
                                 variableService.write(variableNumber, agentInstanceId, arrayValue);
                             }

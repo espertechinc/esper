@@ -71,7 +71,23 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateSubqueryMultikeyWArray());
         execs.add(new EPLOtherUpdateMapIndexProps());
         execs.add(new EPLOtherUpdateArrayElement());
+        execs.add(new EPLOtherUpdateArrayElementBoxed());
         return execs;
+    }
+
+    private static class EPLOtherUpdateArrayElementBoxed implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                    "@public @buseventtype create schema MyEvent(dbls double[]);\n" +
+                    "update istream MyEvent set dbls[3-2] = 1;\n" +
+                    "@name('s0') select dbls as c0 from MyEvent;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventMap(Collections.singletonMap("dbls", new Double[3]), "MyEvent");
+            assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherUpdateArrayElement implements RegressionExecution {

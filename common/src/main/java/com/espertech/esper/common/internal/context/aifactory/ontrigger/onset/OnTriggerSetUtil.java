@@ -78,7 +78,7 @@ public class OnTriggerSetUtil {
         }
 
         // create read-write logic
-        VariableReadWritePackageForge variableReadWritePackageForge = new VariableReadWritePackageForge(desc.getAssignments(), services);
+        VariableReadWritePackageForge variableReadWritePackageForge = new VariableReadWritePackageForge(desc.getAssignments(), base.getStatementName(), services);
 
         // plan table access
         Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges = ExprTableEvalHelperPlan.planTableAccess(base.getStatementSpec().getTableAccessNodes());

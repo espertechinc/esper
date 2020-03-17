@@ -26,6 +26,9 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.TypeWidenerException;
+import com.espertech.esper.common.internal.util.TypeWidenerFactory;
+import com.espertech.esper.common.internal.util.TypeWidenerSPI;
 
 import java.util.*;
 
@@ -42,7 +45,7 @@ public class VariableReadWritePackageForge {
     private final Map<EventTypeSPI, EventBeanCopyMethodForge> copyMethods;
     private final Map<String, Object> variableTypes;
 
-    public VariableReadWritePackageForge(List<OnTriggerSetAssignment> assignments, StatementCompileTimeServices services)
+    public VariableReadWritePackageForge(List<OnTriggerSetAssignment> assignments, String statementName, StatementCompileTimeServices services)
         throws ExprValidationException {
         this.variables = new VariableMetaData[assignments.size()];
         this.mustCoerce = new boolean[assignments.size()];
@@ -74,11 +77,10 @@ public class VariableReadWritePackageForge {
                 if (variableMetadata.isConstant()) {
                     throw new ExprValidationException("Variable by name '" + variableName + "' is declared constant and may not be set");
                 }
+                Class expressionType = assignment.getRhs().getForge().getEvaluationType();
 
                 if (assignment.getLhs() instanceof ExprAssignmentLHSIdent) {
                     // determine types
-                    Class expressionType = assignment.getRhs().getForge().getEvaluationType();
-
                     if (variableMetadata.getEventType() != null) {
                         if ((expressionType != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(expressionType, variableMetadata.getEventType().getUnderlyingType()))) {
                             throw new ExprValidationException("Variable '" + variableName
@@ -138,7 +140,14 @@ public class VariableReadWritePackageForge {
                     writers[count] = new VariableTriggerWriteDescForge(spi, variableName, writer, getter, getterType, assignment.getRhs().getForge().getEvaluationType());
                 } else if (assignment.getLhs() instanceof ExprAssignmentLHSArrayElement) {
                     ExprAssignmentLHSArrayElement arrayAssign = (ExprAssignmentLHSArrayElement) assignment.getLhs();
-                    writers[count] = new VariableTriggerWriteArrayElementForge(variableName, arrayAssign.getIndexExpression().getForge());
+                    TypeWidenerSPI widener;
+                    try {
+                        widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), expressionType,
+                            variableMetadata.getType().getComponentType(), variableMetadata.getVariableName(), false, null, statementName);
+                    } catch (TypeWidenerException ex) {
+                        throw new ExprValidationException(ex.getMessage(), ex);
+                    }
+                    writers[count] = new VariableTriggerWriteArrayElementForge(variableName, arrayAssign.getIndexExpression().getForge(), widener);
                 } else {
                     throw new IllegalStateException("Unrecognized left hand side assignment " + assignment.getLhs());
                 }

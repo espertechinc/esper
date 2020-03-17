@@ -11,10 +11,12 @@
 package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.util.TypeWidener;
 
 public class VariableTriggerWriteArrayElement extends VariableTriggerWrite {
     private String variableName;
     private ExprEvaluator indexExpression;
+    private TypeWidener typeWidener;
 
     public String getVariableName() {
         return variableName;
@@ -30,5 +32,13 @@ public class VariableTriggerWriteArrayElement extends VariableTriggerWrite {
 
     public void setIndexExpression(ExprEvaluator indexExpression) {
         this.indexExpression = indexExpression;
+    }
+
+    public TypeWidener getTypeWidener() {
+        return typeWidener;
+    }
+
+    public void setTypeWidener(TypeWidener typeWidener) {
+        this.typeWidener = typeWidener;
     }
 }

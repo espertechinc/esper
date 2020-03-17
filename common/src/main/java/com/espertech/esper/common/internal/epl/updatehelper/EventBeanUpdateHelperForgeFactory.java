@@ -119,7 +119,16 @@ public class EventBeanUpdateHelperForgeFactory {
                         if (prop.getStreamNum() != 0) {
                             throw new ExprValidationException("Property '" + arrayPropertyName + "' is not available for write access");
                         }
-                        updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, null, prop);
+
+                        TypeWidenerSPI widener;
+                        try {
+                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(straight.getRhs()), evaluationType,
+                                componentType, arrayPropertyName, false, typeWidenerCustomizer, statementName);
+                        } catch (TypeWidenerException ex) {
+                            throw new ExprValidationException(ex.getMessage(), ex);
+                        }
+
+                        updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, widener, prop);
                     } else {
                         throw new IllegalStateException("Unrecognized LHS assignment " + straight);
                     }

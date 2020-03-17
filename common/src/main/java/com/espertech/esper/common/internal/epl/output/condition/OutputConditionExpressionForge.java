@@ -80,13 +80,13 @@ public class OutputConditionExpressionForge implements OutputConditionFactoryFor
         this.isUsingBuiltinProperties = containsBuiltinProperties;
 
         if (assignments != null && !assignments.isEmpty()) {
-            variableReadWritePackage = new VariableReadWritePackageForge(assignments, services);
+            variableReadWritePackage = new VariableReadWritePackageForge(assignments, statementRawInfo.getStatementName(), services);
         } else {
             variableReadWritePackage = null;
         }
 
         if (afterTerminateAssignments != null) {
-            variableReadWritePackageAfterTerminated = new VariableReadWritePackageForge(afterTerminateAssignments, services);
+            variableReadWritePackageAfterTerminated = new VariableReadWritePackageForge(afterTerminateAssignments, statementRawInfo.getStatementName(), services);
         } else {
             variableReadWritePackageAfterTerminated = null;
         }

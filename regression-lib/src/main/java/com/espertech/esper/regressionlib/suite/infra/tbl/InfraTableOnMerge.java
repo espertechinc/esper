@@ -26,8 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -42,7 +41,24 @@ public class InfraTableOnMerge {
         execs.add(new InfraMergeSelectWithAggReadAndEnum());
         execs.add(new InfraMergeTwoTables());
         execs.add(new InfraTableEMACompute());
+        execs.add(new InfraTableArrayAssignmentBoxed());
         return execs;
+    }
+
+    private static class InfraTableArrayAssignmentBoxed implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "create table MyTable(dbls double[]);\n" +
+                "@priority(2) on SupportBean merge MyTable when not matched then insert select new java.lang.Double[3] as dbls;\n" +
+                "@priority(1) on SupportBean merge MyTable when matched then update set dbls[intPrimitive] = 1;\n" +
+                "@name('s0') select MyTable.dbls as c0 from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
     }
 
     private static class InfraTableEMACompute implements RegressionExecution {
@@ -111,6 +127,8 @@ public class InfraTableOnMerge {
 
             // Outside burn period
             sendAssertEMA(env, "E6", 6, 3.377292);
+
+            env.milestone(0);
 
             sendAssertEMA(env, "E7", 7, 3.7395628);
 
