@@ -52,10 +52,10 @@ public class EPLVariablesEventTyped {
             }
 
             tryInvalidCompile(env, "on SupportBean_S0 arrival set vars1_A = arrival",
-                "Variable 'vars1_A' of declared event type '" + SupportBean_S1.class.getName() + "' underlying type '" + SupportBean_S1.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S0.class.getName() + "'");
+                "Failed to validate assignment expression 'vars1_A=arrival': Variable 'vars1_A' of declared event type '" + SupportBean_S1.class.getName() + "' underlying type '" + SupportBean_S1.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S0.class.getName() + "'");
 
             tryInvalidCompile(env, "on SupportBean_S0 arrival set vars0_A = 1",
-                "Variable 'vars0_A' of declared event type 'SupportBean_S0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type 'int'");
+                "Failed to validate assignment expression 'vars0_A=1': Variable 'vars0_A' of declared event type 'SupportBean_S0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type 'int'");
         }
     }
 

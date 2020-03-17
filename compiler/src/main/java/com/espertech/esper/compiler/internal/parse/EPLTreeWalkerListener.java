@@ -1191,26 +1191,33 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (ctx.b != null) {
             // handle "variable[xxx]"
             String tableName = ctx.b.getText();
+            ExprNode enclosingNode;
             ExprNode exprNode;
-            ExprTableAccessNode tableNode;
             if (ctx.chainedFunction() == null) {
-                tableNode = new ExprTableAccessNodeTopLevel(tableName);
-                exprNode = tableNode;
+                if (mapEnv.getTableCompileTimeResolver().resolve(tableName) != null) {
+                    exprNode = new ExprTableAccessNodeTopLevel(tableName);
+                    enclosingNode = exprNode;
+                } else {
+                    enclosingNode = new ExprArrayElement(tableName);
+                    exprNode = enclosingNode;
+                }
             } else {
                 List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(ctx.chainedFunction().libFunctionNoClass(), astExprNodeMap);
                 Pair<ExprTableAccessNode, List<ExprChainedSpec>> pair = ASTTableExprHelper.getTableExprChainable(mapEnv.getClasspathImportService(), plugInAggregations, tableName, chainSpec);
-                tableNode = pair.getFirst();
+                exprNode = pair.getFirst();
                 if (pair.getSecond().isEmpty()) {
-                    exprNode = tableNode;
+                    enclosingNode = exprNode;
                 } else {
-                    exprNode = new ExprDotNodeImpl(pair.getSecond(), mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                            mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
-                    exprNode.addChildNode(tableNode);
+                    enclosingNode = new ExprDotNodeImpl(pair.getSecond(), mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),
+                        mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
+                    enclosingNode.addChildNode(exprNode);
                 }
             }
-            ASTExprHelper.exprCollectAddSubNodesAddParentNode(tableNode, ctx, astExprNodeMap);
-            astExprNodeMap.put(ctx, exprNode);
-            statementSpec.getTableExpressions().add(tableNode);
+            ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
+            astExprNodeMap.put(ctx, enclosingNode);
+            if (exprNode instanceof ExprTableAccessNode) {
+                statementSpec.getTableExpressions().add((ExprTableAccessNode) exprNode);
+            }
         }
     }
 

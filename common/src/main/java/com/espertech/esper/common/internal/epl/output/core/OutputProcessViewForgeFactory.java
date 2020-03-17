@@ -114,7 +114,7 @@ public class OutputProcessViewForgeFactory {
                 boolean terminable = outputLimitSpec.getRateType() == OutputLimitRateType.TERM || outputLimitSpec.isAndAfterTerminate();
                 outputProcessViewFactoryForge = new OutputProcessViewConditionForge(outputStrategyPostProcessForge, isDistinct, distinctMultiKey, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), outputConditionFactoryForge, streamCount, conditionType, terminable, hasAfter, resultSetProcessorType.isUnaggregatedUngrouped(), selectStreamSelector, typesPerStream, resultEventType);
             } catch (Exception ex) {
-                throw new ExprValidationException("Error in the output rate limiting clause: " + ex.getMessage(), ex);
+                throw new ExprValidationException("Failed to validate the output rate limiting clause: " + ex.getMessage(), ex);
             }
         }
 

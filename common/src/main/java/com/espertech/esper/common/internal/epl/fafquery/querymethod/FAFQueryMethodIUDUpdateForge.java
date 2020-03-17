@@ -30,7 +30,6 @@ import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolve
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForge;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForgeFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
-import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
@@ -48,32 +47,29 @@ public class FAFQueryMethodIUDUpdateForge extends FAFQueryMethodIUDBaseForge {
 
     protected void initExec(String aliasName, StatementSpecCompiled spec, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         StreamTypeServiceImpl assignmentTypeService = new StreamTypeServiceImpl(
-                new EventType[]{processor.getEventTypeRSPInputEvents(), null, processor.getEventTypeRSPInputEvents()},
-                new String[]{aliasName, "", INITIAL_VALUE_STREAM_NAME},
-                new boolean[]{true, true, true}, true, false);
+            new EventType[]{processor.getEventTypeRSPInputEvents(), null, processor.getEventTypeRSPInputEvents()},
+            new String[]{aliasName, "", INITIAL_VALUE_STREAM_NAME},
+            new boolean[]{true, true, true}, true, false);
         assignmentTypeService.setStreamZeroUnambigous(true);
         ExprValidationContext validationContext = new ExprValidationContextBuilder(assignmentTypeService, statementRawInfo, services)
-                .withAllowBindingConsumption(true).build();
+            .withAllowBindingConsumption(true).build();
 
         // validate update expressions
         FireAndForgetSpecUpdate updateSpec = (FireAndForgetSpecUpdate) spec.getRaw().getFireAndForgetSpec();
         try {
             for (OnTriggerSetAssignment assignment : updateSpec.getAssignments()) {
-                ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.UPDATEASSIGN, assignment.getExpression(), validationContext);
-                assignment.setExpression(validated);
-                EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an update-clause");
+                ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
             }
         } catch (ExprValidationException e) {
             throw new EPException(e.getMessage(), e);
         }
 
         // make updater
-        //TableUpdateStrategy tableUpdateStrategy = null;
         try {
             boolean copyOnWrite = processor instanceof FireAndForgetProcessorNamedWindowForge;
             updateHelper = EventBeanUpdateHelperForgeFactory.make(processor.getNamedWindowOrTableName(),
-                    (EventTypeSPI) processor.getEventTypeRSPInputEvents(), updateSpec.getAssignments(), aliasName, null, copyOnWrite,
-                    statementRawInfo.getStatementName(), services.getEventTypeAvroHandler());
+                (EventTypeSPI) processor.getEventTypeRSPInputEvents(), updateSpec.getAssignments(), aliasName, null, copyOnWrite,
+                statementRawInfo.getStatementName(), services.getEventTypeAvroHandler());
         } catch (ExprValidationException e) {
             throw new EPException(e.getMessage(), e);
         }
@@ -90,8 +86,8 @@ public class FAFQueryMethodIUDUpdateForge extends FAFQueryMethodIUDBaseForge {
         } else {
             FireAndForgetProcessorTableForge table = (FireAndForgetProcessorTableForge) processor;
             method.getBlock()
-                    .exprDotMethod(queryMethod, "setUpdateHelperTable", updateHelper.makeNoCopy(method, classScope))
-                    .exprDotMethod(queryMethod, "setTable", TableDeployTimeResolver.makeResolveTable(table.getTable(), symbols.getAddInitSvc(method)));
+                .exprDotMethod(queryMethod, "setUpdateHelperTable", updateHelper.makeNoCopy(method, classScope))
+                .exprDotMethod(queryMethod, "setTable", TableDeployTimeResolver.makeResolveTable(table.getTable(), symbols.getAddInitSvc(method)));
         }
     }
 }

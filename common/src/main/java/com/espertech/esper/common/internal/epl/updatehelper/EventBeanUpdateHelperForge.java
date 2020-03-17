@@ -10,19 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.updatehelper;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.bytecodemodel.base.*;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.*;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
-import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.ExprArrayElementForgeProperty;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethodForge;
@@ -114,12 +109,16 @@ public class EventBeanUpdateHelperForge {
                 .addParam(EventBean.class, "target");
 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, true);
-        CodegenMethod exprMethod = method.makeChildWithScope(void.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
-        CodegenExpression[] expressions = new CodegenExpression[updateItems.length];
+        CodegenMethod exprMethod = method.makeChildWithScope(void.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(PARAMS);
+
         Class[] types = new Class[updateItems.length];
         for (int i = 0; i < updateItems.length; i++) {
             types[i] = updateItems[i].getExpression().getEvaluationType();
-            expressions[i] = updateItems[i].getExpression().evaluateCodegen(types[i], exprMethod, exprSymbol, classScope);
+        }
+
+        EventBeanUpdateItemForgeWExpressions[] forgeExpressions = new EventBeanUpdateItemForgeWExpressions[updateItems.length];
+        for (int i = 0; i < updateItems.length; i++) {
+            forgeExpressions[i] = updateItems[i].toExpression(types[i], exprMethod, exprSymbol, classScope);
         }
 
         exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
@@ -128,6 +127,7 @@ public class EventBeanUpdateHelperForge {
 
         for (int i = 0; i < updateItems.length; i++) {
             EventBeanUpdateItemForge updateItem = updateItems[i];
+            CodegenExpression rhs = forgeExpressions[i].getRhsExpression();
             method.getBlock().apply(instblock(classScope, "qInfraUpdateRHSExpr", constant(i)));
 
             if (types[i] == null && updateItem.getOptionalWriter() != null) {
@@ -135,30 +135,61 @@ public class EventBeanUpdateHelperForge {
                 continue;
             }
 
-            if (types[i] == void.class || updateItem.getOptionalWriter() == null) {
+            if (types[i] == void.class || (updateItem.getOptionalWriter() == null && updateItem.getOptionalArrayNode() == null)) {
                 method.getBlock()
-                        .expression(expressions[i])
+                        .expression(rhs)
                         .apply(instblock(classScope, "aInfraUpdateRHSExpr", constantNull()));
                 continue;
             }
 
             CodegenExpressionRef ref = ref("r" + i);
-            method.getBlock().declareVar(types[i], ref.getRef(), expressions[i]);
+            method.getBlock().declareVar(types[i], ref.getRef(), rhs);
 
             CodegenExpression assigned = ref;
             if (updateItem.getOptionalWidener() != null) {
                 assigned = updateItem.getOptionalWidener().widenCodegen(ref, method, classScope);
             }
 
-            if (!types[i].isPrimitive() && updateItem.isNotNullableField()) {
-                method.getBlock()
+            if (updateItem.getOptionalArrayNode() != null) {
+                // handle array value with array index expression
+                CodegenExpressionRef index = ref("i" + i);
+                CodegenExpressionRef array = ref("a" + i);
+                ExprArrayElementForgeProperty arraySet = updateItem.getOptionalArrayNode();
+                CodegenBlock arrayBlock;
+                boolean arrayOfPrimitiveNullRHS = arraySet.getEvaluationType().isPrimitive() && (types[i] == null || !types[i].isPrimitive());
+                if (arrayOfPrimitiveNullRHS) {
+                    arrayBlock = method.getBlock()
+                        .ifNull(ref)
+                        .staticMethod(EventBeanUpdateHelperForge.class, "logWarnWhenNullAndNotNullable", constant(updateItem.getOptionalPropertyName()))
+                        .ifElse();
+                } else {
+                    arrayBlock = method.getBlock();
+                }
+                arrayBlock.declareVar(Integer.class, index.getRef(), forgeExpressions[i].getOptionalArrayExpressions().getIndex())
+                    .ifRefNotNull(index.getRef())
+                        .declareVar(arraySet.getArrayType(), array.getRef(), forgeExpressions[i].getOptionalArrayExpressions().getArrayGet())
+                        .ifRefNotNull(array.getRef())
+                            .ifCondition(relational(index, CodegenExpressionRelational.CodegenRelational.LT, arrayLength(array)))
+                                .assignArrayElement(array, cast(int.class, index), assigned)
+                            .ifElse()
+                            .blockThrow(newInstance(EPException.class, concat(constant("Array length "), arrayLength(array), constant(" less than index "), index, constant(" for property '" + updateItems[i].getOptionalArrayNode().getParent().getArrayPropName() + "'"))))
+                        .blockEnd()
+                    .blockEnd();
+                if (arrayOfPrimitiveNullRHS) {
+                    arrayBlock.blockEnd();
+                }
+            } else {
+                // handle regular values
+                if (!types[i].isPrimitive() && updateItem.isNotNullableField()) {
+                    method.getBlock()
                         .ifNull(ref)
                         .staticMethod(EventBeanUpdateHelperForge.class, "logWarnWhenNullAndNotNullable", constant(updateItem.getOptionalPropertyName()))
                         .ifElse()
                         .expression(updateItem.getOptionalWriter().writeCodegen(assigned, ref("und"), ref("target"), method, classScope))
                         .blockEnd();
-            } else {
-                method.getBlock().expression(updateItem.getOptionalWriter().writeCodegen(assigned, ref("und"), ref("target"), method, classScope));
+                } else {
+                    method.getBlock().expression(updateItem.getOptionalWriter().writeCodegen(assigned, ref("und"), ref("target"), method, classScope));
+                }
             }
 
             method.getBlock().apply(instblock(classScope, "aInfraUpdateRHSExpr", assigned));
@@ -173,7 +204,7 @@ public class EventBeanUpdateHelperForge {
      * @param propertyName name
      */
     public static void logWarnWhenNullAndNotNullable(String propertyName) {
-        log.warn("Null value returned by expression for assignment to property '" + propertyName + " is ignored as the property type is not nullable for expression");
+        log.warn("Null value returned by expression for assignment to property '" + propertyName + "' is ignored as the property type is not nullable for expression");
     }
 
     private static final Logger log = LoggerFactory.getLogger(EventBeanUpdateHelperForge.class);

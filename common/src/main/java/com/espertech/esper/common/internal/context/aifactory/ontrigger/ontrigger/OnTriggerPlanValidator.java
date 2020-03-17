@@ -95,9 +95,7 @@ public class OnTriggerPlanValidator {
             ExprValidationContext validationContext = new ExprValidationContextBuilder(assignmentTypeService, base.getStatementRawInfo(), services)
                     .withAllowBindingConsumption(true).build();
             for (OnTriggerSetAssignment assignment : updateDesc.getAssignments()) {
-                ExprNode validated = ExprNodeUtilityValidate.getValidatedAssignment(assignment, validationContext);
-                assignment.setExpression(validated);
-                EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an on-update-clause");
+                ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
             }
         }
         if (onTriggerDesc instanceof OnTriggerMergeDesc) {
@@ -200,7 +198,9 @@ public class OnTriggerPlanValidator {
                         update.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, update.getOptionalWhereClause(), twoStreamTypeSvc, exprNodeErrorMessage, true, false, statementRawInfo, services));
                     }
                     for (OnTriggerSetAssignment assignment : update.getAssignments()) {
-                        assignment.setExpression(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.UPDATEASSIGN, assignment.getExpression(), assignmentStreamTypeSvc, exprNodeErrorMessage, true, true, statementRawInfo, services));
+                        ExprValidationContext validationContext = new ExprValidationContextBuilder(assignmentStreamTypeSvc, statementRawInfo, services)
+                            .withAllowBindingConsumption(true).withAllowTableAggReset(true).build();
+                        ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
                     }
                 } else if (item instanceof OnTriggerMergeActionInsert) {
                     OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) item;

@@ -66,7 +66,118 @@ public class EPLVariables {
         execs.add(new EPLVariableFilterConstantCustomTypePreconfigured());
         execs.add(new EPLVariableSetSubqueryMultikeyWArray());
         execs.add(new EPLVariableWVarargs());
+        execs.add(new EPLVariableArraySet(false));
+        execs.add(new EPLVariableArraySet(true));
+        execs.add(new EPLVariableArraySetInvalid());
+
         return execs;
+    }
+
+    private static class EPLVariableArraySetInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String eplTable = "@name('create') create table MyInfra(doublearray double[primitive], intarray int[primitive], notAnArray int)";
+            env.compile(eplTable, path);
+
+            // invalid property
+            tryInvalidCompile(env, path, "on SupportBean update MyInfra set c1[0]=1",
+                "Failed to validate assignment expression 'c1[0]=1': Property 'c1[0]' is not available for write access");
+            tryInvalidCompile(env, path, "on SupportBean update MyInfra set c('a')=1",
+                "Failed to validate assignment expression 'c('a')=1': Property 'c('a')' is not available for write access");
+
+            // index expression is not Integer
+            tryInvalidCompile(env, path, "on SupportBean update MyInfra set doublearray[null]=1",
+                "Failed to validate update assignment expression 'doublearray[null]': Array expression requires an Integer-typed dimension but received type 'null'");
+
+            // type incompatible cannot assign
+            tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]='x'",
+                "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment to property 'intarray' component type 'int' from expression returning 'java.lang.String'");
+            tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]=1L",
+                "Failed to validate assignment expression 'intarray[intPrimitive]=1': Invalid assignment to property 'intarray' component type 'int' from expression returning 'long'");
+
+            // not-an-array
+            tryInvalidCompile(env, path, "on SupportBean update MyInfra set notAnArray[intPrimitive]=1",
+                "Failed to validate update assignment expression 'notAnArray[intPrimitive]': Property 'notAnArray' is not an array since its type is 'java.lang.Integer'");
+
+            // not found
+            tryInvalidCompile(env, path, "on SupportBean update MyInfra set dummy[intPrimitive]=1",
+                "Failed to validate update assignment expression 'dummy[intPrimitive]': Failed to resolve property 'dummy' to any stream");
+
+            // property found in updating-event
+            tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive]);\n" +
+                    "on UpdateEvent update MyInfra set dummy[10]=1;\n",
+                "Failed to validate assignment expression 'dummy[10]=1': Property 'dummy[10]' is not available for write access");
+
+            tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive], position int);\n" +
+                    "on UpdateEvent update MyInfra set dummy[position]=1;\n",
+                "Failed to validate assignment expression 'dummy[position]=1': Property 'dummy' is not available for write access");
+
+            path.clear();
+
+            // runtime-behavior for index-overflow and null-array and null-index and
+            String epl = "@name('create') create table MyInfra(doublearray double[primitive]);\n" +
+                "@priority(1) on SupportBean merge MyInfra when not matched then insert select new double[3] as doublearray;\n" +
+                "on SupportBean update MyInfra set doublearray[intBoxed]=doubleBoxed;\n";
+            env.compileDeploy(epl);
+
+            // index returned is too large
+            try {
+                SupportBean sb = new SupportBean();
+                sb.setIntBoxed(10);
+                sb.setDoubleBoxed(10d);
+                env.sendEventBean(sb);
+                fail();
+            } catch (RuntimeException ex) {
+                assertTrue(ex.getMessage().contains("Array length 3 less than index 10 for property 'doublearray'"));
+            }
+
+            // index returned null
+            SupportBean sbIndexNull = new SupportBean();
+            sbIndexNull.setDoubleBoxed(10d);
+            env.sendEventBean(sbIndexNull);
+
+            // rhs returned null for array-of-primitive
+            SupportBean sbRHSNull = new SupportBean();
+            sbRHSNull.setIntBoxed(1);
+            env.sendEventBean(sbRHSNull);
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLVariableArraySet implements RegressionExecution {
+        private final boolean soda;
+
+        public EPLVariableArraySet(boolean soda) {
+            this.soda = soda;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String eplCreate = "@name('vars') @public create variable double[primitive] doublearray = new double[3];\n" +
+                "@public create variable String[] stringarray = new String[] {'a', 'b', 'c'};\n";
+            env.compileDeploy(eplCreate, path);
+
+            String epl = "on SupportBean set doublearray[intPrimitive] = 1, stringarray[intPrimitive] = 'x'";
+            env.compileDeploy(soda, epl, path);
+
+            assertVariables(env, new double[3], "a,b,c".split(","));
+
+            env.sendEventBean(new SupportBean("E1", 1));
+
+            assertVariables(env, new double[] {0, 1, 0}, "a,x,c".split(","));
+
+            env.undeployAll();
+        }
+
+        private void assertVariables(RegressionEnvironment env, double[] doubleExpected, String[] stringExpected) {
+            Map<DeploymentIdNamePair, Object> vals = env.runtime().getVariableService().getVariableValueAll();
+            String deploymentId = env.deploymentId("vars");
+            double[] doubleArray = (double[]) vals.get(new DeploymentIdNamePair(deploymentId, "doublearray"));
+            String[] stringArray = (String[]) vals.get(new DeploymentIdNamePair(deploymentId, "stringarray"));
+            assertArrayEquals(doubleExpected, doubleArray, 0.0);
+            assertArrayEquals(stringExpected, stringArray);
+        }
     }
 
     private static class EPLVariableSetSubqueryMultikeyWArray implements RegressionExecution {
@@ -297,9 +408,9 @@ public class EPLVariables {
 
             // test invalid
             tryInvalidCompile(env, path, "on SupportBean set MYCONST = 10",
-                "Variable by name 'MYCONST' is declared constant and may not be set [on SupportBean set MYCONST = 10]");
+                "Failed to validate assignment expression 'MYCONST=10': Variable by name 'MYCONST' is declared constant and may not be set [on SupportBean set MYCONST = 10]");
             tryInvalidCompile(env, path, "select * from SupportBean output when true then set MYCONST=1",
-                "Error in the output rate limiting clause: Variable by name 'MYCONST' is declared constant and may not be set [select * from SupportBean output when true then set MYCONST=1]");
+                "Failed to validate the output rate limiting clause: Failed to validate assignment expression 'MYCONST=1': Variable by name 'MYCONST' is declared constant and may not be set [select * from SupportBean output when true then set MYCONST=1]");
 
             // assure no update via API
             tryInvalidSetAPI(env, env.deploymentId("variable"), "MYCONST", 1);
@@ -989,16 +1100,16 @@ public class EPLVariables {
         public void run(RegressionEnvironment env) {
 
             tryInvalidCompile(env, "on SupportBean set dummy = 100",
-                "Variable by name 'dummy' has not been created or configured");
+                "Failed to validate assignment expression 'dummy=100': Variable by name 'dummy' has not been created or configured");
 
             tryInvalidCompile(env, "on SupportBean set var1IS = 1",
-                "Variable 'var1IS' of declared type java.lang.String cannot be assigned a value of type int");
+                "Failed to validate assignment expression 'var1IS=1': Variable 'var1IS' of declared type java.lang.String cannot be assigned a value of type int");
 
             tryInvalidCompile(env, "on SupportBean set var3IS = 'abc'",
-                "Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.String");
+                "Failed to validate assignment expression 'var3IS=\"abc\"': Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.String");
 
             tryInvalidCompile(env, "on SupportBean set var3IS = doublePrimitive",
-                "Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.Double");
+                "Failed to validate assignment expression 'var3IS=doublePrimitive': Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.Double");
 
             tryInvalidCompile(env, "on SupportBean set var2IS = 'false'", "skip");
             tryInvalidCompile(env, "on SupportBean set var3IS = 1.1", "skip");
@@ -1247,6 +1358,14 @@ public class EPLVariables {
 
         public SupportVarargsObject getTestObject(String stringValue) {
             return new SupportVarargsObject(Long.parseLong(stringValue));
+        }
+    }
+
+    public static class SupportDotMethod {
+        private int number = 1;
+
+        public void reset() {
+            this.number = 0;
         }
     }
 }

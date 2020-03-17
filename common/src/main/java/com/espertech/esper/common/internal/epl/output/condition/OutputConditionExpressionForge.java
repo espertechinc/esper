@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerSetAssignment;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -46,8 +47,8 @@ public class OutputConditionExpressionForge implements OutputConditionFactoryFor
     private final boolean isUsingBuiltinProperties;
     private int scheduleCallbackId = -1;
 
-    public OutputConditionExpressionForge(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, final ExprNode andWhenTerminatedExpr, List<OnTriggerSetAssignment> afterTerminateAssignments, boolean isStartConditionOnCreation, StatementCompileTimeServices services)
-            throws ExprValidationException {
+    public OutputConditionExpressionForge(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, final ExprNode andWhenTerminatedExpr, List<OnTriggerSetAssignment> afterTerminateAssignments, boolean isStartConditionOnCreation, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
+        throws ExprValidationException {
         this.whenExpressionNodeEval = whenExpressionNode;
         this.andWhenTerminatedExpressionNodeEval = andWhenTerminatedExpr;
         this.isStartConditionOnCreation = isStartConditionOnCreation;
@@ -98,16 +99,16 @@ public class OutputConditionExpressionForge implements OutputConditionFactoryFor
         CodegenMethod method = parent.makeChild(OutputConditionFactory.class, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(OutputConditionExpressionFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY).add("makeOutputConditionExpression"))
-                .exprDotMethod(ref("factory"), "setWhenExpressionNodeEval", ExprNodeUtilityCodegen.codegenEvaluator(whenExpressionNodeEval.getForge(), method, this.getClass(), classScope))
-                .exprDotMethod(ref("factory"), "setAndWhenTerminatedExpressionNodeEval", andWhenTerminatedExpressionNodeEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(andWhenTerminatedExpressionNodeEval.getForge(), method, this.getClass(), classScope))
-                .exprDotMethod(ref("factory"), "setUsingBuiltinProperties", constant(isUsingBuiltinProperties))
-                .exprDotMethod(ref("factory"), "setVariableReadWritePackage", variableReadWritePackage == null ? constantNull() : variableReadWritePackage.make(method, symbols, classScope))
-                .exprDotMethod(ref("factory"), "setVariableReadWritePackageAfterTerminated", variableReadWritePackageAfterTerminated == null ? constantNull() : variableReadWritePackageAfterTerminated.make(method, symbols, classScope))
-                .exprDotMethod(ref("factory"), "setVariables", variableNames == null ? constantNull() : VariableDeployTimeResolver.makeResolveVariables(variableNames.values(), symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add("addReadyCallback", ref("factory")))
-                .methodReturn(ref("factory"));
+            .declareVar(OutputConditionExpressionFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY).add("makeOutputConditionExpression"))
+            .exprDotMethod(ref("factory"), "setWhenExpressionNodeEval", ExprNodeUtilityCodegen.codegenEvaluator(whenExpressionNodeEval.getForge(), method, this.getClass(), classScope))
+            .exprDotMethod(ref("factory"), "setAndWhenTerminatedExpressionNodeEval", andWhenTerminatedExpressionNodeEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(andWhenTerminatedExpressionNodeEval.getForge(), method, this.getClass(), classScope))
+            .exprDotMethod(ref("factory"), "setUsingBuiltinProperties", constant(isUsingBuiltinProperties))
+            .exprDotMethod(ref("factory"), "setVariableReadWritePackage", variableReadWritePackage == null ? constantNull() : variableReadWritePackage.make(method, symbols, classScope))
+            .exprDotMethod(ref("factory"), "setVariableReadWritePackageAfterTerminated", variableReadWritePackageAfterTerminated == null ? constantNull() : variableReadWritePackageAfterTerminated.make(method, symbols, classScope))
+            .exprDotMethod(ref("factory"), "setVariables", variableNames == null ? constantNull() : VariableDeployTimeResolver.makeResolveVariables(variableNames.values(), symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add("addReadyCallback", ref("factory")))
+            .methodReturn(ref("factory"));
         return localMethod(method);
     }
 

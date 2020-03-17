@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.epl.enummethod.dot.ExprLambdaGoesNode
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprPlugInAggNode;
+import com.espertech.esper.common.internal.epl.expression.assign.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNode;
@@ -59,15 +60,15 @@ public class ExprNodeUtilityValidate {
         validatePlainExpression(origin, expression, summaryVisitor);
     }
 
-    public static ExprNode getValidatedAssignment(OnTriggerSetAssignment assignment, ExprValidationContext validationContext) throws ExprValidationException {
-        Pair<String, ExprNode> strictAssignment = checkGetAssignmentToVariableOrProp(assignment.getExpression());
-        if (strictAssignment != null) {
-            ExprNode validatedRightSide = getValidatedSubtreeInternal(strictAssignment.getSecond(), validationContext, true);
-            assignment.getExpression().setChildNode(1, validatedRightSide);
-            return assignment.getExpression();
-        } else {
-            return getValidatedSubtreeInternal(assignment.getExpression(), validationContext, true);
+    public static void validateAssignment(ExprNodeOrigin origin, OnTriggerSetAssignment spec, ExprValidationContext validationContext, boolean allowRHSAggregation) throws ExprValidationException {
+        // equals-assignments are "a=1" and "a[1]=2" and such
+        // they are not "a.reset()"
+        ExprAssignment assignment = checkGetStraightAssignment(spec.getExpression());
+        if (assignment == null) {
+            assignment = new ExprAssignmentCurly(spec.getExpression());
         }
+        assignment.validate(origin, validationContext, allowRHSAggregation);
+        spec.setValidated(assignment);
     }
 
     /**
@@ -130,16 +131,20 @@ public class ExprNodeUtilityValidate {
                     }
                     text = "'" + text + "'";
                 }
-                throw new ExprValidationException("Failed to validate " +
-                        origin.getClauseName() +
-                        " expression " +
-                        text + ": " +
-                        ex.getMessage(), ex);
+                throw makeValidationExWExpression(origin, text, ex);
             } catch (RuntimeException rtex) {
                 log.debug("Failed to render nice validation message text: " + rtex.getMessage(), rtex);
                 throw ex;
             }
         }
+    }
+
+    public static ExprValidationException makeValidationExWExpression(ExprNodeOrigin origin, String text, ExprValidationException ex) {
+        return new ExprValidationException("Failed to validate " +
+            origin.getClauseName() +
+            " expression " +
+            text + ": " +
+            ex.getMessage(), ex);
     }
 
     public static boolean validateNamedExpectType(ExprNamedParameterNode namedParameterNode, Class[] expectedTypes) throws ExprValidationException {
@@ -417,8 +422,7 @@ public class ExprNodeUtilityValidate {
         return exprStream;
     }
 
-    private static ExprConstantNode resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension)
-            throws ExprValidationException {
+    private static ExprConstantNode resolveIdentAsEnumConst(String constant, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension) {
         EnumValue enumValue = ClasspathImportCompileTimeUtil.resolveIdentAsEnum(constant, classpathImportService, classpathExtension, false);
         if (enumValue != null) {
             return new ExprConstantNodeImpl(enumValue);
@@ -426,28 +430,48 @@ public class ExprNodeUtilityValidate {
         return null;
     }
 
-    public static Pair<String, ExprNode> checkGetAssignmentToVariableOrProp(ExprNode node)
-            throws ExprValidationException {
+    private static ExprAssignment checkGetStraightAssignment(ExprNode node) throws ExprValidationException {
         Pair<String, ExprNode> prop = checkGetAssignmentToProp(node);
         if (prop != null) {
-            return prop;
+            return new ExprAssignmentStraight(node, new ExprAssignmentLHSIdent(prop.getFirst()), prop.getSecond());
         }
         if (!(node instanceof ExprEqualsNode)) {
             return null;
         }
         ExprEqualsNode equals = (ExprEqualsNode) node;
+        ExprNode lhs = equals.getChildNodes()[0];
+        ExprNode rhs = equals.getChildNodes()[1];
 
-        if (equals.getChildNodes()[0] instanceof ExprVariableNode) {
+        if (lhs instanceof ExprVariableNode) {
             ExprVariableNode variableNode = (ExprVariableNode) equals.getChildNodes()[0];
-            return new Pair<>(variableNode.getVariableNameWithSubProp(), equals.getChildNodes()[1]);
+            String variableNameWSubprop = variableNode.getVariableNameWithSubProp();
+            String variableName = variableNameWSubprop;
+            String subPropertyName = null;
+            int indexOfDot = variableNameWSubprop.indexOf('.');
+            if (indexOfDot != -1) {
+                subPropertyName = variableNameWSubprop.substring(indexOfDot + 1);
+                variableName = variableNameWSubprop.substring(0, indexOfDot);
+            }
+
+            ExprAssignmentLHS lhsAssign;
+            if (subPropertyName != null) {
+                lhsAssign = new ExprAssignmentLHSIdentWSubprop(variableName, subPropertyName);
+            } else {
+                lhsAssign = new ExprAssignmentLHSIdent(variableName);
+            }
+            return new ExprAssignmentStraight(node, lhsAssign, rhs);
         }
-        if (equals.getChildNodes()[0] instanceof ExprTableAccessNode) {
+        if (lhs instanceof ExprArrayElement) {
+            ExprArrayElement array = (ExprArrayElement) lhs;
+            return new ExprAssignmentStraight(node, new ExprAssignmentLHSArrayElement(array, array.getChildNodes()[0]), rhs);
+        }
+        if (lhs instanceof ExprTableAccessNode) {
             throw new ExprValidationException("Table access expression not allowed on the left hand side, please remove the table prefix");
         }
         return null;
     }
 
-    public static Pair<String, ExprNode> checkGetAssignmentToProp(ExprNode node) {
+    private static Pair<String, ExprNode> checkGetAssignmentToProp(ExprNode node) {
         if (!(node instanceof ExprEqualsNode)) {
             return null;
         }
@@ -456,7 +480,14 @@ public class ExprNodeUtilityValidate {
             return null;
         }
         ExprIdentNode identNode = (ExprIdentNode) equals.getChildNodes()[0];
-        return new Pair<String, ExprNode>(identNode.getFullUnresolvedName(), equals.getChildNodes()[1]);
+        return new Pair<>(identNode.getFullUnresolvedName(), equals.getChildNodes()[1]);
+    }
+
+    public static ExprEqualsNode getEqualsNodeIfAssignment(ExprNode node) {
+        if (!(node instanceof ExprEqualsNode)) {
+            return null;
+        }
+        return (ExprEqualsNode) node;
     }
 
     public static void validateNoSpecialsGroupByExpressions(ExprNode[] groupByNodes) throws ExprValidationException {

@@ -15,8 +15,8 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerSetAssignment;
+import com.espertech.esper.common.internal.epl.expression.assign.*;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethodForge;
@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.getClassNameFullyQualPretty;
+
 public class EventBeanUpdateHelperForgeFactory {
     public static EventBeanUpdateHelperForge make(String updatedWindowOrTableName,
                                                   EventTypeSPI eventTypeSPI,
@@ -39,66 +41,103 @@ public class EventBeanUpdateHelperForgeFactory {
                                                   boolean isCopyOnWrite,
                                                   String statementName,
                                                   EventTypeAvroHandler avroHandler)
-            throws ExprValidationException {
+        throws ExprValidationException {
         List<EventBeanUpdateItemForge> updateItems = new ArrayList<EventBeanUpdateItemForge>();
         List<String> properties = new ArrayList<String>();
 
         TypeWidenerCustomizer typeWidenerCustomizer = avroHandler.getTypeWidenerCustomizer(eventTypeSPI);
 
         for (int i = 0; i < assignments.size(); i++) {
-            OnTriggerSetAssignment assignment = assignments.get(i);
-            EventBeanUpdateItemForge updateItem;
-
-            // determine whether this is a "property=value" assignment, we use property setters in this case
-            Pair<String, ExprNode> possibleAssignment = ExprNodeUtilityValidate.checkGetAssignmentToProp(assignment.getExpression());
-
-            // handle assignment "property = value"
-            if (possibleAssignment != null) {
-
-                String propertyName = possibleAssignment.getFirst();
-                EventPropertyDescriptor writableProperty = eventTypeSPI.getWritableProperty(propertyName);
-
-                // check assignment to indexed or mapped property
-                if (writableProperty == null) {
-                    Pair<String, EventPropertyDescriptor> nameWriteablePair = checkIndexedOrMappedProp(possibleAssignment.getFirst(), updatedWindowOrTableName, updatedAlias, eventTypeSPI);
-                    propertyName = nameWriteablePair.getFirst();
-                    writableProperty = nameWriteablePair.getSecond();
-                }
-
-                ExprForge evaluator = possibleAssignment.getSecond().getForge();
-                EventPropertyWriterSPI writers = eventTypeSPI.getWriter(propertyName);
-                boolean notNullableField = writableProperty.getPropertyType().isPrimitive();
-
-                properties.add(propertyName);
-                TypeWidenerSPI widener;
-                try {
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getForge().getEvaluationType(),
-                            writableProperty.getPropertyType(), propertyName, false, typeWidenerCustomizer, statementName);
-                } catch (TypeWidenerException ex) {
-                    throw new ExprValidationException(ex.getMessage(), ex);
-                }
-
-                // check event type assignment
-                if (optionalTriggeringEventType != null && possibleAssignment.getSecond() instanceof ExprIdentNode) {
-                    ExprIdentNode node = (ExprIdentNode) possibleAssignment.getSecond();
-                    FragmentEventType fragmentRHS = optionalTriggeringEventType.getFragmentType(node.getResolvedPropertyName());
-                    FragmentEventType fragmentLHS = eventTypeSPI.getFragmentType(possibleAssignment.getFirst());
-                    if (fragmentRHS != null && fragmentLHS != null && !EventTypeUtility.isTypeOrSubTypeOf(fragmentRHS.getFragmentType(), fragmentLHS.getFragmentType())) {
-                        throw new ExprValidationException("Invalid assignment to property '" +
-                                possibleAssignment.getFirst() + "' event type '" + fragmentLHS.getFragmentType().getName() +
-                                "' from event type '" + fragmentRHS.getFragmentType().getName() + "'");
-                    }
-                }
-
-                updateItem = new EventBeanUpdateItemForge(evaluator, propertyName, writers, notNullableField, widener);
-            } else {
-                // handle non-assignment, i.e. UDF or other expression
-                updateItem = new EventBeanUpdateItemForge(assignment.getExpression().getForge(), null, null, false, null);
+            OnTriggerSetAssignment desc = assignments.get(i);
+            ExprAssignment assignment = desc.getValidated();
+            if (assignment == null) {
+                throw new IllegalStateException("Assignment has not been validated");
             }
+            try {
+                EventBeanUpdateItemForge updateItem;
+                if (assignment instanceof ExprAssignmentStraight) {
+                    ExprAssignmentStraight straight = (ExprAssignmentStraight) assignment;
 
-            updateItems.add(updateItem);
+                    // handle assignment "property = value"
+                    if (straight.getLhs() instanceof ExprAssignmentLHSIdent) {
+                        ExprAssignmentLHSIdent ident = (ExprAssignmentLHSIdent) straight.getLhs();
+
+                        String propertyName = ident.getIdent();
+                        EventPropertyDescriptor writableProperty = eventTypeSPI.getWritableProperty(propertyName);
+
+                        // check assignment to indexed or mapped property
+                        if (writableProperty == null) {
+                            Pair<String, EventPropertyDescriptor> nameWriteablePair = checkIndexedOrMappedProp(propertyName, updatedWindowOrTableName, updatedAlias, eventTypeSPI);
+                            propertyName = nameWriteablePair.getFirst();
+                            writableProperty = nameWriteablePair.getSecond();
+                        }
+
+                        ExprNode rhsExpr = straight.getRhs();
+                        ExprForge rhsForge = rhsExpr.getForge();
+                        EventPropertyWriterSPI writers = eventTypeSPI.getWriter(propertyName);
+                        boolean notNullableField = writableProperty.getPropertyType().isPrimitive();
+
+                        properties.add(propertyName);
+                        TypeWidenerSPI widener;
+                        try {
+                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(rhsExpr), rhsForge.getEvaluationType(),
+                                writableProperty.getPropertyType(), propertyName, false, typeWidenerCustomizer, statementName);
+                        } catch (TypeWidenerException ex) {
+                            throw new ExprValidationException(ex.getMessage(), ex);
+                        }
+
+                        // check event type assignment
+                        if (optionalTriggeringEventType != null && rhsExpr instanceof ExprIdentNode) {
+                            ExprIdentNode node = (ExprIdentNode) rhsExpr;
+                            FragmentEventType fragmentRHS = optionalTriggeringEventType.getFragmentType(node.getResolvedPropertyName());
+                            FragmentEventType fragmentLHS = eventTypeSPI.getFragmentType(propertyName);
+                            if (fragmentRHS != null && fragmentLHS != null && !EventTypeUtility.isTypeOrSubTypeOf(fragmentRHS.getFragmentType(), fragmentLHS.getFragmentType())) {
+                                throw new ExprValidationException("Invalid assignment to property '" +
+                                    propertyName + "' event type '" + fragmentLHS.getFragmentType().getName() +
+                                    "' from event type '" + fragmentRHS.getFragmentType().getName() + "'");
+                            }
+                        }
+
+                        updateItem = new EventBeanUpdateItemForge(rhsForge, propertyName, writers, notNullableField, widener, null);
+                    } else if (straight.getLhs() instanceof ExprAssignmentLHSArrayElement) {
+                        // handle "property[expr] = value"
+                        ExprAssignmentLHSArrayElement arrayElementLHS = (ExprAssignmentLHSArrayElement) straight.getLhs();
+                        ExprArrayElementForge arrayElement = arrayElementLHS.getArrayElement().getForge();
+                        if (arrayElement instanceof ExprArrayElementForgeVariable) {
+                            throw new ExprValidationException("Only property assignments are allowed as part update");
+                        }
+                        ExprArrayElementForgeProperty prop = (ExprArrayElementForgeProperty) arrayElement;
+                        String arrayPropertyName = arrayElementLHS.getIdent();
+                        ExprNode rhs = straight.getRhs();
+                        Class evaluationType = rhs.getForge().getEvaluationType();
+                        Class componentType = arrayElement.getComponentType();
+                        if (!JavaClassHelper.isAssignmentCompatible(evaluationType, componentType)) {
+                            throw new ExprValidationException("Invalid assignment to property '" +
+                                arrayPropertyName + "' component type '" + getClassNameFullyQualPretty(componentType) +
+                                "' from expression returning '" + getClassNameFullyQualPretty(evaluationType) + "'");
+                        }
+                        if (prop.getStreamNum() != 0) {
+                            throw new ExprValidationException("Property '" + arrayPropertyName + "' is not available for write access");
+                        }
+                        updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, null, prop);
+                    } else {
+                        throw new IllegalStateException("Unrecognized LHS assignment " + straight);
+                    }
+                } else if (assignment instanceof ExprAssignmentCurly) {
+                    // handle non-assignment, i.e. UDF or other expression
+                    ExprAssignmentCurly dot = (ExprAssignmentCurly) assignment;
+                    updateItem = new EventBeanUpdateItemForge(dot.getExpression().getForge(), null, null, false, null, null);
+                } else {
+                    throw new IllegalStateException("Unrecognized assignment " + assignment);
+                }
+
+                updateItems.add(updateItem);
+            } catch (ExprValidationException ex) {
+                throw new ExprValidationException("Failed to validate assignment expression '" +
+                    ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getOriginalExpression()) + "': " +
+                        ex.getMessage(), ex);
+            }
         }
-
 
         // copy-on-write is the default event semantics as events are immutable
         EventBeanCopyMethodForge copyMethod;
@@ -129,16 +168,13 @@ public class EventBeanUpdateHelperForgeFactory {
         Set<String> props = new HashSet<String>();
         ExprNodeIdentifierCollectVisitor visitor = new ExprNodeIdentifierCollectVisitor();
         for (OnTriggerSetAssignment assignment : assignments) {
-            if (assignment.getExpression() instanceof ExprEqualsNode) {
-                assignment.getExpression().getChildNodes()[1].accept(visitor);
-            } else {
-                assignment.getExpression().accept(visitor);
-            }
+            assignment.getValidated().accept(visitor);
             for (ExprIdentNode node : visitor.getExprProperties()) {
                 if (node.getStreamId() == 2) {
                     props.add(node.getResolvedPropertyName());
                 }
             }
+            visitor.reset();
         }
         return props;
     }

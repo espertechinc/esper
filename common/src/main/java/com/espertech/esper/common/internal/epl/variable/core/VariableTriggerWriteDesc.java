@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.event.core.EventPropertyWriter;
 
-public class VariableTriggerWriteDesc {
+public class VariableTriggerWriteDesc extends VariableTriggerWrite {
     private EventType type;
     private String variableName;
     private EventPropertyWriter writer;

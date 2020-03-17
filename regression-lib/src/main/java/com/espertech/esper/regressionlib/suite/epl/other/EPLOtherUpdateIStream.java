@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -69,7 +70,29 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateListenerDeliveryMultiupdateMixed());
         execs.add(new EPLOtherUpdateSubqueryMultikeyWArray());
         execs.add(new EPLOtherUpdateMapIndexProps());
+        execs.add(new EPLOtherUpdateArrayElement());
         return execs;
+    }
+
+    private static class EPLOtherUpdateArrayElement implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema Arriving(position int, intarray int[], objectarray java.lang.Object[]);\n" +
+                "update istream Arriving set intarray[position] = 1, objectarray[position] = 1;\n" +
+                "@name('s0') select * from Arriving;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            assertUpdate(env, 1, new int[] {0, 1, 0}, new Object[] {null, 1, null});
+            assertUpdate(env, 0, new int[] {1, 0, 0}, new Object[] {1, null, null});
+            assertUpdate(env, 2, new int[] {0, 0, 1}, new Object[] {null, null, 1});
+
+            env.undeployAll();
+        }
+
+        private void assertUpdate(RegressionEnvironment env, int position, int[] expectedInt, Object[] expectedObj) {
+            env.sendEventMap(CollectionUtil.buildMap("position", position, "intarray", new int[3], "objectarray", new Object[3]), "Arriving");
+            EventBean out = env.listener("s0").assertOneGetNewAndReset();
+            EPAssertionUtil.assertProps(out, "position,intarray,objectarray".split(","), new Object[] {position, expectedInt, expectedObj});
+        }
     }
 
     private static class EPLOtherUpdateSubqueryMultikeyWArray implements RegressionExecution {
@@ -166,23 +189,23 @@ public class EPLOtherUpdateIStream {
             env.compileDeploy("insert into SupportBeanStreamRO select * from SupportBeanReadOnly", path);
 
             tryInvalidCompile(env, path, "update istream SupportBeanStream set intPrimitive=longPrimitive",
-                "Invalid assignment of column 'longPrimitive' of type 'java.lang.Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
+                "Failed to validate assignment expression 'intPrimitive=longPrimitive': Invalid assignment of column 'longPrimitive' of type 'java.lang.Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
             tryInvalidCompile(env, path, "update istream SupportBeanStream set xxx='abc'",
-                "Property 'xxx' is not available for write access [update istream SupportBeanStream set xxx='abc']");
+                "Failed to validate assignment expression 'xxx=\"abc\"': Property 'xxx' is not available for write access [update istream SupportBeanStream set xxx='abc']");
             tryInvalidCompile(env, path, "update istream SupportBeanStream set intPrimitive=null",
-                "Invalid assignment of column 'null' of null type to event property 'intPrimitive' typed as 'int', nullable type mismatch [update istream SupportBeanStream set intPrimitive=null]");
+                "Failed to validate assignment expression 'intPrimitive=null': Invalid assignment of column 'null' of null type to event property 'intPrimitive' typed as 'int', nullable type mismatch [update istream SupportBeanStream set intPrimitive=null]");
             tryInvalidCompile(env, path, "update istream SupportBeanStreamTwo set a.intPrimitive=10",
-                "Property 'a.intPrimitive' is not available for write access [update istream SupportBeanStreamTwo set a.intPrimitive=10]");
+                "Failed to validate assignment expression 'a.intPrimitive=10': Property 'a.intPrimitive' is not available for write access [update istream SupportBeanStreamTwo set a.intPrimitive=10]");
             tryInvalidCompile(env, path, "update istream SupportBeanStreamRO set side='a'",
-                "Property 'side' is not available for write access [update istream SupportBeanStreamRO set side='a']");
+                "Failed to validate assignment expression 'side=\"a\"': Property 'side' is not available for write access [update istream SupportBeanStreamRO set side='a']");
             tryInvalidCompile(env, path, "update istream SupportBean set longPrimitive=sum(intPrimitive)",
-                "Aggregation functions may not be used within an update-clause [update istream SupportBean set longPrimitive=sum(intPrimitive)]");
+                "Aggregation functions may not be used within update-set [update istream SupportBean set longPrimitive=sum(intPrimitive)]");
             tryInvalidCompile(env, path, "update istream SupportBean set longPrimitive=longPrimitive where sum(intPrimitive) = 1",
                 "Aggregation functions may not be used within an update-clause [update istream SupportBean set longPrimitive=longPrimitive where sum(intPrimitive) = 1]");
             tryInvalidCompile(env, path, "update istream SupportBean set longPrimitive=prev(1, longPrimitive)",
-                "Previous function cannot be used in this context [update istream SupportBean set longPrimitive=prev(1, longPrimitive)]");
+                "Failed to validate update assignment expression 'prev(1,longPrimitive)': Previous function cannot be used in this context [update istream SupportBean set longPrimitive=prev(1, longPrimitive)]");
             tryInvalidCompile(env, path, "update istream MyXmlEvent set abc=1",
-                "Property 'abc' is not available for write access [update istream MyXmlEvent set abc=1]");
+                "Failed to validate assignment expression 'abc=1': Property 'abc' is not available for write access [update istream MyXmlEvent set abc=1]");
             tryInvalidCompile(env, path, "update istream SupportBeanErrorTestingOne set value='1'",
                 "The update-clause requires the underlying event representation to support copy (via Serializable by default) [update istream SupportBeanErrorTestingOne set value='1']");
             tryInvalidCompile(env, path, "update istream SupportBean set longPrimitive=(select p0 from MyMapTypeInv#lastevent where theString=p3)",

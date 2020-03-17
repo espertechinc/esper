@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.event.core.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class VariableTriggerWriteDescForge {
+public class VariableTriggerWriteDescForge extends VariableTriggerWriteForge {
     private final EventTypeSPI type;
     private final String variableName;
     private final EventPropertyWriterSPI writer;

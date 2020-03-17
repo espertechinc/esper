@@ -36,8 +36,9 @@ public class InternalEventRouterDescForge {
     private final ExprNode optionalWhereClause;
     private final String[] properties;
     private final ExprNode[] assignments;
+    private final InternalEventRouterWriterForge[] writers;
 
-    public InternalEventRouterDescForge(EventBeanCopyMethodForge copyMethod, TypeWidenerSPI[] wideners, EventType eventType, Annotation[] annotations, ExprNode optionalWhereClause, String[] properties, ExprNode[] assignments) {
+    public InternalEventRouterDescForge(EventBeanCopyMethodForge copyMethod, TypeWidenerSPI[] wideners, EventType eventType, Annotation[] annotations, ExprNode optionalWhereClause, String[] properties, ExprNode[] assignments, InternalEventRouterWriterForge[] writers) {
         this.copyMethod = copyMethod;
         this.wideners = wideners;
         this.eventType = eventType;
@@ -45,6 +46,7 @@ public class InternalEventRouterDescForge {
         this.optionalWhereClause = optionalWhereClause;
         this.properties = properties;
         this.assignments = assignments;
+        this.writers = writers;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -56,6 +58,7 @@ public class InternalEventRouterDescForge {
                 .exprDotMethod(ref("ire"), "setOptionalWhereClauseEval", optionalWhereClause == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(optionalWhereClause.getForge(), method, this.getClass(), classScope))
                 .exprDotMethod(ref("ire"), "setProperties", constant(properties))
                 .exprDotMethod(ref("ire"), "setAssignments", ExprNodeUtilityCodegen.codegenEvaluators(assignments, method, this.getClass(), classScope))
+                .exprDotMethod(ref("ire"), "setWriters", makeWriters(writers, method, symbols, classScope))
                 .methodReturn(ref("ire"));
         return localMethod(method);
     }
@@ -70,5 +73,17 @@ public class InternalEventRouterDescForge {
             }
         }
         return newArrayWithInit(TypeWidener.class, init);
+    }
+
+    private CodegenExpression makeWriters(InternalEventRouterWriterForge[] writers, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+        CodegenExpression[] init = new CodegenExpression[writers.length];
+        for (int i = 0; i < init.length; i++) {
+            if (writers[i] != null) {
+                init[i] = writers[i].codegen(writers[i], method, symbols, classScope);
+            } else {
+                init[i] = constantNull();
+            }
+        }
+        return newArrayWithInit(InternalEventRouterWriter.class, init);
     }
 }

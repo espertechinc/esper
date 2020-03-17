@@ -94,9 +94,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).build();
 
         for (OnTriggerSetAssignment assignment : updateSpec.getAssignments()) {
-            ExprNode validated = ExprNodeUtilityValidate.getValidatedAssignment(assignment, validationContext);
-            assignment.setExpression(validated);
-            EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an update-clause");
+            ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
         }
         if (updateSpec.getOptionalWhereClause() != null) {
             ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.WHERE, updateSpec.getOptionalWhereClause(), validationContext);

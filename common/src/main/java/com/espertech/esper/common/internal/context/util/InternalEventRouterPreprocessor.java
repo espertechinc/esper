@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.context.util;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriter;
+import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriterArrayElement;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
@@ -19,6 +21,7 @@ import com.espertech.esper.common.internal.statement.resource.StatementResourceH
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -163,6 +166,23 @@ public class InternalEventRouterPreprocessor {
 
         // apply
         entry.getWriter().write(values, theEvent);
+
+        if (entry.getSpecialPropWriters().length > 0) {
+            for (InternalEventRouterWriter special : entry.getSpecialPropWriters()) {
+                InternalEventRouterWriterArrayElement array = (InternalEventRouterWriterArrayElement) special;
+                Object value = array.getRhsExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
+                if ((value != null) && (array.getTypeWidener() != null)) {
+                    value = array.getTypeWidener().widen(value);
+                }
+                Object arrayValue = theEvent.get(array.getPropertyName());
+                if (arrayValue != null) {
+                    Integer index = (Integer) array.getIndexExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
+                    if (index < Array.getLength(arrayValue)) {
+                        Array.set(arrayValue, index, value);
+                    }
+                }
+            }
+        }
     }
 
     private Object[] obtainValues(EventBean[] eventsPerStream, InternalEventRouterEntry entry, ExprEvaluatorContext exprEvaluatorContext, InstrumentationCommon instrumentation) {

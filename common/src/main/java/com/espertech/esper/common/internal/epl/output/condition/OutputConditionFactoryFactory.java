@@ -63,7 +63,7 @@ public class OutputConditionFactoryFactory {
         if (outputLimitSpec.getRateType() == OutputLimitRateType.CRONTAB) {
             return new OutputConditionCrontabForge(outputLimitSpec.getCrontabAtSchedule(), isStartConditionOnCreation, statementRawInfo, services);
         } else if (outputLimitSpec.getRateType() == OutputLimitRateType.WHEN_EXPRESSION) {
-            return new OutputConditionExpressionForge(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation, services);
+            return new OutputConditionExpressionForge(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation, statementRawInfo, services);
         } else if (outputLimitSpec.getRateType() == OutputLimitRateType.EVENTS) {
             if ((variableMetaData != null) && (!JavaClassHelper.isNumericNonFP(variableMetaData.getType()))) {
                 throw new IllegalArgumentException("Variable named '" + outputLimitSpec.getVariableName() + "' must be type integer, long or short");
@@ -77,7 +77,7 @@ public class OutputConditionFactoryFactory {
             if (outputLimitSpec.getAndAfterTerminateExpr() == null && (outputLimitSpec.getAndAfterTerminateThenExpressions() == null || outputLimitSpec.getAndAfterTerminateThenExpressions().isEmpty())) {
                 return new OutputConditionTermFactoryForge();
             } else {
-                return new OutputConditionExpressionForge(new ExprConstantNodeImpl(false), Collections.<OnTriggerSetAssignment>emptyList(), outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation, services);
+                return new OutputConditionExpressionForge(new ExprConstantNodeImpl(false), Collections.<OnTriggerSetAssignment>emptyList(), outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation, statementRawInfo, services);
             }
         } else {
             if (log.isDebugEnabled()) {

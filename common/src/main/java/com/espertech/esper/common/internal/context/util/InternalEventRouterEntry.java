@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.util;
 
+import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriter;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.event.core.EventBeanWriter;
 import com.espertech.esper.common.internal.util.TypeWidener;
@@ -24,6 +25,7 @@ public class InternalEventRouterEntry {
     private final ExprEvaluator[] assignments;
     private final EventBeanWriter writer;
     private final TypeWidener[] wideners;
+    private final InternalEventRouterWriter[] specialPropWriters;
     private final InternalRoutePreprocessView outputView;
     private final StatementContext statementContext;
     private final boolean hasSubselect;
@@ -41,13 +43,14 @@ public class InternalEventRouterEntry {
      * @param statementContext    statement context
      * @param hasSubselect        indicator whether there are subselects
      */
-    public InternalEventRouterEntry(int priority, boolean drop, ExprEvaluator optionalWhereClause, ExprEvaluator[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalRoutePreprocessView outputView, StatementContext statementContext, boolean hasSubselect) {
+    public InternalEventRouterEntry(int priority, boolean drop, ExprEvaluator optionalWhereClause, ExprEvaluator[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalEventRouterWriter[] specialPropWriters, InternalRoutePreprocessView outputView, StatementContext statementContext, boolean hasSubselect) {
         this.priority = priority;
         this.isDrop = drop;
         this.optionalWhereClause = optionalWhereClause;
         this.assignments = assignments;
         this.writer = writer;
         this.wideners = wideners;
+        this.specialPropWriters = specialPropWriters;
         this.outputView = outputView;
         this.statementContext = statementContext;
         this.hasSubselect = hasSubselect;
@@ -122,5 +125,9 @@ public class InternalEventRouterEntry {
 
     public boolean isHasSubselect() {
         return hasSubselect;
+    }
+
+    public InternalEventRouterWriter[] getSpecialPropWriters() {
+        return specialPropWriters;
     }
 }

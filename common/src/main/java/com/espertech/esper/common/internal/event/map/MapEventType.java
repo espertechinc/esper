@@ -74,11 +74,17 @@ public class MapEventType extends BaseNestableEventType {
         Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof MappedProperty) {
             MappedProperty mapProp = (MappedProperty) property;
+            if (!propertyItems.containsKey(mapProp.getPropertyNameAtomic())) {
+                return null;
+            }
             return new MapEventBeanPropertyWriterMapProp(mapProp.getPropertyNameAtomic(), mapProp.getKey());
         }
 
         if (property instanceof IndexedProperty) {
             IndexedProperty indexedProp = (IndexedProperty) property;
+            if (!propertyItems.containsKey(indexedProp.getPropertyNameAtomic())) {
+                return null;
+            }
             return new MapEventBeanPropertyWriterIndexedProp(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex());
         }
 

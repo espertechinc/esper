@@ -940,6 +940,19 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             }
 
             env.undeployAll();
+            path.clear();
+
+            // test update using array-assignment; this is mostly tested via on-merge otherwise
+            String eplInfra = namedWindow ?
+                "@Name('TheInfra') create window MyInfra#keepall as (mydoubles double[primitive]);\n" :
+                "@Name('TheInfra') create table MyInfra as (mydoubles double[primitive])";
+            env.compileDeploy(eplInfra, path);
+            env.compileExecuteFAF("insert into MyInfra select new double[] {1, 2, 3} as mydoubles", path);
+            env.compileExecuteFAF("update MyInfra set mydoubles[3-2] = 4", path);
+            EPFireAndForgetQueryResult resultDoubles = env.compileExecuteFAF("select * from MyInfra", path);
+            assertArrayEquals(new double[] {1, 4, 3}, (double[]) resultDoubles.getArray()[0].get("mydoubles"), 0.0);
+
+            env.undeployAll();
         }
     }
 

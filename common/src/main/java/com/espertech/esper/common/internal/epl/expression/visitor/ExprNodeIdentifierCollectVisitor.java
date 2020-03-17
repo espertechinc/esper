@@ -61,4 +61,8 @@ public class ExprNodeIdentifierCollectVisitor implements ExprNodeVisitor {
         ExprIdentNode identNode = (ExprIdentNode) exprNode;
         exprProperties.add(identNode);
     }
+
+    public void reset() {
+        exprProperties.clear();
+    }
 }

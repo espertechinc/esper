@@ -284,7 +284,7 @@ public class ContextVariables {
             tryInvalidCompile(env, path, "select * from SupportBean_S0#keepall limit 10 offset myctxone_int",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
             tryInvalidCompile(env, path, "select * from SupportBean_S0#keepall output every myctxone_int events",
-                "Error in the output rate limiting clause: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
+                "Failed to validate the output rate limiting clause: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
             tryInvalidCompile(env, path, "@Hint('reclaim_group_aged=myctxone_int') select longPrimitive, count(*) from SupportBean group by longPrimitive",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
 

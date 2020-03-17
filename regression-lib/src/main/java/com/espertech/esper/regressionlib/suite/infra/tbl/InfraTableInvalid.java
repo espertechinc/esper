@@ -272,8 +272,8 @@ public class InfraTableInvalid {
             // top-level variable use without "keys" function
             tryInvalidCompile(env, path, "select aggvar_grouped_string.something() from SupportBean",
                 "Invalid use of table 'aggvar_grouped_string', unrecognized use of function 'something', expected 'keys()'");
-            tryInvalidCompile(env, path, "select dummy['a'] from SupportBean",
-                "Failed to validate select-clause expression 'dummy[\"a\"]': Failed to resolve table name 'dummy' to a table");
+            tryInvalidCompile(env, path, "select dummy[intPrimitive] from SupportBean",
+                "Failed to validate select-clause expression 'dummy[intPrimitive]': Failed to resolve property 'dummy' to any stream");
             tryInvalidCompile(env, path, "select aggvarctx.dummy from SupportBean",
                 "Failed to validate select-clause expression 'aggvarctx.dummy': A column 'dummy' could not be found for table 'aggvarctx' [select aggvarctx.dummy from SupportBean]");
             tryInvalidCompile(env, path, "select aggvarctx_ungrouped_window.win.dummy(123) from SupportBean",
@@ -290,8 +290,6 @@ public class InfraTableInvalid {
                 "Failed to validate data window declaration: Error in view 'time', Invalid parameter expression 0 for Time view: Failed to validate view parameter expression 'aggvar_ungrouped.total seconds': Invalid use of table access expression, expression 'aggvar_ungrouped' is not allowed here");
             // indexed property expression but not an aggregtion-type variable
             env.compileDeploy("create objectarray schema MyEvent(abc int[])");
-            tryInvalidCompile(env, path, "select abc[5*5] from SupportBean",
-                "Failed to validate select-clause expression 'abc[5*5]': Failed to resolve table name 'abc' to a table");
             // view use
             tryInvalidCompile(env, path, "select * from aggvar_grouped_string#time(30)",
                 "Views are not supported with tables");

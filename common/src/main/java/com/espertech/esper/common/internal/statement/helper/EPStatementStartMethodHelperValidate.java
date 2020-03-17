@@ -118,7 +118,7 @@ public class EPStatementStartMethodHelperValidate {
             }
         }
 
-        if ((statementSpec.getOutputLimitSpec() != null) && ((statementSpec.getOutputLimitSpec().getWhenExpressionNode() != null) || (statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr() != null))) {
+        if ((statementSpec.getOutputLimitSpec() != null) && (statementSpec.getOutputLimitSpec().getWhenExpressionNode() != null || statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr() != null || statementSpec.getOutputLimitSpec().getAndAfterTerminateThenExpressions() != null)) {
             // Validate where clause, initializing nodes to the stream ids used
             EventType outputLimitType = OutputConditionExpressionTypeUtil.getBuiltInEventType(statementRawInfo.getModuleName(), compileTimeServices.getBeanEventTypeFactoryPrivate());
             StreamTypeService typeServiceOutputWhen = new StreamTypeServiceImpl(new EventType[]{outputLimitType}, new String[]{null}, new boolean[]{true}, false, false);
@@ -151,10 +151,10 @@ public class EPStatementStartMethodHelperValidate {
             }
 
             // validate then-expression
-            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getThenExpressions(), validationContext);
+            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getThenExpressions(), validationContext, false);
 
             // validate after-terminated then-expression
-            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getAndAfterTerminateThenExpressions(), validationContext);
+            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getAndAfterTerminateThenExpressions(), validationContext, false);
         }
 
         for (int outerJoinCount = 0; outerJoinCount < statementSpec.getOuterJoinDescList().size(); outerJoinCount++) {
@@ -248,15 +248,13 @@ public class EPStatementStartMethodHelperValidate {
         }
     }
 
-    private static void validateThenSetAssignments(List<OnTriggerSetAssignment> assignments, ExprValidationContext validationContext)
+    private static void validateThenSetAssignments(List<OnTriggerSetAssignment> assignments, ExprValidationContext validationContext, boolean allowRHSAggregation)
             throws ExprValidationException {
         if (assignments == null || assignments.isEmpty()) {
             return;
         }
         for (OnTriggerSetAssignment assign : assignments) {
-            ExprNode node = ExprNodeUtilityValidate.getValidatedAssignment(assign, validationContext);
-            assign.setExpression(node);
-            EPStatementStartMethodHelperValidate.validateNoAggregations(node, "An aggregate function may not appear in a OUTPUT LIMIT clause");
+            ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assign, validationContext, allowRHSAggregation);
         }
     }
 }

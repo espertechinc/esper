@@ -295,7 +295,7 @@ public class EPLVariablesCreate {
             tryInvalidCompile(env, path, stmt, "A variable by name 'myvar' has already been declared");
 
             tryInvalidCompile(env, "select * from SupportBean output every somevar events",
-                "Error in the output rate limiting clause: Variable named 'somevar' has not been declared [");
+                "Failed to validate the output rate limiting clause: Variable named 'somevar' has not been declared [");
 
             env.undeployAll();
         }

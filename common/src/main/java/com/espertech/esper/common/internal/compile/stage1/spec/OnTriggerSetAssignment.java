@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
+import com.espertech.esper.common.internal.epl.expression.assign.ExprAssignment;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 /**
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
  */
 public class OnTriggerSetAssignment {
     private ExprNode expression;
+    private ExprAssignment validated;
 
     /**
      * Ctor.
@@ -36,11 +38,14 @@ public class OnTriggerSetAssignment {
         return expression;
     }
 
-    /**
-     * Sets the expression providing the new variable value
-     *
-     * @param expression assignment expression, or null if none
-     */
+    public ExprAssignment getValidated() {
+        return validated;
+    }
+
+    public void setValidated(ExprAssignment validated) {
+        this.validated = validated;
+    }
+
     public void setExpression(ExprNode expression) {
         this.expression = expression;
     }

@@ -10,6 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.updatehelper;
 
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.ExprArrayElementForgeProperty;
+import com.espertech.esper.common.internal.epl.expression.core.ExprArrayElementIdentNodeExpressions;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.event.core.EventPropertyWriterSPI;
 import com.espertech.esper.common.internal.util.TypeWidenerSPI;
@@ -20,13 +26,15 @@ public class EventBeanUpdateItemForge {
     private final EventPropertyWriterSPI optionalWriter;
     private final boolean notNullableField;
     private final TypeWidenerSPI optionalWidener;
+    private final ExprArrayElementForgeProperty optionalArrayNode;
 
-    public EventBeanUpdateItemForge(ExprForge expression, String optinalPropertyName, EventPropertyWriterSPI optionalWriter, boolean notNullableField, TypeWidenerSPI optionalWidener) {
+    public EventBeanUpdateItemForge(ExprForge expression, String optionalPropertyName, EventPropertyWriterSPI optionalWriter, boolean notNullableField, TypeWidenerSPI optionalWidener, ExprArrayElementForgeProperty optionalArrayNode) {
         this.expression = expression;
-        this.optionalPropertyName = optinalPropertyName;
+        this.optionalPropertyName = optionalPropertyName;
         this.optionalWriter = optionalWriter;
         this.notNullableField = notNullableField;
         this.optionalWidener = optionalWidener;
+        this.optionalArrayNode = optionalArrayNode;
     }
 
     public ExprForge getExpression() {
@@ -47,5 +55,18 @@ public class EventBeanUpdateItemForge {
 
     public TypeWidenerSPI getOptionalWidener() {
         return optionalWidener;
+    }
+
+    public ExprArrayElementForgeProperty getOptionalArrayNode() {
+        return optionalArrayNode;
+    }
+
+    public EventBeanUpdateItemForgeWExpressions toExpression(Class type, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenExpression rhs = expression.evaluateCodegen(type, parent, symbols, classScope);
+        ExprArrayElementIdentNodeExpressions arrayExpressions = null;
+        if (optionalArrayNode != null) {
+            arrayExpressions = optionalArrayNode.getArrayExpressions(parent, symbols, classScope);
+        }
+        return new EventBeanUpdateItemForgeWExpressions(rhs, arrayExpressions);
     }
 }

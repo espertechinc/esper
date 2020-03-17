@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.Drop;
 import com.espertech.esper.common.client.annotation.Priority;
 import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterDesc;
+import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriter;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethodForge;
@@ -196,7 +197,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
 
             eventPropertiesWritten.addAll(Arrays.asList(entry.getKey().getProperties()));
             EventBeanWriter writer = eventTypeSPI.getWriter(entry.getKey().getProperties());
-            desc.add(new InternalEventRouterEntry(priority, isDrop, entry.getValue().getOptionalWhereClauseEvaluator(), entry.getKey().getAssignments(), writer, entry.getValue().getWideners(), entry.getValue().getOutputView(), entry.getValue().getStatementContext(), entry.getValue().hasSubselect));
+            desc.add(new InternalEventRouterEntry(priority, isDrop, entry.getValue().getOptionalWhereClauseEvaluator(), entry.getKey().getAssignments(), writer, entry.getValue().getWideners(), entry.getValue().getWriters(), entry.getValue().getOutputView(), entry.getValue().getStatementContext(), entry.getValue().hasSubselect));
         }
 
         EventBeanCopyMethodForge copyMethodForge = eventTypeSPI.getCopyMethodForge(eventPropertiesWritten.toArray(new String[eventPropertiesWritten.size()]));
@@ -260,6 +261,10 @@ public class InternalEventRouterImpl implements InternalEventRouter {
 
         public boolean isHasSubselect() {
             return hasSubselect;
+        }
+
+        public InternalEventRouterWriter[] getWriters() {
+            return internalEventRouterDesc.getWriters();
         }
     }
 }

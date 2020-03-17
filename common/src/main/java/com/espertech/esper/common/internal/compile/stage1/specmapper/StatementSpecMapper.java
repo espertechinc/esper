@@ -2078,6 +2078,14 @@ public class StatementSpecMapper {
         } else if (expr instanceof NamedParameterExpression) {
             NamedParameterExpression named = (NamedParameterExpression) expr;
             return new ExprNamedParameterNodeImpl(named.getName());
+        } else if (expr instanceof PropertyValueArrayElementExpression) {
+            PropertyValueArrayElementExpression element = (PropertyValueArrayElementExpression) expr;
+            if (mapContext.getTableCompileTimeResolver().resolve(element.getPropertyName()) != null) {
+                ExprTableAccessNodeTopLevel tableNode = new ExprTableAccessNodeTopLevel(element.getPropertyName());
+                mapContext.getTableExpressions().add(tableNode);
+                return tableNode;
+            }
+            return new ExprArrayElement(element.getPropertyName());
         }
         throw new IllegalArgumentException("Could not map expression node of type " + expr.getClass().getSimpleName());
     }
@@ -2431,6 +2439,9 @@ public class StatementSpecMapper {
         } else if (expr instanceof ExprNamedParameterNode) {
             ExprNamedParameterNode named = (ExprNamedParameterNode) expr;
             return new NamedParameterExpression(named.getParameterName());
+        } else if (expr instanceof ExprArrayElement) {
+            ExprArrayElement ident = (ExprArrayElement) expr;
+            return new PropertyValueArrayElementExpression(ident.getArrayPropName(), unmapExpressionDeep(ident.getChildNodes(), unmapContext));
         } else if (expr instanceof ExprTableAccessNode) {
             ExprTableAccessNode table = (ExprTableAccessNode) expr;
             if (table instanceof ExprTableAccessNodeTopLevel) {

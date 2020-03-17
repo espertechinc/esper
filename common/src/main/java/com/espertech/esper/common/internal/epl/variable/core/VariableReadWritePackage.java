@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class VariableReadWritePackage {
 
     private Map<EventTypeSPI, EventBeanCopyMethod> copyMethods;
     private VariableTriggerSetDesc[] assignments;
-    private VariableTriggerWriteDesc[] writers;
+    private VariableTriggerWrite[] writers;
     private Variable[] variables;
     private boolean[] mustCoerce;
     private VariableReader[] readersForGlobalVars;
@@ -45,7 +46,7 @@ public class VariableReadWritePackage {
         this.assignments = assignments;
     }
 
-    public void setWriters(VariableTriggerWriteDesc[] writers) {
+    public void setWriters(VariableTriggerWrite[] writers) {
         this.writers = writers;
     }
 
@@ -95,19 +96,34 @@ public class VariableReadWritePackage {
                 Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, agentInstanceContext);
                 int variableNumber = variable.getVariableNumber();
 
-                if (writers[count] != null) {
+                VariableTriggerWrite writeBase = writers[count];
+                if (writeBase instanceof VariableTriggerWriteDesc) {
+                    VariableTriggerWriteDesc writeDesc = (VariableTriggerWriteDesc) writeBase;
+
                     VariableReader reader = variableService.getReader(variables[count].getDeploymentId(), variableMetaData.getVariableName(), agentInstanceId);
                     EventBean current = (EventBean) reader.getValue();
                     if (current == null) {
                         value = null;
                     } else {
-                        VariableTriggerWriteDesc writeDesc = writers[count];
                         boolean copy = variablesBeansCopied.add(writeDesc.getVariableName());
                         if (copy) {
                             current = copyMethods.get(writeDesc.getType()).copy(current);
                         }
                         variableService.write(variableNumber, agentInstanceId, current);
                         writeDesc.getWriter().write(value, current);
+                    }
+                } else if (writeBase instanceof VariableTriggerWriteArrayElement) {
+                    VariableTriggerWriteArrayElement writeDesc = (VariableTriggerWriteArrayElement) writeBase;
+                    Integer index = (Integer) writeDesc.getIndexExpression().evaluate(eventsPerStream, true, agentInstanceContext);
+                    if (index != null) {
+                        VariableReader reader = variableService.getReader(variables[count].getDeploymentId(), variableMetaData.getVariableName(), agentInstanceId);
+                        Object arrayValue = reader.getValue();
+                        if (arrayValue != null) {
+                            if (index < Array.getLength(arrayValue)) {
+                                Array.set(arrayValue, index, value);
+                                variableService.write(variableNumber, agentInstanceId, arrayValue);
+                            }
+                        }
                     }
                 } else if (variableMetaData.getEventType() != null) {
                     EventBean eventBean = agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedBean(value, variableMetaData.getEventType());
@@ -160,9 +176,10 @@ public class VariableReadWritePackage {
 
             if (value == null) {
                 values.put(assignment.getVariableName(), null);
-            } else if (writers[count] != null) {
+            } else if (writers[count] instanceof VariableTriggerWriteDesc) {
+                VariableTriggerWriteDesc desc = (VariableTriggerWriteDesc) writers[count];
                 EventBean current = (EventBean) value;
-                values.put(assignment.getVariableName(), writers[count].getGetter().get(current));
+                values.put(assignment.getVariableName(), desc.getGetter().get(current));
             } else if (value instanceof EventBean) {
                 values.put(assignment.getVariableName(), ((EventBean) value).getUnderlying());
             } else {

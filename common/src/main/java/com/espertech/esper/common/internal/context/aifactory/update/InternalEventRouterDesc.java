@@ -23,6 +23,7 @@ public class InternalEventRouterDesc {
     private ExprEvaluator optionalWhereClauseEval;
     private String[] properties;
     private ExprEvaluator[] assignments;
+    private InternalEventRouterWriter[] writers;
 
     public void setWideners(TypeWidener[] wideners) {
         this.wideners = wideners;
@@ -70,5 +71,13 @@ public class InternalEventRouterDesc {
 
     public ExprEvaluator[] getAssignments() {
         return assignments;
+    }
+
+    public InternalEventRouterWriter[] getWriters() {
+        return writers;
+    }
+
+    public void setWriters(InternalEventRouterWriter[] writers) {
+        this.writers = writers;
     }
 }
