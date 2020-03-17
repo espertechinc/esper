@@ -23,9 +23,11 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -39,7 +41,83 @@ public class InfraTableOnMerge {
         execs.add(new InfraMergeWhereWithMethodRead());
         execs.add(new InfraMergeSelectWithAggReadAndEnum());
         execs.add(new InfraMergeTwoTables());
+        execs.add(new InfraTableEMACompute());
         return execs;
+    }
+
+    private static class InfraTableEMACompute implements RegressionExecution {
+        /**
+         * let p = 0.1
+         * a = average(x1, x2, x3, x4, x5)    // Assume 5, in reality use a parameter
+         * y1 = p * x1 + (p - 1) * a          // Recursive calculation initialized with look-ahead average
+         * y2 = p * x2 + (p - 1) * y1
+         * y3 = p * x3 + (p - 1) * y2
+         *    ....
+         *
+         * The final stream should only publish y5, y6, y7, ...
+         */
+        public void run(RegressionEnvironment env) {
+            String epl =
+                    "@public @buseventtype create schema MyEvent(id string, x double);\n" +
+                    "create constant variable int BURN_LENGTH = 5;\n" +
+                    "create constant variable double ALPHA = 0.1;\n" +
+                    "create table EMA(burnValues double[primitive], cnt int, value double);\n" +
+                    "" +
+                    "// Seed the row when the table is empty\n" +
+                    "@priority(2) on MyEvent merge EMA\n" +
+                    "  when not matched then insert select new double[BURN_LENGTH] as burnValues, 0 as cnt, null as value;\n" +
+                    "" +
+                    "inlined_class \"\"\"\n" +
+                    "  public class Helper {\n" +
+                    "    public static double computeInitialValue(double alpha, double[] burnValues) {\n" +
+                    "      double total = 0;\n" +
+                    "      for (double v : burnValues) {\n" +
+                    "        total = total + v;\n" +
+                    "      }\n" +
+                    "      double value = total / burnValues.length;\n" +
+                    "      for (double v : burnValues) {\n" +
+                    "        value = alpha * v + (1 - alpha) * value;\n" +
+                    "      }\n" +
+                    "      return value;" +
+                    "    }\n" +
+                    "  }\n" +
+                    "\"\"\"\n" +
+                    "// Update the 'value' field with the current value\n" +
+                    "@priority(1) on MyEvent merge EMA as ema\n" +
+                    "  when matched and cnt < BURN_LENGTH - 1 then update set burnValues[cnt] = x, cnt = cnt + 1\n" +
+                    "  when matched and cnt = BURN_LENGTH - 1 then update set burnValues[cnt] = x, cnt = cnt + 1, value = Helper.computeInitialValue(ALPHA, burnValues), burnValues = null\n" +
+                    "  when matched then update set value = ALPHA * x + (1 - ALPHA) * value;\n" +
+                    "" +
+                    "// Output value\n" +
+                    "@name('output') select EMA.value as burn from MyEvent;\n";
+            env.compileDeploy(epl).addListener("output");
+
+            sendAssertEMA(env, "E1", 1, null);
+
+            sendAssertEMA(env, "E2", 2, null);
+
+            sendAssertEMA(env, "E3", 3, null);
+
+            sendAssertEMA(env, "E4", 4, null);
+
+            // Last of the burn period
+            // We expect:
+            // a = (1+2+3+4+5) / 5 = 3
+            // y1 = 0.1 * 1 + 0.9 * 3 = 2.8
+            // y2 = 0.1 * 2 + 0.9 * 2.8
+            //    ... leading to
+            // y5 = 3.08588
+            sendAssertEMA(env, "E5", 5, 3.08588);
+
+            // Outside burn period
+            sendAssertEMA(env, "E6", 6, 3.377292);
+
+            sendAssertEMA(env, "E7", 7, 3.7395628);
+
+            sendAssertEMA(env, "E8", 8, 4.16560652);
+
+            env.undeployAll();
+        }
     }
 
     private static class InfraMergeTwoTables implements RegressionExecution {
@@ -371,6 +449,19 @@ public class InfraTableOnMerge {
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null});
 
         env.undeployAll();
+    }
+
+    private static void sendAssertEMA(RegressionEnvironment env, String id, double x, Double expected) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("id", id);
+        event.put("x", x);
+        env.sendEventMap(event, "MyEvent");
+        Double burn = (Double) env.listener("output").assertOneGetNewAndReset().get("burn");
+        if (expected == null) {
+            assertNull(burn);
+        } else {
+            assertEquals(expected, burn, 1e-10);
+        }
     }
 
     private static SupportBean makeSupportBean(String theString, int intPrimitive, long longPrimitive) {
