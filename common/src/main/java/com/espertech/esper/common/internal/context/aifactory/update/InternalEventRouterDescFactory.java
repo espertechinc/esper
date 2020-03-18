@@ -44,64 +44,70 @@ public class InternalEventRouterDescFactory {
         List<String> properties = new ArrayList<>();
         List<String> propertiesTouched = new ArrayList<>();
         List<ExprNode> expressions = new ArrayList<>();
-        List<InternalEventRouterWriterArrayElementForge> specialWriters = new ArrayList<>();
+        List<InternalEventRouterWriterForge> specialWriters = new ArrayList<>();
 
         for (int i = 0; i < desc.getAssignments().size(); i++) {
             OnTriggerSetAssignment onSet = desc.getAssignments().get(i);
             ExprAssignment assignmentDesc = onSet.getValidated();
-            if (!(assignmentDesc instanceof ExprAssignmentStraight)) {
-                throw new ExprValidationException("Missing property assignment expression in assignment number " + i);
-            }
 
             try {
-                ExprAssignmentStraight assignment = (ExprAssignmentStraight) assignmentDesc;
+                if (assignmentDesc instanceof ExprAssignmentStraight) {
+                    ExprAssignmentStraight assignment = (ExprAssignmentStraight) assignmentDesc;
+                    ExprAssignmentLHS lhs = assignment.getLhs();
 
-                if (assignment.getLhs() instanceof ExprAssignmentLHSIdent) {
-                    ExprAssignmentLHSIdent ident = (ExprAssignmentLHSIdent) assignment.getLhs();
-                    String propertyName = ident.getIdent();
-                    EventPropertyDescriptor writableProperty = eventTypeSPI.getWritableProperty(propertyName);
-                    if (writableProperty == null) {
-                        throw new ExprValidationException("Property '" + propertyName + "' is not available for write access");
-                    }
+                    if (lhs instanceof ExprAssignmentLHSIdent) {
+                        ExprAssignmentLHSIdent ident = (ExprAssignmentLHSIdent) lhs;
+                        String propertyName = ident.getIdent();
+                        EventPropertyDescriptor writableProperty = eventTypeSPI.getWritableProperty(propertyName);
+                        if (writableProperty == null) {
+                            throw new ExprValidationException("Property '" + propertyName + "' is not available for write access");
+                        }
 
-                    TypeWidenerSPI widener;
-                    try {
-                        widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), assignment.getRhs().getForge().getEvaluationType(),
-                            writableProperty.getPropertyType(), propertyName, false, null, null);
-                    } catch (TypeWidenerException ex) {
-                        throw new ExprValidationException(ex.getMessage(), ex);
-                    }
+                        TypeWidenerSPI widener;
+                        try {
+                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), assignment.getRhs().getForge().getEvaluationType(),
+                                writableProperty.getPropertyType(), propertyName, false, null, null);
+                        } catch (TypeWidenerException ex) {
+                            throw new ExprValidationException(ex.getMessage(), ex);
+                        }
 
-                    properties.add(propertyName);
-                    propertiesTouched.add(propertyName);
-                    expressions.add(assignment.getRhs());
-                    wideners.add(widener);
-                } else if (assignment.getLhs() instanceof ExprAssignmentLHSIdentWSubprop) {
-                    ExprAssignmentLHSIdentWSubprop subprop = (ExprAssignmentLHSIdentWSubprop) assignment.getLhs();
-                    throw new ExprValidationException("Property '" + subprop.getSubpropertyName() + "' is not available for write access");
-                } else if (assignment.getLhs() instanceof ExprAssignmentLHSArrayElement) {
-                    ExprAssignmentLHSArrayElement lhs = (ExprAssignmentLHSArrayElement) assignment.getLhs();
-                    String propertyName = lhs.getIdent();
-                    EventPropertyDescriptor writableProperty = eventTypeSPI.getWritableProperty(propertyName);
-                    if (writableProperty == null) {
-                        throw new ExprValidationException("Property '" + propertyName + "' is not available for write access");
-                    }
-                    if (!writableProperty.getPropertyType().isArray()) {
-                        throw new ExprValidationException("Property '" + propertyName + "' type is not array");
-                    }
+                        properties.add(propertyName);
+                        propertiesTouched.add(propertyName);
+                        expressions.add(assignment.getRhs());
+                        wideners.add(widener);
+                    } else if (lhs instanceof ExprAssignmentLHSIdentWSubprop) {
+                        ExprAssignmentLHSIdentWSubprop subprop = (ExprAssignmentLHSIdentWSubprop) lhs;
+                        throw new ExprValidationException("Property '" + subprop.getSubpropertyName() + "' is not available for write access");
+                    } else if (lhs instanceof ExprAssignmentLHSArrayElement) {
+                        ExprAssignmentLHSArrayElement arrayElement = (ExprAssignmentLHSArrayElement) lhs;
+                        String propertyName = lhs.getIdent();
+                        EventPropertyDescriptor writableProperty = eventTypeSPI.getWritableProperty(propertyName);
+                        if (writableProperty == null) {
+                            throw new ExprValidationException("Property '" + propertyName + "' is not available for write access");
+                        }
+                        if (!writableProperty.getPropertyType().isArray()) {
+                            throw new ExprValidationException("Property '" + propertyName + "' type is not array");
+                        }
 
-                    TypeWidenerSPI widener;
-                    try {
-                        widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), assignment.getRhs().getForge().getEvaluationType(),
-                            writableProperty.getPropertyType().getComponentType(), propertyName, false, null, null);
-                    } catch (TypeWidenerException ex) {
-                        throw new ExprValidationException(ex.getMessage(), ex);
-                    }
+                        TypeWidenerSPI widener;
+                        try {
+                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), assignment.getRhs().getForge().getEvaluationType(),
+                                writableProperty.getPropertyType().getComponentType(), propertyName, false, null, null);
+                        } catch (TypeWidenerException ex) {
+                            throw new ExprValidationException(ex.getMessage(), ex);
+                        }
 
-                    InternalEventRouterWriterArrayElementForge special = new InternalEventRouterWriterArrayElementForge(lhs.getIndexExpression(), assignment.getRhs(), widener, propertyName);
+                        InternalEventRouterWriterArrayElementForge special = new InternalEventRouterWriterArrayElementForge(arrayElement.getIndexExpression(), assignment.getRhs(), widener, propertyName);
+                        specialWriters.add(special);
+                    } else {
+                        throw new IllegalStateException("Unrecognized left hande side assignment " + lhs);
+                    }
+                } else if (assignmentDesc instanceof ExprAssignmentCurly) {
+                    ExprAssignmentCurly curly = (ExprAssignmentCurly) assignmentDesc;
+                    InternalEventRouterWriterCurlyForge special = new InternalEventRouterWriterCurlyForge(curly.getExpression());
                     specialWriters.add(special);
                 } else {
-                    throw new IllegalStateException("Unrecognized left hande side assignment " + assignment.getLhs());
+                    throw new IllegalStateException("Unrecognized assignment " + assignmentDesc);
                 }
             } catch (ExprValidationException ex) {
                 throw new ExprValidationException("Failed to validate assignment expression '" +
@@ -117,6 +123,6 @@ public class InternalEventRouterDescFactory {
         }
 
         return new InternalEventRouterDescForge(copyMethod, wideners.toArray(new TypeWidenerSPI[0]), eventType, annotations, desc.getOptionalWhereClause(),
-            properties.toArray(new String[0]), expressions.toArray(new ExprNode[0]), specialWriters.toArray(new InternalEventRouterWriterArrayElementForge[0]));
+            properties.toArray(new String[0]), expressions.toArray(new ExprNode[0]), specialWriters.toArray(new InternalEventRouterWriterForge[0]));
     }
 }

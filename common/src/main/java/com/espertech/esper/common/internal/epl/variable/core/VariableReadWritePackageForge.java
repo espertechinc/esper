@@ -23,6 +23,8 @@ import com.espertech.esper.common.internal.epl.expression.assign.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNode;
+import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVariableVisitor;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -58,101 +60,118 @@ public class VariableReadWritePackageForge {
 
         for (OnTriggerSetAssignment spec : assignments) {
             ExprAssignment assignmentDesc = spec.getValidated();
-            if (!(assignmentDesc instanceof ExprAssignmentStraight)) {
-                throw new ExprValidationException("Missing variable assignment expression in assignment number " + count);
-            }
+            assignmentList.add(assignmentDesc);
+
             try {
-                ExprAssignmentStraight assignment = (ExprAssignmentStraight) assignmentDesc;
-                assignmentList.add(assignment);
-                ExprAssignmentLHS identAssignment = assignment.getLhs();
+                if (assignmentDesc instanceof ExprAssignmentStraight) {
+                    ExprAssignmentStraight assignment = (ExprAssignmentStraight) assignmentDesc;
+                    ExprAssignmentLHS identAssignment = assignment.getLhs();
 
-                String variableName = identAssignment.getIdent();
-                VariableMetaData variableMetadata = services.getVariableCompileTimeResolver().resolve(variableName);
-                if (variableMetadata == null) {
-                    throw new ExprValidationException("Variable by name '" + variableName + "' has not been created or configured");
-                }
+                    String variableName = identAssignment.getIdent();
+                    VariableMetaData variableMetadata = services.getVariableCompileTimeResolver().resolve(variableName);
+                    if (variableMetadata == null) {
+                        throw new ExprValidationException("Variable by name '" + variableName + "' has not been created or configured");
+                    }
 
-                variables[count] = variableMetadata;
+                    variables[count] = variableMetadata;
 
-                if (variableMetadata.isConstant()) {
-                    throw new ExprValidationException("Variable by name '" + variableName + "' is declared constant and may not be set");
-                }
-                Class expressionType = assignment.getRhs().getForge().getEvaluationType();
+                    if (variableMetadata.isConstant()) {
+                        throw new ExprValidationException("Variable by name '" + variableName + "' is declared constant and may not be set");
+                    }
+                    Class expressionType = assignment.getRhs().getForge().getEvaluationType();
 
-                if (assignment.getLhs() instanceof ExprAssignmentLHSIdent) {
-                    // determine types
-                    if (variableMetadata.getEventType() != null) {
-                        if ((expressionType != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(expressionType, variableMetadata.getEventType().getUnderlyingType()))) {
-                            throw new ExprValidationException("Variable '" + variableName
-                                + "' of declared event type '" + variableMetadata.getEventType().getName() + "' underlying type '" + variableMetadata.getEventType().getUnderlyingType().getName() +
-                                "' cannot be assigned a value of type '" + expressionType.getName() + "'");
-                        }
-                        variableTypes.put(variableName, variableMetadata.getEventType().getUnderlyingType());
-                    } else {
+                    if (assignment.getLhs() instanceof ExprAssignmentLHSIdent) {
+                        // determine types
+                        if (variableMetadata.getEventType() != null) {
+                            if ((expressionType != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(expressionType, variableMetadata.getEventType().getUnderlyingType()))) {
+                                throw new ExprValidationException("Variable '" + variableName
+                                    + "' of declared event type '" + variableMetadata.getEventType().getName() + "' underlying type '" + variableMetadata.getEventType().getUnderlyingType().getName() +
+                                    "' cannot be assigned a value of type '" + expressionType.getName() + "'");
+                            }
+                            variableTypes.put(variableName, variableMetadata.getEventType().getUnderlyingType());
+                        } else {
 
-                        Class variableType = variableMetadata.getType();
-                        variableTypes.put(variableName, variableType);
+                            Class variableType = variableMetadata.getType();
+                            variableTypes.put(variableName, variableType);
 
-                        // determine if the expression type can be assigned
-                        if (variableType != Object.class) {
-                            if ((JavaClassHelper.getBoxedType(expressionType) != variableType) &&
-                                (expressionType != null)) {
-                                if ((!JavaClassHelper.isNumeric(variableType)) ||
-                                    (!JavaClassHelper.isNumeric(expressionType))) {
-                                    throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionType));
+                            // determine if the expression type can be assigned
+                            if (variableType != Object.class) {
+                                if ((JavaClassHelper.getBoxedType(expressionType) != variableType) &&
+                                    (expressionType != null)) {
+                                    if ((!JavaClassHelper.isNumeric(variableType)) ||
+                                        (!JavaClassHelper.isNumeric(expressionType))) {
+                                        throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionType));
+                                    }
+
+                                    if (!(JavaClassHelper.canCoerce(expressionType, variableType))) {
+                                        throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionType));
+                                    }
+
+                                    mustCoerce[count] = true;
                                 }
-
-                                if (!(JavaClassHelper.canCoerce(expressionType, variableType))) {
-                                    throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionType));
-                                }
-
-                                mustCoerce[count] = true;
                             }
                         }
-                    }
-                } else if (assignment.getLhs() instanceof ExprAssignmentLHSIdentWSubprop) {
-                    ExprAssignmentLHSIdentWSubprop subpropAssignment = (ExprAssignmentLHSIdentWSubprop) assignment.getLhs();
-                    String subPropertyName = subpropAssignment.getSubpropertyName();
-                    if (variableMetadata.getEventType() == null) {
-                        throw new ExprValidationException("Variable by name '" + variableName + "' does not have a property named '" + subPropertyName + "'");
-                    }
-                    EventType type = variableMetadata.getEventType();
-                    if (!(type instanceof EventTypeSPI)) {
-                        throw new ExprValidationException("Variable by name '" + variableName + "' event type '" + type.getName() + "' not writable");
-                    }
-                    EventTypeSPI spi = (EventTypeSPI) type;
-                    EventPropertyWriterSPI writer = spi.getWriter(subPropertyName);
-                    EventPropertyGetterSPI getter = spi.getGetterSPI(subPropertyName);
-                    Class getterType = spi.getPropertyType(subPropertyName);
-                    if (writer == null) {
-                        throw new ExprValidationException("Variable by name '" + variableName + "' the property '" + subPropertyName + "' is not writable");
+                    } else if (assignment.getLhs() instanceof ExprAssignmentLHSIdentWSubprop) {
+                        ExprAssignmentLHSIdentWSubprop subpropAssignment = (ExprAssignmentLHSIdentWSubprop) assignment.getLhs();
+                        String subPropertyName = subpropAssignment.getSubpropertyName();
+                        if (variableMetadata.getEventType() == null) {
+                            throw new ExprValidationException("Variable by name '" + variableName + "' does not have a property named '" + subPropertyName + "'");
+                        }
+                        EventType type = variableMetadata.getEventType();
+                        if (!(type instanceof EventTypeSPI)) {
+                            throw new ExprValidationException("Variable by name '" + variableName + "' event type '" + type.getName() + "' not writable");
+                        }
+                        EventTypeSPI spi = (EventTypeSPI) type;
+                        EventPropertyWriterSPI writer = spi.getWriter(subPropertyName);
+                        EventPropertyGetterSPI getter = spi.getGetterSPI(subPropertyName);
+                        Class getterType = spi.getPropertyType(subPropertyName);
+                        if (writer == null) {
+                            throw new ExprValidationException("Variable by name '" + variableName + "' the property '" + subPropertyName + "' is not writable");
+                        }
+
+                        String fullVariableName = variableName + "." + subPropertyName;
+                        variableTypes.put(fullVariableName, spi.getPropertyType(subPropertyName));
+                        CopyMethodDesc writtenProps = eventTypeWrittenProps.get(spi);
+                        if (writtenProps == null) {
+                            writtenProps = new CopyMethodDesc(variableName, new ArrayList<String>());
+                            eventTypeWrittenProps.put(spi, writtenProps);
+                        }
+                        writtenProps.getPropertiesCopied().add(subPropertyName);
+
+                        writers[count] = new VariableTriggerWriteDescForge(spi, variableName, writer, getter, getterType, assignment.getRhs().getForge().getEvaluationType());
+                    } else if (assignment.getLhs() instanceof ExprAssignmentLHSArrayElement) {
+                        ExprAssignmentLHSArrayElement arrayAssign = (ExprAssignmentLHSArrayElement) assignment.getLhs();
+                        TypeWidenerSPI widener;
+                        try {
+                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), expressionType,
+                                variableMetadata.getType().getComponentType(), variableMetadata.getVariableName(), false, null, statementName);
+                        } catch (TypeWidenerException ex) {
+                            throw new ExprValidationException(ex.getMessage(), ex);
+                        }
+                        writers[count] = new VariableTriggerWriteArrayElementForge(variableName, arrayAssign.getIndexExpression().getForge(), widener);
+                    } else {
+                        throw new IllegalStateException("Unrecognized left hand side assignment " + assignment.getLhs());
                     }
 
-                    String fullVariableName = variableName + "." + subPropertyName;
-                    variableTypes.put(fullVariableName, spi.getPropertyType(subPropertyName));
-                    CopyMethodDesc writtenProps = eventTypeWrittenProps.get(spi);
-                    if (writtenProps == null) {
-                        writtenProps = new CopyMethodDesc(variableName, new ArrayList<String>());
-                        eventTypeWrittenProps.put(spi, writtenProps);
+                    count++;
+                } else if (assignmentDesc instanceof ExprAssignmentCurly) {
+                    ExprAssignmentCurly curly = (ExprAssignmentCurly) assignmentDesc;
+                    if (curly.getExpression() instanceof ExprVariableNode) {
+                        throw new ExprValidationException("Missing variable assignment expression in assignment number " + count);
                     }
-                    writtenProps.getPropertiesCopied().add(subPropertyName);
-
-                    writers[count] = new VariableTriggerWriteDescForge(spi, variableName, writer, getter, getterType, assignment.getRhs().getForge().getEvaluationType());
-                } else if (assignment.getLhs() instanceof ExprAssignmentLHSArrayElement) {
-                    ExprAssignmentLHSArrayElement arrayAssign = (ExprAssignmentLHSArrayElement) assignment.getLhs();
-                    TypeWidenerSPI widener;
-                    try {
-                        widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), expressionType,
-                            variableMetadata.getType().getComponentType(), variableMetadata.getVariableName(), false, null, statementName);
-                    } catch (TypeWidenerException ex) {
-                        throw new ExprValidationException(ex.getMessage(), ex);
+                    ExprNodeVariableVisitor variableVisitor = new ExprNodeVariableVisitor(services.getVariableCompileTimeResolver());
+                    curly.getExpression().accept(variableVisitor);
+                    if (variableVisitor.getVariableNames().size() != 1) {
+                        throw new ExprValidationException("Assignment expression must receive a single variable value");
                     }
-                    writers[count] = new VariableTriggerWriteArrayElementForge(variableName, arrayAssign.getIndexExpression().getForge(), widener);
+                    Map.Entry<String, VariableMetaData> variable = variableVisitor.getVariableNames().entrySet().iterator().next();
+                    variables[count] = variable.getValue();
+                    writers[count] = new VariableTriggerWriteCurlyForge(variable.getKey(), curly.getExpression().getForge());
+                    count++;
                 } else {
-                    throw new IllegalStateException("Unrecognized left hand side assignment " + assignment.getLhs());
+                    throw new IllegalStateException("Unrecognized assignment expression " + assignmentDesc);
                 }
 
-                count++;
             } catch (ExprValidationException ex) {
                 throw new ExprValidationException("Failed to validate assignment expression '" +
                     ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignmentDesc.getOriginalExpression()) +
@@ -196,7 +215,7 @@ public class VariableReadWritePackageForge {
         method.getBlock()
             .declareVar(VariableReadWritePackage.class, ref.getRef(), newInstance(VariableReadWritePackage.class))
             .exprDotMethod(ref, "setCopyMethods", makeCopyMethods(copyMethods, method, symbols, classScope))
-            .exprDotMethod(ref, "setAssignments", makeAssignments(assignments, method, symbols, classScope))
+            .exprDotMethod(ref, "setAssignments", makeAssignments(assignments, variables, method, symbols, classScope))
             .exprDotMethod(ref, "setVariables", makeVariables(variables, method, symbols, classScope))
             .exprDotMethod(ref, "setWriters", makeWriters(writers, method, symbols, classScope))
             .exprDotMethod(ref, "setReadersForGlobalVars", makeReadersForGlobalVars(variables, method, symbols, classScope))
@@ -244,13 +263,18 @@ public class VariableReadWritePackageForge {
         return localMethod(method);
     }
 
-    private static CodegenExpression makeAssignments(ExprAssignment[] assignments, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+    private static CodegenExpression makeAssignments(ExprAssignment[] assignments, VariableMetaData[] variables, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(VariableTriggerSetDesc[].class, VariableReadWritePackageForge.class, classScope);
         method.getBlock().declareVar(VariableTriggerSetDesc[].class, "sets", newArrayByLength(VariableTriggerSetDesc.class, constant(assignments.length)));
         for (int i = 0; i < assignments.length; i++) {
-            ExprAssignmentStraight straightAssignment = (ExprAssignmentStraight) assignments[i];
-            CodegenExpression set = newInstance(VariableTriggerSetDesc.class, constant(straightAssignment.getLhs().getFullIdentifier()),
-                ExprNodeUtilityCodegen.codegenEvaluator(straightAssignment.getRhs().getForge(), method, VariableReadWritePackageForge.class, classScope));
+            CodegenExpression set;
+            if (assignments[i] instanceof ExprAssignmentStraight) {
+                ExprAssignmentStraight straightAssignment = (ExprAssignmentStraight) assignments[i];
+                set = newInstance(VariableTriggerSetDesc.class, constant(straightAssignment.getLhs().getFullIdentifier()),
+                    ExprNodeUtilityCodegen.codegenEvaluator(straightAssignment.getRhs().getForge(), method, VariableReadWritePackageForge.class, classScope));
+            } else {
+                set = newInstance(VariableTriggerSetDesc.class, constant(variables[i].getVariableName()), constantNull());
+            }
             method.getBlock().assignArrayElement("sets", constant(i), set);
         }
         method.getBlock().methodReturn(ref("sets"));

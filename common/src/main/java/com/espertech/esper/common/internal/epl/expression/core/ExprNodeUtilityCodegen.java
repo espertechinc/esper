@@ -57,6 +57,11 @@ public class ExprNodeUtilityCodegen {
         anonymousClass.addMethod("evaluate", evaluate);
         if (forge.getEvaluationType() == null) {
             evaluate.getBlock().methodReturn(constantNull());
+        } else if (forge.getEvaluationType() == void.class) {
+            CodegenMethod evalMethod = CodegenLegoMethodExpression.codegenExpression(forge, method, classScope);
+            evaluate.getBlock()
+                .localMethod(evalMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT)
+                .methodReturn(constantNull());
         } else {
             CodegenMethod evalMethod = CodegenLegoMethodExpression.codegenExpression(forge, method, classScope);
             evaluate.getBlock().methodReturn(localMethod(evalMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));

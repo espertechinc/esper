@@ -32,7 +32,11 @@ public class CodegenLegoMethodExpression {
         CodegenMethod exprMethod = parent.makeChildWithScope(evaluationType, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression expression = forge.evaluateCodegen(evaluationType, exprMethod, exprSymbol, classScope);
         exprSymbol.derivedSymbolsCodegen(parent, exprMethod.getBlock(), classScope);
-        exprMethod.getBlock().methodReturn(expression);
+        if (evaluationType != void.class) {
+            exprMethod.getBlock().methodReturn(expression);
+        } else {
+            exprMethod.getBlock().expression(expression);
+        }
         return exprMethod;
     }
 

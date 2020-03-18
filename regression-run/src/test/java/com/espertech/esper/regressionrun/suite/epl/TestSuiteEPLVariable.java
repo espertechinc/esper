@@ -32,8 +32,12 @@ public class TestSuiteEPLVariable extends TestCase {
         session = null;
     }
 
-    public void testEPLVariables() {
-        RegressionRunner.run(session, EPLVariables.executions());
+    public void testEPLVariablesUse() {
+        RegressionRunner.run(session, EPLVariablesUse.executions());
+    }
+
+    public void testEPLVariablesOnSet() {
+        RegressionRunner.run(session, EPLVariablesOnSet.executions());
     }
 
     public void testEPLVariablesCreate() {
@@ -60,14 +64,14 @@ public class TestSuiteEPLVariable extends TestCase {
 
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class, SupportBean_S2.class,
-            SupportBean_A.class, SupportBean_B.class, SupportMarketDataBean.class, EPLVariables.MyVariableCustomEvent.class,
+            SupportBean_A.class, SupportBean_B.class, SupportMarketDataBean.class, EPLVariablesUse.MyVariableCustomEvent.class,
             SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 
-        configuration.getCommon().addImport(EPLVariables.MySimpleVariableServiceFactory.class);
-        configuration.getCommon().addImport(EPLVariables.MySimpleVariableService.class);
-        configuration.getCommon().addImport(EPLVariables.MyVariableCustomType.class);
+        configuration.getCommon().addImport(EPLVariablesUse.MySimpleVariableServiceFactory.class);
+        configuration.getCommon().addImport(EPLVariablesUse.MySimpleVariableService.class);
+        configuration.getCommon().addImport(EPLVariablesUse.MyVariableCustomType.class);
 
         configuration.getCommon().addImport(SupportEnum.class);
 
@@ -77,13 +81,13 @@ public class TestSuiteEPLVariable extends TestCase {
         common.addVariable("papi_1", String.class, "begin");
         common.addVariable("papi_2", boolean.class, true);
         common.addVariable("papi_3", String.class, "value");
-        common.addVariable("myRuntimeInitService", EPLVariables.MySimpleVariableService.class, null);
+        common.addVariable("myRuntimeInitService", EPLVariablesUse.MySimpleVariableService.class, null);
         common.addVariable("MYCONST_TWO", "string", null, true);
         common.addVariable("varcoll", "String[]", new String[]{"E1", "E2"}, true);
-        common.addVariable("mySimpleVariableService", EPLVariables.MySimpleVariableService.class, null);
-        common.addVariable("myInitService", EPLVariables.MySimpleVariableService.class, EPLVariables.MySimpleVariableServiceFactory.makeService());
+        common.addVariable("mySimpleVariableService", EPLVariablesUse.MySimpleVariableService.class, null);
+        common.addVariable("myInitService", EPLVariablesUse.MySimpleVariableService.class, EPLVariablesUse.MySimpleVariableServiceFactory.makeService());
         common.addVariable("supportEnum", SupportEnum.class.getName(), SupportEnum.ENUM_VALUE_1);
-        common.addVariable("enumWithOverride", EPLVariables.MyEnumWithOverride.class.getName(), EPLVariables.MyEnumWithOverride.LONG);
+        common.addVariable("enumWithOverride", EPLVariablesUse.MyEnumWithOverride.class.getName(), EPLVariablesUse.MyEnumWithOverride.LONG);
         common.addVariable("var1", int.class, -1);
         common.addVariable("var2", String.class, "abc");
         common.addVariable("var1SS", String.class, "a");
@@ -119,8 +123,8 @@ public class TestSuiteEPLVariable extends TestCase {
         common.addVariable("varsobj2", Object.class, "ABC", true);
         common.addVariable("var_output_limit", long.class, "3");
         common.addVariable("myNonSerializable", EPLVariablesEventTyped.NonSerializable.class, EPLVariablesEventTyped.NON_SERIALIZABLE);
-        common.addVariable("my_variable_custom_typed", EPLVariables.MyVariableCustomType.class.getName(), EPLVariables.MyVariableCustomType.of("abc"), true);
-        common.addVariable("varargsTestClient", EPLVariables.SupportVarargsClient.class, new EPLVariables.SupportVarargsClientImpl());
+        common.addVariable("my_variable_custom_typed", EPLVariablesUse.MyVariableCustomType.class.getName(), EPLVariablesUse.MyVariableCustomType.of("abc"), true);
+        common.addVariable("varargsTestClient", EPLVariablesUse.SupportVarargsClient.class, new EPLVariablesUse.SupportVarargsClientImpl());
 
         configuration.getCompiler().getViewResources().setIterableUnbound(true);
         configuration.getCompiler().getByteCode().setAllowSubscriber(true);

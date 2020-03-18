@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.util;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriter;
 import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriterArrayElement;
+import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriterCurly;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
@@ -169,17 +170,24 @@ public class InternalEventRouterPreprocessor {
 
         if (entry.getSpecialPropWriters().length > 0) {
             for (InternalEventRouterWriter special : entry.getSpecialPropWriters()) {
-                InternalEventRouterWriterArrayElement array = (InternalEventRouterWriterArrayElement) special;
-                Object value = array.getRhsExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
-                if ((value != null) && (array.getTypeWidener() != null)) {
-                    value = array.getTypeWidener().widen(value);
-                }
-                Object arrayValue = theEvent.get(array.getPropertyName());
-                if (arrayValue != null) {
-                    Integer index = (Integer) array.getIndexExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
-                    if (index < Array.getLength(arrayValue)) {
-                        Array.set(arrayValue, index, value);
+                if (special instanceof InternalEventRouterWriterArrayElement) {
+                    InternalEventRouterWriterArrayElement array = (InternalEventRouterWriterArrayElement) special;
+                    Object value = array.getRhsExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
+                    if ((value != null) && (array.getTypeWidener() != null)) {
+                        value = array.getTypeWidener().widen(value);
                     }
+                    Object arrayValue = theEvent.get(array.getPropertyName());
+                    if (arrayValue != null) {
+                        Integer index = (Integer) array.getIndexExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
+                        if (index < Array.getLength(arrayValue)) {
+                            Array.set(arrayValue, index, value);
+                        }
+                    }
+                } else if (special instanceof InternalEventRouterWriterCurly) {
+                    InternalEventRouterWriterCurly curly = (InternalEventRouterWriterCurly) special;
+                    curly.getExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
+                } else {
+                    throw new IllegalStateException("Unrecognized writer " + special);
                 }
             }
         }

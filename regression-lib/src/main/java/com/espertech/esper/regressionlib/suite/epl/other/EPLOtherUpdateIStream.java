@@ -72,7 +72,32 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateMapIndexProps());
         execs.add(new EPLOtherUpdateArrayElement());
         execs.add(new EPLOtherUpdateArrayElementBoxed());
+        execs.add(new EPLOtherUpdateExpression());
         return execs;
+    }
+
+    private static class EPLOtherUpdateExpression implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "@public @buseventtype create map schema MyEvent(a int, b int);\n" +
+                "inlined_class \"\"\"\n" +
+                "  public class Helper {\n" +
+                "    public static void swap(java.util.Map event) {\n" +
+                "      Object temp = event.get(\"a\");\n" +
+                "      event.put(\"a\", event.get(\"b\"));\n" +
+                "      event.put(\"b\", temp);\n" +
+                "    }\n" +
+                "  }\n" +
+                "\"\"\"\n" +
+                "update istream MyEvent as me set Helper.swap(me);\n" +
+                "@name('s0') select * from MyEvent;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventMap(CollectionUtil.buildMap("a", 1, "b", 10), "MyEvent");
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b".split(","), new Object[] {10, 1});
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherUpdateArrayElementBoxed implements RegressionExecution {
@@ -228,8 +253,6 @@ public class EPLOtherUpdateIStream {
                 "Failed to plan subquery number 1 querying MyMapTypeInv: Failed to validate filter expression 'theString=p3': Property named 'theString' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [update istream SupportBean set longPrimitive=(select p0 from MyMapTypeInv#lastevent where theString=p3)]");
             tryInvalidCompile(env, path, "update istream XYZ.GYH set a=1",
                 "Failed to resolve event type, named window or table by name 'XYZ.GYH' [update istream XYZ.GYH set a=1]");
-            tryInvalidCompile(env, path, "update istream SupportBean set 1",
-                "Missing property assignment expression in assignment number 0 [update istream SupportBean set 1]");
 
             env.undeployAll();
         }
