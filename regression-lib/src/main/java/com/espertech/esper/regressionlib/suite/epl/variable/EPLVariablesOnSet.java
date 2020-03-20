@@ -95,6 +95,12 @@ public class EPLVariablesOnSet {
                     "\"\"\"\n" +
                     "@name('s0') on SupportBean set Helper.swap(VARONE, VARTWO);\n";
             tryInvalidCompile(env, eplInvalid, "Failed to validate assignment expression 'Helper.swap(VARONE,VARTWO)': Assignment expression must receive a single variable value");
+
+            String eplConstant =
+                "import " + MyLocalVariable.class.getName() + ";\n" +
+                    "@name('var') create constant variable MyLocalVariable VAR = new MyLocalVariable(1, 10);\n" +
+                    "@name('s0') on SupportBean set VAR.reset();\n";
+            tryInvalidCompile(env, eplConstant, "Failed to validate assignment expression 'VAR.reset()': Variable by name 'VAR' is declared constant and may not be set");
         }
 
         private void assertVariable(RegressionEnvironment env, int aExpected, int bExpected) {
@@ -734,6 +740,10 @@ public class EPLVariablesOnSet {
         public MyLocalVariable(int a, int b) {
             this.a = a;
             this.b = b;
+        }
+
+        public void reset() {
+            throw new UnsupportedOperationException("reset not supported");
         }
     }
 }

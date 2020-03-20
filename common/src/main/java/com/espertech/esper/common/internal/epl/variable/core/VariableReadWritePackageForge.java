@@ -74,10 +74,6 @@ public class VariableReadWritePackageForge {
                     }
 
                     variables[count] = variableMetadata;
-
-                    if (variableMetadata.isConstant()) {
-                        throw new ExprValidationException("Variable by name '" + variableName + "' is declared constant and may not be set");
-                    }
                     Class expressionType = assignment.getRhs().getForge().getEvaluationType();
 
                     if (assignment.getLhs() instanceof ExprAssignmentLHSIdent) {
@@ -152,8 +148,6 @@ public class VariableReadWritePackageForge {
                     } else {
                         throw new IllegalStateException("Unrecognized left hand side assignment " + assignment.getLhs());
                     }
-
-                    count++;
                 } else if (assignmentDesc instanceof ExprAssignmentCurly) {
                     ExprAssignmentCurly curly = (ExprAssignmentCurly) assignmentDesc;
                     if (curly.getExpression() instanceof ExprVariableNode) {
@@ -167,11 +161,14 @@ public class VariableReadWritePackageForge {
                     Map.Entry<String, VariableMetaData> variable = variableVisitor.getVariableNames().entrySet().iterator().next();
                     variables[count] = variable.getValue();
                     writers[count] = new VariableTriggerWriteCurlyForge(variable.getKey(), curly.getExpression().getForge());
-                    count++;
                 } else {
                     throw new IllegalStateException("Unrecognized assignment expression " + assignmentDesc);
                 }
 
+                if (variables[count].isConstant()) {
+                    throw new ExprValidationException("Variable by name '" + variables[count].getVariableName() + "' is declared constant and may not be set");
+                }
+                count++;
             } catch (ExprValidationException ex) {
                 throw new ExprValidationException("Failed to validate assignment expression '" +
                     ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignmentDesc.getOriginalExpression()) +
