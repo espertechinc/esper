@@ -69,7 +69,7 @@ public class DeployerHelperInitStatement {
         try {
             int statementId = statementIdFirstStatement;
             for (StatementProvider statement : statementResources) {
-                StatementLightweight lightweight = initStatement(recovery, moduleName, statement, deploymentId, statementId, moduleEPLObjects.getEventTypeResolver(), moduleIncidentals, statementNameResolverRuntime, userObjectResolverRuntime, services);
+                StatementLightweight lightweight = initStatement(recovery, moduleName, statement, deploymentId, statementId, moduleEPLObjects.getEventTypeResolver(), moduleIncidentals, statementNameResolverRuntime, userObjectResolverRuntime, moduleProvider.getClassLoader(), services);
                 lightweights.add(lightweight);
                 statementId++;
 
@@ -90,7 +90,7 @@ public class DeployerHelperInitStatement {
         return new DeployerModuleStatementLightweights(statementIdFirstStatement, lightweights, substitutionParameters);
     }
 
-    private static StatementLightweight initStatement(boolean recovery, String moduleName, StatementProvider statementProvider, String deploymentId, int statementId, EventTypeResolver eventTypeResolver, ModuleIncidentals moduleIncidentals, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, EPServicesContext services) {
+    private static StatementLightweight initStatement(boolean recovery, String moduleName, StatementProvider statementProvider, String deploymentId, int statementId, EventTypeResolver eventTypeResolver, ModuleIncidentals moduleIncidentals, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, ClassLoader moduleClassLoader, EPServicesContext services) {
         StatementInformationalsRuntime informationals = statementProvider.getInformationals();
 
         // set instrumentation unless already provided
@@ -135,7 +135,18 @@ public class DeployerHelperInitStatement {
             eventTypeResolver, filterSpecActivatableRegistry, filterSharedBoolExprRegistery, filterSharedLookupableRegistery, moduleIncidentals,
             recovery, statementResourceService, statementResultService, services);
 
-        statementProvider.initialize(epInitServices);
+        if (!services.getEpServicesHA().getRuntimeExtensionServices().isHAEnabled()) {
+            statementProvider.initialize(epInitServices);
+        } else {
+            // for HA we set the context classloader as state may be loaded considering the module provider's classloader
+            ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(moduleClassLoader);
+                statementProvider.initialize(epInitServices);
+            } finally {
+                Thread.currentThread().setContextClassLoader(originalClassLoader);
+            }
+        }
 
         MultiMatchHandler multiMatchHandler = services.getMultiMatchHandlerFactory().make(informationals.isHasSubquery(), informationals.isNeedDedup());
 

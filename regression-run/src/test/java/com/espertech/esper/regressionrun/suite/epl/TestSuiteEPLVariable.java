@@ -60,12 +60,16 @@ public class TestSuiteEPLVariable extends TestCase {
         RegressionRunner.run(session, EPLVariablesOutputRate.executions());
     }
 
+    public void testEPLVariablesInlinedClass() {
+        RegressionRunner.run(session, EPLVariablesInlinedClass.executions());
+    }
+
     private RegressionSession session;
 
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class, SupportBean_S2.class,
             SupportBean_A.class, SupportBean_B.class, SupportMarketDataBean.class, EPLVariablesUse.MyVariableCustomEvent.class,
-            SupportEventWithIntArray.class}) {
+            SupportEventWithIntArray.class, SupportBeanNumeric.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

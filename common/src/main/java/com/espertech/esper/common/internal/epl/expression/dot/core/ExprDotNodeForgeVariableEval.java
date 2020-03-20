@@ -46,12 +46,17 @@ public class ExprDotNodeForgeVariableEval {
         }
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(variableType, "result", cast(variableType, exprDotMethod(variableReader, "getValue")))
-                .apply(InstrumentationCode.instblock(classScope, "qExprDotChain", typeInformation, ref("result"), constant(forge.getChainForge().length)));
+            .declareVar(variableType, "result", cast(variableType, exprDotMethod(variableReader, "getValue")))
+            .apply(InstrumentationCode.instblock(classScope, "qExprDotChain", typeInformation, ref("result"), constant(forge.getChainForge().length)));
         CodegenExpression chain = ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, classScope, ref("result"), variableType, forge.getChainForge(), forge.getResultWrapLambda());
-        block.declareVar(forge.getEvaluationType(), "returned", chain)
+        if (forge.getEvaluationType() != void.class) {
+            block.declareVar(forge.getEvaluationType(), "returned", chain)
                 .apply(InstrumentationCode.instblock(classScope, "aExprDotChain"))
                 .methodReturn(ref("returned"));
+        } else {
+            block.expression(chain)
+                .apply(InstrumentationCode.instblock(classScope, "aExprDotChain"));
+        }
         return localMethod(methodNode);
     }
 }

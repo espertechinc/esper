@@ -45,12 +45,21 @@ public class ExprDotMethodForgeNoDuckEvalUnderlying extends ExprDotMethodForgeNo
 
     public static CodegenExpression codegenUnderlying(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class underlyingType = forge.getMethod().getDeclaringClass();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(forge.getMethod().getReturnType()), ExprDotMethodForgeNoDuckEvalUnderlying.class, codegenClassScope).addParam(EventBean.class, "target");
+        Class returnType = forge.getMethod().getReturnType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(returnType), ExprDotMethodForgeNoDuckEvalUnderlying.class, codegenClassScope).addParam(EventBean.class, "target");
 
-        methodNode.getBlock()
+        CodegenExpression eval = ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("underlying"), innerType, methodNode, exprSymbol, codegenClassScope);
+        if (returnType != void.class) {
+            methodNode.getBlock()
                 .ifRefNullReturnNull("target")
                 .declareVar(underlyingType, "underlying", cast(underlyingType, exprDotMethod(ref("target"), "getUnderlying")))
-                .methodReturn(ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("underlying"), innerType, methodNode, exprSymbol, codegenClassScope));
+                .methodReturn(eval);
+        } else {
+            methodNode.getBlock()
+                .ifRefNotNull("target")
+                .declareVar(underlyingType, "underlying", cast(underlyingType, exprDotMethod(ref("target"), "getUnderlying")))
+                .expression(eval);
+        }
         return localMethod(methodNode, inner);
     }
 }

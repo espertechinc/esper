@@ -11,4 +11,5 @@
 package com.espertech.esper.common.internal.context.module;
 
 public interface RuntimeExtensionServices {
+    boolean isHAEnabled();
 }

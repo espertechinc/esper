@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClass;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
@@ -51,7 +52,7 @@ public class VariableUtil {
             VariableMetaData meta;
             try {
                 ClassIdentifierWArray variableType = ClassIdentifierWArray.parseSODA(entry.getValue().getType());
-                meta = getTypeInfo(variableName, null, NameAccessModifier.PRECONFIGURED, null, null, null, variableType, true, entry.getValue().isConstant(), entry.getValue().isConstant(), entry.getValue().getInitializationValue(), classpathImportService, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
+                meta = getTypeInfo(variableName, null, NameAccessModifier.PRECONFIGURED, null, null, null, variableType, true, entry.getValue().isConstant(), entry.getValue().isConstant(), entry.getValue().getInitializationValue(), classpathImportService, ClasspathExtensionClassEmpty.INSTANCE, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
             } catch (Throwable t) {
                 throw new ConfigurationException("Error configuring variable '" + variableName + "': " + t.getMessage(), t);
             }
@@ -60,9 +61,9 @@ public class VariableUtil {
         }
     }
 
-    public static VariableMetaData compileVariable(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalModuleName, ClassIdentifierWArray variableType, boolean isConstant, boolean compileTimeConstant, Object initializationValue, ClasspathImportService classpathImportService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, BeanEventTypeFactory beanEventTypeFactory) throws ExprValidationException {
+    public static VariableMetaData compileVariable(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalModuleName, ClassIdentifierWArray variableType, boolean isConstant, boolean compileTimeConstant, Object initializationValue, ClasspathImportService classpathImportService, ClasspathExtensionClass classpathExtension, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, BeanEventTypeFactory beanEventTypeFactory) throws ExprValidationException {
         try {
-            return getTypeInfo(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalModuleName, variableType, false, isConstant, compileTimeConstant, initializationValue, classpathImportService, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
+            return getTypeInfo(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalModuleName, variableType, false, isConstant, compileTimeConstant, initializationValue, classpathImportService, classpathExtension, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
         } catch (VariableTypeException t) {
             throw new ExprValidationException(t.getMessage(), t);
         } catch (Throwable t) {
@@ -96,6 +97,7 @@ public class VariableUtil {
                                                 boolean compileTimeConstant,
                                                 Object valueAsProvided,
                                                 ClasspathImportService classpathImportService,
+                                                ClasspathExtensionClass classpathExtension,
                                                 EventBeanTypedEventFactory eventBeanTypedEventFactory,
                                                 EventTypeRepositoryImpl eventTypeRepositoryPreconfigured,
                                                 BeanEventTypeFactory beanEventTypeFactory) throws VariableTypeException {
@@ -119,7 +121,7 @@ public class VariableUtil {
             ClasspathImportException lastException = null;
             if (type == null) {
                 try {
-                    type = classpathImportService.resolveClass(variableTypeWArray.getClassIdentifier(), false, ClasspathExtensionClassEmpty.INSTANCE);
+                    type = classpathImportService.resolveClass(variableTypeWArray.getClassIdentifier(), false, classpathExtension);
                     type = JavaClassHelper.getArrayType(type, variableTypeWArray.getArrayDimensions());
                 } catch (ClasspathImportException e) {
                     log.debug("Not found '" + type + "': " + e.getMessage(), e);

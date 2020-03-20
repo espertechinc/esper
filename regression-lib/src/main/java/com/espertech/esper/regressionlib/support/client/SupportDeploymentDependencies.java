@@ -29,9 +29,9 @@ public class SupportDeploymentDependencies {
         assertTrue(provided.getDependencies().isEmpty());
     }
 
-    public static void assertSingle(RegressionEnvironment env, String deployedStmtConsume, String deployedStmtProvide, EPObjectType objectType, String objectName) {
-        String deploymentIdConsume = env.deploymentId(deployedStmtConsume);
-        String deploymentIdProvide = env.deploymentId(deployedStmtProvide);
+    public static void assertSingle(RegressionEnvironment env, String deployedStmtNameConsume, String deployedStmtNameProvide, EPObjectType objectType, String objectName) {
+        String deploymentIdConsume = env.deploymentId(deployedStmtNameConsume);
+        String deploymentIdProvide = env.deploymentId(deployedStmtNameProvide);
         EPDeploymentDependencyConsumed consumed = env.runtime().getDeploymentService().getDeploymentDependenciesConsumed(deploymentIdConsume);
         assertEqualsAnyOrder(new EPDeploymentDependencyConsumed.Item[]{new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, objectType, objectName)}, consumed.getDependencies().toArray());
         EPDeploymentDependencyProvided provided = env.runtime().getDeploymentService().getDeploymentDependenciesProvided(deploymentIdProvide);

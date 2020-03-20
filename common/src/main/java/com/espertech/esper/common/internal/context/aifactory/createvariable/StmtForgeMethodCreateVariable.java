@@ -101,7 +101,7 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         // Compile metadata
         boolean compileTimeConstant = createDesc.isConstant() && initialValueExpr != null && initialValueExpr.getForgeConstantType().isCompileTimeConstant();
         VariableMetaData metaData = VariableUtil.compileVariable(createDesc.getVariableName(), base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, createDesc.getVariableType(),
-                createDesc.isConstant(), compileTimeConstant, initialValue, services.getClasspathImportServiceCompileTime(), EventBeanTypedEventFactoryCompileTime.INSTANCE, services.getEventTypeRepositoryPreconfigured(), services.getBeanEventTypeFactoryPrivate());
+                createDesc.isConstant(), compileTimeConstant, initialValue, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension(), EventBeanTypedEventFactoryCompileTime.INSTANCE, services.getEventTypeRepositoryPreconfigured(), services.getBeanEventTypeFactoryPrivate());
 
         // Register variable
         services.getVariableCompileTimeRegistry().newVariable(metaData);
