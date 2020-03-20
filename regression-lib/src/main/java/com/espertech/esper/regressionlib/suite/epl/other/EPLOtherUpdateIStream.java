@@ -12,6 +12,8 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.json.minimaljson.JsonArray;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.soda.Expressions;
@@ -19,14 +21,12 @@ import com.espertech.esper.common.client.soda.UpdateClause;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.client.json.minimaljson.JsonArray;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanCopyMethod;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
@@ -72,8 +72,60 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateMapIndexProps());
         execs.add(new EPLOtherUpdateArrayElement());
         execs.add(new EPLOtherUpdateArrayElementBoxed());
+        execs.add(new EPLOtherUpdateArrayElementInvalid());
         execs.add(new EPLOtherUpdateExpression());
         return execs;
+    }
+
+    private static class EPLOtherUpdateArrayElementInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String eplSchema = "@name('create') create schema MySchema(doublearray double[primitive], intarray int[primitive], notAnArray int)";
+            env.compile(eplSchema, path);
+
+            // invalid property
+            tryInvalidCompile(env, path, "update istream MySchema set c1[0]=1",
+                "Failed to validate assignment expression 'c1[0]=1': Property 'c1[0]' is not available for write access");
+
+            // index expression is not Integer
+            tryInvalidCompile(env, path, "update istream MySchema set doublearray[null]=1",
+                "Failed to validate update assignment expression 'doublearray[null]': Array expression requires an Integer-typed dimension but received type 'null'");
+
+            // type incompatible cannot assign
+            tryInvalidCompile(env, path, "update istream MySchema set intarray[notAnArray]='x'",
+                "Failed to validate assignment expression 'intarray[notAnArray]=\"x\"': Invalid assignment of column '\"x\"' of type 'java.lang.String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
+
+            // not-an-array
+            tryInvalidCompile(env, path, "update istream MySchema set notAnArray[notAnArray]=1",
+                "Failed to validate update assignment expression 'notAnArray[notAnArray]': Property 'notAnArray' is not an array since its type is 'java.lang.Integer'");
+
+            // not found
+            tryInvalidCompile(env, path, "update istream MySchema set dummy[intPrimitive]=1",
+                "Failed to validate update assignment expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream");
+
+            path.clear();
+
+            // runtime-behavior for index-overflow and null-array and null-index and
+            String epl = "@name('create') @public @buseventtype create schema MySchema(doublearray double[primitive], indexvalue int, rhsvalue int);\n" +
+                "update istream MySchema set doublearray[indexvalue]=rhsvalue;\n";
+            env.compileDeploy(epl);
+
+            // index returned is too large
+            try {
+                env.sendEventMap(CollectionUtil.buildMap("doublearray", new double[3], "indexvalue", 10, "rhsvalue", 1), "MySchema");
+                fail();
+            } catch (RuntimeException ex) {
+                assertTrue(ex.getMessage().contains("Array length 3 less than index 10 for property 'doublearray'"));
+            }
+
+            // index returned null
+            env.sendEventMap(CollectionUtil.buildMap("doublearray", new double[3], "indexvalue", null, "rhsvalue", 1), "MySchema");
+
+            // rhs returned null for array-of-primitive
+            env.sendEventMap(CollectionUtil.buildMap("doublearray", new double[3], "indexvalue", 1, "rhsvalue", null), "MySchema");
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherUpdateExpression implements RegressionExecution {

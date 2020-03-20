@@ -119,13 +119,18 @@ public class VariableReadWritePackage {
                     written = arrayValue;
                     if (index != null) {
                         if (arrayValue != null) {
-                            if (index < Array.getLength(arrayValue)) {
+                            int len = Array.getLength(arrayValue);
+                            if (index < len) {
                                 Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, agentInstanceContext);
                                 if (writeDesc.getTypeWidener() != null) {
                                     value = writeDesc.getTypeWidener().widen(value);
                                 }
-                                Array.set(arrayValue, index, value);
+                                if (value != null || !arrayValue.getClass().getComponentType().isPrimitive()) {
+                                    Array.set(arrayValue, index, value);
+                                }
                                 variableService.write(variableNumber, agentInstanceId, arrayValue);
+                            } else {
+                                throw new EPException("Array length " + len + " less than index " + index + " for variable '" + writeDesc.getVariableName() + "'");
                             }
                         }
                     }

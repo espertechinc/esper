@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.util;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriter;
 import com.espertech.esper.common.internal.context.aifactory.update.InternalEventRouterWriterArrayElement;
@@ -179,8 +180,15 @@ public class InternalEventRouterPreprocessor {
                     Object arrayValue = theEvent.get(array.getPropertyName());
                     if (arrayValue != null) {
                         Integer index = (Integer) array.getIndexExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
-                        if (index < Array.getLength(arrayValue)) {
-                            Array.set(arrayValue, index, value);
+                        if (index != null) {
+                            int len = Array.getLength(arrayValue);
+                            if (index < len) {
+                                if (value != null || !arrayValue.getClass().getComponentType().isPrimitive()) {
+                                    Array.set(arrayValue, index, value);
+                                }
+                            } else {
+                                throw new EPException("Array length " + len + " less than index " + index + " for property '" + array.getPropertyName() + "'");
+                            }
                         }
                     }
                 } else if (special instanceof InternalEventRouterWriterCurly) {

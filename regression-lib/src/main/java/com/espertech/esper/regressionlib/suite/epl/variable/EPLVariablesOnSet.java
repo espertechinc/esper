@@ -122,48 +122,32 @@ public class EPLVariablesOnSet {
     private static class EPLVariableOnSetArrayInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplTable = "@name('create') create table MyInfra(doublearray double[primitive], intarray int[primitive], notAnArray int)";
-            env.compile(eplTable, path);
+            String eplVariables = "@name('create') create variable double[primitive] doublearray;\n" +
+                "create variable int[primitive] intarray;\n" +
+                "create variable int notAnArray;";
+            env.compile(eplVariables, path);
 
             // invalid property
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set c1[0]=1",
-                "Failed to validate assignment expression 'c1[0]=1': Property 'c1[0]' is not available for write access");
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set c('a')=1",
-                "Failed to validate assignment expression 'c('a')=1': Property 'c('a')' is not available for write access");
+            tryInvalidCompile(env, path, "on SupportBean set xxx[intPrimitive]=1d",
+                "Failed to validate update assignment expression 'xxx[intPrimitive]': Failed to resolve property 'xxx' to any stream");
 
             // index expression is not Integer
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set doublearray[null]=1",
+            tryInvalidCompile(env, path, "on SupportBean set doublearray[null]=1d",
                 "Failed to validate update assignment expression 'doublearray[null]': Array expression requires an Integer-typed dimension but received type 'null'");
 
             // type incompatible cannot assign
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]='x'",
-                "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment to property 'intarray' component type 'int' from expression returning 'java.lang.String'");
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]=1L",
-                "Failed to validate assignment expression 'intarray[intPrimitive]=1': Invalid assignment to property 'intarray' component type 'int' from expression returning 'long'");
+            tryInvalidCompile(env, path, "on SupportBean set intarray[intPrimitive]='x'",
+                "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment of column '\"x\"' of type 'java.lang.String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
 
             // not-an-array
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set notAnArray[intPrimitive]=1",
-                "Failed to validate update assignment expression 'notAnArray[intPrimitive]': Property 'notAnArray' is not an array since its type is 'java.lang.Integer'");
-
-            // not found
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set dummy[intPrimitive]=1",
-                "Failed to validate update assignment expression 'dummy[intPrimitive]': Failed to resolve property 'dummy' to any stream");
-
-            // property found in updating-event
-            tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive]);\n" +
-                    "on UpdateEvent update MyInfra set dummy[10]=1;\n",
-                "Failed to validate assignment expression 'dummy[10]=1': Property 'dummy[10]' is not available for write access");
-
-            tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive], position int);\n" +
-                    "on UpdateEvent update MyInfra set dummy[position]=1;\n",
-                "Failed to validate assignment expression 'dummy[position]=1': Property 'dummy' is not available for write access");
+            tryInvalidCompile(env, path, "on SupportBean set notAnArray[intPrimitive]=1",
+                "Failed to validate update assignment expression 'notAnArray[intPrimitive]': Variable 'notAnArray' is not an array");
 
             path.clear();
 
             // runtime-behavior for index-overflow and null-array and null-index and
-            String epl = "@name('create') create table MyInfra(doublearray double[primitive]);\n" +
-                "@priority(1) on SupportBean merge MyInfra when not matched then insert select new double[3] as doublearray;\n" +
-                "on SupportBean update MyInfra set doublearray[intBoxed]=doubleBoxed;\n";
+            String epl = "@name('create') create variable double[primitive] doublearray = new double[3];\n" +
+                "on SupportBean set doublearray[intBoxed]=doubleBoxed;\n";
             env.compileDeploy(epl);
 
             // index returned is too large
@@ -174,7 +158,7 @@ public class EPLVariablesOnSet {
                 env.sendEventBean(sb);
                 fail();
             } catch (RuntimeException ex) {
-                assertTrue(ex.getMessage().contains("Array length 3 less than index 10 for property 'doublearray'"));
+                assertTrue(ex.getMessage().contains("Array length 3 less than index 10 for variable 'doublearray'"));
             }
 
             // index returned null
