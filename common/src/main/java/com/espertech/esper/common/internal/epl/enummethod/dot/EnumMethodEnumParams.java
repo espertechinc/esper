@@ -112,4 +112,8 @@ public class EnumMethodEnumParams {
     public static final DotMethodFP[] SEQ_EQUALS_FP = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(0, "sequence", EPLExpressionParamType.ANY)),
     };
+
+    public static final DotMethodFP[] TOARRAY = new DotMethodFP[]{
+        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY),
+    };
 }

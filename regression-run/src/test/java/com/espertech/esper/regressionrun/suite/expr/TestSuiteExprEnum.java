@@ -144,6 +144,10 @@ public class TestSuiteExprEnum extends TestCase {
         RegressionRunner.run(session, ExprEnumWhere.executions());
     }
 
+    public void testExprEnumToArray() {
+        RegressionRunner.run(session, ExprEnumToArray.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean_ST0_Container.class, SupportBean.class, SupportBean_ST0_Container.class,
             SupportCollection.class, PersonSales.class, SupportBean_A.class,

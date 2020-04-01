@@ -39,11 +39,11 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // invalid lambda expression for non-lambda func
         epl = "select makeTest(x=>1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'makeTest()': Unexpected lambda-expression encountered as parameter to UDF or static method 'makeTest' [select makeTest(x=>1) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'makeTest()': Unrecognized lambda-expression encountered as parameter to UDF or static method 'makeTest' [select makeTest(x=>1) from SupportBean_ST0_Container]");
 
         // invalid lambda expression for non-lambda func
         epl = "select SupportBean_ST0_Container.makeTest(x=>1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'SupportBean_ST0_Container.makeTest()': Unexpected lambda-expression encountered as parameter to UDF or static method 'makeTest' [select SupportBean_ST0_Container.makeTest(x=>1) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'SupportBean_ST0_Container.makeTest()': Unrecognized lambda-expression encountered as parameter to UDF or static method 'makeTest' [select SupportBean_ST0_Container.makeTest(x=>1) from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.take('a') from SupportBean_ST0_Container";

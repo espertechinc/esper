@@ -45,7 +45,7 @@ public class ExprNodeUtilityResolve {
         boolean allConstants = true;
         for (ExprNode childNode : parameters) {
             if (!EnumMethodResolver.isEnumerationMethod(methodName, services.getClasspathImportServiceCompileTime()) && childNode instanceof ExprLambdaGoesNode) {
-                throw new ExprValidationException("Unexpected lambda-expression encountered as parameter to UDF or static method '" + methodName + "'");
+                throw new ExprValidationException("Unrecognized lambda-expression encountered as parameter to UDF or static method '" + methodName + "'");
             }
             if (childNode instanceof ExprWildcard) {
                 if (wildcardType == null || !allowWildcard) {

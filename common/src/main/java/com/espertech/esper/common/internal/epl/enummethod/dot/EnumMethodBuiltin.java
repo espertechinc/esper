@@ -56,7 +56,9 @@ public enum EnumMethodBuiltin {
     REVERSE("reverse", ExprDotForgeReverse.class, EnumMethodEnumParams.NOOP_REVERSE),
     NOOP("esperInternalNoop", ExprDotForgeNoOp.class, EnumMethodEnumParams.NOOP_REVERSE),
 
-    SEQUENCE_EQUAL("sequenceequal", ExprDotForgeSequenceEqual.class, EnumMethodEnumParams.SEQ_EQUALS_FP);
+    SEQUENCE_EQUAL("sequenceequal", ExprDotForgeSequenceEqual.class, EnumMethodEnumParams.SEQ_EQUALS_FP),
+
+    TOARRAY("toArray", ExprDotForgeToArray.class, EnumMethodEnumParams.TOARRAY);
 
     private final String nameCamel;
     private final EnumMethodEnum enumMethodEnum;
