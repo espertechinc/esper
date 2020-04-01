@@ -94,7 +94,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).build();
 
         for (OnTriggerSetAssignment assignment : updateSpec.getAssignments()) {
-            ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
+            ExprNodeUtilityValidate.validateAssignment(false, ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext);
         }
         if (updateSpec.getOptionalWhereClause() != null) {
             ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.WHERE, updateSpec.getOptionalWhereClause(), validationContext);

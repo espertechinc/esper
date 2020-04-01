@@ -135,7 +135,7 @@ public class VariableUtil {
             }
             if (variableTypeWArray.getArrayDimensions() > 0 && eventType != null) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                        variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array type", lastException);
+                        variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array type as it is an event type", lastException);
             }
         } else {
             if (variableTypeWArray.getArrayDimensions() > 0) {

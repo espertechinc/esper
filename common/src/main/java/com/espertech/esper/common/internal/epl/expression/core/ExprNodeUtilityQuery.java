@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.*;
 
@@ -237,29 +238,29 @@ public class ExprNodeUtilityQuery {
         return false;
     }
 
-    public static List<ExprNode> collectChainParameters(List<ExprChainedSpec> chainSpec) {
+    public static List<ExprNode> collectChainParameters(List<Chainable> chainSpec) {
         List<ExprNode> result = new ArrayList<>();
-        for (ExprChainedSpec chainElement : chainSpec) {
-            result.addAll(chainElement.getParameters());
+        for (Chainable chainElement : chainSpec) {
+            chainElement.addParametersTo(result);
         }
         return result;
     }
 
-    public static void acceptChain(ExprNodeVisitor visitor, List<ExprChainedSpec> chainSpec) {
-        for (ExprChainedSpec chain : chainSpec) {
-            acceptParams(visitor, chain.getParameters());
+    public static void acceptChain(ExprNodeVisitor visitor, List<Chainable> chainSpec) {
+        for (Chainable chain : chainSpec) {
+            chain.accept(visitor);
         }
     }
 
-    public static void acceptChain(ExprNodeVisitorWithParent visitor, List<ExprChainedSpec> chainSpec) {
-        for (ExprChainedSpec chain : chainSpec) {
-            acceptParams(visitor, chain.getParameters());
+    public static void acceptChain(ExprNodeVisitorWithParent visitor, List<Chainable> chainSpec) {
+        for (Chainable chain : chainSpec) {
+            chain.accept(visitor);
         }
     }
 
-    public static void acceptChain(ExprNodeVisitorWithParent visitor, List<ExprChainedSpec> chainSpec, ExprNode parent) {
-        for (ExprChainedSpec chain : chainSpec) {
-            acceptParams(visitor, chain.getParameters(), parent);
+    public static void acceptChain(ExprNodeVisitorWithParent visitor, List<Chainable> chainSpec, ExprNode parent) {
+        for (Chainable chain : chainSpec) {
+            chain.accept(visitor, parent);
         }
     }
 

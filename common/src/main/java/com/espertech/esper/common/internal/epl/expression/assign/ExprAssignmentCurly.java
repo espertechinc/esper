@@ -32,7 +32,7 @@ public class ExprAssignmentCurly extends ExprAssignment {
         return expression;
     }
 
-    public void validate(ExprNodeOrigin origin, ExprValidationContext validationContext, boolean allowRHSAggregation) throws ExprValidationException {
+    public void validate(ExprNodeOrigin origin, ExprValidationContext validationContext) throws ExprValidationException {
         expression = getValidatedSubtree(origin, expression, validationContext);
         EPStatementStartMethodHelperValidate.validateNoAggregations(expression, VALIDATION_AGG_MSG);
     }

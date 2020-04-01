@@ -95,7 +95,7 @@ public class OnTriggerPlanValidator {
             ExprValidationContext validationContext = new ExprValidationContextBuilder(assignmentTypeService, base.getStatementRawInfo(), services)
                     .withAllowBindingConsumption(true).build();
             for (OnTriggerSetAssignment assignment : updateDesc.getAssignments()) {
-                ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
+                ExprNodeUtilityValidate.validateAssignment(false, ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext);
             }
         }
         if (onTriggerDesc instanceof OnTriggerMergeDesc) {
@@ -200,7 +200,7 @@ public class OnTriggerPlanValidator {
                     for (OnTriggerSetAssignment assignment : update.getAssignments()) {
                         ExprValidationContext validationContext = new ExprValidationContextBuilder(assignmentStreamTypeSvc, statementRawInfo, services)
                             .withAllowBindingConsumption(true).withAllowTableAggReset(true).build();
-                        ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
+                        ExprNodeUtilityValidate.validateAssignment(false, ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext);
                     }
                 } else if (item instanceof OnTriggerMergeActionInsert) {
                     OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) item;

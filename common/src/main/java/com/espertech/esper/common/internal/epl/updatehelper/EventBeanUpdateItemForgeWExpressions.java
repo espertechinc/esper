@@ -11,13 +11,12 @@
 package com.espertech.esper.common.internal.epl.updatehelper;
 
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.epl.expression.core.ExprArrayElementIdentNodeExpressions;
 
 public class EventBeanUpdateItemForgeWExpressions {
     private final CodegenExpression rhsExpression;
-    private final ExprArrayElementIdentNodeExpressions optionalArrayExpressions;
+    private final EventBeanUpdateItemArrayExpressions optionalArrayExpressions;
 
-    public EventBeanUpdateItemForgeWExpressions(CodegenExpression rhsExpression, ExprArrayElementIdentNodeExpressions optionalArrayExpressions) {
+    public EventBeanUpdateItemForgeWExpressions(CodegenExpression rhsExpression, EventBeanUpdateItemArrayExpressions optionalArrayExpressions) {
         this.rhsExpression = rhsExpression;
         this.optionalArrayExpressions = optionalArrayExpressions;
     }
@@ -26,7 +25,7 @@ public class EventBeanUpdateItemForgeWExpressions {
         return rhsExpression;
     }
 
-    public ExprArrayElementIdentNodeExpressions getOptionalArrayExpressions() {
+    public EventBeanUpdateItemArrayExpressions getOptionalArrayExpressions() {
         return optionalArrayExpressions;
     }
 }

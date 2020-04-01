@@ -375,7 +375,7 @@ public class ResultSetOutputLimitCrontabWhen {
                 "Aggregation functions may not be used within update-set [select * from SupportMarketDataBean output when true then set myvardummy = sum(myvardummy)]");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when true then set 1",
-                "Failed to validate the output rate limiting clause: Missing variable assignment expression in assignment number 0 [select * from SupportMarketDataBean output when true then set 1]");
+                "Failed to validate the output rate limiting clause: Failed to validate assignment expression '1': Assignment expression must receive a single variable value");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when sum(price) > 0",
                 "Failed to validate output limit expression '(sum(price))>0': Property named 'price' is not valid in any stream [select * from SupportMarketDataBean output when sum(price) > 0]");

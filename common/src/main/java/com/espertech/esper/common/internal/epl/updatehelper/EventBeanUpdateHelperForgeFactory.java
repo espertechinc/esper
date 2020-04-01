@@ -19,10 +19,7 @@ import com.espertech.esper.common.internal.epl.expression.assign.*;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
-import com.espertech.esper.common.internal.event.core.EventBeanCopyMethodForge;
-import com.espertech.esper.common.internal.event.core.EventPropertyWriterSPI;
-import com.espertech.esper.common.internal.event.core.EventTypeSPI;
-import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.util.*;
 
 import java.util.ArrayList;
@@ -102,22 +99,22 @@ public class EventBeanUpdateHelperForgeFactory {
                     } else if (straight.getLhs() instanceof ExprAssignmentLHSArrayElement) {
                         // handle "property[expr] = value"
                         ExprAssignmentLHSArrayElement arrayElementLHS = (ExprAssignmentLHSArrayElement) straight.getLhs();
-                        ExprArrayElementForge arrayElement = arrayElementLHS.getArrayElement().getForge();
-                        if (arrayElement instanceof ExprArrayElementForgeVariable) {
-                            throw new ExprValidationException("Only property assignments are allowed as part update");
-                        }
-                        ExprArrayElementForgeProperty prop = (ExprArrayElementForgeProperty) arrayElement;
                         String arrayPropertyName = arrayElementLHS.getIdent();
                         ExprNode rhs = straight.getRhs();
                         Class evaluationType = rhs.getForge().getEvaluationType();
-                        Class componentType = arrayElement.getComponentType();
+                        Class propertyType = eventTypeSPI.getPropertyType(arrayPropertyName);
+                        if (!eventTypeSPI.isProperty(arrayPropertyName)) {
+                            throw new ExprValidationException("Property '" + arrayPropertyName + "' could not be found");
+                        }
+                        if (propertyType == null || !propertyType.isArray()) {
+                            throw new ExprValidationException("Property '" + arrayPropertyName + "' is not an array");
+                        }
+                        EventPropertyGetterSPI getter = eventTypeSPI.getGetterSPI(arrayPropertyName);
+                        Class componentType = propertyType.getComponentType();
                         if (!JavaClassHelper.isAssignmentCompatible(evaluationType, componentType)) {
                             throw new ExprValidationException("Invalid assignment to property '" +
                                 arrayPropertyName + "' component type '" + getClassNameFullyQualPretty(componentType) +
                                 "' from expression returning '" + getClassNameFullyQualPretty(evaluationType) + "'");
-                        }
-                        if (prop.getStreamNum() != 0) {
-                            throw new ExprValidationException("Property '" + arrayPropertyName + "' is not available for write access");
                         }
 
                         TypeWidenerSPI widener;
@@ -128,7 +125,8 @@ public class EventBeanUpdateHelperForgeFactory {
                             throw new ExprValidationException(ex.getMessage(), ex);
                         }
 
-                        updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, widener, prop);
+                        EventBeanUpdateItemArray arrayInfo = new EventBeanUpdateItemArray(arrayPropertyName, arrayElementLHS.getIndexExpression(), propertyType, getter);
+                        updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, widener, arrayInfo);
                     } else {
                         throw new IllegalStateException("Unrecognized LHS assignment " + straight);
                     }

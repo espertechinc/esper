@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.compiler.internal.parse;
 
-import com.espertech.esper.common.internal.compile.stage1.spec.AnnotationDesc;
-import com.espertech.esper.common.internal.compile.stage1.spec.CreateTableColumn;
+import com.espertech.esper.common.internal.compile.stage1.spec.*;
+import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
 import org.antlr.v4.runtime.tree.Tree;
@@ -22,20 +21,20 @@ import java.util.*;
 
 public class ASTTableHelper {
 
-    public static List<CreateTableColumn> getColumns(List<EsperEPL2GrammarParser.CreateTableColumnContext> ctxs, Map<Tree, ExprNode> astExprNodeMap, ClasspathImportServiceCompileTime classpathImportService) {
+    public static List<CreateTableColumn> getColumns(List<EsperEPL2GrammarParser.CreateTableColumnContext> ctxs, Map<Tree, ExprNode> astExprNodeMap, StatementSpecMapEnv mapEnv) {
         List<CreateTableColumn> cols = new ArrayList<CreateTableColumn>(ctxs.size());
         for (EsperEPL2GrammarParser.CreateTableColumnContext colctx : ctxs) {
-            cols.add(getColumn(colctx, astExprNodeMap, classpathImportService));
+            cols.add(getColumn(colctx, astExprNodeMap, mapEnv));
         }
         return cols;
     }
 
-    private static CreateTableColumn getColumn(EsperEPL2GrammarParser.CreateTableColumnContext ctx, Map<Tree, ExprNode> astExprNodeMap, ClasspathImportServiceCompileTime classpathImportService) {
+    private static CreateTableColumn getColumn(EsperEPL2GrammarParser.CreateTableColumnContext ctx, Map<Tree, ExprNode> astExprNodeMap, StatementSpecMapEnv mapEnv) {
 
         String columnName = ctx.n.getText();
 
         ExprNode optExpression = null;
-        if (ctx.builtinFunc() != null || ctx.libFunction() != null) {
+        if (ctx.builtinFunc() != null || ctx.chainable() != null) {
             optExpression = ASTExprHelper.exprCollectSubNodes(ctx, 0, astExprNodeMap).get(0);
         }
 
@@ -54,9 +53,9 @@ public class ASTTableHelper {
 
         List<AnnotationDesc> annots = Collections.emptyList();
         if (ctx.annotationEnum() != null) {
-            annots = new ArrayList<AnnotationDesc>(ctx.annotationEnum().size());
+            annots = new ArrayList<>(ctx.annotationEnum().size());
             for (EsperEPL2GrammarParser.AnnotationEnumContext anctx : ctx.annotationEnum()) {
-                annots.add(ASTAnnotationHelper.walk(anctx, classpathImportService));
+                annots.add(ASTAnnotationHelper.walk(anctx, mapEnv.getClasspathImportService()));
             }
         }
         if (ctx.typeExpressionAnnotation() != null) {

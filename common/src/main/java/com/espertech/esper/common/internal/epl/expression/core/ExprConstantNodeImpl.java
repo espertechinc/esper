@@ -31,14 +31,11 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
     private Object value;
     private final Class clazz;
     private EnumValue enumValue;
+    private final String stringConstantWhenProvided;
 
-    /**
-     * Ctor.
-     *
-     * @param value is the constant's value.
-     */
-    public ExprConstantNodeImpl(Object value) {
+    public ExprConstantNodeImpl(Object value, String stringConstantWhenProvided) {
         this.value = value;
+        this.stringConstantWhenProvided = stringConstantWhenProvided;
         if (value == null) {
             clazz = null;
         } else {
@@ -46,7 +43,12 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         }
     }
 
+    public ExprConstantNodeImpl(Object value) {
+        this(value, (String) null);
+    }
+
     public ExprConstantNodeImpl(EnumValue enumValue) {
+        this.stringConstantWhenProvided = null;
         this.enumValue = enumValue;
         this.clazz = enumValue.getEnumField().getType();
         try {
@@ -56,17 +58,8 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         }
     }
 
-    public ExprForgeConstantType getForgeConstantType() {
-        return ExprForgeConstantType.COMPILETIMECONST;
-    }
-
-    /**
-     * Ctor.
-     *
-     * @param value     is the constant's value.
-     * @param valueType is the constant's value type.
-     */
     public ExprConstantNodeImpl(Object value, Class valueType) {
+        this.stringConstantWhenProvided = null;
         this.value = value;
         if (value == null) {
             clazz = valueType;
@@ -83,6 +76,11 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
     public ExprConstantNodeImpl(Class clazz) {
         this.clazz = JavaClassHelper.getBoxedType(clazz);
         this.value = null;
+        this.stringConstantWhenProvided = null;
+    }
+
+    public ExprForgeConstantType getForgeConstantType() {
+        return ExprForgeConstantType.COMPILETIMECONST;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -95,6 +93,10 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
 
     public ExprForge getForge() {
         return this;
+    }
+
+    public String getStringConstantWhenProvided() {
+        return stringConstantWhenProvided;
     }
 
     public ExprNodeRenderable getForgeRenderable() {

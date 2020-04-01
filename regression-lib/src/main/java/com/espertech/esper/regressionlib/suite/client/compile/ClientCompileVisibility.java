@@ -341,7 +341,7 @@ public class ClientCompileVisibility {
         tryInvalidCompile(env, path, "into table MyTable select count(*) as c from SupportBean",
             "Invalid into-table clause: Failed to find table by name 'MyTable'");
         tryInvalidCompile(env, path, "select MyExpr() from SupportBean",
-            "Failed to validate select-clause expression 'MyExpr': Unknown single-row function, expression declaration, script or aggregation function named 'MyExpr' could not be resolved");
+            "Failed to validate select-clause expression 'MyExpr()': Unknown single-row function, expression declaration, script or aggregation function named 'MyExpr' could not be resolved");
         tryInvalidCompile(env, path, "select myscript(1) from SupportBean",
             "Failed to validate select-clause expression 'myscript(1)': Unknown single-row function, aggregation function or mapped or indexed property named 'myscript' could not be resolved");
         tryInvalidCompile(env, path, "select MyClass.doIt() from SupportBean",

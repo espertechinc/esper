@@ -258,7 +258,7 @@ public class EPLVariablesUse {
             tryOperator(env, path, "intBoxed in (var_ints, var_intstwo)", new Object[][]{{11, false}, {10, true}, {9, true}, {8, true}});
 
             tryInvalidCompile(env, "create constant variable SupportBean[] var_beans",
-                "Cannot create variable 'var_beans', type 'SupportBean' cannot be declared as an array type [create constant variable SupportBean[] var_beans]");
+                "Cannot create variable 'var_beans', type 'SupportBean' cannot be declared as an array type as it is an event type [create constant variable SupportBean[] var_beans]");
 
             // test array of primitives
             env.compileDeploy("@name('s0') create variable byte[] myBytesBoxed");

@@ -84,11 +84,6 @@ public class ExprClassForEPLObjects {
                 "create schema MyEvent as (field1 MyEventBean)\n";
             tryInvalidCompile(env, eplPropertyType, "Nestable type configuration encountered an unexpected property type name");
 
-            // test variable
-            String eplVariable = escapeClass("public class MyVariable {}") +
-                "create variable MyVariable var\n";
-            tryInvalidCompile(env, eplVariable, "Cannot create variable 'var', type 'MyVariable' is not a recognized type");
-
             String eplNamedWindow = escapeClass("public class MyType {}") +
                 "create window MyWindow(myfield MyType)\n";
             tryInvalidCompile(env, eplNamedWindow, "Nestable type configuration encountered an unexpected property type name");

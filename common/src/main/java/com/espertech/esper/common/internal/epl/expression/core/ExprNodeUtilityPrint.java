@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableArray;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,27 +139,39 @@ public class ExprNodeUtilityPrint {
         buffer.append(")");
     }
 
-    public static void toExpressionString(List<ExprChainedSpec> chainSpec, StringWriter buffer, boolean prefixDot, String functionName) {
+    public static void toExpressionString(List<Chainable> chainSpec, StringWriter buffer, boolean prefixDot, String functionName) {
         String delimiterOuter = "";
         if (prefixDot) {
             delimiterOuter = ".";
         }
-        boolean isFirst = true;
-        for (ExprChainedSpec element : chainSpec) {
-            buffer.append(delimiterOuter);
-            if (functionName != null) {
-                buffer.append(functionName);
+        for (Chainable element : chainSpec) {
+            if (element.isDistinct()) {
+                buffer.append("distinct ");
+            }
+
+            if (element instanceof ChainableArray) {
+                ChainableArray array = (ChainableArray) element;
+                buffer.append("[");
+                toExpressionStringParameterList(array.getIndexes(), buffer);
+                buffer.append("]");
             } else {
-                buffer.append(element.getName());
-            }
+                buffer.append(delimiterOuter);
+                if (functionName != null) {
+                    buffer.append(functionName);
+                } else {
+                    String name = element.getRootNameOrEmptyString();
+                    buffer.append(name);
+                }
 
-            // the first item without dot-prefix and empty parameters should not be appended with parenthesis
-            if (!isFirst || prefixDot || !element.getParameters().isEmpty()) {
-                toExpressionStringIncludeParen(element.getParameters(), buffer);
+                if (element instanceof ChainableCall) {
+                    ChainableCall call = (ChainableCall) element;
+                    toExpressionStringIncludeParen(call.getParameters(), buffer);
+                }
             }
-
+            if (element.isOptional()) {
+                buffer.append("?");
+            }
             delimiterOuter = ".";
-            isFirst = false;
         }
     }
 }

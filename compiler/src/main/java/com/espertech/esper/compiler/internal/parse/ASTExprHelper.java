@@ -132,8 +132,8 @@ public class ASTExprHelper {
         List<OnTriggerSetAssignment> assignments = new ArrayList<OnTriggerSetAssignment>(ctx.onSetAssignment().size());
         for (EsperEPL2GrammarParser.OnSetAssignmentContext assign : ctxs) {
             ExprNode childEvalNode;
-            if (assign.eventProperty() != null) {
-                ExprNode prop = ASTExprHelper.exprCollectSubNodes(assign.eventProperty(), 0, astExprNodeMap).get(0);
+            if (assign.chainable() != null) {
+                ExprNode prop = ASTExprHelper.exprCollectSubNodes(assign.chainable(), 0, astExprNodeMap).get(0);
                 ExprNode value = ASTExprHelper.exprCollectSubNodes(assign.expression(), 0, astExprNodeMap).get(0);
                 ExprEqualsNode equals = new ExprEqualsNodeImpl(false, false);
                 equals.addChildNode(prop);

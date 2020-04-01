@@ -17,7 +17,6 @@ import com.espertech.esper.common.client.soda.GuardEnum;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapContext;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapEnv;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileException;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
@@ -27,9 +26,8 @@ import com.espertech.esper.common.internal.epl.agg.access.linear.AggregationAcce
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionLinearAccessNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.method.*;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredHelper;
-import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.funcs.*;
@@ -40,10 +38,8 @@ import com.espertech.esper.common.internal.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.*;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNodeSubprop;
-import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNodeTopLevel;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimestampNode;
-import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNodeImpl;
 import com.espertech.esper.common.internal.epl.historical.database.core.HistoricalEventViewableDatabaseForgeFactory;
 import com.espertech.esper.common.internal.epl.pattern.and.EvalAndForgeNode;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
@@ -58,11 +54,6 @@ import com.espertech.esper.common.internal.epl.pattern.observer.EvalObserverForg
 import com.espertech.esper.common.internal.epl.pattern.or.EvalOrForgeNode;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFATypeEnum;
 import com.espertech.esper.common.internal.epl.rowrecog.expr.*;
-import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeUtil;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
-import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
 import com.espertech.esper.common.internal.type.*;
 import com.espertech.esper.common.internal.util.*;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarLexer;
@@ -80,6 +71,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.util.StringValue.unescapeBacktick;
+import static com.espertech.esper.compiler.internal.parse.ASTChainableHelper.processChainable;
 
 /**
  * Called during the walks of a EPL expression AST tree as specified in the grammar file.
@@ -280,10 +272,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (ctx.like != null && ctx.stringconstant() != null) {
             exprNode.addChildNode(new ExprConstantNodeImpl(ASTConstantHelper.parse(ctx.stringconstant())));
         }
-    }
-
-    public void exitLibFunction(EsperEPL2GrammarParser.LibFunctionContext ctx) {
-        ASTLibFunctionHelper.handleLibFunc(tokenStream, ctx, astExprNodeMap, plugInAggregations, expressionDeclarations, scriptExpressions, contextDescriptor, statementSpec, mapEnv);
     }
 
     public void exitMatchRecog(EsperEPL2GrammarParser.MatchRecogContext ctx) {
@@ -493,7 +481,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitWhereClause(EsperEPL2GrammarParser.WhereClauseContext ctx) {
         if (ctx.getParent().getRuleIndex() != EsperEPL2GrammarParser.RULE_subQueryExpr &&
-                ASTUtil.isRecursiveParentRule(ctx, WHERE_CLAUSE_WALK_EXCEPTIONS_RECURSIVE)) { // ignore pattern
+            ASTUtil.isRecursiveParentRule(ctx, WHERE_CLAUSE_WALK_EXCEPTIONS_RECURSIVE)) { // ignore pattern
             return;
         }
         if (astExprNodeMap.size() != 1) {
@@ -746,7 +734,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitConstant(EsperEPL2GrammarParser.ConstantContext ctx) {
-        ExprConstantNode constantNode = new ExprConstantNodeImpl(ASTConstantHelper.parse(ctx.getChild(0)));
+        String stringConstant = null;
+        if (ctx.stringconstant() != null) {
+            stringConstant = ctx.stringconstant().getText();
+        }
+        ExprConstantNode constantNode = new ExprConstantNodeImpl(ASTConstantHelper.parse(ctx.getChild(0)), stringConstant);
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(constantNode, ctx, astExprNodeMap);
     }
 
@@ -793,7 +785,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             raw = new SelectClauseElementWildcard();
         } else if (ctx.propertyStreamSelector() != null) {
             raw = new SelectClauseStreamRawSpec(ctx.propertyStreamSelector().s.getText(),
-                    ctx.propertyStreamSelector().i != null ? ctx.propertyStreamSelector().i.getText() : null);
+                ctx.propertyStreamSelector().i != null ? ctx.propertyStreamSelector().i.getText() : null);
         } else {
             ExprNode exprNode = ASTExprHelper.exprCollectSubNodes(ctx.expression(), 0, astExprNodeMap).get(0);
             String optionalName = ctx.keywordAllowedIdent() != null ? ctx.keywordAllowedIdent().getText() : null;
@@ -821,13 +813,13 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitSubstitutionCanChain(EsperEPL2GrammarParser.SubstitutionCanChainContext ctx) {
-        if (ctx.chainedFunction() == null) {
+        if (!ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
             return;
         }
         ExprSubstitutionNode substitutionNode = (ExprSubstitutionNode) astExprNodeMap.remove(ctx.substitution());
-        List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(ctx.chainedFunction().libFunctionNoClass(), astExprNodeMap);
+        List<Chainable> chainSpec = ASTChainSpecHelper.getChainables(ctx.chainableElements(), astExprNodeMap);
         ExprDotNode exprNode = new ExprDotNodeImpl(chainSpec, mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
+            mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
         exprNode.addChildNode(substitutionNode);
         astExprNodeMap.put(ctx, exprNode);
     }
@@ -1137,23 +1129,23 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitRowSubSelectExpression(EsperEPL2GrammarParser.RowSubSelectExpressionContext ctx) {
         StatementSpecRaw statementSpec = astStatementSpecMap.remove(ctx.subQueryExpr());
         ExprSubselectRowNode subselectNode = new ExprSubselectRowNode(statementSpec);
-        if (ctx.chainedFunction() != null) {
-            handleChainedFunction(ctx, ctx.chainedFunction(), subselectNode);
+        if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
+            handleChainedFunction(ctx, ctx.chainableElements(), subselectNode);
         } else {
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(subselectNode, ctx, astExprNodeMap);
         }
     }
 
     public void exitUnaryExpression(EsperEPL2GrammarParser.UnaryExpressionContext ctx) {
-        if (ctx.inner != null && ctx.chainedFunction() != null) {
-            handleChainedFunction(ctx, ctx.chainedFunction(), null);
+        if (ctx.inner != null && ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
+            handleChainedFunction(ctx, ctx.chainableElements(), null);
         }
         if (ctx.NEWKW() != null && ctx.newAssign() != null) {
             List<String> columnNames = new ArrayList<>();
             List<ExprNode> expressions = new ArrayList<>();
             List<EsperEPL2GrammarParser.NewAssignContext> assigns = ctx.newAssign();
             for (EsperEPL2GrammarParser.NewAssignContext assign : assigns) {
-                String property = ASTUtil.getPropertyName(assign.eventProperty(), 0);
+                String property = ASTUtil.getPropertyName(assign.chainable(), 0);
                 columnNames.add(property);
                 ExprNode expr;
                 if (assign.expression() != null) {
@@ -1173,13 +1165,13 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         }
         if (ctx.NEWKW() != null && ctx.classIdentifier() != null) {
             String classIdent = ASTUtil.unescapeClassIdent(ctx.classIdentifier());
-            int numArrayDimensions  = ctx.LBRACK().size();
+            int numArrayDimensions = ctx.LBRACK().size();
             ExprNode exprNode;
             ExprNode newNode = new ExprNewInstanceNode(classIdent, numArrayDimensions);
-            if (ctx.chainedFunction() != null) {
-                List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(ctx.chainedFunction().libFunctionNoClass(), astExprNodeMap);
+            if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
+                List<Chainable> chainSpec = ASTChainSpecHelper.getChainables(ctx.chainableElements(), astExprNodeMap);
                 ExprDotNode dotNode = new ExprDotNodeImpl(chainSpec, mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                        mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
+                    mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
                 dotNode.addChildNode(newNode);
                 exprNode = dotNode;
             } else {
@@ -1187,37 +1179,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             }
             ASTExprHelper.exprCollectAddSubNodes(newNode, ctx, astExprNodeMap);
             astExprNodeMap.put(ctx, exprNode);
-        }
-        if (ctx.b != null) {
-            // handle "variable[xxx]"
-            String tableName = ctx.b.getText();
-            ExprNode enclosingNode;
-            ExprNode exprNode;
-            if (ctx.chainedFunction() == null) {
-                if (mapEnv.getTableCompileTimeResolver().resolve(tableName) != null) {
-                    exprNode = new ExprTableAccessNodeTopLevel(tableName);
-                    enclosingNode = exprNode;
-                } else {
-                    enclosingNode = new ExprArrayElement(tableName);
-                    exprNode = enclosingNode;
-                }
-            } else {
-                List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(ctx.chainedFunction().libFunctionNoClass(), astExprNodeMap);
-                Pair<ExprTableAccessNode, List<ExprChainedSpec>> pair = ASTTableExprHelper.getTableExprChainable(mapEnv.getClasspathImportService(), plugInAggregations, tableName, chainSpec);
-                exprNode = pair.getFirst();
-                if (pair.getSecond().isEmpty()) {
-                    enclosingNode = exprNode;
-                } else {
-                    enclosingNode = new ExprDotNodeImpl(pair.getSecond(), mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                        mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
-                    enclosingNode.addChildNode(exprNode);
-                }
-            }
-            ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
-            astExprNodeMap.put(ctx, enclosingNode);
-            if (exprNode instanceof ExprTableAccessNode) {
-                statementSpec.getTableExpressions().add((ExprTableAccessNode) exprNode);
-            }
         }
     }
 
@@ -1290,116 +1251,14 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(mathNode, ctx, astExprNodeMap);
     }
 
-    public void exitEventProperty(EsperEPL2GrammarParser.EventPropertyContext ctx) {
+    public void exitChainable(EsperEPL2GrammarParser.ChainableContext ctx) {
         if (EVENT_PROPERTY_WALK_EXCEPTIONS_PARENT.contains(ctx.getParent().getRuleIndex())) {
             return;
         }
-
         if (ctx.getChildCount() == 0) {
             throw new IllegalStateException("Empty event property expression encountered");
         }
-
-        ExprNode exprNode;
-        String propertyName;
-
-        // The stream name may precede the event property name, but cannot be told apart from the property name:
-        //      s0.p1 could be a nested property, or could be stream 's0' and property 'p1'
-
-        // A single entry means this must be the property name.
-        // And a non-simple property means that it cannot be a stream name.
-
-        if (ctx.eventPropertyAtomic().size() == 1 || PropertyParserANTLR.isNestedPropertyWithNonSimpleLead(ctx)) {
-            propertyName = ctx.getText();
-            exprNode = new ExprIdentNodeImpl(propertyName);
-
-            EsperEPL2GrammarParser.EventPropertyAtomicContext first = ctx.eventPropertyAtomic().get(0);
-
-            // test table access expression
-            if (first.lb != null) {
-                String nameText = first.eventPropertyIdent().getText();
-                TableMetaData table = mapEnv.getTableCompileTimeResolver().resolve(nameText);
-                if (table != null) {
-                    ExprTableAccessNode tableNode;
-                    if (ctx.eventPropertyAtomic().size() == 1) {
-                        tableNode = new ExprTableAccessNodeTopLevel(table.getTableName());
-                    } else if (ctx.eventPropertyAtomic().size() == 2) {
-                        String column = ctx.eventPropertyAtomic().get(1).getText();
-                        tableNode = new ExprTableAccessNodeSubprop(table.getTableName(), column);
-                    } else {
-                        throw ASTWalkException.from("Invalid table expression '" + tokenStream.getText(ctx));
-                    }
-                    exprNode = tableNode;
-                    statementSpec.getTableExpressions().add(tableNode);
-                    ASTExprHelper.addOptionalNumber(tableNode, first.ni);
-                }
-            }
-
-            // test script
-            if (first.lp != null) {
-                String ident = ASTUtil.escapeDot(first.eventPropertyIdent().getText());
-                String key = StringValue.parseString(first.s.getText());
-                List<ExprNode> params = Collections.<ExprNode>singletonList(new ExprConstantNodeImpl(key));
-                ExprNodeScript scriptNode = ExprDeclaredHelper.getExistsScript(getDefaultDialect(), ident, params, scriptExpressions, mapEnv);
-                if (scriptNode != null) {
-                    exprNode = scriptNode;
-                }
-            }
-
-            Pair<ExprDeclaredNodeImpl, StatementSpecMapContext> found = ExprDeclaredHelper.getExistsDeclaredExpr(propertyName, Collections.<ExprNode>emptyList(), expressionDeclarations.getExpressions(), contextDescriptor, mapEnv);
-            if (found != null) {
-                exprNode = found.getFirst();
-                ASTLibFunctionHelper.addMapContext(statementSpec, found.getSecond());
-            }
-        } else {
-            // --> this is more then one child node, and the first child node is a simple property
-            // we may have a stream name in the first simple property, or a nested property
-            // i.e. 's0.p0' could mean that the event has a nested property to 's0' of name 'p0', or 's0' is the stream name
-            String leadingIdentifier = ctx.getChild(0).getChild(0).getText();
-            String streamOrNestedPropertyName = ASTUtil.escapeDot(leadingIdentifier);
-            propertyName = ASTUtil.getPropertyName(ctx, 2);
-
-            Pair<ExprTableAccessNode, ExprDotNode> tableNode = TableCompileTimeUtil.mapPropertyToTableNested(mapEnv.getTableCompileTimeResolver(), streamOrNestedPropertyName, propertyName);
-            VariableMetaData variableMetaData = mapEnv.getVariableCompileTimeResolver().resolve(leadingIdentifier);
-            if (tableNode != null) {
-                if (tableNode.getSecond() != null) {
-                    exprNode = tableNode.getSecond();
-                } else {
-                    exprNode = tableNode.getFirst();
-                }
-                statementSpec.getTableExpressions().add(tableNode.getFirst());
-            } else if (variableMetaData != null) {
-                exprNode = new ExprVariableNodeImpl(variableMetaData, propertyName);
-                String message = VariableUtil.checkVariableContextName(statementSpec.getOptionalContextName(), variableMetaData);
-                if (message != null) {
-                    throw ASTWalkException.from(message);
-                }
-                statementSpec.getReferencedVariables().add(variableMetaData.getVariableName());
-            } else if (contextDescriptor != null && contextDescriptor.getContextPropertyRegistry().isContextPropertyPrefix(streamOrNestedPropertyName)) {
-                exprNode = new ExprContextPropertyNodeImpl(propertyName);
-            } else {
-                exprNode = new ExprIdentNodeImpl(propertyName, streamOrNestedPropertyName);
-            }
-        }
-
-        // handle variable
-        VariableMetaData variableMetaData = mapEnv.getVariableCompileTimeResolver().resolve(propertyName);
-        if (variableMetaData != null) {
-            exprNode = new ExprVariableNodeImpl(variableMetaData, null);
-            String message = VariableUtil.checkVariableContextName(statementSpec.getOptionalContextName(), variableMetaData);
-            if (message != null) {
-                throw ASTWalkException.from(message);
-            }
-            statementSpec.getReferencedVariables().add(variableMetaData.getVariableName());
-        }
-
-        // handle table
-        ExprTableAccessNode table = ASTTableExprHelper.checkTableNameGetExprForProperty(mapEnv.getTableCompileTimeResolver(), propertyName);
-        if (table != null) {
-            exprNode = table;
-            statementSpec.getTableExpressions().add(table);
-        }
-
-        ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
+        processChainable(ctx, astExprNodeMap, contextDescriptor, mapEnv, statementSpec, expressionDeclarations, plugInAggregations, scriptExpressions);
     }
 
     public void exitOuterJoin(EsperEPL2GrammarParser.OuterJoinContext ctx) {
@@ -1425,7 +1284,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         // get subnodes representing the on-expression, if provided
         if (ctx.outerJoinIdent() != null) {
             List<EsperEPL2GrammarParser.OuterJoinIdentPairContext> pairs = ctx.outerJoinIdent().outerJoinIdentPair();
-            List<EsperEPL2GrammarParser.EventPropertyContext> props = pairs.get(0).eventProperty();
+            List<EsperEPL2GrammarParser.ChainableContext> props = pairs.get(0).chainable();
             left = validateOuterJoinGetIdentNode(ASTExprHelper.exprCollectSubNodes(props.get(0), 0, astExprNodeMap).get(0));
             right = validateOuterJoinGetIdentNode(ASTExprHelper.exprCollectSubNodes(props.get(1), 0, astExprNodeMap).get(0));
 
@@ -1433,7 +1292,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                 ArrayList<ExprIdentNode> addLeft = new ArrayList<>(pairs.size() - 1);
                 ArrayList<ExprIdentNode> addRight = new ArrayList<>(pairs.size() - 1);
                 for (int i = 1; i < pairs.size(); i++) {
-                    props = pairs.get(i).eventProperty();
+                    props = pairs.get(i).chainable();
                     ExprIdentNode moreLeft = validateOuterJoinGetIdentNode(ASTExprHelper.exprCollectSubNodes(props.get(0), 0, astExprNodeMap).get(0));
                     ExprIdentNode moreRight = validateOuterJoinGetIdentNode(ASTExprHelper.exprCollectSubNodes(props.get(1), 0, astExprNodeMap).get(0));
                     addLeft.add(moreLeft);
@@ -1551,9 +1410,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitArrayExpression(EsperEPL2GrammarParser.ArrayExpressionContext ctx) {
         ExprArrayNode arrayNode = new ExprArrayNode();
-        if (ctx.chainedFunction() != null) {
+        if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
             ASTExprHelper.exprCollectAddSubNodesExpressionCtx(arrayNode, ctx.expression(), astExprNodeMap);
-            handleChainedFunction(ctx, ctx.chainedFunction(), arrayNode);
+            handleChainedFunction(ctx, ctx.chainableElements(), arrayNode);
         } else {
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(arrayNode, ctx, astExprNodeMap);
         }
@@ -1744,8 +1603,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitBuiltin_currts(EsperEPL2GrammarParser.Builtin_currtsContext ctx) {
         ExprTimestampNode timeNode = new ExprTimestampNode();
-        if (ctx.chainedFunction() != null) {
-            handleChainedFunction(ctx, ctx.chainedFunction(), timeNode);
+        if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
+            handleChainedFunction(ctx, ctx.chainableElements(), timeNode);
         } else {
             astExprNodeMap.put(ctx, timeNode);
         }
@@ -1760,8 +1619,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         AggregationAccessorLinearType stateType = AggregationAccessorLinearType.fromString(ctx.firstLastWindowAggregation().q.getText());
         ExprNode expr = new ExprAggMultiFunctionLinearAccessNode(stateType);
         ASTExprHelper.exprCollectAddSubNodes(expr, ctx.firstLastWindowAggregation().expressionListWithNamed(), astExprNodeMap);
-        if (ctx.firstLastWindowAggregation().chainedFunction() != null) {
-            handleChainedFunction(ctx, ctx.firstLastWindowAggregation().chainedFunction(), expr);
+        if (ASTChainSpecHelper.hasChain(ctx.firstLastWindowAggregation().chainableElements())) {
+            handleChainedFunction(ctx, ctx.firstLastWindowAggregation().chainableElements(), expr);
         } else {
             astExprNodeMap.put(ctx, expr);
         }
@@ -1775,10 +1634,10 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitBuiltin_cast(EsperEPL2GrammarParser.Builtin_castContext ctx) {
         ClassIdentifierWArray classIdentifierWArray = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
         ExprCastNode castNode = new ExprCastNode(classIdentifierWArray);
-        if (ctx.chainedFunction() != null) {
+        if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
             ASTExprHelper.exprCollectAddSubNodes(castNode, ctx.expression(), astExprNodeMap);
             ASTExprHelper.exprCollectAddSingle(castNode, ctx.expressionNamedParameter(), astExprNodeMap);
-            handleChainedFunction(ctx, ctx.chainedFunction(), castNode);
+            handleChainedFunction(ctx, ctx.chainableElements(), castNode);
         } else {
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(castNode, ctx, astExprNodeMap);
         }
@@ -1791,9 +1650,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitBuiltin_prev(EsperEPL2GrammarParser.Builtin_prevContext ctx) {
         ExprPreviousNode previousNode = new ExprPreviousNode(ExprPreviousNodePreviousType.PREV);
-        if (ctx.chainedFunction() != null) {
+        if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
             ASTExprHelper.exprCollectAddSubNodesExpressionCtx(previousNode, ctx.expression(), astExprNodeMap);
-            handleChainedFunction(ctx, ctx.chainedFunction(), previousNode);
+            handleChainedFunction(ctx, ctx.chainableElements(), previousNode);
         } else {
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(previousNode, ctx, astExprNodeMap);
         }
@@ -1806,9 +1665,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitBuiltin_prevwindow(EsperEPL2GrammarParser.Builtin_prevwindowContext ctx) {
         ExprPreviousNode previousNode = new ExprPreviousNode(ExprPreviousNodePreviousType.PREVWINDOW);
-        if (ctx.chainedFunction() != null) {
+        if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
             ASTExprHelper.exprCollectAddSubNodes(previousNode, ctx.expression(), astExprNodeMap);
-            handleChainedFunction(ctx, ctx.chainedFunction(), previousNode);
+            handleChainedFunction(ctx, ctx.chainableElements(), previousNode);
         } else {
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(previousNode, ctx, astExprNodeMap);
         }
@@ -1816,9 +1675,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitBuiltin_prevtail(EsperEPL2GrammarParser.Builtin_prevtailContext ctx) {
         ExprPreviousNode previousNode = new ExprPreviousNode(ExprPreviousNodePreviousType.PREVTAIL);
-        if (ctx.chainedFunction() != null) {
+        if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
             ASTExprHelper.exprCollectAddSubNodesExpressionCtx(previousNode, ctx.expression(), astExprNodeMap);
-            handleChainedFunction(ctx, ctx.chainedFunction(), previousNode);
+            handleChainedFunction(ctx, ctx.chainableElements(), previousNode);
         } else {
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(previousNode, ctx, astExprNodeMap);
         }
@@ -1884,10 +1743,14 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         mergeActions.add(new OnTriggerMergeActionInsert(whereCond, optionalInsertName, columsList, expressions));
     }
 
-    private void handleChainedFunction(ParserRuleContext parentCtx, EsperEPL2GrammarParser.ChainedFunctionContext chainedCtx, ExprNode childExpression) {
-        List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(chainedCtx.libFunctionNoClass(), astExprNodeMap);
+    private void handleChainedFunction(ParserRuleContext parentCtx, EsperEPL2GrammarParser.ChainableElementsContext chainedCtx, ExprNode childExpression) {
+        List<Chainable> chainSpec = ASTChainSpecHelper.getChainables(chainedCtx, astExprNodeMap);
+        if (chainSpec.isEmpty()) {
+            astExprNodeMap.put(parentCtx, childExpression);
+            return;
+        }
         ExprDotNode dotNode = new ExprDotNodeImpl(chainSpec, mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
+            mapEnv.getConfiguration().getCompiler().getExpression().isUdfCache());
         if (childExpression != null) {
             dotNode.addChildNode(childExpression);
         }
@@ -1912,11 +1775,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     protected void end() throws ASTWalkException {
         if (astExprNodeMap.size() > 1) {
             throw ASTWalkException.from("Unexpected AST tree contains left over child elements," +
-                    " not all expression nodes have been removed from AST-to-expression nodes map");
+                " not all expression nodes have been removed from AST-to-expression nodes map");
         }
         if (astPatternNodeMap.size() > 1) {
             throw ASTWalkException.from("Unexpected AST tree contains left over child elements," +
-                    " not all pattern nodes have been removed from AST-to-pattern nodes map");
+                " not all pattern nodes have been removed from AST-to-pattern nodes map");
         }
 
         // detect insert-into fire-and-forget query
@@ -1944,7 +1807,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         String tableName = ctx.n.getText();
 
         // obtain item declarations
-        List<CreateTableColumn> cols = ASTTableHelper.getColumns(ctx.createTableColumnList().createTableColumn(), astExprNodeMap, mapEnv.getClasspathImportService());
+        List<CreateTableColumn> cols = ASTTableHelper.getColumns(ctx.createTableColumnList().createTableColumn(), astExprNodeMap, mapEnv);
         statementSpec.setCreateTableDesc(new CreateTableDesc(tableName, cols));
     }
 
@@ -2021,9 +1884,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitPatternInclusionExpression(EsperEPL2GrammarParser.PatternInclusionExpressionContext ctx) {
-    }
-
-    public void enterLibFunction(EsperEPL2GrammarParser.LibFunctionContext ctx) {
     }
 
     public void enterSelectionListElement(EsperEPL2GrammarParser.SelectionListElementContext ctx) {
@@ -2159,12 +2019,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void enterTimePeriod(EsperEPL2GrammarParser.TimePeriodContext ctx) {
-    }
-
-    public void enterEventPropertyAtomic(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx) {
-    }
-
-    public void exitEventPropertyAtomic(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx) {
     }
 
     public void enterSubSelectGroupExpression(EsperEPL2GrammarParser.SubSelectGroupExpressionContext ctx) {
@@ -2308,12 +2162,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitYearPart(EsperEPL2GrammarParser.YearPartContext ctx) {
     }
 
-    public void enterEventPropertyOrLibFunction(EsperEPL2GrammarParser.EventPropertyOrLibFunctionContext ctx) {
-    }
-
-    public void exitEventPropertyOrLibFunction(EsperEPL2GrammarParser.EventPropertyOrLibFunctionContext ctx) {
-    }
-
     public void enterCreateDataflow(EsperEPL2GrammarParser.CreateDataflowContext ctx) {
     }
 
@@ -2396,12 +2244,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void enterBitWiseExpression(EsperEPL2GrammarParser.BitWiseExpressionContext ctx) {
-    }
-
-    public void enterChainedFunction(EsperEPL2GrammarParser.ChainedFunctionContext ctx) {
-    }
-
-    public void exitChainedFunction(EsperEPL2GrammarParser.ChainedFunctionContext ctx) {
     }
 
     public void enterMatchRecogPatternUnary(EsperEPL2GrammarParser.MatchRecogPatternUnaryContext ctx) {
@@ -2632,12 +2474,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void enterNumericParameterList(EsperEPL2GrammarParser.NumericParameterListContext ctx) {
     }
 
-    public void enterLibFunctionWithClass(EsperEPL2GrammarParser.LibFunctionWithClassContext ctx) {
-    }
-
-    public void exitLibFunctionWithClass(EsperEPL2GrammarParser.LibFunctionWithClassContext ctx) {
-    }
-
     public void enterStringconstant(EsperEPL2GrammarParser.StringconstantContext ctx) {
     }
 
@@ -2696,12 +2532,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitCreateSchemaDef(EsperEPL2GrammarParser.CreateSchemaDefContext ctx) {
-    }
-
-    public void enterEventPropertyIdent(EsperEPL2GrammarParser.EventPropertyIdentContext ctx) {
-    }
-
-    public void exitEventPropertyIdent(EsperEPL2GrammarParser.EventPropertyIdentContext ctx) {
     }
 
     public void enterCreateIndexExpr(EsperEPL2GrammarParser.CreateIndexExprContext ctx) {
@@ -2852,9 +2682,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void enterAdditiveExpression(EsperEPL2GrammarParser.AdditiveExpressionContext ctx) {
-    }
-
-    public void enterEventProperty(EsperEPL2GrammarParser.EventPropertyContext ctx) {
     }
 
     public void enterJsonarray(EsperEPL2GrammarParser.JsonarrayContext ctx) {
@@ -3079,12 +2906,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitFuncIdentChained(EsperEPL2GrammarParser.FuncIdentChainedContext ctx) {
     }
 
-    public void enterFuncIdentTop(EsperEPL2GrammarParser.FuncIdentTopContext ctx) {
-    }
-
-    public void exitFuncIdentTop(EsperEPL2GrammarParser.FuncIdentTopContext ctx) {
-    }
-
     public void enterBuiltin_avg(EsperEPL2GrammarParser.Builtin_avgContext ctx) {
     }
 
@@ -3146,12 +2967,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void enterBuiltin_groupingid(EsperEPL2GrammarParser.Builtin_groupingidContext ctx) {
-    }
-
-    public void enterFuncIdentInner(EsperEPL2GrammarParser.FuncIdentInnerContext ctx) {
-    }
-
-    public void exitFuncIdentInner(EsperEPL2GrammarParser.FuncIdentInnerContext ctx) {
     }
 
     public void enterCreateTableExpr(EsperEPL2GrammarParser.CreateTableExprContext ctx) {
@@ -3302,5 +3117,50 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitCrontabLimitParameterSetList(EsperEPL2GrammarParser.CrontabLimitParameterSetListContext ctx) {
+    }
+
+    public void enterChainable(EsperEPL2GrammarParser.ChainableContext ctx) {
+    }
+
+    public void enterChainableRootWithOpt(EsperEPL2GrammarParser.ChainableRootWithOptContext ctx) {
+    }
+
+    public void exitChainableRootWithOpt(EsperEPL2GrammarParser.ChainableRootWithOptContext ctx) {
+    }
+
+    public void enterChainableAtomicWithOpt(EsperEPL2GrammarParser.ChainableAtomicWithOptContext ctx) {
+    }
+
+    public void exitChainableAtomicWithOpt(EsperEPL2GrammarParser.ChainableAtomicWithOptContext ctx) {
+    }
+
+    public void enterChainableAtomic(EsperEPL2GrammarParser.ChainableAtomicContext ctx) {
+    }
+
+    public void exitChainableAtomic(EsperEPL2GrammarParser.ChainableAtomicContext ctx) {
+    }
+
+    public void enterChainableArray(EsperEPL2GrammarParser.ChainableArrayContext ctx) {
+    }
+
+    public void exitChainableArray(EsperEPL2GrammarParser.ChainableArrayContext ctx) {
+    }
+
+    public void enterChainableWithArgs(EsperEPL2GrammarParser.ChainableWithArgsContext ctx) {
+    }
+
+    public void exitChainableWithArgs(EsperEPL2GrammarParser.ChainableWithArgsContext ctx) {
+    }
+
+    public void enterChainableIdent(EsperEPL2GrammarParser.ChainableIdentContext ctx) {
+    }
+
+    public void exitChainableIdent(EsperEPL2GrammarParser.ChainableIdentContext ctx) {
+    }
+
+    public void enterChainableElements(EsperEPL2GrammarParser.ChainableElementsContext ctx) {
+    }
+
+    public void exitChainableElements(EsperEPL2GrammarParser.ChainableElementsContext ctx) {
     }
 }

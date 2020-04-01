@@ -1650,16 +1650,6 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitSubstitutionCanChain(EsperEPL2GrammarParser.SubstitutionCanChainContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainedFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterChainedFunction(EsperEPL2GrammarParser.ChainedFunctionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainedFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitChainedFunction(EsperEPL2GrammarParser.ChainedFunctionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#newAssign}.
 	 * @param ctx the parse tree
 	 */
@@ -1992,36 +1982,6 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitFirstLastWindowAggregation(EsperEPL2GrammarParser.FirstLastWindowAggregationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#eventPropertyOrLibFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterEventPropertyOrLibFunction(EsperEPL2GrammarParser.EventPropertyOrLibFunctionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#eventPropertyOrLibFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitEventPropertyOrLibFunction(EsperEPL2GrammarParser.EventPropertyOrLibFunctionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#libFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterLibFunction(EsperEPL2GrammarParser.LibFunctionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#libFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitLibFunction(EsperEPL2GrammarParser.LibFunctionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#libFunctionWithClass}.
-	 * @param ctx the parse tree
-	 */
-	void enterLibFunctionWithClass(EsperEPL2GrammarParser.LibFunctionWithClassContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#libFunctionWithClass}.
-	 * @param ctx the parse tree
-	 */
-	void exitLibFunctionWithClass(EsperEPL2GrammarParser.LibFunctionWithClassContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#libFunctionNoClass}.
 	 * @param ctx the parse tree
 	 */
@@ -2031,26 +1991,6 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLibFunctionNoClass(EsperEPL2GrammarParser.LibFunctionNoClassContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#funcIdentTop}.
-	 * @param ctx the parse tree
-	 */
-	void enterFuncIdentTop(EsperEPL2GrammarParser.FuncIdentTopContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#funcIdentTop}.
-	 * @param ctx the parse tree
-	 */
-	void exitFuncIdentTop(EsperEPL2GrammarParser.FuncIdentTopContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#funcIdentInner}.
-	 * @param ctx the parse tree
-	 */
-	void enterFuncIdentInner(EsperEPL2GrammarParser.FuncIdentInnerContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#funcIdentInner}.
-	 * @param ctx the parse tree
-	 */
-	void exitFuncIdentInner(EsperEPL2GrammarParser.FuncIdentInnerContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#funcIdentChained}.
 	 * @param ctx the parse tree
@@ -2562,35 +2502,85 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitNumericListParameter(EsperEPL2GrammarParser.NumericListParameterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#eventProperty}.
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainable}.
 	 * @param ctx the parse tree
 	 */
-	void enterEventProperty(EsperEPL2GrammarParser.EventPropertyContext ctx);
+	void enterChainable(EsperEPL2GrammarParser.ChainableContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#eventProperty}.
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainable}.
 	 * @param ctx the parse tree
 	 */
-	void exitEventProperty(EsperEPL2GrammarParser.EventPropertyContext ctx);
+	void exitChainable(EsperEPL2GrammarParser.ChainableContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#eventPropertyAtomic}.
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainableRootWithOpt}.
 	 * @param ctx the parse tree
 	 */
-	void enterEventPropertyAtomic(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx);
+	void enterChainableRootWithOpt(EsperEPL2GrammarParser.ChainableRootWithOptContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#eventPropertyAtomic}.
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainableRootWithOpt}.
 	 * @param ctx the parse tree
 	 */
-	void exitEventPropertyAtomic(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx);
+	void exitChainableRootWithOpt(EsperEPL2GrammarParser.ChainableRootWithOptContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#eventPropertyIdent}.
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainableElements}.
 	 * @param ctx the parse tree
 	 */
-	void enterEventPropertyIdent(EsperEPL2GrammarParser.EventPropertyIdentContext ctx);
+	void enterChainableElements(EsperEPL2GrammarParser.ChainableElementsContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#eventPropertyIdent}.
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainableElements}.
 	 * @param ctx the parse tree
 	 */
-	void exitEventPropertyIdent(EsperEPL2GrammarParser.EventPropertyIdentContext ctx);
+	void exitChainableElements(EsperEPL2GrammarParser.ChainableElementsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainableAtomicWithOpt}.
+	 * @param ctx the parse tree
+	 */
+	void enterChainableAtomicWithOpt(EsperEPL2GrammarParser.ChainableAtomicWithOptContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainableAtomicWithOpt}.
+	 * @param ctx the parse tree
+	 */
+	void exitChainableAtomicWithOpt(EsperEPL2GrammarParser.ChainableAtomicWithOptContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainableAtomic}.
+	 * @param ctx the parse tree
+	 */
+	void enterChainableAtomic(EsperEPL2GrammarParser.ChainableAtomicContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainableAtomic}.
+	 * @param ctx the parse tree
+	 */
+	void exitChainableAtomic(EsperEPL2GrammarParser.ChainableAtomicContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainableArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterChainableArray(EsperEPL2GrammarParser.ChainableArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainableArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitChainableArray(EsperEPL2GrammarParser.ChainableArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainableWithArgs}.
+	 * @param ctx the parse tree
+	 */
+	void enterChainableWithArgs(EsperEPL2GrammarParser.ChainableWithArgsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainableWithArgs}.
+	 * @param ctx the parse tree
+	 */
+	void exitChainableWithArgs(EsperEPL2GrammarParser.ChainableWithArgsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#chainableIdent}.
+	 * @param ctx the parse tree
+	 */
+	void enterChainableIdent(EsperEPL2GrammarParser.ChainableIdentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#chainableIdent}.
+	 * @param ctx the parse tree
+	 */
+	void exitChainableIdent(EsperEPL2GrammarParser.ChainableIdentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#identOrTicked}.
 	 * @param ctx the parse tree

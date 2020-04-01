@@ -78,18 +78,12 @@ public class TestEPLParser extends TestCase {
         assertIsInvalid("select a] from com.xxx().std:win(3)");
         assertIsInvalid("select * from com.xxx().std:win(3) where b('aaa)=5");
 
-        assertIsInvalid("select sum() from b#length(1)");
         assertIsInvalid("select sum(1+) from b#length(1)");
         assertIsInvalid("select sum(distinct) from b#length(1)");
         assertIsInvalid("select sum(distinct distinct a) from b#length(1)");
-        assertIsInvalid("select avg() from b#length(1)");
-        assertIsInvalid("select count() from b#length(1)");
         assertIsInvalid("select count(* *) from b#length(1)");
         assertIsInvalid("select count(*2) from b#length(1)");
-        assertIsInvalid("select median() from b#length(1)");
-        assertIsInvalid("select stddev() from b#length(1)");
         assertIsInvalid("select stddev(distinct) from b#length(1)");
-        assertIsInvalid("select avedev() from b#length(1)");
         assertIsInvalid("select avedev(distinct) from b#length(1)");
 
         // group-by
@@ -113,8 +107,6 @@ public class TestEPLParser extends TestCase {
         assertIsInvalid("insert into A(,a) select 1 from b#length(1)");
         assertIsInvalid("insert xxx into A(,a) select 1 from b#length(1)");
 
-        assertIsInvalid("select coalesce(processTimeEvent.price) from x");
-
         // time periods
         assertIsInvalid("select * from x#time(sec 99)");
         assertIsInvalid("select * from x#time(99 min min)");
@@ -131,9 +123,7 @@ public class TestEPLParser extends TestCase {
 
         // between
         assertIsInvalid("select * from x where between a");
-        assertIsInvalid("select * from x where between and b");
         assertIsInvalid("select * from x where between in and b");
-        assertIsInvalid("select * from x where between");
 
         // like and regexp
         assertIsInvalid("select * from x where like");
@@ -151,10 +141,6 @@ public class TestEPLParser extends TestCase {
         assertIsInvalid("select * from x, sql:xx ");
         assertIsInvalid("select * from x, sql:xx [' dsfsdf \"]");
         assertIsInvalid("select * from x, sql:xx [\"sfsf ']");
-
-        // Previous and prior function
-        assertIsInvalid("select prior(10) from x");
-        assertIsInvalid("select prior(price, a*b) from x");
 
         // subqueries
         assertIsInvalid("select (select a) from x");
@@ -176,11 +162,8 @@ public class TestEPLParser extends TestCase {
         assertIsInvalid("select * from A (boolean = exists(1))");
         assertIsInvalid("select * from A where exists(1 + a.b.c?.d.e)");
         assertIsInvalid("select * from A(boolean = instanceof(, a))");
-        assertIsInvalid("select * from A(boolean = instanceof(b))");
         assertIsInvalid("select * from A(boolean = instanceof('agc', ,))");
         assertIsInvalid("select * from A(boolean = instanceof(b com.espertech.esper.support.AClass))");
-        assertIsInvalid("select * from A(cast(b, +1))");
-        assertIsInvalid("select * from A(cast(b?, a + 1))");
         assertIsInvalid("select * from A(cast((), a + 1))");
 
         // named window

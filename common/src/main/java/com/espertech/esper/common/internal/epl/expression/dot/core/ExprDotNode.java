@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 
-import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffectorProvider;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
@@ -27,8 +27,10 @@ public interface ExprDotNode extends ExprNode, FilterExprAnalyzerAffectorProvide
 
     Integer getStreamReferencedIfAny();
 
-    List<ExprChainedSpec> getChainSpec();
+    List<Chainable> getChainSpec();
 
     VariableMetaData isVariableOpGetName(VariableCompileTimeResolver variableCompileTimeResolver);
+
+    void setChainSpec(List<Chainable> modified);
 }
 

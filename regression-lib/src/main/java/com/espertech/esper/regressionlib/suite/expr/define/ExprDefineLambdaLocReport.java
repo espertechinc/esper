@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.support.lrreport.LocationReport;
 import com.espertech.esper.regressionlib.support.lrreport.LocationReportFactory;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -28,15 +27,6 @@ public class ExprDefineLambdaLocReport implements RegressionExecution {
         /**
          * Regular algorithm to find separated luggage and new owner.
          */
-        LocationReport theEvent = LocationReportFactory.makeLarge();
-        List<Item> separatedLuggage = LocationReportFactory.findSeparatedLuggage(theEvent);
-
-        for (Item item : separatedLuggage) {
-            //log.info("Luggage that are separated (dist>20): " + item);
-            Item newOwner = LocationReportFactory.findPotentialNewOwner(theEvent, item);
-            //log.info("Found new owner " + newOwner);
-        }
-
         String epl = "@name('s0') " +
             "expression lostLuggage {" +
             "  lr => lr.items.where(l => l.type='L' and " +

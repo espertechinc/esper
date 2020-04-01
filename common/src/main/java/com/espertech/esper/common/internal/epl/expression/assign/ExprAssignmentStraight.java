@@ -37,12 +37,10 @@ public class ExprAssignmentStraight extends ExprAssignment {
         return rhs;
     }
 
-    public void validate(ExprNodeOrigin origin, ExprValidationContext validationContext, boolean allowRHSAggregation) throws ExprValidationException {
+    public void validate(ExprNodeOrigin origin, ExprValidationContext validationContext) throws ExprValidationException {
         rhs = getValidatedSubtree(origin, rhs, validationContext);
         lhs.validate(origin, validationContext);
-        if (!allowRHSAggregation) {
-            EPStatementStartMethodHelperValidate.validateNoAggregations(rhs, ExprAssignment.VALIDATION_AGG_MSG);
-        }
+        EPStatementStartMethodHelperValidate.validateNoAggregations(rhs, ExprAssignment.VALIDATION_AGG_MSG);
     }
 
     public void accept(ExprNodeVisitor visitor) {

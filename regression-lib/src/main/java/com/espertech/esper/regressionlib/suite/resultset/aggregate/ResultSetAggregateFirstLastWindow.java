@@ -297,7 +297,7 @@ public class ResultSetAggregateFirstLastWindow {
     private static class ResultSetAggregateInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryInvalidCompile(env, "select window(distinct intPrimitive) from SupportBean",
-                "Incorrect syntax near '(' ('distinct' is a reserved keyword) at line 1 column 13 near reserved keyword 'distinct' [");
+                "Failed to validate select-clause expression 'window(intPrimitive)': The 'window' aggregation function requires");
 
             tryInvalidCompile(env, "select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent sa, SupportBean#lastevent sb",
                 "Failed to validate select-clause expression 'window(sa.intPrimitive+sb.intPrimitive)': The 'window' aggregation function requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead [select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent sa, SupportBean#lastevent sb]");

@@ -32,6 +32,8 @@ import com.espertech.esper.common.internal.epl.datetime.eval.DatetimeMethodResol
 import com.espertech.esper.common.internal.epl.datetime.eval.ExprDotDTFactory;
 import com.espertech.esper.common.internal.epl.datetime.eval.ExprDotDTMethodDesc;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableArray;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
@@ -179,7 +181,7 @@ public class ExprDotNodeUtility {
     public static ExprDotNodeRealizedChain getChainEvaluators(
         Integer streamOfProviderIfApplicable,
         EPType inputType,
-        List<ExprChainedSpec> chainSpec,
+        List<Chainable> chainSpec,
         ExprValidationContext validationContext,
         boolean isDuckTyping,
         ExprDotNodeFilterAnalyzerInput inputDesc)
@@ -187,34 +189,47 @@ public class ExprDotNodeUtility {
         List<ExprDotForge> methodForges = new ArrayList<>();
         EPType currentInputType = inputType;
         EnumMethodDesc lastLambdaFunc = null;
-        ExprChainedSpec lastElement = chainSpec.isEmpty() ? null : chainSpec.get(chainSpec.size() - 1);
+        Chainable lastElement = chainSpec.isEmpty() ? null : chainSpec.get(chainSpec.size() - 1);
         FilterExprAnalyzerAffector filterAnalyzerDesc = null;
 
-        Deque<ExprChainedSpec> chainSpecStack = new ArrayDeque<ExprChainedSpec>(chainSpec);
+        Deque<Chainable> chainSpecStack = new ArrayDeque<Chainable>(chainSpec);
         while (!chainSpecStack.isEmpty()) {
-            ExprChainedSpec chainElement = chainSpecStack.removeFirst();
+            Chainable chainElement = chainSpecStack.removeFirst();
+            List<ExprNode> parameters = chainElement.getParametersOrEmpty();
+            String chainElementName = chainElement.getRootNameOrEmptyString();
+            boolean last = chainSpecStack.isEmpty();
             lastLambdaFunc = null;  // reset
 
             // compile parameters for chain element
-            ExprForge[] paramForges = new ExprForge[chainElement.getParameters().size()];
-            Class[] paramTypes = new Class[chainElement.getParameters().size()];
-            for (int i = 0; i < chainElement.getParameters().size(); i++) {
-                paramForges[i] = chainElement.getParameters().get(i).getForge();
+            ExprForge[] paramForges = new ExprForge[parameters.size()];
+            Class[] paramTypes = new Class[parameters.size()];
+            for (int i = 0; i < parameters.size(); i++) {
+                paramForges[i] = parameters.get(i).getForge();
                 paramTypes[i] = paramForges[i].getEvaluationType();
             }
 
             // check if special 'size' method
             if (currentInputType instanceof ClassMultiValuedEPType) {
                 ClassMultiValuedEPType type = (ClassMultiValuedEPType) currentInputType;
-                if (chainElement.getName().toLowerCase(Locale.ENGLISH).equals("size") && paramTypes.length == 0 && lastElement == chainElement) {
+                if (chainElementName.toLowerCase(Locale.ENGLISH).equals("size") && paramTypes.length == 0 && lastElement == chainElement) {
                     ExprDotForgeArraySize sizeExpr = new ExprDotForgeArraySize();
                     methodForges.add(sizeExpr);
                     currentInputType = sizeExpr.getTypeInfo();
                     continue;
                 }
-                if (chainElement.getName().toLowerCase(Locale.ENGLISH).equals("get") && paramTypes.length == 1 && JavaClassHelper.getBoxedType(paramTypes[0]) == Integer.class) {
+                if (chainElementName.toLowerCase(Locale.ENGLISH).equals("get") && paramTypes.length == 1 && JavaClassHelper.getBoxedType(paramTypes[0]) == Integer.class) {
                     Class componentType = JavaClassHelper.getBoxedType(type.getComponent());
                     ExprDotForgeArrayGet get = new ExprDotForgeArrayGet(paramForges[0], componentType);
+                    methodForges.add(get);
+                    currentInputType = get.getTypeInfo();
+                    continue;
+                }
+                if (chainElement instanceof ChainableArray && type.getContainer().isArray()) {
+                    ChainableArray array = (ChainableArray) chainElement;
+                    final EPType typeInfo = currentInputType;
+                    ExprNode indexExpr = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "operation on type " + EPTypeHelper.toTypeDescriptive(typeInfo));
+                    Class componentType = JavaClassHelper.getBoxedType(type.getComponent());
+                    ExprDotForgeArrayGet get = new ExprDotForgeArrayGet(indexExpr.getForge(), componentType);
                     methodForges.add(get);
                     currentInputType = get.getTypeInfo();
                     continue;
@@ -224,25 +239,25 @@ public class ExprDotNodeUtility {
             // determine if there is a matching method
             boolean matchingMethod = false;
             Class methodTarget = getMethodTarget(currentInputType);
-            if (methodTarget != null) {
+            if (methodTarget != null && (!(chainElement instanceof ChainableArray))) {
                 try {
-                    getValidateMethodDescriptor(methodTarget, chainElement.getName(), chainElement.getParameters(), validationContext);
+                    getValidateMethodDescriptor(methodTarget, chainElementName, parameters, validationContext);
                     matchingMethod = true;
                 } catch (ExprValidationException ex) {
                     // expected
                 }
             }
 
-            if (EnumMethodResolver.isEnumerationMethod(chainElement.getName(), validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
-                EnumMethodDesc enumerationMethod = EnumMethodResolver.fromName(chainElement.getName(), validationContext.getClasspathImportService());
+            if (EnumMethodResolver.isEnumerationMethod(chainElementName, validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
+                EnumMethodDesc enumerationMethod = EnumMethodResolver.fromName(chainElementName, validationContext.getClasspathImportService());
                 ExprDotForgeEnumMethod eval = enumerationMethod.getFactory().make();
                 if (currentInputType instanceof ClassEPType && JavaClassHelper.isImplementsInterface(((ClassEPType) currentInputType).getType(), Collection.class)) {
                     currentInputType = EPTypeHelper.collectionOfSingleValue(Object.class);
                 }
-                eval.init(streamOfProviderIfApplicable, enumerationMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), validationContext);
+                eval.init(streamOfProviderIfApplicable, enumerationMethod, chainElementName, currentInputType, parameters, validationContext);
                 currentInputType = eval.getTypeInfo();
                 if (currentInputType == null) {
-                    throw new IllegalStateException("Enumeration method '" + chainElement.getName() + "' has not returned type information");
+                    throw new IllegalStateException("Enumeration method '" + chainElementName + "' has not returned type information");
                 }
                 methodForges.add(eval);
                 lastLambdaFunc = enumerationMethod;
@@ -250,12 +265,12 @@ public class ExprDotNodeUtility {
             }
 
             // resolve datetime
-            if (DatetimeMethodResolver.isDateTimeMethod(chainElement.getName(), validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget == Calendar.class || methodTarget == Date.class)) {
-                DatetimeMethodDesc datetimeMethod = DatetimeMethodResolver.fromName(chainElement.getName(), validationContext.getClasspathImportService());
-                ExprDotDTMethodDesc datetimeImpl = ExprDotDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getClasspathImportService().getTimeAbacus(), validationContext.getTableCompileTimeResolver(), validationContext.getClasspathImportService(), validationContext.getStatementRawInfo());
+            if (DatetimeMethodResolver.isDateTimeMethod(chainElementName, validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget == Calendar.class || methodTarget == Date.class)) {
+                DatetimeMethodDesc datetimeMethod = DatetimeMethodResolver.fromName(chainElementName, validationContext.getClasspathImportService());
+                ExprDotDTMethodDesc datetimeImpl = ExprDotDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElementName, currentInputType, parameters, inputDesc, validationContext.getClasspathImportService().getTimeAbacus(), validationContext.getTableCompileTimeResolver(), validationContext.getClasspathImportService(), validationContext.getStatementRawInfo());
                 currentInputType = datetimeImpl.getReturnType();
                 if (currentInputType == null) {
-                    throw new IllegalStateException("Date-time method '" + chainElement.getName() + "' has not returned type information");
+                    throw new IllegalStateException("Date-time method '" + chainElementName + "' has not returned type information");
                 }
                 methodForges.add(datetimeImpl.getForge());
                 filterAnalyzerDesc = datetimeImpl.getIntervalFilterDesc();
@@ -264,27 +279,52 @@ public class ExprDotNodeUtility {
 
             // try to resolve as property if the last method returned a type
             if (currentInputType instanceof EventEPType) {
+                if (chainElement instanceof ChainableArray) {
+                    throw new ExprValidationException("Could not perform array operation on type " + EPTypeHelper.toTypeDescriptive(currentInputType));
+                }
                 EventTypeSPI inputEventType = (EventTypeSPI) ((EventEPType) currentInputType).getType();
-                Class type = inputEventType.getPropertyType(chainElement.getName());
-                EventPropertyGetterSPI getter = inputEventType.getGetterSPI(chainElement.getName());
+                Class type = inputEventType.getPropertyType(chainElementName);
+                EventPropertyGetterSPI getter = inputEventType.getGetterSPI(chainElementName);
+                FragmentEventType fragmentType = inputEventType.getFragmentType(chainElementName);
+                ExprDotForge forge;
                 if (type != null && getter != null) {
-                    ExprDotForgeProperty noduck = new ExprDotForgeProperty(getter, EPTypeHelper.singleValue(JavaClassHelper.getBoxedType(type)));
-                    methodForges.add(noduck);
-                    currentInputType = EPTypeHelper.singleValue(EPTypeHelper.getClassSingleValued(noduck.getTypeInfo()));
+                    if (fragmentType == null || last) {
+                        forge = new ExprDotForgeProperty(getter, EPTypeHelper.singleValue(JavaClassHelper.getBoxedType(type)));
+                        currentInputType = forge.getTypeInfo();
+                    } else {
+                        if (!fragmentType.isIndexed()) {
+                            currentInputType = EPTypeHelper.singleEvent(fragmentType.getFragmentType());
+                        } else {
+                            currentInputType = EPTypeHelper.arrayOfEvents(fragmentType.getFragmentType());
+                        }
+                        forge = new ExprDotForgePropertyFragment(getter, currentInputType);
+                    }
+                    methodForges.add(forge);
                     continue;
                 }
             }
 
+            if (currentInputType instanceof EventMultiValuedEPType && chainElement instanceof ChainableArray) {
+                EventTypeSPI inputEventType = (EventTypeSPI) ((EventMultiValuedEPType) currentInputType).getComponent();
+                ChainableArray array = (ChainableArray) chainElement;
+                EPType typeInfo = currentInputType;
+                ExprNode indexExpr = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "operation on type " + EPTypeHelper.toTypeDescriptive(typeInfo));
+                currentInputType = EPTypeHelper.singleEvent(inputEventType);
+                ExprDotForgeEventArrayAtIndex forge = new ExprDotForgeEventArrayAtIndex(currentInputType, indexExpr);
+                methodForges.add(forge);
+                continue;
+            }
+
             // Finally try to resolve the method
-            if (methodTarget != null) {
+            if (methodTarget != null && !(chainElement instanceof ChainableArray)) {
                 try {
                     // find descriptor again, allow for duck typing
-                    ExprNodeUtilMethodDesc desc = getValidateMethodDescriptor(methodTarget, chainElement.getName(), chainElement.getParameters(), validationContext);
+                    ExprNodeUtilMethodDesc desc = getValidateMethodDescriptor(methodTarget, chainElementName, parameters, validationContext);
                     paramForges = desc.getChildForges();
                     ExprDotForge forge;
                     if (currentInputType instanceof ClassEPType) {
                         // if followed by an enumeration method, convert array to collection
-                        if (desc.getReflectionMethod().getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodResolver.isEnumerationMethod(chainSpecStack.getFirst().getName(), validationContext.getClasspathImportService())) {
+                        if (desc.getReflectionMethod().getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodResolver.isEnumerationMethod(chainSpecStack.getFirst().getRootNameOrEmptyString(), validationContext.getClasspathImportService())) {
                             forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), paramForges, ExprDotMethodForgeNoDuck.Type.WRAPARRAY);
                         } else {
                             forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), paramForges, ExprDotMethodForgeNoDuck.Type.PLAIN);
@@ -298,7 +338,7 @@ public class ExprDotNodeUtility {
                     if (!isDuckTyping) {
                         throw new ExprValidationException(e.getMessage(), e);
                     } else {
-                        ExprDotMethodForgeDuck duck = new ExprDotMethodForgeDuck(validationContext.getStatementName(), validationContext.getClasspathImportService(), chainElement.getName(), paramTypes, paramForges);
+                        ExprDotMethodForgeDuck duck = new ExprDotMethodForgeDuck(validationContext.getStatementName(), validationContext.getClasspathImportService(), chainElementName, paramTypes, paramForges);
                         methodForges.add(duck);
                         currentInputType = duck.getTypeInfo();
                     }
@@ -306,8 +346,12 @@ public class ExprDotNodeUtility {
                 continue;
             }
 
-            String message = "Could not find event property or method named '" +
-                chainElement.getName() + "' in " + EPTypeHelper.toTypeDescriptive(currentInputType);
+            String message;
+            if (!(chainElement instanceof ChainableArray)) {
+                message = "Could not find event property or method named '" + chainElementName + "' in " + EPTypeHelper.toTypeDescriptive(currentInputType);
+            } else {
+                message = "Could not perform array operation on type " + EPTypeHelper.toTypeDescriptive(currentInputType);
+            }
             throw new ExprValidationException(message);
         }
 

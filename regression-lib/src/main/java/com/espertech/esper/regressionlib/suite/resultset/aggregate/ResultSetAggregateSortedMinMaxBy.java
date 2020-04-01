@@ -224,9 +224,9 @@ public class ResultSetAggregateSortedMinMaxBy {
             env.compileDeploy(epl).addListener("s0");
 
             EventPropertyDescriptor[] props = env.statement("s0").getEventType().getPropertyDescriptors();
-            assertEquals("maxby(intPrimitive).theString()", props[0].getPropertyName());
+            assertEquals("maxby(intPrimitive).theString", props[0].getPropertyName());
             assertEquals("minby(intPrimitive)", props[1].getPropertyName());
-            assertEquals("maxbyever(intPrimitive).theString()", props[2].getPropertyName());
+            assertEquals("maxbyever(intPrimitive).theString", props[2].getPropertyName());
             assertEquals("minbyever(intPrimitive)", props[3].getPropertyName());
             assertEquals("sorted(intPrimitive,theString desc)", props[4].getPropertyName());
 

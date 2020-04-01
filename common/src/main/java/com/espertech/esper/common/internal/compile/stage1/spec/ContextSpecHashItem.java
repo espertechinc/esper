@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.context.controller.hash.ContextControllerDetailHashItem;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
-import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
@@ -29,18 +29,18 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ContextSpecHashItem {
 
-    private final ExprChainedSpec function;
+    private final Chainable function;
     private final FilterSpecRaw filterSpecRaw;
 
     private FilterSpecCompiled filterSpecCompiled;
     private ExprFilterSpecLookupableForge lookupable;
 
-    public ContextSpecHashItem(ExprChainedSpec function, FilterSpecRaw filterSpecRaw) {
+    public ContextSpecHashItem(Chainable function, FilterSpecRaw filterSpecRaw) {
         this.function = function;
         this.filterSpecRaw = filterSpecRaw;
     }
 
-    public ExprChainedSpec getFunction() {
+    public Chainable getFunction() {
         return function;
     }
 

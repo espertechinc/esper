@@ -41,7 +41,7 @@ public class StaticMethodExpression extends ExpressionBase {
                 parameterList.add(new ConstantExpression(parameters[i]));
             }
         }
-        chain.add(new DotExpressionItem(method, parameterList, false));
+        chain.add(new DotExpressionItemCall(method, parameterList));
     }
 
     /**

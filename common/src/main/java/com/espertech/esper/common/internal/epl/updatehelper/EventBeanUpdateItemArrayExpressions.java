@@ -8,15 +8,15 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.expression.core;
+package com.espertech.esper.common.internal.epl.updatehelper;
 
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
-public class ExprArrayElementIdentNodeExpressions {
+public class EventBeanUpdateItemArrayExpressions {
     private final CodegenExpression index;
     private final CodegenExpression arrayGet;
 
-    public ExprArrayElementIdentNodeExpressions(CodegenExpression index, CodegenExpression arrayGet) {
+    public EventBeanUpdateItemArrayExpressions(CodegenExpression index, CodegenExpression arrayGet) {
         this.index = index;
         this.arrayGet = arrayGet;
     }

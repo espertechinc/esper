@@ -196,12 +196,12 @@ public class InfraTableCountMinSketch {
             tryInvalidCompile(env, path, "into table MyCMS select countMinSketchFrequency(theString) as wordcms from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketchFrequency(theString)': Unknown single-row function, aggregation function or mapped or indexed property named 'countMinSketchFrequency' could not be resolved ");
             tryInvalidCompile(env, path, "select countMinSketchFrequency() from SupportBean",
-                "Failed to validate select-clause expression 'countMinSketchFrequency': Unknown single-row function, expression declaration, script or aggregation function named 'countMinSketchFrequency' could not be resolved");
+                "Failed to validate select-clause expression 'countMinSketchFrequency()': Unknown single-row function, expression declaration, script or aggregation function named 'countMinSketchFrequency' could not be resolved");
 
             // invalid "countMinSketchTopk" declarations
             //
             tryInvalidCompile(env, path, "select countMinSketchTopk() from SupportBean",
-                "Failed to validate select-clause expression 'countMinSketchTopk': Unknown single-row function, expression declaration, script or aggregation function named 'countMinSketchTopk' could not be resolved");
+                "Failed to validate select-clause expression 'countMinSketchTopk()': Unknown single-row function, expression declaration, script or aggregation function named 'countMinSketchTopk' could not be resolved");
             tryInvalidCompile(env, path, "select MyCMS.wordcms.countMinSketchTopk(theString) from SupportBean",
                 "Failed to validate select-clause expression 'MyCMS.wordcms.countMinSketchTopk(th...(43 chars)': Count-min-sketch aggregation function 'countMinSketchTopk' requires a no parameter expressions [");
 

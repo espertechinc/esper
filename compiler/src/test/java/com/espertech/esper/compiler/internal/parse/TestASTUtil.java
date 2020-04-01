@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.compiler.internal.parse;
 
+import com.espertech.esper.common.internal.epl.expression.dot.walk.DotEscaper;
 import junit.framework.TestCase;
 
 public class TestASTUtil extends TestCase {
@@ -33,7 +34,7 @@ public class TestASTUtil extends TestCase {
         for (int i = 0; i < inout.length; i++) {
             String input = inout[i][0];
             String expected = inout[i][1];
-            assertEquals("for input " + input, expected, ASTUtil.escapeDot(input));
+            assertEquals("for input " + input, expected, DotEscaper.escapeDot(input));
         }
     }
 
@@ -60,7 +61,7 @@ public class TestASTUtil extends TestCase {
         for (int i = 0; i < inout.length; i++) {
             String input = inout[i][0];
             String expected = inout[i][1];
-            assertEquals("for input " + input, expected, ASTUtil.unescapeDot(input));
+            assertEquals("for input " + input, expected, DotEscaper.unescapeDot(input));
         }
     }
 }

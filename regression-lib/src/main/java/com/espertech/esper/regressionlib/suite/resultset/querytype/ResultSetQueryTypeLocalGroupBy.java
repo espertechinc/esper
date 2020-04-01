@@ -168,7 +168,7 @@ public class ResultSetQueryTypeLocalGroupBy {
 
             // other functions don't accept this named parameter
             SupportMessageAssertUtil.tryInvalidCompile(env, "select coalesce(0, 1, group_by:theString) from SupportBean",
-                "Incorrect syntax near ':' at line 1 column 30");
+                "Failed to validate select-clause expression 'coalesce(0,1,group_by:theString)': Named parameters are not allowed");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select " + SupportStaticMethodLib.class.getName() + ".staticMethod(group_by:intPrimitive) from SupportBean",
                 "Failed to validate select-clause expression 'com.espertech.esper.regressionlib.s...(104 chars)': Named parameters are not allowed");
 

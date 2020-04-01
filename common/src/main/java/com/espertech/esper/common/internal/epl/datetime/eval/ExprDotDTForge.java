@@ -81,15 +81,15 @@ public class ExprDotDTForge implements ExprDotForge {
         };
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         Class methodReturnType = returnType instanceof ClassEPType ? ((ClassEPType) returnType).getType() : ((ClassMultiValuedEPType) returnType).getContainer();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(methodReturnType, ExprDotDTForge.class, codegenClassScope).addParam(innerType, "target");
+        CodegenMethod methodNode = parent.makeChild(methodReturnType, ExprDotDTForge.class, classScope).addParam(innerType, "target");
 
         CodegenBlock block = methodNode.getBlock();
         if (!innerType.isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
-        block.methodReturn(forge.codegen(ref("target"), innerType, methodNode, exprSymbol, codegenClassScope));
+        block.methodReturn(forge.codegen(ref("target"), innerType, methodNode, symbols, classScope));
         return localMethod(methodNode, inner);
     }
 

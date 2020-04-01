@@ -66,6 +66,10 @@ public class TestSuiteExprCore extends TestCase {
         RegressionRunner.run(session, ExprCoreArray.executions());
     }
 
+    public void testExprCoreArrayAtElement() {
+        RegressionRunner.run(session, ExprCoreArrayAtElement.executions());
+    }
+
     public void testExprCoreAnyAllSome() {
         RegressionRunner.run(session, ExprCoreAnyAllSome.executions());
     }
@@ -148,7 +152,7 @@ public class TestSuiteExprCore extends TestCase {
             SupportEventTypeErasure.class, SupportChainTop.class, SupportLevelZero.class, SupportEventNode.class,
             SupportEventNodeData.class, SupportBeanCombinedProps.class, SupportBeanNumeric.class,
             ISupportA.class, ISupportABCImpl.class, ISupportAImpl.class, SupportBean_ST0.class, SupportBeanObject.class,
-            SupportEventWithManyArray.class}) {
+            SupportEventWithManyArray.class, SupportBeanWithArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

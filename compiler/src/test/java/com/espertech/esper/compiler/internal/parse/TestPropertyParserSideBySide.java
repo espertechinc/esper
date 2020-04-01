@@ -25,6 +25,8 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser.*;
+
 public class TestPropertyParserSideBySide extends TestCase {
 
     private static Set<String> keywordCache;
@@ -52,10 +54,10 @@ public class TestPropertyParserSideBySide extends TestCase {
     }
 
     public static Property antlrParseAndWalk(String property, boolean isRootedDynamic) {
-        return walk(parse(property), isRootedDynamic);
+        return walk(parse(property));
     }
 
-    public static EsperEPL2GrammarParser.StartEventPropertyRuleContext parse(String propertyName) {
+    public static StartEventPropertyRuleContext parse(String propertyName) {
         CharStream input = new CaseInsensitiveInputStream(propertyName);
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lex);
@@ -69,7 +71,7 @@ public class TestPropertyParserSideBySide extends TestCase {
         }
 
         EsperEPL2GrammarParser g = ParseHelper.newParser(tokens);
-        EsperEPL2GrammarParser.StartEventPropertyRuleContext r;
+        StartEventPropertyRuleContext r;
 
         try {
             r = g.startEventPropertyRule();
@@ -86,7 +88,7 @@ public class TestPropertyParserSideBySide extends TestCase {
         return r;
     }
 
-    private static EsperEPL2GrammarParser.StartEventPropertyRuleContext handleRecognitionEx(RecognitionException e, CommonTokenStream tokens, String propertyName, EsperEPL2GrammarParser g) {
+    private static StartEventPropertyRuleContext handleRecognitionEx(RecognitionException e, CommonTokenStream tokens, String propertyName, EsperEPL2GrammarParser g) {
         // Check for keywords and escape each, parse again
         String escapedPropertyName = escapeKeywords(tokens);
 
@@ -137,56 +139,62 @@ public class TestPropertyParserSideBySide extends TestCase {
     /**
      * Parse the given property name returning a Property instance for the property.
      *
-     * @param isRootedDynamic is true to indicate that the property is already rooted in a dynamic
-     *                        property and therefore all child properties should be dynamic properties as well
      * @param tree            tree
      * @return Property instance for property
      */
-    public static Property walk(EsperEPL2GrammarParser.StartEventPropertyRuleContext tree, boolean isRootedDynamic) {
-        if (tree.eventProperty().eventPropertyAtomic().size() == 1) {
-            return makeProperty(tree.eventProperty().eventPropertyAtomic(0), isRootedDynamic);
+    public static Property walk(StartEventPropertyRuleContext tree) {
+        // handle root
+        ChainableRootWithOptContext root = tree.chainable().chainableRootWithOpt();
+        ChainableWithArgsContext rootProp = root.chainableWithArgs();
+
+        List<ChainableAtomicWithOptContext> chained = tree.chainable().chainableElements().chainableAtomicWithOpt();
+        List<Property> properties = new ArrayList<>();
+        boolean optionalRoot = root.q != null;
+        Property property = walkProp(rootProp, chained.isEmpty() ? null : chained.get(0), optionalRoot, false);
+        properties.add(property);
+        boolean rootedDynamic = property instanceof DynamicSimpleProperty;
+
+        for (int i = 0; i < chained.size(); i++) {
+            ChainableAtomicWithOptContext ctx = chained.get(i);
+            if (ctx.chainableAtomic().chainableArray() != null) {
+                continue;
+            }
+            boolean optional = ctx.q != null;
+            property = walkProp(ctx.chainableAtomic().chainableWithArgs(), chained.size() <= i+1 ? null : chained.get(i + 1), optional, rootedDynamic);
+            properties.add(property);
         }
 
-        EsperEPL2GrammarParser.EventPropertyContext propertyRoot = tree.eventProperty();
-
-        List<Property> properties = new LinkedList<Property>();
-        boolean isRootedInDynamic = isRootedDynamic;
-        for (EsperEPL2GrammarParser.EventPropertyAtomicContext atomic : propertyRoot.eventPropertyAtomic()) {
-            Property property = makeProperty(atomic, isRootedInDynamic);
-            if (property instanceof DynamicSimpleProperty) {
-                isRootedInDynamic = true;
-            }
-            properties.add(property);
+        if (properties.size() == 1) {
+            return properties.get(0);
         }
         return new NestedProperty(properties);
     }
 
-    private static Property makeProperty(EsperEPL2GrammarParser.EventPropertyAtomicContext atomic, boolean isRootedInDynamic) {
-        String prop = StringValue.unescapeDot(atomic.eventPropertyIdent().getText());
-        if (prop.length() == 0) {
-            throw new PropertyAccessException("Invalid zero-length string provided as an event property name");
+    private static Property walkProp(ChainableWithArgsContext ctx, ChainableAtomicWithOptContext nextOrNull, boolean optional, boolean rootedDynamic) {
+        if (nextOrNull == null) {
+            return makeProperty(ctx, optional, rootedDynamic);
         }
-        if (atomic.lb != null) {
-            int index = Integer.parseInt(atomic.ni.getText());
-            if (!isRootedInDynamic && atomic.q == null) {
-                return new IndexedProperty(prop, index);
-            } else {
-                return new DynamicIndexedProperty(prop, index);
-            }
-        } else if (atomic.lp != null) {
-            String key = StringValue.parseString(atomic.s.getText());
-            if (!isRootedInDynamic && atomic.q == null) {
-                return new MappedProperty(prop, key);
-            } else {
-                return new DynamicMappedProperty(prop, key);
-            }
-        } else {
-            if (!isRootedInDynamic && atomic.q1 == null) {
-                return new SimpleProperty(prop);
-            } else {
-                return new DynamicSimpleProperty(prop);
-            }
+
+        String name = ctx.chainableIdent().getText();
+        if (nextOrNull.chainableAtomic().chainableArray() != null) {
+            String indexText = nextOrNull.chainableAtomic().chainableArray().expression(0).getText();
+            int index = Integer.parseInt(indexText);
+            optional |= nextOrNull.q != null;
+            return optional ? new DynamicIndexedProperty(name, index) : new IndexedProperty(name, index);
         }
+        else {
+            return makeProperty(ctx, optional, rootedDynamic);
+        }
+    }
+
+    private static Property makeProperty(ChainableWithArgsContext ctx, boolean optional, boolean rootedDynamic) {
+        String name = ctx.chainableIdent().getText();
+        if (ctx.lp == null) {
+            return optional | rootedDynamic ? new DynamicSimpleProperty(name) : new SimpleProperty(name);
+        }
+        LibFunctionArgItemContext func = ctx.libFunctionArgs().libFunctionArgItem().get(0);
+        String key = StringValue.parseString(func.getText());
+        return optional ? new DynamicMappedProperty(name, key) : new MappedProperty(name, key);
     }
 
     private static class SimplePropAssertion implements Consumer<Property> {

@@ -11,7 +11,7 @@
 package com.espertech.esper.compiler.internal.parse;
 
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
@@ -92,8 +92,8 @@ public class ASTContextHelper {
                 propertyEvalSpec = null;
 
                 List<String> propertyNames = new ArrayList<String>();
-                List<EsperEPL2GrammarParser.EventPropertyContext> properties = partition.eventProperty();
-                for (EsperEPL2GrammarParser.EventPropertyContext property : properties) {
+                List<EsperEPL2GrammarParser.ChainableContext> properties = partition.chainable();
+                for (EsperEPL2GrammarParser.ChainableContext property : properties) {
                     String propertyName = ASTUtil.getPropertyName(property, 0);
                     propertyNames.add(propertyName);
                 }
@@ -117,7 +117,8 @@ public class ASTContextHelper {
             List<EsperEPL2GrammarParser.CreateContextCoalesceItemContext> coalesces = ctx.createContextCoalesceItem();
             List<ContextSpecHashItem> rawSpecs = new ArrayList<ContextSpecHashItem>(coalesces.size());
             for (EsperEPL2GrammarParser.CreateContextCoalesceItemContext coalesce : coalesces) {
-                ExprChainedSpec func = ASTLibFunctionHelper.getLibFunctionChainSpec(coalesce.libFunctionNoClass(), astExprNodeMap);
+                List<Chainable> chain = ASTChainSpecHelper.getChainables(coalesce.chainable(), astExprNodeMap);
+                Chainable func = chain.get(0);
                 FilterSpecRaw filterSpec = ASTFilterSpecHelper.walkFilterSpec(coalesce.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
                 propertyEvalSpec = null;
                 rawSpecs.add(new ContextSpecHashItem(func, filterSpec));

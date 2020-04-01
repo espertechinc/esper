@@ -89,7 +89,7 @@ public class EPLOtherUpdateIStream {
 
             // index expression is not Integer
             tryInvalidCompile(env, path, "update istream MySchema set doublearray[null]=1",
-                "Failed to validate update assignment expression 'doublearray[null]': Array expression requires an Integer-typed dimension but received type 'null'");
+                "Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'null' returns 'null' for expression 'doublearray'");
 
             // type incompatible cannot assign
             tryInvalidCompile(env, path, "update istream MySchema set intarray[notAnArray]='x'",
@@ -97,7 +97,7 @@ public class EPLOtherUpdateIStream {
 
             // not-an-array
             tryInvalidCompile(env, path, "update istream MySchema set notAnArray[notAnArray]=1",
-                "Failed to validate update assignment expression 'notAnArray[notAnArray]': Property 'notAnArray' is not an array since its type is 'java.lang.Integer'");
+                "Failed to validate assignment expression 'notAnArray[notAnArray]=1': Property 'notAnArray' type is not array");
 
             // not found
             tryInvalidCompile(env, path, "update istream MySchema set dummy[intPrimitive]=1",

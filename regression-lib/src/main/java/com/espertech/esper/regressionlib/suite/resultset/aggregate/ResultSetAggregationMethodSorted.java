@@ -90,7 +90,7 @@ public class ResultSetAggregationMethodSorted {
             tryInvalidCompile(env, path, "select MyTable.sortcol.floorKey() from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.floorKey()': Parameters mismatch for aggregation method 'floorKey', the method requires an expression providing the key value");
             tryInvalidCompile(env, path, "select MyTable.sortcol.floorKey('a') from SupportBean_S0",
-                "Failed to validate select-clause expression 'MyTable.sortcol.floorKey('a')()': Method 'floorKey' for parameter 0 requires a key of type 'java.lang.Integer' but receives 'java.lang.String'");
+                "Failed to validate select-clause expression 'MyTable.sortcol.floorKey(\"a\")': Method 'floorKey' for parameter 0 requires a key of type 'java.lang.Integer' but receives 'java.lang.String'");
 
             tryInvalidCompile(env, path, "select MyTable.sortcol.firstKey(id) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.firstKey(id)': Parameters mismatch for aggregation method 'firstKey', the method requires no parameters");

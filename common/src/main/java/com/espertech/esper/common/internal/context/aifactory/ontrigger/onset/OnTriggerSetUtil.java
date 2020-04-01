@@ -74,7 +74,7 @@ public class OnTriggerSetUtil {
 
         // validate assignments
         for (OnTriggerSetAssignment assignment : desc.getAssignments()) {
-            ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
+            ExprNodeUtilityValidate.validateAssignment(true, ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext);
         }
 
         // create read-write logic

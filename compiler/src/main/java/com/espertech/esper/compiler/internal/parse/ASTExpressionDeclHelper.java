@@ -69,7 +69,7 @@ public class ASTExpressionDeclHelper {
         List<String> parametersNames = Collections.emptyList();
         EsperEPL2GrammarParser.ExpressionLambdaDeclContext lambdactx = ctxexpr.expressionLambdaDecl();
         if (ctxexpr.expressionLambdaDecl() != null) {
-            parametersNames = ASTLibFunctionHelper.getLambdaGoesParams(lambdactx);
+            parametersNames = ASTLambdaHelper.getLambdaGoesParams(lambdactx);
         }
 
         Expression expression = StatementSpecMapper.unmap(inner);

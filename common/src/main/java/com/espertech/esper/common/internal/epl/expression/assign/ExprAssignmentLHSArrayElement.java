@@ -10,43 +10,43 @@
  */
 package com.espertech.esper.common.internal.epl.expression.assign;
 
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableArray;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 
+import java.util.Collections;
+import java.util.List;
+
 public class ExprAssignmentLHSArrayElement extends ExprAssignmentLHS {
 
-    private ExprNode indexExpression;
-    private ExprArrayElement arrayElement;
+    private List<ExprNode> indexExpressions;
 
-    public ExprAssignmentLHSArrayElement(ExprArrayElement arrayElement, ExprNode indexExpression) {
-        super(arrayElement.getArrayPropName());
-        this.arrayElement = arrayElement;
-        this.indexExpression = indexExpression;
+    public ExprAssignmentLHSArrayElement(String ident, List<ExprNode> indexExpressions) {
+        super(ident);
+        this.indexExpressions = indexExpressions;
     }
 
     public void accept(ExprNodeVisitor visitor) {
-        indexExpression.accept(visitor);
-        arrayElement.accept(visitor);
+        for (ExprNode node : indexExpressions) {
+            node.accept(visitor);
+        }
     }
 
     public void validate(ExprNodeOrigin origin, ExprValidationContext validationContext) throws ExprValidationException {
-        indexExpression = ExprNodeUtilityValidate.getValidatedSubtree(origin, indexExpression, validationContext);
-        arrayElement = (ExprArrayElement) ExprNodeUtilityValidate.getValidatedSubtree(origin, arrayElement, validationContext);
-        EPStatementStartMethodHelperValidate.validateNoAggregations(indexExpression, ExprAssignment.VALIDATION_AGG_MSG);
-        EPStatementStartMethodHelperValidate.validateNoAggregations(arrayElement, ExprAssignment.VALIDATION_AGG_MSG);
-    }
-
-    public String getFullIdentifier() {
-        return arrayElement.getArrayPropName();
+        ExprNode index = indexExpressions.get(0);
+        index = ExprNodeUtilityValidate.getValidatedSubtree(origin, index, validationContext);
+        indexExpressions = Collections.singletonList(index);
+        ChainableArray.validateSingleIndexExpr(indexExpressions, () -> "expression '" + ident + "'");
+        EPStatementStartMethodHelperValidate.validateNoAggregations(index, ExprAssignment.VALIDATION_AGG_MSG);
     }
 
     public ExprNode getIndexExpression() {
-        return indexExpression;
+        return indexExpressions.get(0);
     }
 
-    public ExprArrayElement getArrayElement() {
-        return arrayElement;
+    public String getFullIdentifier() {
+        return ident;
     }
 }
 

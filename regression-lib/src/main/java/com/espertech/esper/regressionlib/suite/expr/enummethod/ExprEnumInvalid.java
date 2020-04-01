@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.expr.enummethod;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 
 public class ExprEnumInvalid implements RegressionExecution {
 
@@ -88,7 +87,7 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // aggregation
         epl = "select avg(intPrimitive).where(x=>x.boolPrimitive) from SupportBean_ST0";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Incorrect syntax near '(' ('avg' is a reserved keyword) at line 1 column 10");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'avg(intPrimitive).where()': Failed to validate method-chain parameter expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream");
 
         // invalid incompatible params
         epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
@@ -108,6 +107,6 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // not a property
         epl = "select contained.firstof().dummy from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.firstof().dummy()': Failed to resolve method 'dummy': Could not find enumeration method, date-time method or instance method named 'dummy' in class '" + SupportBean_ST0.class.getName() + "' taking no parameters [select contained.firstof().dummy from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.firstof().dummy': Failed to resolve method 'dummy': Could not find enumeration method, date-time method, instance method or property named 'dummy' in class 'com.espertech.esper.regressionlib.support.bean.SupportBean_ST0' taking no parameters");
     }
 }

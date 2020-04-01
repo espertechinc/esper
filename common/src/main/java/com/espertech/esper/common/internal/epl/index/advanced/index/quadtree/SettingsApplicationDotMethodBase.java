@@ -149,11 +149,11 @@ public abstract class SettingsApplicationDotMethodBase implements SettingsApplic
         if (dotNode.getChainSpec().size() > 1) {
             throw getIndexNameMessage("invalid chained index expression");
         }
-        List<ExprNode> params = dotNode.getChainSpec().get(0).getParameters();
-        String indexTypeName = dotNode.getChainSpec().get(0).getName();
+        List<ExprNode> params = dotNode.getChainSpec().get(0).getParametersOrEmpty();
+        String indexTypeName = dotNode.getChainSpec().get(0).getRootNameOrEmptyString();
         optionalIndexName = node.getPrototype().getName();
 
-        AdvancedIndexFactoryProvider provider = null;
+        AdvancedIndexFactoryProvider provider;
         try {
             provider = validationContext.getClasspathImportService().resolveAdvancedIndexProvider(indexTypeName);
         } catch (ClasspathImportException e) {

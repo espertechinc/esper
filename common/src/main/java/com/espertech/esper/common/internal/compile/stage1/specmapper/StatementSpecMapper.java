@@ -26,12 +26,15 @@ import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggM
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprPlugInMultiFunctionAggNode;
 import com.espertech.esper.common.internal.epl.expression.agg.method.*;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableArray;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableCall;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableName;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredHelper;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
-import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeImpl;
+import com.espertech.esper.common.internal.epl.expression.dot.walk.ChainableWalkHelper;
 import com.espertech.esper.common.internal.epl.expression.funcs.*;
 import com.espertech.esper.common.internal.epl.expression.ops.*;
 import com.espertech.esper.common.internal.epl.expression.prev.ExprPreviousNode;
@@ -68,9 +71,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTim
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
-import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
-import com.espertech.esper.common.internal.settings.ClasspathImportUndefinedException;
 import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
 import com.espertech.esper.common.internal.type.CronOperatorEnum;
 import com.espertech.esper.common.internal.type.MathArithTypeEnum;
@@ -1354,7 +1355,7 @@ public class StatementSpecMapper {
             for (ContextDescriptorHashSegmentedItem item : hash.getItems()) {
                 FilterSpecRaw rawSpec = mapFilter(item.getFilter(), mapContext);
                 SingleRowMethodExpression singleRowMethodExpression = (SingleRowMethodExpression) item.getHashFunction();
-                ExprChainedSpec func = mapChains(Collections.singletonList(singleRowMethodExpression.getChain().get(0)), mapContext).get(0);
+                Chainable func = mapChains(Collections.singletonList(singleRowMethodExpression.getChain().get(0)), mapContext).get(0);
                 itemsdesc.add(new ContextSpecHashItem(func, rawSpec));
             }
             detail = new ContextSpecHash(itemsdesc, hash.getGranularity(), hash.isPreallocate());
@@ -1840,8 +1841,8 @@ public class StatementSpecMapper {
             return new ExprPreviousNode(ExprPreviousNodePreviousType.valueOf(prev.getType().toString()));
         } else if (expr instanceof StaticMethodExpression) {
             StaticMethodExpression method = (StaticMethodExpression) expr;
-            List<ExprChainedSpec> chained = mapChains(method.getChain(), mapContext);
-            chained.add(0, new ExprChainedSpec(method.getClassName(), Collections.emptyList(), false));
+            List<Chainable> chained = mapChains(method.getChain(), mapContext);
+            chained.add(0, new ChainableCall(method.getClassName(), Collections.emptyList()));
             return new ExprDotNodeImpl(chained,
                 mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
                 mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
@@ -1939,8 +1940,9 @@ public class StatementSpecMapper {
             if ((single.getChain() == null) || (single.getChain().size() == 0)) {
                 throw new IllegalArgumentException("Single row method expression requires one or more method calls");
             }
-            List<ExprChainedSpec> chain = mapChains(single.getChain(), mapContext);
-            String functionName = chain.get(0).getName();
+            List<Chainable> chain = mapChains(single.getChain(), mapContext);
+            ChainableCall call = (ChainableCall) chain.get(0);
+            String functionName = call.getName();
 
             Pair<Class, ClasspathImportSingleRowDesc> pair;
             try {
@@ -1948,7 +1950,7 @@ public class StatementSpecMapper {
             } catch (Exception e) {
                 throw new IllegalArgumentException("Function name '" + functionName + "' cannot be resolved to a single-row function: " + e.getMessage(), e);
             }
-            chain.get(0).setName(pair.getSecond().getMethodName());
+            call.setName(pair.getSecond().getMethodName());
             return new ExprPlugInSingleRowNode(functionName, pair.getFirst(), chain, pair.getSecond());
         } else if (expr instanceof PlugInProjectionExpression) {
             PlugInProjectionExpression node = (PlugInProjectionExpression) expr;
@@ -1994,60 +1996,16 @@ public class StatementSpecMapper {
             return new ExprAggMultiFunctionLinearAccessNode(type);
         } else if (expr instanceof DotExpression) {
             DotExpression theBase = (DotExpression) expr;
-            List<ExprChainedSpec> chain = mapChains(theBase.getChain(), mapContext);
-
-            // determine table use
-            List<ExprChainedSpec> workChain = new ArrayList<>(chain);
-            String tableNameCandidate = workChain.get(0).getName();
-            Pair<ExprTableAccessNode, List<ExprChainedSpec>> pair = TableCompileTimeUtil.checkTableNameGetLibFunc(mapContext.getTableCompileTimeResolver(), mapContext.getPlugInAggregations(),
-                tableNameCandidate, workChain);
-            if (pair != null) {
-                mapContext.getTableExpressions().add(pair.getFirst());
-                if (pair.getSecond().isEmpty()) {
-                    return pair.getFirst();
-                }
-                ExprDotNode dotNode = new ExprDotNodeImpl(pair.getSecond(),
-                    mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                    mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
-                dotNode.addChildNode(pair.getFirst());
-                return dotNode;
+            // the first chain element may itself be nested:
+            //   chain.get(0)="table.a" (looks like a class name)
+            //   chain.get(1)="doit()"
+            List<Chainable> chain = mapChains(theBase.getChain(), mapContext);
+            if (!chain.isEmpty() && Chainable.isPlainPropertyChain(chain.get(0))) {
+                List<Chainable> elementized = Chainable.chainForDot(chain.get(0));
+                elementized.addAll(chain.subList(1, chain.size()));
+                chain = elementized;
             }
-
-            if (chain.size() >= 1) {
-                String name = chain.get(0).getName();
-                try {
-                    Pair<Class, ClasspathImportSingleRowDesc> singleRow = mapContext.getClasspathImportService().resolveSingleRow(name, mapContext.getClassProvidedClasspathExtension());
-                    if (singleRow != null) {
-                        return new ExprPlugInSingleRowNode(name, singleRow.getFirst(), chain, singleRow.getSecond());
-                    }
-                } catch (ClasspathImportException | ClasspathImportUndefinedException ex) {
-                    // expected
-                }
-            }
-
-            if (chain.size() == 1) {
-                String name = chain.get(0).getName();
-                Pair<ExprDeclaredNodeImpl, StatementSpecMapContext> declared = ExprDeclaredHelper.getExistsDeclaredExpr(name, chain.get(0).getParameters(), mapContext.getExpressionDeclarations().values(), mapContext.getContextCompileTimeDescriptor(), mapContext.getMapEnv());
-                if (declared != null) {
-                    mapContext.getTableExpressions().addAll(declared.getSecond().getTableExpressions());
-                    mapContext.getVariableNames().addAll(declared.getSecond().getVariableNames());
-                    return declared.getFirst();
-                }
-                ExprNodeScript script = ExprDeclaredHelper.getExistsScript(mapContext.getConfiguration().getCompiler().getScripts().getDefaultDialect(),
-                    name, chain.get(0).getParameters(), mapContext.getScripts().values(), mapContext.getMapEnv());
-                if (script != null) {
-                    return script;
-                }
-            }
-
-            ExprDotNode dotNode = new ExprDotNodeImpl(chain,
-                mapContext.getConfiguration().getCompiler().getExpression().isDuckTyping(),
-                mapContext.getConfiguration().getCompiler().getExpression().isUdfCache());
-            VariableMetaData variable = dotNode.isVariableOpGetName(mapContext.getVariableCompileTimeResolver());
-            if (variable != null) {
-                mapContext.getVariableNames().add(variable.getVariableName());
-            }
-            return dotNode;
+            return ChainableWalkHelper.processDot(true, expr.getChildren().isEmpty(), chain, mapContext);
         } else if (expr instanceof LambdaExpression) {
             LambdaExpression theBase = (LambdaExpression) expr;
             return new ExprLambdaGoesNode(new ArrayList<>(theBase.getParameters()));
@@ -2078,14 +2036,6 @@ public class StatementSpecMapper {
         } else if (expr instanceof NamedParameterExpression) {
             NamedParameterExpression named = (NamedParameterExpression) expr;
             return new ExprNamedParameterNodeImpl(named.getName());
-        } else if (expr instanceof PropertyValueArrayElementExpression) {
-            PropertyValueArrayElementExpression element = (PropertyValueArrayElementExpression) expr;
-            if (mapContext.getTableCompileTimeResolver().resolve(element.getPropertyName()) != null) {
-                ExprTableAccessNodeTopLevel tableNode = new ExprTableAccessNodeTopLevel(element.getPropertyName());
-                mapContext.getTableExpressions().add(tableNode);
-                return tableNode;
-            }
-            return new ExprArrayElement(element.getPropertyName());
         }
         throw new IllegalArgumentException("Could not map expression node of type " + expr.getClass().getSimpleName());
     }
@@ -2344,7 +2294,9 @@ public class StatementSpecMapper {
         } else if (expr instanceof ExprPlugInSingleRowNode) {
             ExprPlugInSingleRowNode node = (ExprPlugInSingleRowNode) expr;
             List<DotExpressionItem> chain = unmapChains(node.getChainSpec(), unmapContext);
-            chain.get(0).setName(node.getFunctionName());  // starts with actual function name not mapped on
+            if (chain.get(0) instanceof DotExpressionItemCall) {
+                ((DotExpressionItemCall) chain.get(0)).setName(node.getFunctionName()); // we use the actual function name
+            }
             return new SingleRowMethodExpression(chain);
         } else if (expr instanceof ExprPlugInAggNode) {
             ExprPlugInAggNode node = (ExprPlugInAggNode) expr;
@@ -2411,8 +2363,8 @@ public class StatementSpecMapper {
         } else if (expr instanceof ExprDotNode) {
             ExprDotNode dotNode = (ExprDotNode) expr;
             DotExpression dotExpr = new DotExpression();
-            for (ExprChainedSpec chain : dotNode.getChainSpec()) {
-                dotExpr.add(chain.getName(), unmapExpressionDeep(chain.getParameters(), unmapContext), chain.isProperty());
+            for (Chainable chain : dotNode.getChainSpec()) {
+                dotExpr.add(unmapChainItem(chain, unmapContext));
             }
             return dotExpr;
         } else if (expr instanceof ExprStreamUnderlyingNodeImpl) {
@@ -2439,9 +2391,6 @@ public class StatementSpecMapper {
         } else if (expr instanceof ExprNamedParameterNode) {
             ExprNamedParameterNode named = (ExprNamedParameterNode) expr;
             return new NamedParameterExpression(named.getParameterName());
-        } else if (expr instanceof ExprArrayElement) {
-            ExprArrayElement ident = (ExprArrayElement) expr;
-            return new PropertyValueArrayElementExpression(ident.getArrayPropName(), unmapExpressionDeep(ident.getChildNodes(), unmapContext));
         } else if (expr instanceof ExprTableAccessNode) {
             ExprTableAccessNode table = (ExprTableAccessNode) expr;
             if (table instanceof ExprTableAccessNodeTopLevel) {
@@ -2883,7 +2832,6 @@ public class StatementSpecMapper {
 
     private static void mapContextName(String contextName, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
         raw.setOptionalContextName(contextName);
-        mapContext.setContextName(contextName);
     }
 
     private static void mapExpressionDeclaration(List<ExpressionDeclaration> expressionDeclarations, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
@@ -2897,7 +2845,7 @@ public class StatementSpecMapper {
         for (ExpressionDeclaration decl : expressionDeclarations) {
             ExpressionDeclItem item = mapExpressionDeclItem(decl, mapContext);
             desc.getExpressions().add(item);
-            mapContext.addExpressionDeclarations(item);
+            mapContext.addExpressionDeclaration(item);
         }
     }
 
@@ -3021,20 +2969,48 @@ public class StatementSpecMapper {
         }
     }
 
-    private static List<ExprChainedSpec> mapChains(List<DotExpressionItem> pairs, StatementSpecMapContext mapContext) {
-        List<ExprChainedSpec> chains = new ArrayList<>();
+    private static List<Chainable> mapChains(List<DotExpressionItem> pairs, StatementSpecMapContext mapContext) {
+        List<Chainable> chains = new ArrayList<>();
         for (DotExpressionItem item : pairs) {
-            chains.add(new ExprChainedSpec(item.getName(), mapExpressionDeep(item.getParameters(), mapContext), item.isProperty()));
+            chains.add(mapChainItem(item, mapContext));
         }
         return chains;
     }
 
-    private static List<DotExpressionItem> unmapChains(List<ExprChainedSpec> pairs, StatementSpecUnMapContext unmapContext) {
+    private static List<DotExpressionItem> unmapChains(List<Chainable> pairs, StatementSpecUnMapContext unmapContext) {
         List<DotExpressionItem> result = new ArrayList<>();
-        for (ExprChainedSpec chain : pairs) {
-            result.add(new DotExpressionItem(chain.getName(), unmapExpressionDeep(chain.getParameters(), unmapContext), chain.isProperty()));
+        for (Chainable chain : pairs) {
+            result.add(unmapChainItem(chain, unmapContext));
         }
         return result;
+    }
+
+    private static DotExpressionItem unmapChainItem(Chainable chain, StatementSpecUnMapContext unmapContext) {
+        if (chain instanceof ChainableName) {
+            return new DotExpressionItemName(((ChainableName) chain).getName());
+        } else if (chain instanceof ChainableArray) {
+            List<ExprNode> indexes = ((ChainableArray) chain).getIndexes();
+            return new DotExpressionItemArray(unmapExpressionDeep(indexes, unmapContext));
+        } else if (chain instanceof ChainableCall) {
+            ChainableCall call = (ChainableCall) chain;
+            return new DotExpressionItemCall(call.getName(), unmapExpressionDeep(call.getParameters(), unmapContext));
+        } else {
+            throw new IllegalStateException("Unrecognized chainable " + chain);
+        }
+    }
+
+    private static Chainable mapChainItem(DotExpressionItem item, StatementSpecMapContext mapContext) {
+        if (item instanceof DotExpressionItemName) {
+            return new ChainableName(((DotExpressionItemName) item).getName());
+        } else if (item instanceof DotExpressionItemArray) {
+            List<Expression> indexes = ((DotExpressionItemArray) item).getIndexes();
+            return new ChainableArray(mapExpressionDeep(indexes, mapContext));
+        } else if (item instanceof DotExpressionItemCall) {
+            DotExpressionItemCall call = (DotExpressionItemCall) item;
+            return new ChainableCall(call.getName(), mapExpressionDeep(call.getParameters(), mapContext));
+        } else {
+            throw new IllegalStateException("Unrecognized item " + item);
+        }
     }
 
     public static ExprNode mapExpression(Expression expression, StatementSpecMapContext env) {

@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactory;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
@@ -27,20 +28,19 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIONullableIntegerSerde;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 
+import java.util.List;
+
 public class ContextControllerHashUtil {
     public static void validateContextDesc(String contextName, ContextSpecHash hashedSpec, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
-
         if (hashedSpec.getItems().isEmpty()) {
             throw new ExprValidationException("Empty list of hash items");
         }
 
         for (ContextSpecHashItem item : hashedSpec.getItems()) {
-            if (item.getFunction().getParameters().isEmpty()) {
-                throw new ExprValidationException("For context '" + contextName + "' expected one or more parameters to the hash function, but found no parameter list");
-            }
-
+            Chainable chainable = item.getFunction();
             // determine type of hash to use
-            String hashFuncName = item.getFunction().getName();
+            String hashFuncName = chainable.getRootNameOrEmptyString();
+            List<ExprNode> params = chainable.getParametersOrEmpty();
             HashFunctionEnum hashFunction = HashFunctionEnum.determine(contextName, hashFuncName);
             Pair<Class, ClasspathImportSingleRowDesc> hashSingleRowFunction = null;
             if (hashFunction == null) {
@@ -56,32 +56,35 @@ public class ContextControllerHashUtil {
                 }
             }
 
+            if (params.isEmpty()) {
+                throw new ExprValidationException("For context '" + contextName + "' expected one or more parameters to the hash function, but found no parameter list");
+            }
             // get first parameter
-            ExprNode paramExpr = item.getFunction().getParameters().get(0);
+            ExprNode paramExpr = params.get(0);
             Class paramType = paramExpr.getForge().getEvaluationType();
             EventPropertyValueGetterForge getter;
 
             if (hashFunction == HashFunctionEnum.CONSISTENT_HASH_CRC32) {
-                if (item.getFunction().getParameters().size() > 1 || paramType != String.class) {
-                    getter = new ContextControllerHashedGetterCRC32SerializedForge(item.getFunction().getParameters(), hashedSpec.getGranularity());
+                if (params.size() > 1 || paramType != String.class) {
+                    getter = new ContextControllerHashedGetterCRC32SerializedForge(params, hashedSpec.getGranularity());
                 } else {
                     getter = new ContextControllerHashedGetterCRC32SingleForge(paramExpr, hashedSpec.getGranularity());
                 }
             } else if (hashFunction == HashFunctionEnum.HASH_CODE) {
-                if (item.getFunction().getParameters().size() > 1) {
-                    getter = new ContextControllerHashedGetterHashMultiple(item.getFunction().getParameters(), hashedSpec.getGranularity());
+                if (params.size() > 1) {
+                    getter = new ContextControllerHashedGetterHashMultiple(params, hashedSpec.getGranularity());
                 } else {
                     getter = new ContextControllerHashedGetterHashSingleForge(paramExpr, hashedSpec.getGranularity());
                 }
             } else if (hashSingleRowFunction != null) {
-                getter = new ContextControllerHashedGetterSingleRowForge(hashSingleRowFunction, item.getFunction().getParameters(),
+                getter = new ContextControllerHashedGetterSingleRowForge(hashSingleRowFunction, params,
                     hashedSpec.getGranularity(), item.getFilterSpecCompiled().getFilterForEventType(), statementRawInfo, services);
             } else {
                 throw new IllegalArgumentException("Unrecognized hash code function '" + hashFuncName + "'");
             }
 
             // create and register expression
-            String expression = item.getFunction().getName() + "(" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
+            String expression = hashFuncName + "(" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
             DataInputOutputSerdeForge valueSerde = new DataInputOutputSerdeForgeSingleton(DIONullableIntegerSerde.class);
             ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, getter, Integer.class, true, valueSerde);
             item.setLookupable(lookupable);

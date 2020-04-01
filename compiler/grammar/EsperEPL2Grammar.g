@@ -247,7 +247,7 @@ package com.espertech.esper.compiler.internal.generated;
 //----------------------------------------------------------------------------
 startEPLExpressionRule : (annotationEnum | expressionDecl | classDecl)* eplExpression EOF;
 
-startEventPropertyRule : eventProperty EOF;
+startEventPropertyRule : chainable EOF;
 
 startJsonValueRule : jsonvalue EOF;
 
@@ -396,7 +396,7 @@ onSetExpr
 
 onSetAssignmentList : onSetAssignment (COMMA onSetAssignment)*;
 	
-onSetAssignment : eventProperty EQUALS expression | expression;
+onSetAssignment : chainable EQUALS expression | expression;
 		
 onExprFrom : FROM n=IDENT (AS identOrTicked | identOrTicked)?;
 
@@ -421,7 +421,7 @@ createTableExpr : CREATE TABLE n=IDENT AS? LPAREN createTableColumnList RPAREN;
 
 createTableColumnList : createTableColumn (COMMA createTableColumn)*;
 
-createTableColumn : n=IDENT (classIdentifierWithDimensions | builtinFunc | libFunction) p=IDENT? k=IDENT? (typeExpressionAnnotation | annotationEnum)*;
+createTableColumn : n=IDENT (classIdentifierWithDimensions | builtinFunc | chainable) p=IDENT? k=IDENT? (typeExpressionAnnotation | annotationEnum)*;
 
 createColumnList 	
 @init  { paraphrases.push("column list"); }
@@ -436,7 +436,7 @@ createSelectionList
 		: createSelectionListElement (COMMA createSelectionListElement)* ;
 
 createSelectionListElement : s=STAR
-			     | eventProperty (AS i=IDENT)?
+			     | chainable (AS i=IDENT)?
 			     | constant AS i=IDENT;
 
 createSchemaExpr : CREATE keyword=IDENT? createSchemaDef;
@@ -511,9 +511,9 @@ createContextRangePoint : createContextFilter
 		
 createContextFilter : eventFilterExpression (AS? i=IDENT)?;
 
-createContextPartitionItem : eventProperty ((AND_EXPR|COMMA) eventProperty)* FROM eventFilterExpression (AS? keywordAllowedIdent)?;
+createContextPartitionItem : chainable ((AND_EXPR|COMMA) chainable)* FROM eventFilterExpression (AS? keywordAllowedIdent)?;
 	
-createContextCoalesceItem : libFunctionNoClass FROM eventFilterExpression;
+createContextCoalesceItem : chainable FROM eventFilterExpression;
 
 createContextGroupItem : GROUP BY? expression AS i=IDENT;	
 
@@ -560,7 +560,7 @@ outerJoin
 
 outerJoinIdent : ON outerJoinIdentPair (AND_EXPR outerJoinIdentPair)*;
 	
-outerJoinIdentPair : eventProperty EQUALS eventProperty ;
+outerJoinIdentPair : chainable EQUALS chainable ;
 
 whereClause
 @init  { paraphrases.push("where clause"); }
@@ -799,29 +799,26 @@ multiplyExpression : unaryExpression ( (STAR|DIV|MOD) unaryExpression )*;
 unaryExpression : unaryMinus
 		| constant
 		| substitutionCanChain
-		| inner=LPAREN expression RPAREN chainedFunction?
+		| inner=LPAREN expression RPAREN chainableElements
 		| builtinFunc
-		| eventPropertyOrLibFunction
+		| chainable
 		| arrayExpression
 		| rowSubSelectExpression 
 		| existsSubSelectExpression
 		| NEWKW LCURLY newAssign (COMMA newAssign)* RCURLY
-		| NEWKW classIdentifier LPAREN (expression (COMMA expression)*)? RPAREN chainedFunction?
+		| NEWKW classIdentifier LPAREN (expression (COMMA expression)*)? RPAREN chainableElements
 		| NEWKW classIdentifier LBRACK expression RBRACK (LBRACK expression RBRACK)?
 		| NEWKW classIdentifier LBRACK RBRACK (LBRACK RBRACK)? arrayExpression
-		| b=IDENT LBRACK expression (COMMA expression)* RBRACK chainedFunction?
 		| jsonobject
 		;
 
-unaryMinus : MINUS eventProperty;
+unaryMinus : MINUS chainable;
 
-substitutionCanChain : substitution chainedFunction?;
+substitutionCanChain : substitution chainableElements;
+		
+newAssign : chainable (EQUALS expression)?;
 	
-chainedFunction : d=DOT libFunctionNoClass (d=DOT libFunctionNoClass)*;
-	
-newAssign : eventProperty (EQUALS expression)?;
-	
-rowSubSelectExpression : subQueryExpr chainedFunction?;
+rowSubSelectExpression : subQueryExpr chainableElements;
 
 subSelectGroupExpression : subQueryExpr;
 
@@ -837,7 +834,7 @@ subSelectFilterExpr
 @after { paraphrases.pop(); }
 		: eventFilterExpression viewExpressions? (AS identOrTicked | identOrTicked)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
 
-arrayExpression : LCURLY (expression (COMMA expression)* )? RCURLY chainedFunction?;
+arrayExpression : LCURLY (expression (COMMA expression)* )? RCURLY chainableElements;
 		
 builtinFunc : SUM LPAREN (ALL | DISTINCT)? expressionListWithNamed RPAREN   			#builtin_sum
 		| AVG LPAREN (ALL | DISTINCT)? expressionListWithNamed RPAREN			#builtin_avg
@@ -847,41 +844,26 @@ builtinFunc : SUM LPAREN (ALL | DISTINCT)? expressionListWithNamed RPAREN   			#
 		| AVEDEV LPAREN (ALL | DISTINCT)? expressionListWithNamed RPAREN		#builtin_avedev
 		| firstLastWindowAggregation							#builtin_firstlastwindow
 		| COALESCE LPAREN expression COMMA expression (COMMA expression)* RPAREN	#builtin_coalesce
-		| PREVIOUS LPAREN expression (COMMA expression)? RPAREN chainedFunction?	#builtin_prev
-		| PREVIOUSTAIL LPAREN expression (COMMA expression)? RPAREN chainedFunction?	#builtin_prevtail
+		| PREVIOUS LPAREN expression (COMMA expression)? RPAREN chainableElements	#builtin_prev
+		| PREVIOUSTAIL LPAREN expression (COMMA expression)? RPAREN chainableElements	#builtin_prevtail
 		| PREVIOUSCOUNT LPAREN expression RPAREN					#builtin_prevcount
-		| PREVIOUSWINDOW LPAREN expression RPAREN chainedFunction?			#builtin_prevwindow
-		| PRIOR LPAREN expression COMMA eventProperty RPAREN				#builtin_prior
+		| PREVIOUSWINDOW LPAREN expression RPAREN chainableElements			#builtin_prevwindow
+		| PRIOR LPAREN expression COMMA chainable RPAREN				#builtin_prior
 		| GROUPING LPAREN expression RPAREN						#builtin_grouping
 		| GROUPING_ID LPAREN expressionList RPAREN					#builtin_groupingid
 		// MIN and MAX can also be "Math.min" static function and "min(price)" aggregation function and "min(a, b, c...)" built-in function
 		// therefore handled in code via libFunction as below
 		| INSTANCEOF LPAREN expression COMMA classIdentifier (COMMA classIdentifier)* RPAREN	#builtin_instanceof
 		| TYPEOF LPAREN expression RPAREN							#builtin_typeof
-		| CAST LPAREN expression (COMMA | AS) classIdentifierWithDimensions (COMMA expressionNamedParameter)? RPAREN chainedFunction?	#builtin_cast
-		| EXISTS LPAREN eventProperty RPAREN						#builtin_exists
-		| CURRENT_TIMESTAMP (LPAREN RPAREN)? chainedFunction?				#builtin_currts
+		| CAST LPAREN expression (COMMA | AS) classIdentifierWithDimensions (COMMA expressionNamedParameter)? RPAREN chainableElements	#builtin_cast
+		| EXISTS LPAREN chainable RPAREN						#builtin_exists
+		| CURRENT_TIMESTAMP (LPAREN RPAREN)? chainableElements				#builtin_currts
 		| ISTREAM LPAREN RPAREN								#builtin_istream
 		;
 	
-firstLastWindowAggregation : (q=FIRST | q=LAST | q=WINDOW) LPAREN expressionListWithNamed? RPAREN chainedFunction?;
-		
-eventPropertyOrLibFunction : eventProperty | libFunction;
-	
-libFunction: libFunctionWithClass (DOT libFunctionNoClass)*;
-				
-libFunctionWithClass : ((classIdentifier DOT funcIdentInner) | funcIdentTop) (l=LPAREN libFunctionArgs? RPAREN)?;
-
+firstLastWindowAggregation : (q=FIRST | q=LAST | q=WINDOW) LPAREN expressionListWithNamed? RPAREN chainableElements;
+			
 libFunctionNoClass : funcIdentChained (l=LPAREN libFunctionArgs? RPAREN)?;	
-
-funcIdentTop : escapableIdent
-		| MAX 
-		| MIN;
-
-funcIdentInner : escapableIdent
-		| LAST 
-		| FIRST
-		| WINDOW;
 
 funcIdentChained : escapableIdent
 		| LAST 
@@ -1031,72 +1013,83 @@ numericListParameter : rangeOperand
 		| frequencyOperand
 		| numberconstant;
 	    
-eventProperty : eventPropertyAtomic (DOT eventPropertyAtomic)*;
-	
-eventPropertyAtomic : eventPropertyIdent (
-			lb=LBRACK ni=number RBRACK (q=QUESTION)?
+chainable : chainableRootWithOpt chainableElements;
+				
+chainableRootWithOpt : chainableWithArgs q=QUESTION?;
+
+chainableElements : chainableAtomicWithOpt*;
+
+chainableAtomicWithOpt : chainableAtomic q=QUESTION?;
+
+chainableAtomic :  	chainableArray
 			|
-			lp=LPAREN (s=STRING_LITERAL | s=QUOTED_STRING_LITERAL) RPAREN (q=QUESTION)?
-			|
-			q1=QUESTION 
-			)?;
+			DOT chainableWithArgs
+			;
+			
+chainableArray : lb=LBRACK expression (COMMA expression)* RBRACK;
+
+chainableWithArgs : chainableIdent (lp=LPAREN libFunctionArgs? RPAREN)?;
 		
-eventPropertyIdent : ipi=keywordAllowedIdent (ESCAPECHAR DOT ipi2=keywordAllowedIdent?)*;
+chainableIdent : ipi=keywordAllowedIdent (ESCAPECHAR DOT ipi2=keywordAllowedIdent?)*;
 
 identOrTicked : i1=IDENT | i2=TICKED_STRING_LITERAL;
 	
 keywordAllowedIdent : i1=IDENT
 		| i2=TICKED_STRING_LITERAL
+		| AFTER
 		| AT
-		| COUNT
-		| ESCAPE
-    		| EVERY_EXPR
-		| SCHEMA
-		| SUM
 		| AVG
-		| MAX
-		| MIN
-		| COALESCE
-		| MEDIAN
-		| STDDEV
 		| AVEDEV
+		| BETWEEN
+		| CAST
+		| COALESCE
+		| CONTEXT
+		| COUNT
+		| DEFINE
+		| ESCAPE
 		| EVENTS
+    		| EVERY_EXPR
 		| FIRST
+		| FULL
+		| FOR
+		| INDEX
+		| INSTANCEOF
+		| JOIN
 		| LAST
-		| WHILE
-		| MERGE
+		| LEFT
+		| LW
+		| MAX
 		| MATCHED
-		| UNIDIRECTIONAL
-		| RETAINUNION
-		| RETAININTERSECTION
-		| UNTIL
-		| PATTERN
-		| SQL
+		| MATCHES
+		| MEDIAN
+		| MERGE
 		| METADATASQL
+		| MIN
+		| OUTER
+		| PARTITION
+		| PATTERN
 		| PREVIOUS
 		| PREVIOUSTAIL
 		| PRIOR
-		| WEEKDAY
-		| LW
-		| INSTANCEOF
-		| TYPEOF
-		| CAST
-		| SNAPSHOT
-		| VARIABLE
-		| TABLE
-		| INDEX
-		| WINDOW
-		| LEFT
+		| RETAINUNION
+		| RETAININTERSECTION
 		| RIGHT
-		| OUTER
-		| FULL
-		| JOIN
-		| DEFINE
-		| PARTITION
-		| MATCHES
-		| CONTEXT
-		| FOR
-		| USING;
+		| SCHEMA
+		| SET
+		| SNAPSHOT
+		| STDDEV
+		| SUM
+		| SQL
+		| TABLE
+		| TYPEOF
+		| UNIDIRECTIONAL
+		| UNTIL
+		| USING
+		| VARIABLE
+		| WEEKDAY
+		| WHERE
+		| WHILE
+		| WINDOW;
 		
 escapableStr : i1=IDENT | i2=EVENTS | i3=TICKED_STRING_LITERAL;
 	

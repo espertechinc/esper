@@ -42,7 +42,7 @@ import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
-import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
@@ -362,7 +362,10 @@ public class CompilerHelperStatementProvider {
 
     private static void rewriteNamedWindowSubselect(List<ExprDotNode> chainedExpressionsDot, List<ExprSubselectNode> subselects, NamedWindowCompileTimeResolver service) {
         for (ExprDotNode dotNode : chainedExpressionsDot) {
-            String proposedWindow = dotNode.getChainSpec().get(0).getName();
+            if (dotNode.getChainSpec().isEmpty()) {
+                continue;
+            }
+            String proposedWindow = dotNode.getChainSpec().get(0).getRootNameOrEmptyString();
             NamedWindowMetaData namedWindowDetail = service.resolve(proposedWindow);
             if (namedWindowDetail == null) {
                 continue;
@@ -373,13 +376,15 @@ public class CompilerHelperStatementProvider {
             FilterSpecRaw filter = new FilterSpecRaw(proposedWindow, Collections.<ExprNode>emptyList(), null);
             raw.getStreamSpecs().add(new FilterStreamSpecRaw(filter, ViewSpec.EMPTY_VIEWSPEC_ARRAY, proposedWindow, StreamSpecOptions.DEFAULT));
 
-            ExprChainedSpec firstChain = dotNode.getChainSpec().remove(0);
-            if (!firstChain.getParameters().isEmpty()) {
-                if (firstChain.getParameters().size() == 1) {
-                    raw.setWhereClause(firstChain.getParameters().get(0));
+            List<Chainable> modified = new ArrayList<>(dotNode.getChainSpec());
+            Chainable firstChain = modified.remove(0);
+            List<ExprNode> firstChainParams = firstChain.getParametersOrEmpty();
+            if (!firstChainParams.isEmpty()) {
+                if (firstChainParams.size() == 1) {
+                    raw.setWhereClause(firstChainParams.get(0));
                 } else {
                     ExprAndNode andNode = new ExprAndNodeImpl();
-                    for (ExprNode node : firstChain.getParameters()) {
+                    for (ExprNode node : firstChainParams) {
                         andNode.addChildNode(node);
                     }
                     raw.setWhereClause(andNode);
@@ -390,6 +395,7 @@ public class CompilerHelperStatementProvider {
             ExprSubselectNode subselect = new ExprSubselectRowNode(raw);
             subselects.add(subselect);
             dotNode.setChildNodes(subselect);
+            dotNode.setChainSpec(modified);
         }
     }
 

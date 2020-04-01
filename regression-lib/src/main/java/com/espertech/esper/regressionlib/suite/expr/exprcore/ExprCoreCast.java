@@ -47,7 +47,6 @@ public class ExprCoreCast {
         executions.add(new ExprCoreCastSimple());
         executions.add(new ExprCoreCastSimpleMoreTypes());
         executions.add(new ExprCoreCastAsParse());
-        executions.add(new ExprCoreCastDates());
         executions.add(new ExprCoreDoubleAndNullOM());
         executions.add(new ExprCoreCastInterface());
         executions.add(new ExprCastStringAndNullCompile());

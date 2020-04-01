@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
+
 import java.util.List;
 
 public class ExprNodeUtilityModify {
@@ -31,11 +33,11 @@ public class ExprNodeUtilityModify {
         return -1;
     }
 
-    public static void replaceChainChildNode(ExprNode nodeToReplace, ExprNode newNode, List<ExprChainedSpec> chainSpec) {
-        for (ExprChainedSpec chained : chainSpec) {
-            int index = chained.getParameters().indexOf(nodeToReplace);
+    public static void replaceChainChildNode(ExprNode nodeToReplace, ExprNode newNode, List<Chainable> chainSpec) {
+        for (Chainable chained : chainSpec) {
+            int index = chained.getParametersOrEmpty().indexOf(nodeToReplace);
             if (index != -1) {
-                chained.getParameters().set(index, newNode);
+                chained.getParametersOrEmpty().set(index, newNode);
             }
         }
     }

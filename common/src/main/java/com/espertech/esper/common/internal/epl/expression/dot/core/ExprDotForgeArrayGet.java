@@ -39,8 +39,8 @@ public class ExprDotForgeArrayGet implements ExprDotForge {
         return new ExprDotForgeArrayGetEval(this, indexExpression.getExprEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return ExprDotForgeArrayGetEval.codegen(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        return ExprDotForgeArrayGetEval.codegen(this, inner, innerType, parent, symbols, classScope);
     }
 
     public ExprForge getIndexExpression() {

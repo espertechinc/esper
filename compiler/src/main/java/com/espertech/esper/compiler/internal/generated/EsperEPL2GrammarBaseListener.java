@@ -1984,18 +1984,6 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterChainedFunction(EsperEPL2GrammarParser.ChainedFunctionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitChainedFunction(EsperEPL2GrammarParser.ChainedFunctionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterNewAssign(EsperEPL2GrammarParser.NewAssignContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2344,42 +2332,6 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEventPropertyOrLibFunction(EsperEPL2GrammarParser.EventPropertyOrLibFunctionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEventPropertyOrLibFunction(EsperEPL2GrammarParser.EventPropertyOrLibFunctionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLibFunction(EsperEPL2GrammarParser.LibFunctionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLibFunction(EsperEPL2GrammarParser.LibFunctionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLibFunctionWithClass(EsperEPL2GrammarParser.LibFunctionWithClassContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLibFunctionWithClass(EsperEPL2GrammarParser.LibFunctionWithClassContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterLibFunctionNoClass(EsperEPL2GrammarParser.LibFunctionNoClassContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2387,30 +2339,6 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLibFunctionNoClass(EsperEPL2GrammarParser.LibFunctionNoClassContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFuncIdentTop(EsperEPL2GrammarParser.FuncIdentTopContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFuncIdentTop(EsperEPL2GrammarParser.FuncIdentTopContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFuncIdentInner(EsperEPL2GrammarParser.FuncIdentInnerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFuncIdentInner(EsperEPL2GrammarParser.FuncIdentInnerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -3028,37 +2956,97 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEventProperty(EsperEPL2GrammarParser.EventPropertyContext ctx) { }
+	@Override public void enterChainable(EsperEPL2GrammarParser.ChainableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEventProperty(EsperEPL2GrammarParser.EventPropertyContext ctx) { }
+	@Override public void exitChainable(EsperEPL2GrammarParser.ChainableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEventPropertyAtomic(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx) { }
+	@Override public void enterChainableRootWithOpt(EsperEPL2GrammarParser.ChainableRootWithOptContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEventPropertyAtomic(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx) { }
+	@Override public void exitChainableRootWithOpt(EsperEPL2GrammarParser.ChainableRootWithOptContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEventPropertyIdent(EsperEPL2GrammarParser.EventPropertyIdentContext ctx) { }
+	@Override public void enterChainableElements(EsperEPL2GrammarParser.ChainableElementsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEventPropertyIdent(EsperEPL2GrammarParser.EventPropertyIdentContext ctx) { }
+	@Override public void exitChainableElements(EsperEPL2GrammarParser.ChainableElementsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterChainableAtomicWithOpt(EsperEPL2GrammarParser.ChainableAtomicWithOptContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitChainableAtomicWithOpt(EsperEPL2GrammarParser.ChainableAtomicWithOptContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterChainableAtomic(EsperEPL2GrammarParser.ChainableAtomicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitChainableAtomic(EsperEPL2GrammarParser.ChainableAtomicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterChainableArray(EsperEPL2GrammarParser.ChainableArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitChainableArray(EsperEPL2GrammarParser.ChainableArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterChainableWithArgs(EsperEPL2GrammarParser.ChainableWithArgsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitChainableWithArgs(EsperEPL2GrammarParser.ChainableWithArgsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterChainableIdent(EsperEPL2GrammarParser.ChainableIdentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitChainableIdent(EsperEPL2GrammarParser.ChainableIdentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

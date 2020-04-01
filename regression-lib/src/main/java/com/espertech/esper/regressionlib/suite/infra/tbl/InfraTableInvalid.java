@@ -265,7 +265,7 @@ public class InfraTableInvalid {
             tryInvalidCompile(env, path, "select aggvar_ungrouped['a'].total from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_ungrouped[\"a\"].total': Incompatible number of key expressions for use with table 'aggvar_ungrouped', the table expects no key expressions and provided are 1 key expressions [select aggvar_ungrouped['a'].total from SupportBean]");
             tryInvalidCompile(env, path, "select aggvar_grouped_string.total from SupportBean",
-                "Failed to validate select-clause expression 'aggvar_grouped_string.total': Failed to resolve property 'aggvar_grouped_string.total' to a stream or nested property in a stream [");
+                "Failed to validate select-clause expression 'aggvar_grouped_string.total': Failed to resolve property 'aggvar_grouped_string.total' to a stream or nested property in a stream");
             tryInvalidCompile(env, path, "select aggvar_grouped_string[5].total from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_grouped_string[5].total': Incompatible type returned by a key expression for use with table 'aggvar_grouped_string', the key expression '5' returns 'java.lang.Integer' but the table expects 'java.lang.String' [select aggvar_grouped_string[5].total from SupportBean]");
 
@@ -273,7 +273,7 @@ public class InfraTableInvalid {
             tryInvalidCompile(env, path, "select aggvar_grouped_string.something() from SupportBean",
                 "Invalid use of table 'aggvar_grouped_string', unrecognized use of function 'something', expected 'keys()'");
             tryInvalidCompile(env, path, "select dummy[intPrimitive] from SupportBean",
-                "Failed to validate select-clause expression 'dummy[intPrimitive]': Failed to resolve property 'dummy' to any stream");
+                "Failed to validate select-clause expression 'dummy[intPrimitive]': Failed to resolve 'dummy' to a property, single-row function, aggregation function, script, stream or class name");
             tryInvalidCompile(env, path, "select aggvarctx.dummy from SupportBean",
                 "Failed to validate select-clause expression 'aggvarctx.dummy': A column 'dummy' could not be found for table 'aggvarctx' [select aggvarctx.dummy from SupportBean]");
             tryInvalidCompile(env, path, "select aggvarctx_ungrouped_window.win.dummy(123) from SupportBean",
@@ -283,7 +283,7 @@ public class InfraTableInvalid {
             tryInvalidCompile(env, path, "context MyOtherContext select aggvarctx.total from SupportBean",
                 "Failed to validate select-clause expression 'aggvarctx.total': Table by name 'aggvarctx' has been declared for context 'MyContext' and can only be used within the same context [context MyOtherContext select aggvarctx.total from SupportBean]");
             tryInvalidCompile(env, path, "select aggvar_grouped_int[0].a.b from SupportBean",
-                "Invalid table expression 'aggvar_grouped_int[0].a.b [select aggvar_grouped_int[0].a.b from SupportBean]");
+                "Failed to validate select-clause expression 'aggvar_grouped_int[0].a.b': A column 'a' could not be found for table 'aggvar_grouped_int'");
 
             // invalid use in non-contextual evaluation
             tryInvalidCompile(env, path, "select * from SupportBean#time(aggvar_ungrouped.total sec)",
@@ -300,7 +300,7 @@ public class InfraTableInvalid {
                 "Contained-event expressions are not supported with tables");
             // join invalid
             tryInvalidCompile(env, path, "select aggvar_grouped_int[1].total.countMinSketchFrequency(theString) from SupportBean",
-                "Failed to validate select-clause expression 'aggvar_grouped_int[1].total.countMi...(62 chars)': Failed to resolve method 'countMinSketchFrequency': Could not find enumeration method, date-time method or instance method named 'countMinSketchFrequency' in class 'java.lang.Long' with matching parameter number and expected parameter type(s) 'String' ");
+                "Failed to validate select-clause expression 'aggvar_grouped_int[1].total.countMi...(62 chars)': Failed to resolve method 'countMinSketchFrequency': Could not find enumeration method, date-time method, instance method or property named 'countMinSketchFrequency' in class 'java.lang.Long' with matching parameter number and expected parameter type(s) 'String' ");
             tryInvalidCompile(env, path, "select total.countMinSketchFrequency(theString) from aggvar_grouped_int, SupportBean unidirectional",
                 "Failed to validate select-clause expression 'total.countMinSketchFrequency(theString)': Failed to resolve method 'countMinSketchFrequency': Could not find");
             // cannot be marked undirectional

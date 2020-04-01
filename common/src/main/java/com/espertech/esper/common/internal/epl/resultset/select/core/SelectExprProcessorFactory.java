@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseEleme
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseElementCompiled;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompiledSpec;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalWildcardNonJoin;
@@ -223,10 +224,12 @@ public class SelectExprProcessorFactory {
             return false;
         }
         ExprDotNode dotNode = (ExprDotNode) selectExpression;
-        if (!dotNode.getChainSpec().isEmpty() && dotNode.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH).equals(ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE)) {
-            return true;
+        List<Chainable> chainSpec = dotNode.getChainSpec();
+        if (dotNode.getChainSpec().isEmpty()) {
+            return false;
         }
-        return false;
+        Chainable first = chainSpec.get(0);
+        return ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE.equals(first.getRootNameOrEmptyString().toLowerCase(Locale.ENGLISH));
     }
 
     public static class SelectExprBuckets {

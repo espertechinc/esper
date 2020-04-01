@@ -43,13 +43,13 @@ public class ExprDotForgeUnpackBeanTable implements ExprDotForge, ExprDotEval {
         throw new UnsupportedOperationException("Table-row eval not available at compile time");
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpression eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tableMetadata, codegenClassScope, this.getClass());
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Object[].class, ExprDotForgeUnpackBeanTable.class, codegenClassScope).addParam(EventBean.class, "target");
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenExpression eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tableMetadata, classScope, this.getClass());
+        CodegenMethod methodNode = parent.makeChild(Object[].class, ExprDotForgeUnpackBeanTable.class, classScope).addParam(EventBean.class, "target");
 
-        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
-        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+        CodegenExpressionRef refEPS = symbols.getAddEPS(methodNode);
+        CodegenExpression refIsNewData = symbols.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = symbols.getAddExprEvalCtx(methodNode);
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("target")

@@ -31,7 +31,7 @@ public class ExprDTInvalid implements RegressionExecution {
 
         // invalid incompatible params
         epl = "select utildate.set('invalid') from SupportDateTime";
-        tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'utildate.set(\"invalid\")': Parameters mismatch for date-time method 'set', the method requires an expression providing a string-type calendar field name and an expression providing an integer-type value");
+        tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'utildate.set('invalid')': Failed to resolve enumeration method, date-time method or mapped property 'utildate.set('invalid')': Parameters mismatch for date-time method 'set', the method requires an expression providing a string-type calendar field name and an expression providing an integer-type value");
 
         // invalid lambda parameter
         epl = "select utildate.set(x => true) from SupportDateTime";

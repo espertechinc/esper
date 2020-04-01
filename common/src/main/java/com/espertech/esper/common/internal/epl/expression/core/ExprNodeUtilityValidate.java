@@ -21,6 +21,11 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprPlugInAggNode;
 import com.espertech.esper.common.internal.epl.expression.assign.*;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableArray;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableCall;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableName;
+import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNode;
@@ -60,14 +65,14 @@ public class ExprNodeUtilityValidate {
         validatePlainExpression(origin, expression, summaryVisitor);
     }
 
-    public static void validateAssignment(ExprNodeOrigin origin, OnTriggerSetAssignment spec, ExprValidationContext validationContext, boolean allowRHSAggregation) throws ExprValidationException {
+    public static void validateAssignment(boolean allowLHSVariables, ExprNodeOrigin origin, OnTriggerSetAssignment spec, ExprValidationContext validationContext) throws ExprValidationException {
         // equals-assignments are "a=1" and "a[1]=2" and such
         // they are not "a.reset()"
-        ExprAssignment assignment = checkGetStraightAssignment(spec.getExpression());
+        ExprAssignment assignment = checkGetStraightAssignment(spec.getExpression(), allowLHSVariables);
         if (assignment == null) {
             assignment = new ExprAssignmentCurly(spec.getExpression());
         }
-        assignment.validate(origin, validationContext, allowRHSAggregation);
+        assignment.validate(origin, validationContext);
         spec.setValidated(assignment);
     }
 
@@ -298,18 +303,10 @@ public class ExprNodeUtilityValidate {
         }
     }
 
-    public static void validate(ExprNodeOrigin origin, List<ExprChainedSpec> chainSpec, ExprValidationContext validationContext) throws ExprValidationException {
-
+    public static void validate(ExprNodeOrigin origin, List<Chainable> chainSpec, ExprValidationContext validationContext) throws ExprValidationException {
         // validate all parameters
-        for (ExprChainedSpec chainElement : chainSpec) {
-            List<ExprNode> validated = new ArrayList<ExprNode>();
-            for (ExprNode expr : chainElement.getParameters()) {
-                validated.add(getValidatedSubtree(origin, expr, validationContext));
-                if (expr instanceof ExprNamedParameterNode) {
-                    throw new ExprValidationException("Named parameters are not allowed");
-                }
-            }
-            chainElement.setParameters(validated);
+        for (Chainable chainElement : chainSpec) {
+            chainElement.validate(origin, validationContext);
         }
     }
 
@@ -346,10 +343,10 @@ public class ExprNodeUtilityValidate {
 
         // If there is a class name, assume a static method is possible.
         if (parse.getClassName() != null) {
-            List<ExprNode> parameters = Collections.singletonList((ExprNode) new ExprConstantNodeImpl(parse.getArgString()));
-            List<ExprChainedSpec> chain = new ArrayList<ExprChainedSpec>();
-            chain.add(new ExprChainedSpec(parse.getClassName(), Collections.<ExprNode>emptyList(), false));
-            chain.add(new ExprChainedSpec(parse.getMethodName(), parameters, false));
+            List<ExprNode> parameters = Collections.singletonList(new ExprConstantNodeImpl(parse.getArgString()));
+            List<Chainable> chain = new ArrayList<Chainable>();
+            chain.add(new ChainableName(parse.getClassName()));
+            chain.add(new ChainableCall(parse.getMethodName(), parameters));
             ConfigurationCompilerExpression exprconfig = validationContext.getStatementCompileTimeService().getConfiguration().getCompiler().getExpression();
             ExprNode result = new ExprDotNodeImpl(chain, exprconfig.isDuckTyping(), exprconfig.isUdfCache());
 
@@ -367,8 +364,8 @@ public class ExprNodeUtilityValidate {
         String functionName = parse.getMethodName();
         try {
             Pair<Class, ClasspathImportSingleRowDesc> classMethodPair = validationContext.getClasspathImportService().resolveSingleRow(functionName, validationContext.getClassProvidedClasspathExtension());
-            List<ExprNode> parameters = Collections.singletonList((ExprNode) new ExprConstantNodeImpl(parse.getArgString()));
-            List<ExprChainedSpec> chain = Collections.singletonList(new ExprChainedSpec(classMethodPair.getSecond().getMethodName(), parameters, false));
+            List<ExprNode> parameters = Collections.singletonList(new ExprConstantNodeImpl(parse.getArgString()));
+            List<Chainable> chain = Collections.singletonList(new ChainableCall(classMethodPair.getSecond().getMethodName(), parameters));
             ExprNode result = new ExprPlugInSingleRowNode(functionName, classMethodPair.getFirst(), chain, classMethodPair.getSecond());
 
             // Validate
@@ -430,7 +427,7 @@ public class ExprNodeUtilityValidate {
         return null;
     }
 
-    private static ExprAssignment checkGetStraightAssignment(ExprNode node) throws ExprValidationException {
+    private static ExprAssignment checkGetStraightAssignment(ExprNode node, boolean allowLHSVariables) throws ExprValidationException {
         Pair<String, ExprNode> prop = checkGetAssignmentToProp(node);
         if (prop != null) {
             return new ExprAssignmentStraight(node, new ExprAssignmentLHSIdent(prop.getFirst()), prop.getSecond());
@@ -444,6 +441,9 @@ public class ExprNodeUtilityValidate {
 
         if (lhs instanceof ExprVariableNode) {
             ExprVariableNode variableNode = (ExprVariableNode) equals.getChildNodes()[0];
+            if (!allowLHSVariables) {
+                throw new ExprValidationException("Left-hand-side does not allow variables for variable '" + variableNode.getVariableMetadata().getVariableName() + "'");
+            }
             String variableNameWSubprop = variableNode.getVariableNameWithSubProp();
             String variableName = variableNameWSubprop;
             String subPropertyName = null;
@@ -461,9 +461,20 @@ public class ExprNodeUtilityValidate {
             }
             return new ExprAssignmentStraight(node, lhsAssign, rhs);
         }
-        if (lhs instanceof ExprArrayElement) {
-            ExprArrayElement array = (ExprArrayElement) lhs;
-            return new ExprAssignmentStraight(node, new ExprAssignmentLHSArrayElement(array, array.getChildNodes()[0]), rhs);
+        if (lhs instanceof ExprDotNode) {
+            ExprDotNode dot = (ExprDotNode) lhs;
+            List<Chainable> chainables = dot.getChainSpec();
+            if (chainables.size() == 2 && chainables.get(0) instanceof ChainableName && chainables.get(1) instanceof ChainableArray) {
+                ChainableName name = (ChainableName) chainables.get(0);
+                ChainableArray array = (ChainableArray) chainables.get(1);
+                return new ExprAssignmentStraight(node, new ExprAssignmentLHSArrayElement(name.getName(), array.getIndexes()), rhs);
+            }
+            if (allowLHSVariables && dot.getChildNodes()[0] instanceof ExprVariableNode && chainables.size() == 1 && chainables.get(0) instanceof ChainableArray) {
+                ExprVariableNode variable = (ExprVariableNode) dot.getChildNodes()[0];
+                ChainableArray array = (ChainableArray) chainables.get(0);
+                return new ExprAssignmentStraight(node, new ExprAssignmentLHSArrayElement(variable.getVariableMetadata().getVariableName(), array.getIndexes()), rhs);
+            }
+            throw new ExprValidationException("Unrecognized left-hand-side assignment '" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(dot) + "'");
         }
         if (lhs instanceof ExprTableAccessNode) {
             throw new ExprValidationException("Table access expression not allowed on the left hand side, please remove the table prefix");

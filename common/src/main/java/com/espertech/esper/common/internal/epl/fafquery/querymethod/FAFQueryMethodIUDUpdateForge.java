@@ -58,7 +58,7 @@ public class FAFQueryMethodIUDUpdateForge extends FAFQueryMethodIUDBaseForge {
         FireAndForgetSpecUpdate updateSpec = (FireAndForgetSpecUpdate) spec.getRaw().getFireAndForgetSpec();
         try {
             for (OnTriggerSetAssignment assignment : updateSpec.getAssignments()) {
-                ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext, false);
+                ExprNodeUtilityValidate.validateAssignment(false, ExprNodeOrigin.UPDATEASSIGN, assignment, validationContext);
             }
         } catch (ExprValidationException e) {
             throw new EPException(e.getMessage(), e);

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
+import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
 import com.espertech.esper.common.client.soda.Expression;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
@@ -20,6 +22,7 @@ import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSp
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;
+import com.espertech.esper.common.internal.util.LazyAllocatedMap;
 import com.espertech.esper.common.internal.util.SerializerUtil;
 
 import java.util.Collection;
@@ -30,12 +33,14 @@ public class ExprDeclaredHelper {
                                                                                             List<ExprNode> parameters,
                                                                                             Collection<ExpressionDeclItem> stmtLocalExpressions,
                                                                                             ContextCompileTimeDescriptor contextCompileTimeDescriptor,
-                                                                                            StatementSpecMapEnv mapEnv) {
+                                                                                            StatementSpecMapEnv mapEnv,
+                                                                                            LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+                                                                                            List<ExpressionScriptProvided> scripts) {
         // Find among local expressions
         if (!stmtLocalExpressions.isEmpty()) {
             for (ExpressionDeclItem declNode : stmtLocalExpressions) {
                 if (declNode.getName().equals(name)) {
-                    Pair<ExprNode, StatementSpecMapContext> pair = getExprDeclaredNode(declNode.getOptionalSoda(), stmtLocalExpressions, contextCompileTimeDescriptor, mapEnv);
+                    Pair<ExprNode, StatementSpecMapContext> pair = getExprDeclaredNode(declNode.getOptionalSoda(), stmtLocalExpressions, contextCompileTimeDescriptor, mapEnv, plugInAggregations, scripts);
                     ExprDeclaredNodeImpl declared = new ExprDeclaredNodeImpl(declNode, parameters, contextCompileTimeDescriptor, pair.getFirst());
                     return new Pair<>(declared, pair.getSecond());
                 }
@@ -50,17 +55,17 @@ public class ExprDeclaredHelper {
                 byte[] bytes = found.getOptionalSodaBytes().get();
                 expression = (Expression) SerializerUtil.byteArrToObject(bytes);
             }
-            Pair<ExprNode, StatementSpecMapContext> pair = getExprDeclaredNode(expression, stmtLocalExpressions, contextCompileTimeDescriptor, mapEnv);
+            Pair<ExprNode, StatementSpecMapContext> pair = getExprDeclaredNode(expression, stmtLocalExpressions, contextCompileTimeDescriptor, mapEnv, plugInAggregations, scripts);
             ExprDeclaredNodeImpl declared = new ExprDeclaredNodeImpl(found, parameters, contextCompileTimeDescriptor, pair.getFirst());
             return new Pair<>(declared, pair.getSecond());
         }
         return null;
     }
 
-    private static Pair<ExprNode, StatementSpecMapContext> getExprDeclaredNode(Expression expression, Collection<ExpressionDeclItem> stmtLocalExpressions, ContextCompileTimeDescriptor contextCompileTimeDescriptor, StatementSpecMapEnv mapEnv) {
-        StatementSpecMapContext mapContext = new StatementSpecMapContext(contextCompileTimeDescriptor, mapEnv);
+    private static Pair<ExprNode, StatementSpecMapContext> getExprDeclaredNode(Expression expression, Collection<ExpressionDeclItem> stmtLocalExpressions, ContextCompileTimeDescriptor contextCompileTimeDescriptor, StatementSpecMapEnv mapEnv, LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations, List<ExpressionScriptProvided> scripts) {
+        StatementSpecMapContext mapContext = new StatementSpecMapContext(contextCompileTimeDescriptor, mapEnv, plugInAggregations, scripts);
         for (ExpressionDeclItem item : stmtLocalExpressions) {
-            mapContext.addExpressionDeclarations(item);
+            mapContext.addExpressionDeclaration(item);
         }
         ExprNode body = StatementSpecMapper.mapExpression(expression, mapContext);
         return new Pair<>(body, mapContext);

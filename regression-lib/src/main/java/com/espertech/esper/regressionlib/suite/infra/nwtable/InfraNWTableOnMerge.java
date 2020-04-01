@@ -87,7 +87,6 @@ public class InfraNWTableOnMerge {
                 execs.add(new InfraInnerTypeAndVariable(false, rep));
             }
         }
-
         execs.add(new InfraInvalid(true));
         execs.add(new InfraInvalid(false));
 
@@ -108,8 +107,8 @@ public class InfraNWTableOnMerge {
         execs.add(new InfraPropertyEvalInsertNoMatch(true));
         execs.add(new InfraPropertyEvalUpdate(false));
 
-        execs.add(new InfraSetArrayElementWithIndex(true, true));
         execs.add(new InfraSetArrayElementWithIndex(false, false));
+        execs.add(new InfraSetArrayElementWithIndex(true, true));
 
         execs.add(new InfraSetArrayElementWithIndexInvalid());
 
@@ -166,7 +165,7 @@ public class InfraNWTableOnMerge {
 
             // index expression is not Integer
             tryInvalidCompile(env, path, "on SupportBean update MyInfra set doublearray[null]=1",
-                "Failed to validate update assignment expression 'doublearray[null]': Array expression requires an Integer-typed dimension but received type 'null'");
+                "Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'null' returns 'null' for expression 'doublearray'");
 
             // type incompatible cannot assign
             tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]='x'",
@@ -176,11 +175,11 @@ public class InfraNWTableOnMerge {
 
             // not-an-array
             tryInvalidCompile(env, path, "on SupportBean update MyInfra set notAnArray[intPrimitive]=1",
-                "Failed to validate update assignment expression 'notAnArray[intPrimitive]': Property 'notAnArray' is not an array since its type is 'java.lang.Integer'");
+                "Failed to validate assignment expression 'notAnArray[intPrimitive]=1': Property 'notAnArray' is not an array");
 
             // not found
             tryInvalidCompile(env, path, "on SupportBean update MyInfra set dummy[intPrimitive]=1",
-                "Failed to validate update assignment expression 'dummy[intPrimitive]': Failed to resolve property 'dummy' to any stream");
+                "Failed to validate assignment expression 'dummy[intPrimitive]=1': Property 'dummy' could not be found");
 
             // property found in updating-event
             tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive]);\n" +
@@ -189,7 +188,7 @@ public class InfraNWTableOnMerge {
 
             tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive], position int);\n" +
                     "on UpdateEvent update MyInfra set dummy[position]=1;\n",
-                "Failed to validate assignment expression 'dummy[position]=1': Property 'dummy' is not available for write access");
+                "Failed to validate assignment expression 'dummy[position]=1': Property 'dummy' could not be found");
 
             path.clear();
 
@@ -817,6 +816,13 @@ public class InfraNWTableOnMerge {
 
             epl = "on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select * where theString = 'A'";
             tryInvalidCompile(env, path, epl, "Failed to validate match where-clause expression 'theString=\"A\"': Property named 'theString' is not valid in any stream [on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select * where theString = 'A']");
+
+            epl = "create variable int myvariable;\n" +
+                "on SupportBean_A merge MergeInfra when matched then update set myvariable = 1;\n";
+            tryInvalidCompile(env, path, epl, "Left-hand-side does not allow variables for variable 'myvariable'");
+
+            epl = "on SupportBean_A merge MergeInfra when matched then update set theString[1][2] = 1;\n";
+            tryInvalidCompile(env, path, epl, "Unrecognized left-hand-side assignment 'theString[1][2]'");
 
             env.undeployAll();
 

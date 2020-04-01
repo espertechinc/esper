@@ -59,13 +59,13 @@ public class ExprDotMethodForgeNoDuck implements ExprDotForge {
         }
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         if (type == Type.WRAPARRAY) {
-            return ExprDotMethodForgeNoDuckEvalWrapArray.codegenWrapArray(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
+            return ExprDotMethodForgeNoDuckEvalWrapArray.codegenWrapArray(this, inner, innerType, parent, symbols, classScope);
         } else if (type == Type.PLAIN) {
-            return ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
+            return ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(this, inner, innerType, parent, symbols, classScope);
         } else {
-            return ExprDotMethodForgeNoDuckEvalUnderlying.codegenUnderlying(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
+            return ExprDotMethodForgeNoDuckEvalUnderlying.codegenUnderlying(this, inner, innerType, parent, symbols, classScope);
         }
     }
 

@@ -17,9 +17,11 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidationBase;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionNode;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableArray;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableCall;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableName;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.expression.dot.propertydot.PropertyDotNonLambdaIndexedForge;
-import com.espertech.esper.common.internal.epl.expression.dot.propertydot.PropertyDotNonLambdaMappedForge;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNodeSubprop;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
@@ -38,9 +40,7 @@ import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.event.property.MappedProperty;
 import com.espertech.esper.common.internal.event.property.Property;
 import com.espertech.esper.common.internal.event.propertyparser.PropertyParserNoDep;
-import com.espertech.esper.common.internal.rettype.ClassEPType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportCompileTimeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.SettingsApplicationDotMethod;
@@ -55,14 +55,14 @@ import java.util.*;
  */
 public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprStreamRefNode, ExprNodeInnerNodeProvider {
 
-    private final List<ExprChainedSpec> chainSpec;
+    private List<Chainable> chainSpec;
     private final boolean isDuckTyping;
     private final boolean isUDFCache;
 
     private transient ExprDotNodeForge forge;
 
-    public ExprDotNodeImpl(List<ExprChainedSpec> chainSpec, boolean isDuckTyping, boolean isUDFCache) {
-        this.chainSpec = new ArrayList<ExprChainedSpec>(chainSpec); // for safety, copy the list
+    public ExprDotNodeImpl(List<Chainable> chainSpec, boolean isDuckTyping, boolean isUDFCache) {
+        this.chainSpec = Collections.unmodifiableList(chainSpec); // for safety, make it unmodifiable the list
         this.isDuckTyping = isDuckTyping;
         this.isUDFCache = isUDFCache;
     }
@@ -78,28 +78,28 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         // determine if there is an implied binding, replace first chain element with evaluation node if there is
         if (validationContext.getStreamTypeService().hasTableTypes() &&
             validationContext.getTableCompileTimeResolver() != null &&
-            chainSpec.size() > 1 && chainSpec.get(0).isProperty()) {
-            Pair<ExprNode, List<ExprChainedSpec>> tableNode = TableCompileTimeUtil.getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.isAllowTableAggReset(), validationContext.getTableCompileTimeResolver());
+            chainSpec.size() > 1 && chainSpec.get(0) instanceof ChainableName) {
+            Pair<ExprNode, List<Chainable>> tableNode = TableCompileTimeUtil.getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.isAllowTableAggReset(), validationContext.getTableCompileTimeResolver());
             if (tableNode != null) {
                 ExprNode node = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.DOTNODE, tableNode.getFirst(), validationContext);
                 if (tableNode.getSecond().isEmpty()) {
                     return node;
                 }
-                chainSpec.clear();
-                chainSpec.addAll(tableNode.getSecond());
+                List<Chainable> modifiedChain = new ArrayList<>(tableNode.getSecond());
+                setChainSpec(modifiedChain);
                 this.addChildNode(node);
             }
         }
 
         // handle aggregation methods: method on aggregation state coming from certain aggregations or from table column (both table-access or table-in-from-clause)
         // this is done here as a walker does not have the information that the validated child node has
-        Pair<ExprDotNodeAggregationMethodRootNode, List<ExprChainedSpec>> aggregationMethodNode = handleAggregationMethod(validationContext);
+        Pair<ExprDotNodeAggregationMethodRootNode, List<Chainable>> aggregationMethodNode = handleAggregationMethod(validationContext);
         if (aggregationMethodNode != null) {
             if (aggregationMethodNode.getSecond().isEmpty()) {
                 return aggregationMethodNode.getFirst();
             }
-            chainSpec.clear();
-            chainSpec.addAll(aggregationMethodNode.getSecond());
+            List<Chainable> modifiedChain = new ArrayList<>(aggregationMethodNode.getSecond());
+            this.setChainSpec(modifiedChain);
             this.getChildNodes()[0] = aggregationMethodNode.getFirst();
         }
 
@@ -108,8 +108,12 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
         // determine if there are enumeration method expressions in the chain
         boolean hasEnumerationMethod = false;
-        for (ExprChainedSpec chain : chainSpec) {
-            if (EnumMethodResolver.isEnumerationMethod(chain.getName(), validationContext.getClasspathImportService())) {
+        for (Chainable chain : chainSpec) {
+            if (!(chain instanceof ChainableCall)) {
+                continue;
+            }
+            ChainableCall call = (ChainableCall) chain;
+            if (EnumMethodResolver.isEnumerationMethod(call.getName(), validationContext.getClasspathImportService())) {
                 hasEnumerationMethod = true;
                 break;
             }
@@ -143,32 +147,36 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         // Plug-in single-row methods are not handled here.
         // Plug-in aggregation methods are not handled here.
         if (chainSpec.size() == 1) {
-            ExprChainedSpec spec = chainSpec.get(0);
-            if (spec.getParameters().isEmpty()) {
-                throw handleNotFound(spec.getName());
+            Chainable chainable = chainSpec.get(0);
+            if (!(chainable instanceof ChainableCall)) {
+                throw new IllegalStateException("Unexpected chainable : " + chainable);
+            }
+            ChainableCall call = (ChainableCall) chainable;
+            if (call.getParameters().isEmpty()) {
+                throw handleNotFound(call.getName());
             }
 
             // single-parameter can resolve to a property
             Pair<PropertyResolutionDescriptor, String> propertyInfoPair = null;
             try {
-                propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(streamTypeService, spec.getName(), streamTypeService.hasPropertyAgnosticType(), false, validationContext.getTableCompileTimeResolver());
+                propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(streamTypeService, call.getName(), streamTypeService.hasPropertyAgnosticType(), false, validationContext.getTableCompileTimeResolver());
             } catch (ExprValidationPropertyException ex) {
                 // fine
             }
 
             // if not a property then try built-in single-row non-grammar functions
-            if (propertyInfoPair == null && spec.getName().toLowerCase(Locale.ENGLISH).equals(ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE)) {
-                if (spec.getParameters().size() != 1) {
+            if (propertyInfoPair == null && call.getName().toLowerCase(Locale.ENGLISH).equals(ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE)) {
+                if (call.getParameters().size() != 1) {
                     throw new ExprValidationException("The " + ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE + " function requires a single parameter expression");
                 }
-                forge = new ExprDotNodeForgeTransposeAsStream(this, chainSpec.get(0).getParameters().get(0).getForge());
-            } else if (spec.getParameters().size() != 1) {
-                throw handleNotFound(spec.getName());
+                forge = new ExprDotNodeForgeTransposeAsStream(this, call.getParameters().get(0).getForge());
+            } else if (call.getParameters().size() != 1) {
+                throw handleNotFound(call.getName());
             } else {
                 if (propertyInfoPair == null) {
-                    throw new ExprValidationException("Unknown single-row function, aggregation function or mapped or indexed property named '" + spec.getName() + "' could not be resolved");
+                    throw new ExprValidationException("Unknown single-row function, aggregation function or mapped or indexed property named '" + call.getName() + "' could not be resolved");
                 }
-                forge = getPropertyPairEvaluator(spec.getParameters().get(0).getForge(), propertyInfoPair, validationContext);
+                forge = getPropertyPairEvaluator(call.getParameters().get(0).getForge(), propertyInfoPair, validationContext);
             }
             return null;
         }
@@ -178,21 +186,29 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         int prefixedStreamNumber = prefixedStreamName(chainSpec, validationContext.getStreamTypeService());
         if (prefixedStreamNumber != -1) {
 
-            ExprChainedSpec specAfterStreamName = chainSpec.get(1);
+            ChainableName first = (ChainableName) chainSpec.get(0);
+            Chainable specAfterStreamName = chainSpec.get(1);
 
             // Attempt to resolve as property
             Pair<PropertyResolutionDescriptor, String> propertyInfoPair = null;
             try {
-                String propName = chainSpec.get(0).getName() + "." + specAfterStreamName.getName();
-                propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(streamTypeService, propName, streamTypeService.hasPropertyAgnosticType(), false, validationContext.getTableCompileTimeResolver());
+                String propName = first.getName() + "." + specAfterStreamName.getRootNameOrEmptyString();
+                propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(streamTypeService, propName, streamTypeService.hasPropertyAgnosticType(), true, validationContext.getTableCompileTimeResolver());
             } catch (ExprValidationPropertyException ex) {
                 // fine
             }
+
             if (propertyInfoPair != null) {
-                if (specAfterStreamName.getParameters().size() != 1) {
-                    throw handleNotFound(specAfterStreamName.getName());
+                List<Chainable> chain = new ArrayList<>(chainSpec);
+                // handle "property[x]" and "property(x)"
+                if (chain.size() == 2 && specAfterStreamName.getParametersOrEmpty().size() == 1) {
+                    forge = getPropertyPairEvaluator(specAfterStreamName.getParametersOrEmpty().get(0).getForge(), propertyInfoPair, validationContext);
+                    return null;
                 }
-                forge = getPropertyPairEvaluator(specAfterStreamName.getParameters().get(0).getForge(), propertyInfoPair, validationContext);
+                chain.remove(0);
+                chain.remove(0);
+                PropertyInfoPairDesc desc = handlePropertyInfoPair(true, specAfterStreamName, chain, propertyInfoPair, hasEnumerationMethod, validationContext, this);
+                desc.apply(this);
                 return null;
             }
 
@@ -200,7 +216,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             EventType eventType = validationContext.getStreamTypeService().getEventTypes()[prefixedStreamNumber];
             Class type = eventType.getUnderlyingType();
 
-            List<ExprChainedSpec> remainderChain = new ArrayList<ExprChainedSpec>(chainSpec);
+            List<Chainable> remainderChain = new ArrayList<Chainable>(chainSpec);
             remainderChain.remove(0);
 
             ExprValidationException methodEx = null;
@@ -238,10 +254,11 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             if (forge != null) {
                 return null;
             } else {
-                if (ExprDotNodeUtility.isDatetimeOrEnumMethod(remainderChain.get(0).getName(), validationContext.getClasspathImportService())) {
+                String remainerName = remainderChain.get(0).getRootNameOrEmptyString();
+                if (ExprDotNodeUtility.isDatetimeOrEnumMethod(remainerName, validationContext.getClasspathImportService())) {
                     prefixedStreamNumException = enumDatetimeEx;
                 } else {
-                    prefixedStreamNumException = new ExprValidationException("Failed to solve '" + remainderChain.get(0).getName() + "' to either an date-time or enumeration method, an event property or a method on the event underlying object: " + methodEx.getMessage(), methodEx);
+                    prefixedStreamNumException = new ExprValidationException("Failed to solve '" + remainerName + "' to either an date-time or enumeration method, an event property or a method on the event underlying object: " + methodEx.getMessage(), methodEx);
                 }
             }
         }
@@ -249,106 +266,26 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         // There no root node, in this case the classname or property name is provided as part of the chain.
         // Such as "MyClass.myStaticLib(...)" or "mycollectionproperty.doIt(...)"
         //
-        List<ExprChainedSpec> modifiedChain = new ArrayList<ExprChainedSpec>(chainSpec);
-        ExprChainedSpec firstItem = modifiedChain.remove(0);
+        List<Chainable> modifiedChain = new ArrayList<Chainable>(chainSpec);
+        Chainable firstItem = modifiedChain.remove(0);
+        String firstItemName = firstItem.getRootNameOrEmptyString();
 
         Pair<PropertyResolutionDescriptor, String> propertyInfoPair = null;
         try {
-            propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(streamTypeService, firstItem.getName(), streamTypeService.hasPropertyAgnosticType(), true, validationContext.getTableCompileTimeResolver());
+            propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(streamTypeService, firstItemName, streamTypeService.hasPropertyAgnosticType(), true, validationContext.getTableCompileTimeResolver());
         } catch (ExprValidationPropertyException ex) {
             // not a property
         }
 
         // If property then treat it as such
         if (propertyInfoPair != null) {
-
-            String propertyName = propertyInfoPair.getFirst().getPropertyName();
-            int streamId = propertyInfoPair.getFirst().getStreamNum();
-            EventType streamType = streamTypeService.getEventTypes()[streamId];
-            EPType typeInfo;
-            ExprEnumerationForge enumerationForge = null;
-            EPType inputType;
-            ExprForge rootNodeForge = null;
-            EventPropertyGetterSPI getter;
-
-            if (firstItem.getParameters().isEmpty()) {
-                getter = ((EventTypeSPI) streamType).getGetterSPI(propertyInfoPair.getFirst().getPropertyName());
-
-                ExprDotEnumerationSourceForgeForProps propertyEval = ExprDotNodeUtility.getPropertyEnumerationSource(propertyInfoPair.getFirst().getPropertyName(), streamId, streamType, hasEnumerationMethod, validationContext.isDisablePropertyExpressionEventCollCache());
-                typeInfo = propertyEval.getReturnType();
-                enumerationForge = propertyEval.getEnumeration();
-                inputType = propertyEval.getReturnType();
-                rootNodeForge = new PropertyDotNonLambdaForge(streamId, getter, JavaClassHelper.getBoxedType(propertyInfoPair.getFirst().getPropertyType()));
-            } else {
-                // property with parameter - mapped or indexed property
-                EventPropertyDescriptor desc = EventTypeUtility.getNestablePropertyDescriptor(streamTypeService.getEventTypes()[propertyInfoPair.getFirst().getStreamNum()], firstItem.getName());
-                if (firstItem.getParameters().size() > 1) {
-                    throw new ExprValidationException("Property '" + firstItem.getName() + "' may not be accessed passing 2 or more parameters");
-                }
-                ExprForge paramEval = firstItem.getParameters().get(0).getForge();
-                typeInfo = EPTypeHelper.singleValue(desc.getPropertyComponentType());
-                inputType = typeInfo;
-                getter = null;
-                if (desc.isMapped()) {
-                    if (paramEval.getEvaluationType() != String.class) {
-                        throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a string-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(paramEval.getEvaluationType()));
-                    }
-                    EventPropertyGetterMappedSPI mappedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterMappedSPI(propertyInfoPair.getFirst().getPropertyName());
-                    if (mappedGetter == null) {
-                        throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
-                    }
-                    rootNodeForge = new PropertyDotNonLambdaMappedForge(streamId, mappedGetter, paramEval, desc.getPropertyComponentType());
-                }
-                if (desc.isIndexed()) {
-                    if (JavaClassHelper.getBoxedType(paramEval.getEvaluationType()) != Integer.class) {
-                        throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a Integer-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(paramEval.getEvaluationType()));
-                    }
-                    EventPropertyGetterIndexedSPI indexedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterIndexedSPI(propertyInfoPair.getFirst().getPropertyName());
-                    if (indexedGetter == null) {
-                        throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
-                    }
-                    rootNodeForge = new PropertyDotNonLambdaIndexedForge(streamId, indexedGetter, paramEval, desc.getPropertyComponentType());
-                }
-            }
-            if (typeInfo == null) {
-                throw new ExprValidationException("Property '" + propertyName + "' is not a mapped or indexed property");
-            }
-
-            // try to build chain based on the input (non-fragment)
-            ExprDotNodeRealizedChain evals;
-            ExprDotNodeFilterAnalyzerInputProp filterAnalyzerInputProp = new ExprDotNodeFilterAnalyzerInputProp(propertyInfoPair.getFirst().getStreamNum(), propertyInfoPair.getFirst().getPropertyName());
-            boolean rootIsEventBean = false;
-            try {
-                evals = ExprDotNodeUtility.getChainEvaluators(streamId, inputType, modifiedChain, validationContext, isDuckTyping, filterAnalyzerInputProp);
-            } catch (ExprValidationException ex) {
-
-                // try building the chain based on the fragment event type (i.e. A.after(B) based on A-configured start time where A is a fragment)
-                FragmentEventType fragment = propertyInfoPair.getFirst().getFragmentEventType();
-                if (fragment == null) {
-                    throw ex;
-                }
-
-                EPType fragmentTypeInfo;
-                if (fragment.isIndexed()) {
-                    fragmentTypeInfo = EPTypeHelper.collectionOfEvents(fragment.getFragmentType());
-                } else {
-                    fragmentTypeInfo = EPTypeHelper.singleEvent(fragment.getFragmentType());
-                }
-
-                rootIsEventBean = true;
-                evals = ExprDotNodeUtility.getChainEvaluators(propertyInfoPair.getFirst().getStreamNum(), fragmentTypeInfo, modifiedChain, validationContext, isDuckTyping, filterAnalyzerInputProp);
-                rootNodeForge = new PropertyDotNonLambdaFragmentForge(streamId, getter);
-            }
-
-            FilterExprAnalyzerAffector filterExprAnalyzerAffector = evals.getFilterAnalyzerDesc();
-            int streamNumReferenced = propertyInfoPair.getFirst().getStreamNum();
-            String rootPropertyName = propertyInfoPair.getFirst().getPropertyName();
-            forge = new ExprDotNodeForgeRootChild(this, filterExprAnalyzerAffector, streamNumReferenced, rootPropertyName, hasEnumerationMethod, rootNodeForge, enumerationForge, inputType, evals.getChain(), evals.getChainWithUnpack(), !rootIsEventBean);
+            PropertyInfoPairDesc desc = handlePropertyInfoPair(false, firstItem, modifiedChain, propertyInfoPair, hasEnumerationMethod, validationContext, this);
+            desc.apply(this);
             return null;
         }
 
         // If variable then resolve as such
-        VariableMetaData variable = validationContext.getVariableCompileTimeResolver().resolve(firstItem.getName());
+        VariableMetaData variable = validationContext.getVariableCompileTimeResolver().resolve(firstItemName);
         if (variable != null) {
             if (variable.getOptionalContextName() != null) {
                 throw new ExprValidationException("Method invocation on context-specific variable is not supported");
@@ -372,12 +309,12 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         }
 
         // try resolve as enumeration class with value
-        ValueAndFieldDesc enumconstantDesc = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getClasspathImportService(), validationContext.getClassProvidedClasspathExtension(), false);
-        if (enumconstantDesc != null) {
+        ValueAndFieldDesc enumconstantDesc = ClasspathImportCompileTimeUtil.resolveIdentAsEnumConst(firstItemName, validationContext.getClasspathImportService(), validationContext.getClassProvidedClasspathExtension(), false);
+        if (enumconstantDesc != null && modifiedChain.get(0) instanceof ChainableCall) {
 
             // try resolve method
-            final ExprChainedSpec methodSpec = modifiedChain.get(0);
-            final String enumvalue = firstItem.getName();
+            final ChainableCall methodSpec = (ChainableCall) modifiedChain.get(0);
+            final String enumvalue = firstItemName;
             ExprNodeUtilResolveExceptionHandler handler = new ExprNodeUtilResolveExceptionHandler() {
                 public ExprValidationException handle(Exception ex) {
                     return new ExprValidationException("Failed to resolve method '" + methodSpec.getName() + "' on enumeration value '" + enumvalue + "': " + ex.getMessage());
@@ -393,7 +330,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(methodDesc.getReflectionMethod().getReturnType());
 
             ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
-            forge = new ExprDotNodeForgeStaticMethod(this, false, firstItem.getName(), methodDesc.getReflectionMethod(),
+            forge = new ExprDotNodeForgeStaticMethod(this, false, firstItemName, methodDesc.getReflectionMethod(),
                 methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstantDesc, validationContext.getStatementName());
             return null;
         }
@@ -404,7 +341,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         }
 
         // If class then resolve as class
-        ExprChainedSpec secondItem = modifiedChain.remove(0);
+        Chainable secondItem = modifiedChain.remove(0);
 
         boolean allowWildcard = validationContext.getStreamTypeService().getEventTypes().length == 1;
         EventType streamZeroType = null;
@@ -412,7 +349,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             streamZeroType = validationContext.getStreamTypeService().getEventTypes()[0];
         }
 
-        ExprNodeUtilMethodDesc method = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(firstItem.getName(), null, secondItem.getName(), secondItem.getParameters(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName() + "." + secondItem.getName(), false), secondItem.getName(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+        ExprNodeUtilResolveExceptionHandlerDefault msgHandler = new ExprNodeUtilResolveExceptionHandlerDefault(firstItemName + (secondItem.getRootNameOrEmptyString().isEmpty() ? "" : "." + secondItem.getRootNameOrEmptyString()), false);
+        ExprNodeUtilMethodDesc method = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(firstItemName, null, secondItem.getRootNameOrEmptyString(), secondItem.getParametersOrEmpty(), allowWildcard, streamZeroType, msgHandler, secondItem.getRootNameOrEmptyString(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
         boolean isConstantParameters = method.isAllConstants() && isUDFCache;
         boolean isReturnsConstantResult = isConstantParameters && modifiedChain.isEmpty();
@@ -422,23 +360,135 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(method.getReflectionMethod().getReturnType());
 
         ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
-        forge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, firstItem.getName(), method.getReflectionMethod(), method.getChildForges(), isConstantParameters, evals.getChainWithUnpack(), optionalLambdaWrap, false, null, validationContext.getStatementName());
+        forge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, firstItemName, method.getReflectionMethod(), method.getChildForges(), isConstantParameters, evals.getChainWithUnpack(), optionalLambdaWrap, false, null, validationContext.getStatementName());
 
         return null;
     }
 
-    private Pair<ExprDotNodeAggregationMethodRootNode, List<ExprChainedSpec>> handleAggregationMethod(ExprValidationContext validationContext) throws ExprValidationException {
+    private static PropertyInfoPairDesc handlePropertyInfoPair(boolean nestedComplexProperty, Chainable firstItem, List<Chainable> chain, Pair<PropertyResolutionDescriptor, String> propertyInfoPair, boolean hasEnumerationMethod, ExprValidationContext validationContext, ExprDotNodeImpl myself) throws ExprValidationException {
+        StreamTypeService streamTypeService = validationContext.getStreamTypeService();
+        String propertyName = propertyInfoPair.getFirst().getPropertyName();
+        int streamId = propertyInfoPair.getFirst().getStreamNum();
+        EventTypeSPI streamType = (EventTypeSPI) streamTypeService.getEventTypes()[streamId];
+        ExprEnumerationForge enumerationForge = null;
+        EPType inputType;
+        ExprForge rootNodeForge = null;
+        EventPropertyGetterSPI getter;
+        boolean rootIsEventBean = false;
+
+        if (firstItem instanceof ChainableName) {
+            getter = streamType.getGetterSPI(propertyName);
+            // Handle first-chainable not an array
+            if (!(chain.get(0) instanceof ChainableArray)) {
+                boolean allowEnum = nestedComplexProperty || hasEnumerationMethod;
+                ExprDotEnumerationSourceForgeForProps propertyEval = ExprDotNodeUtility.getPropertyEnumerationSource(propertyName, streamId, streamType, allowEnum, validationContext.isDisablePropertyExpressionEventCollCache());
+                enumerationForge = propertyEval.getEnumeration();
+                inputType = propertyEval.getReturnType();
+                rootNodeForge = new PropertyDotNonLambdaForge(streamId, getter, JavaClassHelper.getBoxedType(propertyInfoPair.getFirst().getPropertyType()));
+            } else {
+                // first-chainable is an array, use array-of-fragments or array-of-type
+                ChainableArray array = (ChainableArray) chain.get(0);
+                ExprNode indexExpression = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "property '" + propertyName + "'");
+                Class propertyType = streamType.getPropertyType(propertyName);
+                FragmentEventType fragmentEventType = streamType.getFragmentType(propertyName);
+                if (fragmentEventType != null && fragmentEventType.isIndexed()) {
+                    // handle array-of-fragment by including the array operation in the root
+                    inputType = EPTypeHelper.singleEvent(fragmentEventType.getFragmentType());
+                    chain = chain.subList(1, chain.size()); // we remove the array operation from the chain as its handled by the forge
+                    rootNodeForge = new PropertyDotNonLambdaFragmentIndexedForge(streamId, getter, indexExpression, propertyName);
+                    rootIsEventBean = true;
+                } else if (propertyType.isArray()) {
+                    // handle array-of-type by simple property and array operation as part of chain
+                    inputType = EPTypeHelper.singleValue(propertyType);
+                    rootNodeForge = new PropertyDotNonLambdaForge(streamId, getter, JavaClassHelper.getBoxedType(propertyInfoPair.getFirst().getPropertyType()));
+                } else {
+                    throw new ExprValidationException("Invalid array operation for property '" + propertyName + "'");
+                }
+            }
+        } else {
+            // property with parameter - mapped or indexed property
+            getter = null;
+            ChainableCall call = (ChainableCall) firstItem;
+            EventPropertyDescriptor desc = EventTypeUtility.getNestablePropertyDescriptor(streamTypeService.getEventTypes()[propertyInfoPair.getFirst().getStreamNum()], call.getName());
+            if (call.getParameters().size() > 1) {
+                throw new ExprValidationException("Property '" + call.getName() + "' may not be accessed passing 2 or more parameters");
+            }
+            ExprForge paramEval = call.getParameters().get(0).getForge();
+            inputType = EPTypeHelper.singleValue(desc.getPropertyComponentType());
+            if (desc.isMapped()) {
+                if (paramEval.getEvaluationType() != String.class) {
+                    throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a string-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(paramEval.getEvaluationType()));
+                }
+                EventPropertyGetterMappedSPI mappedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterMappedSPI(propertyName);
+                if (mappedGetter == null) {
+                    throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
+                }
+                rootNodeForge = new PropertyDotNonLambdaMappedForge(streamId, mappedGetter, paramEval, desc.getPropertyComponentType());
+            }
+            if (desc.isIndexed()) {
+                if (JavaClassHelper.getBoxedType(paramEval.getEvaluationType()) != Integer.class) {
+                    throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a Integer-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(paramEval.getEvaluationType()));
+                }
+                EventPropertyGetterIndexedSPI indexedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterIndexedSPI(propertyName);
+                if (indexedGetter == null) {
+                    throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
+                }
+                rootNodeForge = new PropertyDotNonLambdaIndexedForge(streamId, indexedGetter, paramEval, desc.getPropertyComponentType());
+            }
+        }
+
+        // try to build chain based on the input (non-fragment)
+        ExprDotNodeRealizedChain evals;
+        ExprDotNodeFilterAnalyzerInputProp filterAnalyzerInputProp = new ExprDotNodeFilterAnalyzerInputProp(propertyInfoPair.getFirst().getStreamNum(), propertyName);
+        try {
+            evals = ExprDotNodeUtility.getChainEvaluators(streamId, inputType, chain, validationContext, myself.isDuckTyping, filterAnalyzerInputProp);
+        } catch (ExprValidationException ex) {
+            if (inputType instanceof EventEPType || inputType instanceof EventMultiValuedEPType) {
+                throw ex;
+            }
+
+            // try building the chain based on the fragment event type (i.e. A.after(B) based on A-configured start time where A is a fragment)
+            FragmentEventType fragment = propertyInfoPair.getFirst().getFragmentEventType();
+            if (fragment == null) {
+                throw ex;
+            }
+
+            rootIsEventBean = true;
+            EPType fragmentTypeInfo;
+            if (!fragment.isIndexed()) {
+                if (chain.get(0) instanceof ChainableArray) {
+                    throw new ExprValidationException("Cannot perform array operation as property '" + propertyName + "' does not return an array");
+                }
+                fragmentTypeInfo = EPTypeHelper.singleEvent(fragment.getFragmentType());
+            } else {
+                fragmentTypeInfo = EPTypeHelper.arrayOfEvents(fragment.getFragmentType());
+            }
+            inputType = fragmentTypeInfo;
+            rootNodeForge = new PropertyDotNonLambdaFragmentForge(streamId, getter, fragment.isIndexed());
+            evals = ExprDotNodeUtility.getChainEvaluators(propertyInfoPair.getFirst().getStreamNum(), fragmentTypeInfo, chain, validationContext, myself.isDuckTyping, filterAnalyzerInputProp);
+        }
+
+        FilterExprAnalyzerAffector filterExprAnalyzerAffector = evals.getFilterAnalyzerDesc();
+        int streamNumReferenced = propertyInfoPair.getFirst().getStreamNum();
+        ExprDotNodeForgeRootChild forge = new ExprDotNodeForgeRootChild(myself, filterExprAnalyzerAffector, streamNumReferenced, propertyName, hasEnumerationMethod, rootNodeForge, enumerationForge, inputType, evals.getChain(), evals.getChainWithUnpack(), !rootIsEventBean);
+        return new PropertyInfoPairDesc(forge);
+    }
+
+    private Pair<ExprDotNodeAggregationMethodRootNode, List<Chainable>> handleAggregationMethod(ExprValidationContext validationContext) throws ExprValidationException {
         if (chainSpec.isEmpty() || getChildNodes().length == 0) {
             return null;
         }
+        Chainable chainFirst = chainSpec.get(0);
+        if (chainFirst instanceof ChainableArray) {
+            return null;
+        }
         ExprNode rootNode = getChildNodes()[0];
-        ExprChainedSpec chainFirst = chainSpec.get(0);
-        ExprNode[] aggMethodParams = chainFirst.getParameters().toArray(new ExprNode[0]);
-        String aggMethodName = chainFirst.getName();
+        ExprNode[] aggMethodParams = chainFirst.getParametersOrEmpty().toArray(new ExprNode[0]);
+        String aggMethodName = chainFirst.getRootNameOrEmptyString();
 
         // handle property, such as "sortedcolumn.floorKey('a')" since "floorKey" can also be a property
-        if (chainFirst.isProperty()) {
-            Property prop = PropertyParserNoDep.parseAndWalkLaxToSimple(chainFirst.getName(), false);
+        if (chainFirst instanceof ChainableName) {
+            Property prop = PropertyParserNoDep.parseAndWalkLaxToSimple(chainFirst.getRootNameOrEmptyString(), false);
             if (prop instanceof MappedProperty) {
                 MappedProperty mappedProperty = (MappedProperty) prop;
                 aggMethodName = mappedProperty.getPropertyNameAtomic();
@@ -496,7 +546,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         // validate
         aggregationMethodForge.validate(validationContext);
 
-        List<ExprChainedSpec> newChain = chainSpec.size() == 1 ? Collections.emptyList() : new ArrayList<>(chainSpec.subList(1, chainSpec.size()));
+        List<Chainable> newChain = chainSpec.size() == 1 ? Collections.emptyList() : new ArrayList<>(chainSpec.subList(1, chainSpec.size()));
         ExprDotNodeAggregationMethodRootNode root = new ExprDotNodeAggregationMethodRootNode(aggregationMethodForge);
         root.addChildNode(rootNode);
         return new Pair<>(root, newChain);
@@ -544,15 +594,16 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         return new ExprDotNodeForgePropertyExpr(this, validationContext.getStatementName(), propertyDesc.getPropertyName(), streamNum, parameterForge, propertyType, indexedGetter, mappedGetter);
     }
 
-    private int prefixedStreamName(List<ExprChainedSpec> chainSpec, StreamTypeService streamTypeService) {
+    private int prefixedStreamName(List<Chainable> chainSpec, StreamTypeService streamTypeService) {
         if (chainSpec.size() < 1) {
             return -1;
         }
-        ExprChainedSpec spec = chainSpec.get(0);
-        if (spec.getParameters().size() > 0 && !spec.isProperty()) {
+        Chainable spec = chainSpec.get(0);
+        if (!(spec instanceof ChainableName)) {
             return -1;
         }
-        return streamTypeService.getStreamNumForStreamName(spec.getName());
+        ChainableName name = (ChainableName) spec;
+        return streamTypeService.getStreamNumForStreamName(name.getName());
     }
 
     public void accept(ExprNodeVisitor visitor) {
@@ -574,8 +625,12 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         ExprNodeUtilityModify.replaceChainChildNode(nodeToReplace, newNode, chainSpec);
     }
 
-    public List<ExprChainedSpec> getChainSpec() {
+    public List<Chainable> getChainSpec() {
         return chainSpec;
+    }
+
+    public void setChainSpec(List<Chainable> chainSpec) {
+        this.chainSpec = Collections.unmodifiableList(chainSpec);
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -611,7 +666,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
     }
 
     public ExprPrecedenceEnum getPrecedence() {
-        return ExprPrecedenceEnum.MINIMUM;
+        return ExprPrecedenceEnum.UNARY;
     }
 
     public Map<String, Object> getEventType() {
@@ -641,8 +696,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
     }
 
     public VariableMetaData isVariableOpGetName(VariableCompileTimeResolver variableCompileTimeResolver) {
-        if (chainSpec.size() > 0 && chainSpec.get(0).isProperty()) {
-            return variableCompileTimeResolver.resolve(chainSpec.get(0).getName());
+        if (chainSpec.size() > 0 && chainSpec.get(0) instanceof ChainableName) {
+            return variableCompileTimeResolver.resolve(((ChainableName) chainSpec.get(0)).getName());
         }
         return null;
     }
@@ -657,7 +712,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
     }
 
     private String getAppDotMethodDidYouMean() {
-        String lhsName = chainSpec.get(0).getName().toLowerCase(Locale.ENGLISH);
+        String lhsName = chainSpec.get(0).getRootNameOrEmptyString().toLowerCase(Locale.ENGLISH);
         if (lhsName.equals("rectangle")) {
             return "rectangle.intersects";
         }
@@ -671,32 +726,37 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         if (chainSpec.size() < 2) {
             return null;
         }
-        String lhsName = chainSpec.get(0).getName().toLowerCase(Locale.ENGLISH);
-        String operationName = chainSpec.get(1).getName().toLowerCase(Locale.ENGLISH);
+        if (!(chainSpec.get(1) instanceof ChainableCall)) {
+            return null;
+        }
+        ChainableCall call = (ChainableCall) chainSpec.get(1);
+        String lhsName = chainSpec.get(0).getRootNameOrEmptyString();
+
+        String operationName = call.getName().toLowerCase(Locale.ENGLISH);
         boolean pointInside = lhsName.equals("point") && operationName.equals("inside");
         boolean rectangleIntersects = lhsName.equals("rectangle") && operationName.equals("intersects");
         if (!pointInside && !rectangleIntersects) {
             return null;
         }
-        if (chainSpec.get(1).getParameters().size() != 1) {
+        if (call.getParameters().size() != 1) {
             throw getAppDocMethodException(lhsName, operationName);
         }
-        ExprNode param = chainSpec.get(1).getParameters().get(0);
+        ExprNode param = call.getParameters().get(0);
         if (!(param instanceof ExprDotNode)) {
             throw getAppDocMethodException(lhsName, operationName);
         }
-        ExprDotNode compared = (ExprDotNode) chainSpec.get(1).getParameters().get(0);
+        ExprDotNode compared = (ExprDotNode) call.getParameters().get(0);
         if (compared.getChainSpec().size() != 1) {
             throw getAppDocMethodException(lhsName, operationName);
         }
-        String rhsName = compared.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH);
+        String rhsName = compared.getChainSpec().get(0).getRootNameOrEmptyString().toLowerCase(Locale.ENGLISH);
         boolean pointInsideRectangle = pointInside && rhsName.equals("rectangle");
         boolean rectangleIntersectsRectangle = rectangleIntersects && rhsName.equals("rectangle");
         if (!pointInsideRectangle && !rectangleIntersectsRectangle) {
             throw getAppDocMethodException(lhsName, operationName);
         }
 
-        List<ExprNode> lhsExpressions = chainSpec.get(0).getParameters();
+        List<ExprNode> lhsExpressions = chainSpec.get(0).getParametersOrEmpty();
         ExprNode[] indexNamedParameter = null;
         List<ExprNode> lhsExpressionsValues = new ArrayList<>();
         for (ExprNode lhsExpression : lhsExpressions) {
@@ -716,7 +776,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         }
 
         ExprNode[] lhs = ExprNodeUtilityQuery.toArray(lhsExpressionsValues);
-        ExprNode[] rhs = ExprNodeUtilityQuery.toArray(compared.getChainSpec().get(0).getParameters());
+        ExprNode[] rhs = ExprNodeUtilityQuery.toArray(compared.getChainSpec().get(0).getParametersOrEmpty());
 
         SettingsApplicationDotMethod predefined;
         if (pointInsideRectangle) {
@@ -729,6 +789,22 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
     private ExprValidationException getAppDocMethodException(String lhsName, String operationName) {
         return new ExprValidationException(lhsName + "." + operationName + " requires a single rectangle as parameter");
+    }
+
+    private static class PropertyInfoPairDesc {
+        private final ExprDotNodeForgeRootChild forge;
+
+        public PropertyInfoPairDesc(ExprDotNodeForgeRootChild forge) {
+            this.forge = forge;
+        }
+
+        public ExprDotNodeForgeRootChild getForge() {
+            return forge;
+        }
+
+        public void apply(ExprDotNodeImpl node) {
+            node.forge = forge;
+        }
     }
 }
 

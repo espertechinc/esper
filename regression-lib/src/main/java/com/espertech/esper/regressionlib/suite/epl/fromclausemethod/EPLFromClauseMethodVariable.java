@@ -41,7 +41,7 @@ public class EPLFromClauseMethodVariable {
         public void run(RegressionEnvironment env) {
             // invalid footprint
             tryInvalidCompile(env, "select * from method:MyConstantServiceVariable.fetchABean() as h0",
-                "Method footprint does not match the number or type of expression parameters, expecting no parameters in method: Could not find enumeration method, date-time method or instance method named 'fetchABean' in class '" + MyConstantServiceVariable.class.getName() + "' taking no parameters (nearest match found was 'fetchABean' taking type(s) 'int') [");
+                "Method footprint does not match the number or type of expression parameters, expecting no parameters in method: Could not find enumeration method, date-time method, instance method or property named 'fetchABean' in class '" + MyConstantServiceVariable.class.getName() + "' taking no parameters (nearest match found was 'fetchABean' taking type(s) 'int') [");
 
             // null variable value and metadata is instance method
             tryInvalidCompile(env, "select field1, field2 from method:MyNullMap.getMapData()",

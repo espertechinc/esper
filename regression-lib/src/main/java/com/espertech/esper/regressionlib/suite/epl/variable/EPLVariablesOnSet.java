@@ -135,11 +135,11 @@ public class EPLVariablesOnSet {
 
             // invalid property
             tryInvalidCompile(env, path, "on SupportBean set xxx[intPrimitive]=1d",
-                "Failed to validate update assignment expression 'xxx[intPrimitive]': Failed to resolve property 'xxx' to any stream");
+                "Failed to validate assignment expression 'xxx[intPrimitive]=1.0': Variable by name 'xxx' has not been created or configured");
 
             // index expression is not Integer
             tryInvalidCompile(env, path, "on SupportBean set doublearray[null]=1d",
-                "Failed to validate update assignment expression 'doublearray[null]': Array expression requires an Integer-typed dimension but received type 'null'");
+                "Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'null' returns 'null' for expression 'doublearray'");
 
             // type incompatible cannot assign
             tryInvalidCompile(env, path, "on SupportBean set intarray[intPrimitive]='x'",
@@ -147,7 +147,7 @@ public class EPLVariablesOnSet {
 
             // not-an-array
             tryInvalidCompile(env, path, "on SupportBean set notAnArray[intPrimitive]=1",
-                "Failed to validate update assignment expression 'notAnArray[intPrimitive]': Variable 'notAnArray' is not an array");
+                "Failed to validate assignment expression 'notAnArray[intPrimitive]=1': Variable 'notAnArray' is not an array");
 
             path.clear();
 

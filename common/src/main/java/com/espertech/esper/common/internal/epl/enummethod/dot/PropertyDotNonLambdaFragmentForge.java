@@ -28,10 +28,12 @@ public class PropertyDotNonLambdaFragmentForge implements ExprForge, ExprEvaluat
 
     private final int streamId;
     private final EventPropertyGetterSPI getter;
+    private final boolean array;
 
-    public PropertyDotNonLambdaFragmentForge(int streamId, EventPropertyGetterSPI getter) {
+    public PropertyDotNonLambdaFragmentForge(int streamId, EventPropertyGetterSPI getter, boolean array) {
         this.streamId = streamId;
         this.getter = getter;
+        this.array = array;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -39,7 +41,7 @@ public class PropertyDotNonLambdaFragmentForge implements ExprForge, ExprEvaluat
     }
 
     public Class getEvaluationType() {
-        return EventBean.class;
+        return array ? EventBean[].class : EventBean.class;
     }
 
     public ExprForgeConstantType getForgeConstantType() {
@@ -55,13 +57,13 @@ public class PropertyDotNonLambdaFragmentForge implements ExprForge, ExprEvaluat
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, PropertyDotNonLambdaFragmentForge.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(array ? EventBean[].class : EventBean.class, PropertyDotNonLambdaFragmentForge.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
                 .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(cast(EventBean.class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
+                .methodReturn(cast(array ? EventBean[].class : EventBean.class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }
 

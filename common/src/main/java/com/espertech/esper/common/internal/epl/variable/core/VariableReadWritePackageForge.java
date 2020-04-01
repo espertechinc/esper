@@ -137,10 +137,14 @@ public class VariableReadWritePackageForge {
                         writers[count] = new VariableTriggerWriteDescForge(spi, variableName, writer, getter, getterType, assignment.getRhs().getForge().getEvaluationType());
                     } else if (assignment.getLhs() instanceof ExprAssignmentLHSArrayElement) {
                         ExprAssignmentLHSArrayElement arrayAssign = (ExprAssignmentLHSArrayElement) assignment.getLhs();
+                        Class variableType = variableMetadata.getType();
+                        if (!variableType.isArray()) {
+                            throw new ExprValidationException("Variable '" + variableMetadata.getVariableName() + "' is not an array");
+                        }
                         TypeWidenerSPI widener;
                         try {
                             widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), expressionType,
-                                variableMetadata.getType().getComponentType(), variableMetadata.getVariableName(), false, null, statementName);
+                                variableType.getComponentType(), variableMetadata.getVariableName(), false, null, statementName);
                         } catch (TypeWidenerException ex) {
                             throw new ExprValidationException(ex.getMessage(), ex);
                         }
@@ -155,7 +159,7 @@ public class VariableReadWritePackageForge {
                     }
                     ExprNodeVariableVisitor variableVisitor = new ExprNodeVariableVisitor(services.getVariableCompileTimeResolver());
                     curly.getExpression().accept(variableVisitor);
-                    if (variableVisitor.getVariableNames().size() != 1) {
+                    if (variableVisitor.getVariableNames() == null || variableVisitor.getVariableNames().size() != 1) {
                         throw new ExprValidationException("Assignment expression must receive a single variable value");
                     }
                     Map.Entry<String, VariableMetaData> variable = variableVisitor.getVariableNames().entrySet().iterator().next();

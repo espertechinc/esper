@@ -272,7 +272,7 @@ public class EPLOtherStreamExpr {
                 "skip");
 
             tryInvalidCompile(env, "select s0.abc() from SupportBean as s0",
-                "Failed to validate select-clause expression 's0.abc()': Failed to solve 'abc' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'abc': Could not find enumeration method, date-time method or instance method named 'abc' in class '" + SupportBean.class.getName() + "' taking no parameters [");
+                "Failed to validate select-clause expression 's0.abc()': Failed to solve 'abc' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'abc': Could not find enumeration method, date-time method, instance method or property named 'abc' in class '" + SupportBean.class.getName() + "' taking no parameters [");
 
             tryInvalidCompile(env, "select s.theString from pattern [every [2] s=SupportBean] ee",
                 "Failed to validate select-clause expression 's.theString': Failed to resolve property 's.theString' (property 's' is an indexed property and requires an index or enumeration method to access values)");

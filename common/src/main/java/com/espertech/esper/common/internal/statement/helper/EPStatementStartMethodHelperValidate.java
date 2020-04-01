@@ -254,7 +254,7 @@ public class EPStatementStartMethodHelperValidate {
             return;
         }
         for (OnTriggerSetAssignment assign : assignments) {
-            ExprNodeUtilityValidate.validateAssignment(ExprNodeOrigin.UPDATEASSIGN, assign, validationContext, allowRHSAggregation);
+            ExprNodeUtilityValidate.validateAssignment(true, ExprNodeOrigin.UPDATEASSIGN, assign, validationContext);
         }
     }
 }

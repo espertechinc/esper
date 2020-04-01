@@ -47,8 +47,8 @@ public class ExprDotMethodForgeDuck implements ExprDotForge {
         return new ExprDotMethodForgeDuckEval(this, ExprNodeUtilityQuery.getEvaluatorsNoCompile(parameters));
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return ExprDotMethodForgeDuckEval.codegen(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        return ExprDotMethodForgeDuckEval.codegen(this, inner, innerType, parent, symbols, classScope);
     }
 
     public String getStatementName() {

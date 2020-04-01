@@ -29,6 +29,7 @@ import com.espertech.esper.common.internal.epl.datetime.plugin.DTMPluginReformat
 import com.espertech.esper.common.internal.epl.datetime.plugin.DTMPluginValueChangeForge;
 import com.espertech.esper.common.internal.epl.datetime.reformatop.ReformatForge;
 import com.espertech.esper.common.internal.epl.datetime.reformatop.ReformatForgeFactory;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
@@ -49,7 +50,7 @@ import java.util.List;
 
 public class ExprDotDTFactory {
 
-    public static ExprDotDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodDesc dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeAbacus timeAbacus, TableCompileTimeResolver tableCompileTimeResolver, ClasspathImportServiceCompileTime classpathImportService, StatementRawInfo statementRawInfo)
+    public static ExprDotDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<Chainable> chainSpecStack, DatetimeMethodDesc dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeAbacus timeAbacus, TableCompileTimeResolver tableCompileTimeResolver, ClasspathImportServiceCompileTime classpathImportService, StatementRawInfo statementRawInfo)
         throws ExprValidationException {
         // verify input
         String message = "Date-time enumeration method '" + dtMethodName + "' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property";
@@ -132,18 +133,18 @@ public class ExprDotDTFactory {
             }
 
             // see if there is more
-            if (chainSpecStack.isEmpty() || !DatetimeMethodResolver.isDateTimeMethod(chainSpecStack.getFirst().getName(), classpathImportService)) {
+            if (chainSpecStack.isEmpty() || !DatetimeMethodResolver.isDateTimeMethod(chainSpecStack.getFirst().getRootNameOrEmptyString(), classpathImportService)) {
                 break;
             }
 
             // pull next
-            ExprChainedSpec next = chainSpecStack.removeFirst();
-            currentMethod = DatetimeMethodResolver.fromName(next.getName(), classpathImportService);
-            currentParameters = next.getParameters();
-            currentMethodName = next.getName();
+            Chainable next = chainSpecStack.removeFirst();
+            currentMethodName = next.getRootNameOrEmptyString();
+            currentMethod = DatetimeMethodResolver.fromName(currentMethodName, classpathImportService);
+            currentParameters = next.getParametersOrEmpty();
 
             if (reformatForge != null || intervalForge != null) {
-                throw new ExprValidationException("Invalid input for date-time method '" + next.getName() + "'");
+                throw new ExprValidationException("Invalid input for date-time method '" + currentMethodName + "'");
             }
         }
 

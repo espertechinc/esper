@@ -167,6 +167,19 @@ public class EPTypeHelper {
     }
 
     /**
+     * Indicate that the expression return type is an array of events of given type.
+     *
+     * @param eventTypeOfArrayEvents the event type of the events that are part of the array
+     * @return array of events expression result type
+     */
+    public static EPType arrayOfEvents(EventType eventTypeOfArrayEvents) {
+        if (eventTypeOfArrayEvents == null) {
+            throw new IllegalArgumentException("Invalid null event type");
+        }
+        return new EventMultiValuedEPType(EventBean[].class, eventTypeOfArrayEvents);
+    }
+
+    /**
      * Indicate that the expression return type is single event of a given event type.
      *
      * @param eventTypeOfSingleEvent the event type of the event returned
@@ -255,7 +268,7 @@ public class EPTypeHelper {
 
     public static Class getCodegenReturnType(EPType theType) {
         if (theType instanceof EventMultiValuedEPType) {
-            return Collection.class;
+            return ((EventMultiValuedEPType) theType).getContainer();
         } else if (theType instanceof ClassMultiValuedEPType) {
             return ((ClassMultiValuedEPType) theType).getContainer();
         } else if (theType instanceof EventEPType) {

@@ -126,16 +126,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
 
     public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod methodNode = parent.makeChild(variableType, ExprVariableNodeImpl.class, classScope);
-
-        CodegenExpression readerExpression;
-        if (variableMeta.getOptionalContextName() == null) {
-            readerExpression = classScope.addOrGetFieldSharable(new VariableReaderCodegenFieldSharable(variableMeta));
-        } else {
-            CodegenExpressionField field = classScope.addOrGetFieldSharable(new VariableReaderPerCPCodegenFieldSharable(variableMeta));
-            CodegenExpression cpid = exprDotMethod(symbols.getAddExprEvalCtx(methodNode), "getAgentInstanceId");
-            readerExpression = cast(VariableReader.class, exprDotMethod(field, "get", cpid));
-        }
-
+        CodegenExpression readerExpression = getReaderExpression(variableMeta, methodNode, symbols, classScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(VariableReader.class, "reader", readerExpression);
         if (variableMeta.getEventType() == null) {
@@ -152,6 +143,18 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
             }
         }
         return localMethod(methodNode);
+    }
+
+    public static CodegenExpression getReaderExpression(VariableMetaData variableMeta, CodegenMethod methodNode, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenExpression readerExpression;
+        if (variableMeta.getOptionalContextName() == null) {
+            readerExpression = classScope.addOrGetFieldSharable(new VariableReaderCodegenFieldSharable(variableMeta));
+        } else {
+            CodegenExpressionField field = classScope.addOrGetFieldSharable(new VariableReaderPerCPCodegenFieldSharable(variableMeta));
+            CodegenExpression cpid = exprDotMethod(symbols.getAddExprEvalCtx(methodNode), "getAgentInstanceId");
+            readerExpression = cast(VariableReader.class, exprDotMethod(field, "get", cpid));
+        }
+        return readerExpression;
     }
 
     public CodegenExpression codegenGetDeployTimeConstValue(CodegenClassScope classScope) {

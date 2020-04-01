@@ -13,8 +13,10 @@ package com.espertech.esper.common.internal.compile.stage1.specmapper;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
+import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
+import com.espertech.esper.common.internal.compile.stage1.spec.StatementSpecRaw;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
 import com.espertech.esper.common.internal.epl.expression.core.ExprSubstitutionNode;
@@ -35,20 +37,28 @@ public class StatementSpecMapContext {
     private final StatementSpecMapEnv mapEnv;
     private final ContextCompileTimeDescriptor contextCompileTimeDescriptor;
 
-    private boolean hasVariables;
     private boolean hasPriorExpression;
     private Set<String> variableNames;
     private Map<String, ExpressionDeclItem> expressionDeclarations;
-    private Map<String, ExpressionScriptProvided> scripts;
-    private LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations = new LazyAllocatedMap<>();
-    private String contextName;
+    private List<ExpressionScriptProvided> scripts;
+    private LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations;
     private Set<ExprTableAccessNode> tableNodes = new HashSet<ExprTableAccessNode>(1);
     private List<ExprSubstitutionNode> substitutionNodes = new ArrayList<>();
 
-    public StatementSpecMapContext(ContextCompileTimeDescriptor contextCompileTimeDescriptor, StatementSpecMapEnv mapEnv) {
+    public StatementSpecMapContext(ContextCompileTimeDescriptor contextCompileTimeDescriptor,
+                                   StatementSpecMapEnv mapEnv,
+                                   LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+                                   List<ExpressionScriptProvided> scriptExpressions) {
         this.variableNames = new HashSet<>();
         this.mapEnv = mapEnv;
         this.contextCompileTimeDescriptor = contextCompileTimeDescriptor;
+        this.plugInAggregations = plugInAggregations;
+        this.scripts = scriptExpressions;
+    }
+
+    public StatementSpecMapContext(ContextCompileTimeDescriptor contextCompileTimeDescriptor,
+                                   StatementSpecMapEnv mapEnv) {
+        this(contextCompileTimeDescriptor, mapEnv, new LazyAllocatedMap<>(), new ArrayList<>(1));
     }
 
     public VariableCompileTimeResolver getVariableCompileTimeResolver() {
@@ -89,33 +99,23 @@ public class StatementSpecMapContext {
         return expressionDeclarations;
     }
 
-    public void addExpressionDeclarations(ExpressionDeclItem item) {
+    public void addExpressionDeclaration(ExpressionDeclItem item) {
         if (expressionDeclarations == null) {
             expressionDeclarations = new HashMap<String, ExpressionDeclItem>();
         }
         expressionDeclarations.put(item.getName(), item);
     }
 
-    public Map<String, ExpressionScriptProvided> getScripts() {
-        if (scripts == null) {
-            return Collections.emptyMap();
-        }
+    public List<ExpressionScriptProvided> getScripts() {
         return scripts;
     }
 
     public void addScript(ExpressionScriptProvided item) {
-        if (scripts == null) {
-            scripts = new HashMap<String, ExpressionScriptProvided>();
-        }
-        scripts.put(item.getName(), item);
+        scripts.add(item);
     }
 
     public String getContextName() {
-        return contextName;
-    }
-
-    public void setContextName(String contextName) {
-        this.contextName = contextName;
+        return contextCompileTimeDescriptor == null ? null : contextCompileTimeDescriptor.getContextName();
     }
 
     public ExprDeclaredCompileTimeResolver getExprDeclaredCompileTimeResolver() {
@@ -160,5 +160,21 @@ public class StatementSpecMapContext {
 
     public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
         return mapEnv.getClassProvidedClasspathExtension();
+    }
+
+    public void add(StatementSpecMapContext other) {
+        getTableExpressions().addAll(other.getTableExpressions());
+        getVariableNames().addAll(other.getVariableNames());
+    }
+
+    public void addExpressionDeclarations(ExpressionDeclDesc expressionDeclarations) {
+        for (ExpressionDeclItem item : expressionDeclarations.getExpressions()) {
+            addExpressionDeclaration(item);
+        }
+    }
+
+    public void addTo(StatementSpecRaw statementSpec) {
+        statementSpec.getTableExpressions().addAll(getTableExpressions());
+        statementSpec.getReferencedVariables().addAll(getVariableNames());
     }
 }

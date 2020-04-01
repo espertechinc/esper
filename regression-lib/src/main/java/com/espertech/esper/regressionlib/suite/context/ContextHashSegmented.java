@@ -170,6 +170,8 @@ public class ContextHashSegmented {
             // invalid hash code function
             epl = "create context ACtx coalesce hash_code_xyz(intPrimitive) from SupportBean granularity 10";
             SupportMessageAssertUtil.tryInvalidCompile(env, epl, "For context 'ACtx' expected a hash function that is any of {consistent_hash_crc32, hash_code} or a plug-in single-row function or script but received 'hash_code_xyz' [");
+            epl = "create context ACtx coalesce intPrimitive from SupportBean granularity 10";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "For context 'ACtx' expected a hash function that is any of {consistent_hash_crc32, hash_code} or a plug-in single-row function or script but received 'intPrimitive' [");
 
             // invalid no-param hash code function
             epl = "create context ACtx coalesce hash_code() from SupportBean granularity 10";

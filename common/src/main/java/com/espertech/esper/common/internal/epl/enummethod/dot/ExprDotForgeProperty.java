@@ -60,16 +60,16 @@ public class ExprDotForgeProperty implements ExprDotEval, ExprDotForge {
         return this;
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         Class type = EPTypeHelper.getCodegenReturnType(returnType);
         if (innerType == EventBean.class) {
-            return CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(inner, codegenMethodScope, codegenClassScope));
+            return CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(inner, parent, classScope));
         }
-        CodegenMethod methodNode = codegenMethodScope.makeChild(type, ExprDotForgeProperty.class, codegenClassScope).addParam(innerType, "target");
+        CodegenMethod methodNode = parent.makeChild(type, ExprDotForgeProperty.class, classScope).addParam(innerType, "target");
 
         methodNode.getBlock()
                 .ifInstanceOf("target", EventBean.class)
-                .blockReturn(CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(cast(EventBean.class, inner), methodNode, codegenClassScope)))
+                .blockReturn(CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(cast(EventBean.class, inner), methodNode, classScope)))
                 .methodReturn(constantNull());
         return localMethod(methodNode, inner);
     }

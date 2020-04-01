@@ -17,4 +17,8 @@ public interface ExprConstantNode extends ExprNode {
     Class getConstantType();
 
     Object getConstantValue();
+
+    default String getStringConstantWhenProvided() {
+        return null;
+    }
 }

@@ -39,22 +39,35 @@ public class DotExpression extends ExpressionBase {
     /**
      * Add a method to the chain of methods after the dot.
      *
+     * @param item item to add
+     */
+    public void add(DotExpressionItem item) {
+        chain.add(item);
+    }
+
+    /**
+     * Add a method to the chain of methods after the dot.
+     *
      * @param methodName to add
      * @param parameters parameters to method
      */
     public void add(String methodName, List<Expression> parameters) {
-        chain.add(new DotExpressionItem(methodName, parameters, false));
+        chain.add(new DotExpressionItemCall(methodName, parameters));
     }
 
     /**
      * Add a method to the chain of methods after the dot, indicating the this segment is a property and does not need parenthesis and won't have paramaters.
      *
-     * @param methodName method name
+     * @param name  name
      * @param parameters parameter expressions
      * @param isProperty property flag
      */
-    public void add(String methodName, List<Expression> parameters, boolean isProperty) {
-        chain.add(new DotExpressionItem(methodName, parameters, isProperty));
+    public void add(String name, List<Expression> parameters, boolean isProperty) {
+        if (parameters.isEmpty() && isProperty) {
+            chain.add(new DotExpressionItemName(name));
+        } else {
+            chain.add(new DotExpressionItemCall(name, parameters));
+        }
     }
 
     /**

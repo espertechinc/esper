@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisito
 public abstract class ExprAssignment {
     public static final String VALIDATION_AGG_MSG = "Aggregation functions may not be used within update-set";
 
-    public abstract void validate(ExprNodeOrigin origin, ExprValidationContext validationContext, boolean allowRHSAggregation) throws ExprValidationException;
+    public abstract void validate(ExprNodeOrigin origin, ExprValidationContext validationContext) throws ExprValidationException;
     public abstract void accept(ExprNodeVisitor visitor);
 
     private final ExprNode originalExpression;

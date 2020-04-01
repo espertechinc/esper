@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.*;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.epl.expression.core.ExprArrayElementForgeProperty;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethodForge;
@@ -135,7 +134,7 @@ public class EventBeanUpdateHelperForge {
                 continue;
             }
 
-            if (types[i] == void.class || (updateItem.getOptionalWriter() == null && updateItem.getOptionalArrayNode() == null)) {
+            if (types[i] == void.class || (updateItem.getOptionalWriter() == null && updateItem.getOptionalArray() == null)) {
                 method.getBlock()
                         .expression(rhs)
                         .apply(instblock(classScope, "aInfraUpdateRHSExpr", constantNull()));
@@ -150,13 +149,13 @@ public class EventBeanUpdateHelperForge {
                 assigned = updateItem.getOptionalWidener().widenCodegen(ref, method, classScope);
             }
 
-            if (updateItem.getOptionalArrayNode() != null) {
+            if (updateItem.getOptionalArray() != null) {
                 // handle array value with array index expression
                 CodegenExpressionRef index = ref("i" + i);
                 CodegenExpressionRef array = ref("a" + i);
-                ExprArrayElementForgeProperty arraySet = updateItem.getOptionalArrayNode();
+                EventBeanUpdateItemArray arraySet = updateItem.getOptionalArray();
                 CodegenBlock arrayBlock;
-                boolean arrayOfPrimitiveNullRHS = arraySet.getEvaluationType().isPrimitive() && (types[i] == null || !types[i].isPrimitive());
+                boolean arrayOfPrimitiveNullRHS = arraySet.getArrayType().getComponentType().isPrimitive() && (types[i] == null || !types[i].isPrimitive());
                 if (arrayOfPrimitiveNullRHS) {
                     arrayBlock = method.getBlock()
                         .ifNull(ref)
@@ -172,7 +171,7 @@ public class EventBeanUpdateHelperForge {
                             .ifCondition(relational(index, CodegenExpressionRelational.CodegenRelational.LT, arrayLength(array)))
                                 .assignArrayElement(array, cast(int.class, index), assigned)
                             .ifElse()
-                            .blockThrow(newInstance(EPException.class, concat(constant("Array length "), arrayLength(array), constant(" less than index "), index, constant(" for property '" + updateItems[i].getOptionalArrayNode().getParent().getArrayPropName() + "'"))))
+                            .blockThrow(newInstance(EPException.class, concat(constant("Array length "), arrayLength(array), constant(" less than index "), index, constant(" for property '" + updateItems[i].getOptionalArray().getPropertyName() + "'"))))
                         .blockEnd()
                     .blockEnd();
                 if (arrayOfPrimitiveNullRHS) {

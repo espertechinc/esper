@@ -18,7 +18,7 @@ import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
-import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -32,10 +32,10 @@ import java.util.List;
 
 public class ExprDotStaticMethodWrapFactory {
 
-    public static ExprDotStaticMethodWrap make(Method method, List<ExprChainedSpec> modifiedChain, String optionalEventTypeName, ExprValidationContext validationContext)
+    public static ExprDotStaticMethodWrap make(Method method, List<Chainable> chain, String optionalEventTypeName, ExprValidationContext validationContext)
             throws ExprValidationException {
 
-        if (modifiedChain.isEmpty() || (!EnumMethodResolver.isEnumerationMethod(modifiedChain.get(0).getName(), validationContext.getClasspathImportService()))) {
+        if (chain.isEmpty() || (!EnumMethodResolver.isEnumerationMethod(chain.get(0).getRootNameOrEmptyString(), validationContext.getClasspathImportService()))) {
             return null;
         }
 

@@ -162,7 +162,6 @@ public class TestEventPatternParser extends TestCase {
         assertIsInvalid("A(x 0] = 1)");
         assertIsInvalid("A(x(b = 1)");
         assertIsInvalid("A(x y) = 1)");
-        assertIsInvalid("A(x[0][1] = 1)");
         assertIsInvalid("A(x[0]. = 1)");
         assertIsInvalid("A(x. = 1)");
         assertIsInvalid("A(x.y. = 1)");

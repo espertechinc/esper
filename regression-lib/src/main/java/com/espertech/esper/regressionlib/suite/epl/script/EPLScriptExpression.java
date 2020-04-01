@@ -202,7 +202,7 @@ public class EPLScriptExpression {
 
             // not found
             tryInvalidCompile(env, "select abc() from SupportBean",
-                "Failed to validate select-clause expression 'abc': Unknown single-row function, expression declaration, script or aggregation function named 'abc' could not be resolved [select abc() from SupportBean]");
+                "Failed to validate select-clause expression 'abc()': Unknown single-row function, expression declaration, script or aggregation function named 'abc' could not be resolved [select abc() from SupportBean]");
 
             // test incorrect number of parameters
             tryInvalidCompile(env, "expression js:abc() [10] select abc(1) from SupportBean",

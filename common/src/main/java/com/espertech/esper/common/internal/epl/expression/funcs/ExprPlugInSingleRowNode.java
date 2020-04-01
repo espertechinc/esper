@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotStaticMethodWrapFactory;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeFilterAnalyzerInputStatic;
@@ -38,14 +39,14 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
 
     private final String functionName;
     private final Class clazz;
-    private final List<ExprChainedSpec> chainSpec;
+    private final List<Chainable> chainSpec;
     private final ClasspathImportSingleRowDesc config;
 
     private ExprPlugInSingleRowNodeForge forge;
     private transient StatementCompileTimeServices compileTimeServices;
     private transient StatementRawInfo statementRawInfo;
 
-    public ExprPlugInSingleRowNode(String functionName, Class clazz, List<ExprChainedSpec> chainSpec, ClasspathImportSingleRowDesc config) {
+    public ExprPlugInSingleRowNode(String functionName, Class clazz, List<Chainable> chainSpec, ClasspathImportSingleRowDesc config) {
         this.functionName = functionName;
         this.clazz = clazz;
         this.chainSpec = chainSpec;
@@ -62,7 +63,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
         return forge;
     }
 
-    public List<ExprChainedSpec> getChainSpec() {
+    public List<Chainable> getChainSpec() {
         return chainSpec;
     }
 
@@ -147,8 +148,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
         ExprNodeUtilityValidate.validate(ExprNodeOrigin.PLUGINSINGLEROWPARAM, chainSpec, validationContext);
 
         // get first chain item
-        List<ExprChainedSpec> chainList = new ArrayList<ExprChainedSpec>(chainSpec);
-        ExprChainedSpec firstItem = chainList.remove(0);
+        List<Chainable> chainList = new ArrayList<Chainable>(chainSpec);
+        Chainable firstItem = chainList.remove(0);
 
         // Get the types of the parameters for the first invocation
         boolean allowWildcard = validationContext.getStreamTypeService().getEventTypes().length == 1;
@@ -156,7 +157,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
         if (validationContext.getStreamTypeService().getEventTypes().length > 0) {
             streamZeroType = validationContext.getStreamTypeService().getEventTypes()[0];
         }
-        final ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(clazz.getName(), null, firstItem.getName(), firstItem.getParameters(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName(), true), functionName, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+        final ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(clazz.getName(), null, firstItem.getRootNameOrEmptyString(), firstItem.getParametersOrEmpty(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getRootNameOrEmptyString(), true), functionName, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
         boolean allowValueCache = true;
         boolean isReturnsConstantResult;

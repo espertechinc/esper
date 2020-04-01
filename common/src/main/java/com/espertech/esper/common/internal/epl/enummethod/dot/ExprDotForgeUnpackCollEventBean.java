@@ -45,8 +45,8 @@ public class ExprDotForgeUnpackCollEventBean implements ExprDotForge, ExprDotEva
         return new EventUnderlyingCollection(it);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, ExprDotForgeUnpackCollEventBean.class, codegenClassScope).addParam(Collection.class, "target");
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod methodNode = parent.makeChild(Collection.class, ExprDotForgeUnpackCollEventBean.class, classScope).addParam(Collection.class, "target");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("target")

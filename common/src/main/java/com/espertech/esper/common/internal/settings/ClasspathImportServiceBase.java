@@ -300,15 +300,15 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         String expected = JavaClassHelper.getParameterAsString(paramTypes);
         String message = "Could not find ";
         if (!isInstance) {
-            message += "static ";
+            message += "static method ";
         } else {
-            message += "enumeration method, date-time method or instance ";
+            message += "enumeration method, date-time method, instance method or property ";
         }
 
         if (paramTypes.length > 0) {
-            message += "method named '" + methodName + "' in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' with matching parameter number and expected parameter type(s) '" + expected + "'";
+            message += "named '" + methodName + "' in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' with matching parameter number and expected parameter type(s) '" + expected + "'";
         } else {
-            message += "method named '" + methodName + "' in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' taking no parameters";
+            message += "named '" + methodName + "' in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' taking no parameters";
         }
 
         if (e.getNearestMissMethod() != null) {
