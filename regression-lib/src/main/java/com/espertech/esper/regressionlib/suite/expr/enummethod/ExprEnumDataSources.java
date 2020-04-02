@@ -45,6 +45,7 @@ public class ExprEnumDataSources {
         execs.add(new ExprEnumUDFStaticMethod());
         execs.add(new ExprEnumPropertySchema());
         execs.add(new ExprEnumPropertyInsertIntoAtEventBean());
+        execs.add(new ExprEnumPatternInsertIntoAtEventBean());
         execs.add(new ExprEnumPatternFilter());
         execs.add(new ExprEnumVariable());
         execs.add(new ExprEnumTableRow());
@@ -101,6 +102,35 @@ public class ExprEnumDataSources {
             assertEquals(1, ((Collection) env.listener("s0").assertOneGetNewAndReset().get("ticksLargeLess200")).size());
 
             env.undeployAll();
+        }
+    }
+
+    private static class ExprEnumPatternInsertIntoAtEventBean implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyEvent(id string, value int);\n" +
+                "insert into StreamWithAll select * from pattern[[4] me=MyEvent];\n" +
+                "insert into StreamGreaterZero select me.where(v => v.value>0) @eventbean as megt from StreamWithAll;\n" +
+                "insert into StreamLessThenTen select megt.where(v => v.value<10) @eventbean as melt from StreamGreaterZero;\n" +
+                "@name('s0') select * from StreamLessThenTen;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            Map<String, Object> e1 = sendEvent(env, "E1", 1);
+            sendEvent(env, "E2", -1);
+            sendEvent(env, "E3", 11);
+            Map<String, Object> e4 = sendEvent(env, "E4", 4);
+
+            Map<String, Object> result = (Map<String, Object>) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
+            EventBean[] events = (EventBean[]) result.get("melt");
+            assertSame(e1, events[0].getUnderlying());
+            assertSame(e4, events[1].getUnderlying());
+
+            env.undeployAll();
+        }
+
+        private Map<String, Object> sendEvent(RegressionEnvironment env, String id, int value) {
+            Map<String, Object> event = CollectionUtil.buildMap("id", id, "value", value);
+            env.sendEventMap(event, "MyEvent");
+            return event;
         }
     }
 
