@@ -24,14 +24,18 @@ public class EventBeanUpdateItemForge {
     private final EventPropertyWriterSPI optionalWriter;
     private final boolean notNullableField;
     private final TypeWidenerSPI optionalWidener;
+    private final boolean useUntypedAssignment;
+    private final boolean useTriggeringEvent;
     private final EventBeanUpdateItemArray optionalArray;
 
-    public EventBeanUpdateItemForge(ExprForge expression, String optionalPropertyName, EventPropertyWriterSPI optionalWriter, boolean notNullableField, TypeWidenerSPI optionalWidener, EventBeanUpdateItemArray optionalArray) {
+    public EventBeanUpdateItemForge(ExprForge expression, String optionalPropertyName, EventPropertyWriterSPI optionalWriter, boolean notNullableField, TypeWidenerSPI optionalWidener, boolean useUntypedAssignment, boolean useTriggeringEvent, EventBeanUpdateItemArray optionalArray) {
         this.expression = expression;
         this.optionalPropertyName = optionalPropertyName;
         this.optionalWriter = optionalWriter;
         this.notNullableField = notNullableField;
         this.optionalWidener = optionalWidener;
+        this.useUntypedAssignment = useUntypedAssignment;
+        this.useTriggeringEvent = useTriggeringEvent;
         this.optionalArray = optionalArray;
     }
 
@@ -57,6 +61,14 @@ public class EventBeanUpdateItemForge {
 
     public EventBeanUpdateItemArray getOptionalArray() {
         return optionalArray;
+    }
+
+    public boolean isUseUntypedAssignment() {
+        return useUntypedAssignment;
+    }
+
+    public boolean isUseTriggeringEvent() {
+        return useTriggeringEvent;
     }
 
     public EventBeanUpdateItemForgeWExpressions toExpression(Class type, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {

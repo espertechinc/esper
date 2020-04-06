@@ -117,7 +117,8 @@ public class EventBeanUpdateHelperForge {
 
         EventBeanUpdateItemForgeWExpressions[] forgeExpressions = new EventBeanUpdateItemForgeWExpressions[updateItems.length];
         for (int i = 0; i < updateItems.length; i++) {
-            forgeExpressions[i] = updateItems[i].toExpression(types[i], exprMethod, exprSymbol, classScope);
+            Class targetType = updateItems[i].isUseUntypedAssignment() ? Object.class : types[i];
+            forgeExpressions[i] = updateItems[i].toExpression(targetType, exprMethod, exprSymbol, classScope);
         }
 
         exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
@@ -125,8 +126,12 @@ public class EventBeanUpdateHelperForge {
         method.getBlock().declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("target"))));
 
         for (int i = 0; i < updateItems.length; i++) {
+            Class targetType = updateItems[i].isUseUntypedAssignment() ? Object.class : types[i];
             EventBeanUpdateItemForge updateItem = updateItems[i];
             CodegenExpression rhs = forgeExpressions[i].getRhsExpression();
+            if (updateItems[i].isUseTriggeringEvent()) {
+                rhs = arrayAtIndex(ref(NAME_EPS), constant(1));
+            }
             method.getBlock().apply(instblock(classScope, "qInfraUpdateRHSExpr", constant(i)));
 
             if (types[i] == null && updateItem.getOptionalWriter() != null) {
@@ -142,7 +147,7 @@ public class EventBeanUpdateHelperForge {
             }
 
             CodegenExpressionRef ref = ref("r" + i);
-            method.getBlock().declareVar(types[i], ref.getRef(), rhs);
+            method.getBlock().declareVar(targetType, ref.getRef(), rhs);
 
             CodegenExpression assigned = ref;
             if (updateItem.getOptionalWidener() != null) {

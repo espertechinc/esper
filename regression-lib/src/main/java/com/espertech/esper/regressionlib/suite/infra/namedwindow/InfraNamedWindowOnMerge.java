@@ -27,8 +27,8 @@ import org.apache.avro.generic.GenericData;
 import java.io.Serializable;
 import java.util.*;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertPropsPerRow;
+import static org.junit.Assert.*;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"
@@ -45,7 +45,41 @@ public class InfraNamedWindowOnMerge {
         execs.add(new InfraOnMergeWhere1Eq2InsertSelectStar());
         execs.add(new InfraOnMergeNoWhereClauseInsertSelectStar());
         execs.add(new InfraOnMergeNoWhereClauseInsertTranspose());
+        execs.add(new InfraOnMergeSetRHSEvent());
         return execs;
+    }
+
+    private static class InfraOnMergeSetRHSEvent implements RegressionExecution {
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('window') create window RecentWindow#time(30 seconds) (id string, currentSewid SimpleEventWithId, prevSewid SimpleEventWithId);\n" +
+                "on SimpleEventWithId as sewid\n" +
+                "  merge RecentWindow as recent where recent.id = sewid.id\n" +
+                "  when not matched then insert select sewid.id as id, sewid as currentSewid, sewid as prevSewid\n" +
+                "  when matched then update set prevSewid = currentSewid, currentSewid = sewid;\n";
+            env.compileDeploy(epl);
+
+            Object[] sewidOne = new Object[]{"id", "A"};
+            env.sendEventObjectArray(sewidOne, "SimpleEventWithId");
+            assertWindow(env, "id", sewidOne, sewidOne);
+
+            Object[] sewidTwo = new Object[]{"id", "B"};
+            env.sendEventObjectArray(sewidTwo, "SimpleEventWithId");
+            assertWindow(env, "id", sewidTwo, sewidOne);
+
+            Object[] sewidThree = new Object[]{"id", "B"};
+            env.sendEventObjectArray(sewidThree, "SimpleEventWithId");
+            assertWindow(env, "id", sewidThree, sewidTwo);
+
+            env.undeployAll();
+        }
+
+        private void assertWindow(RegressionEnvironment env, String id, Object[] currentSewid, Object[] prevSewid) {
+            EventBean event = env.iterator("window").next();
+            assertEquals(id, event.get("id"));
+            assertSame(currentSewid, ((EventBean) event.get("currentSewid")).getUnderlying());
+            assertSame(prevSewid, ((EventBean) event.get("prevSewid")).getUnderlying());
+        }
     }
 
     private static class InfraOnMergeWhere1Eq2InsertSelectStar implements RegressionExecution {
@@ -151,7 +185,7 @@ public class InfraNamedWindowOnMerge {
             env.compileDeploy(epl, path);
             env.sendEventBean(new SupportBean("E2", 20));
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("window"), "theString,intPrimitive".split(","), new Object[][]{{null, 10}, {"E2", 20}});
+            assertPropsPerRow(env.iterator("window"), "theString,intPrimitive".split(","), new Object[][]{{null, 10}, {"E2", 20}});
 
             env.undeployAll();
         }
@@ -339,7 +373,7 @@ public class InfraNamedWindowOnMerge {
 
         env.sendEventBean(new SupportBean_Container(Arrays.asList(new SupportBean("E1", 10), new SupportBean("E2", 20))));
 
-        EPAssertionUtil.assertPropsPerRow(env.iterator("window"), "theString,intPrimitive".split(","), new Object[][]{{"E1", 10}, {"E2", 20}});
+        assertPropsPerRow(env.iterator("window"), "theString,intPrimitive".split(","), new Object[][]{{"E1", 10}, {"E2", 20}});
 
         env.undeployAll();
     }

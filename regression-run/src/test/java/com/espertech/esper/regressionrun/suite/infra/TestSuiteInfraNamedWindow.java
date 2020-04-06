@@ -161,6 +161,8 @@ public class TestSuiteInfraNamedWindow extends TestCase {
         legacy.setCopyMethod("myCopyMethod");
         configuration.getCommon().addEventType("SupportBeanCopyMethod", SupportBeanCopyMethod.class.getName(), legacy);
 
+        configuration.getCommon().addEventType("SimpleEventWithId", new String[]{"id"}, new Object[]{String.class});
+
         configuration.getCompiler().addPlugInSingleRowFunction("setBeanLongPrimitive999", InfraNamedWindowOnUpdate.class.getName(), "setBeanLongPrimitive999");
         configuration.getCompiler().addPlugInSingleRowFunction("increaseIntCopyDouble", InfraNamedWindowOnMerge.class.getName(), "increaseIntCopyDouble");
 

@@ -71,7 +71,7 @@ public class EventBeanUpdateHelperForgeFactory {
 
                         ExprNode rhsExpr = straight.getRhs();
                         ExprForge rhsForge = rhsExpr.getForge();
-                        EventPropertyWriterSPI writers = eventTypeSPI.getWriter(propertyName);
+                        EventPropertyWriterSPI writer = eventTypeSPI.getWriter(propertyName);
                         boolean notNullableField = writableProperty.getPropertyType().isPrimitive();
 
                         properties.add(propertyName);
@@ -84,18 +84,42 @@ public class EventBeanUpdateHelperForgeFactory {
                         }
 
                         // check event type assignment
-                        if (optionalTriggeringEventType != null && rhsExpr instanceof ExprIdentNode) {
-                            ExprIdentNode node = (ExprIdentNode) rhsExpr;
-                            FragmentEventType fragmentRHS = optionalTriggeringEventType.getFragmentType(node.getResolvedPropertyName());
-                            FragmentEventType fragmentLHS = eventTypeSPI.getFragmentType(propertyName);
-                            if (fragmentRHS != null && fragmentLHS != null && !EventTypeUtility.isTypeOrSubTypeOf(fragmentRHS.getFragmentType(), fragmentLHS.getFragmentType())) {
-                                throw new ExprValidationException("Invalid assignment to property '" +
-                                    propertyName + "' event type '" + fragmentLHS.getFragmentType().getName() +
-                                    "' from event type '" + fragmentRHS.getFragmentType().getName() + "'");
+                        boolean useUntypedAssignment = false;
+                        boolean useTriggeringEvent = false;
+                        if (optionalTriggeringEventType != null) {
+                            // handle RHS is ident node
+                            if (rhsExpr instanceof ExprIdentNode) {
+                                ExprIdentNode node = (ExprIdentNode) rhsExpr;
+                                FragmentEventType fragmentRHS = optionalTriggeringEventType.getFragmentType(node.getResolvedPropertyName());
+                                FragmentEventType fragmentLHS = eventTypeSPI.getFragmentType(propertyName);
+                                if (fragmentRHS != null && fragmentLHS != null) {
+                                    if (!EventTypeUtility.isTypeOrSubTypeOf(fragmentRHS.getFragmentType(), fragmentLHS.getFragmentType())) {
+                                        throw makeEventTypeMismatch(propertyName, fragmentLHS.getFragmentType(), fragmentRHS.getFragmentType());
+                                    }
+                                }
+                                // we don't need to cast if it is a self-assignment and LHS is an event and target needs no writer
+                                if (node.getStreamId() == 0 && fragmentLHS != null && eventTypeSPI instanceof BaseNestableEventType) {
+                                    useUntypedAssignment = true;
+                                }
+                            }
+                            // handle RHS is a stream of the triggering event itself
+                            if (rhsExpr instanceof ExprStreamUnderlyingNode) {
+                                ExprStreamUnderlyingNode und = (ExprStreamUnderlyingNode) rhsExpr;
+                                if (und.getStreamId() == 1) {
+                                    FragmentEventType fragmentLHS = eventTypeSPI.getFragmentType(propertyName);
+                                    if (!EventTypeUtility.isTypeOrSubTypeOf(optionalTriggeringEventType, fragmentLHS.getFragmentType())) {
+                                        throw makeEventTypeMismatch(propertyName, fragmentLHS.getFragmentType(), optionalTriggeringEventType);
+                                    }
+                                    // we use the event itself for assignment and target needs no writer
+                                    if (eventTypeSPI instanceof BaseNestableEventType) {
+                                        useUntypedAssignment = true;
+                                        useTriggeringEvent = true;
+                                    }
+                                }
                             }
                         }
 
-                        updateItem = new EventBeanUpdateItemForge(rhsForge, propertyName, writers, notNullableField, widener, null);
+                        updateItem = new EventBeanUpdateItemForge(rhsForge, propertyName, writer, notNullableField, widener, useUntypedAssignment, useTriggeringEvent, null);
                     } else if (straight.getLhs() instanceof ExprAssignmentLHSArrayElement) {
                         // handle "property[expr] = value"
                         ExprAssignmentLHSArrayElement arrayElementLHS = (ExprAssignmentLHSArrayElement) straight.getLhs();
@@ -126,14 +150,14 @@ public class EventBeanUpdateHelperForgeFactory {
                         }
 
                         EventBeanUpdateItemArray arrayInfo = new EventBeanUpdateItemArray(arrayPropertyName, arrayElementLHS.getIndexExpression(), propertyType, getter);
-                        updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, widener, arrayInfo);
+                        updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, widener, false, false, arrayInfo);
                     } else {
                         throw new IllegalStateException("Unrecognized LHS assignment " + straight);
                     }
                 } else if (assignment instanceof ExprAssignmentCurly) {
                     // handle non-assignment, i.e. UDF or other expression
                     ExprAssignmentCurly dot = (ExprAssignmentCurly) assignment;
-                    updateItem = new EventBeanUpdateItemForge(dot.getExpression().getForge(), null, null, false, null, null);
+                    updateItem = new EventBeanUpdateItemForge(dot.getExpression().getForge(), null, null, false, null, false, false, null);
                 } else {
                     throw new IllegalStateException("Unrecognized assignment " + assignment);
                 }
@@ -169,6 +193,12 @@ public class EventBeanUpdateHelperForgeFactory {
 
         EventBeanUpdateItemForge[] updateItemsArray = updateItems.toArray(new EventBeanUpdateItemForge[updateItems.size()]);
         return new EventBeanUpdateHelperForge(eventTypeSPI, copyMethod, updateItemsArray);
+    }
+
+    private static ExprValidationException makeEventTypeMismatch(String propertyName, EventType lhs, EventType rhs) {
+        return new ExprValidationException("Invalid assignment to property '" +
+            propertyName + "' event type '" + lhs.getName() +
+            "' from event type '" + rhs.getName() + "'");
     }
 
     private static Set<String> determinePropertiesInitialValue(List<OnTriggerSetAssignment> assignments) {
