@@ -24,6 +24,9 @@ public class ClassProvidedPrecompileUtil {
         if (classTexts == null || classTexts.isEmpty()) {
             return ClassProvidedPrecompileResult.EMPTY;
         }
+        if (!compileTimeServices.getConfiguration().getCompiler().getByteCode().isAllowInlinedClass()) {
+            throw new ExprValidationException("Inlined-class compilation has been disabled by configuration");
+        }
 
         int index = -1;
         Map<String, byte[]> allBytes = new HashMap<>();

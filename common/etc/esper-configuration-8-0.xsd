@@ -463,6 +463,7 @@
 			<xs:attribute name="attach-module-epl" type="xs:boolean" use="optional"/>
 			<xs:attribute name="attach-pattern-epl" type="xs:boolean" use="optional"/>
 			<xs:attribute name="allow-subscriber" type="xs:boolean" use="optional"/>
+			<xs:attribute name="allow-inlined-class" type="xs:boolean" use="optional"/>
 			<xs:attribute name="instrumented" type="xs:boolean" use="optional"/>
 			<xs:attribute name="bus-modifier-event-type" type="esper:busModifierEnum" use="optional"/>
 			<xs:attribute name="access-modifier-context" type="esper:accessModifierEnum" use="optional"/>

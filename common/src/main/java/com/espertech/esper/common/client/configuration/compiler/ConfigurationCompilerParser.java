@@ -200,6 +200,7 @@ public class ConfigurationCompilerParser {
         parseOptionalInteger(element, "threadpool-compiler-num-threads", codegen::setThreadPoolCompilerNumThreads);
         parseOptionalInteger(element, "threadpool-compiler-capacity", codegen::setThreadPoolCompilerCapacity);
         parseOptionalInteger(element, "max-methods-per-class", codegen::setMaxMethodsPerClass);
+        parseOptionalBoolean(element, "allow-inlined-class", codegen::setAllowInlinedClass);
 
         parseOptionalAccessMod(element, "access-modifier-context", codegen::setAccessModifierContext);
         parseOptionalAccessMod(element, "access-modifier-event-type", codegen::setAccessModifierEventType);

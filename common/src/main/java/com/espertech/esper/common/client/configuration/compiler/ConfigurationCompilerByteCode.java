@@ -28,6 +28,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
     private boolean attachModuleEPL = false;
     private boolean attachPatternEPL = false;
     private boolean allowSubscriber = false;
+    private boolean allowInlinedClass = true;
     private boolean instrumented;
     private NameAccessModifier accessModifierEventType = NameAccessModifier.PRIVATE;
     private NameAccessModifier accessModifierNamedWindow = NameAccessModifier.PRIVATE;
@@ -400,6 +401,22 @@ public class ConfigurationCompilerByteCode implements Serializable {
      */
     public void setMaxMethodsPerClass(int maxMethodsPerClass) {
         this.maxMethodsPerClass = maxMethodsPerClass;
+    }
+
+    /**
+     * Returns the flag whether the compiler allows inlined classes
+     * @return flag
+     */
+    public boolean isAllowInlinedClass() {
+        return allowInlinedClass;
+    }
+
+    /**
+     * Sets the flag whether the compiler allows inlined classes
+     * @param allowInlinedClass flag
+     */
+    public void setAllowInlinedClass(boolean allowInlinedClass) {
+        this.allowInlinedClass = allowInlinedClass;
     }
 
     private void checkModifier(NameAccessModifier modifier) {

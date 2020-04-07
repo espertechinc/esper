@@ -81,6 +81,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(8, byteCode.getThreadPoolCompilerNumThreads());
         assertNull(byteCode.getThreadPoolCompilerCapacity());
         assertEquals(16*1024, byteCode.getMaxMethodsPerClass());
+        assertTrue(byteCode.isAllowInlinedClass());
         assertEquals(StreamSelector.ISTREAM_ONLY, compiler.getStreamSelection().getDefaultStreamSelector());
         assertFalse(compiler.getLanguage().isSortUsingCollator());
         assertFalse(compiler.getExpression().isIntegerDivision());
@@ -497,6 +498,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(1234, byteCode.getThreadPoolCompilerNumThreads());
         assertEquals(4321, (int) byteCode.getThreadPoolCompilerCapacity());
         assertEquals(5555, byteCode.getMaxMethodsPerClass());
+        assertFalse(byteCode.isAllowInlinedClass());
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, compiler.getStreamSelection().getDefaultStreamSelector());
 
         assertEquals(100, compiler.getExecution().getFilterServiceMaxFilterWidth());
