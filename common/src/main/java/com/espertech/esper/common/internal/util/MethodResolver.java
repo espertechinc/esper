@@ -157,6 +157,9 @@ public class MethodResolver {
             if (!isPublicAndStatic(method, allowInstance)) {
                 continue;
             }
+            if (!Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+                continue;
+            }
 
             // Check the name
             if (!method.getName().equals(methodName)) {

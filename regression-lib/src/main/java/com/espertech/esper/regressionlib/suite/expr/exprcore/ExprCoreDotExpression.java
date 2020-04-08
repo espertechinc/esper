@@ -120,6 +120,11 @@ public class ExprCoreDotExpression {
                 "Failed to validate select-clause expression 'abc.noSuchMethod()': Failed to solve 'noSuchMethod' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method, instance method or property named 'noSuchMethod' in class '" + SupportBean.class.getName() + "' taking no parameters [select abc.noSuchMethod() from SupportBean abc]");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc",
                 "Failed to validate select-clause expression 'abc.getChildOne(\"abc\",10).noSuchMethod()': Failed to solve 'getChildOne' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method, instance method or property named 'noSuchMethod' in class '" + SupportChainChildOne.class.getName() + "' taking no parameters [select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc]");
+
+            String epl = "import " + MyHelperWithPrivateModifierAndPublicMethod.class.getName() + ";\n" +
+                         "select " + MyHelperWithPrivateModifierAndPublicMethod.class.getSimpleName() + ".callMe() from SupportBean;\n";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+                "Failed to validate select-clause expression 'MyHelperWithPrivateModifierAndPubli...(51 chars)': Failed to resolve 'MyHelperWithPrivateModifierAndPublicMethod.callMe' to");
         }
     }
 
@@ -279,5 +284,11 @@ public class ExprCoreDotExpression {
     private static void sendAssertDotObjectEquals(RegressionEnvironment env, int intPrimitive, boolean expected) {
         env.sendEventBean(new SupportBean(UuidGenerator.generate(), intPrimitive));
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{expected});
+    }
+
+    private static class MyHelperWithPrivateModifierAndPublicMethod {
+        public String callMe() {
+            return null;
+        }
     }
 }
