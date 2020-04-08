@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.contained;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -136,10 +137,11 @@ public class PropertyEvaluatorAccumulative {
                 }
             }
         } catch (RuntimeException ex) {
-            log.error("Unexpected error evaluating property expression for event of type '" +
-                    branch.getEventType().getName() +
-                    "' and property '" +
-                    propertyNames[level + 1] + "': " + ex.getMessage(), ex);
+            String message = "Unexpected error evaluating property expression for event of type '" +
+                branch.getEventType().getName() +
+                "' and property '" +
+                propertyNames[level + 1] + "': " + ex.getMessage();
+            throw new EPException(message, ex);
         }
     }
 }
