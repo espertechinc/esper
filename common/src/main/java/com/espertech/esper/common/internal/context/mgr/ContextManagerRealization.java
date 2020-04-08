@@ -160,7 +160,7 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
         ListIterator<ContextControllerStatementDesc> iterator = new ArrayList<>(contextManager.getStatements().values()).listIterator(contextManager.getStatements().size());
         while (iterator.hasPrevious()) {
             ContextControllerStatementDesc statementDesc = iterator.previous();
-            AgentInstanceUtil.contextPartitionTerminate(agentInstanceId, statementDesc, terminationProperties, leaveLocksAcquired, agentInstancesLocksHeld);
+            AgentInstanceUtil.contextPartitionTerminate(agentInstanceId, statementDesc, contextControllers, terminationProperties, leaveLocksAcquired, agentInstancesLocksHeld);
         }
 
         // remove all context partition statement resources
@@ -234,7 +234,7 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
     public void removeStatement(ContextControllerStatementDesc statementDesc) {
         Collection<Integer> ids = contextManager.getContextPartitionIdService().getIds();
         for (Integer id : ids) {
-            AgentInstanceUtil.contextPartitionTerminate(id, statementDesc, null, false, null);
+            AgentInstanceUtil.contextPartitionTerminate(id, statementDesc, contextControllers, null, false, null);
         }
     }
 

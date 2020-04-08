@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.hook.exception.ExceptionHandlerExceptio
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryUtil;
 import com.espertech.esper.common.internal.context.airegistry.StatementAIResourceRegistry;
+import com.espertech.esper.common.internal.context.controller.core.ContextController;
 import com.espertech.esper.common.internal.context.mgr.ContextControllerStatementDesc;
 import com.espertech.esper.common.internal.context.mgr.ContextStatementEventEvaluator;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewTerminable;
@@ -55,13 +56,22 @@ public class AgentInstanceUtil {
         }
     }
 
-    public static void contextPartitionTerminate(int agentInstanceId, ContextControllerStatementDesc statementDesc, Map<String, Object> terminationProperties, boolean leaveLocksAcquired, List<AgentInstance> agentInstancesLocksHeld) {
+    public static void contextPartitionTerminate(int agentInstanceId, ContextControllerStatementDesc statementDesc, ContextController[] contextControllers, Map<String, Object> terminationProperties, boolean leaveLocksAcquired, List<AgentInstance> agentInstancesLocksHeld) {
         StatementContext statementContext = statementDesc.getLightweight().getStatementContext();
         StatementResourceHolder holder = statementContext.getStatementCPCacheService().makeOrGetEntryCanNull(agentInstanceId, statementContext);
 
         if (terminationProperties != null) {
             MappedEventBean mappedEventBean = (MappedEventBean) holder.getAgentInstanceContext().getContextProperties();
-            mappedEventBean.getProperties().putAll(terminationProperties);
+            if (contextControllers.length == 1) {
+                mappedEventBean.getProperties().putAll(terminationProperties);
+            } else {
+                ContextController lastController = contextControllers[contextControllers.length - 1];
+                String lastContextName = lastController.getFactory().getFactoryEnv().getContextName();
+                Map<String, Object> inner = (Map<String, Object>) mappedEventBean.getProperties().get(lastContextName);
+                if (inner != null) {
+                    inner.putAll(terminationProperties);
+                }
+            }
         }
 
         // we are not removing statement resources from memory as they may still be used for the same event

@@ -75,8 +75,27 @@ public class ContextNested {
         execs.add(new ContextNestedInitTermOverCategoryIterate());
         execs.add(new ContextNestedInitTermOverInitTermIterate());
         execs.add(new ContextNestedCategoryOverInitTermDistinct());
+        execs.add(new ContextNestedKeySegmentedWInitTermEndEvent());
         return execs;
     }
+
+    private static class ContextNestedKeySegmentedWInitTermEndEvent implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext " +
+                "context OuterContext partition by theString from SupportBean,\n" +
+                "context InnerContext start SupportBean(intPrimitive = 1) as startevent end SupportBean(intPrimitive = 0) as endevent;\n" +
+                "@name('s0') context MyContext select context.id as id, context.InnerContext.startevent as c0, context.InnerContext.endevent as c1 from SupportBean(intPrimitive > 0) output all when terminated;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportBean sb1 = sendSBEvent(env, "A", 1);
+            SupportBean sb2 = sendSBEvent(env, "A", 0);
+
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {sb1, sb2});
+
+            env.undeployAll();
+        }
+    }
+
 
     private static class ContextNestedInitWStartNow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
@@ -2135,6 +2154,12 @@ public class ContextNested {
     private static void assertFilterCount(RegressionEnvironment env, int count, String stmtName) {
         EPStatement statement = env.statement(stmtName);
         assertEquals(count, SupportFilterHelper.getFilterCount(statement, "SupportBean"));
+    }
+
+    private static SupportBean sendSBEvent(RegressionEnvironment env, String theString, int intPrimitive) {
+        SupportBean sb = new SupportBean(theString, intPrimitive);
+        env.sendEventBean(sb);
+        return sb;
     }
 
     public static class MySelectorFilteredNested implements ContextPartitionSelectorFiltered {
