@@ -15,8 +15,10 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.*;
-import org.junit.Assert;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
+import com.espertech.esper.regressionlib.support.bean.SupportPriceEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
