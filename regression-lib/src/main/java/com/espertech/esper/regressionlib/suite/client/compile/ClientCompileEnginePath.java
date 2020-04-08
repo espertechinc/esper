@@ -31,7 +31,19 @@ public class ClientCompileEnginePath {
         execs.add(new ClientCompileEnginePathObjectTypes());
         execs.add(new ClientCompileEnginePathInfraWithIndex());
         execs.add(new ClientCompileEnginePathPreconfiguredEventTypeFromPath());
+        execs.add(new ClientCompilerEnginePathNamedWindowUse());
         return execs;
+    }
+
+    private static class ClientCompilerEnginePathNamedWindowUse implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            createStmt(env, "@public @buseventtype create schema Event(string_field string, double_field double)");
+            createStmt(env, "@public create window EventWindow#time(600L) as select * from Event");
+            createStmt(env, "insert into EventWindow select * from Event");
+            createStmt(env, "select sum(double_field) AS sum_double_field, string_field, window() from EventWindow");
+
+            env.undeployAll();
+        }
     }
 
     public static class ClientCompileEnginePathPreconfiguredEventTypeFromPath implements RegressionExecution {

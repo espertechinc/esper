@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -44,7 +45,15 @@ import static com.espertech.esper.common.internal.serde.compiletime.eventtype.Se
 
 public class SerdeEventTypeUtility {
     public static List<StmtClassForgeableFactory> plan(EventType eventType, StatementRawInfo raw, SerdeEventTypeCompileTimeRegistry registry, SerdeCompileTimeResolver resolver) {
-        if (!registry.isTargetHA() || registry.getEventTypes().containsKey(eventType) || eventType.getMetadata().getTypeClass() == EventTypeTypeClass.TABLE_INTERNAL) {
+        // there is no need to register a serde when not using HA, or when it is already registered, or for table-internal type
+        EventTypeTypeClass typeClass = eventType.getMetadata().getTypeClass();
+        if (!registry.isTargetHA() || registry.getEventTypes().containsKey(eventType) ||  typeClass == EventTypeTypeClass.TABLE_INTERNAL) {
+            return Collections.emptyList();
+        }
+        // there is also no need to register a serde when using a public object
+        StatementType statementType = raw.getStatementType();
+        if ((typeClass == EventTypeTypeClass.NAMED_WINDOW && statementType != StatementType.CREATE_WINDOW) ||
+            (typeClass == EventTypeTypeClass.TABLE_PUBLIC && statementType != StatementType.CREATE_TABLE)) {
             return Collections.emptyList();
         }
         List<StmtClassForgeableFactory> forgeables = new ArrayList<>(2);
