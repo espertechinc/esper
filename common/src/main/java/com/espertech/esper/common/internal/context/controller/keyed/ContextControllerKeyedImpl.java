@@ -134,7 +134,7 @@ public class ContextControllerKeyedImpl extends ContextControllerKeyed {
                 }
                 // remember the terminating event, we don't want it to initiate a new partition
                 ContextControllerKeyedImpl.this.lastTerminatingEvent = optionalTriggeringEvent != null ? optionalTriggeringEvent : optionalTriggeringEventPattern;
-                realization.contextPartitionTerminate(conditionPath.removeFromEnd(), removed.getSubpathOrCPId(), ContextControllerKeyedImpl.this, null, false, null);
+                realization.contextPartitionTerminate(conditionPath.removeFromEnd(), removed.getSubpathOrCPId(), ContextControllerKeyedImpl.this, optionalTriggeringPattern, false, null);
                 removed.getTerminationCondition().deactivate();
             }
         };

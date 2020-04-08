@@ -60,7 +60,25 @@ public class ContextKeySegmented {
         execs.add(new ContextKeySegmentedMatchRecognize());
         execs.add(new ContextKeySegmentedMultikeyWArrayOfPrimitive());
         execs.add(new ContextKeySegmentedMultikeyWArrayTwoField());
+        execs.add(new ContextKeySegmentedWInitTermEndEvent());
         return execs;
+    }
+
+    private static class ContextKeySegmentedWInitTermEndEvent implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext partition by theString from SupportBean\n" +
+                "initiated by SupportBean(intPrimitive = 1) as startevent\n" +
+                "terminated by SupportBean(intPrimitive = 0) as endevent;\n" +
+                "@name('s0') context MyContext select context.startevent as c0, context.endevent as c1 from SupportBean output all when terminated;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportBean sb1 = sendSBEvent(env, "A", 1);
+            SupportBean sb2 = sendSBEvent(env, "A", 0);
+
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {sb1, sb2});
+
+            env.undeployAll();
+        }
     }
 
     private static class ContextKeySegmentedMultikeyWArrayTwoField implements RegressionExecution {
@@ -1153,9 +1171,14 @@ public class ContextKeySegmented {
         assertFalse(env.listener("s0").isInvoked());
     }
 
-    private static void sendSBEvent(RegressionEnvironment env, String string, Integer intBoxed, int intPrimitive) {
+    private static SupportBean sendSBEvent(RegressionEnvironment env, String string, Integer intBoxed, int intPrimitive) {
         SupportBean bean = new SupportBean(string, intPrimitive);
         bean.setIntBoxed(intBoxed);
         env.sendEventBean(bean);
+        return bean;
+    }
+
+    private static SupportBean sendSBEvent(RegressionEnvironment env, String string, int intPrimitive) {
+        return sendSBEvent(env, string, null, intPrimitive);
     }
 }

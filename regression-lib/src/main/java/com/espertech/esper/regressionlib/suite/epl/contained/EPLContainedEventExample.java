@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQueryParameterized;
 import com.espertech.esper.common.client.render.JSONEventRenderer;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -68,36 +67,36 @@ public class EPLContainedEventExample {
             RegressionPath path = new RegressionPath();
             String epl =
                 "create schema Symbol(symbol string, value double);\n" +
-                "@public @buseventtype create schema ForeignSymbols(companies Symbol[]);\n" +
-                "@public @buseventtype create schema LocalSymbols(companies Symbol[]);\n" +
-                "\n" +
-                "create table Mapping(foreignSymbol string primary key, localSymbol string primary key);\n" +
-                "create index MappingIndexForeignSymbol on Mapping(foreignSymbol);\n" +
-                "create index MappingIndexLocalSymbol on Mapping(localSymbol);\n" +
-                "\n" +
-                "insert into SymbolsPair select * from ForeignSymbols#lastevent as foreign, LocalSymbols#lastevent as local;\n" +
-                "on SymbolsPair\n" +
-                "  insert into SymbolsPairBeginEvent select null\n" +
-                "  insert into ForeignSymbolRow select * from [foreign.companies]\n" +
-                "  insert into LocalSymbolRow select * from [local.companies]\n" +
-                "  insert into SymbolsPairOutputEvent select null" +
-                "  insert into SymbolsPairEndEvent select null" +
-                "  output all;\n" +
-                "\n" +
-                "create context SymbolsPairContext start SymbolsPairBeginEvent end SymbolsPairEndEvent;\n" +
-                "context SymbolsPairContext create table Result(foreignSymbol string primary key, localSymbol string primary key, value double);\n" +
-                "\n" +
-                "context SymbolsPairContext on ForeignSymbolRow as fsr merge Result as result where result.foreignSymbol = fsr.symbol\n" +
-                "  when not matched then insert select fsr.symbol as foreignSymbol,\n" +
-                "    (select localSymbol from Mapping as mapping where mapping.foreignSymbol = fsr.symbol) as localSymbol, fsr.value as value\n" +
-                "  when matched and fsr.value > result.value then update set value = fsr.value;\n" +
-                "\n" +
-                "context SymbolsPairContext on LocalSymbolRow as lsr merge Result as result where result.localSymbol = lsr.symbol\n" +
-                "  when not matched then insert select (select foreignSymbol from Mapping as mapping where mapping.localSymbol = lsr.symbol) as foreignSymbol," +
-                "    lsr.symbol as localSymbol, lsr.value as value\n" +
-                "  when matched and lsr.value > result.value then update set value = lsr.value;\n" +
-                "\n" +
-                "@name('out') context SymbolsPairContext on SymbolsPairOutputEvent select foreignSymbol, localSymbol, value from Result order by foreignSymbol asc;\n";
+                    "@public @buseventtype create schema ForeignSymbols(companies Symbol[]);\n" +
+                    "@public @buseventtype create schema LocalSymbols(companies Symbol[]);\n" +
+                    "\n" +
+                    "create table Mapping(foreignSymbol string primary key, localSymbol string primary key);\n" +
+                    "create index MappingIndexForeignSymbol on Mapping(foreignSymbol);\n" +
+                    "create index MappingIndexLocalSymbol on Mapping(localSymbol);\n" +
+                    "\n" +
+                    "insert into SymbolsPair select * from ForeignSymbols#lastevent as foreign, LocalSymbols#lastevent as local;\n" +
+                    "on SymbolsPair\n" +
+                    "  insert into SymbolsPairBeginEvent select null\n" +
+                    "  insert into ForeignSymbolRow select * from [foreign.companies]\n" +
+                    "  insert into LocalSymbolRow select * from [local.companies]\n" +
+                    "  insert into SymbolsPairOutputEvent select null" +
+                    "  insert into SymbolsPairEndEvent select null" +
+                    "  output all;\n" +
+                    "\n" +
+                    "create context SymbolsPairContext start SymbolsPairBeginEvent end SymbolsPairEndEvent;\n" +
+                    "context SymbolsPairContext create table Result(foreignSymbol string primary key, localSymbol string primary key, value double);\n" +
+                    "\n" +
+                    "context SymbolsPairContext on ForeignSymbolRow as fsr merge Result as result where result.foreignSymbol = fsr.symbol\n" +
+                    "  when not matched then insert select fsr.symbol as foreignSymbol,\n" +
+                    "    (select localSymbol from Mapping as mapping where mapping.foreignSymbol = fsr.symbol) as localSymbol, fsr.value as value\n" +
+                    "  when matched and fsr.value > result.value then update set value = fsr.value;\n" +
+                    "\n" +
+                    "context SymbolsPairContext on LocalSymbolRow as lsr merge Result as result where result.localSymbol = lsr.symbol\n" +
+                    "  when not matched then insert select (select foreignSymbol from Mapping as mapping where mapping.localSymbol = lsr.symbol) as foreignSymbol," +
+                    "    lsr.symbol as localSymbol, lsr.value as value\n" +
+                    "  when matched and lsr.value > result.value then update set value = lsr.value;\n" +
+                    "\n" +
+                    "@name('out') context SymbolsPairContext on SymbolsPairOutputEvent select foreignSymbol, localSymbol, value from Result order by foreignSymbol asc;\n";
             env.compileDeploy(epl, path).addListener("out");
 
             // load mapping table
@@ -113,7 +112,7 @@ public class EPLContainedEventExample {
 
             EventBean[] results = env.listener("out").getAndResetLastNewData();
             EPAssertionUtil.assertPropsPerRow(results, "foreignSymbol,localSymbol,value".split(","),
-                new Object[][] {{"ABC", "123", 600d}, {"DEF", "456", 300d}, {"GHI", "789", 200d}, {"JKL", "666", 400d}});
+                new Object[][]{{"ABC", "123", 600d}, {"DEF", "456", 300d}, {"GHI", "789", 200d}, {"JKL", "666", 400d}});
 
             env.undeployAll();
         }

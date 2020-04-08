@@ -61,14 +61,18 @@ public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBa
                 ContextPropertyEventType.addEndpointTypes(filter, props, allTags);
             }
         }
+
+        if (detail.getOptionalTermination() != null) {
+            ContextPropertyEventType.addEndpointTypes(detail.getOptionalTermination(), props, allTags);
+        }
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(ContextControllerKeyedFactory.class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextControllerKeyedFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("keyedFactory"))
-                .exprDotMethod(ref("factory"), "setKeyedSpec", detail.makeCodegen(method, symbols, classScope))
-                .methodReturn(ref("factory"));
+            .declareVar(ContextControllerKeyedFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("keyedFactory"))
+            .exprDotMethod(ref("factory"), "setKeyedSpec", detail.makeCodegen(method, symbols, classScope))
+            .methodReturn(ref("factory"));
         return method;
     }
 
