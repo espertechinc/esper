@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.contained;
 
+import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQueryParameterized;
 import com.espertech.esper.common.client.render.JSONEventRenderer;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -23,14 +27,15 @@ import org.w3c.dom.Document;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 
 public class EPLContainedEventExample {
 
     public static List<RegressionExecution> executions() {
-
         InputStream xmlStreamOne = EPLContainedEventExample.class.getClassLoader().getResourceAsStream("regression/mediaOrderOne.xml");
         Document eventDocOne = SupportXML.getDocument(xmlStreamOne);
 
@@ -43,8 +48,103 @@ public class EPLContainedEventExample {
         execs.add(new EPLContainedJoinSelfJoin(eventDocOne, eventDocTwo));
         execs.add(new EPLContainedJoinSelfLeftOuterJoin(eventDocOne, eventDocTwo));
         execs.add(new EPLContainedJoinSelfFullOuterJoin(eventDocOne, eventDocTwo));
+        execs.add(new EPLContainedSolutionPatternFinancial());
 
         return execs;
+    }
+
+    private static class EPLContainedSolutionPatternFinancial implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            // Could have also used a mapping event however here we uses fire-and-forget to load the mapping instead:
+            //   @public @buseventtype create schema MappingEvent(foreignSymbol string, localSymbol string);
+            //   on MappingEvent merge Mapping insert select foreignSymbol, localSymbol;
+            // The events are:
+            //   MappingEvent={foreignSymbol="ABC", localSymbol="123"}
+            //   MappingEvent={foreignSymbol="DEF", localSymbol="456"}
+            //   MappingEvent={foreignSymbol="GHI", localSymbol="789"}
+            //   MappingEvent={foreignSymbol="JKL", localSymbol="666"}
+            //   ForeignSymbols={companies={{symbol='ABC', value=500}, {symbol='DEF', value=300}, {symbol='JKL', value=400}}}
+            //   LocalSymbols={companies={{symbol='123', value=600}, {symbol='456', value=100}, {symbol='789', value=200}}}
+            RegressionPath path = new RegressionPath();
+            String epl =
+                "create schema Symbol(symbol string, value double);\n" +
+                "@public @buseventtype create schema ForeignSymbols(companies Symbol[]);\n" +
+                "@public @buseventtype create schema LocalSymbols(companies Symbol[]);\n" +
+                "\n" +
+                "create table Mapping(foreignSymbol string primary key, localSymbol string primary key);\n" +
+                "create index MappingIndexForeignSymbol on Mapping(foreignSymbol);\n" +
+                "create index MappingIndexLocalSymbol on Mapping(localSymbol);\n" +
+                "\n" +
+                "insert into SymbolsPair select * from ForeignSymbols#lastevent as foreign, LocalSymbols#lastevent as local;\n" +
+                "on SymbolsPair\n" +
+                "  insert into SymbolsPairBeginEvent select null\n" +
+                "  insert into ForeignSymbolRow select * from [foreign.companies]\n" +
+                "  insert into LocalSymbolRow select * from [local.companies]\n" +
+                "  insert into SymbolsPairOutputEvent select null" +
+                "  insert into SymbolsPairEndEvent select null" +
+                "  output all;\n" +
+                "\n" +
+                "create context SymbolsPairContext start SymbolsPairBeginEvent end SymbolsPairEndEvent;\n" +
+                "context SymbolsPairContext create table Result(foreignSymbol string primary key, localSymbol string primary key, value double);\n" +
+                "\n" +
+                "context SymbolsPairContext on ForeignSymbolRow as fsr merge Result as result where result.foreignSymbol = fsr.symbol\n" +
+                "  when not matched then insert select fsr.symbol as foreignSymbol,\n" +
+                "    (select localSymbol from Mapping as mapping where mapping.foreignSymbol = fsr.symbol) as localSymbol, fsr.value as value\n" +
+                "  when matched and fsr.value > result.value then update set value = fsr.value;\n" +
+                "\n" +
+                "context SymbolsPairContext on LocalSymbolRow as lsr merge Result as result where result.localSymbol = lsr.symbol\n" +
+                "  when not matched then insert select (select foreignSymbol from Mapping as mapping where mapping.localSymbol = lsr.symbol) as foreignSymbol," +
+                "    lsr.symbol as localSymbol, lsr.value as value\n" +
+                "  when matched and lsr.value > result.value then update set value = lsr.value;\n" +
+                "\n" +
+                "@name('out') context SymbolsPairContext on SymbolsPairOutputEvent select foreignSymbol, localSymbol, value from Result order by foreignSymbol asc;\n";
+            env.compileDeploy(epl, path).addListener("out");
+
+            // load mapping table
+            EPCompiled compiledFAF = env.compileFAF("insert into Mapping select ?::string as foreignSymbol, ?::string as localSymbol", path);
+            EPFireAndForgetPreparedQueryParameterized preparedFAF = env.runtime().getFireAndForgetService().prepareQueryWithParameters(compiledFAF);
+            loadMapping(env, preparedFAF, "ABC", "123");
+            loadMapping(env, preparedFAF, "DEF", "456");
+            loadMapping(env, preparedFAF, "GHI", "789");
+            loadMapping(env, preparedFAF, "JKL", "666");
+
+            sendForeignSymbols(env, "ABC=500,DEF=300,JKL=400");
+            sendLocalSymbols(env, "123=600,456=100,789=200");
+
+            EventBean[] results = env.listener("out").getAndResetLastNewData();
+            EPAssertionUtil.assertPropsPerRow(results, "foreignSymbol,localSymbol,value".split(","),
+                new Object[][] {{"ABC", "123", 600d}, {"DEF", "456", 300d}, {"GHI", "789", 200d}, {"JKL", "666", 400d}});
+
+            env.undeployAll();
+        }
+
+        private void sendForeignSymbols(RegressionEnvironment env, String symbolCsv) {
+            Map<String, Object>[] companies = parseSymbols(symbolCsv);
+            env.sendEventMap(Collections.singletonMap("companies", companies), "ForeignSymbols");
+        }
+
+        private void sendLocalSymbols(RegressionEnvironment env, String symbolCsv) {
+            Map<String, Object>[] companies = parseSymbols(symbolCsv);
+            env.sendEventMap(Collections.singletonMap("companies", companies), "LocalSymbols");
+        }
+
+        private Map<String, Object>[] parseSymbols(String symbolCsv) {
+            String[] pairs = symbolCsv.split(",");
+            Map<String, Object>[] companies = new Map[pairs.length];
+            for (int i = 0; i < pairs.length; i++) {
+                String[] nameAndValue = pairs[i].split("=");
+                String symbol = nameAndValue[0];
+                double value = Double.parseDouble(nameAndValue[1]);
+                companies[i] = CollectionUtil.buildMap("symbol", symbol, "value", value);
+            }
+            return companies;
+        }
+
+        private void loadMapping(RegressionEnvironment env, EPFireAndForgetPreparedQueryParameterized preparedFAF, String foreignSymbol, String localSymbol) {
+            preparedFAF.setObject(1, foreignSymbol);
+            preparedFAF.setObject(2, localSymbol);
+            env.runtime().getFireAndForgetService().executeQuery(preparedFAF);
+        }
     }
 
     private static class EPLContainedExample implements RegressionExecution {
