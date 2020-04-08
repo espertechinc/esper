@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -30,7 +31,7 @@ public class TestSchedulingServiceImpl extends TestCase {
     private SupportScheduleCallback callbacks[];
 
     public void setUp() {
-        service = new SchedulingServiceImpl(-1, new TimeSourceServiceImpl());
+        service = new SchedulingServiceImpl(-1, new TimeSourceServiceImpl(), ZoneId.systemDefault());
 
         // 2-by-2 table of buckets and slots
         ScheduleBucket[] buckets = new ScheduleBucket[3];
@@ -191,7 +192,7 @@ public class TestSchedulingServiceImpl extends TestCase {
     }
 
     public void testIncorrectRemove() {
-        SchedulingServiceImpl evaluator = new SchedulingServiceImpl(-1, new TimeSourceServiceImpl());
+        SchedulingServiceImpl evaluator = new SchedulingServiceImpl(-1, new TimeSourceServiceImpl(), ZoneId.systemDefault());
         SupportScheduleCallback callback = new SupportScheduleCallback();
         evaluator.remove(callback, 0);
     }

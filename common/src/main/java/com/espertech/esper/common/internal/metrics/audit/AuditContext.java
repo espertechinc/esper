@@ -19,14 +19,16 @@ public class AuditContext {
     private final String statementName;
     private final int agentInstanceId;
     private final AuditEnum category;
+    private final long runtimeTime;
     private final String message;
 
-    public AuditContext(String runtimeURI, String deploymentId, String statementName, int agentInstanceId, AuditEnum category, String message) {
+    public AuditContext(String runtimeURI, String deploymentId, String statementName, int agentInstanceId, AuditEnum category, long runtimeTime, String message) {
         this.runtimeURI = runtimeURI;
         this.deploymentId = deploymentId;
         this.statementName = statementName;
         this.agentInstanceId = agentInstanceId;
         this.category = category;
+        this.runtimeTime = runtimeTime;
         this.message = message;
     }
 
@@ -52,6 +54,10 @@ public class AuditContext {
 
     public String getMessage() {
         return message;
+    }
+
+    public long getRuntimeTime() {
+        return runtimeTime;
     }
 
     public String format() {

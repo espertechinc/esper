@@ -37,7 +37,7 @@ public class TestSuiteClientInstrument extends TestCase {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_ST0.class, SupportBean_ST1.class}) {
             session.getConfiguration().getCommon().addEventType(clazz);
         }
-        session.getConfiguration().getRuntime().getLogging().setAuditPattern("[%u] [%d] [%s] [%i] [%c] %m");
+        session.getConfiguration().getRuntime().getLogging().setAuditPattern("[%u] [%d] [%s] [%i] [%c] [%tutc] [%tzone] %m");
         RegressionRunner.run(session, ClientInstrumentAudit.executions());
         session.destroy();
     }

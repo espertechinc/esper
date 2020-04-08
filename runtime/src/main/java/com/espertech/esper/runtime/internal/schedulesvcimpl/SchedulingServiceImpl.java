@@ -19,6 +19,8 @@ import com.espertech.esper.runtime.internal.metrics.jmx.JmxGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -30,6 +32,7 @@ import java.util.*;
  */
 public final class SchedulingServiceImpl implements SchedulingServiceSPI {
     private final int stageId;
+    private final DateTimeFormatter defaultDateTimeFormatter;
 
     // Map of time and handle
     private final SortedMap<Long, SortedMap<Long, ScheduleHandle>> timeHandleMap;
@@ -46,8 +49,9 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI {
      * @param timeSourceService time source provider
      * @param stageId stage id or -1 when not applicable
      */
-    public SchedulingServiceImpl(int stageId, TimeSourceService timeSourceService) {
+    public SchedulingServiceImpl(int stageId, TimeSourceService timeSourceService, ZoneId defaultFormatterTimeZone) {
         this.stageId = stageId;
+        this.defaultDateTimeFormatter = DateTimeFormatter.ofPattern(DateTime.DEFAULT_XMLLIKE_DATE_FORMAT).withZone(defaultFormatterTimeZone);
         this.timeHandleMap = new TreeMap<Long, SortedMap<Long, ScheduleHandle>>();
         this.handleSetMap = new HashMap<ScheduleHandle, SortedMap<Long, ScheduleHandle>>();
         // initialize time to just before now as there is a check for duplicate external time events
@@ -241,6 +245,10 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI {
                 visitor.visit(visit);
             }
         }
+    }
+
+    public DateTimeFormatter getDefaultFormatter() {
+        return defaultDateTimeFormatter;
     }
 
     private static final Logger log = LoggerFactory.getLogger(SchedulingServiceImpl.class);

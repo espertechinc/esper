@@ -21,5 +21,5 @@ public interface TimeSourceService {
      *
      * @return time in millis
      */
-    public long getTimeMillis();
+    long getTimeMillis();
 }

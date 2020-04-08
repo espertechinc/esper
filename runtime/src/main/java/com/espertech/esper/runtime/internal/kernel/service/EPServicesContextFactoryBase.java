@@ -28,8 +28,6 @@ import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.common.client.util.TimeSourceType;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.collection.PathRegistryObjectType;
-import com.espertech.esper.common.internal.context.util.ParentClassLoader;
-import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFactory;
@@ -40,6 +38,7 @@ import com.espertech.esper.common.internal.context.mgr.ContextServiceFactory;
 import com.espertech.esper.common.internal.context.module.RuntimeExtensionServices;
 import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryService;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.dataflow.core.EPDataFlowServiceImpl;
 import com.espertech.esper.common.internal.epl.dataflow.filtersvcadapter.DataFlowFilterServiceAdapter;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
@@ -114,6 +113,7 @@ import com.espertech.esper.runtime.internal.timer.TimerServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.context.util.StatementCPCacheService.DEFAULT_AGENT_INSTANCE_ID;
@@ -147,7 +147,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
     protected abstract PatternFactoryService makePatternFactoryService();
 
-    protected abstract SchedulingServiceSPI makeSchedulingService(EPServicesHA epServicesHA, TimeSourceService timeSourceService, RuntimeExtensionServices runtimeExt, RuntimeSettingsService runtimeSettingsService, StatementContextResolver statementContextResolver);
+    protected abstract SchedulingServiceSPI makeSchedulingService(EPServicesHA epServicesHA, TimeSourceService timeSourceService, RuntimeExtensionServices runtimeExt, RuntimeSettingsService runtimeSettingsService, StatementContextResolver statementContextResolver, ZoneId zoneId);
 
     protected abstract MultiMatchHandlerFactory makeMultiMatchHandlerFactory(Configuration configurationInformation);
 
@@ -249,7 +249,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         ExceptionHandlingService exceptionHandlingService = initExceptionHandling(epRuntime.getURI(), configs.getRuntime().getExceptionHandling(), configs.getRuntime().getConditionHandling(), ClassForNameProviderDefault.INSTANCE);
 
         TimeSourceService timeSourceService = makeTimeSource(configs);
-        SchedulingServiceSPI schedulingService = makeSchedulingService(epServicesHA, timeSourceService, epServicesHA.getRuntimeExtensionServices(), runtimeSettingsService, statementLifecycleService);
+        SchedulingServiceSPI schedulingService = makeSchedulingService(epServicesHA, timeSourceService, epServicesHA.getRuntimeExtensionServices(), runtimeSettingsService, statementLifecycleService, classpathImportServiceRuntime.getTimeZone().toZoneId());
 
         InternalEventRouterImpl internalEventRouter = new InternalEventRouterImpl(eventBeanTypedEventFactory);
 

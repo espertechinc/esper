@@ -83,6 +83,7 @@ import com.espertech.esper.runtime.internal.schedulesvcimpl.SchedulingServiceImp
 import com.espertech.esper.runtime.internal.schedulesvcimpl.SchedulingServiceSPI;
 import com.espertech.esper.runtime.internal.statementlifesvc.StatementLifecycleServiceImpl;
 
+import java.time.ZoneId;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBase {
@@ -135,8 +136,8 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
         return new EventTypeResolvingBeanFactoryImpl(eventTypeRepository, eventTypeAvroHandler);
     }
 
-    protected SchedulingServiceSPI makeSchedulingService(EPServicesHA epServicesHA, TimeSourceService timeSourceService, RuntimeExtensionServices runtimeExt, RuntimeSettingsService runtimeSettingsService, StatementContextResolver statementContextResolver) {
-        return new SchedulingServiceImpl(-1, timeSourceService);
+    protected SchedulingServiceSPI makeSchedulingService(EPServicesHA epServicesHA, TimeSourceService timeSourceService, RuntimeExtensionServices runtimeExt, RuntimeSettingsService runtimeSettingsService, StatementContextResolver statementContextResolver, ZoneId zoneId) {
+        return new SchedulingServiceImpl(-1, timeSourceService, zoneId);
     }
 
     protected FilterBooleanExpressionFactory makeFilterBooleanExpressionFactory(StatementLifecycleServiceImpl statementLifecycleService) {

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
+import java.time.Instant;
 import java.util.Arrays;
 
 /**
@@ -363,16 +364,27 @@ public class AuditPath {
             AUDIT_LOG_DESTINATION.info(text);
         } else {
             String result = auditPattern
-                    .replace("%s", ctx.getStatementName())
-                    .replace("%d", ctx.getDeploymentId())
-                    .replace("%u", ctx.getRuntimeURI())
-                    .replace("%i", Integer.toString(ctx.getAgentInstanceId()))
-                    .replace("%c", category.getValue())
-                    .replace("%m", message);
+                .replace("%s", ctx.getStatementName())
+                .replace("%d", ctx.getDeploymentId())
+                .replace("%u", ctx.getRuntimeURI())
+                .replace("%i", Integer.toString(ctx.getAgentInstanceId()))
+                .replace("%c", category.getValue())
+                .replace("%m", message);
+            if (auditPattern.contains("%tutc")) {
+                long time = ctx.getTimeProvider().getTime();
+                Instant instant = Instant.ofEpochMilli(time);
+                result = result.replace("%tutc", instant.toString());
+            }
+            if (auditPattern.contains("%tzone")) {
+                long time = ctx.getTimeProvider().getTime();
+                Instant instant = Instant.ofEpochMilli(time);
+                String formatted = ctx.getTimeProvider().getDefaultFormatter().format(instant);
+                result = result.replace("%tzone", formatted);
+            }
             AUDIT_LOG_DESTINATION.info(result);
         }
         if (auditCallback != null) {
-            auditCallback.audit(new AuditContext(ctx.getRuntimeURI(), ctx.getDeploymentId(), ctx.getStatementName(), ctx.getAgentInstanceId(), category, message));
+            auditCallback.audit(new AuditContext(ctx.getRuntimeURI(), ctx.getDeploymentId(), ctx.getStatementName(), ctx.getAgentInstanceId(), category, ctx.getTimeProvider().getTime(), message));
         }
     }
 

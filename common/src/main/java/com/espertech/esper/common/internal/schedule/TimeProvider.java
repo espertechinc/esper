@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.schedule;
 
+import java.time.format.DateTimeFormatter;
+
 /**
  * Provider of internal system time.
  * <p>
@@ -21,5 +23,7 @@ public interface TimeProvider {
      *
      * @return time that has last been set
      */
-    public long getTime();
+    long getTime();
+
+    DateTimeFormatter getDefaultFormatter();
 }

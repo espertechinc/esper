@@ -17,6 +17,7 @@ import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import com.espertech.esper.runtime.internal.schedulesvcimpl.SchedulingServiceImpl;
 import com.espertech.esper.runtime.internal.schedulesvcimpl.SchedulingServiceSPI;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -71,11 +72,12 @@ public class StageRecoveryServiceImpl extends StageRecoveryServiceBase implement
     }
 
     protected SchedulingServiceSPI makeSchedulingService(int stageId, EPServicesContext servicesContext) {
+        ZoneId zoneId = servicesContext.getClasspathImportServiceRuntime().getTimeZone().toZoneId();
         return new SchedulingServiceImpl(stageId, new TimeSourceService() {
             public long getTimeMillis() {
                 return servicesContext.getSchedulingService().getTime() + 1;
             }
-        });
+        }, zoneId);
     }
 
     private void initDeploymentStages() {

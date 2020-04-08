@@ -68,6 +68,7 @@ public class ClientInstrumentAudit {
 
     private static class ClientInstrumentAuditAudit implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            env.advanceTime(1);
             RegressionPath path = new RegressionPath();
 
             // stream, and test audit callback
@@ -83,6 +84,7 @@ public class ClientInstrumentAudit {
             assertEquals("ABC", cb.getStatementName());
             assertEquals(DEFAULT_RUNTIME_URI, cb.getRuntimeURI());
             assertEquals(AuditEnum.STREAM, cb.getCategory());
+            assertEquals(1, cb.getRuntimeTime());
             AuditPath.setAuditCallback(null);
             env.undeployAll();
 
