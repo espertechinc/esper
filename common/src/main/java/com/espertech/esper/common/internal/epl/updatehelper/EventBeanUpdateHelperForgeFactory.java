@@ -107,7 +107,7 @@ public class EventBeanUpdateHelperForgeFactory {
                                 ExprStreamUnderlyingNode und = (ExprStreamUnderlyingNode) rhsExpr;
                                 if (und.getStreamId() == 1) {
                                     FragmentEventType fragmentLHS = eventTypeSPI.getFragmentType(propertyName);
-                                    if (!EventTypeUtility.isTypeOrSubTypeOf(optionalTriggeringEventType, fragmentLHS.getFragmentType())) {
+                                    if (fragmentLHS != null && optionalTriggeringEventType instanceof BaseNestableEventType && !EventTypeUtility.isTypeOrSubTypeOf(optionalTriggeringEventType, fragmentLHS.getFragmentType())) {
                                         throw makeEventTypeMismatch(propertyName, fragmentLHS.getFragmentType(), optionalTriggeringEventType);
                                     }
                                     // we use the event itself for assignment and target needs no writer
