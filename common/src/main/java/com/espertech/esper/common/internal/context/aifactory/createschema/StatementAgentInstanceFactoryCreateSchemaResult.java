@@ -19,6 +19,6 @@ import java.util.Collections;
 
 public class StatementAgentInstanceFactoryCreateSchemaResult extends StatementAgentInstanceFactoryResult {
     public StatementAgentInstanceFactoryCreateSchemaResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext) {
-        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, null, Collections.emptyList());
+        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, null, Collections.emptyList(), null);
     }
 }

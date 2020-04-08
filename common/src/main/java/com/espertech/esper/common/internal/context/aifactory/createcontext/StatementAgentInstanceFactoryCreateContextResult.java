@@ -31,7 +31,7 @@ public class StatementAgentInstanceFactoryCreateContextResult extends StatementA
     private final ContextManagerRealization contextManagerRealization;
 
     public StatementAgentInstanceFactoryCreateContextResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService optionalAggegationService, Map<Integer, SubSelectFactoryResult> subselectStrategies, PriorEvalStrategy[] priorStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy regexExprPreviousEvalStrategy, Map<Integer, ExprTableEvalStrategy> tableAccessStrategies, List<StatementAgentInstancePreload> preloadList, ContextManagerRealization contextManagerRealization) {
-        super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorStrategies, previousGetterStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList);
+        super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorStrategies, previousGetterStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList, null);
         this.contextManagerRealization = contextManagerRealization;
     }
 

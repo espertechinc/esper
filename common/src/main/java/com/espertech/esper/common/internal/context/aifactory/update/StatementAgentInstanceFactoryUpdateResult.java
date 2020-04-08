@@ -21,6 +21,6 @@ import java.util.Map;
 
 public class StatementAgentInstanceFactoryUpdateResult extends StatementAgentInstanceFactoryResult {
     public StatementAgentInstanceFactoryUpdateResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, Map<Integer, SubSelectFactoryResult> subselectActivations) {
-        super(finalView, stopCallback, agentInstanceContext, null, subselectActivations, null, null, null, null, Collections.emptyList());
+        super(finalView, stopCallback, agentInstanceContext, null, subselectActivations, null, null, null, null, Collections.emptyList(), null);
     }
 }

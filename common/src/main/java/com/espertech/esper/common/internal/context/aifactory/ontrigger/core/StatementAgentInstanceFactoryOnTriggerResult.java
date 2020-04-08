@@ -32,8 +32,8 @@ public class StatementAgentInstanceFactoryOnTriggerResult extends StatementAgent
     private final EvalRootState optPatternRoot;
     private final ViewableActivationResult viewableActivationResult;
 
-    public StatementAgentInstanceFactoryOnTriggerResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService optionalAggegationService, Map<Integer, SubSelectFactoryResult> subselectStrategies, PriorEvalStrategy[] priorStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy regexExprPreviousEvalStrategy, Map<Integer, ExprTableEvalStrategy> tableAccessStrategies, List<StatementAgentInstancePreload> preloadList, EvalRootState optPatternRoot, ViewableActivationResult viewableActivationResult) {
-        super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorStrategies, previousGetterStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList);
+    public StatementAgentInstanceFactoryOnTriggerResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService optionalAggegationService, Map<Integer, SubSelectFactoryResult> subselectStrategies, PriorEvalStrategy[] priorStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy regexExprPreviousEvalStrategy, Map<Integer, ExprTableEvalStrategy> tableAccessStrategies, List<StatementAgentInstancePreload> preloadList, Runnable postContextMergeRunnable, EvalRootState optPatternRoot, ViewableActivationResult viewableActivationResult) {
+        super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorStrategies, previousGetterStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList, postContextMergeRunnable);
         this.optPatternRoot = optPatternRoot;
         this.viewableActivationResult = viewableActivationResult;
     }

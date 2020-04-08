@@ -29,7 +29,7 @@ public class ViewableActivatorDataFlow implements ViewableActivator {
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
         Viewable viewable = new ViewableDefaultImpl(eventType);
-        return new ViewableActivationResult(viewable, AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null);
+        return new ViewableActivationResult(viewable, AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null, null);
     }
 
     public void setEventType(EventType eventType) {

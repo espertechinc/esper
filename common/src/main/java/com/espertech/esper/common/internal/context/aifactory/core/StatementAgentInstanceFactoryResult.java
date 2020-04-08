@@ -36,8 +36,9 @@ public class StatementAgentInstanceFactoryResult {
     private final RowRecogPreviousStrategy rowRecogPreviousStrategy;
     private final Map<Integer, ExprTableEvalStrategy> tableAccessStrategies;
     private final List<StatementAgentInstancePreload> preloadList;
+    private final Runnable postContextMergeRunnable;
 
-    protected StatementAgentInstanceFactoryResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService optionalAggegationService, Map<Integer, SubSelectFactoryResult> subselectStrategies, PriorEvalStrategy[] priorStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy rowRecogPreviousStrategy, Map<Integer, ExprTableEvalStrategy> tableAccessStrategies, List<StatementAgentInstancePreload> preloadList) {
+    protected StatementAgentInstanceFactoryResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService optionalAggegationService, Map<Integer, SubSelectFactoryResult> subselectStrategies, PriorEvalStrategy[] priorStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy rowRecogPreviousStrategy, Map<Integer, ExprTableEvalStrategy> tableAccessStrategies, List<StatementAgentInstancePreload> preloadList, Runnable postContextMergeRunnable) {
         this.finalView = finalView;
         this.stopCallback = stopCallback;
         this.agentInstanceContext = agentInstanceContext;
@@ -48,6 +49,7 @@ public class StatementAgentInstanceFactoryResult {
         this.rowRecogPreviousStrategy = rowRecogPreviousStrategy;
         this.tableAccessStrategies = tableAccessStrategies;
         this.preloadList = preloadList;
+        this.postContextMergeRunnable = postContextMergeRunnable;
     }
 
     public Viewable getFinalView() {
@@ -92,5 +94,9 @@ public class StatementAgentInstanceFactoryResult {
 
     public Map<Integer, ExprTableEvalStrategy> getTableAccessStrategies() {
         return tableAccessStrategies;
+    }
+
+    public Runnable getPostContextMergeRunnable() {
+        return postContextMergeRunnable;
     }
 }

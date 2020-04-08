@@ -24,7 +24,10 @@ import com.espertech.esper.common.internal.view.core.ViewNoop;
 import com.espertech.esper.common.internal.view.core.ZeroDepthStreamIterable;
 import com.espertech.esper.common.internal.view.core.ZeroDepthStreamNoIterate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ViewableActivatorPattern implements ViewableActivator {
 
@@ -85,10 +88,37 @@ public class ViewableActivatorPattern implements ViewableActivator {
             }
         };
 
-        EvalRootState rootState = rootNode.start(callback, patternContext, isRecoveringResilient);
+        boolean hasContext = agentInstanceContext.getStatementContext().getContextRuntimeDescriptor() != null;
+        EvalRootState rootState;
+        Runnable optPostContextMergeRunnable = null;
+        if (!hasContext) {
+            rootState = rootNode.start(callback, patternContext, isRecoveringResilient);
+        } else {
+            // handle any pattern-match-event that was produced during startup, relevant for "timer:interval(0)" and only in conjunction with contexts
+            AtomicReference<List<Map<String, Object>>> startMatchEvent = new AtomicReference<>();
+            final PatternMatchCallback callbackStartup = (matchEvent, optionalTriggeringEvent) -> {
+                List<Map<String, Object>> received = startMatchEvent.get();
+                if (received != null) {
+                    received.add(matchEvent);
+                } else {
+                    received = new ArrayList<>(2);
+                    received.add(matchEvent);
+                    startMatchEvent.set(received);
+                }
+            };
+            rootState = rootNode.start(callbackStartup, patternContext, isRecoveringResilient);
+            rootState.setCallback(callback);
+            if (startMatchEvent.get() != null) {
+                optPostContextMergeRunnable = () -> {
+                    for (Map<String, Object> matchEvent : startMatchEvent.get()) {
+                        callback.matchFound(matchEvent, null);
+                    }
+                };
+            }
+        }
 
         ViewableActivatorPatternMgmt mgmt = new ViewableActivatorPatternMgmt(rootState);
-        return new ViewableActivationResult(sourceEventStream, mgmt, rootState, suppressSameEventMatches, discardPartialsOnMatch, rootState, null);
+        return new ViewableActivationResult(sourceEventStream, mgmt, rootState, suppressSameEventMatches, discardPartialsOnMatch, rootState, null, optPostContextMergeRunnable);
     }
 
     public EventType getEventType() {

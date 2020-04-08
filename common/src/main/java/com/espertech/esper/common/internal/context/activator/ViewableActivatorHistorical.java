@@ -28,6 +28,6 @@ public class ViewableActivatorHistorical implements ViewableActivator {
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
         HistoricalEventViewable viewable = factory.activate(agentInstanceContext);
-        return new ViewableActivationResult(viewable, viewable, null, false, false, null, null);
+        return new ViewableActivationResult(viewable, viewable, null, false, false, null, null, null);
     }
 }

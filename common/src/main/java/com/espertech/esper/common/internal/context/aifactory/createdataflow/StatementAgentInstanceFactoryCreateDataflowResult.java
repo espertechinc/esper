@@ -21,7 +21,7 @@ public class StatementAgentInstanceFactoryCreateDataflowResult extends Statement
     private final DataflowDesc dataflow;
 
     public StatementAgentInstanceFactoryCreateDataflowResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, DataflowDesc dataflow) {
-        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, null, Collections.emptyList());
+        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, null, Collections.emptyList(), null);
         this.dataflow = dataflow;
     }
 

@@ -22,7 +22,7 @@ public class StatementAgentInstanceFactoryCreateTableResult extends StatementAge
     private final TableInstance tableInstance;
 
     public StatementAgentInstanceFactoryCreateTableResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext, TableInstance tableInstance) {
-        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, Collections.emptyMap(), Collections.emptyList());
+        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, Collections.emptyMap(), Collections.emptyList(), null);
         this.tableInstance = tableInstance;
     }
 

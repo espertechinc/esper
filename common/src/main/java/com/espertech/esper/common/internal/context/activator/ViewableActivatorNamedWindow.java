@@ -82,7 +82,7 @@ public class ViewableActivatorNamedWindow implements ViewableActivator, Statemen
         NamedWindowWDirectConsume nw = (NamedWindowWDirectConsume) namedWindow;
         NamedWindowConsumerDesc consumerDesc = new NamedWindowConsumerDesc(namedWindowConsumerId, filterEvaluator, optPropertyEvaluator, agentInstanceContext);
         NamedWindowConsumerView consumerView = nw.addConsumer(consumerDesc, isSubselect);
-        return new ViewableActivationResult(consumerView, consumerView, null, false, false, null, null);
+        return new ViewableActivationResult(consumerView, consumerView, null, false, false, null, null, null);
     }
 
     public String getNamedWindowContextName() {

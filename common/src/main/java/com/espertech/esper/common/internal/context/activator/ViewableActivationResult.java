@@ -23,8 +23,9 @@ public class ViewableActivationResult {
     private final boolean discardPartialsOnMatch;
     private final EvalRootState optionalPatternRoot;
     private final ViewableActivationResultExtension viewableActivationResultExtension;
+    private final Runnable optPostContextMergeRunnable;
 
-    public ViewableActivationResult(Viewable viewable, AgentInstanceMgmtCallback stopCallback, EvalRootMatchRemover optEvalRootMatchRemover, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, EvalRootState optionalPatternRoot, ViewableActivationResultExtension viewableActivationResultExtension) {
+    public ViewableActivationResult(Viewable viewable, AgentInstanceMgmtCallback stopCallback, EvalRootMatchRemover optEvalRootMatchRemover, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, EvalRootState optionalPatternRoot, ViewableActivationResultExtension viewableActivationResultExtension, Runnable optPostContextMergeRunnable) {
         this.viewable = viewable;
         this.stopCallback = stopCallback;
         this.optEvalRootMatchRemover = optEvalRootMatchRemover;
@@ -32,6 +33,7 @@ public class ViewableActivationResult {
         this.discardPartialsOnMatch = discardPartialsOnMatch;
         this.optionalPatternRoot = optionalPatternRoot;
         this.viewableActivationResultExtension = viewableActivationResultExtension;
+        this.optPostContextMergeRunnable = optPostContextMergeRunnable;
     }
 
     public Viewable getViewable() {
@@ -60,5 +62,9 @@ public class ViewableActivationResult {
 
     public EvalRootState getOptionalPatternRoot() {
         return optionalPatternRoot;
+    }
+
+    public Runnable getOptPostContextMergeRunnable() {
+        return optPostContextMergeRunnable;
     }
 }

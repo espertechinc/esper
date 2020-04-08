@@ -48,13 +48,14 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
                                                      RowRecogPreviousStrategy regexExprPreviousEvalStrategy,
                                                      Map<Integer, ExprTableEvalStrategy> tableAccessStrategies,
                                                      List<StatementAgentInstancePreload> preloadList,
+                                                     Runnable postContextMergeRunnable,
                                                      EvalRootState[] patternRoots,
                                                      JoinSetComposer joinSetComposer,
                                                      Viewable[] topViews,
                                                      Viewable[] eventStreamViewables,
                                                      ViewableActivationResult[] viewableActivationResults,
                                                      ResultSetProcessor resultSetProcessor) {
-        super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorStrategies, previousGetterStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList);
+        super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorStrategies, previousGetterStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList, postContextMergeRunnable);
         this.topViews = topViews;
         this.patternRoots = patternRoots;
         this.joinSetComposer = joinSetComposer;

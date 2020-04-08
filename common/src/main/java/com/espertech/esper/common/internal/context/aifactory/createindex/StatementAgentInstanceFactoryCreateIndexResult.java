@@ -19,6 +19,6 @@ import java.util.Collections;
 
 public class StatementAgentInstanceFactoryCreateIndexResult extends StatementAgentInstanceFactoryResult {
     public StatementAgentInstanceFactoryCreateIndexResult(Viewable finalView, AgentInstanceMgmtCallback stopCallback, AgentInstanceContext agentInstanceContext) {
-        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, Collections.emptyMap(), Collections.emptyList());
+        super(finalView, stopCallback, agentInstanceContext, null, Collections.emptyMap(), null, null, null, Collections.emptyMap(), Collections.emptyList(), null);
     }
 }

@@ -197,10 +197,15 @@ public class AgentInstanceUtil {
                 }
             }
 
+            // handle any pattern-match-event that was produced during startup, relevant for "timer:interval(0)" in conjunction with contexts
+            if (startResult.getPostContextMergeRunnable() != null) {
+                startResult.getPostContextMergeRunnable().run();
+            }
+
             StatementResourceHolder holder = services.getStatementResourceHolderBuilder().build(agentInstanceContext, startResult);
             statementContext.getStatementCPCacheService().getStatementResourceService().setPartitioned(agentInstanceId, holder);
 
-            // instantiate
+            // instantiated
             return startResult;
         } finally {
             if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {

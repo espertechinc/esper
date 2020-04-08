@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -61,6 +62,7 @@ public class ContextKeySegmented {
         execs.add(new ContextKeySegmentedMultikeyWArrayOfPrimitive());
         execs.add(new ContextKeySegmentedMultikeyWArrayTwoField());
         execs.add(new ContextKeySegmentedWInitTermEndEvent());
+        execs.add(new ContextKeySegmentedWPatternFireWhenAllocated());
         return execs;
     }
 
@@ -78,6 +80,41 @@ public class ContextKeySegmented {
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {sb1, sb2});
 
             env.undeployAll();
+        }
+    }
+
+    private static class ContextKeySegmentedWPatternFireWhenAllocated implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext partition by theString from SupportBean;\n" +
+                "@name('s0') context MyContext select context.key1 as key1 from pattern[timer:interval(0)];\n" +
+                "context MyContext create variable String lastString = null;\n" +
+                "context MyContext on pattern[timer:interval(0)] set lastString = context.key1;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssertKey(env, "E1");
+            sendAssertNoReceived(env, "E1");
+
+            env.milestone(0);
+
+            sendAssertNoReceived(env, "E1");
+            sendAssertKey(env, "E2");
+
+            env.undeployAll();
+        }
+
+        private void sendAssertNoReceived(RegressionEnvironment env, String theString) {
+            env.sendEventBean(new SupportBean(theString, 1));
+            assertFalse(env.listener("s0").getAndClearIsInvoked());
+        }
+
+        private void sendAssertKey(RegressionEnvironment env, String theString) {
+            env.sendEventBean(new SupportBean(theString, 0));
+            assertEquals(theString, env.listener("s0").assertOneGetNewAndReset().get("key1"));
+
+            DeploymentIdNamePair pair = new DeploymentIdNamePair(env.deploymentId("s0"), "lastString");
+            Set<DeploymentIdNamePair> set = Collections.singleton(pair);
+            Map<DeploymentIdNamePair, List<ContextPartitionVariableState>> values = env.runtime().getVariableService().getVariableValue(set, new SupportSelectorPartitioned(theString));
+            assertEquals(theString, values.get(pair).iterator().next().getState());
         }
     }
 

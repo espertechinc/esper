@@ -41,8 +41,8 @@ public class StatementAgentInstanceFactoryCreateNWResult extends StatementAgentI
                 null,
                 null,
                 Collections.emptyMap(),
-                null
-        );
+                null,
+            null);
         this.eventStreamParentViewable = eventStreamParentViewable;
         this.topView = topView;
         this.namedWindowInstance = namedWindowInstance;

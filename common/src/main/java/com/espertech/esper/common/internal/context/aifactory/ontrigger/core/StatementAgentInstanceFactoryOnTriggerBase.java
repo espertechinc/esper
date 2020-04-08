@@ -107,9 +107,16 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
             throw new EPException(ex.getMessage(), ex);
         }
 
+        // finally process startup events: handle any pattern-match-event that was produced during startup, relevant for "timer:interval(0)" in conjunction with contexts
+        Runnable postContextMergeRunnable = () -> {
+            if (activationResult.getOptPostContextMergeRunnable() != null) {
+                activationResult.getOptPostContextMergeRunnable().run();
+            }
+        };
+
         AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
         return new StatementAgentInstanceFactoryOnTriggerResult(view, stopCallback, agentInstanceContext, aggregationService,
-                subselectActivations, null, null, null, tableAccessEvals, null, optPatternRoot, activationResult);
+                subselectActivations, null, null, null, tableAccessEvals, null, postContextMergeRunnable, optPatternRoot, activationResult);
     }
 
     public AIRegistryRequirements getRegistryRequirements() {

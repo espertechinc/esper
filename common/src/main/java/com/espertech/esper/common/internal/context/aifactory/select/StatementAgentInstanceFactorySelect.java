@@ -238,8 +238,18 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
             topViews = eventStreamParentViewable;
         }
 
+        // finally process startup events: handle any pattern-match-event that was produced during startup, relevant for "timer:interval(0)" in conjunction with contexts
+        Runnable postContextMergeRunnable = () -> {
+            for (int stream = 0; stream < numStreams; stream++) {
+                ViewableActivationResult activationResult = activationResults[stream];
+                if (activationResult.getOptPostContextMergeRunnable() != null) {
+                    activationResult.getOptPostContextMergeRunnable().run();
+                }
+            }
+        };
+
         return new StatementAgentInstanceFactorySelectResult(outputProcessView, stopCallback, agentInstanceContext, processorPair.getSecond(),
-                subselectActivations, priorEvalStrategies, previousGetterStrategies, rowRecogPreviousStrategy, tableAccessEvals, preloadList, patternRoots,
+                subselectActivations, priorEvalStrategies, previousGetterStrategies, rowRecogPreviousStrategy, tableAccessEvals, preloadList, postContextMergeRunnable, patternRoots,
                 joinSetComposer, topViews, eventStreamParentViewable, activationResults, processorPair.getFirst());
     }
 

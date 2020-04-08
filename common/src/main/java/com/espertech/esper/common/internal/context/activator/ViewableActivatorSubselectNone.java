@@ -27,6 +27,6 @@ public class ViewableActivatorSubselectNone implements ViewableActivator {
     }
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-        return new ViewableActivationResult(null, AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null);
+        return new ViewableActivationResult(null, AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null, null);
     }
 }

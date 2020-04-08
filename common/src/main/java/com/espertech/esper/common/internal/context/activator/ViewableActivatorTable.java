@@ -37,6 +37,6 @@ public class ViewableActivatorTable implements ViewableActivator {
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
         TableInstance state = table.getTableInstance(agentInstanceContext.getAgentInstanceId());
-        return new ViewableActivationResult(new TableStateViewableInternal(state, filterEval), AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null);
+        return new ViewableActivationResult(new TableStateViewableInternal(state, filterEval), AgentInstanceMgmtCallback.INSTANCE_NO_ACTION, null, false, false, null, null, null);
     }
 }
