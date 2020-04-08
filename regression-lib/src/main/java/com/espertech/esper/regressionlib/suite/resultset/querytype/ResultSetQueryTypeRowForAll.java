@@ -21,8 +21,7 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ResultSetQueryTypeRowForAll {
     private final static String JOIN_KEY = "KEY";
@@ -41,8 +40,23 @@ public class ResultSetQueryTypeRowForAll {
         execs.add(new ResultSetQueryTypeSelectAvgExprStdGroupBy());
         execs.add(new ResultSetQueryTypeSelectAvgStdGroupByUni());
         execs.add(new ResultSetQueryTypeRowForAllNamedWindowWindow());
+        execs.add(new ResultSetQueryTypeRowForAllStaticMethodDoubleNested());
         return execs;
     }
+
+    private static class ResultSetQueryTypeRowForAllStaticMethodDoubleNested implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "import " + MyHelper.class.getName() + ";\n" +
+                "@name('s0') select MyHelper.doOuter(MyHelper.doInner(last(theString))) as c0 from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            assertEquals("oiE1io", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
+    }
+
 
     public static class ResultSetQueryTypeRowForAllSumMinMax implements RegressionExecution {
         public void run(RegressionEnvironment env) {
@@ -320,33 +334,33 @@ public class ResultSetQueryTypeRowForAll {
 
             env.sendEventBean(new SupportPriceEvent(1, "A"));
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("A", theEvent.get("sym"));
-            Assert.assertEquals(1.0, theEvent.get("avgp"));
+            assertEquals("A", theEvent.get("sym"));
+            assertEquals(1.0, theEvent.get("avgp"));
 
             env.sendEventBean(new SupportPriceEvent(2, "B"));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("B", theEvent.get("sym"));
-            Assert.assertEquals(1.5, theEvent.get("avgp"));
+            assertEquals("B", theEvent.get("sym"));
+            assertEquals(1.5, theEvent.get("avgp"));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportPriceEvent(9, "A"));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("A", theEvent.get("sym"));
-            Assert.assertEquals((1 + 2 + 9) / 3.0, theEvent.get("avgp"));
+            assertEquals("A", theEvent.get("sym"));
+            assertEquals((1 + 2 + 9) / 3.0, theEvent.get("avgp"));
 
             env.sendEventBean(new SupportPriceEvent(18, "B"));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("B", theEvent.get("sym"));
-            Assert.assertEquals((1 + 2 + 9 + 18) / 4.0, theEvent.get("avgp"));
+            assertEquals("B", theEvent.get("sym"));
+            assertEquals((1 + 2 + 9 + 18) / 4.0, theEvent.get("avgp"));
 
             env.sendEventBean(new SupportPriceEvent(5, "A"));
             theEvent = env.listener("s0").getLastNewData()[0];
-            Assert.assertEquals("A", theEvent.get("sym"));
-            Assert.assertEquals((2 + 9 + 18 + 5) / 4.0, theEvent.get("avgp"));
+            assertEquals("A", theEvent.get("sym"));
+            assertEquals((2 + 9 + 18 + 5) / 4.0, theEvent.get("avgp"));
             theEvent = env.listener("s0").getLastOldData()[0];
-            Assert.assertEquals("A", theEvent.get("sym"));
-            Assert.assertEquals((5 + 2 + 9 + 18) / 4.0, theEvent.get("avgp"));
+            assertEquals("A", theEvent.get("sym"));
+            assertEquals((5 + 2 + 9 + 18) / 4.0, theEvent.get("avgp"));
 
             env.undeployAll();
         }
@@ -359,7 +373,7 @@ public class ResultSetQueryTypeRowForAll {
 
             sendEvent(env, "A", 1);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
+            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
             assertTrue(env.listener("s0").getLastNewData()[0].getUnderlying() instanceof SupportMarketDataBean);
 
             env.undeployAll();
@@ -373,7 +387,7 @@ public class ResultSetQueryTypeRowForAll {
 
             sendEvent(env, "A", 1);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
+            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
 
             env.undeployAll();
         }
@@ -387,13 +401,13 @@ public class ResultSetQueryTypeRowForAll {
 
             sendEvent(env, "A", 1);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.milestone(0);
 
             sendEvent(env, "B", 3);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.undeployAll();
         }
@@ -407,27 +421,27 @@ public class ResultSetQueryTypeRowForAll {
 
             sendEvent(env, "A", 1);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            Assert.assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertEquals(1, env.listener("s0").getLastNewData().length);
+            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.milestone(0);
 
             sendEvent(env, "B", 3);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            Assert.assertEquals(3.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertEquals(1, env.listener("s0").getLastNewData().length);
+            assertEquals(3.0, env.listener("s0").getLastNewData()[0].get("aprice"));
             sendEvent(env, "A", 3);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            Assert.assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertEquals(1, env.listener("s0").getLastNewData().length);
+            assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.milestone(1);
 
             sendEvent(env, "A", 10);
             sendEvent(env, "A", 20);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            Assert.assertEquals(15.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertEquals(1, env.listener("s0").getLastNewData().length);
+            assertEquals(15.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.undeployAll();
         }
@@ -435,37 +449,37 @@ public class ResultSetQueryTypeRowForAll {
 
     private static void tryAssert(RegressionEnvironment env) {
         // assert select result type
-        Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("mySum"));
+        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("mySum"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{null}});
 
         sendTimerEvent(env, 0);
         sendEvent(env, 10);
-        Assert.assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{10L}});
 
         sendTimerEvent(env, 5000);
         sendEvent(env, 15);
-        Assert.assertEquals(25L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        assertEquals(25L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{25L}});
 
         sendTimerEvent(env, 8000);
         sendEvent(env, -5);
-        Assert.assertEquals(20L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        assertEquals(20L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         assertNull(env.listener("s0").getLastOldData());
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{20L}});
 
         sendTimerEvent(env, 10000);
-        Assert.assertEquals(20L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        Assert.assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        assertEquals(20L, env.listener("s0").getLastOldData()[0].get("mySum"));
+        assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{10L}});
 
         sendTimerEvent(env, 15000);
-        Assert.assertEquals(10L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        Assert.assertEquals(-5L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        assertEquals(10L, env.listener("s0").getLastOldData()[0].get("mySum"));
+        assertEquals(-5L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{-5L}});
 
         sendTimerEvent(env, 18000);
-        Assert.assertEquals(-5L, env.listener("s0").getLastOldData()[0].get("mySum"));
+        assertEquals(-5L, env.listener("s0").getLastOldData()[0].get("mySum"));
         assertNull(env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{null}});
     }
@@ -555,5 +569,15 @@ public class ResultSetQueryTypeRowForAll {
 
     private static void sendTimerEvent(RegressionEnvironment env, long msec) {
         env.advanceTime(msec);
+    }
+
+    public static class MyHelper {
+        public static String doOuter(String value) {
+            return "o" + value + "o";
+        }
+
+        public static String doInner(String value) {
+            return "i" + value + "i";
+        }
     }
 }

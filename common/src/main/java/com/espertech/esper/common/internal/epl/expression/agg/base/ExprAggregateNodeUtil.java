@@ -88,10 +88,7 @@ public class ExprAggregateNodeUtil {
         // exist at that level
         TreeMap<Integer, List<ExprAggregateNode>> aggregateExprPerLevel = new TreeMap<Integer, List<ExprAggregateNode>>();
 
-        recursiveAggregateHandleSpecial(topNode, aggregateExprPerLevel, 1);
-
-        // Recursively enter all aggregate functions and their level into map
-        recursiveAggregateEnter(topNode, aggregateExprPerLevel, 1);
+        recursiveAggregate(topNode, aggregateExprPerLevel, 1);
 
         // Done if none found
         if (aggregateExprPerLevel.isEmpty()) {
@@ -109,27 +106,33 @@ public class ExprAggregateNodeUtil {
         }
     }
 
+    private static void recursiveAggregate(ExprNode topNode, Map<Integer, List<ExprAggregateNode>> aggregateExprPerLevel, int level) {
+        // Special node handling
+        recursiveAggregateHandleSpecial(topNode, aggregateExprPerLevel, level);
+
+        // Recursively enter all aggregate functions and their level into map
+        recursiveAggregateEnter(topNode, aggregateExprPerLevel, level);
+    }
+
     private static void recursiveAggregateHandleSpecial(ExprNode topNode, Map<Integer, List<ExprAggregateNode>> aggregateExprPerLevel, int level) {
         if (topNode instanceof ExprNodeInnerNodeProvider) {
             ExprNodeInnerNodeProvider parameterized = (ExprNodeInnerNodeProvider) topNode;
             List<ExprNode> additionalNodes = parameterized.getAdditionalNodes();
             for (ExprNode additionalNode : additionalNodes) {
-                recursiveAggregateEnter(additionalNode, aggregateExprPerLevel, level);
+                recursiveAggregate(additionalNode, aggregateExprPerLevel, level);
             }
         }
 
         if (topNode instanceof ExprDeclaredNode) {
             ExprDeclaredNode declared = (ExprDeclaredNode) topNode;
-            recursiveAggregateEnter(declared.getBody(), aggregateExprPerLevel, level);
+            recursiveAggregate(declared.getBody(), aggregateExprPerLevel, level);
         }
     }
 
     private static void recursiveAggregateEnter(ExprNode currentNode, Map<Integer, List<ExprAggregateNode>> aggregateExprPerLevel, int currentLevel) {
         // ask all child nodes to enter themselves
         for (ExprNode node : currentNode.getChildNodes()) {
-            recursiveAggregateHandleSpecial(node, aggregateExprPerLevel, currentLevel + 1);
-
-            recursiveAggregateEnter(node, aggregateExprPerLevel, currentLevel + 1);
+            recursiveAggregate(node, aggregateExprPerLevel, currentLevel + 1);
         }
 
         if (!(currentNode instanceof ExprAggregateNode)) {
