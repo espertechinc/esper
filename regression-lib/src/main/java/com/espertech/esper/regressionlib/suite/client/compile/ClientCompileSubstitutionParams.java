@@ -15,11 +15,14 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.module.Module;
+import com.espertech.esper.common.client.module.ModuleItem;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.client.soda.EPStatementObjectModel;
+import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
+import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -68,7 +71,29 @@ public class ClientCompileSubstitutionParams {
         execs.add(new ClientCompileSubstParamMultiStmt());
         execs.add(new ClientCompileSubstParamArray(false));
         execs.add(new ClientCompileSubstParamArray(true));
+        execs.add(new ClientCompileSODAInvalidConstantUseSubsParamsInstead());
         return execs;
+    }
+
+    private static class ClientCompileSODAInvalidConstantUseSubsParamsInstead implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            Expression expression = Expressions.eq(
+                    Expressions.property("object"),
+                    Expressions.constant(new Object())
+            );
+
+            EPStatementObjectModel model = new EPStatementObjectModel()
+                    .selectClause(SelectClause.createWildcard())
+                    .fromClause(FromClause.create(FilterStream.create("SupportObjectCtor", expression)));
+            try {
+                Module module = new Module();
+                module.getItems().add(new ModuleItem(model));
+                env.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
+                fail();
+            } catch (EPCompileException ex) {
+                SupportMessageAssertUtil.assertMessage(ex, "Exception processing statement: Invalid constant of type 'java.lang.Object' encountered as the class has no compiler representation, please use substitution parameters instead");
+            }
+        }
     }
 
     private static class ClientCompileSubstParamArray implements RegressionExecution {

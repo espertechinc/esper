@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.compile.stage1.specmapper;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateTableColumn;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
@@ -1791,6 +1792,9 @@ public class StatementSpecMapper {
                         throw new EPException("Error looking up class name '" + op.getConstantType() + "' to resolve as constant type");
                     }
                 }
+            }
+            if (!CodegenExpressionUtil.canRenderConstant(op.getConstant())) {
+                throw new EPException("Invalid constant of type '" + JavaClassHelper.getClassNameFullyQualPretty(op.getConstant().getClass()) + "' encountered as the class has no compiler representation, please use substitution parameters instead");
             }
             return new ExprConstantNodeImpl(op.getConstant(), constantType);
         } else if (expr instanceof ConcatExpression) {

@@ -92,7 +92,7 @@ public class CompilerHelperSingleEPL {
         } catch (StatementSpecCompileException ex) {
             throw ex;
         } catch (Throwable t) {
-            throw new StatementSpecCompileException("Unexpected exception parsing statement: " + t.getMessage(), t, compilable.toEPL());
+            throw new StatementSpecCompileException("Exception processing statement: " + t.getMessage(), t, compilable.toEPL());
         }
         return result;
     }

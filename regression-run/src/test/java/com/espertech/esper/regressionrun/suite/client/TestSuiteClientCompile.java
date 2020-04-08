@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
+import com.espertech.esper.regressionlib.support.bean.SupportObjectCtor;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
@@ -92,7 +93,8 @@ public class TestSuiteClientCompile extends TestCase {
 
     private static void configure(Configuration configuration) {
 
-        for (Class clazz : new Class[]{SupportBean.class, SupportMarketDataBean.class, SupportBean_S0.class, SupportBean_S1.class}) {
+        for (Class clazz : new Class[]{SupportBean.class, SupportMarketDataBean.class, SupportBean_S0.class, SupportBean_S1.class,
+                SupportObjectCtor.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
 

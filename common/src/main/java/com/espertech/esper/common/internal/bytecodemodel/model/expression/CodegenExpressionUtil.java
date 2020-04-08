@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.apachecommonstext.StringEscapeUtils;
 
 import java.lang.reflect.Array;
@@ -84,6 +85,16 @@ public class CodegenExpressionUtil {
         } else {
             builder.append(constant);
         }
+    }
+
+    public static boolean canRenderConstant(Object constant) {
+        return constant == null ||
+            JavaClassHelper.isJavaBuiltinDataType(constant.getClass()) ||
+            constant.getClass().isEnum() ||
+            constant instanceof CharSequence ||
+            constant instanceof Class ||
+            constant instanceof BigInteger ||
+            constant instanceof BigDecimal;
     }
 
     private static void renderBigInteger(BigInteger constant, StringBuilder builder, Map<Class, String> imports) {
