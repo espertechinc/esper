@@ -1780,7 +1780,10 @@ public class EventTypeUtility {
         if (eventType instanceof AvroSchemaEventType) {
             return new EventBeanAdapterFactoryAvro(eventType, eventTypeAvroHandler);
         }
-        throw new EventAdapterException("Event type '" + eventType.getName() + "' is not an runtime-native event type");
+        if (eventType instanceof JsonEventType) {
+            return new EventBeanAdapterFactoryJson(eventType, eventBeanTypedEventFactory);
+        }
+        throw new EventAdapterException("Event type '" + eventType.getName() + "' is not a runtime-native event type");
     }
 
     public static class EventBeanAdapterFactoryBean implements EventBeanAdapterFactory {
@@ -1853,4 +1856,17 @@ public class EventTypeUtility {
         }
     }
 
+    public static class EventBeanAdapterFactoryJson implements EventBeanAdapterFactory {
+        private final EventType eventType;
+        private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
+
+        public EventBeanAdapterFactoryJson(EventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+            this.eventType = eventType;
+            this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
+        }
+
+        public EventBean makeAdapter(Object underlying) {
+            return eventBeanTypedEventFactory.adapterForTypedJson(underlying, eventType);
+        }
+    }
 }

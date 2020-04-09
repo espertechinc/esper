@@ -26,6 +26,7 @@ import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
+import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import com.espertech.esperio.amqp.*;
 import junit.framework.TestCase;
 
@@ -47,6 +48,36 @@ public class TestAMQPGraphs extends TestCase {
         configuration.getCommon().addImport(AMQPSource.class.getPackage().getName() + ".*");
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         runtime.initialize();
+    }
+
+    public void testAMQPInputJsonWithEventBusSink() throws Exception {
+        compileDeploy("@public @buseventtype create json schema MyEvent(myString string, myInt int, myDouble double)");
+
+        String queueName = TestAMQPGraphs.class.getSimpleName() + "-InputQueueWithSink";
+        EPDeployment deployedDataflow = compileDeploy("create dataflow AMQPIncomingDataFlow \n" +
+            " AMQPSource -> outstream<MyEvent> \n" +
+            " { host: 'localhost', \n" +
+            "   queueName: '" + queueName + "', \n" +
+            "   collector: {class: 'AMQPToObjectCollectorJson'}, \n" +
+            "   logMessages: true} \n" +
+            "EventBusSink(outstream){}");
+        EPDeployment deployedSelect = compileDeploy("select * from MyEvent");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        deployedSelect.getStatements()[0].addListener(listener);
+
+        EPDataFlowInstance df = runtime.getDataFlowService().instantiate(deployedDataflow.getDeploymentId(), "AMQPIncomingDataFlow");
+        df.start();
+
+        List<byte[]> events = getEventsJsonDefaultEncoding(1);
+        AMQPSupportSendRunnable runnable = new AMQPSupportSendRunnable("localhost", queueName, events, 0);
+        runnable.run();
+
+        Thread.sleep(3000);
+        String[] fields = "myString,myInt,myDouble".split(",");
+        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"E10", 0, 0d}});
+
+        df.cancel();
+        runtime.getDeploymentService().undeployAll();
     }
 
     public void testAMQPInputMap() throws Exception {
