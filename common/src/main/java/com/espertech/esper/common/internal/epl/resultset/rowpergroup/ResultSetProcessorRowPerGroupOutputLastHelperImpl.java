@@ -120,6 +120,7 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
         if (!groupRepsOutputLastUnordRStream.isEmpty()) {
             Collection<EventBean> oldEvents = groupRepsOutputLastUnordRStream.values();
             oldEventsArr = oldEvents.toArray(new EventBean[oldEvents.size()]);
+            groupRepsOutputLastUnordRStream.clear();
         }
 
         if (newEventsArr == null && oldEventsArr == null) {

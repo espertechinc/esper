@@ -58,6 +58,8 @@ public class ResultSetOutputLimitRowPerGroup {
         execs.add(new ResultSet12AllHavingJoin());
         execs.add(new ResultSet13LastNoHavingNoJoin());
         execs.add(new ResultSet14LastNoHavingJoin());
+        execs.add(new ResultSet13LastNoHavingNoJoinWOrderBy());
+        execs.add(new ResultSet14LastNoHavingJoinWOrderBy());
         execs.add(new ResultSet15LastHavingNoJoin());
         execs.add(new ResultSet16LastHavingJoin());
         execs.add(new ResultSet17FirstNoHavingNoJoin());
@@ -575,9 +577,8 @@ public class ResultSetOutputLimitRowPerGroup {
             String stmtText = "@name('s0') select symbol, sum(price) " +
                 "from SupportMarketDataBean#time(5.5 sec)" +
                 "group by symbol " +
-                "output last every 1 seconds " +
-                "order by symbol";
-            tryAssertion13_14(env, stmtText, "last");
+                "output last every 1 seconds";
+            tryAssertion13_14(env, stmtText, "last", true);
         }
     }
 
@@ -587,9 +588,31 @@ public class ResultSetOutputLimitRowPerGroup {
                 "from SupportMarketDataBean#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "group by symbol " +
+                "output last every 1 seconds";
+            tryAssertion13_14(env, stmtText, "last", true);
+        }
+    }
+
+    private static class ResultSet13LastNoHavingNoJoinWOrderBy implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String stmtText = "@name('s0') select symbol, sum(price) " +
+                "from SupportMarketDataBean#time(5.5 sec)" +
+                "group by symbol " +
                 "output last every 1 seconds " +
                 "order by symbol";
-            tryAssertion13_14(env, stmtText, "last");
+            tryAssertion13_14(env, stmtText, "last", false);
+        }
+    }
+
+    private static class ResultSet14LastNoHavingJoinWOrderBy implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String stmtText = "@name('s0') select symbol, sum(price) " +
+                "from SupportMarketDataBean#time(5.5 sec), " +
+                "SupportBean#keepall where theString=symbol " +
+                "group by symbol " +
+                "output last every 1 seconds " +
+                "order by symbol";
+            tryAssertion13_14(env, stmtText, "last", false);
         }
     }
 
@@ -1206,7 +1229,7 @@ public class ResultSetOutputLimitRowPerGroup {
         execution.execute(false);
     }
 
-    private static void tryAssertion13_14(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion13_14(RegressionEnvironment env, String stmtText, String outputLimit, boolean assertAllowAnyOrder) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1221,7 +1244,7 @@ public class ResultSetOutputLimitRowPerGroup {
         expected.addResultInsRem(7200, 0, new Object[][]{{"IBM", 48d}, {"MSFT", null}, {"YAH", 6d}}, new Object[][]{{"IBM", 72d}, {"MSFT", 9d}, {"YAH", 7d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(assertAllowAnyOrder);
     }
 
     private static void tryAssertion15_16(RegressionEnvironment env, String stmtText, String outputLimit) {
