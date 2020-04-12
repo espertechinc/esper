@@ -33,7 +33,7 @@ public class ExprNewInstanceNodeNonArrayForge implements ExprForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return new ExprNewInstanceNodeNonArrayForgeEval(this, manufacturerFactory.makeEvaluator());
+        return new ExprNewInstanceNodeNonArrayForgeEval(manufacturerFactory.makeEvaluator());
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

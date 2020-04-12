@@ -574,7 +574,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public Object parse(String input) {
-            return stringToLocalDateTimeWStaticFormatParse(input, DateTimeFormatter.ISO_DATE_TIME);
+            return stringToLocalDateTimeWStaticFormatParse(input, DateTimeFormatter.ofPattern(format));
         }
 
         public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

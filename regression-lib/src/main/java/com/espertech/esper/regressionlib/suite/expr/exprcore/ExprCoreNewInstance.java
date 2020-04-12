@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportObjectCtor;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.*;
 
@@ -105,46 +106,45 @@ public class ExprCoreNewInstance {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "new char[] {} as c0, " +
-                "new double[] {1} as c1, " +
-                "new int[] {1,intPrimitive,10} as c2, " +
-                "new float[] {1,2.0f} as c3, " +
-                "new long[] {1L,Long.MAX_VALUE,-1L} as c4, " +
-                "new String[] {} as c5, " +
-                "new String[] {\"x\"} as c6, " +
-                "new String[] {\"x\",\"y\"} as c7, " +
-                "new Integer[] {intPrimitive,intPrimitive+1,intPrimitive+2,intPrimitive+3} as c8, " +
-                "new java.util.Calendar[] {} as c9, " +
-                "new Object[] {} as c10, " +
-                "new Object[] {1} as c11, " +
-                "new Object[] {\"x\",1,10L} as c12 " +
-                "from SupportBean";
-            env.compileDeploy(soda, epl).addListener("s0");
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "new char[] {}")
+                .expression(fields[1], "new double[] {1}")
+                .expression(fields[2], "new int[] {1,intPrimitive,10}")
+                .expression(fields[3], "new float[] {1,2.0f}")
+                .expression(fields[4], "new long[] {1L,Long.MAX_VALUE,-1L}")
+                .expression(fields[5], "new String[] {}")
+                .expression(fields[6], "new String[] {\"x\"}")
+                .expression(fields[7], "new String[] {\"x\",\"y\"}")
+                .expression(fields[8], "new Integer[] {intPrimitive,intPrimitive+1,intPrimitive+2,intPrimitive+3}")
+                .expression(fields[9], "new java.util.Calendar[] {}")
+                .expression(fields[10], "new Object[] {}")
+                .expression(fields[11], "new Object[] {1}")
+                .expression(fields[12], "new Object[] {\"x\",1,10L}");
 
-            EventType out = env.statement("s0").getEventType();
-            assertEquals(char[].class, out.getPropertyType("c0"));
-            assertEquals(double[].class, out.getPropertyType("c1"));
-            assertEquals(int[].class, out.getPropertyType("c2"));
-            assertEquals(float[].class, out.getPropertyType("c3"));
-            assertEquals(long[].class, out.getPropertyType("c4"));
-            assertEquals(String[].class, out.getPropertyType("c5"));
-            assertEquals(String[].class, out.getPropertyType("c6"));
-            assertEquals(String[].class, out.getPropertyType("c7"));
-            assertEquals(Integer[].class, out.getPropertyType("c8"));
-            assertEquals(Calendar[].class, out.getPropertyType("c9"));
-            assertEquals(Object[].class, out.getPropertyType("c10"));
-            assertEquals(Object[].class, out.getPropertyType("c11"));
-            assertEquals(Object[].class, out.getPropertyType("c12"));
+            builder.statementConsumer(stmt -> {
+                EventType out = stmt.getEventType();
+                assertEquals(char[].class, out.getPropertyType("c0"));
+                assertEquals(double[].class, out.getPropertyType("c1"));
+                assertEquals(int[].class, out.getPropertyType("c2"));
+                assertEquals(float[].class, out.getPropertyType("c3"));
+                assertEquals(long[].class, out.getPropertyType("c4"));
+                assertEquals(String[].class, out.getPropertyType("c5"));
+                assertEquals(String[].class, out.getPropertyType("c6"));
+                assertEquals(String[].class, out.getPropertyType("c7"));
+                assertEquals(Integer[].class, out.getPropertyType("c8"));
+                assertEquals(Calendar[].class, out.getPropertyType("c9"));
+                assertEquals(Object[].class, out.getPropertyType("c10"));
+                assertEquals(Object[].class, out.getPropertyType("c11"));
+                assertEquals(Object[].class, out.getPropertyType("c12"));
+            });
 
-            env.sendEventBean(new SupportBean("E1", 2));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertProps(event, "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12".split(","),
-                new Object[]{new char[0], new double[]{1}, new int[]{1, 2, 10},
-                    new float[]{1, 2}, new long[]{1, Long.MAX_VALUE, -1}, new String[0],
-                    new String[]{"x"}, new String[]{"x", "y"}, new Integer[]{2, 3, 4, 5},
-                    new Calendar[0], new Object[0], new Object[]{1}, new Object[]{"x", 1, 10L}});
+            builder.assertion(new SupportBean("E1", 2)).expect(fields, new char[0], new double[]{1}, new int[]{1, 2, 10},
+                new float[]{1, 2}, new long[]{1, Long.MAX_VALUE, -1}, new String[0],
+                new String[]{"x"}, new String[]{"x", "y"}, new Integer[]{2, 3, 4, 5},
+                new Calendar[0], new Object[0], new Object[]{1}, new Object[]{"x", 1, 10L});
 
+            builder.run(env, soda);
             env.undeployAll();
         }
     }
@@ -157,27 +157,26 @@ public class ExprCoreNewInstance {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "new double[1], " +
-                "new Integer[2*2] as c1, " +
-                "new java.util.Calendar[intPrimitive] as c2, " +
-                "new double[1][2], " +
-                "new java.util.Calendar[intPrimitive][intPrimitive] as c4 " +
-                "from SupportBean";
-            env.compileDeploy(soda, epl).addListener("s0");
+            String[] fields = "new double[1],c1,c2,new double[1][2],c4".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "new double[1]")
+                .expression(fields[1], "new Integer[2*2]")
+                .expression(fields[2], "new java.util.Calendar[intPrimitive]")
+                .expression(fields[3], "new double[1][2]")
+                .expression(fields[4], "new java.util.Calendar[intPrimitive][intPrimitive]");
 
-            EventType out = env.statement("s0").getEventType();
-            assertEquals(double[].class, out.getPropertyType("new double[1]"));
-            assertEquals(Integer[].class, out.getPropertyType("c1"));
-            assertEquals(Calendar[].class, out.getPropertyType("c2"));
-            assertEquals(double[][].class, out.getPropertyType("new double[1][2]"));
-            assertEquals(Calendar[][].class, out.getPropertyType("c4"));
+            builder.statementConsumer(stmt -> {
+                EventType out = stmt.getEventType();
+                assertEquals(double[].class, out.getPropertyType("new double[1]"));
+                assertEquals(Integer[].class, out.getPropertyType("c1"));
+                assertEquals(Calendar[].class, out.getPropertyType("c2"));
+                assertEquals(double[][].class, out.getPropertyType("new double[1][2]"));
+                assertEquals(Calendar[][].class, out.getPropertyType("c4"));
+            });
 
-            env.sendEventBean(new SupportBean("E1", 2));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertProps(event, "new double[1],c1,c2,new double[1][2],c4".split(","),
-                new Object[]{new double[1], new Integer[4], new Calendar[2], new double[1][2], new Calendar[2][2]});
+            builder.assertion(new SupportBean("E1", 2)).expect(fields, new double[1], new Integer[4], new Calendar[2], new double[1][2], new Calendar[2][2]);
 
+            builder.run(env, soda);
             env.undeployAll();
         }
     }
@@ -260,14 +259,14 @@ public class ExprCoreNewInstance {
 
     private static class ExecCoreNewInstanceStreamAlias implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select new SupportObjectCtor(sb) as c0 from SupportBean as sb";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean", "sb")
+                .expressions(fields, "new SupportObjectCtor(sb)");
 
             SupportBean sb = new SupportBean();
-            env.sendEventBean(sb);
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(sb, ((SupportObjectCtor) event.get("c0")).getObject());
+            builder.assertion(sb).verify("c0", result -> assertSame(sb, ((SupportObjectCtor) result).getObject()));
 
+            builder.run(env);
             env.undeployAll();
         }
     }

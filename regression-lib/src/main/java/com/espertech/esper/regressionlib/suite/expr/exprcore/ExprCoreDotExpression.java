@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.events.SampleEnumInEventsPackage;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -61,23 +62,18 @@ public class ExprCoreDotExpression {
 
     private static class ExprCoreDotExpressionEnumValue implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean", "sb")
+                .expression(fields[0], "intPrimitive = SupportEnumTwo.ENUM_VALUE_1.getAssociatedValue()")
+                .expression(fields[1], "SupportEnumTwo.ENUM_VALUE_2.checkAssociatedValue(intPrimitive)")
+                .expression(fields[2], "SupportEnumTwo.ENUM_VALUE_3.getNested().getValue()")
+                .expression(fields[3], "SupportEnumTwo.ENUM_VALUE_2.checkEventBeanPropInt(sb, 'intPrimitive')")
+                .expression(fields[4], "SupportEnumTwo.ENUM_VALUE_2.checkEventBeanPropInt(*, 'intPrimitive')");
 
-            String[] fields = "c0,c1,c2,c3".split(",");
-            String epl = "@name('s0') select " +
-                "intPrimitive = SupportEnumTwo.ENUM_VALUE_1.getAssociatedValue() as c0," +
-                "SupportEnumTwo.ENUM_VALUE_2.checkAssociatedValue(intPrimitive) as c1," +
-                "SupportEnumTwo.ENUM_VALUE_3.getNested().getValue() as c2," +
-                "SupportEnumTwo.ENUM_VALUE_2.checkEventBeanPropInt(sb, 'intPrimitive') as c3," +
-                "SupportEnumTwo.ENUM_VALUE_2.checkEventBeanPropInt(*, 'intPrimitive') as c4 " +
-                "from SupportBean as sb";
-            env.compileDeploy(epl).addListener("s0");
+            builder.assertion(new SupportBean("E1", 100)).expect(fields, true, false, 300, false, false);
+            builder.assertion(new SupportBean("E1", 200)).expect(fields, false, true, 300, true, true);
 
-            env.sendEventBean(new SupportBean("E1", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, false, 300, false});
-
-            env.sendEventBean(new SupportBean("E1", 200));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true, 300, true});
-
+            builder.run(env);
             env.undeployAll();
 
             // test "events" reserved keyword in package name

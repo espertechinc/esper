@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -41,31 +42,32 @@ public class ExprCoreInstanceOf {
 
     private static class ExprCoreInstanceofSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select instanceof(theString, string) as t0, " +
-                " instanceof(intBoxed, int) as t1, " +
-                " instanceof(floatBoxed, java.lang.Float) as t2, " +
-                " instanceof(theString, java.lang.Float, char, byte) as t3, " +
-                " instanceof(intPrimitive, java.lang.Integer) as t4, " +
-                " instanceof(intPrimitive, long) as t5, " +
-                " instanceof(intPrimitive, long, long, java.lang.Number) as t6, " +
-                " instanceof(floatBoxed, long, float) as t7 " +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "instanceof(theString, string)")
+                .expression(fields[1], "instanceof(intBoxed, int)")
+                .expression(fields[2], "instanceof(floatBoxed, java.lang.Float)")
+                .expression(fields[3], "instanceof(theString, java.lang.Float, char, byte)")
+                .expression(fields[4], "instanceof(intPrimitive, java.lang.Integer)")
+                .expression(fields[5], "instanceof(intPrimitive, long)")
+                .expression(fields[6], "instanceof(intPrimitive, long, long, java.lang.Number)")
+                .expression(fields[7], "instanceof(floatBoxed, long, float)");
 
-            for (int i = 0; i < 7; i++) {
-                Assert.assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t" + i));
-            }
+            builder.statementConsumer(stmt -> {
+                for (int i = 0; i < fields.length; i++) {
+                    Assert.assertEquals(Boolean.class, stmt.getEventType().getPropertyType(fields[i]));
+                }
+            });
 
             SupportBean bean = new SupportBean("abc", 100);
             bean.setFloatBoxed(100F);
-            env.sendEventBean(bean);
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{true, false, true, false, true, false, true, true});
+            builder.assertion(bean).expect(fields, true, false, true, false, true, false, true, true);
 
             bean = new SupportBean(null, 100);
             bean.setFloatBoxed(null);
-            env.sendEventBean(bean);
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, false, false, false, true, false, true, false});
+            builder.assertion(bean).expect(fields, false, false, false, false, true, false, true, false);
 
+            builder.run(env);
             env.undeployAll();
         }
     }

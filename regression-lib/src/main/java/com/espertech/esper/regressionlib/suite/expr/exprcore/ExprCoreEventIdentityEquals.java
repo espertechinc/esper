@@ -10,22 +10,24 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class ExprCoreEventIdentityEquals {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprCoreEventIdentityEqualsSimple());
+        execs.add(new ExprCoreEventIdentityEqualsDocSample());
         execs.add(new ExprCoreEventIdentityEqualsSubquery());
         execs.add(new ExprCoreEventIdentityEqualsEnumMethod());
         execs.add(new ExprCoreEventIdentityEqualsInvalid());
@@ -34,20 +36,24 @@ public class ExprCoreEventIdentityEquals {
 
     public static class ExprCoreEventIdentityEqualsSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = new String[]{"event_identity_equals(e,e)"};
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean", "e")
+                .expressions(fields, fields[0]);
+
+            builder.assertion(new SupportBean()).expect(fields, true);
+
+            builder.run(env);
+            env.undeployAll();
+        }
+    }
+
+    public static class ExprCoreEventIdentityEqualsDocSample implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
             String docSample = "create schema OrderEvent(orderId string, amount double);\n" +
                 "select * from OrderEvent as arrivingEvent \n" +
                 "  where exists (select * from OrderEvent#time(5) as last5 where not event_identity_equals(arrivingEvent, last5) and arrivingEvent.orderId = last5.orderId);\n" +
                 "select orderId, window(*).aggregate(0d, (result, e) => result + (case when event_identity_equals(oe, e) then 0d else e.amount end)) as c0 from OrderEvent#time(10) as oe";
-            env.compileDeploy(docSample);
-
-            String text = "@name('s0') select event_identity_equals(e, e) from SupportBean as e";
-            env.compileDeploy(text).addListener("s0");
-
-            env.sendEventBean(new SupportBean());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(true, event.get("event_identity_equals(e,e)"));
-
-            env.undeployAll();
+            env.compileDeploy(docSample).undeployAll();
         }
     }
 

@@ -12,14 +12,14 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,67 +46,56 @@ public class ExprCoreLikeRegexp {
 
     private static class ExprCoreLikeWConstants implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select theString like 'A%' as c0, intPrimitive like '1%' as c1 from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
-
-            env.sendEventBean(new SupportBean("Bxx", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{false, false});
-
-            env.sendEventBean(new SupportBean("Ayyy", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{true, true});
-
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "theString like 'A%'", "intPrimitive like '1%'");
+            builder.assertion(new SupportBean("Bxx", 0)).expect(fields, false, false);
+            builder.assertion(new SupportBean("Ayyy", 100)).expect(fields, true, true);
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreLikeWExprs implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select p00 like p01 as c0, id like p02 as c1 from SupportBean_S0";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_S0")
+                .expressions(fields, "p00 like p01", "id like p02");
 
-            sendS0Event(env, 413, "%XXaXX", "%a%", "%1%", null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{true, true});
+            builder.assertion(new SupportBean_S0(413, "%XXaXX", "%a%", "%1%", null)).expect(fields, true, true);
+            builder.assertion(new SupportBean_S0(413, "%XXcXX", "%b%", "%2%", null)).expect(fields, false, false);
+            builder.assertion(new SupportBean_S0(413, "%XXcXX", "%c%", "%3%", null)).expect(fields, true, true);
 
-            sendS0Event(env, 413, "%XXcXX", "%b%", "%2%", null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{false, false});
-
-            sendS0Event(env, 413, "%XXcXX", "%c%", "%3%", null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{true, true});
-
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreRegexpWConstants implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "theString regexp '.*Jack.*'", "intPrimitive regexp '.*1.*'");
 
-            String epl = "@name('s0') select theString regexp '.*Jack.*' as c0, intPrimitive regexp '.*1.*' as c1 from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            builder.assertion(new SupportBean("Joe", 0)).expect(fields, false, false);
+            builder.assertion(new SupportBean("TheJackWhite", 100)).expect(fields, true, true);
 
-            env.sendEventBean(new SupportBean("Joe", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{false, false});
-
-            env.sendEventBean(new SupportBean("TheJackWhite", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{true, true});
-
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreRegexpWExprs implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select p00 regexp p01 as c0, id regexp p02 as c1 from SupportBean_S0";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_S0")
+                .expressions(fields, "p00 regexp p01", "id regexp p02");
 
-            sendS0Event(env, 413, "XXAXX", ".*A.*", ".*1.*", null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{true, true});
+            builder.assertion(new SupportBean_S0(413, "XXAXX", ".*A.*", ".*1.*", null)).expect(fields, true, true);
+            builder.assertion(new SupportBean_S0(413, "XXaXX", ".*B.*", ".*2.*", null)).expect(fields, false, false);
+            builder.assertion(new SupportBean_S0(413, "XXCXX", ".*C.*", ".*3.*", null)).expect(fields, true, true);
 
-            sendS0Event(env, 413, "XXaXX", ".*B.*", ".*2.*", null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{false, false});
-
-            sendS0Event(env, 413, "XXCXX", ".*C.*", ".*3.*", null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{true, true});
-
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -144,15 +133,14 @@ public class ExprCoreLikeRegexp {
 
     private static class ExprCoreLikeRegexEscapedChar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select p00 regexp '\\\\w*-ABC' as result from SupportBean_S0";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_S0")
+                .expressions(fields, "p00 regexp '\\\\w*-ABC'");
 
-            env.sendEventBean(new SupportBean_S0(-1, "TBT-ABC"));
-            assertTrue((Boolean) env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(new SupportBean_S0(-1, "TBT-ABC")).expect(fields, true);
+            builder.assertion(new SupportBean_S0(-1, "TBT-BC")).expect(fields, false);
 
-            env.sendEventBean(new SupportBean_S0(-1, "TBT-BC"));
-            assertFalse((Boolean) env.listener("s0").assertOneGetNewAndReset().get("result"));
-
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -172,7 +160,7 @@ public class ExprCoreLikeRegexp {
                 .add(Expressions.regexp(Expressions.property("p02"), Expressions.property("p03")), "r3")
             );
             model.setFromClause(FromClause.create(FilterStream.create("SupportBean_S0")));
-            model = (EPStatementObjectModel) SerializableObjectCopier.copyMayFail(model);
+            model = SerializableObjectCopier.copyMayFail(model);
             assertEquals(stmtText, model.toEPL());
 
             EPCompiled compiled = env.compile(model, new CompilerArguments(env.getConfiguration()));
@@ -192,7 +180,7 @@ public class ExprCoreLikeRegexp {
                 "from SupportBean_S0";
 
             EPStatementObjectModel model = env.eplToModel(epl);
-            model = (EPStatementObjectModel) SerializableObjectCopier.copyMayFail(model);
+            model = SerializableObjectCopier.copyMayFail(model);
             assertEquals(epl, model.toEPL());
 
             EPCompiled compiled = env.compile(model, new CompilerArguments(env.getConfiguration()));
@@ -206,21 +194,15 @@ public class ExprCoreLikeRegexp {
 
     private static class ExprCoreLikeRegexNumericAndNull implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select intBoxed like '%01%' as r1, " +
-                " doubleBoxed regexp '[0-9][0-9].[0-9]' as r2 " +
-                " from " + SupportBean.class.getSimpleName();
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "intBoxed like '%01%'", "doubleBoxed regexp '[0-9][0-9].[0-9]'");
 
-            env.compileDeploy(epl).addListener("s0");
+            builder.assertion(makeSupportBeanEvent(101, 1.1)).expect(fields, true, false);
+            builder.assertion(makeSupportBeanEvent(102, 11d)).expect(fields, false, true);
+            builder.assertion(makeSupportBeanEvent(null, null)).expect(fields, null, null);
 
-            sendSupportBeanEvent(env, 101, 1.1);
-            assertReceived(env, new Object[][]{{"r1", true}, {"r2", false}});
-
-            sendSupportBeanEvent(env, 102, 11d);
-            assertReceived(env, new Object[][]{{"r1", false}, {"r2", true}});
-
-            sendSupportBeanEvent(env, null, null);
-            assertReceived(env, new Object[][]{{"r1", null}, {"r2", null}});
-
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -266,14 +248,14 @@ public class ExprCoreLikeRegexp {
     }
 
     private static void tryInvalidExpr(RegressionEnvironment env, String expr) {
-        String statement = "select " + expr + " from " + SupportBean.class.getSimpleName();
+        String statement = "select " + expr + " from SupportBean";
         tryInvalidCompile(env, statement, "skip");
     }
 
-    private static void sendSupportBeanEvent(RegressionEnvironment env, Integer intBoxed, Double doubleBoxed) {
+    private static SupportBean makeSupportBeanEvent(Integer intBoxed, Double doubleBoxed) {
         SupportBean bean = new SupportBean();
         bean.setIntBoxed(intBoxed);
         bean.setDoubleBoxed(doubleBoxed);
-        env.sendEventBean(bean);
+        return bean;
     }
 }

@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 
@@ -49,14 +50,15 @@ public class ExprCoreArray {
 
     private static class ExprCoreArraySimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select {1, 2} as c0 from SupportBean";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "{1, 2}");
+            builder.assertion(new SupportBean()).verify("c0", value -> {
+                assertEquals(Integer[].class, value.getClass());
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 2}, (Integer[]) value);
+            });
 
-            env.sendEventBean(new SupportBean());
-            Object result = env.listener("s0").assertOneGetNewAndReset().get("c0");
-            assertEquals(Integer[].class, result.getClass());
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 2}, (Integer[]) result);
-
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -139,17 +141,18 @@ public class ExprCoreArray {
 
     private static class ExprCoreArrayComplexTypes implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select {arrayProperty, nested} as field from " + SupportBeanComplexProps.class.getSimpleName();
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBeanComplexProps")
+                .expressions(fields, "{arrayProperty, nested}");
 
             SupportBeanComplexProps bean = SupportBeanComplexProps.makeDefaultBean();
-            env.sendEventBean(bean);
+            builder.assertion(bean).verify("c0", result -> {
+                Object[] arr = (Object[]) result;
+                assertSame(bean.getArrayProperty(), arr[0]);
+                assertSame(bean.getNested(), arr[1]);
+            });
 
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Object[] arr = (Object[]) theEvent.get("field");
-            assertSame(bean.getArrayProperty(), arr[0]);
-            assertSame(bean.getNested(), arr[1]);
-
+            builder.run(env);
             env.undeployAll();
         }
     }

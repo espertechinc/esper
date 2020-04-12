@@ -44,8 +44,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Boolean result = evaluateInternal(eventsPerStream, isNewData, exprEvaluatorContext);
-        return result;
+        return evaluateInternal(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     private Boolean evaluateInternal(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

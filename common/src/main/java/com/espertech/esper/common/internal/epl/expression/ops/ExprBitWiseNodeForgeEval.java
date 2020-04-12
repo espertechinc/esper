@@ -43,9 +43,7 @@ public class ExprBitWiseNodeForgeEval implements ExprEvaluator {
             return null;
         }
 
-        Object result = forge.getComputer().compute(left, right);
-
-        return result;
+        return forge.getComputer().compute(left, right);
     }
 
     public static CodegenExpression codegen(ExprBitWiseNodeForge forge, Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {

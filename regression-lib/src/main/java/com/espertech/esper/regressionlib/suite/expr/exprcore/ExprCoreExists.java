@@ -16,13 +16,18 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.*;
-import junit.framework.TestCase;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanDynRoot;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportMarkerInterface;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static junit.framework.TestCase.assertEquals;
 
 public class ExprCoreExists {
 
@@ -38,25 +43,22 @@ public class ExprCoreExists {
     private static class ExprCoreExistsSimple implements RegressionExecution {
 
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select exists(theString) as t0, " +
-                " exists(intBoxed?) as t1, " +
-                " exists(dummy?) as t2, " +
-                " exists(intPrimitive?) as t3, " +
-                " exists(intPrimitive) as t4 " +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
-
-            for (int i = 0; i < 5; i++) {
-                TestCase.assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t" + i));
-            }
+            String[] fields = "c0,c1,c2,c3,c4".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "exists(theString)", "exists(intBoxed?)", "exists(dummy?)",
+                    "exists(intPrimitive?)", "exists(intPrimitive)");
+            builder.statementConsumer(stmt -> {
+                for (int i = 0; i < 5; i++) {
+                    assertEquals(Boolean.class, stmt.getEventType().getPropertyType("c" + i));
+                }
+            });
 
             SupportBean bean = new SupportBean("abc", 100);
             bean.setFloatBoxed(9.5f);
             bean.setIntBoxed(3);
-            env.sendEventBean(bean);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new boolean[]{true, true, false, true, true});
+            builder.assertion(bean).expect(fields, true, true, false, true, true);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -79,7 +81,7 @@ public class ExprCoreExists {
             env.compileDeploy(epl).addListener("s0");
 
             for (int i = 0; i < 11; i++) {
-                TestCase.assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t" + i));
+                assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t" + i));
             }
 
             // cannot exists if the inner is null
@@ -118,7 +120,7 @@ public class ExprCoreExists {
             model.setSelectClause(SelectClause.create().add(Expressions.existsProperty("item?.intBoxed"), "t0"));
             model.setFromClause(FromClause.create(FilterStream.create(SupportMarkerInterface.class.getSimpleName())));
             model = SerializableObjectCopier.copyMayFail(model);
-            TestCase.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
 
             env.compileDeploy(model).addListener("s0");
@@ -141,21 +143,21 @@ public class ExprCoreExists {
     }
 
     private static void assertStringAndNull(RegressionEnvironment env) {
-        TestCase.assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t0"));
+        assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t0"));
 
         env.sendEventBean(new SupportBeanDynRoot(new SupportBean()));
-        TestCase.assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("t0"));
 
         env.sendEventBean(new SupportBeanDynRoot(null));
-        TestCase.assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("t0"));
 
         env.sendEventBean(new SupportBeanDynRoot("abc"));
-        TestCase.assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("t0"));
     }
 
     private static void assertResults(EventBean theEvent, boolean[] result) {
         for (int i = 0; i < result.length; i++) {
-            TestCase.assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
+            assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
         }
     }
 }

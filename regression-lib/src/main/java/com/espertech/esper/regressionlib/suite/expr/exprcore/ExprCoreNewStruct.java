@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
@@ -45,15 +46,18 @@ public class ExprCoreNewStruct {
 
     private static class ExprCoreNewStructWithBacktick implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select new { `a` = theString, `b.c` = theString, `}` = theString } as c0 from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "new { `a` = theString, `b.c` = theString, `}` = theString }");
 
-            env.sendEventBean(new SupportBean("E1", 0));
-            Map<String, Object> c0 = (Map<String, Object>) env.listener("s0").assertOneGetNewAndReset().get("c0");
-            assertEquals("E1", c0.get("a"));
-            assertEquals("E1", c0.get("b.c"));
-            assertEquals("E1", c0.get("}"));
+            builder.assertion(new SupportBean("E1", 0)).verify("c0", actual -> {
+                Map<String, Object> c0 = (Map<String, Object>) actual;
+                assertEquals("E1", c0.get("a"));
+                assertEquals("E1", c0.get("b.c"));
+                assertEquals("E1", c0.get("}"));
+            });
 
+            builder.run(env);
             env.undeployAll();
         }
     }

@@ -11,7 +11,10 @@
 package com.espertech.esper.regressionrun.suite.expr;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.util.ThreadingProfile;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.suite.expr.exprcore.ExprCoreBigNumberSupportMathContext;
+import com.espertech.esper.regressionlib.suite.expr.exprcore.ExprCoreConcat;
 import com.espertech.esper.regressionlib.suite.expr.exprcore.ExprCoreDotExpressionDuckTyping;
 import com.espertech.esper.regressionlib.suite.expr.exprcore.ExprCoreMathDivisionRules;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -25,6 +28,15 @@ import junit.framework.TestCase;
 import java.math.MathContext;
 
 public class TestSuiteExprCoreWConfig extends TestCase {
+
+    public void testExprCoreConcatThreadingProfileLarge() {
+        RegressionSession session = RegressionRunner.session();
+        Configuration configuration = session.getConfiguration();
+        configuration.getCommon().getExecution().setThreadingProfile(ThreadingProfile.LARGE);
+        configuration.getCommon().addEventType(SupportBean_S0.class);
+        RegressionRunner.run(session, new ExprCoreConcat());
+        session.destroy();
+    }
 
     public void testExprCoreDotExpressionDuckTyping() {
         RegressionSession session = RegressionRunner.session();

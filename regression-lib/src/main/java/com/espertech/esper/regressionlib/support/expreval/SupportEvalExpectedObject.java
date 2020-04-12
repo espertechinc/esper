@@ -8,23 +8,18 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.expression.funcs;
+package com.espertech.esper.regressionlib.support.expreval;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 
-public class ExprCastNodeConstEval implements ExprEvaluator {
-    private final ExprCastNode parent;
-    private final Object theConstant;
+public class SupportEvalExpectedObject extends SupportEvalExpected {
+    private final Object expected;
 
-    public ExprCastNodeConstEval(ExprCastNode parent, Object theConstant) {
-        this.parent = parent;
-        this.theConstant = theConstant;
+    public SupportEvalExpectedObject(Object expected) {
+        this.expected = expected;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return theConstant;
+    public void assertValue(String message, Object actual) {
+        EPAssertionUtil.assertEqualsAllowArray(message, expected, actual);
     }
-
 }

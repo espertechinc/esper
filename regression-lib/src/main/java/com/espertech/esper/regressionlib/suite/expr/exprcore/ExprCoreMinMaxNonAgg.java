@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ public class ExprCoreMinMaxNonAgg {
         "min(longBoxed,intBoxed,shortBoxed) as myMinEx" +
         " from SupportBean#length(3)";
 
-
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExecCoreMinMax());
@@ -41,15 +41,25 @@ public class ExprCoreMinMaxNonAgg {
 
     private static class ExecCoreMinMax implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            setUpMinMax(env);
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(Long.class, type.getPropertyType("myMax"));
-            Assert.assertEquals(Long.class, type.getPropertyType("myMin"));
-            Assert.assertEquals(Long.class, type.getPropertyType("myMinEx"));
-            Assert.assertEquals(Long.class, type.getPropertyType("myMaxEx"));
+            String[] fields = "myMax,myMaxEx,myMin,myMinEx".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "max(longBoxed,intBoxed)")
+                .expression(fields[1], "max(longBoxed,intBoxed,shortBoxed)")
+                .expression(fields[2], "min(longBoxed,intBoxed)")
+                .expression(fields[3], "min(longBoxed,intBoxed,shortBoxed)");
 
-            tryMinMaxWindowStats(env);
+            builder.statementConsumer(stmt -> {
+                EventType type = stmt.getEventType();
+                Assert.assertEquals(Long.class, type.getPropertyType("myMax"));
+                Assert.assertEquals(Long.class, type.getPropertyType("myMin"));
+                Assert.assertEquals(Long.class, type.getPropertyType("myMinEx"));
+                Assert.assertEquals(Long.class, type.getPropertyType("myMaxEx"));
+            });
 
+            builder.assertion(makeBoxedEvent(10L, 20, (short) 4)).expect(fields, 20L, 20L, 10L, 4L);
+            builder.assertion(makeBoxedEvent(-10L, -20, (short) -30)).expect(fields, -10L, -10L, -20L, -30L);
+
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -101,19 +111,15 @@ public class ExprCoreMinMaxNonAgg {
         Assert.assertEquals(-10L, received.get("myMaxEx"));
     }
 
-    private static void setUpMinMax(RegressionEnvironment env) {
-        env.compileDeploy("@name('s0')  " + EPL).addListener("s0");
-    }
-
     private static void sendEvent(RegressionEnvironment env, long longBoxed, int intBoxed, short shortBoxed) {
-        sendBoxedEvent(env, longBoxed, intBoxed, shortBoxed);
+        env.sendEventBean(makeBoxedEvent(longBoxed, intBoxed, shortBoxed));
     }
 
-    private static void sendBoxedEvent(RegressionEnvironment env, Long longBoxed, Integer intBoxed, Short shortBoxed) {
+    private static SupportBean makeBoxedEvent(Long longBoxed, Integer intBoxed, Short shortBoxed) {
         SupportBean bean = new SupportBean();
         bean.setLongBoxed(longBoxed);
         bean.setIntBoxed(intBoxed);
         bean.setShortBoxed(shortBoxed);
-        env.sendEventBean(bean);
+        return bean;
     }
 }

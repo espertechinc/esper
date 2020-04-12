@@ -58,8 +58,8 @@ public class TestSuiteExprCore extends TestCase {
         RegressionRunner.run(session, ExprCoreMath.executions());
     }
 
-    public void testExprCoreInBetweenLike() {
-        RegressionRunner.run(session, ExprCoreInBetweenLike.executions());
+    public void testExprCoreInBetween() {
+        RegressionRunner.run(session, ExprCoreInBetween.executions());
     }
 
     public void testExprCoreArray() {

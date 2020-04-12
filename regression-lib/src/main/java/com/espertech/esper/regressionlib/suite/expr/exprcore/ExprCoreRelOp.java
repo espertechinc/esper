@@ -10,19 +10,16 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Consumer;
 
 public class ExprCoreRelOp implements RegressionExecution {
-    private final static String[] FIELDS = "c0,c1,c2,c3".split(",");
-
     public void run(RegressionEnvironment env) {
         runAssertion(env, "theString", "'B'", bean -> bean.setTheString("A"), bean -> bean.setTheString("B"), bean -> bean.setTheString("C"));
         runAssertion(env, "intPrimitive", "2", bean -> bean.setIntPrimitive(1), bean -> bean.setIntPrimitive(2), bean -> bean.setIntPrimitive(3));
@@ -36,27 +33,26 @@ public class ExprCoreRelOp implements RegressionExecution {
     }
 
     private static void runAssertion(RegressionEnvironment env, String lhs, String rhs, Consumer<SupportBean> one, Consumer<SupportBean> two, Consumer<SupportBean> three) {
-        StringWriter writer = new StringWriter();
-        writer.append("@name('s0') select ");
-        writer.append(lhs).append(">=").append(rhs).append(" as c0,");
-        writer.append(lhs).append(">").append(rhs).append(" as c1,");
-        writer.append(lhs).append("<=").append(rhs).append(" as c2,");
-        writer.append(lhs).append("<").append(rhs).append(" as c3");
-        writer.append(" from SupportBean");
+        SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean");
+        String[] fields = "c0,c1,c2,c3".split(",");
+        builder.expression(fields[0], lhs + ">=" + rhs);
+        builder.expression(fields[1], lhs + ">" + rhs);
+        builder.expression(fields[2], lhs + "<=" + rhs);
+        builder.expression(fields[3], lhs + "<" + rhs);
 
-        env.compileDeploy(writer.toString()).addListener("s0");
+        SupportBean beanOne = new SupportBean();
+        one.accept(beanOne);
+        builder.assertion(beanOne).expect(fields, false, false, true, true);
 
-        sendAssert(env, one, FIELDS, false, false, true, true);
-        sendAssert(env, two, FIELDS, true, false, true, false);
-        sendAssert(env, three, FIELDS, true, true, false, false);
+        SupportBean beanTwo = new SupportBean();
+        two.accept(beanTwo);
+        builder.assertion(beanTwo).expect(fields, true, false, true, false);
 
+        SupportBean beanThree = new SupportBean();
+        three.accept(beanThree);
+        builder.assertion(beanThree).expect(fields, true, true, false, false);
+
+        builder.run(env);
         env.undeployAll();
-    }
-
-    private static void sendAssert(RegressionEnvironment env, Consumer<SupportBean> consumer, String[] fields, Object... expected) {
-        SupportBean bean = new SupportBean();
-        consumer.accept(bean);
-        env.sendEventBean(bean);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
     }
 }

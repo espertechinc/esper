@@ -12,17 +12,20 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
+import com.espertech.esper.common.client.util.StatementProperty;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 
@@ -49,13 +52,13 @@ public class ExprCoreAnyAllSome {
 
         public void run(RegressionEnvironment env) {
             String[] fields = "eq,neq,sqlneq,nneq".split(",");
-            String epl = "@name('s0') select " +
-                "intPrimitive=all(1,intBoxed) as eq, " +
-                "intPrimitive!=all(1,intBoxed) as neq, " +
-                "intPrimitive<>all(1,intBoxed) as sqlneq, " +
-                "not intPrimitive=all(1,intBoxed) as nneq " +
-                "from SupportBean(theString like \"E%\")";
-            env.compileDeploy(epl).addListener("s0");
+            AtomicReference<String> eplReference = new AtomicReference<>();
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "intPrimitive=all(1,intBoxed)")
+                .expression(fields[1], "intPrimitive!=all(1,intBoxed)")
+                .expression(fields[2], "intPrimitive<>all(1,intBoxed)")
+                .expression(fields[3], "not intPrimitive=all(1,intBoxed)")
+                .statementConsumer(stmt -> eplReference.set(stmt.getProperty(StatementProperty.EPL).toString()));
 
             // in the format intPrimitive, intBoxed
             int[][] testdata = {
@@ -75,14 +78,14 @@ public class ExprCoreAnyAllSome {
             for (int i = 0; i < testdata.length; i++) {
                 SupportBean bean = new SupportBean("E", testdata[i][0]);
                 bean.setIntBoxed(testdata[i][1]);
-                env.sendEventBean(bean);
-                //System.out.println("line " + i);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, result[i]);
+                builder.assertion(bean).expect(fields, result[i]);
             }
 
+            builder.run(env);
             env.undeployAll();
 
             // test OM
+            String epl = eplReference.get();
             EPStatementObjectModel model = env.eplToModel(epl);
             assertEquals(epl.replace("<>", "!="), model.toEPL());
             env.compileDeploy(model).addListener("s0");
@@ -101,41 +104,42 @@ public class ExprCoreAnyAllSome {
     private static class ExprCoreEqualsAllArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "e,ne".split(",");
-            String epl = "@name('s0') select " +
-                "longBoxed = all ({1, 1}, intArr, longCol) as e, " +
-                "longBoxed != all ({1, 1}, intArr, longCol) as ne " +
-                "from SupportBeanArrayCollMap";
-            env.compileDeploy(epl).addListener("s0");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBeanArrayCollMap")
+                .expressions(fields, "longBoxed = all ({1, 1}, intArr, longCol)", "longBoxed != all ({1, 1}, intArr, longCol)");
 
+            SupportBeanArrayCollMap arrayBean = makeArrayBean();
+            builder.assertion(arrayBean).expect(fields, true, false);
+
+            arrayBean = makeArrayBean();
+            arrayBean.setIntArr(new int[]{1, 1, 0});
+            builder.assertion(arrayBean).expect(fields, false, false);
+
+            arrayBean = makeArrayBean();
+            arrayBean.setLongBoxed(2L);
+            builder.assertion(arrayBean).expect(fields, false, true);
+
+            builder.run(env);
+            env.undeployAll();
+        }
+
+        private SupportBeanArrayCollMap makeArrayBean() {
             SupportBeanArrayCollMap arrayBean = new SupportBeanArrayCollMap(new int[]{1, 1});
             arrayBean.setLongCol(Arrays.asList(1L, 1L));
             arrayBean.setLongBoxed(1L);
-            env.sendEventBean(arrayBean);
-
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, false});
-
-            arrayBean.setIntArr(new int[]{1, 1, 0});
-            env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false});
-
-            arrayBean.setLongBoxed(2L);
-            env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
-
-            env.undeployAll();
+            return arrayBean;
         }
     }
 
     private static class ExprCoreEqualsAny implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "eq,neq,sqlneq,nneq".split(",");
-            String epl = "@name('s0') select " +
-                "intPrimitive = any (1, intBoxed) as eq, " +
-                "intPrimitive != any (1, intBoxed) as neq, " +
-                "intPrimitive <> any (1, intBoxed) as sqlneq, " +
-                "not intPrimitive = any (1, intBoxed) as nneq " +
-                " from SupportBean(theString like 'E%')";
-            env.compileDeploy(epl).addListener("s0");
+            AtomicReference<String> eplReference = new AtomicReference<>();
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "intPrimitive=any(1,intBoxed)")
+                .expression(fields[1], "intPrimitive!=any(1,intBoxed)")
+                .expression(fields[2], "intPrimitive<>any(1,intBoxed)")
+                .expression(fields[3], "not intPrimitive=any(1,intBoxed)")
+                .statementConsumer(stmt -> eplReference.set(stmt.getProperty(StatementProperty.EPL).toString()));
 
             // in the format intPrimitive, intBoxed
             int[][] testdata = {
@@ -155,11 +159,10 @@ public class ExprCoreAnyAllSome {
             for (int i = 0; i < testdata.length; i++) {
                 SupportBean bean = new SupportBean("E", testdata[i][0]);
                 bean.setIntBoxed(testdata[i][1]);
-                env.sendEventBean(bean);
-                //System.out.println("line " + i);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, result[i]);
+                builder.assertion(bean).expect(fields, result[i]);
             }
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -167,20 +170,18 @@ public class ExprCoreAnyAllSome {
     private static class ExprCoreEqualsAnyBigInt implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "c0,c1,c2,c3".split(",");
-            String epl = "@name('s0') select " +
-                "bigInteger = any (null, 1) as c0," +
-                "bigInteger = any (2, 3) as c1," +
-                "bigDecimal = any (null, 1) as c2," +
-                "bigDecimal = any (2, 3) as c3" +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "bigInteger = any (null, 1)")
+                .expression(fields[1], "bigInteger = any (2, 3)")
+                .expression(fields[2], "bigDecimal = any (null, 1)")
+                .expression(fields[3], "bigDecimal = any (2, 3)");
 
             SupportBean bean = new SupportBean();
             bean.setBigInteger(BigInteger.valueOf(1));
             bean.setBigDecimal(new BigDecimal(1d));
-            env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, false, true, false});
+            builder.assertion(bean).expect(fields, true, false, true, false);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -188,64 +189,67 @@ public class ExprCoreAnyAllSome {
     private static class ExprCoreEqualsAnyArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "e,ne".split(",");
-            String epl = "@name('s0') select " +
-                "longBoxed = any ({1, 1}, intArr, longCol) as e, " +
-                "longBoxed != any ({1, 1}, intArr, longCol) as ne " +
-                "from SupportBeanArrayCollMap";
-            env.compileDeploy(epl).addListener("s0");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBeanArrayCollMap")
+                .expressions(fields, "longBoxed = any ({1, 1}, intArr, longCol)", "longBoxed != any ({1, 1}, intArr, longCol)");
 
+            SupportBeanArrayCollMap arrayBean = makeArrayBean();
+            builder.assertion(arrayBean).expect(fields, true, false);
+
+            arrayBean = makeArrayBean();
+            arrayBean.setIntArr(new int[]{1, 1, 0});
+            builder.assertion(arrayBean).expect(fields, true, true);
+
+            arrayBean = makeArrayBean();
+            arrayBean.setLongBoxed(2L);
+            builder.assertion(arrayBean).expect(fields, false, true);
+
+            builder.run(env);
+            env.undeployAll();
+        }
+
+        private SupportBeanArrayCollMap makeArrayBean() {
             SupportBeanArrayCollMap arrayBean = new SupportBeanArrayCollMap(new int[]{1, 1});
             arrayBean.setLongCol(Arrays.asList(1L, 1L));
             arrayBean.setLongBoxed(1L);
-            env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, false});
-
-            arrayBean.setIntArr(new int[]{1, 1, 0});
-            env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true});
-
-            arrayBean.setLongBoxed(2L);
-            env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
-
-            env.undeployAll();
+            return arrayBean;
         }
     }
 
     private static class ExprCoreRelationalOpAllArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "g,ge".split(",");
-            String epl = "@name('s0') select " +
-                "longBoxed>all({1,2},intArr,intCol) as g, " +
-                "longBoxed>=all({1,2},intArr,intCol) as ge " +
-                "from SupportBeanArrayCollMap";
-            env.compileDeploy(epl).addListener("s0");
+            AtomicReference<String> eplReference = new AtomicReference<>();
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBeanArrayCollMap")
+                .expressions(fields, "longBoxed>all({1,2},intArr,intCol)", "longBoxed>=all({1,2},intArr,intCol)")
+                .statementConsumer(stmt -> eplReference.set(stmt.getProperty(StatementProperty.EPL).toString()));
 
-            SupportBeanArrayCollMap arrayBean = new SupportBeanArrayCollMap(new int[]{1, 2});
+            SupportBeanArrayCollMap arrayBean = makeBean();
             arrayBean.setIntCol(Arrays.asList(1, 2));
             arrayBean.setLongBoxed(3L);
-            env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true});
+            builder.assertion(arrayBean).expect(fields, true, true);
 
+            arrayBean = makeBean();
             arrayBean.setLongBoxed(2L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
+            builder.assertion(arrayBean).expect(fields, false, true);
 
             arrayBean = new SupportBeanArrayCollMap(new int[]{1, 3});
             arrayBean.setIntCol(Arrays.asList(1, 2));
             arrayBean.setLongBoxed(3L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
+            builder.assertion(arrayBean).expect(fields, false, true);
 
             arrayBean = new SupportBeanArrayCollMap(new int[]{1, 2});
             arrayBean.setIntCol(Arrays.asList(1, 3));
             arrayBean.setLongBoxed(3L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
+            builder.assertion(arrayBean).expect(fields, false, true);
 
+            builder.run(env);
             env.undeployAll();
 
             // test OM
+            String epl = eplReference.get();
             EPStatementObjectModel model = env.eplToModel(epl);
             assertEquals(epl.replace("<>", "!="), model.toEPL());
             env.compileDeploy(model).addListener("s0");
@@ -257,6 +261,13 @@ public class ExprCoreAnyAllSome {
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true});
 
             env.undeployAll();
+        }
+
+        private SupportBeanArrayCollMap makeBean() {
+            SupportBeanArrayCollMap arrayBean = new SupportBeanArrayCollMap(new int[]{1, 2});
+            arrayBean.setIntCol(Arrays.asList(1, 2));
+            arrayBean.setLongBoxed(3L);
+            return arrayBean;
         }
     }
 

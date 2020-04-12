@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanWithEnum;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,65 +221,51 @@ public class ExprCoreCase {
 
     private static class ExprCoreCaseSyntax1Branches3 implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            // Same test but the where clause doesn't match any of the condition of the case expresssion
-            String epl = "@name('s0') select case " +
-                " when (symbol='GE') then volume " +
-                " when (symbol='DELL') then volume / 2.0 " +
-                " when (symbol='MSFT') then volume / 3.0 " +
-                " end as p1 from " + SupportMarketDataBean.class.getSimpleName();
-            env.compileDeploy(epl).addListener("s0");
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportMarketDataBean")
+                .expressions(fields, "case when (symbol='GE') then volume " +
+                    " when (symbol='DELL') then volume / 2.0 " +
+                    " when (symbol='MSFT') then volume / 3.0 " +
+                    " end")
+                .statementConsumer(stmt -> assertEquals(Double.class, stmt.getEventType().getPropertyType("c0")));
 
-            sendMarketDataEvent(env, "DELL", 10000, 0);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(10000 / 2.0, theEvent.get("p1"));
+            builder.assertion(makeMarketDataEvent("DELL", 10000, 0)).expect(fields, 10000 / 2.0);
+            builder.assertion(makeMarketDataEvent("MSFT", 10000, 0)).expect(fields, 10000 / 3.0);
+            builder.assertion(makeMarketDataEvent("GE", 10000, 0)).expect(fields, 10000.0);
 
-            sendMarketDataEvent(env, "MSFT", 10000, 0);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(10000 / 3.0, theEvent.get("p1"));
-
-            sendMarketDataEvent(env, "GE", 10000, 0);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(10000.0, theEvent.get("p1"));
-
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreCaseSyntax2 implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select case intPrimitive " +
-                " when longPrimitive then (intPrimitive + longPrimitive) " +
-                " when doublePrimitive then intPrimitive * doublePrimitive" +
-                " when floatPrimitive then floatPrimitive / doublePrimitive " +
-                " else (intPrimitive + longPrimitive + floatPrimitive + doublePrimitive) end as p1 " +
-                " from SupportBean#length(10)";
-
-            env.compileDeploy(epl).addListener("s0");
-
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "case intPrimitive " +
+                    " when longPrimitive then (intPrimitive + longPrimitive) " +
+                    " when doublePrimitive then intPrimitive * doublePrimitive" +
+                    " when floatPrimitive then floatPrimitive / doublePrimitive " +
+                    " else (intPrimitive + longPrimitive + floatPrimitive + doublePrimitive) end")
+                .statementConsumer(stmt -> assertEquals(Double.class, stmt.getEventType().getPropertyType("c0")));
 
             // intPrimitive = longPrimitive
             // case result is intPrimitive + longPrimitive
-            sendSupportBeanEvent(env, 2, 2L, 1.0f, 1.0);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(4.0, theEvent.get("p1"));
+            builder.assertion(makeSupportBeanEvent(2, 2L, 1.0f, 1.0)).expect(fields, 4.0);
+
             // intPrimitive = doublePrimitive
             // case result is intPrimitive * doublePrimitive
-            sendSupportBeanEvent(env, 5, 1L, 1.0f, 5.0);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(25.0, theEvent.get("p1"));
+            builder.assertion(makeSupportBeanEvent(5, 1L, 1.0f, 5.0)).expect(fields, 25.0);
+
             // intPrimitive = floatPrimitive
             // case result is floatPrimitive / doublePrimitive
-            sendSupportBeanEvent(env, 12, 1L, 12.0f, 4.0);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(3.0, theEvent.get("p1"));
+            builder.assertion(makeSupportBeanEvent(12, 1L, 12.0f, 4.0)).expect(fields, 3.0);
+
             // all the properties of the event are different
             // The else part is computed: 1+2+3+4 = 10
-            sendSupportBeanEvent(env, 1, 2L, 3.0f, 4.0);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(10.0, theEvent.get("p1"));
+            builder.assertion(makeSupportBeanEvent(1, 2L, 3.0f, 4.0)).expect(fields, 10.0);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -729,6 +716,15 @@ public class ExprCoreCase {
         env.sendEventBean(theEvent);
     }
 
+    private static SupportBean makeSupportBeanEvent(int intPrimitive, long longPrimitive, float floatPrimitive, double doublePrimitive) {
+        SupportBean theEvent = new SupportBean();
+        theEvent.setIntPrimitive(intPrimitive);
+        theEvent.setLongPrimitive(longPrimitive);
+        theEvent.setFloatPrimitive(floatPrimitive);
+        theEvent.setDoublePrimitive(doublePrimitive);
+        return theEvent;
+    }
+
     private static void sendSupportBeanEvent(RegressionEnvironment env, int intPrimitive) {
         SupportBean theEvent = new SupportBean();
         theEvent.setIntPrimitive(intPrimitive);
@@ -753,8 +749,12 @@ public class ExprCoreCase {
     }
 
     private static void sendMarketDataEvent(RegressionEnvironment env, String symbol, long volume, double price) {
-        SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, volume, null);
+        SupportMarketDataBean bean = makeMarketDataEvent(symbol, volume, price);
         env.sendEventBean(bean);
+    }
+
+    private static SupportMarketDataBean makeMarketDataEvent(String symbol, long volume, double price) {
+        return new SupportMarketDataBean(symbol, price, volume, null);
     }
 
     private static final Logger log = LoggerFactory.getLogger(ExprCoreCase.class);

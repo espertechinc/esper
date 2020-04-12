@@ -10,30 +10,30 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.ISupportABCImpl;
 import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.*;
 
-import static com.espertech.esper.common.internal.support.EventRepresentationChoice.*;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static com.espertech.esper.common.internal.support.EventRepresentationChoice.MAP;
+import static com.espertech.esper.common.internal.support.EventRepresentationChoice.values;
+import static org.junit.Assert.*;
 
 public class ExprCoreTypeOf {
 
@@ -60,17 +60,18 @@ public class ExprCoreTypeOf {
             String schema = MAP.getAnnotationText() + " create schema MyDynoPropSchema as (key string);\n";
             env.compileDeployWBusPublicType(schema, path);
 
-            String epl = "@name('s0') select typeof(prop?), typeof(key) from MyDynoPropSchema as s0";
-            env.compileDeploy(epl, path).addListener("s0");
+            String[] fields = "typeof(prop?),typeof(key)".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("MyDynoPropSchema").withPath(path)
+                .expressions(fields, "typeof(prop?)", "typeof(key)");
 
-            tryAssertionDynamicProps(env);
+            builder.assertion(makeSchemaEvent(1, "E1")).expect(fields, "Integer", "String");
 
-            env.undeployModuleContaining("s0");
+            builder.assertion(makeSchemaEvent("test", "E2")).expect(fields, "String", "String");
 
-            env.eplToModelCompileDeploy(epl, path).addListener("s0");
+            builder.assertion(makeSchemaEvent(null, "E3")).expect(fields, null, "String");
 
-            tryAssertionDynamicProps(env);
-
+            builder.run(env, true);
+            builder.run(env, false);
             env.undeployAll();
         }
     }
@@ -90,16 +91,15 @@ public class ExprCoreTypeOf {
 
     private static class ExprCoreTypeOfNamedUnnamedPOJO implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            // test name-provided or no-name-provided
-            String epl = "@name('s0') select typeof(A) as t0 from ISupportA as A";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("ISupportA", "A")
+                .expressions(fields, "typeof(A)");
 
-            env.sendEventBean(new ISupportAImpl(null, null));
-            Assert.assertEquals(ISupportAImpl.class.getSimpleName(), env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            builder.assertion(new ISupportAImpl(null, null)).expect(fields, ISupportAImpl.class.getSimpleName());
 
-            env.sendEventBean(new ISupportABCImpl(null, null, null, null));
-            Assert.assertEquals("ISupportABCImpl", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            builder.assertion(new ISupportABCImpl(null, null, null, null)).expect(fields, ISupportABCImpl.class.getSimpleName());
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -115,7 +115,7 @@ public class ExprCoreTypeOf {
     private static void tryAssertionVariantStream(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
         String eplSchemas =
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " create schema EventOne as (key string);\n" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " create schema EventOne as (key string);\n" +
                 eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " create schema EventTwo as (key string);\n" +
                 " create schema S0 as " + SupportBean_S0.class.getName() + ";\n" +
                 " create variant schema VarSchema as *;\n";
@@ -143,7 +143,7 @@ public class ExprCoreTypeOf {
         } else {
             fail();
         }
-        Assert.assertEquals("EventOne", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        assertEquals("EventOne", env.listener("s0").assertOneGetNewAndReset().get("t0"));
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{"value"}, "EventTwo");
@@ -158,13 +158,13 @@ public class ExprCoreTypeOf {
         } else {
             fail();
         }
-        Assert.assertEquals("EventTwo", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        assertEquals("EventTwo", env.listener("s0").assertOneGetNewAndReset().get("t0"));
 
         env.sendEventBean(new SupportBean_S0(1), "S0");
-        Assert.assertEquals("S0", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        assertEquals("S0", env.listener("s0").assertOneGetNewAndReset().get("t0"));
 
         env.sendEventBean(new SupportBean());
-        Assert.assertEquals("SupportBean", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        assertEquals("SupportBean", env.listener("s0").assertOneGetNewAndReset().get("t0"));
 
         env.undeployModuleContaining("s0");
         env.compileDeploy("@name('s0') select * from VarSchema match_recognize(\n" +
@@ -265,25 +265,11 @@ public class ExprCoreTypeOf {
         env.undeployAll();
     }
 
-    private static void tryAssertionDynamicProps(RegressionEnvironment env) {
-
-        String[] fields = new String[]{"typeof(prop?)", "typeof(key)"};
-
-        sendSchemaEvent(env, 1, "E1");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"Integer", "String"});
-
-        sendSchemaEvent(env, "test", "E2");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"String", "String"});
-
-        sendSchemaEvent(env, null, "E3");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, "String"});
-    }
-
-    private static void sendSchemaEvent(RegressionEnvironment env, Object prop, String key) {
+    private static Map<String, Object> makeSchemaEvent(Object prop, String key) {
         Map<String, Object> theEvent = new HashMap<>();
         theEvent.put("prop", prop);
         theEvent.put("key", key);
-        env.sendEventMap(theEvent, "MyDynoPropSchema");
+        return theEvent;
     }
 
     public static class MyLocalJsonProvidedInnerSchema implements Serializable {

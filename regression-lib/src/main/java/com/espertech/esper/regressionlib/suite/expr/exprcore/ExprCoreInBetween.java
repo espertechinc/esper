@@ -23,6 +23,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.Collections;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
 
-public class ExprCoreInBetweenLike {
+public class ExprCoreInBetween {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
         executions.add(new ExprCoreInNumeric());
@@ -82,21 +83,25 @@ public class ExprCoreInBetweenLike {
 
     private static class ExprCoreInObject implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('stmt1') select s0.anyObject in (objectArr) as value from SupportBeanArrayCollMap s0";
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBeanArrayCollMap")
+                .expressions(fields, "anyObject in (objectArr)");
 
-            env.compileDeploy(epl).addListener("stmt1");
+            builder.assertion(make()).expect(fields, true);
 
+            SupportBeanArrayCollMap arrayBean = make();
+            arrayBean.setAnyObject(null);
+            builder.assertion(arrayBean).expect(fields, new Object[] {null});
+
+            builder.run(env);
+            env.undeployAll();
+        }
+
+        private static SupportBeanArrayCollMap make() {
             SupportBean_S1 s1 = new SupportBean_S1(100);
             SupportBeanArrayCollMap arrayBean = new SupportBeanArrayCollMap(s1);
             arrayBean.setObjectArr(new Object[]{null, "a", false, s1});
-            env.sendEventBean(arrayBean);
-            assertEquals(true, env.listener("stmt1").assertOneGetNewAndReset().get("value"));
-
-            arrayBean.setAnyObject(null);
-            env.sendEventBean(arrayBean);
-            assertNull(env.listener("stmt1").assertOneGetNewAndReset().get("value"));
-
-            env.undeployAll();
+            return arrayBean;
         }
     }
 
@@ -323,29 +328,23 @@ public class ExprCoreInBetweenLike {
     private static class ExprCoreBetweenBigIntBigDecExpr implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "c0,c1,c2,c3".split(",");
-            String epl = "@name('s0') select " +
-                "intPrimitive between BigInteger.valueOf(1) and BigInteger.valueOf(3) as c0," +
-                "intPrimitive between BigDecimal.valueOf(1) and BigDecimal.valueOf(3) as c1," +
-                "intPrimitive in (BigInteger.valueOf(1):BigInteger.valueOf(3)) as c2," +
-                "intPrimitive in (BigDecimal.valueOf(1):BigDecimal.valueOf(3)) as c3" +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "intPrimitive between BigInteger.valueOf(1) and BigInteger.valueOf(3)")
+                .expression(fields[1], "intPrimitive between BigDecimal.valueOf(1) and BigDecimal.valueOf(3)")
+                .expression(fields[2], "intPrimitive in (BigInteger.valueOf(1):BigInteger.valueOf(3))")
+                .expression(fields[3], "intPrimitive in (BigDecimal.valueOf(1):BigDecimal.valueOf(3))");
 
-            env.sendEventBean(new SupportBean("E0", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, false, false});
+            builder.assertion(new SupportBean("E0", 0)).expect(fields, false, false, false, false);
 
-            env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, false, false});
+            builder.assertion(new SupportBean("E1", 1)).expect(fields, true, true, false, false);
 
-            env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, true, true});
+            builder.assertion(new SupportBean("E2", 2)).expect(fields, true, true, true, true);
 
-            env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, false, false});
+            builder.assertion(new SupportBean("E3", 3)).expect(fields, true, true, false, false);
 
-            env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, false, false});
+            builder.assertion(new SupportBean("E4", 4)).expect(fields, false, false, false, false);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -465,20 +464,21 @@ public class ExprCoreInBetweenLike {
 
     private static class ExprCoreBetweenNumericCoercionLong implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select intPrimitive between shortBoxed and longBoxed as result from " + SupportBean.class.getSimpleName();
+            String[] fields = "c0,".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "intPrimitive between shortBoxed and longBoxed")
+                .statementConsumer(stmt -> assertEquals(Boolean.class, stmt.getEventType().getPropertyType("c0")));
 
-            env.compileDeploy(epl).addListener("s0");
-            assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+            builder.assertion(makeBean(1, 2, 3L)).expect(fields, false);
+            builder.assertion(makeBean(2, 2, 3L)).expect(fields, true);
+            builder.assertion(makeBean(3, 2, 3L)).expect(fields, true);
+            builder.assertion(makeBean(4, 2, 3L)).expect(fields, false);
+            builder.assertion(makeBean(5, 10, 1L)).expect(fields, true);
+            builder.assertion(makeBean(1, 10, 1L)).expect(fields, true);
+            builder.assertion(makeBean(10, 10, 1L)).expect(fields, true);
+            builder.assertion(makeBean(11, 10, 1L)).expect(fields, false);
 
-            sendAndAssert(env, 1, 2, 3L, false);
-            sendAndAssert(env, 2, 2, 3L, true);
-            sendAndAssert(env, 3, 2, 3L, true);
-            sendAndAssert(env, 4, 2, 3L, false);
-            sendAndAssert(env, 5, 10, 1L, true);
-            sendAndAssert(env, 1, 10, 1L, true);
-            sendAndAssert(env, 10, 10, 1L, true);
-            sendAndAssert(env, 11, 10, 1L, false);
-
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -603,16 +603,12 @@ public class ExprCoreInBetweenLike {
         assertEquals(result, theEvent.get("result"));
     }
 
-    private static void sendAndAssert(RegressionEnvironment env, int intPrimitive, int shortBoxed, Long longBoxed, Boolean result) {
+    private static SupportBean makeBean(int intPrimitive, int shortBoxed, Long longBoxed) {
         SupportBean bean = new SupportBean();
         bean.setIntPrimitive(intPrimitive);
         bean.setShortBoxed((short) shortBoxed);
         bean.setLongBoxed(longBoxed);
-
-        env.sendEventBean(bean);
-
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(result, theEvent.get("result"));
+        return bean;
     }
 
     private static void sendAndAssert(RegressionEnvironment env, Integer intBoxed, Float floatBoxed, double doublePrimitve, Long longBoxed, Boolean result) {
@@ -629,29 +625,30 @@ public class ExprCoreInBetweenLike {
     }
 
     private static void tryInBoolean(RegressionEnvironment env, String expr, Boolean[] input, boolean[] result) {
-        String epl = "@name('s0') select " + expr + " as result from " + SupportBean.class.getSimpleName();
-        env.compileDeploy(epl).addListener("s0");
-        assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+        String[] fields = "c0".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+            .expressions(fields, expr)
+            .statementConsumer(stmt -> assertEquals(Boolean.class, stmt.getEventType().getPropertyType("c0")));
 
         for (int i = 0; i < input.length; i++) {
-            sendSupportBeanEvent(env, input[i]);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("Wrong result for " + input[i], result[i], theEvent.get("result"));
+            builder.assertion(makeSupportBeanEvent(input[i])).expect(fields, result[i]);
         }
+
+        builder.run(env);
         env.undeployAll();
     }
 
     private static void tryString(RegressionEnvironment env, String expression, String[] input, Boolean[] result) {
-        String epl = "@name('s0') select " + expression + " as result from " + SupportBean.class.getSimpleName();
-        env.compileDeploy(epl).addListener("s0");
-
-        assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+        String[] fields = "c0".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+            .expressions(fields, expression)
+            .statementConsumer(stmt -> assertEquals(Boolean.class, stmt.getEventType().getPropertyType("c0")));
 
         for (int i = 0; i < input.length; i++) {
-            sendSupportBeanEvent(env, input[i]);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("Wrong result for " + input[i], result[i], theEvent.get("result"));
+            builder.assertion(new SupportBean(input[i], i)).expect(fields, result[i]);
         }
+
+        builder.run(env);
         env.undeployAll();
     }
 
@@ -676,17 +673,16 @@ public class ExprCoreInBetweenLike {
     }
 
     private static void tryNumeric(RegressionEnvironment env, String expr, Double[] input, Boolean[] result) {
-        String epl = "@name('s0') select " + expr + " as result from SupportBean";
-        env.compileDeploy(epl).addListener("s0");
-
-        assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+        String[] fields = "c0".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+            .expressions(fields, expr)
+            .statementConsumer(stmt -> assertEquals(Boolean.class, stmt.getEventType().getPropertyType("c0")));
 
         for (int i = 0; i < input.length; i++) {
-            sendSupportBeanEvent(env, input[i]);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("Wrong result for " + input[i], result[i], theEvent.get("result"));
+            builder.assertion(makeSupportBeanEvent(input[i])).expect(fields, result[i]);
         }
 
+        builder.run(env);
         env.undeployAll();
     }
 
@@ -694,10 +690,10 @@ public class ExprCoreInBetweenLike {
         env.sendEventBean(event);
     }
 
-    private static void sendSupportBeanEvent(RegressionEnvironment env, Double doubleBoxed) {
+    private static SupportBean makeSupportBeanEvent(Double doubleBoxed) {
         SupportBean theEvent = new SupportBean();
         theEvent.setDoubleBoxed(doubleBoxed);
-        env.sendEventBean(theEvent);
+        return theEvent;
     }
 
     private static void sendSupportBeanEvent(RegressionEnvironment env, String theString) {
@@ -707,8 +703,12 @@ public class ExprCoreInBetweenLike {
     }
 
     private static void sendSupportBeanEvent(RegressionEnvironment env, boolean boolBoxed) {
+        env.sendEventBean(makeSupportBeanEvent(boolBoxed));
+    }
+
+    private static SupportBean makeSupportBeanEvent(boolean boolBoxed) {
         SupportBean theEvent = new SupportBean();
         theEvent.setBoolBoxed(boolBoxed);
-        env.sendEventBean(theEvent);
+        return theEvent;
     }
 }

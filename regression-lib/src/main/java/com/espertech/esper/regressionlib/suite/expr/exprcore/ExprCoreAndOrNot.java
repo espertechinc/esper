@@ -11,10 +11,11 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +37,7 @@ public class ExprCoreAndOrNot {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create variable string thing = \"Hello World\";" +
-                "@name('s0') select not thing.contains(theString) as c0 from SupportBean;\n";
+                    "@name('s0') select not thing.contains(theString) as c0 from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
 
             sendBeanAssert(env, "World", false);
@@ -55,21 +56,14 @@ public class ExprCoreAndOrNot {
 
     private static class ExprCoreAndOrNotCombined implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "(intPrimitive=1) or (intPrimitive=2) as c0, " +
-                "(intPrimitive>0) and (intPrimitive<3) as c1," +
-                "not(intPrimitive=2) as c2" +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
-
-            sendBeanAssert(env, 1, new Object[]{true, true, true});
-
-            sendBeanAssert(env, 2, new Object[]{true, true, false});
-
-            env.milestone(0);
-
-            sendBeanAssert(env, 3, new Object[]{false, false, true});
-
+            String[] fields = "c0,c1,c2".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "(intPrimitive=1) or (intPrimitive=2)", "(intPrimitive>0) and (intPrimitive<3)",
+                    "not(intPrimitive=2)");
+            builder.assertion(new SupportBean("E1", 1)).expect(fields, true, true, true);
+            builder.assertion(new SupportBean("E2", 2)).expect(fields, true, true, false);
+            builder.assertion(new SupportBean("E3", 3)).expect(fields, false, false, true);
+            builder.run(env);
             env.undeployAll();
         }
     }

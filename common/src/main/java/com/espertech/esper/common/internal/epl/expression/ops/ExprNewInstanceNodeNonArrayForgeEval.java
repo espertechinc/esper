@@ -20,11 +20,9 @@ import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManuf
  */
 public class ExprNewInstanceNodeNonArrayForgeEval implements ExprEvaluator {
 
-    private final ExprNewInstanceNodeNonArrayForge forge;
     private final InstanceManufacturer manufacturer;
 
-    public ExprNewInstanceNodeNonArrayForgeEval(ExprNewInstanceNodeNonArrayForge forge, InstanceManufacturer manufacturer) {
-        this.forge = forge;
+    public ExprNewInstanceNodeNonArrayForgeEval(InstanceManufacturer manufacturer) {
         this.manufacturer = manufacturer;
     }
 

@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.runtime.client.EPStatement;
 import org.junit.Assert;
 
@@ -21,9 +21,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ExprCoreMath {
     public static Collection<RegressionExecution> executions() {
@@ -43,108 +43,76 @@ public class ExprCoreMath {
 
     private static class ExprCoreMathDouble implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "10d+5d as c0," +
-                "10d-5d as c1," +
-                "10d*5d as c2," +
-                "10d/5d as c3," +
-                "10d%4d as c4" +
-                " from SupportBean";
-
-            env.compileDeploy(epl).addListener("s0");
-
             String[] fields = "c0,c1,c2,c3,c4".split(",");
-            assertTypes(env.statement("s0"), fields, Double.class, Double.class, Double.class, Double.class, Double.class);
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "10d+5d", "10d-5d", "10d*5d", "10d/5d", "10d%4d")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, Double.class, Double.class, Double.class, Double.class, Double.class));
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{15d, 5d, 50d, 2d, 2d});
+            builder.assertion(new SupportBean()).expect(fields, 15d, 5d, 50d, 2d, 2d);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathLong implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "10L+5L as c0," +
-                "10L-5L as c1," +
-                "10L*5L as c2," +
-                "10L/5L as c3" +
-                " from SupportBean";
-
-            env.compileDeploy(epl).addListener("s0");
-
             String[] fields = "c0,c1,c2,c3".split(",");
-            assertTypes(env.statement("s0"), fields, Long.class, Long.class, Long.class, Double.class);
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "10L+5L", "10L-5L", "10L*5L", "10L/5L")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, Long.class, Long.class, Long.class, Double.class));
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{15L, 5L, 50L, 2d});
+            builder.assertion(new SupportBean()).expect(fields, 15L, 5L, 50L, 2d);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathFloat implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "10f+5f as c0," +
-                "10f-5f as c1," +
-                "10f*5f as c2," +
-                "10f/5f as c3," +
-                "10f%4f as c4" +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
-
             String[] fields = "c0,c1,c2,c3,c4".split(",");
-            assertTypes(env.statement("s0"), fields, Float.class, Float.class, Float.class, Double.class, Float.class);
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "10f+5f", "10f-5f", "10f*5f", "10f/5f", "10f%4f")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, Float.class, Float.class, Float.class, Double.class, Float.class));
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{15f, 5f, 50f, 2d, 2f});
+            builder.assertion(new SupportBean()).expect(fields, 15f, 5f, 50f, 2d, 2f);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathIntWNull implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select intPrimitive/intBoxed as result from SupportBean";
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "intPrimitive/intBoxed")
+                .statementConsumer(stmt -> assertEquals(Double.class, stmt.getEventType().getPropertyType("c0")));
 
-            env.compileDeploy(epl).addListener("s0");
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("result"));
+            builder.assertion(makeEvent(100, 3)).expect(fields, 100 / 3d);
+            builder.assertion(makeEvent(100, null)).expect(fields, new Object[]{null});
+            builder.assertion(makeEvent(100, 0)).expect(fields, Double.POSITIVE_INFINITY);
+            builder.assertion(makeEvent(-5, 0)).expect(fields, Double.NEGATIVE_INFINITY);
 
-            sendEvent(env, 100, 3);
-            assertEquals(100 / 3d, env.listener("s0").assertOneGetNewAndReset().get("result"));
-
-            sendEvent(env, 100, null);
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("result"));
-
-            sendEvent(env, 100, 0);
-            assertEquals(Double.POSITIVE_INFINITY, env.listener("s0").assertOneGetNewAndReset().get("result"));
-
-            sendEvent(env, -5, 0);
-            assertEquals(Double.NEGATIVE_INFINITY, env.listener("s0").assertOneGetNewAndReset().get("result"));
-
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathBigDecConv implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "10+BigDecimal.valueOf(5,0) as c0," +
-                "10-BigDecimal.valueOf(5,0) as c1," +
-                "10*BigDecimal.valueOf(5,0) as c2," +
-                "10/BigDecimal.valueOf(5,0) as c3" +
-                " from SupportBean";
-
-            env.compileDeploy(epl).addListener("s0");
-
             String[] fields = "c0,c1,c2,c3".split(",");
-            assertTypes(env.statement("s0"), fields, BigDecimal.class, BigDecimal.class, BigDecimal.class, BigDecimal.class);
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "10+BigDecimal.valueOf(5,0)")
+                .expression(fields[1], "10-BigDecimal.valueOf(5,0)")
+                .expression(fields[2], "10*BigDecimal.valueOf(5,0)")
+                .expression(fields[3], "10/BigDecimal.valueOf(5,0)")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, BigDecimal.class, BigDecimal.class, BigDecimal.class, BigDecimal.class));
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{BigDecimal.valueOf(15, 0), BigDecimal.valueOf(5, 0), BigDecimal.valueOf(50, 0), BigDecimal.valueOf(2, 0)});
+            builder.assertion(new SupportBean()).expect(fields, BigDecimal.valueOf(15, 0), BigDecimal.valueOf(5, 0), BigDecimal.valueOf(50, 0), BigDecimal.valueOf(2, 0));
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -152,94 +120,83 @@ public class ExprCoreMath {
     private static class ExprCoreMathBigIntConv implements RegressionExecution {
 
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "10+BigInteger.valueOf(5) as c0," +
-                "10-BigInteger.valueOf(5) as c1," +
-                "10*BigInteger.valueOf(5) as c2," +
-                "10/BigInteger.valueOf(5) as c3" +
-                " from SupportBean";
-
-            env.compileDeploy(epl).addListener("s0");
-
             String[] fields = "c0,c1,c2,c3".split(",");
-            assertTypes(env.statement("s0"), fields, BigInteger.class, BigInteger.class, BigInteger.class, Double.class);
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "10+BigInteger.valueOf(5)")
+                .expression(fields[1], "10-BigInteger.valueOf(5)")
+                .expression(fields[2], "10*BigInteger.valueOf(5)")
+                .expression(fields[3], "10/BigInteger.valueOf(5)")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, BigInteger.class, BigInteger.class, BigInteger.class, Double.class));
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{BigInteger.valueOf(15), BigInteger.valueOf(5), BigInteger.valueOf(50), 2d});
+            builder.assertion(new SupportBean()).expect(fields, BigInteger.valueOf(15), BigInteger.valueOf(5), BigInteger.valueOf(50), 2d);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathBigInt implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "BigInteger.valueOf(10)+BigInteger.valueOf(5) as c0," +
-                "BigInteger.valueOf(10)-BigInteger.valueOf(5) as c1," +
-                "BigInteger.valueOf(10)*BigInteger.valueOf(5) as c2," +
-                "BigInteger.valueOf(10)/BigInteger.valueOf(5) as c3" +
-                " from SupportBean";
-
-            env.compileDeploy(epl).addListener("s0");
-
             String[] fields = "c0,c1,c2,c3".split(",");
-            assertTypes(env.statement("s0"), fields, BigInteger.class, BigInteger.class, BigInteger.class, Double.class);
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "BigInteger.valueOf(10)+BigInteger.valueOf(5)")
+                .expression(fields[1], "BigInteger.valueOf(10)-BigInteger.valueOf(5)")
+                .expression(fields[2], "BigInteger.valueOf(10)*BigInteger.valueOf(5)")
+                .expression(fields[3], "BigInteger.valueOf(10)/BigInteger.valueOf(5)")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, BigInteger.class, BigInteger.class, BigInteger.class, Double.class));
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{BigInteger.valueOf(15), BigInteger.valueOf(5), BigInteger.valueOf(50), 2d});
+            builder.assertion(new SupportBean()).expect(fields, BigInteger.valueOf(15), BigInteger.valueOf(5), BigInteger.valueOf(50), 2d);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathBigDec implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@Name('s0') select " +
-                "BigDecimal.valueOf(10,0)+BigDecimal.valueOf(5,0) as c0," +
-                "BigDecimal.valueOf(10,0)-BigDecimal.valueOf(5,0) as c1," +
-                "BigDecimal.valueOf(10,0)*BigDecimal.valueOf(5,0) as c2," +
-                "BigDecimal.valueOf(10,0)/BigDecimal.valueOf(5,0) as c3" +
-                " from SupportBean";
-
-            env.compileDeploy(epl).addListener("s0");
-
             String[] fields = "c0,c1,c2,c3".split(",");
-            assertTypes(env.statement("s0"), fields, BigDecimal.class, BigDecimal.class, BigDecimal.class, BigDecimal.class);
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "BigDecimal.valueOf(10,0)+BigDecimal.valueOf(5,0)")
+                .expression(fields[1], "BigDecimal.valueOf(10,0)-BigDecimal.valueOf(5,0)")
+                .expression(fields[2], "BigDecimal.valueOf(10,0)*BigDecimal.valueOf(5,0)")
+                .expression(fields[3], "BigDecimal.valueOf(10,0)/BigDecimal.valueOf(5,0)")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, BigDecimal.class, BigDecimal.class, BigDecimal.class, BigDecimal.class));
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{BigDecimal.valueOf(15, 0), BigDecimal.valueOf(5, 0), BigDecimal.valueOf(50, 0), BigDecimal.valueOf(2, 0)});
+            builder.assertion(new SupportBean()).expect(fields, BigDecimal.valueOf(15, 0), BigDecimal.valueOf(5, 0), BigDecimal.valueOf(50, 0), BigDecimal.valueOf(2, 0));
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathShortAndByteArithmetic implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "shortPrimitive + shortBoxed as c0," +
-                "bytePrimitive + byteBoxed as c1, " +
-                "shortPrimitive - shortBoxed as c2," +
-                "bytePrimitive - byteBoxed as c3, " +
-                "shortPrimitive * shortBoxed as c4," +
-                "bytePrimitive * byteBoxed as c5, " +
-                "shortPrimitive / shortBoxed as c6," +
-                "bytePrimitive / byteBoxed as c7," +
-                "shortPrimitive + longPrimitive as c8," +
-                "bytePrimitive + longPrimitive as c9 " +
-                "from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
             String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "shortPrimitive + shortBoxed")
+                .expression(fields[1], "bytePrimitive + byteBoxed ")
+                .expression(fields[2], "shortPrimitive - shortBoxed")
+                .expression(fields[3], "bytePrimitive - byteBoxed ")
+                .expression(fields[4], "shortPrimitive * shortBoxed")
+                .expression(fields[5], "bytePrimitive * byteBoxed ")
+                .expression(fields[6], "shortPrimitive / shortBoxed")
+                .expression(fields[7], "bytePrimitive / byteBoxed")
+                .expression(fields[8], "shortPrimitive + longPrimitive")
+                .expression(fields[9], "bytePrimitive + longPrimitive");
 
-            for (String field : fields) {
-                Class expected = Integer.class;
-                if (field.equals("c6") || field.equals("c7")) {
-                    expected = Double.class;
+            Consumer<EPStatement> typeVerifier = stmt -> {
+                for (String field : fields) {
+                    Class expected = Integer.class;
+                    if (field.equals("c6") || field.equals("c7")) {
+                        expected = Double.class;
+                    }
+                    if (field.equals("c8") || field.equals("c9")) {
+                        expected = Long.class;
+                    }
+                    Assert.assertEquals("for field " + field, expected, stmt.getEventType().getPropertyType(field));
                 }
-                if (field.equals("c8") || field.equals("c9")) {
-                    expected = Long.class;
-                }
-                Assert.assertEquals("for field " + field, expected, env.statement("s0").getEventType().getPropertyType(field));
-            }
+            };
+            builder.statementConsumer(typeVerifier);
 
             SupportBean bean = new SupportBean();
             bean.setShortPrimitive((short) 5);
@@ -248,53 +205,43 @@ public class ExprCoreMath {
             bean.setByteBoxed((byte) 2);
             bean.setLongPrimitive(10);
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{11, 6, -1, 2, 30, 8, 5d / 6d, 2d, 15L, 14L});
+            builder.assertion(bean).expect(fields, 11, 6, -1, 2, 30, 8, 5d / 6d, 2d, 15L, 14L);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreMathModulo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select longBoxed % intBoxed as myMod from SupportBean#length(3) where not(longBoxed > intBoxed)";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "longBoxed % intBoxed", "intPrimitive % intBoxed");
 
-            sendEvent(env, 1, 1, (short) 0);
-            Assert.assertEquals(0L, env.listener("s0").getLastNewData()[0].get("myMod"));
-            env.listener("s0").reset();
+            builder.assertion(makeBoxedEvent(5, 1L, 1)).expect(fields, 0L, 0);
+            builder.assertion(makeBoxedEvent(5, 2L, 3)).expect(fields, 2L, 2);
 
-            sendEvent(env, 2, 1, (short) 0);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
-
-            sendEvent(env, 2, 3, (short) 0);
-            Assert.assertEquals(2L, env.listener("s0").getLastNewData()[0].get("myMod"));
-            env.listener("s0").reset();
-
+            builder.run(env);
             env.undeployAll();
         }
     }
 
-    private static void sendEvent(RegressionEnvironment env, long longBoxed, int intBoxed, short shortBoxed) {
-        sendBoxedEvent(env, longBoxed, intBoxed, shortBoxed);
-    }
-
-    private static void sendBoxedEvent(RegressionEnvironment env, Long longBoxed, Integer intBoxed, Short shortBoxed) {
-        SupportBean bean = new SupportBean();
+    private static SupportBean makeBoxedEvent(int intPrimitive, Long longBoxed, Integer intBoxed) {
+        SupportBean bean = new SupportBean("E", intPrimitive);
         bean.setLongBoxed(longBoxed);
         bean.setIntBoxed(intBoxed);
-        bean.setShortBoxed(shortBoxed);
-        env.sendEventBean(bean);
+        return bean;
     }
 
-    private static void sendEvent(RegressionEnvironment env, Integer intPrimitive, Integer intBoxed) {
+    private static SupportBean makeEvent(Integer intPrimitive, Integer intBoxed) {
         SupportBean bean = new SupportBean();
         bean.setIntBoxed(intBoxed);
         bean.setIntPrimitive(intPrimitive);
-        env.sendEventBean(bean);
+        return bean;
     }
 
     private static void assertTypes(EPStatement stmt, String[] fields, Class... types) {
+        assertEquals(fields.length, types.length);
         for (int i = 0; i < fields.length; i++) {
             assertEquals("failed for " + i, types[i], stmt.getEventType().getPropertyType(fields[i]));
         }

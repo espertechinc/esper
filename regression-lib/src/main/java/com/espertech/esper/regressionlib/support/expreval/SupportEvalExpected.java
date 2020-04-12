@@ -8,21 +8,8 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.expression.core;
+package com.espertech.esper.regressionlib.support.expreval;
 
-import com.espertech.esper.common.client.EventBean;
-
-/**
- * Interface for evaluating of an event tuple.
- */
-public interface ExprEvaluator {
-    /**
-     * Evaluate event tuple and return result.
-     *
-     * @param eventsPerStream - event tuple
-     * @param isNewData       - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param context         context for expression evaluation
-     * @return evaluation result, a boolean value for OR/AND-type evalution nodes.
-     */
-    Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+public abstract class SupportEvalExpected {
+    public abstract void assertValue(String message, Object actual);
 }

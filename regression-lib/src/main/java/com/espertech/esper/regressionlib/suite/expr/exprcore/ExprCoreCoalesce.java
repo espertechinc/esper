@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -109,31 +110,26 @@ public class ExprCoreCoalesce {
 
     private static class ExprCoreCoalesceDouble implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select coalesce(null, byteBoxed, shortBoxed, intBoxed, longBoxed, floatBoxed, doubleBoxed) as result from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("result"));
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "coalesce(null, byteBoxed, shortBoxed, intBoxed, longBoxed, floatBoxed, doubleBoxed)")
+                .statementConsumer(stmt -> assertEquals(Double.class, stmt.getEventType().getPropertyType("c0")));
 
-            sendEventWithDouble(env, null, null, null, null, null, null);
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(makeEventWithDouble(env, null, null, null, null, null, null)).expect(fields, new Object[] {null});
 
-            sendEventWithDouble(env, null, Short.parseShort("2"), null, null, null, 1d);
-            assertEquals(2d, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(makeEventWithDouble(env, null, Short.parseShort("2"), null, null, null, 1d)).expect(fields, 2d);
 
-            sendEventWithDouble(env, null, null, null, null, null, 100d);
-            assertEquals(100d, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(makeEventWithDouble(env, null, null, null, null, null, 100d)).expect(fields, 100d);
 
-            sendEventWithDouble(env, null, null, null, null, 10f, 100d);
-            assertEquals(10d, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(makeEventWithDouble(env, null, null, null, null, 10f, 100d)).expect(fields, 10d);
 
-            sendEventWithDouble(env, null, null, 1, 5L, 10f, 100d);
-            assertEquals(1d, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(makeEventWithDouble(env, null, null, 1, 5L, 10f, 100d)).expect(fields, 1d);
 
-            sendEventWithDouble(env, Byte.parseByte("3"), null, null, null, null, null);
-            assertEquals(3d, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(makeEventWithDouble(env, Byte.parseByte("3"), null, null, null, null, null)).expect(fields, 3d);
 
-            sendEventWithDouble(env, null, null, null, 5L, 10f, 100d);
-            assertEquals(5d, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(makeEventWithDouble(env, null, null, null, 5L, 10f, 100d)).expect(fields, 5d);
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -154,13 +150,14 @@ public class ExprCoreCoalesce {
 
     private static class ExprCoreCoalesceNull implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select coalesce(null, null) as result from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
-            assertEquals(null, env.statement("s0").getEventType().getPropertyType("result"));
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "coalesce(null, null)")
+                .statementConsumer(stmt -> assertEquals(null, stmt.getEventType().getPropertyType("result")));
 
-            env.sendEventBean(new SupportBean());
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            builder.assertion(new SupportBean()).expect(fields, new Object[] {null});
 
+            builder.run(env);
             env.undeployAll();
         }
     }
@@ -203,7 +200,7 @@ public class ExprCoreCoalesce {
         env.sendEventBean(bean);
     }
 
-    private static void sendEventWithDouble(RegressionEnvironment env, Byte byteBoxed, Short shortBoxed, Integer intBoxed, Long longBoxed, Float floatBoxed, Double doubleBoxed) {
+    private static SupportBean makeEventWithDouble(RegressionEnvironment env, Byte byteBoxed, Short shortBoxed, Integer intBoxed, Long longBoxed, Float floatBoxed, Double doubleBoxed) {
         SupportBean bean = new SupportBean();
         bean.setByteBoxed(byteBoxed);
         bean.setShortBoxed(shortBoxed);
@@ -211,6 +208,6 @@ public class ExprCoreCoalesce {
         bean.setLongBoxed(longBoxed);
         bean.setFloatBoxed(floatBoxed);
         bean.setDoubleBoxed(doubleBoxed);
-        env.sendEventBean(bean);
+        return bean;
     }
 }

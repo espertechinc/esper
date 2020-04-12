@@ -39,8 +39,7 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object result = evaluateInternal(eventsPerStream, isNewData, exprEvaluatorContext);
-        return result;
+        return evaluateInternal(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     private Object evaluateInternal(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

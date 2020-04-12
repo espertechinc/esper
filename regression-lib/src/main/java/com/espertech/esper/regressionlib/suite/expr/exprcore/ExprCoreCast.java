@@ -22,6 +22,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.regressionlib.support.schedule.SupportDateTimeUtil;
 import com.espertech.esper.runtime.client.EPStatement;
 
@@ -177,77 +178,70 @@ public class ExprCoreCast {
     private static class ExprCoreCastSimpleMoreTypes implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7,c8".split(",");
-            String epl = "@Name('s0') select " +
-                "cast(intPrimitive, float) as c0," +
-                "cast(intPrimitive, short) as c1," +
-                "cast(intPrimitive, byte) as c2," +
-                "cast(theString, char) as c3," +
-                "cast(theString, boolean) as c4," +
-                "cast(intPrimitive, BigInteger) as c5," +
-                "cast(intPrimitive, BigDecimal) as c6," +
-                "cast(doublePrimitive, BigDecimal) as c7," +
-                "cast(theString, char) as c8" +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "cast(intPrimitive, float)")
+                .expression(fields[1], "cast(intPrimitive, short)")
+                .expression(fields[2], "cast(intPrimitive, byte)")
+                .expression(fields[3], "cast(theString, char)")
+                .expression(fields[4], "cast(theString, boolean)")
+                .expression(fields[5], "cast(intPrimitive, BigInteger)")
+                .expression(fields[6], "cast(intPrimitive, BigDecimal)")
+                .expression(fields[7], "cast(doublePrimitive, BigDecimal)")
+                .expression(fields[8], "cast(theString, char)");
 
-            assertTypes(env.statement("s0"), fields, Float.class, Short.class, Byte.class, Character.class, Boolean.class, BigInteger.class, BigDecimal.class, BigDecimal.class, Character.class);
+            builder.statementConsumer(stmt -> {
+                assertTypes(stmt, fields, Float.class, Short.class, Byte.class, Character.class, Boolean.class, BigInteger.class, BigDecimal.class, BigDecimal.class, Character.class);
+            });
 
             SupportBean bean = new SupportBean("true", 1);
             bean.setDoublePrimitive(1);
-            env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1.0f, (short) 1, (byte) 1, 't', true, BigInteger.valueOf(1), BigDecimal.valueOf(1), new BigDecimal(1d), 't'});
+            builder.assertion(bean).expect(fields, 1.0f, (short) 1, (byte) 1, 't', true, BigInteger.valueOf(1), BigDecimal.valueOf(1), new BigDecimal(1d), 't');
 
+            builder.run(env);
             env.undeployAll();
         }
     }
 
     private static class ExprCoreCastSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select cast(theString as string) as t0, " +
-                " cast(intBoxed, int) as t1, " +
-                " cast(floatBoxed, java.lang.Float) as t2, " +
-                " cast(theString, java.lang.String) as t3, " +
-                " cast(intPrimitive, java.lang.Integer) as t4, " +
-                " cast(intPrimitive, long) as t5, " +
-                " cast(intPrimitive, java.lang.Number) as t6, " +
-                " cast(floatBoxed, long) as t7 " +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "cast(theString as string)")
+                .expression(fields[1], "cast(intBoxed, int)")
+                .expression(fields[2], "cast(floatBoxed, java.lang.Float)")
+                .expression(fields[3], "cast(theString, java.lang.String)")
+                .expression(fields[4], "cast(intPrimitive, java.lang.Integer)")
+                .expression(fields[5], "cast(intPrimitive, long)")
+                .expression(fields[6], "cast(intPrimitive, java.lang.Number)")
+                .expression(fields[7], "cast(floatBoxed, long)");
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(String.class, type.getPropertyType("t0"));
-            assertEquals(Integer.class, type.getPropertyType("t1"));
-            assertEquals(Float.class, type.getPropertyType("t2"));
-            assertEquals(String.class, type.getPropertyType("t3"));
-            assertEquals(Integer.class, type.getPropertyType("t4"));
-            assertEquals(Long.class, type.getPropertyType("t5"));
-            assertEquals(Number.class, type.getPropertyType("t6"));
-            assertEquals(Long.class, type.getPropertyType("t7"));
+            builder.statementConsumer(stmt -> {
+                EventType type = stmt.getEventType();
+                assertEquals(String.class, type.getPropertyType("c0"));
+                assertEquals(Integer.class, type.getPropertyType("c1"));
+                assertEquals(Float.class, type.getPropertyType("c2"));
+                assertEquals(String.class, type.getPropertyType("c3"));
+                assertEquals(Integer.class, type.getPropertyType("c4"));
+                assertEquals(Long.class, type.getPropertyType("c5"));
+                assertEquals(Number.class, type.getPropertyType("c6"));
+                assertEquals(Long.class, type.getPropertyType("c7"));
+            });
 
             SupportBean bean = new SupportBean("abc", 100);
             bean.setFloatBoxed(9.5f);
             bean.setIntBoxed(3);
-            env.sendEventBean(bean);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{"abc", 3, 9.5f, "abc", 100, 100L, 100, 9L});
+            builder.assertion(bean).expect(fields, "abc", 3, 9.5f, "abc", 100, 100L, 100, 9L);
 
             bean = new SupportBean(null, 100);
             bean.setFloatBoxed(null);
             bean.setIntBoxed(null);
-            env.sendEventBean(bean);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{null, null, null, null, 100, 100L, 100, null});
-            bean = new SupportBean(null, 100);
-            bean.setFloatBoxed(null);
-            bean.setIntBoxed(null);
-            env.sendEventBean(bean);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{null, null, null, null, 100, 100L, 100, null});
+            builder.assertion(bean).expect(fields, null, null, null, null, 100, 100L, 100, null);
 
+            builder.run(env);
             env.undeployAll();
 
             // test cast with chained and null
-            epl = "@name('s0') select cast(one as " + SupportBean.class.getName() + ").getTheString() as t0," +
+            String epl = "@name('s0') select cast(one as " + SupportBean.class.getName() + ").getTheString() as t0," +
                 "cast(null, " + SupportBean.class.getName() + ") as t1" +
                 " from SupportBeanObject";
             env.compileDeploy(epl).addListener("s0");
@@ -307,7 +301,9 @@ public class ExprCoreCast {
 
             runAssertionDatetimeRenderOutCol(env, milestone);
 
-            runAssertionDynamicDateFormat(env, milestone);
+            runAssertionDynamicDateFormat(env);
+
+            runAssertionDynamicDateFormatJava8(env);
 
             runAssertionConstantDate(env, milestone);
 
@@ -455,22 +451,17 @@ public class ExprCoreCast {
     }
 
     private static void runAssertionDatetimeBaseTypes(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
-        String epl = "@name('s0') select " +
-            "cast(yyyymmdd,date,dateformat:\"yyyyMMdd\") as c0, " +
-            "cast(yyyymmdd,java.util.Date,dateformat:\"yyyyMMdd\") as c1, " +
-            "cast(yyyymmdd,long,dateformat:\"yyyyMMdd\") as c2, " +
-            "cast(yyyymmdd,java.lang.Long,dateformat:\"yyyyMMdd\") as c3, " +
-            "cast(yyyymmdd,calendar,dateformat:\"yyyyMMdd\") as c4, " +
-            "cast(yyyymmdd,java.util.Calendar,dateformat:\"yyyyMMdd\") as c5, " +
-            "cast(yyyymmdd,date,dateformat:\"yyyyMMdd\").get(\"month\") as c6, " +
-            "cast(yyyymmdd,calendar,dateformat:\"yyyyMMdd\").get(\"month\") as c7, " +
-            "cast(yyyymmdd,long,dateformat:\"yyyyMMdd\").get(\"month\") as c8 " +
-            "from MyDateType";
-        env.compileDeploy(soda, epl).addListener("s0").milestoneInc(milestone);
-
-        Map<String, Object> values = new HashMap<>();
-        values.put("yyyymmdd", "20100510");
-        env.sendEventMap(values, "MyDateType");
+        String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7,c8".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("MyDateType")
+            .expression(fields[0], "cast(yyyymmdd,date,dateformat:\"yyyyMMdd\")")
+            .expression(fields[1], "cast(yyyymmdd,java.util.Date,dateformat:\"yyyyMMdd\")")
+            .expression(fields[2], "cast(yyyymmdd,long,dateformat:\"yyyyMMdd\")")
+            .expression(fields[3], "cast(yyyymmdd,java.lang.Long,dateformat:\"yyyyMMdd\")")
+            .expression(fields[4], "cast(yyyymmdd,calendar,dateformat:\"yyyyMMdd\")")
+            .expression(fields[5], "cast(yyyymmdd,java.util.Calendar,dateformat:\"yyyyMMdd\")")
+            .expression(fields[6], "cast(yyyymmdd,date,dateformat:\"yyyyMMdd\").get(\"month\")")
+            .expression(fields[7], "cast(yyyymmdd,calendar,dateformat:\"yyyyMMdd\").get(\"month\")")
+            .expression(fields[8], "cast(yyyymmdd,long,dateformat:\"yyyyMMdd\").get(\"month\")");
 
         SimpleDateFormat formatYYYYMMdd = new SimpleDateFormat("yyyyMMdd");
         Date dateYYMMddDate = null;
@@ -481,25 +472,27 @@ public class ExprCoreCast {
         }
         Calendar calYYMMddDate = Calendar.getInstance();
         calYYMMddDate.setTime(dateYYMMddDate);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5,c6,c7,c8".split(","), new Object[]{
-            dateYYMMddDate, dateYYMMddDate, dateYYMMddDate.getTime(), dateYYMMddDate.getTime(),
-            calYYMMddDate, calYYMMddDate, 4, 4, 4});
 
+        Map<String, Object> values = new HashMap<>();
+        values.put("yyyymmdd", "20100510");
+        builder.assertion(values).expect(fields, dateYYMMddDate, dateYYMMddDate, dateYYMMddDate.getTime(), dateYYMMddDate.getTime(),
+            calYYMMddDate, calYYMMddDate, 4, 4, 4);
+
+        builder.run(env);
         env.undeployAll();
     }
 
     private static void runAssertionDatetimeJava8Types(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "@name('s0') select " +
-            "cast(yyyymmdd,localdate,dateformat:\"yyyyMMdd\") as c0, " +
-            "cast(yyyymmdd,java.time.LocalDate,dateformat:\"yyyyMMdd\") as c1, " +
-            "cast(yyyymmddhhmmss,localdatetime,dateformat:\"yyyyMMddHHmmss\") as c2, " +
-            "cast(yyyymmddhhmmss,java.time.LocalDateTime,dateformat:\"yyyyMMddHHmmss\") as c3, " +
-            "cast(hhmmss,localtime,dateformat:\"HHmmss\") as c4, " +
-            "cast(hhmmss,java.time.LocalTime,dateformat:\"HHmmss\") as c5, " +
-            "cast(yyyymmddhhmmssvv,zoneddatetime,dateformat:\"yyyyMMddHHmmssVV\") as c6, " +
-            "cast(yyyymmddhhmmssvv,java.time.ZonedDateTime,dateformat:\"yyyyMMddHHmmssVV\") as c7 " +
-            "from MyDateType";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
+        String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("MyDateType")
+            .expression(fields[0], "cast(yyyymmdd,localdate,dateformat:\"yyyyMMdd\")")
+            .expression(fields[1], "cast(yyyymmdd,java.time.LocalDate,dateformat:\"yyyyMMdd\")")
+            .expression(fields[2], "cast(yyyymmddhhmmss,localdatetime,dateformat:\"yyyyMMddHHmmss\")")
+            .expression(fields[3], "cast(yyyymmddhhmmss,java.time.LocalDateTime,dateformat:\"yyyyMMddHHmmss\")")
+            .expression(fields[4], "cast(hhmmss,localtime,dateformat:\"HHmmss\")")
+            .expression(fields[5], "cast(hhmmss,java.time.LocalTime,dateformat:\"HHmmss\")")
+            .expression(fields[6], "cast(yyyymmddhhmmssvv,zoneddatetime,dateformat:\"yyyyMMddHHmmssVV\")")
+            .expression(fields[7], "cast(yyyymmddhhmmssvv,java.time.ZonedDateTime,dateformat:\"yyyyMMddHHmmssVV\")");
 
         String yyyymmdd = "20100510";
         String yyyymmddhhmmss = "20100510141516";
@@ -510,36 +503,33 @@ public class ExprCoreCast {
         values.put("yyyymmddhhmmss", yyyymmddhhmmss);
         values.put("hhmmss", hhmmss);
         values.put("yyyymmddhhmmssvv", yyyymmddhhmmssvv);
-        env.sendEventMap(values, "MyDateType");
 
         LocalDate resultLocalDate = LocalDate.parse(yyyymmdd, DateTimeFormatter.ofPattern("yyyyMMdd"));
         LocalDateTime resultLocalDateTime = LocalDateTime.parse(yyyymmddhhmmss, DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         LocalTime resultLocalTime = LocalTime.parse(hhmmss, DateTimeFormatter.ofPattern("HHmmss"));
         ZonedDateTime resultZonedDateTime = ZonedDateTime.parse(yyyymmddhhmmssvv, DateTimeFormatter.ofPattern("yyyyMMddHHmmssVV"));
-
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5,c6,c7".split(","), new Object[]{
-            resultLocalDate, resultLocalDate,
+        builder.assertion(values).expect(fields, resultLocalDate, resultLocalDate,
             resultLocalDateTime, resultLocalDateTime,
             resultLocalTime, resultLocalTime,
-            resultZonedDateTime, resultZonedDateTime});
+            resultZonedDateTime, resultZonedDateTime);
 
+        builder.run(env);
         env.undeployAll();
     }
 
-    private static void runAssertionDynamicDateFormat(RegressionEnvironment env, AtomicInteger milestone) {
+    private static void runAssertionDynamicDateFormat(RegressionEnvironment env) {
 
-        // try legacy date types
-        String epl = "@name('s0') select " +
-            "cast(a,date,dateformat:b) as c0," +
-            "cast(a,long,dateformat:b) as c1," +
-            "cast(a,calendar,dateformat:b) as c2" +
-            " from SupportBean_StringAlphabetic";
+        String[] fields = "c0,c1,c2".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_StringAlphabetic")
+            .expression(fields[0], "cast(a,date,dateformat:b)")
+            .expression(fields[1], "cast(a,long,dateformat:b)")
+            .expression(fields[2], "cast(a,calendar,dateformat:b)");
 
-        env.compileDeploy(epl).addListener("s0").milestone(milestone.getAndIncrement());
+        assertDynamicDateFormat(builder, fields, "20100502", "yyyyMMdd");
+        assertDynamicDateFormat(builder, fields, "20100502101112", "yyyyMMddhhmmss");
+        assertDynamicDateFormat(builder, fields, null, "yyyyMMdd");
 
-        assertDynamicDateFormat(env, "20100502", "yyyyMMdd");
-        assertDynamicDateFormat(env, "20100502101112", "yyyyMMddhhmmss");
-        assertDynamicDateFormat(env, null, "yyyyMMdd");
+        builder.run(env);
 
         // invalid date
         try {
@@ -556,9 +546,10 @@ public class ExprCoreCast {
         }
 
         env.undeployAll();
+    }
 
-        // try java 8 types
-        epl = "create schema ValuesAndFormats(" +
+    private static void runAssertionDynamicDateFormatJava8(RegressionEnvironment env) {
+        String epl = "create schema ValuesAndFormats(" +
             "ldt string, ldtf string," +
             "ld string, ldf string," +
             "lt string, ltf string," +
@@ -566,12 +557,13 @@ public class ExprCoreCast {
         RegressionPath path = new RegressionPath();
         env.compileDeployWBusPublicType(epl, path);
 
-        String eplExtended = "@name('s0') select " +
-            "cast(ldt,localdatetime,dateformat:ldtf) as c0," +
-            "cast(ld,localdate,dateformat:ldf) as c1," +
-            "cast(lt,localtime,dateformat:ltf) as c2," +
-            "cast(zdt,zoneddatetime,dateformat:zdtf) as c3 " +
-            " from ValuesAndFormats";
+        String[] fields = "c0,c1,c2,c3".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("ValuesAndFormats").withPath(path)
+            .expression(fields[0], "cast(ldt,localdatetime,dateformat:ldtf)")
+            .expression(fields[1], "cast(ld,localdate,dateformat:ldf)")
+            .expression(fields[2], "cast(lt,localtime,dateformat:ltf)")
+            .expression(fields[3], "cast(zdt,zoneddatetime,dateformat:zdtf)");
+
         Map<String, Object> event = new HashMap<>();
         event.put("ldtf", "yyyyMMddHHmmss");
         event.put("ldt", "19990102030405");
@@ -581,14 +573,14 @@ public class ExprCoreCast {
         event.put("lt", "030405");
         event.put("zdtf", "yyyyMMddHHmmssVV");
         event.put("zdt", "20100510141516America/Los_Angeles");
-        env.compileDeploy(eplExtended, path).addListener("s0");
-        env.sendEventMap(event, "ValuesAndFormats");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[]{
+        builder.assertion(event).expect(fields,
             LocalDateTime.parse("19990102030405", DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
             LocalDate.parse("19990102", DateTimeFormatter.ofPattern("yyyyMMdd")),
             LocalTime.parse("030405", DateTimeFormatter.ofPattern("HHmmss")),
-            ZonedDateTime.parse("20100510141516America/Los_Angeles", DateTimeFormatter.ofPattern("yyyyMMddHHmmssVV")),
-        });
+            ZonedDateTime.parse("20100510141516America/Los_Angeles", DateTimeFormatter.ofPattern("yyyyMMddHHmmssVV"))
+        );
+
+        builder.run(env);
         env.undeployAll();
     }
 
@@ -599,8 +591,7 @@ public class ExprCoreCast {
         env.undeployAll();
     }
 
-    private static void assertDynamicDateFormat(RegressionEnvironment env, String date, String format) {
-        env.sendEventBean(new SupportBean_StringAlphabetic(date, format));
+    private static void assertDynamicDateFormat(SupportEvalBuilder builder, String[] fields, String date, String format) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         Date expectedDate = null;
@@ -616,13 +607,14 @@ public class ExprCoreCast {
             cal.setTime(expectedDate);
             theLong = expectedDate.getTime();
         }
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2".split(","),
-            new Object[]{expectedDate, theLong, cal});
+
+        builder.assertion(new SupportBean_StringAlphabetic(date, format)).expect(fields, expectedDate, theLong, cal);
     }
 
     private static void runAssertionConstantDate(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "@name('s0') select cast('20030201',date,dateformat:\"yyyyMMdd\") as c0 from SupportBean";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
+        String[] fields = "c0".split(",");
+        SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+            .expressions(fields, "cast('20030201',date,dateformat:\"yyyyMMdd\")");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         Date expectedDate = null;
@@ -631,9 +623,9 @@ public class ExprCoreCast {
         } catch (ParseException e) {
             fail(e.getMessage());
         }
-        env.sendEventBean(new SupportBean("E1", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{expectedDate});
+        builder.assertion(new SupportBean("E1", 1)).expect(fields, expectedDate);
 
+        builder.run(env);
         env.undeployAll();
     }
 

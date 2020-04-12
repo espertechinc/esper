@@ -17,13 +17,14 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
-import junit.framework.TestCase;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ExprCoreBitWiseOperators {
@@ -60,7 +61,7 @@ public class ExprCoreBitWiseOperators {
             );
             model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getSimpleName())));
             model = SerializableObjectCopier.copyMayFail(model);
-            TestCase.assertEquals(EPL, model.toEPL());
+            assertEquals(EPL, model.toEPL());
 
             env.compileDeploy("@name('s0')  " + EPL).addListener("s0");
 
@@ -75,32 +76,52 @@ public class ExprCoreBitWiseOperators {
             env.compileDeploy("@name('s0') " + EPL).addListener("s0");
 
             EventType type = env.statement("s0").getEventType();
-            TestCase.assertEquals(Byte.class, type.getPropertyType("myFirstProperty"));
-            TestCase.assertEquals(Short.class, type.getPropertyType("mySecondProperty"));
-            TestCase.assertEquals(Integer.class, type.getPropertyType("myThirdProperty"));
-            TestCase.assertEquals(Long.class, type.getPropertyType("myFourthProperty"));
-            TestCase.assertEquals(Boolean.class, type.getPropertyType("myFifthProperty"));
+            assertEquals(Byte.class, type.getPropertyType("myFirstProperty"));
+            assertEquals(Short.class, type.getPropertyType("mySecondProperty"));
+            assertEquals(Integer.class, type.getPropertyType("myThirdProperty"));
+            assertEquals(Long.class, type.getPropertyType("myFourthProperty"));
+            assertEquals(Boolean.class, type.getPropertyType("myFifthProperty"));
 
             runBitWiseOperators(env);
 
             env.undeployAll();
+
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "bytePrimitive&byteBoxed");
+            builder.assertion(makeEventBB((byte) 1, (byte) 1)).expect(fields, (byte) 1);
+            builder.assertion(makeEventBB((byte) 1, null)).expect(fields, new Object[] {null});
+            builder.run(env);
+            env.undeployAll();
+        }
+
+        private SupportBean makeEventBB(byte bytePrimitive, Byte byteBoxed) {
+            SupportBean sb = new SupportBean();
+            sb.setBytePrimitive(bytePrimitive);
+            sb.setByteBoxed(byteBoxed);
+            return sb;
         }
     }
 
     private static void runBitWiseOperators(RegressionEnvironment env) {
-        sendEvent(env, FIRST_EVENT, new Byte(FIRST_EVENT), SECOND_EVENT, new Short(SECOND_EVENT),
-            FIRST_EVENT, new Integer(THIRD_EVENT), 3L, new Long(FOURTH_EVENT),
-            FITH_EVENT, new Boolean(FITH_EVENT));
+        SupportBean sb = makeEvent();
+        env.sendEventBean(sb);
 
         EventBean received = env.listener("s0").getAndResetLastNewData()[0];
-        TestCase.assertEquals((byte) 1, received.get("myFirstProperty"));
+        assertEquals((byte) 1, received.get("myFirstProperty"));
         assertTrue(((Short) (received.get("mySecondProperty")) & SECOND_EVENT) == SECOND_EVENT);
         assertTrue(((Integer) (received.get("myThirdProperty")) & FIRST_EVENT) == FIRST_EVENT);
-        TestCase.assertEquals(7L, received.get("myFourthProperty"));
-        TestCase.assertEquals(false, received.get("myFifthProperty"));
+        assertEquals(7L, received.get("myFourthProperty"));
+        assertEquals(false, received.get("myFifthProperty"));
     }
 
-    protected static void sendEvent(RegressionEnvironment env, byte bytePrimitive, Byte byteBoxed, short shortPrimitive, Short shortBoxed,
+    private static SupportBean makeEvent() {
+        return makeEvent(FIRST_EVENT, new Byte(FIRST_EVENT), SECOND_EVENT, new Short(SECOND_EVENT),
+            FIRST_EVENT, new Integer(THIRD_EVENT), 3L, new Long(FOURTH_EVENT),
+            FITH_EVENT, new Boolean(FITH_EVENT));
+    }
+
+    protected static SupportBean makeEvent(byte bytePrimitive, Byte byteBoxed, short shortPrimitive, Short shortBoxed,
                                     int intPrimitive, Integer intBoxed, long longPrimitive, Long longBoxed,
                                     boolean boolPrimitive, Boolean boolBoxed) {
         SupportBean bean = new SupportBean();
@@ -114,7 +135,7 @@ public class ExprCoreBitWiseOperators {
         bean.setLongBoxed(longBoxed);
         bean.setBoolPrimitive(boolPrimitive);
         bean.setBoolBoxed(boolBoxed);
-        env.sendEventBean(bean);
+        return bean;
     }
 
     private static final Logger log = LoggerFactory.getLogger(ExprCoreBitWiseOp.class);
