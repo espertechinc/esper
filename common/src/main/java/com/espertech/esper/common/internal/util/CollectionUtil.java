@@ -723,6 +723,11 @@ public class CollectionUtil {
         return events.toArray(new EventBean[events.size()]);
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param pairs of key-value
+     * @return map
+     */
     public static Map<String, Object> buildMap(Object... pairs) {
         if (pairs.length % 2 != 0) {
             throw new IllegalArgumentException("Requires even number of args");

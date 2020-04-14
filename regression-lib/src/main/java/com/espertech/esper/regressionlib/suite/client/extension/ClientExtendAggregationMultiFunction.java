@@ -281,7 +281,7 @@ public class ClientExtendAggregationMultiFunction {
             assertEquals(i == 0 ? "se1" : "se2", contextValid.getFunctionName());
             assertNotNull(contextValid.getParameterExpressions());
             assertNotNull(contextValid.getAllParameterExpressions());
-            assertNotNull(contextValid.getConfig());
+            assertEquals("someinfovalue", contextValid.getConfig().getAdditionalConfiguredProperties().get("someinfokey"));
             assertNotNull(contextValid.getEventTypes());
             assertNotNull(contextValid.getValidationContext());
             assertNotNull(contextValid.getStatementName());

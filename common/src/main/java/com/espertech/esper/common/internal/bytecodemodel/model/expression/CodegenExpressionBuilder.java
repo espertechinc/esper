@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenField;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -96,6 +97,20 @@ public class CodegenExpressionBuilder {
 
     public static CodegenExpression constant(Object constant) {
         return new CodegenExpressionConstant(constant);
+    }
+
+    public static CodegenExpression mapOfConstant(Map<String, Object> constants) {
+        if (constants == null) {
+            return constantNull();
+        }
+        CodegenExpression[] expressions = new CodegenExpression[constants.size() * 2];
+        int count = 0;
+        for (Map.Entry<String, Object> entry : constants.entrySet()) {
+            expressions[count] = constant(entry.getKey());
+            expressions[count+1] = constant(entry.getValue());
+            count+=2;
+        }
+        return staticMethod(CollectionUtil.class, "buildMap", expressions);
     }
 
     public static CodegenExpressionField field(CodegenField field) {

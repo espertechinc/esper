@@ -41,4 +41,8 @@ public class CodegenExpressionConstant implements CodegenExpression {
 
     public void traverseExpressions(Consumer<CodegenExpression> consumer) {
     }
+
+    public static void mergeClassConstant(Object entryValue, Object value) {
+
+    }
 }

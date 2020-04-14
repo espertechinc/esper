@@ -55,7 +55,7 @@ public class ExprPlugInMultiFunctionAggNode extends ExprAggregateNodeBase implem
         // validate using the context provided by the 'outside' streams to determine parameters
         // at this time 'inside' expressions like 'window(intPrimitive)' are not handled
         ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, this.getChildNodes(), validationContext);
-        AggregationMultiFunctionValidationContext ctx = new AggregationMultiFunctionValidationContext(functionName, validationContext.getStreamTypeService().getEventTypes(), positionalParams, validationContext.getStatementName(), validationContext, config, null, getChildNodes(), optionalFilter);
+        AggregationMultiFunctionValidationContext ctx = new AggregationMultiFunctionValidationContext(functionName, validationContext.getStreamTypeService().getEventTypes(), positionalParams, validationContext.getStatementName(), validationContext, config, getChildNodes(), optionalFilter);
         AggregationMultiFunctionHandler handlerPlugin = aggregationMultiFunctionForge.validateGetHandler(ctx);
         factory = new AggregationForgeFactoryAccessPlugin(this, handlerPlugin);
         return factory;

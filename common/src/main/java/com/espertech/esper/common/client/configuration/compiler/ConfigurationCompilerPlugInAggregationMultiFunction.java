@@ -10,8 +10,12 @@
  */
 package com.espertech.esper.common.client.configuration.compiler;
 
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+
 import java.io.Serializable;
 import java.util.Map;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Configuration information for plugging in a custom aggregation multi-function.
@@ -91,5 +95,11 @@ public class ConfigurationCompilerPlugInAggregationMultiFunction implements Seri
      */
     public void setAdditionalConfiguredProperties(Map<String, Object> additionalConfiguredProperties) {
         this.additionalConfiguredProperties = additionalConfiguredProperties;
+    }
+
+    public CodegenExpression toExpression() {
+        return newInstance(ConfigurationCompilerPlugInAggregationMultiFunction.class,
+                constant(functionNames), constant(multiFunctionForgeClassName),
+                mapOfConstant(additionalConfiguredProperties));
     }
 }

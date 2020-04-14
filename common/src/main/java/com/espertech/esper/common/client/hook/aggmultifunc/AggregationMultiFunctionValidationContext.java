@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.configuration.compiler.ConfigurationCom
 import com.espertech.esper.common.internal.epl.expression.core.ExprNamedParameterNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -36,31 +35,27 @@ public class AggregationMultiFunctionValidationContext {
     private final String statementName;
     private final ExprValidationContext validationContext;
     private final ConfigurationCompilerPlugInAggregationMultiFunction config;
-    private final TableMetadataColumnAggregation optionalTableColumnRead;
     private final ExprNode[] allParameterExpressions;
     private final ExprNode optionalFilterExpression;
 
     /**
      * Ctor.
-     *
-     * @param functionName             function name
+     *  @param functionName             function name
      * @param eventTypes               event types
      * @param parameterExpressions     expressions
      * @param statementName            statement name
      * @param validationContext        validation context
      * @param config                   configuration
-     * @param optionalTableColumnRead  optional table column name
      * @param allParameterExpressions  all parameters
      * @param optionalFilterExpression optional filter parameter
      */
-    public AggregationMultiFunctionValidationContext(String functionName, EventType[] eventTypes, ExprNode[] parameterExpressions, String statementName, ExprValidationContext validationContext, ConfigurationCompilerPlugInAggregationMultiFunction config, TableMetadataColumnAggregation optionalTableColumnRead, ExprNode[] allParameterExpressions, ExprNode optionalFilterExpression) {
+    public AggregationMultiFunctionValidationContext(String functionName, EventType[] eventTypes, ExprNode[] parameterExpressions, String statementName, ExprValidationContext validationContext, ConfigurationCompilerPlugInAggregationMultiFunction config, ExprNode[] allParameterExpressions, ExprNode optionalFilterExpression) {
         this.functionName = functionName;
         this.eventTypes = eventTypes;
         this.parameterExpressions = parameterExpressions;
         this.statementName = statementName;
         this.validationContext = validationContext;
         this.config = config;
-        this.optionalTableColumnRead = optionalTableColumnRead;
         this.allParameterExpressions = allParameterExpressions;
         this.optionalFilterExpression = optionalFilterExpression;
     }
@@ -136,15 +131,6 @@ public class AggregationMultiFunctionValidationContext {
      */
     public ExprNode getOptionalFilterExpression() {
         return optionalFilterExpression;
-    }
-
-    /**
-     * Returns table column information when used with tables
-     *
-     * @return table column
-     */
-    public TableMetadataColumnAggregation getOptionalTableColumnRead() {
-        return optionalTableColumnRead;
     }
 
     /**

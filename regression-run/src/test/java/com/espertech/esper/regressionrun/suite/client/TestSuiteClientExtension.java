@@ -35,6 +35,7 @@ import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -160,6 +161,7 @@ public class TestSuiteClientExtension extends TestCase {
         configurationCompiler.addPlugInAggregationFunctionForge("nonExistAggFuncForge", "com.NoSuchClass");
 
         ConfigurationCompilerPlugInAggregationMultiFunction configGeneral = new ConfigurationCompilerPlugInAggregationMultiFunction("ss,sa,sc,se1,se2,ee".split(","), SupportAggMFMultiRTForge.class.getName());
+        configGeneral.setAdditionalConfiguredProperties(Collections.singletonMap("someinfokey", "someinfovalue"));
         configurationCompiler.addPlugInAggregationMultiFunction(configGeneral);
         ConfigurationCompilerPlugInAggregationMultiFunction codegenTestAccum = new ConfigurationCompilerPlugInAggregationMultiFunction("collectEvents".split(","), SupportAggMFEventsAsListForge.class.getName());
         configurationCompiler.addPlugInAggregationMultiFunction(codegenTestAccum);

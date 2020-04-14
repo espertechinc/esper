@@ -30,6 +30,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class AggregationPortableValidationPluginMultiFunc implements AggregationPortableValidation {
     private String aggregationFunctionName;
+    private ConfigurationCompilerPlugInAggregationMultiFunction config;
     private AggregationMultiFunctionHandler handler;
 
     public void validateIntoTableCompatible(String tableExpression, AggregationPortableValidation intoTableAgg, String intoExpression, AggregationForgeFactory factory) throws ExprValidationException {
@@ -41,21 +42,20 @@ public class AggregationPortableValidationPluginMultiFunc implements Aggregation
         method.getBlock()
                 .declareVar(AggregationPortableValidationPluginMultiFunc.class, "portable", newInstance(AggregationPortableValidationPluginMultiFunc.class))
                 .exprDotMethod(ref("portable"), "setAggregationFunctionName", constant(aggregationFunctionName))
+                .exprDotMethod(ref("portable"), "setConfig", config == null ? constantNull() : config.toExpression())
                 .methodReturn(ref("portable"));
         return localMethod(method);
     }
 
     public boolean isAggregationMethod(String name, ExprNode[] parameters, ExprValidationContext validationContext) {
-        // reconstitute handler, the handler is null when the table was not declared in the same EPL and comes from path
-        if (handler == null) {
-            ConfigurationCompilerPlugInAggregationMultiFunction config = validationContext.getClasspathImportService().resolveAggregationMultiFunction(aggregationFunctionName);
-            if (config == null) {
-                return false;
-            }
-            AggregationMultiFunctionForge forge = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, config.getMultiFunctionForgeClassName(), validationContext.getClasspathImportService().getClassForNameProvider());
-            AggregationMultiFunctionValidationContext ctx = new AggregationMultiFunctionValidationContext(name, validationContext.getStreamTypeService().getEventTypes(), parameters, validationContext.getStatementName(), validationContext, config, null, null, null);
-            handler = forge.validateGetHandler(ctx);
+        // always obtain a new handler since the name may have changes
+        ConfigurationCompilerPlugInAggregationMultiFunction config = validationContext.getClasspathImportService().resolveAggregationMultiFunction(aggregationFunctionName);
+        if (config == null) {
+            return false;
         }
+        AggregationMultiFunctionForge forge = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, config.getMultiFunctionForgeClassName(), validationContext.getClasspathImportService().getClassForNameProvider());
+        AggregationMultiFunctionValidationContext ctx = new AggregationMultiFunctionValidationContext(name, validationContext.getStreamTypeService().getEventTypes(), parameters, validationContext.getStatementName(), validationContext, config, parameters, null);
+        handler = forge.validateGetHandler(ctx);
         return handler.getAggregationMethodMode(new AggregationMultiFunctionAggregationMethodContext(name, parameters, validationContext)) != null;
     }
 
@@ -87,5 +87,13 @@ public class AggregationPortableValidationPluginMultiFunc implements Aggregation
 
     public void setHandler(AggregationMultiFunctionHandler handler) {
         this.handler = handler;
+    }
+
+    public ConfigurationCompilerPlugInAggregationMultiFunction getConfig() {
+        return config;
+    }
+
+    public void setConfig(ConfigurationCompilerPlugInAggregationMultiFunction config) {
+        this.config = config;
     }
 }
