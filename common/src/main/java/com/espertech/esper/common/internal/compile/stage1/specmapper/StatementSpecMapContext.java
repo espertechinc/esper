@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.compile.stage1.specmapper;
 
 import com.espertech.esper.common.client.configuration.Configuration;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
@@ -41,13 +41,13 @@ public class StatementSpecMapContext {
     private Set<String> variableNames;
     private Map<String, ExpressionDeclItem> expressionDeclarations;
     private List<ExpressionScriptProvided> scripts;
-    private LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations;
+    private LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> plugInAggregations;
     private Set<ExprTableAccessNode> tableNodes = new HashSet<ExprTableAccessNode>(1);
     private List<ExprSubstitutionNode> substitutionNodes = new ArrayList<>();
 
     public StatementSpecMapContext(ContextCompileTimeDescriptor contextCompileTimeDescriptor,
                                    StatementSpecMapEnv mapEnv,
-                                   LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+                                   LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> plugInAggregations,
                                    List<ExpressionScriptProvided> scriptExpressions) {
         this.variableNames = new HashSet<>();
         this.mapEnv = mapEnv;
@@ -126,7 +126,7 @@ public class StatementSpecMapContext {
         return mapEnv.getTableCompileTimeResolver();
     }
 
-    public LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> getPlugInAggregations() {
+    public LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> getPlugInAggregations() {
         return plugInAggregations;
     }
 

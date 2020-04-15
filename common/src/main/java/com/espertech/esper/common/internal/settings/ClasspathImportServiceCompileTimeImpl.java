@@ -350,12 +350,19 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
         aggregationFunctions.put(functionName.toLowerCase(Locale.ENGLISH), aggregationDesc);
     }
 
-    public ConfigurationCompilerPlugInAggregationMultiFunction resolveAggregationMultiFunction(String name) {
+    public Pair<ConfigurationCompilerPlugInAggregationMultiFunction, Class> resolveAggregationMultiFunction(String name, ClasspathExtensionAggregationMultiFunction extension) {
         for (Pair<Set<String>, ConfigurationCompilerPlugInAggregationMultiFunction> config : aggregationAccess) {
             if (config.getFirst().contains(name.toLowerCase(Locale.ENGLISH))) {
-                return config.getSecond();
+                return new Pair<>(config.getSecond(), null);
             }
         }
+
+        Pair<Class, String[]> inlined = extension.resolveAggregationMultiFunction(name);
+        if (inlined != null) {
+            ConfigurationCompilerPlugInAggregationMultiFunction config = new ConfigurationCompilerPlugInAggregationMultiFunction(inlined.getSecond(), inlined.getFirst().getName());
+            return new Pair<>(config, inlined.getFirst());
+        }
+
         return null;
     }
 

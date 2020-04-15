@@ -37,7 +37,7 @@ public interface AggregationMultiFunctionAccessor {
      * @param exprEvaluatorContext eval context
      * @return return value
      */
-    public Object getValue(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    Object getValue(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Return the aggregation state value consisting of a collection of events.
@@ -48,7 +48,9 @@ public interface AggregationMultiFunctionAccessor {
      * @param exprEvaluatorContext eval context
      * @return return collection of events or null or empty collection
      */
-    public Collection<EventBean> getEnumerableEvents(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    default Collection<EventBean> getEnumerableEvents(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return null;
+    }
 
     /**
      * Return the aggregation state value consisting of a single event.
@@ -59,7 +61,9 @@ public interface AggregationMultiFunctionAccessor {
      * @param exprEvaluatorContext eval context
      * @return return event or null
      */
-    public EventBean getEnumerableEvent(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    default EventBean getEnumerableEvent(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return null;
+    }
 
     /**
      * Return the aggregation state value consisting of a collection of scalar values.
@@ -70,5 +74,7 @@ public interface AggregationMultiFunctionAccessor {
      * @param exprEvaluatorContext eval context
      * @return return collection of scalar or null or empty collection
      */
-    public Collection<Object> getEnumerableScalar(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    default Collection<Object> getEnumerableScalar(AggregationMultiFunctionState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return null;
+    }
 }

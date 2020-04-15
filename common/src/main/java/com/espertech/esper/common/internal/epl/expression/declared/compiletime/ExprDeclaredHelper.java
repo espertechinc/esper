@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
 import com.espertech.esper.common.client.soda.Expression;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
@@ -34,7 +34,7 @@ public class ExprDeclaredHelper {
                                                                                             Collection<ExpressionDeclItem> stmtLocalExpressions,
                                                                                             ContextCompileTimeDescriptor contextCompileTimeDescriptor,
                                                                                             StatementSpecMapEnv mapEnv,
-                                                                                            LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+                                                                                            LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> plugInAggregations,
                                                                                             List<ExpressionScriptProvided> scripts) {
         // Find among local expressions
         if (!stmtLocalExpressions.isEmpty()) {
@@ -62,7 +62,7 @@ public class ExprDeclaredHelper {
         return null;
     }
 
-    private static Pair<ExprNode, StatementSpecMapContext> getExprDeclaredNode(Expression expression, Collection<ExpressionDeclItem> stmtLocalExpressions, ContextCompileTimeDescriptor contextCompileTimeDescriptor, StatementSpecMapEnv mapEnv, LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations, List<ExpressionScriptProvided> scripts) {
+    private static Pair<ExprNode, StatementSpecMapContext> getExprDeclaredNode(Expression expression, Collection<ExpressionDeclItem> stmtLocalExpressions, ContextCompileTimeDescriptor contextCompileTimeDescriptor, StatementSpecMapEnv mapEnv, LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> plugInAggregations, List<ExpressionScriptProvided> scripts) {
         StatementSpecMapContext mapContext = new StatementSpecMapContext(contextCompileTimeDescriptor, mapEnv, plugInAggregations, scripts);
         for (ExpressionDeclItem item : stmtLocalExpressions) {
             mapContext.addExpressionDeclaration(item);

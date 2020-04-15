@@ -78,6 +78,10 @@ public class TestSuiteClientExtension extends TestCase {
         RegressionRunner.run(session, ClientExtendAggregationMultiFunction.executions());
     }
 
+    public void testClientExtendAggregationMultiFunctionInlinedClass() {
+        RegressionRunner.run(session, ClientExtendAggregationMultiFunctionInlinedClass.executions());
+    }
+
     public void testClientExtendView() {
         RegressionRunner.run(session, new ClientExtendView());
     }
@@ -165,6 +169,9 @@ public class TestSuiteClientExtension extends TestCase {
         configurationCompiler.addPlugInAggregationMultiFunction(configGeneral);
         ConfigurationCompilerPlugInAggregationMultiFunction codegenTestAccum = new ConfigurationCompilerPlugInAggregationMultiFunction("collectEvents".split(","), SupportAggMFEventsAsListForge.class.getName());
         configurationCompiler.addPlugInAggregationMultiFunction(codegenTestAccum);
+        // For use with the inlined-class example when disabled, comment-in when needed:
+        // ConfigurationCompilerPlugInAggregationMultiFunction codegenTestTrie = new ConfigurationCompilerPlugInAggregationMultiFunction("".split(","), ClientExtendAggregationMultiFunctionInlinedClass.TrieAggForge.class.getName());
+        // configurationCompiler.addPlugInAggregationMultiFunction(codegenTestTrie);
 
         configuration.getCompiler().addPlugInView("mynamespace", "flushedsimple", MyFlushedSimpleViewForge.class.getName());
         configuration.getCompiler().addPlugInView("mynamespace", "invalid", String.class.getName());

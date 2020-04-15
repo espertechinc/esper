@@ -34,6 +34,10 @@ public class ClassProvidedCompileTimeResolverEmpty implements ClassProvidedCompi
         return null;
     }
 
+    public Pair<Class, String[]> resolveAggregationMultiFunction(String name) {
+        return null;
+    }
+
     public boolean isEmpty() {
         return true;
     }

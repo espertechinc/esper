@@ -11,9 +11,9 @@
 package com.espertech.esper.compiler.internal.parse;
 
 import com.espertech.esper.common.client.EPException;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
 import com.espertech.esper.common.client.soda.GuardEnum;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
@@ -120,7 +120,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     private Map<StatementSpecRaw, OnTriggerSplitStreamFromClause> onTriggerSplitPropertyEvals;
 
-    private LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations = new LazyAllocatedMap<>();
+    private LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> plugInAggregations = new LazyAllocatedMap<>();
 
     private FilterSpecRaw filterSpec;
     private List<ViewSpec> viewSpecs = new LinkedList<>();

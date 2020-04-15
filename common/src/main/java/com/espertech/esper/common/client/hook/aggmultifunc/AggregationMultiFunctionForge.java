@@ -62,7 +62,7 @@ public interface AggregationMultiFunctionForge {
      *
      * @param declarationContext context
      */
-    public void addAggregationFunction(AggregationMultiFunctionDeclarationContext declarationContext);
+    default void addAggregationFunction(AggregationMultiFunctionDeclarationContext declarationContext) {}
 
     /**
      * Called for each instance of use of any of the aggregation functions at validation time

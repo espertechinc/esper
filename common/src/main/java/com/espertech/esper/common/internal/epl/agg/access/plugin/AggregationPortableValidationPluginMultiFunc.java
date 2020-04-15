@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
@@ -32,6 +33,7 @@ public class AggregationPortableValidationPluginMultiFunc implements Aggregation
     private String aggregationFunctionName;
     private ConfigurationCompilerPlugInAggregationMultiFunction config;
     private AggregationMultiFunctionHandler handler;
+    private boolean parametersValidated;
 
     public void validateIntoTableCompatible(String tableExpression, AggregationPortableValidation intoTableAgg, String intoExpression, AggregationForgeFactory factory) throws ExprValidationException {
         AggregationValidationUtil.validateAggregationType(this, tableExpression, intoTableAgg, intoExpression);
@@ -40,28 +42,35 @@ public class AggregationPortableValidationPluginMultiFunc implements Aggregation
     public CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(AggregationPortableValidationPluginMultiFunc.class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AggregationPortableValidationPluginMultiFunc.class, "portable", newInstance(AggregationPortableValidationPluginMultiFunc.class))
-                .exprDotMethod(ref("portable"), "setAggregationFunctionName", constant(aggregationFunctionName))
-                .exprDotMethod(ref("portable"), "setConfig", config == null ? constantNull() : config.toExpression())
-                .methodReturn(ref("portable"));
+            .declareVar(AggregationPortableValidationPluginMultiFunc.class, "portable", newInstance(AggregationPortableValidationPluginMultiFunc.class))
+            .exprDotMethod(ref("portable"), "setAggregationFunctionName", constant(aggregationFunctionName))
+            .exprDotMethod(ref("portable"), "setConfig", config == null ? constantNull() : config.toExpression())
+            .methodReturn(ref("portable"));
         return localMethod(method);
     }
 
-    public boolean isAggregationMethod(String name, ExprNode[] parameters, ExprValidationContext validationContext) {
+    public boolean isAggregationMethod(String name, ExprNode[] parameters, ExprValidationContext validationContext) throws ExprValidationException {
         // always obtain a new handler since the name may have changes
-        ConfigurationCompilerPlugInAggregationMultiFunction config = validationContext.getClasspathImportService().resolveAggregationMultiFunction(aggregationFunctionName);
-        if (config == null) {
+        Pair<ConfigurationCompilerPlugInAggregationMultiFunction, Class> configPair = validationContext.getClasspathImportService().resolveAggregationMultiFunction(aggregationFunctionName, validationContext.getClassProvidedClasspathExtension());
+        if (configPair == null) {
             return false;
         }
-        AggregationMultiFunctionForge forge = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, config.getMultiFunctionForgeClassName(), validationContext.getClasspathImportService().getClassForNameProvider());
+        AggregationMultiFunctionForge forge;
+        if (configPair.getSecond() != null) {
+            forge = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, configPair.getSecond());
+        } else {
+            forge = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, configPair.getFirst().getMultiFunctionForgeClassName(), validationContext.getClasspathImportService().getClassForNameProvider());
+        }
+
+        validateParamsUnless(validationContext, parameters);
+
         AggregationMultiFunctionValidationContext ctx = new AggregationMultiFunctionValidationContext(name, validationContext.getStreamTypeService().getEventTypes(), parameters, validationContext.getStatementName(), validationContext, config, parameters, null);
         handler = forge.validateGetHandler(ctx);
         return handler.getAggregationMethodMode(new AggregationMultiFunctionAggregationMethodContext(name, parameters, validationContext)) != null;
     }
 
     public AggregationMultiFunctionMethodDesc validateAggregationMethod(ExprValidationContext validationContext, String aggMethodName, ExprNode[] params) throws ExprValidationException {
-        // child node validation
-        ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, params, validationContext);
+        validateParamsUnless(validationContext, params);
 
         // set of reader
         EPType epType = handler.getReturnType();
@@ -95,5 +104,13 @@ public class AggregationPortableValidationPluginMultiFunc implements Aggregation
 
     public void setConfig(ConfigurationCompilerPlugInAggregationMultiFunction config) {
         this.config = config;
+    }
+
+    private void validateParamsUnless(ExprValidationContext validationContext, ExprNode[] parameters) throws ExprValidationException {
+        if (parametersValidated) {
+            return;
+        }
+        ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, parameters, validationContext);
+        parametersValidated = true;
     }
 }

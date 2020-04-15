@@ -31,7 +31,7 @@ public interface ClasspathImportServiceCompileTime extends ClasspathImportServic
     Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType) throws ClasspathImportException;
     Class resolveEnumMethod(String name) throws ClasspathImportException;
     AggregationFunctionForge resolveAggregationFunction(String functionName, ClasspathExtensionAggregationFunction extension) throws ClasspathImportUndefinedException, ClasspathImportException;
-    ConfigurationCompilerPlugInAggregationMultiFunction resolveAggregationMultiFunction(String name);
+    Pair<ConfigurationCompilerPlugInAggregationMultiFunction, Class> resolveAggregationMultiFunction(String name, ClasspathExtensionAggregationMultiFunction classpathExtensionAggregationMultiFunction);
     ExprNode resolveAggExtendedBuiltin(String name, boolean isDistinct);
     Class resolveDateTimeMethod(String name) throws ClasspathImportException;
     ExprNode resolveSingleRowExtendedBuiltin(String name);

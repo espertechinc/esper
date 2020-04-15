@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.classprovided.compiletime;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.hook.aggfunc.ExtensionAggregationFunction;
+import com.espertech.esper.common.client.hook.aggmultifunc.ExtensionAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.singlerowfunc.ExtensionSingleRowFunction;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -25,10 +26,7 @@ import com.espertech.esper.common.internal.epl.util.CompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -72,13 +70,26 @@ public class ClassProvidedCompileTimeResolverImpl implements ClassProvidedCompil
     }
 
     public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) {
-        Pair<Class, ExtensionSingleRowFunction> pair = resolveFromLocalAndPath(name, locals, path, ExtensionSingleRowFunction.class, "single-row function", moduleUses, moduleDependencies, anno -> anno.name());
+        Pair<Class, ExtensionSingleRowFunction> pair = resolveFromLocalAndPath(name, locals, path, ExtensionSingleRowFunction.class, "single-row function", moduleUses, moduleDependencies, anno -> Collections.singleton(anno.name()));
         return pair == null ? null : new Pair<>(pair.getFirst(), new ClasspathImportSingleRowDesc(pair.getFirst(), pair.getSecond()));
     }
 
     public Class resolveAggregationFunction(String name) {
-        Pair<Class, ExtensionAggregationFunction> pair = resolveFromLocalAndPath(name, locals, path, ExtensionAggregationFunction.class, "aggregation function", moduleUses, moduleDependencies, anno -> anno.name());
+        Pair<Class, ExtensionAggregationFunction> pair = resolveFromLocalAndPath(name, locals, path, ExtensionAggregationFunction.class, "aggregation function", moduleUses, moduleDependencies, anno -> Collections.singleton(anno.name()));
         return pair == null ? null : pair.getFirst();
+    }
+
+    public Pair<Class, String[]> resolveAggregationMultiFunction(String name) {
+        Function<ExtensionAggregationMultiFunction, Set<String>> nameProvision = anno -> {
+            Set<String> names = new HashSet<>(2);
+            String[] split = anno.names().split(",");
+            for (String nameprovided : split) {
+                names.add(nameprovided.trim());
+            }
+            return names;
+        };
+        Pair<Class, ExtensionAggregationMultiFunction> pair = resolveFromLocalAndPath(name, locals, path, ExtensionAggregationMultiFunction.class, "aggregation multi-function", moduleUses, moduleDependencies, nameProvision);
+        return pair == null ? null : new Pair<>(pair.getFirst(), pair.getSecond().names().split(","));
     }
 
     public boolean isEmpty() {
@@ -98,33 +109,35 @@ public class ClassProvidedCompileTimeResolverImpl implements ClassProvidedCompil
         path.traverse(classProvidedByteCodeRemover);
     }
 
-    private static <T> Pair<Class, T> resolveFromLocalAndPath(String soughtName, ClassProvidedCompileTimeRegistry locals, PathRegistry<String, ClassProvided> path, Class<T> annotationType, String objectName, Set<String> moduleUses, ModuleDependenciesCompileTime moduleDependencies, Function<T, String> nameProvider) {
+    private static <T> Pair<Class, T> resolveFromLocalAndPath(String soughtName, ClassProvidedCompileTimeRegistry locals, PathRegistry<String, ClassProvided> path, Class<T> annotationType, String objectName, Set<String> moduleUses, ModuleDependenciesCompileTime moduleDependencies, Function<T, Set<String>> namesProvider) {
         if (locals.getClasses().isEmpty() && path.isEmpty()) {
             return null;
         }
 
         try {
             // try resolve from local
-            Pair<Class, T> localPair = resolveFromLocal(soughtName, locals, annotationType, objectName, nameProvider);
+            Pair<Class, T> localPair = resolveFromLocal(soughtName, locals, annotationType, objectName, namesProvider);
             if (localPair != null) {
                 return localPair;
             }
 
             // try resolve from path, using module-uses when necessary
-            return resolveFromPath(soughtName, path, annotationType, objectName, moduleUses, moduleDependencies, nameProvider);
+            return resolveFromPath(soughtName, path, annotationType, objectName, moduleUses, moduleDependencies, namesProvider);
         } catch (ExprValidationException ex) {
             throw new EPException(ex.getMessage(), ex);
         }
     }
 
-    private static <T> Pair<Class, T> resolveFromLocal(String soughtName, ClassProvidedCompileTimeRegistry locals, Class annotationType, String objectName, Function<T, String> nameProvider) throws ExprValidationException {
+    private static <T> Pair<Class, T> resolveFromLocal(String soughtName, ClassProvidedCompileTimeRegistry locals, Class annotationType, String objectName, Function<T, Set<String>> namesProvider) throws ExprValidationException {
         List<Pair<Class, T>> foundLocal = new ArrayList<>(2);
         for (Map.Entry<String, ClassProvided> entry : locals.getClasses().entrySet()) {
             JavaClassHelper.traverseAnnotations(entry.getValue().getClassesMayNull(), annotationType, (clazz, annotation) -> {
                 T t = (T) annotation;
-                String name = nameProvider.apply(t);
-                if (soughtName.equals(name)) {
-                    foundLocal.add(new Pair<>(clazz, t));
+                Set<String> names = namesProvider.apply(t);
+                for (String name : names) {
+                    if (soughtName.equals(name)) {
+                        foundLocal.add(new Pair<>(clazz, t));
+                    }
                 }
             });
         }
@@ -137,14 +150,16 @@ public class ClassProvidedCompileTimeResolverImpl implements ClassProvidedCompil
         return null;
     }
 
-    private static <T> Pair<Class, T> resolveFromPath(String soughtName, PathRegistry<String, ClassProvided> path, Class annotationType, String objectName, Set<String> moduleUses, ModuleDependenciesCompileTime moduleDependencies, Function<T, String> nameProvider) throws ExprValidationException {
+    private static <T> Pair<Class, T> resolveFromPath(String soughtName, PathRegistry<String, ClassProvided> path, Class annotationType, String objectName, Set<String> moduleUses, ModuleDependenciesCompileTime moduleDependencies, Function<T, Set<String>> namesProvider) throws ExprValidationException {
         List<PathFunc<T>> foundPath = new ArrayList<>(2);
         path.traverseWithModule((moduleName, classProvided) -> {
             JavaClassHelper.traverseAnnotations(classProvided.getClassesMayNull(), annotationType, (clazz, annotation) -> {
                 T t = (T) annotation;
-                String name = nameProvider.apply(t);
-                if (soughtName.equals(name)) {
-                    foundPath.add(new PathFunc<T>(moduleName, clazz, t));
+                Set<String> names = namesProvider.apply(t);
+                for (String name : names) {
+                    if (soughtName.equals(name)) {
+                        foundPath.add(new PathFunc<T>(moduleName, clazz, t));
+                    }
                 }
             });
         });

@@ -20,6 +20,13 @@ public class AggregationMultiFunctionStateModeManaged implements AggregationMult
     private boolean hasHA;
     private Class serde;
 
+    public AggregationMultiFunctionStateModeManaged(InjectionStrategy injectionStrategyAggregationStateFactory) {
+        this.injectionStrategyAggregationStateFactory = injectionStrategyAggregationStateFactory;
+    }
+
+    public AggregationMultiFunctionStateModeManaged() {
+    }
+
     /**
      * Returns the injection strategy for the aggregation state factory
      *

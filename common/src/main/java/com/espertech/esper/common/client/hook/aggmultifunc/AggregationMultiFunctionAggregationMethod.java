@@ -44,7 +44,9 @@ public interface AggregationMultiFunctionAggregationMethod {
      * @param exprEvaluatorContext evaluation context
      * @return collection of {@link EventBean}
      */
-    Collection getValueCollectionEvents(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    default Collection getValueCollectionEvents(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return null;
+    }
 
     /**
      * Return a collection of values or null when not available.
@@ -57,7 +59,9 @@ public interface AggregationMultiFunctionAggregationMethod {
      * @param exprEvaluatorContext evaluation context
      * @return collection of values
      */
-    Collection getValueCollectionScalar(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    default Collection getValueCollectionScalar(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return null;
+    }
 
     /**
      * Returns a single event or null when not available.
@@ -70,5 +74,7 @@ public interface AggregationMultiFunctionAggregationMethod {
      * @param exprEvaluatorContext evaluation context
      * @return event
      */
-    EventBean getValueEventBean(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    default EventBean getValueEventBean(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return null;
+    }
 }

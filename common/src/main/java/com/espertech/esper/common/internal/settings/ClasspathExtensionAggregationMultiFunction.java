@@ -8,27 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.classprovided.compiletime;
+package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
-import com.espertech.esper.common.internal.epl.util.CompileTimeResolver;
-import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 
-import java.util.Map;
-
-public interface ClassProvidedCompileTimeResolver extends CompileTimeResolver {
-    ClassProvided resolveClass(String name);
-
-    Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name);
-
-    Class resolveAggregationFunction(String name);
-
+public interface ClasspathExtensionAggregationMultiFunction {
     Pair<Class, String[]> resolveAggregationMultiFunction(String name);
-
-    boolean isEmpty();
-
-    void addTo(Map<String, byte[]> additionalClasses);
-
-    void removeFrom(Map<String, byte[]> moduleBytes);
 }

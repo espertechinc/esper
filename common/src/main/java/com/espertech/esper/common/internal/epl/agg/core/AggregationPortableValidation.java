@@ -22,7 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 public interface AggregationPortableValidation {
     void validateIntoTableCompatible(String tableExpression, AggregationPortableValidation intoTableAgg, String intoExpression, AggregationForgeFactory factory) throws ExprValidationException;
 
-    boolean isAggregationMethod(String name, ExprNode[] parameters, ExprValidationContext validationContext);
+    boolean isAggregationMethod(String name, ExprNode[] parameters, ExprValidationContext validationContext) throws ExprValidationException;
     AggregationMultiFunctionMethodDesc validateAggregationMethod(ExprValidationContext validationContext, String aggMethodName, ExprNode[] params) throws ExprValidationException;
 
     CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope);

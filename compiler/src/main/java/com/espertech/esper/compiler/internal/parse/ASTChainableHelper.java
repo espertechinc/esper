@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.compiler.internal.parse;
 
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.compile.stage1.spec.StatementSpecRaw;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ASTChainableHelper {
-    public static void processChainable(EsperEPL2GrammarParser.ChainableContext ctx, Map<Tree, ExprNode> astExprNodeMap, ContextCompileTimeDescriptor contextCompileTimeDescriptor, StatementSpecMapEnv mapEnv, StatementSpecRaw statementSpec, ExpressionDeclDesc expressionDeclarations, LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations, List<ExpressionScriptProvided> scriptExpressions) {
+    public static void processChainable(EsperEPL2GrammarParser.ChainableContext ctx, Map<Tree, ExprNode> astExprNodeMap, ContextCompileTimeDescriptor contextCompileTimeDescriptor, StatementSpecMapEnv mapEnv, StatementSpecRaw statementSpec, ExpressionDeclDesc expressionDeclarations, LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> plugInAggregations, List<ExpressionScriptProvided> scriptExpressions) {
         // we first convert the event property into chain spec
         List<Chainable> chain = ASTChainSpecHelper.getChainables(ctx, astExprNodeMap);
 

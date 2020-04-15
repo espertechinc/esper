@@ -107,8 +107,8 @@ public class CodegenExpressionBuilder {
         int count = 0;
         for (Map.Entry<String, Object> entry : constants.entrySet()) {
             expressions[count] = constant(entry.getKey());
-            expressions[count+1] = constant(entry.getValue());
-            count+=2;
+            expressions[count + 1] = constant(entry.getValue());
+            count += 2;
         }
         return staticMethod(CollectionUtil.class, "buildMap", expressions);
     }

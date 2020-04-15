@@ -14,10 +14,12 @@ import com.espertech.esper.common.client.configuration.compiler.ConfigurationCom
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionForge;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionDeclarationContext;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
+import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedClasspathExtension;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprPlugInMultiFunctionAggNode;
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprPlugInAggNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionAggregationFunction;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.ClasspathImportUndefinedException;
@@ -31,10 +33,10 @@ public class ASTAggregationHelper {
     public static ExprNode tryResolveAsAggregation(ClasspathImportServiceCompileTime classpathImportService,
                                                    boolean distinct,
                                                    String functionName,
-                                                   LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
-                                                   ClasspathExtensionAggregationFunction classpathExtensionAggregationFunction) {
+                                                   LazyAllocatedMap<HashableMultiKey, AggregationMultiFunctionForge> plugInAggregations,
+                                                   ClassProvidedClasspathExtension classProvidedClasspathExtension) {
         try {
-            AggregationFunctionForge aggregationFactory = classpathImportService.resolveAggregationFunction(functionName, classpathExtensionAggregationFunction);
+            AggregationFunctionForge aggregationFactory = classpathImportService.resolveAggregationFunction(functionName, classProvidedClasspathExtension);
             return new ExprPlugInAggNode(distinct, aggregationFactory, functionName);
         } catch (ClasspathImportUndefinedException e) {
             // Not an aggregation function
@@ -43,15 +45,20 @@ public class ASTAggregationHelper {
         }
 
         // try plug-in aggregation multi-function
-        ConfigurationCompilerPlugInAggregationMultiFunction config = classpathImportService.resolveAggregationMultiFunction(functionName);
-        if (config != null) {
-            AggregationMultiFunctionForge factory = plugInAggregations.getMap().get(config);
+        Pair<ConfigurationCompilerPlugInAggregationMultiFunction, Class> configPair = classpathImportService.resolveAggregationMultiFunction(functionName, classProvidedClasspathExtension);
+        if (configPair != null) {
+            HashableMultiKey multiKey = new HashableMultiKey(configPair.getFirst().getFunctionNames());
+            AggregationMultiFunctionForge factory = plugInAggregations.getMap().get(multiKey);
             if (factory == null) {
-                factory = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, config.getMultiFunctionForgeClassName(), classpathImportService.getClassForNameProvider());
-                plugInAggregations.getMap().put(config, factory);
+                if (configPair.getSecond() != null) {
+                    factory = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, configPair.getSecond());
+                } else {
+                    factory = (AggregationMultiFunctionForge) JavaClassHelper.instantiate(AggregationMultiFunctionForge.class, configPair.getFirst().getMultiFunctionForgeClassName(), classpathImportService.getClassForNameProvider());
+                }
+                plugInAggregations.getMap().put(multiKey, factory);
             }
-            factory.addAggregationFunction(new AggregationMultiFunctionDeclarationContext(functionName.toLowerCase(Locale.ENGLISH), distinct, config));
-            return new ExprPlugInMultiFunctionAggNode(distinct, config, factory, functionName);
+            factory.addAggregationFunction(new AggregationMultiFunctionDeclarationContext(functionName.toLowerCase(Locale.ENGLISH), distinct, configPair.getFirst()));
+            return new ExprPlugInMultiFunctionAggNode(distinct, configPair.getFirst(), factory, functionName);
         }
 
         // try built-in expanded set of aggregation functions

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.classprovided.compiletime;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.hook.aggfunc.ExtensionAggregationFunction;
+import com.espertech.esper.common.client.hook.aggmultifunc.ExtensionAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.singlerowfunc.ExtensionSingleRowFunction;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
@@ -27,6 +28,7 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
     private final Map<String, byte[]> bytes = new LinkedHashMap<>();
     private Map<String, Pair<Class, ExtensionSingleRowFunction>> singleRowFunctionExtensions = Collections.emptyMap();
     private Map<String, Pair<Class, ExtensionAggregationFunction>> aggregationFunctionExtensions = Collections.emptyMap();
+    private Map<String, Pair<Class, String[]>> aggregationMultiFunctionExtensions = Collections.emptyMap();
 
     public ClassProvidedClasspathExtensionImpl(ClassProvidedCompileTimeResolver resolver) {
         this.resolver = resolver;
@@ -55,6 +57,26 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
                     throw new EPException("The plug-in aggregation function '" + annotation.name() + "' occurs multiple times");
                 }
                 aggregationFunctionExtensions.put(annotation.name(), new Pair<>(clazz, annotation));
+            });
+
+            JavaClassHelper.traverseAnnotations(classes, ExtensionAggregationMultiFunction.class, (clazz, annotation) -> {
+                if (aggregationMultiFunctionExtensions.isEmpty()) {
+                    aggregationMultiFunctionExtensions = new HashMap<>(2);
+                }
+                String[] names = annotation.names().split(",");
+                Set<String> namesDeduplicated = new HashSet<>(names.length);
+                for (String nameWithSpaces : names) {
+                    String name = nameWithSpaces.trim();
+                    namesDeduplicated.add(name);
+                }
+                String[] namesArray = namesDeduplicated.toArray(new String[0]);
+
+                for (String name : namesDeduplicated) {
+                    if (aggregationMultiFunctionExtensions.containsKey(name)) {
+                        throw new EPException("The plug-in aggregation multi-function '" + name + "' occurs multiple times");
+                    }
+                    aggregationMultiFunctionExtensions.put(name, new Pair<>(clazz, namesArray));
+                }
             });
         } catch (EPException ex) {
             throw new ExprValidationException(ex.getMessage(), ex);
@@ -98,6 +120,16 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
         }
         // check same-module (create inlined_class) or path classes
         return resolver.resolveAggregationFunction(name);
+    }
+
+    public Pair<Class, String[]> resolveAggregationMultiFunction(String name) {
+        // check local
+        Pair<Class, String[]> pair = aggregationMultiFunctionExtensions.get(name);
+        if (pair != null) {
+            return pair;
+        }
+        // check same-module (create inlined_class) or path classes
+        return resolver.resolveAggregationMultiFunction(name);
     }
 
     public Map<String, byte[]> getBytes() {

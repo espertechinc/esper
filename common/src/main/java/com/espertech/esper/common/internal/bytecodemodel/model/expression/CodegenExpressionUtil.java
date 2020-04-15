@@ -21,6 +21,8 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenExpressionUtil {
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
     public static void renderConstant(StringBuilder builder, Object constant, Map<Class, String> imports) {
         if (constant instanceof String) {
             builder.append('"').append(StringEscapeUtils.escapeJava((String) constant)).append('"');
@@ -53,6 +55,9 @@ public class CodegenExpressionUtil {
             builder.append("(short) ").append(constant);
         } else if (constant instanceof Byte) {
             builder.append("(byte)").append(constant);
+        } else if (constant instanceof byte[]) {
+            String hex = bytesToHex((byte[]) constant);
+            builder.append(CodegenExpressionUtil.class.getName()).append(".").append("hexStringToByteArray(\"").append(hex).append("\")");
         } else if (constant.getClass().isArray()) {
             if (Array.getLength(constant) == 0) {
                 builder.append("new ");
@@ -113,5 +118,31 @@ public class CodegenExpressionUtil {
                 builder.append(c);
             }
         }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param s bytes hex
+     * @return byte array
+     */
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
 }

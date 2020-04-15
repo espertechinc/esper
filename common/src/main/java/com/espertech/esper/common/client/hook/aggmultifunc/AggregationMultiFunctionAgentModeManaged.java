@@ -18,6 +18,13 @@ import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategy;
 public class AggregationMultiFunctionAgentModeManaged implements AggregationMultiFunctionAgentMode {
     private InjectionStrategy injectionStrategyAggregationAgentFactory;
 
+    public AggregationMultiFunctionAgentModeManaged() {
+    }
+
+    public AggregationMultiFunctionAgentModeManaged(InjectionStrategy injectionStrategyAggregationAgentFactory) {
+        this.injectionStrategyAggregationAgentFactory = injectionStrategyAggregationAgentFactory;
+    }
+
     /**
      * Returns the injection strategy for the aggregation agent factory
      *

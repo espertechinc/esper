@@ -18,6 +18,13 @@ import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategy;
 public class AggregationMultiFunctionAccessorModeManaged implements AggregationMultiFunctionAccessorMode {
     private InjectionStrategy injectionStrategyAggregationAccessorFactory;
 
+    public AggregationMultiFunctionAccessorModeManaged() {
+    }
+
+    public AggregationMultiFunctionAccessorModeManaged(InjectionStrategy injectionStrategyAggregationAccessorFactory) {
+        this.injectionStrategyAggregationAccessorFactory = injectionStrategyAggregationAccessorFactory;
+    }
+
     /**
      * Returns the injection strategy for the aggregation accessor factory
      *
