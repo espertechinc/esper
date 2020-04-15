@@ -19,20 +19,14 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.*;
-import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.regressionlib.support.bean.SupportInKeywordBean;
+import com.espertech.esper.regressionlib.support.bean.SupportOverrideBase;
+import com.espertech.esper.regressionlib.support.bean.SupportOverrideOne;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
 import com.espertech.esper.runtime.client.DeploymentOptions;
-import com.espertech.esper.runtime.client.EPDeployException;
-import com.espertech.esper.runtime.client.EPDeploymentService;
-import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -48,22 +42,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.assertFilterSingle;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 public class ExprFilterOptimizable {
-    private static final Logger log = LoggerFactory.getLogger(ExprFilterOptimizable.class);
     private static EPLMethodInvocationContext methodInvocationContextFilterOptimized;
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
         executions.add(new ExprFilterInAndNotInKeywordMultivalue());
-        executions.add(new ExprFilterOptimizablePerf());
+        executions.add(new ExprFilterOptimizableMethodInvocationContext());
+        executions.add(new ExprFilterOptimizableTypeOf());
+        executions.add(new ExprFilterOptimizableVariableAndSeparateThread());
         executions.add(new ExprFilterOptimizableInspectFilter());
-        executions.add(new ExprFilterOrRewrite());
         executions.add(new ExprFilterOrToInRewrite());
-        executions.add(new ExprFilterOrPerformance());
         executions.add(new ExprFilterOrContext());
         executions.add(new ExprFilterPatternUDFFilterOptimizable());
         executions.add(new ExprFilterDeployTimeConstant());  // substitution and variables are here
@@ -71,7 +65,6 @@ public class ExprFilterOptimizable {
     }
 
     public static class ExprFilterOrContext implements RegressionExecution {
-
         public void run(RegressionEnvironment env) {
             String epl = "@name('ctx') create context MyContext initiated by SupportBean terminated after 24 hours;\n" +
                 "@name('select') context MyContext select * from SupportBean(theString='A' or intPrimitive=1)";
@@ -103,41 +96,6 @@ public class ExprFilterOptimizable {
         }
     }
 
-    private static class ExprFilterOptimizablePerf implements RegressionExecution {
-        @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
-        }
-
-        public void run(RegressionEnvironment env) {
-            AtomicInteger milestone = new AtomicInteger();
-            RegressionPath path = new RegressionPath();
-
-            // func(...) = value
-            tryOptimizableEquals(env, path, "select * from SupportBean(libSplit(theString) = !NUM!)", 10, milestone);
-
-            // func(...) implied true
-            tryOptimizableBoolean(env, path, "select * from SupportBean(libE1True(theString))", milestone);
-
-            // with context
-            tryOptimizableMethodInvocationContext(env, milestone);
-
-            // typeof(e)
-            tryOptimizableTypeOf(env, milestone);
-
-            // declared expression (...) = value
-            env.compileDeploy("@name('create-expr') create expression thesplit {theString => libSplit(theString)}", path).addListener("create-expr");
-            tryOptimizableEquals(env, path, "select * from SupportBean(thesplit(*) = !NUM!)", 10, milestone);
-
-            // declared expression (...) implied true
-            env.compileDeploy("@name('create-expr') create expression theE1Test {theString => libE1True(theString)}", path).addListener("create-expr");
-            tryOptimizableBoolean(env, path, "select * from SupportBean(theE1Test(*))", milestone);
-
-            // with variable and separate thread
-            tryOptimizableVariableAndSeparateThread(env, milestone);
-        }
-    }
-
     private static class ExprFilterOptimizableInspectFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl;
@@ -145,83 +103,40 @@ public class ExprFilterOptimizable {
             RegressionPath path = new RegressionPath();
 
             epl = "select * from SupportBean(funcOne(theString) = 0)";
-            assertFilterSingle(env, path, epl, PROPERTY_NAME_BOOLEAN_EXPRESSION, FilterOperator.BOOLEAN_EXPRESSION, milestone);
+            assertFilterDeploySingle(env, path, epl, PROPERTY_NAME_BOOLEAN_EXPRESSION, FilterOperator.BOOLEAN_EXPRESSION, milestone);
 
             epl = "select * from SupportBean(funcOneWDefault(theString) = 0)";
-            assertFilterSingle(env, path, epl, "funcOneWDefault(theString)", FilterOperator.EQUAL, milestone);
+            assertFilterDeploySingle(env, path, epl, "funcOneWDefault(theString)", FilterOperator.EQUAL, milestone);
 
             epl = "select * from SupportBean(funcTwo(theString) = 0)";
-            assertFilterSingle(env, path, epl, "funcTwo(theString)", FilterOperator.EQUAL, milestone);
+            assertFilterDeploySingle(env, path, epl, "funcTwo(theString)", FilterOperator.EQUAL, milestone);
 
             epl = "select * from SupportBean(libE1True(theString))";
-            assertFilterSingle(env, path, epl, "libE1True(theString)", FilterOperator.EQUAL, milestone);
+            assertFilterDeploySingle(env, path, epl, "libE1True(theString)", FilterOperator.EQUAL, milestone);
 
             epl = "select * from SupportBean(funcTwo( theString ) > 10)";
-            assertFilterSingle(env, path, epl, "funcTwo(theString)", FilterOperator.GREATER, milestone);
+            assertFilterDeploySingle(env, path, epl, "funcTwo(theString)", FilterOperator.GREATER, milestone);
 
             epl = "select * from SupportBean(libE1True(theString))";
-            assertFilterSingle(env, path, epl, "libE1True(theString)", FilterOperator.EQUAL, milestone);
+            assertFilterDeploySingle(env, path, epl, "libE1True(theString)", FilterOperator.EQUAL, milestone);
 
             epl = "select * from SupportBean(typeof(e) = 'SupportBean') as e";
-            assertFilterSingle(env, path, epl, "typeof(e)", FilterOperator.EQUAL, milestone);
+            assertFilterDeploySingle(env, path, epl, "typeof(e)", FilterOperator.EQUAL, milestone);
 
             env.compileDeploy("@name('create-expr') create expression thesplit {theString => funcOne(theString)}", path).addListener("create-expr");
             epl = "select * from SupportBean(thesplit(*) = 0)";
-            assertFilterSingle(env, path, epl, "thesplit(*)", FilterOperator.EQUAL, milestone);
+            assertFilterDeploySingle(env, path, epl, "thesplit(*)", FilterOperator.EQUAL, milestone);
 
             epl = "select * from SupportBean(thesplit(*) > 10)";
-            assertFilterSingle(env, path, epl, "thesplit(*)", FilterOperator.GREATER, milestone);
+            assertFilterDeploySingle(env, path, epl, "thesplit(*)", FilterOperator.GREATER, milestone);
 
             epl = "expression housenumber alias for {10} select * from SupportBean(intPrimitive = housenumber)";
-            assertFilterSingle(env, path, epl, "intPrimitive", FilterOperator.EQUAL, milestone);
+            assertFilterDeploySingle(env, path, epl, "intPrimitive", FilterOperator.EQUAL, milestone);
 
             epl = "expression housenumber alias for {intPrimitive*10} select * from SupportBean(intPrimitive = housenumber)";
-            assertFilterSingle(env, path, epl, ".boolean_expression", FilterOperator.BOOLEAN_EXPRESSION, milestone);
+            assertFilterDeploySingle(env, path, epl, ".boolean_expression", FilterOperator.BOOLEAN_EXPRESSION, milestone);
 
             env.undeployAll();
-        }
-    }
-
-    private static class ExprFilterOrRewrite implements RegressionExecution {
-
-        public void run(RegressionEnvironment env) {
-            AtomicInteger milestone = new AtomicInteger();
-
-            tryOrRewriteTwoOr(env, milestone);
-
-            tryOrRewriteOrRewriteThreeOr(env, milestone);
-
-            tryOrRewriteOrRewriteWithAnd(env, milestone);
-
-            tryOrRewriteOrRewriteThreeWithOverlap(env, milestone);
-
-            tryOrRewriteOrRewriteFourOr(env, milestone);
-
-            tryOrRewriteOrRewriteEightOr(env, milestone);
-
-            tryOrRewriteAndRewriteNotEquals(env, milestone);
-
-            tryOrRewriteAndRewriteInnerOr(env, milestone);
-
-            tryOrRewriteOrRewriteAndOrMulti(env, milestone);
-
-            tryOrRewriteBooleanExprSimple(env, milestone);
-
-            tryOrRewriteBooleanExprAnd(env, milestone);
-
-            tryOrRewriteSubquery(env, milestone);
-
-            tryOrRewriteHint(env, milestone);
-
-            tryOrRewriteContextPartitionedSegmented(env, milestone);
-
-            tryOrRewriteContextPartitionedHash(env, milestone);
-
-            tryOrRewriteContextPartitionedCategory(env, milestone);
-
-            tryOrRewriteContextPartitionedInitiatedSameEvent(env, milestone);
-
-            tryOrRewriteContextPartitionedInitiated(env, milestone);
         }
     }
 
@@ -273,36 +188,6 @@ public class ExprFilterOptimizable {
             String epl = "@name('s0') select * from SupportBean(intPrimitive = 1 and (theString='a' or theString='b'))";
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
             SupportFilterHelper.assertFilterTwo(env.statement("s0"), epl, "intPrimitive", FilterOperator.EQUAL, "theString", FilterOperator.IN_LIST_OF_VALUES);
-            env.undeployAll();
-        }
-    }
-
-    private static class ExprFilterOrPerformance implements RegressionExecution {
-        @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
-        }
-
-        public void run(RegressionEnvironment env) {
-            SupportUpdateListener listener = new SupportUpdateListener();
-            for (int i = 0; i < 100; i++) {
-                String epl = "@name('s" + i + "') select * from SupportBean(theString = '" + i + "' or intPrimitive=" + i + ")";
-                EPCompiled compiled = env.compile(epl);
-                env.deploy(compiled).statement("s" + i).addListener(listener);
-            }
-
-            long start = System.nanoTime();
-            // System.out.println("Starting " + DateTime.print(new Date()));
-            for (int i = 0; i < 10000; i++) {
-                env.sendEventBean(new SupportBean("100", 1));
-                assertTrue(listener.isInvoked());
-                listener.reset();
-            }
-            // System.out.println("Ending " + DateTime.print(new Date()));
-            double delta = (System.nanoTime() - start) / 1000d / 1000d;
-            // System.out.println("Delta=" + (delta + " msec"));
-            assertTrue(delta < 500);
-
             env.undeployAll();
         }
     }
@@ -478,341 +363,9 @@ public class ExprFilterOptimizable {
         env.undeployAll();
     }
 
-    private static void tryOrRewriteHint(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "@Hint('MAX_FILTER_WIDTH=0') @name('s0') select * from SupportBean_IntAlphabetic((b=1 or c=1) and (d=1 or e=1))";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-        assertFilterSingle(env.statement("s0"), epl, ".boolean_expression", FilterOperator.BOOLEAN_EXPRESSION);
-        env.undeployAll();
-    }
-
-    private static void tryOrRewriteSubquery(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "@name('s0') select (select * from SupportBean_IntAlphabetic(a=1 or b=1)#keepall) as c0 from SupportBean";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-
-        SupportBean_IntAlphabetic iaOne = intEvent(1, 1);
-        env.sendEventBean(iaOne);
-        env.sendEventBean(new SupportBean());
-        assertEquals(iaOne, env.listener("s0").assertOneGetNewAndReset().get("c0"));
-
-        env.undeployAll();
-    }
-
-    private static void tryOrRewriteContextPartitionedCategory(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "@name('ctx') create context MyContext \n" +
-            "  group a=1 or b=1 as g1,\n" +
-            "  group c=1 as g1\n" +
-            "  from SupportBean_IntAlphabetic;" +
-            "@name('s0') context MyContext select * from SupportBean_IntAlphabetic(d=1 or e=1)";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-
-        sendAssertEvents(env,
-            new Object[]{intEvent(1, 0, 0, 0, 1), intEvent(0, 1, 0, 1, 0), intEvent(0, 0, 1, 1, 1)},
-            new Object[]{intEvent(0, 0, 0, 1, 0), intEvent(1, 0, 0, 0, 0), intEvent(0, 0, 1, 0, 0)}
-        );
-
-        env.undeployAll();
-    }
-
-    private static void tryOrRewriteContextPartitionedHash(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "create context MyContext " +
-            "coalesce by consistent_hash_crc32(a) from SupportBean_IntAlphabetic(b=1) granularity 16 preallocate;" +
-            "@name('s0') context MyContext select * from SupportBean_IntAlphabetic(c=1 or d=1)";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-
-        sendAssertEvents(env,
-            new Object[]{intEvent(100, 1, 0, 1), intEvent(100, 1, 1, 0)},
-            new Object[]{intEvent(100, 0, 0, 1), intEvent(100, 1, 0, 0)}
-        );
-        env.undeployAll();
-    }
-
-    private static void tryOrRewriteContextPartitionedSegmented(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "create context MyContext partition by a from SupportBean_IntAlphabetic(b=1 or c=1);" +
-            "@name('s0') context MyContext select * from SupportBean_IntAlphabetic(d=1)";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-
-        sendAssertEvents(env,
-            new Object[]{intEvent(100, 1, 0, 1), intEvent(100, 0, 1, 1)},
-            new Object[]{intEvent(100, 0, 0, 1), intEvent(100, 1, 0, 0)}
-        );
-        env.undeployAll();
-    }
-
-    private static void tryOrRewriteBooleanExprAnd(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filters = new String[]{
-            "(a='a' or a like 'A%') and (b='b' or b like 'B%')",
-        };
-        for (String filter : filters) {
-            String epl = "@name('s0') select * from SupportBean_StringAlphabetic(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean_StringAlphabetic", new FilterItem[][]{
-                {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL)},
-                {new FilterItem("a", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-                {new FilterItem("b", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-                {FilterItem.getBoolExprFilterItem()},
-            });
-
-            sendAssertEvents(env,
-                new Object[]{stringEvent("a", "b"), stringEvent("A1", "b"), stringEvent("a", "B1"), stringEvent("A1", "B1")},
-                new Object[]{stringEvent("x", "b"), stringEvent("a", "x"), stringEvent("A1", "C"), stringEvent("C", "B1")}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteBooleanExprSimple(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filters = new String[]{
-            "a like 'a%' and (b='b' or c='c')",
-        };
-        for (String filter : filters) {
-            String epl = "@name('s0') select * from SupportBean_StringAlphabetic(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean_StringAlphabetic", new FilterItem[][]{
-                {new FilterItem("b", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-                {new FilterItem("c", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-            });
-
-            sendAssertEvents(env,
-                new Object[]{stringEvent("a1", "b", null), stringEvent("a1", null, "c")},
-                new Object[]{stringEvent("x", "b", null), stringEvent("a1", null, null), stringEvent("a1", null, "x")}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteAndRewriteNotEquals(RegressionEnvironment env, AtomicInteger milestone) {
-        tryOrRewriteAndRewriteNotEqualsOr(env, milestone);
-
-        tryOrRewriteAndRewriteNotEqualsConsolidate(env, milestone);
-
-        tryOrRewriteAndRewriteNotEqualsWithOrConsolidateSecond(env, milestone);
-    }
-
-    private static void tryOrRewriteAndRewriteNotEqualsWithOrConsolidateSecond(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filters = new String[]{
-            "a!=1 and a!=2 and ((a!=3 and a!=4) or (a!=5 and a!=6))",
-        };
-        for (String filter : filters) {
-            String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), FilterItem.getBoolExprFilterItem()},
-                {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), FilterItem.getBoolExprFilterItem()},
-            });
-
-            sendAssertEvents(env,
-                new Object[]{intEvent(3), intEvent(4), intEvent(0)},
-                new Object[]{intEvent(2), intEvent(1)}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteAndRewriteNotEqualsConsolidate(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filters = new String[]{
-            "a!=1 and a!=2 and (a!=3 or a!=4)",
-        };
-        for (String filter : filters) {
-            String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
-                {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new Object[]{intEvent(3), intEvent(4), intEvent(0)},
-                new Object[]{intEvent(2), intEvent(1)}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteAndRewriteNotEqualsOr(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filters = new String[]{
-            "a!=1 and a!=2 and (b=1 or c=1)",
-        };
-        for (String filter : filters) {
-            String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("b", FilterOperator.EQUAL)},
-                {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("c", FilterOperator.EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new Object[]{intEvent(3, 1, 0), intEvent(3, 0, 1), intEvent(0, 1, 0)},
-                new Object[]{intEvent(2, 0, 0), intEvent(1, 0, 0), intEvent(3, 0, 0)}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteAndRewriteInnerOr(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filtersAB = new String[]{
-            "theString='a' and (intPrimitive=1 or longPrimitive=10)",
-        };
-        for (String filter : filtersAB) {
-            String epl = "@name('s0') select * from SupportBean(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new SupportBean[]{makeEvent("a", 1, 0), makeEvent("a", 0, 10), makeEvent("a", 1, 10)},
-                new SupportBean[]{makeEvent("x", 0, 0), makeEvent("a", 2, 20), makeEvent("x", 1, 10)}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteOrRewriteAndOrMulti(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filtersAB = new String[]{
-            "a=1 and (b=1 or c=1) and (d=1 or e=1)",
-        };
-        for (String filter : filtersAB) {
-            String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
-                {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
-                {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
-                {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new Object[]{intEvent(1, 1, 0, 1, 0), intEvent(1, 0, 1, 0, 1), intEvent(1, 1, 0, 0, 1), intEvent(1, 0, 1, 1, 0)},
-                new Object[]{intEvent(1, 0, 0, 1, 0), intEvent(1, 0, 0, 1, 0), intEvent(1, 1, 1, 0, 0), intEvent(0, 1, 1, 1, 1)}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteOrRewriteEightOr(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filtersAB = new String[]{
-            "theString = 'a' or intPrimitive=1 or longPrimitive=10 or doublePrimitive=100 or boolPrimitive=true or " +
-                "intBoxed=2 or longBoxed=20 or doubleBoxed=200",
-            "longBoxed=20 or theString = 'a' or boolPrimitive=true or intBoxed=2 or longPrimitive=10 or doublePrimitive=100 or " +
-                "intPrimitive=1 or doubleBoxed=200",
-        };
-        for (String filter : filtersAB) {
-            String epl = "@name('s0') select * from SupportBean(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                {new FilterItem("theString", FilterOperator.EQUAL)},
-                {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("boolPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("intBoxed", FilterOperator.EQUAL)},
-                {new FilterItem("longBoxed", FilterOperator.EQUAL)},
-                {new FilterItem("doubleBoxed", FilterOperator.EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new SupportBean[]{makeEvent("a", 1, 10, 100, true, 2, 20, 200), makeEvent("a", 0, 0, 0, true, 0, 0, 0),
-                    makeEvent("a", 0, 0, 0, true, 0, 20, 0), makeEvent("x", 0, 0, 100, false, 0, 0, 0),
-                    makeEvent("x", 1, 0, 0, false, 0, 0, 200), makeEvent("x", 0, 0, 0, false, 0, 0, 200),
-                },
-                new SupportBean[]{makeEvent("x", 0, 0, 0, false, 0, 0, 0)}
-            );
-            env.undeployAll();
-        }
-    }
-
-    private static void tryOrRewriteOrRewriteFourOr(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filtersAB = new String[]{
-            "theString = 'a' or intPrimitive=1 or longPrimitive=10 or doublePrimitive=100",
-        };
-        for (String filter : filtersAB) {
-            String epl = "@name('s0') select * from SupportBean(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                {new FilterItem("theString", FilterOperator.EQUAL)},
-                {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new SupportBean[]{makeEvent("a", 1, 10, 100), makeEvent("x", 0, 0, 100), makeEvent("x", 0, 10, 100), makeEvent("a", 0, 0, 0)},
-                new SupportBean[]{makeEvent("x", 0, 0, 0)}
-            );
-            env.undeployAll();
-        }
-    }
-
-
-    private static void assertFilterSingle(EPStatement stmt, String epl, String expression, FilterOperator op) {
-        EPStatementSPI statementSPI = (EPStatementSPI) stmt;
-        FilterItem param = SupportFilterHelper.getFilterSingle(statementSPI);
-        assertEquals("failed for '" + epl + "'", op, param.getOp());
-        assertEquals(expression, param.getName());
-    }
-
-    private static void tryOrRewriteContextPartitionedInitiated(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "@name('ctx') create context MyContext initiated by SupportBean(theString='A' or intPrimitive=1) terminated after 24 hours;\n"
-            + "@name('s0') context MyContext select * from SupportBean;\n";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-
-        env.sendEventBean(new SupportBean("A", 1));
-        env.listener("s0").assertOneGetNewAndReset();
-
-        env.undeployAll();
-    }
-
-    private static void tryOrRewriteContextPartitionedInitiatedSameEvent(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "create context MyContext initiated by SupportBean terminated after 24 hours;" +
-            "@name('s0') context MyContext select * from SupportBean(theString='A' or intPrimitive=1)";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-
-        env.sendEventBean(new SupportBean("A", 1));
-        env.listener("s0").assertOneGetNewAndReset();
-
-        env.undeployAll();
-    }
-
     private static void tryInKeyword(RegressionEnvironment env, String field, SupportInKeywordBean prototype, AtomicInteger milestone) {
         tryInKeywordPlain(env, field, prototype, milestone);
         tryInKeywordPattern(env, field, prototype, milestone);
-    }
-
-    private static void tryOrRewriteOrRewriteThreeOr(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filtersAB = new String[]{
-            "theString = 'a' or intPrimitive = 1 or longPrimitive = 2",
-            "2 = longPrimitive or 1 = intPrimitive or theString = 'a'"
-        };
-        for (String filter : filtersAB) {
-            String epl = "@name('s0') select * from SupportBean(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("theString", FilterOperator.EQUAL)},
-                {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new SupportBean[]{makeEvent("a", 0, 0), makeEvent("b", 1, 0), makeEvent("c", 0, 2), makeEvent("c", 0, 2)},
-                new SupportBean[]{makeEvent("v", 0, 0), makeEvent("c", 2, 1)}
-            );
-
-            env.undeployAll();
-        }
-    }
-
-    private static void sendAssertEvents(RegressionEnvironment env, Object[] matches, Object[] nonMatches) {
-        env.listener("s0").reset();
-        for (Object match : matches) {
-            env.sendEventBean(match);
-            assertSame(match, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
-        }
-        env.listener("s0").reset();
-        for (Object nonMatch : nonMatches) {
-            env.sendEventBean(nonMatch);
-            assertFalse(env.listener("s0").isInvoked());
-        }
     }
 
     private static void tryInKeywordPattern(RegressionEnvironment env, String field, SupportInKeywordBean prototype, AtomicInteger milestone) {
@@ -871,28 +424,6 @@ public class ExprFilterOptimizable {
         env.undeployAll();
     }
 
-    private static void tryOrRewriteOrRewriteThreeWithOverlap(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filtersAB = new String[]{
-            "theString = 'a' or theString = 'b' or intPrimitive=1",
-            "intPrimitive = 1 or theString = 'b' or theString = 'a'",
-        };
-        for (String filter : filtersAB) {
-            String epl = "@name('s0') select * from SupportBean(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                {new FilterItem("theString", FilterOperator.EQUAL)},
-                {new FilterItem("theString", FilterOperator.EQUAL)},
-                {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-            });
-
-            sendAssertEvents(env,
-                new SupportBean[]{makeEvent("a", 1), makeEvent("b", 0), makeEvent("x", 1)},
-                new SupportBean[]{makeEvent("x", 0)}
-            );
-            env.undeployAll();
-        }
-    }
-
     private static void tryInArrayContextProvided(RegressionEnvironment env, AtomicInteger milestone) {
         String epl = "create context MyContext initiated by SupportInKeywordBean as mie terminated after 24 hours;\n" +
             "@name('s1') context MyContext select * from SupportBean#keepall where intPrimitive in (context.mie.ints);\n" +
@@ -917,173 +448,60 @@ public class ExprFilterOptimizable {
         env.undeployAll();
     }
 
-    private static void tryOptimizableEquals(RegressionEnvironment env, RegressionPath path, String epl, int numStatements, AtomicInteger milestone) {
+    public static class ExprFilterOptimizableTypeOf implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportOverrideBase(typeof(e) = 'SupportOverrideBase') as e";
+            env.compileDeployAddListenerMile(epl, "s0", 0);
 
-        // test function returns lookup value and "equals"
-        for (int i = 0; i < numStatements; i++) {
-            String text = "@name('s" + i + "') " + epl.replace("!NUM!", Integer.toString(i));
-            env.compileDeploy(text, path).addListener("s" + i);
-        }
-        env.milestone(milestone.getAndIncrement());
+            env.sendEventBean(new SupportOverrideBase(""));
+            assertTrue(env.listener("s0").getAndClearIsInvoked());
 
-        long startTime = System.currentTimeMillis();
-        SupportStaticMethodLib.resetCountInvoked();
-        int loops = 1000;
-        for (int i = 0; i < loops; i++) {
-            env.sendEventBean(new SupportBean("E_" + i % numStatements, 0));
-            SupportListener listener = env.listener("s" + i % numStatements);
-            assertTrue(listener.getAndClearIsInvoked());
-        }
-        long delta = System.currentTimeMillis() - startTime;
-        assertEquals(loops, SupportStaticMethodLib.getCountInvoked());
-
-        log.info("Equals delta=" + delta);
-        assertTrue("Delta is " + delta, delta < 1000);
-        env.undeployAll();
-    }
-
-    private static void tryOptimizableBoolean(RegressionEnvironment env, RegressionPath path, String epl, AtomicInteger milestone) {
-
-        // test function returns lookup value and "equals"
-        int count = 10;
-        for (int i = 0; i < count; i++) {
-            EPCompiled compiled = env.compile("@name('s" + i + "')" + epl, path);
-            EPDeploymentService admin = env.runtime().getDeploymentService();
-            try {
-                admin.deploy(compiled);
-            } catch (EPDeployException ex) {
-                ex.printStackTrace();
-                fail();
-            }
-        }
-
-        env.milestoneInc(milestone);
-
-        SupportUpdateListener listener = new SupportUpdateListener();
-        for (int i = 0; i < 10; i++) {
-            env.statement("s" + i).addListener(listener);
-        }
-
-        long startTime = System.currentTimeMillis();
-        SupportStaticMethodLib.resetCountInvoked();
-        int loops = 10000;
-        for (int i = 0; i < loops; i++) {
-            String key = "E_" + i % 100;
-            env.sendEventBean(new SupportBean(key, 0));
-            if (key.equals("E_1")) {
-                assertEquals(count, listener.getNewDataList().size());
-                listener.reset();
-            } else {
-                assertFalse(listener.isInvoked());
-            }
-        }
-        long delta = System.currentTimeMillis() - startTime;
-        assertEquals(loops, SupportStaticMethodLib.getCountInvoked());
-
-        log.info("Boolean delta=" + delta);
-        assertTrue("Delta is " + delta, delta < 1000);
-        env.undeployAll();
-    }
-
-    private static void tryOptimizableTypeOf(RegressionEnvironment env, AtomicInteger milestone) {
-        String epl = "@name('s0') select * from SupportOverrideBase(typeof(e) = 'SupportOverrideBase') as e";
-        env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-
-        env.sendEventBean(new SupportOverrideBase(""));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
-
-        env.sendEventBean(new SupportOverrideOne("a", "b"));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
-
-        env.undeployAll();
-    }
-
-    private static void tryOptimizableVariableAndSeparateThread(RegressionEnvironment env, AtomicInteger milestone) {
-
-        env.runtime().getVariableService().setVariableValue(null, "myCheckServiceProvider", new MyCheckServiceProvider());
-
-        env.compileDeploy("@name('s0') select * from SupportBean(myCheckServiceProvider.check())").addListener("s0");
-        CountDownLatch latch = new CountDownLatch(1);
-
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(new Runnable() {
-            public void run() {
-                env.sendEventBean(new SupportBean());
-                assertTrue(env.listener("s0").getIsInvokedAndReset());
-                latch.countDown();
-            }
-        });
-
-        try {
-            assertTrue(latch.await(10, TimeUnit.SECONDS));
-        } catch (InterruptedException e) {
-            fail();
-        }
-
-        env.undeployAll();
-    }
-
-    private static void tryOrRewriteTwoOr(RegressionEnvironment env, AtomicInteger milestone) {
-        // test 'or' rewrite
-        String[] filtersAB = new String[]{
-            "select * from SupportBean(theString = 'a' or intPrimitive = 1)",
-            "select * from SupportBean(theString = 'a' or 1 = intPrimitive)",
-            "select * from SupportBean('a' = theString or 1 = intPrimitive)",
-            "select * from SupportBean('a' = theString or intPrimitive = 1)",
-        };
-
-        for (String filter : filtersAB) {
-            env.compileDeployAddListenerMile("@name('s0')" + filter, "s0", milestone.getAndIncrement());
-
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("theString", FilterOperator.EQUAL)},
-            });
-
-            env.sendEventBean(new SupportBean("a", 0));
-            env.listener("s0").assertOneGetNewAndReset();
-            env.sendEventBean(new SupportBean("b", 1));
-            env.listener("s0").assertOneGetNewAndReset();
-            env.sendEventBean(new SupportBean("c", 0));
+            env.sendEventBean(new SupportOverrideOne("a", "b"));
             assertFalse(env.listener("s0").getAndClearIsInvoked());
 
             env.undeployAll();
         }
     }
 
-    private static void tryOrRewriteOrRewriteWithAnd(RegressionEnvironment env, AtomicInteger milestone) {
-        String[] filtersAB = new String[]{
-            "(theString = 'a' and intPrimitive = 1) or (theString = 'b' and intPrimitive = 2)",
-            "(intPrimitive = 1 and theString = 'a') or (intPrimitive = 2 and theString = 'b')",
-            "(theString = 'b' and intPrimitive = 2) or (theString = 'a' and intPrimitive = 1)",
-        };
-        for (String filter : filtersAB) {
-            String epl = "@name('s0') select * from SupportBean(" + filter + ")";
-            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+    public static class ExprFilterOptimizableVariableAndSeparateThread implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.runtime().getVariableService().setVariableValue(null, "myCheckServiceProvider", new MyCheckServiceProvider());
+
+            env.compileDeploy("@name('s0') select * from SupportBean(myCheckServiceProvider.check())").addListener("s0");
+            CountDownLatch latch = new CountDownLatch(1);
+
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.execute(new Runnable() {
+                public void run() {
+                    env.sendEventBean(new SupportBean());
+                    assertTrue(env.listener("s0").getIsInvokedAndReset());
+                    latch.countDown();
+                }
             });
 
-            sendAssertEvents(env,
-                new SupportBean[]{makeEvent("a", 1), makeEvent("b", 2)},
-                new SupportBean[]{makeEvent("x", 0), makeEvent("a", 0), makeEvent("a", 2), makeEvent("b", 1)}
-            );
+            try {
+                assertTrue(latch.await(10, TimeUnit.SECONDS));
+            } catch (InterruptedException e) {
+                fail();
+            }
+
             env.undeployAll();
         }
     }
 
-    private static void tryOptimizableMethodInvocationContext(RegressionEnvironment env, AtomicInteger milestone) {
-        methodInvocationContextFilterOptimized = null;
-        env.compileDeployAddListenerMile("@name('s0') select * from SupportBean e where myCustomOkFunction(e) = \"OK\"", "s0", milestone.getAndIncrement());
-        env.sendEventBean(new SupportBean());
-        assertEquals("default", methodInvocationContextFilterOptimized.getRuntimeURI());
-        assertEquals("myCustomOkFunction", methodInvocationContextFilterOptimized.getFunctionName());
-        assertNull(methodInvocationContextFilterOptimized.getStatementUserObject());
-        assertEquals("s0", methodInvocationContextFilterOptimized.getStatementName());
-        assertEquals(-1, methodInvocationContextFilterOptimized.getContextPartitionId());
-        methodInvocationContextFilterOptimized = null;
-        env.undeployAll();
+    public static class ExprFilterOptimizableMethodInvocationContext implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            methodInvocationContextFilterOptimized = null;
+            env.compileDeployAddListenerMile("@name('s0') select * from SupportBean e where myCustomOkFunction(e) = \"OK\"", "s0", 0);
+            env.sendEventBean(new SupportBean());
+            assertEquals("default", methodInvocationContextFilterOptimized.getRuntimeURI());
+            assertEquals("myCustomOkFunction", methodInvocationContextFilterOptimized.getFunctionName());
+            assertNull(methodInvocationContextFilterOptimized.getStatementUserObject());
+            assertEquals("s0", methodInvocationContextFilterOptimized.getStatementName());
+            assertEquals(-1, methodInvocationContextFilterOptimized.getContextPartitionId());
+            methodInvocationContextFilterOptimized = null;
+            env.undeployAll();
+        }
     }
 
     private static void assertInKeywordReceivedPattern(RegressionEnvironment env, Object event, int intPrimitive, boolean expected) {
@@ -1092,68 +510,13 @@ public class ExprFilterOptimizable {
         assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
     }
 
-    private static void assertFilterSingle(RegressionEnvironment env, RegressionPath path, String epl, String expression, FilterOperator op, AtomicInteger milestone) {
+    private static void assertFilterDeploySingle(RegressionEnvironment env, RegressionPath path, String epl, String expression, FilterOperator op, AtomicInteger milestone) {
         env.compileDeploy("@name('s0')" + epl, path).addListener("s0").milestoneInc(milestone);
         EPStatementSPI statementSPI = (EPStatementSPI) env.statement("s0");
         FilterItem param = SupportFilterHelper.getFilterSingle(statementSPI);
         assertEquals("failed for '" + epl + "'", op, param.getOp());
         assertEquals(expression, param.getName());
         env.undeployModuleContaining("s0");
-    }
-
-    private static SupportBean makeEvent(String theString, int intPrimitive) {
-        return makeEvent(theString, intPrimitive, 0L);
-    }
-
-    private static SupportBean makeEvent(String theString, int intPrimitive, long longPrimitive) {
-        return makeEvent(theString, intPrimitive, longPrimitive, 0d);
-    }
-
-    private static SupportBean_IntAlphabetic intEvent(int a) {
-        return new SupportBean_IntAlphabetic(a);
-    }
-
-    private static SupportBean_IntAlphabetic intEvent(int a, int b) {
-        return new SupportBean_IntAlphabetic(a, b);
-    }
-
-    private static SupportBean_IntAlphabetic intEvent(int a, int b, int c, int d) {
-        return new SupportBean_IntAlphabetic(a, b, c, d);
-    }
-
-    private static SupportBean_StringAlphabetic stringEvent(String a, String b) {
-        return new SupportBean_StringAlphabetic(a, b);
-    }
-
-    private static SupportBean_StringAlphabetic stringEvent(String a, String b, String c) {
-        return new SupportBean_StringAlphabetic(a, b, c);
-    }
-
-    private static SupportBean_IntAlphabetic intEvent(int a, int b, int c) {
-        return new SupportBean_IntAlphabetic(a, b, c);
-    }
-
-    private static SupportBean_IntAlphabetic intEvent(int a, int b, int c, int d, int e) {
-        return new SupportBean_IntAlphabetic(a, b, c, d, e);
-    }
-
-    private static SupportBean makeEvent(String theString, int intPrimitive, long longPrimitive, double doublePrimitive) {
-        SupportBean event = new SupportBean(theString, intPrimitive);
-        event.setLongPrimitive(longPrimitive);
-        event.setDoublePrimitive(doublePrimitive);
-        return event;
-    }
-
-    private static SupportBean makeEvent(String theString, int intPrimitive, long longPrimitive, double doublePrimitive,
-                                         boolean boolPrimitive, int intBoxed, long longBoxed, double doubleBoxed) {
-        SupportBean event = new SupportBean(theString, intPrimitive);
-        event.setLongPrimitive(longPrimitive);
-        event.setDoublePrimitive(doublePrimitive);
-        event.setBoolPrimitive(boolPrimitive);
-        event.setLongBoxed(longBoxed);
-        event.setDoubleBoxed(doubleBoxed);
-        event.setIntBoxed(intBoxed);
-        return event;
     }
 
     private static void compileDeployWSubstitution(RegressionEnvironment env, String epl, Map<String, Object> params) {

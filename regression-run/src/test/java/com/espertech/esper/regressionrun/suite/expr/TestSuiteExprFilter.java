@@ -46,6 +46,14 @@ public class TestSuiteExprFilter extends TestCase {
         RegressionRunner.run(session, ExprFilterOptimizable.executions());
     }
 
+    public void testExprFilterOptimizablePerf() {
+        RegressionRunner.run(session, ExprFilterOptimizablePerf.executions());
+    }
+
+    public void testExprFilterOptimizableOrRewrite() {
+        RegressionRunner.run(session, ExprFilterOptimizableOrRewrite.executions());
+    }
+
     public void testExprFilterExpressions() {
         RegressionRunner.run(session, ExprFilterExpressions.executions());
     }

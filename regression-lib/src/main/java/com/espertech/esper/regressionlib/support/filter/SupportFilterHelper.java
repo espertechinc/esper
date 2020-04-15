@@ -112,6 +112,13 @@ public class SupportFilterHelper {
         return params[0];
     }
 
+    public static void assertFilterSingle(EPStatement stmt, String epl, String expression, FilterOperator op) {
+        EPStatementSPI statementSPI = (EPStatementSPI) stmt;
+        FilterItem param = getFilterSingle(statementSPI);
+        assertEquals("failed for '" + epl + "'", op, param.getOp());
+        assertEquals(expression, param.getName());
+    }
+
     public static FilterItem[] getFilterMulti(EPStatementSPI statementSPI) {
         int statementId = statementSPI.getStatementContext().getStatementId();
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
