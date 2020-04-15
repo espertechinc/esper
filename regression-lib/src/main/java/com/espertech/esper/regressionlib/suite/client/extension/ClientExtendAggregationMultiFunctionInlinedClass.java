@@ -291,7 +291,8 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
         "            public AggregationMultiFunctionAggregationMethod newMethod(AggregationMultiFunctionAggregationMethodFactoryContext context) {\n" +
         "                return new AggregationMultiFunctionAggregationMethod() {\n" +
         "                    public Object getValue(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {\n" +
-        "                        return null;\n" +
+        "                        TrieAggState trie = (TrieAggState) row.getAccessState(aggColNum);\n" +
+        "                        return trie.trie;\n" +
         "                    }\n" +
         "                };\n" +
         "            }\n" +
