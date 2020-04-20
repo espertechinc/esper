@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
-import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
@@ -20,8 +19,8 @@ import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
@@ -58,6 +57,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerTagUtil.findTagNumber;
 
 public class StreamSpecCompiler {
     private final static Logger log = LoggerFactory.getLogger(StreamSpecCompiler.class);
@@ -127,7 +128,7 @@ public class StreamSpecCompiler {
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{streamSpec.getOptionalStreamName()}, new boolean[]{true}, false, false);
 
         FilterSpecCompiledDesc desc = FilterSpecCompiler.makeFilterSpec(eventType, eventTypeName, rawFilterSpec.getFilterExpressions(), rawFilterSpec.getOptionalPropertyEvalSpec(),
-            null, null,  // no tags
+            null, null, null, // no tags
             streamTypeService, streamSpec.getOptionalStreamName(), statementRawInfo, services);
         FilterStreamSpecCompiled compiled = new FilterStreamSpecCompiled(desc.getFilterSpecCompiled(), streamSpec.getViewSpecs(), streamSpec.getOptionalStreamName(), streamSpec.getOptions());
         return new StreamSpecCompiledDesc(compiled, desc.getAdditionalForgeables());
@@ -170,24 +171,7 @@ public class StreamSpecCompiler {
         Stack<EvalForgeNode> nodeStack = new Stack<EvalForgeNode>();
 
         // detemine ordered tags
-        LinkedHashSet<String> allTagNamesOrdered = new LinkedHashSet<String>();
-        Set<EvalForgeNode> filterFactoryNodes = EvalNodeUtil.recursiveGetChildNodes(streamSpecRaw.getEvalForgeNode(), FilterForFilterFactoryNodes.INSTANCE);
-        if (priorAllTags != null) {
-            allTagNamesOrdered.addAll(priorAllTags);
-        }
-        for (EvalForgeNode filterNode : filterFactoryNodes) {
-            EvalFilterForgeNode forge = (EvalFilterForgeNode) filterNode;
-            int tagNumber;
-            if (forge.getEventAsName() != null) {
-                if (!allTagNamesOrdered.contains(forge.getEventAsName())) {
-                    allTagNamesOrdered.add(forge.getEventAsName());
-                    tagNumber = allTagNamesOrdered.size() - 1;
-                } else {
-                    tagNumber = findTagNumber(forge.getEventAsName(), allTagNamesOrdered);
-                }
-                forge.setEventAsTagNumber(tagNumber);
-            }
-        }
+        LinkedHashSet<String> allTagNamesOrdered = FilterSpecCompilerTagUtil.getAllTagNamesOrdered(priorAllTags, streamSpecRaw.getEvalForgeNode());
 
         // construct root : assigns factory node ids
         EvalForgeNode top = streamSpecRaw.getEvalForgeNode();
@@ -316,7 +300,7 @@ public class StreamSpecCompiler {
             List<ExprNode> exprNodes = filterNode.getRawFilterSpec().getFilterExpressions();
 
             FilterSpecCompiledDesc compiled = FilterSpecCompiler.makeFilterSpec(resolvedEventType, eventName, exprNodes,
-                filterNode.getRawFilterSpec().getOptionalPropertyEvalSpec(), filterTaggedEventTypes, arrayCompositeEventTypes, streamTypeService, null, statementRawInfo, services);
+                filterNode.getRawFilterSpec().getOptionalPropertyEvalSpec(), filterTaggedEventTypes, arrayCompositeEventTypes, allTagNamesOrdered, streamTypeService, null, statementRawInfo, services);
             filterNode.setFilterSpec(compiled.getFilterSpecCompiled());
             additionalForgeables.addAll(compiled.getAdditionalForgeables());
         } else if (evalNode instanceof EvalObserverForgeNode) {
@@ -328,7 +312,7 @@ public class StreamSpecCompiler {
                 ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, statementRawInfo, services).build();
                 List<ExprNode> validated = validateExpressions(ExprNodeOrigin.PATTERNOBSERVER, observerNode.getPatternObserverSpec().getObjectParameters(), validationContext);
 
-                MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered);
+                MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, null, false);
 
                 observerNode.setObserverFactory(observerForge);
                 observerForge.setObserverParameters(validated, convertor, validationContext);
@@ -346,7 +330,7 @@ public class StreamSpecCompiler {
                 ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, statementRawInfo, services).build();
                 List<ExprNode> validated = validateExpressions(ExprNodeOrigin.PATTERNGUARD, guardNode.getPatternGuardSpec().getObjectParameters(), validationContext);
 
-                MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered);
+                MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, null, false);
 
                 guardNode.setGuardForge(guardForge);
                 guardForge.setGuardParameters(validated, convertor, services);
@@ -367,7 +351,7 @@ public class StreamSpecCompiler {
                 throw new ExprValidationPropertyException(ex.getMessage() + ", every-distinct requires that all properties resolve from sub-expressions to the every-distinct", ex.getCause());
             }
 
-            MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(matchEventFromChildNodes.getTaggedEventTypes(), matchEventFromChildNodes.getArrayEventTypes(), allTagNamesOrdered);
+            MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(matchEventFromChildNodes.getTaggedEventTypes(), matchEventFromChildNodes.getArrayEventTypes(), allTagNamesOrdered, null, false);
 
             distinctNode.setConvertor(convertor);
 
@@ -440,7 +424,7 @@ public class StreamSpecCompiler {
                 throw new ExprValidationException("Variable bounds repeat operator requires an until-expression");
             }
 
-            MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(untilMatchEventSpec.getTaggedEventTypes(), untilMatchEventSpec.getArrayEventTypes(), allTagNamesOrdered);
+            MatchedEventConvertorForge convertor = new MatchedEventConvertorForge(untilMatchEventSpec.getTaggedEventTypes(), untilMatchEventSpec.getArrayEventTypes(), allTagNamesOrdered, null, false);
             matchUntilNode.setConvertor(convertor);
 
             // compile new tag lists
@@ -525,7 +509,6 @@ public class StreamSpecCompiler {
         int[] indexes = new int[arrayTags.size()];
         int count = 0;
         for (String arrayTag : arrayTags) {
-            int index = 0;
             int found = findTagNumber(arrayTag, allTagNamesOrdered);
             indexes[count] = found;
             count++;
@@ -622,17 +605,6 @@ public class StreamSpecCompiler {
         return new StreamTypeServiceImpl(filterTypes, true, false);
     }
 
-    private static int findTagNumber(String findTag, LinkedHashSet<String> allTagNamesOrdered) {
-        int index = 0;
-        for (String tag : allTagNamesOrdered) {
-            if (findTag.equals(tag)) {
-                return index;
-            }
-            index++;
-        }
-        throw new EPException("Failed to find tag '" + findTag + "' among known tags");
-    }
-
     private static List<ExprNode> validateExpressions(ExprNodeOrigin exprNodeOrigin, List<ExprNode> objectParameters, ExprValidationContext validationContext)
             throws ExprValidationException {
         if (objectParameters == null) {
@@ -645,7 +617,7 @@ public class StreamSpecCompiler {
         return validated;
     }
 
-    private static class FilterForFilterFactoryNodes implements EvalNodeUtilFactoryFilter {
+    public static class FilterForFilterFactoryNodes implements EvalNodeUtilFactoryFilter {
         public final static FilterForFilterFactoryNodes INSTANCE = new FilterForFilterFactoryNodes();
 
         public boolean consider(EvalForgeNode node) {

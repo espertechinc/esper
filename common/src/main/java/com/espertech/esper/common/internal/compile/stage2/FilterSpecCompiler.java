@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.PropertyEvalSpec;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
@@ -23,11 +24,13 @@ import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubsel
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperFilters;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
+import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -37,34 +40,36 @@ public final class FilterSpecCompiler {
     private static final Logger log = LoggerFactory.getLogger(FilterSpecCompiler.class);
 
     public static FilterSpecCompiledDesc makeFilterSpec(EventType eventType,
-                                                    String eventTypeName,
-                                                    List<ExprNode> filterExpessions,
-                                                    PropertyEvalSpec optionalPropertyEvalSpec,
-                                                    LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
-                                                    LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                                                    StreamTypeService streamTypeService,
-                                                    String optionalStreamName,
-                                                    StatementRawInfo statementRawInfo,
-                                                    StatementCompileTimeServices services)
-            throws ExprValidationException {
+                                                        String eventTypeName,
+                                                        List<ExprNode> filterExpessions,
+                                                        PropertyEvalSpec optionalPropertyEvalSpec,
+                                                        LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                                        LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                                        LinkedHashSet<String> allTagNamesOrdered,
+                                                        StreamTypeService streamTypeService,
+                                                        String optionalStreamName,
+                                                        StatementRawInfo statementRawInfo,
+                                                        StatementCompileTimeServices services)
+        throws ExprValidationException {
         // Validate all nodes, make sure each returns a boolean and types are good;
         // Also decompose all AND super nodes into individual expressions
         FilterSpecValidatedDesc validatedDesc = validateAllowSubquery(ExprNodeOrigin.FILTER, filterExpessions, streamTypeService, taggedEventTypes, arrayEventTypes, statementRawInfo, services);
-        return build(validatedDesc, eventType, eventTypeName, optionalPropertyEvalSpec, taggedEventTypes, arrayEventTypes, streamTypeService, optionalStreamName, statementRawInfo, services);
+        return build(validatedDesc, eventType, eventTypeName, optionalPropertyEvalSpec, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, optionalStreamName, statementRawInfo, services);
     }
 
     public static FilterSpecCompiledDesc build(FilterSpecValidatedDesc validatedDesc,
-                                           EventType eventType,
-                                           String eventTypeName,
-                                           PropertyEvalSpec optionalPropertyEvalSpec,
-                                           LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
-                                           LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                                           StreamTypeService streamTypeService,
-                                           String optionalStreamName,
-                                           StatementRawInfo statementRawInfo,
-                                           StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
+                                               EventType eventType,
+                                               String eventTypeName,
+                                               PropertyEvalSpec optionalPropertyEvalSpec,
+                                               LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                               LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                               LinkedHashSet<String> allTagNamesOrdered,
+                                               StreamTypeService streamTypeService,
+                                               String optionalStreamName,
+                                               StatementRawInfo statementRawInfo,
+                                               StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
 
-        FilterSpecCompiled compiled = buildNoStmtCtx(validatedDesc.getExpressions(), eventType, eventTypeName, optionalStreamName, optionalPropertyEvalSpec, taggedEventTypes, arrayEventTypes, streamTypeService, statementRawInfo, compileTimeServices);
+        FilterSpecCompiled compiled = buildNoStmtCtx(validatedDesc.getExpressions(), eventType, eventTypeName, optionalStreamName, optionalPropertyEvalSpec, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, statementRawInfo, compileTimeServices);
         return new FilterSpecCompiledDesc(compiled, validatedDesc.getAdditionalForgeables());
     }
 
@@ -75,6 +80,7 @@ public final class FilterSpecCompiler {
                                                     PropertyEvalSpec optionalPropertyEvalSpec,
                                                     LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
                                                     LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                                    LinkedHashSet<String> allTagNamesOrdered,
                                                     StreamTypeService streamTypeService,
                                                     StatementRawInfo statementRawInfo,
                                                     StatementCompileTimeServices compileTimeServices
@@ -85,8 +91,13 @@ public final class FilterSpecCompiler {
             optionalPropertyEvaluator = PropertyEvaluatorForgeFactory.makeEvaluator(optionalPropertyEvalSpec, eventType, optionalStreamName, statementRawInfo, compileTimeServices);
         }
 
-        FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, streamTypeService, null, statementRawInfo, compileTimeServices);
+        FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, null, statementRawInfo, compileTimeServices);
         List<FilterSpecParamForge>[] spec = FilterSpecCompilerPlanner.planFilterParameters(validatedNodes, args);
+
+        FilterSpecCompileHook hook = (FilterSpecCompileHook) ClasspathImportUtil.getAnnotationHook(statementRawInfo.getAnnotations(), HookType.INTERNAL_FILTERSPEC, FilterSpecCompileHook.class, compileTimeServices.getClasspathImportServiceCompileTime());
+        if (hook != null) {
+            hook.filterSpec(eventType, spec);
+        }
 
         if (log.isDebugEnabled()) {
             log.debug(".makeFilterSpec spec=" + spec);
@@ -95,18 +106,18 @@ public final class FilterSpecCompiler {
     }
 
     public static FilterSpecValidatedDesc validateAllowSubquery(ExprNodeOrigin exprNodeOrigin,
-                                                       List<ExprNode> exprNodes,
-                                                       StreamTypeService streamTypeService,
-                                                       LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
-                                                       LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                                                       StatementRawInfo statementRawInfo,
-                                                       StatementCompileTimeServices services)
-            throws ExprValidationException {
+                                                                List<ExprNode> exprNodes,
+                                                                StreamTypeService streamTypeService,
+                                                                LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                                                LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                                                StatementRawInfo statementRawInfo,
+                                                                StatementCompileTimeServices services)
+        throws ExprValidationException {
         List<ExprNode> validatedNodes = new ArrayList<ExprNode>();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, statementRawInfo, services)
-                .withAllowBindingConsumption(true).withIsFilterExpression(true).build();
+            .withAllowBindingConsumption(true).withIsFilterExpression(true).build();
         for (ExprNode node : exprNodes) {
             // Determine subselects
             ExprNodeSubselectDeclaredDotVisitor visitor = new ExprNodeSubselectDeclaredDotVisitor();
@@ -119,8 +130,8 @@ public final class FilterSpecCompiler {
                 for (ExprSubselectNode subselect : visitor.getSubselects()) {
                     try {
                         List<StmtClassForgeableFactory> subselectAdditionalForgeables = SubSelectHelperFilters.handleSubselectSelectClauses(subselect,
-                                streamTypeService.getEventTypes()[0], streamTypeService.getStreamNames()[0], streamTypeService.getStreamNames()[0],
-                                taggedEventTypes, arrayEventTypes, statementRawInfo, services);
+                            streamTypeService.getEventTypes()[0], streamTypeService.getStreamNames()[0], streamTypeService.getStreamNames()[0],
+                            taggedEventTypes, arrayEventTypes, statementRawInfo, services);
                         additionalForgeables.addAll(subselectAdditionalForgeables);
                     } catch (ExprValidationException ex) {
                         throw new ExprValidationException("Failed to validate " + ExprNodeUtilityMake.getSubqueryInfoText(subselect) + ": " + ex.getMessage(), ex);

@@ -96,7 +96,7 @@ public class SupportFilterHelper {
         return total;
     }
 
-    public static void assertFilterTwo(EPStatement statement, String epl, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
+    public static void assertFilterTwo(EPStatement statement, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
         EPStatementSPI statementSPI = (EPStatementSPI) statement;
         FilterItem[] multi = getFilterMulti(statementSPI);
         assertEquals(2, multi.length);
@@ -132,25 +132,15 @@ public class SupportFilterHelper {
         return paths.iterator().next();
     }
 
-    public static void assertFilterMulti(EPStatement statement, String eventTypeName, FilterItem[][] expected) {
-        EPStatementSPI spi = (EPStatementSPI) statement;
-        EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(spi.getStatementContext(), eventTypeName);
-        int statementId = spi.getStatementContext().getStatementId();
-        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) spi.getStatementContext().getFilterService();
-        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = filterServiceSPI.get(Collections.singleton(statementId));
+    public static void assertFilterByTypeSingle(EPStatement statement, String eventTypeName, FilterItem expected) {
+        FilterItem[][] filtersAll = getFilterMulti(statement, eventTypeName);
+        assertEquals(1, filtersAll.length);
+        FilterItem[] filters = filtersAll[0];
+        assertEquals(1, filters.length);
+        assertEquals(expected, filters[0]);
+    }
 
-        Map<Integer, List<FilterItem[]>> filters = null;
-        for (Map.Entry<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> entry : set.entrySet()) {
-            if (entry.getKey().equals(typeId)) {
-                filters = entry.getValue();
-            }
-        }
-        assertNotNull(filters);
-        assertFalse(filters.isEmpty());
-
-        List<FilterItem[]> params = filters.get(statementId);
-        assertFalse(params.isEmpty());
-
+    public static void assertFilterByTypeMulti(EPStatement statement, String eventTypeName, FilterItem[][] expected) {
         Comparator<FilterItem> comparator = new Comparator<FilterItem>() {
             public int compare(FilterItem o1, FilterItem o2) {
                 if (o1.getName().equals(o2.getName())) {
@@ -166,7 +156,8 @@ public class SupportFilterHelper {
             }
         };
 
-        FilterItem[][] found = params.toArray(new FilterItem[params.size()][]);
+        FilterItem[][] found = getFilterMulti(statement, eventTypeName);
+
         for (int i = 0; i < found.length; i++) {
             Arrays.sort(found[i], comparator);
         }
@@ -197,5 +188,27 @@ public class SupportFilterHelper {
         FilterServiceSPI filterService = ((EPRuntimeSPI) runtime).getServicesContext().getFilterService();
         Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = filterService.get(statements);
         return pairs.toString();
+    }
+
+    public static FilterItem[][] getFilterMulti(EPStatement statement, String eventTypeName) {
+        EPStatementSPI spi = (EPStatementSPI) statement;
+        EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(spi.getStatementContext(), eventTypeName);
+        int statementId = spi.getStatementContext().getStatementId();
+        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) spi.getStatementContext().getFilterService();
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = filterServiceSPI.get(Collections.singleton(statementId));
+
+        Map<Integer, List<FilterItem[]>> filters = null;
+        for (Map.Entry<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> entry : set.entrySet()) {
+            if (entry.getKey().equals(typeId)) {
+                filters = entry.getValue();
+            }
+        }
+        assertNotNull(filters);
+        assertFalse(filters.isEmpty());
+
+        List<FilterItem[]> params = filters.get(statementId);
+        assertFalse(params.isEmpty());
+
+        return params.toArray(new FilterItem[params.size()][]);
     }
 }

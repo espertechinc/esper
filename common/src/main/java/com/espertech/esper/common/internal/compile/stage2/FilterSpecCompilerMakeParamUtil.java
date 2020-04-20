@@ -15,9 +15,11 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.ops.*;
+import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeStreamUseCollectVisitor;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.SettingsApplicationDotMethodPointInsideRectange;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.SettingsApplicationDotMethodRectangeIntersectsRectangle;
+import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.property.IndexedProperty;
@@ -44,18 +46,24 @@ public final class FilterSpecCompilerMakeParamUtil {
      * For a given expression determine if this is optimizable and create the filter parameter
      * representing the expression, or null if not optimizable.
      *
-     * @param constituent     is the expression to look at
-     * @param arrayEventTypes event types that provide array values
-     * @param statementName   statement name
+     * @param constituent      is the expression to look at
+     * @param taggedEventTypes event types that provide non-array values
+     * @param arrayEventTypes  event types that provide array values
+     * @param statementName    statement name
      * @return filter parameter representing the expression, or null
      * @throws ExprValidationException if the expression is invalid
      */
-    protected static FilterSpecParamForge makeFilterParam(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName)
-            throws ExprValidationException {
+    protected static FilterSpecParamForge makeFilterParam(ExprNode constituent,
+                                                          LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                                          LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                                          LinkedHashSet<String> allTagNamesOrdered,
+                                                          String statementName,
+                                                          boolean advancedPlanning)
+        throws ExprValidationException {
 
         // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
         if ((constituent instanceof ExprEqualsNode) || (constituent instanceof ExprRelationalOpNode)) {
-            FilterSpecParamForge param = handleEqualsAndRelOp(constituent, arrayEventTypes, statementName);
+            FilterSpecParamForge param = handleEqualsAndRelOp(constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning);
             if (param != null) {
                 return param;
             }
@@ -65,14 +73,14 @@ public final class FilterSpecCompilerMakeParamUtil {
 
         // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
         if (constituent instanceof ExprInNode) {
-            FilterSpecParamForge param = handleInSetNode((ExprInNode) constituent, arrayEventTypes);
+            FilterSpecParamForge param = handleInSetNode((ExprInNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, advancedPlanning);
             if (param != null) {
                 return param;
             }
         }
 
         if (constituent instanceof ExprBetweenNode) {
-            FilterSpecParamForge param = handleRangeNode((ExprBetweenNode) constituent, arrayEventTypes, statementName);
+            FilterSpecParamForge param = handleRangeNode((ExprBetweenNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning);
             if (param != null) {
                 return param;
             }
@@ -190,8 +198,13 @@ public final class FilterSpecCompilerMakeParamUtil {
         return new FilterSpecParamConstantForge(lookupable, FilterOperator.EQUAL, true);
     }
 
-    private static FilterSpecParamForge handleEqualsAndRelOp(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName)
-            throws ExprValidationException {
+    private static FilterSpecParamForge handleEqualsAndRelOp(ExprNode constituent,
+                                                             LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                                             LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                                             LinkedHashSet<String> allTagNamesOrdered,
+                                                             String statementName,
+                                                             boolean advancedPlanning)
+        throws ExprValidationException {
         FilterOperator op;
         if (constituent instanceof ExprEqualsNode) {
             ExprEqualsNode equalsNode = (ExprEqualsNode) constituent;
@@ -245,7 +258,7 @@ public final class FilterSpecCompilerMakeParamUtil {
             }
         }
         // check identifier and expression containing other streams
-        if ((left instanceof ExprIdentNode) && (right instanceof ExprIdentNode)) {
+        if (left instanceof ExprIdentNode && right instanceof ExprIdentNode) {
             ExprIdentNode identNodeLeft = (ExprIdentNode) left;
             ExprIdentNode identNodeRight = (ExprIdentNode) right;
 
@@ -300,7 +313,53 @@ public final class FilterSpecCompilerMakeParamUtil {
             }
         }
 
+        // check identifier and limited expression
+        ExprIdentNode lookupable = null;
+        ExprNode value = null;
+        FilterOperator opWReverse = op;
+        if (left instanceof ExprIdentNode && isLimitedExpression(right, advancedPlanning)) {
+            lookupable = (ExprIdentNode) left;
+            value = right;
+        } else if (right instanceof ExprIdentNode && isLimitedExpression(left, advancedPlanning)) {
+            lookupable = (ExprIdentNode) right;
+            value = left;
+            opWReverse = getReversedOperator(constituent, op);
+        }
+        if (lookupable != null && lookupable.getFilterLookupEligible()) {
+            return handleLimitedExpr(opWReverse, lookupable, value, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
+        }
+
         return null;
+    }
+
+    private static FilterSpecParamForge handleLimitedExpr(FilterOperator op, ExprIdentNode lookupable, ExprNode value, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered) throws ExprValidationException {
+        ExprFilterSpecLookupableForge lookupableForge = lookupable.getFilterLookupable();
+        MatchedEventConvertorForge convertor = getMatchEventConvertor(value, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
+        Class valueType = value.getForge().getEvaluationType();
+        Class lookupableType = lookupable.getExprEvaluatorIdent().getEvaluationType();
+        SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupableType, valueType, lookupableForge.getExpression());
+        return new FilterSpecParamLimitedExprForge(lookupableForge, op, value, convertor, numberCoercer);
+    }
+
+    private static MatchedEventConvertorForge getMatchEventConvertor(ExprNode value, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered) throws ExprValidationException {
+        ExprNodeStreamUseCollectVisitor streamUseCollectVisitor = new ExprNodeStreamUseCollectVisitor();
+        value.accept(streamUseCollectVisitor);
+
+        Set<Integer> streams = new HashSet<>(streamUseCollectVisitor.getReferenced().size());
+        for (ExprStreamRefNode streamRefNode : streamUseCollectVisitor.getReferenced()) {
+            if (streamRefNode.getStreamReferencedIfAny() == null) {
+                continue;
+            }
+            streams.add(streamRefNode.getStreamReferencedIfAny());
+        }
+
+        return new MatchedEventConvertorForge(taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streams, true);
+    }
+
+    private static boolean isLimitedExpression(ExprNode node, boolean advancedPlanning) {
+        FilterSpecExprNodeVisitorLimitedExpr visitor = new FilterSpecExprNodeVisitorLimitedExpr(advancedPlanning);
+        node.accept(visitor);
+        return visitor.isRhsLimited();
     }
 
     private static FilterOperator getReversedOperator(ExprNode constituent, FilterOperator op) {
@@ -324,7 +383,7 @@ public final class FilterSpecCompilerMakeParamUtil {
     }
 
     private static FilterSpecParamForge handleProperty(FilterOperator op, ExprIdentNode identNodeLeft, ExprIdentNode identNodeRight, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName)
-            throws ExprValidationException {
+        throws ExprValidationException {
         String propertyName = identNodeLeft.getResolvedPropertyName();
 
         Class leftType = identNodeLeft.getForge().getEvaluationType();
@@ -339,10 +398,10 @@ public final class FilterSpecCompilerMakeParamUtil {
             EventType innerEventType = getArrayInnerEventType(arrayEventTypes, streamName);
             Pair<Integer, String> indexAndProp = getStreamIndex(identNodeRight.getResolvedPropertyName());
             return new FilterSpecParamEventPropIndexedForge(identNodeLeft.getFilterLookupable(), op, identNodeRight.getResolvedStreamName(), indexAndProp.getFirst(),
-                    indexAndProp.getSecond(), innerEventType, isMustCoerce, numberCoercer, numericCoercionType, statementName);
+                indexAndProp.getSecond(), innerEventType, isMustCoerce, numberCoercer, numericCoercionType, statementName);
         }
         return new FilterSpecParamEventPropForge(identNodeLeft.getFilterLookupable(), op, identNodeRight.getResolvedStreamName(), identNodeRight.getResolvedPropertyName(), identNodeRight.getExprEvaluatorIdent(),
-                isMustCoerce, numberCoercer, numericCoercionType, statementName);
+            isMustCoerce, numberCoercer, numericCoercionType, statementName);
     }
 
     private static EventType getArrayInnerEventType(LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String streamName) {
@@ -384,21 +443,21 @@ public final class FilterSpecCompilerMakeParamUtil {
     }
 
     private static void throwConversionError(Class fromType, Class toType, String propertyName)
-            throws ExprValidationException {
+        throws ExprValidationException {
         String text = "Implicit conversion from datatype '" +
-                fromType.getSimpleName() +
-                "' to '" +
-                toType.getSimpleName() +
-                "' for property '" +
-                propertyName +
-                "' is not allowed (strict filter type coercion)";
+            fromType.getSimpleName() +
+            "' to '" +
+            toType.getSimpleName() +
+            "' for property '" +
+            propertyName +
+            "' is not allowed (strict filter type coercion)";
         throw new ExprValidationException(text);
     }
 
     // expressions automatically coerce to the most upwards type
     // filters require the same type
     private static Object handleConstantsCoercion(ExprFilterSpecLookupableForge lookupable, Object constant)
-            throws ExprValidationException {
+        throws ExprValidationException {
         Class identNodeType = lookupable.getReturnType();
         if (!JavaClassHelper.isNumeric(identNodeType)) {
             return constant;    // no coercion required, other type checking performed by expression this comes from
@@ -482,16 +541,16 @@ public final class FilterSpecCompilerMakeParamUtil {
         return true;
     }
 
-    private static FilterSpecParamForge handleRangeNode(ExprBetweenNode betweenNode, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName) {
+    private static FilterSpecParamForge handleRangeNode(ExprBetweenNode betweenNode, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, boolean advancedPlanning) throws ExprValidationException {
         ExprNode left = betweenNode.getChildNodes()[0];
         if (left instanceof ExprFilterOptimizableNode) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             FilterOperator op = FilterOperator.parseRangeOperator(betweenNode.isLowEndpointIncluded(), betweenNode.isHighEndpointIncluded(),
-                    betweenNode.isNotBetween());
+                betweenNode.isNotBetween());
 
-            FilterSpecParamFilterForEvalForge low = handleRangeNodeEndpoint(betweenNode.getChildNodes()[1], arrayEventTypes, statementName);
-            FilterSpecParamFilterForEvalForge high = handleRangeNodeEndpoint(betweenNode.getChildNodes()[2], arrayEventTypes, statementName);
+            FilterSpecParamFilterForEvalForge low = handleRangeNodeEndpoint(betweenNode.getChildNodes()[1], taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning);
+            FilterSpecParamFilterForEvalForge high = handleRangeNodeEndpoint(betweenNode.getChildNodes()[2], taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning);
 
             if ((low != null) && (high != null)) {
                 return new FilterSpecParamRangeForge(lookupable, op, low, high);
@@ -500,7 +559,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         return null;
     }
 
-    private static FilterSpecParamFilterForEvalForge handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName) {
+    private static FilterSpecParamFilterForEvalForge handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, boolean advancedPlanning) throws ExprValidationException {
         // constant
         if (endpoint.getForge().getForgeConstantType().isCompileTimeConstant()) {
             Object value = endpoint.getForge().getExprEvaluator().evaluate(null, true, null);
@@ -537,6 +596,17 @@ public final class FilterSpecCompilerMakeParamUtil {
             return getIdentNodeDoubleEval((ExprIdentNode) endpoint, arrayEventTypes, statementName);
         }
 
+        // or limited expression
+        if (isLimitedExpression(endpoint, advancedPlanning)) {
+            Class returnType = endpoint.getForge().getEvaluationType();
+            MatchedEventConvertorForge convertor = getMatchEventConvertor(endpoint, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
+            if (JavaClassHelper.isImplementsCharSequence(returnType)) {
+                return new FilterForEvalLimitedExprForge(endpoint, convertor, null);
+            }
+            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(returnType, Double.class);
+            return new FilterForEvalLimitedExprForge(endpoint, convertor, coercer);
+        }
+
         return null;
     }
 
@@ -554,8 +624,8 @@ public final class FilterSpecCompilerMakeParamUtil {
         }
     }
 
-    private static FilterSpecParamForge handleInSetNode(ExprInNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes)
-            throws ExprValidationException {
+    private static FilterSpecParamForge handleInSetNode(ExprInNode constituent, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, boolean advancedPlanning)
+        throws ExprValidationException {
         ExprNode left = constituent.getChildNodes()[0];
         if (!(left instanceof ExprFilterOptimizableNode)) {
             return null;
@@ -618,8 +688,7 @@ public final class FilterSpecCompilerMakeParamUtil {
                     coercer = getNumberCoercer(left.getForge().getEvaluationType(), returnType, lookupable.getExpression());
                 }
                 listofValues.add(new FilterForEvalDeployTimeConstForge(deployTimeConst, coercer, returnType));
-            }
-            if (subNode instanceof ExprIdentNode) {
+            } else if (subNode instanceof ExprIdentNode) {
                 ExprIdentNode identNodeInner = (ExprIdentNode) subNode;
                 if (identNodeInner.getStreamId() == 0) {
                     break; // for same event evals use the boolean expression, via count compare failing below
@@ -650,12 +719,19 @@ public final class FilterSpecCompilerMakeParamUtil {
                     Pair<Integer, String> indexAndProp = getStreamIndex(identNodeInner.getResolvedPropertyName());
                     EventType innerEventType = getArrayInnerEventType(arrayEventTypes, streamName);
                     inValue = new FilterForEvalEventPropIndexedForge(identNodeInner.getResolvedStreamName(), indexAndProp.getFirst(),
-                            indexAndProp.getSecond(), innerEventType, isMustCoerce, coerceToType);
+                        indexAndProp.getSecond(), innerEventType, isMustCoerce, coerceToType);
                 } else {
                     inValue = new FilterForEvalEventPropForge(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName(), identNodeInner.getExprEvaluatorIdent(), isMustCoerce, coerceToType);
                 }
 
                 listofValues.add(inValue);
+            } else if (isLimitedExpression(subNode, advancedPlanning)) {
+                MatchedEventConvertorForge convertor = getMatchEventConvertor(subNode, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
+                Class valueType = subNode.getForge().getEvaluationType();
+                Class lookupableType = lookupable.getReturnType();
+                SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupableType, valueType, lookupable.getExpression());
+                FilterForEvalLimitedExprForge forge = new FilterForEvalLimitedExprForge(subNode, convertor, numberCoercer);
+                listofValues.add(forge);
             }
         }
 

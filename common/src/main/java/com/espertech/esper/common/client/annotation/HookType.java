@@ -45,6 +45,11 @@ public enum HookType {
     INTERNAL_PATTERNCOMPILE,
 
     /**
+     * For internal use, filter spec reporting.
+     */
+    INTERNAL_FILTERSPEC,
+
+    /**
      * For internal use, statement spec compiled reporting.
      */
     INTERNAL_COMPILE;

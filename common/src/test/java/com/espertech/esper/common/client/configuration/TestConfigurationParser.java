@@ -61,6 +61,7 @@ public class TestConfigurationParser extends TestCase {
         assertTrue(compiler.getViewResources().isOutputLimitOpt());
         assertFalse(compiler.getLogging().isEnableCode());
         assertEquals(16, compiler.getExecution().getFilterServiceMaxFilterWidth());
+        assertTrue(compiler.getExecution().isFilterServiceAdvancedPlanning());
         assertTrue(compiler.getExecution().isEnabledDeclaredExprValueCache());
         ConfigurationCompilerByteCode byteCode = compiler.getByteCode();
         assertFalse(byteCode.isIncludeComments());
@@ -502,6 +503,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, compiler.getStreamSelection().getDefaultStreamSelector());
 
         assertEquals(100, compiler.getExecution().getFilterServiceMaxFilterWidth());
+        assertFalse(compiler.getExecution().isFilterServiceAdvancedPlanning());
         assertFalse(compiler.getExecution().isEnabledDeclaredExprValueCache());
 
         assertTrue(compiler.getLanguage().isSortUsingCollator());

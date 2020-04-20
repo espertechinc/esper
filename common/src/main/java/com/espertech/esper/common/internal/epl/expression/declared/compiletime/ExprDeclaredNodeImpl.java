@@ -299,7 +299,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public boolean getFilterLookupEligible() {
-        return true;
+        return forge instanceof ExprDeclaredForgeBase;
     }
 
     public ExprFilterSpecLookupableForge getFilterLookupable() {

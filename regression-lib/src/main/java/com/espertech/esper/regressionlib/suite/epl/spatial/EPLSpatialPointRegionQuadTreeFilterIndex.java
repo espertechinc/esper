@@ -51,13 +51,13 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
         public void run(RegressionEnvironment env) {
             String eplNoIndex = "@name('s0') select * from SupportSpatialAABB(point(0, 0).inside(rectangle(x, y, width, height)))";
             env.compileDeploy(eplNoIndex);
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportSpatialAABB", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
+            SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportSpatialAABB", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
             env.undeployAll();
 
             String eplIndexed = "@name('s0') expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))";
             env.compileDeploy(eplIndexed);
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportSpatialAABB", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/pointregionquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
+            SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportSpatialAABB", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/pointregionquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
 
             env.undeployAll();
         }

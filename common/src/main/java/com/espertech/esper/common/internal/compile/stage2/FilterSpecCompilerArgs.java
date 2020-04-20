@@ -17,19 +17,22 @@ import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDes
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 public class FilterSpecCompilerArgs {
 
     public final LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes;
     public final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;
+    public final LinkedHashSet<String> allTagNamesOrdered;
     public final StreamTypeService streamTypeService;
     public final ContextCompileTimeDescriptor contextDescriptor;
     public final StatementRawInfo statementRawInfo;
     public final StatementCompileTimeServices compileTimeServices;
 
-    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, StreamTypeService streamTypeService, ContextCompileTimeDescriptor contextDescriptor, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) {
+    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, StreamTypeService streamTypeService, ContextCompileTimeDescriptor contextDescriptor, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) {
         this.taggedEventTypes = taggedEventTypes;
         this.arrayEventTypes = arrayEventTypes;
+        this.allTagNamesOrdered = allTagNamesOrdered;
         this.streamTypeService = streamTypeService;
         this.contextDescriptor = contextDescriptor;
         this.statementRawInfo = statementRawInfo;

@@ -20,6 +20,7 @@ public class ConfigurationCompilerExecution implements Serializable {
 
     private int filterServiceMaxFilterWidth = 16;
     private boolean enabledDeclaredExprValueCache = true;
+    private boolean filterServiceAdvancedPlanning = true;
 
     /**
      * Returns the maximum width for breaking up "or" expression in filters to
@@ -57,5 +58,23 @@ public class ConfigurationCompilerExecution implements Serializable {
      */
     public void setEnabledDeclaredExprValueCache(boolean enabledDeclaredExprValueCache) {
         this.enabledDeclaredExprValueCache = enabledDeclaredExprValueCache;
+    }
+
+    /**
+     * Sets the flag instructing the filter expression planning to perform only basic planning.
+     * Please check the documentation for information on advanced planning.
+     * @return flag
+     */
+    public boolean isFilterServiceAdvancedPlanning() {
+        return filterServiceAdvancedPlanning;
+    }
+
+    /**
+     * Returns the flag instructing the filter expression planning to perform only basic planning.
+     * Please check the documentation for information on advanced planning.
+     * @param filterServiceAdvancedPlanning flag
+     */
+    public void setFilterServiceAdvancedPlanning(boolean filterServiceAdvancedPlanning) {
+        this.filterServiceAdvancedPlanning = filterServiceAdvancedPlanning;
     }
 }

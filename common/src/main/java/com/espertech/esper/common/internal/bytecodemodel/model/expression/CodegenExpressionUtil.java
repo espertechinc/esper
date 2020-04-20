@@ -56,25 +56,15 @@ public class CodegenExpressionUtil {
         } else if (constant instanceof Byte) {
             builder.append("(byte)").append(constant);
         } else if (constant instanceof byte[]) {
-            String hex = bytesToHex((byte[]) constant);
-            builder.append(CodegenExpressionUtil.class.getName()).append(".").append("hexStringToByteArray(\"").append(hex).append("\")");
-        } else if (constant.getClass().isArray()) {
-            if (Array.getLength(constant) == 0) {
-                builder.append("new ");
-                appendClassName(builder, constant.getClass().getComponentType(), null, imports);
-                builder.append("[]{}");
+            byte[] bytes = (byte[]) constant;
+            if (bytes.length > 10) {
+                String hex = bytesToHex((byte[]) constant);
+                builder.append(CodegenExpressionUtil.class.getName()).append(".").append("hexStringToByteArray(\"").append(hex).append("\")");
             } else {
-                builder.append("new ");
-                appendClassName(builder, constant.getClass().getComponentType(), null, imports);
-                builder.append("[] {");
-                String delimiter = "";
-                for (int i = 0; i < Array.getLength(constant); i++) {
-                    builder.append(delimiter);
-                    renderConstant(builder, Array.get(constant, i), imports);
-                    delimiter = ",";
-                }
-                builder.append("}");
+                renderArray(constant, builder, imports);
             }
+        } else if (constant.getClass().isArray()) {
+            renderArray(constant, builder, imports);
         } else if (constant.getClass().isEnum()) {
             appendClassName(builder, constant.getClass(), null, imports);
             builder.append(".").append(constant);
@@ -128,6 +118,25 @@ public class CodegenExpressionUtil {
             hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    private static void renderArray(Object constant, StringBuilder builder, Map<Class, String> imports) {
+        if (Array.getLength(constant) == 0) {
+            builder.append("new ");
+            appendClassName(builder, constant.getClass().getComponentType(), null, imports);
+            builder.append("[]{}");
+        } else {
+            builder.append("new ");
+            appendClassName(builder, constant.getClass().getComponentType(), null, imports);
+            builder.append("[] {");
+            String delimiter = "";
+            for (int i = 0; i < Array.getLength(constant); i++) {
+                builder.append(delimiter);
+                renderConstant(builder, Array.get(constant, i), imports);
+                delimiter = ",";
+            }
+            builder.append("}");
+        }
     }
 
     /**

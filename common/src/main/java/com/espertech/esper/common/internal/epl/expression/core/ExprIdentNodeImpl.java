@@ -353,4 +353,5 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         ExprIdentNodeFragmentTypeEnumerationForge forge = new ExprIdentNodeFragmentTypeEnumerationForge(resolvedPropertyName, getStreamId(), fragmentEventType.getFragmentType(), evaluator.getEventType().getGetterSPI(resolvedPropertyName));
         return new ExprEnumerationForgeDesc(forge, streamTypeService.getIStreamOnly()[getStreamId()], -1);
     }
+
 }

@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.suite.expr.filter.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
@@ -52,6 +54,10 @@ public class TestSuiteExprFilter extends TestCase {
 
     public void testExprFilterOptimizableOrRewrite() {
         RegressionRunner.run(session, ExprFilterOptimizableOrRewrite.executions());
+    }
+
+    public void testExprFilterOptimizableLimitedExpr() {
+        RegressionRunner.run(session, ExprFilterOptimizableLimitedExpr.executions());
     }
 
     public void testExprFilterExpressions() {
@@ -135,7 +141,7 @@ public class TestSuiteExprFilter extends TestCase {
             SupportInstanceMethodBean.class, SupportRuntimeExBean.class, SupportBeanWithEnum.class,
             SupportBeanComplexProps.class, SupportMarketDataBean.class, SupportBeanNumeric.class, SupportBean_S0.class,
             SupportInKeywordBean.class, SupportOverrideBase.class, SupportOverrideOne.class,
-            SupportBean_IntAlphabetic.class, SupportBean_StringAlphabetic.class}) {
+            SupportBean_IntAlphabetic.class, SupportBean_StringAlphabetic.class, SupportBean_S1.class, SupportBean_S2.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

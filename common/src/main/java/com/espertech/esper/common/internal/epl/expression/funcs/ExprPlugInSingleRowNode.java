@@ -217,4 +217,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
     public List<ExprNode> getAdditionalNodes() {
         return ExprNodeUtilityQuery.collectChainParameters(chainSpec);
     }
+
+    public ClasspathImportSingleRowDesc getConfig() {
+        return config;
+    }
 }

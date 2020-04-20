@@ -940,6 +940,7 @@
 	</xs:complexType>
 	<xs:complexType name="compiler-execution-type">
 		<xs:attribute name="filter-service-max-filter-width" type="xs:int" use="optional"/>
+		<xs:attribute name="filter-service-advanced-planning" type="xs:boolean" use="optional"/>
 		<xs:attribute name="enable-declared-expr-value-cache" type="xs:boolean" use="optional"/>
 	</xs:complexType>
 	<xs:complexType name="runtime-execution-type">

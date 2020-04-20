@@ -71,7 +71,7 @@ public class EventBusSourceForge implements DataFlowOperatorForge {
             }
             StreamTypeServiceImpl streamTypeService = new StreamTypeServiceImpl(eventType, eventType.getName(), true);
             FilterSpecCompiledDesc compiledDesc = FilterSpecCompiler.makeFilterSpec(eventType, eventType.getName(), filters, null,
-                null, null, streamTypeService, null, context.getStatementRawInfo(), context.getServices());
+                null, null, null, streamTypeService, null, context.getStatementRawInfo(), context.getServices());
             filterSpecCompiled = compiledDesc.getFilterSpecCompiled();
         } catch (ExprValidationException ex) {
             throw new ExprValidationException("Failed to obtain filter parameters: " + ex.getMessage(), ex);

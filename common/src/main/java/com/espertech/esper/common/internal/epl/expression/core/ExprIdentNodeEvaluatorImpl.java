@@ -27,7 +27,7 @@ import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
-    private final int streamNum;
+    private int streamNum;
     private final EventPropertyGetterSPI propertyGetter;
     protected final Class returnType;
     private final ExprIdentNode identNode;
@@ -142,4 +142,5 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     public EventTypeSPI getEventType() {
         return eventType;
     }
+
 }

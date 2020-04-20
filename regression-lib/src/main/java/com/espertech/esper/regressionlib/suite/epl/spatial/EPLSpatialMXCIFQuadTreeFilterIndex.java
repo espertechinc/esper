@@ -45,13 +45,13 @@ public class EPLSpatialMXCIFQuadTreeFilterIndex {
         public void run(RegressionEnvironment env) {
             String eplNoIndex = "@name('s0') select * from SupportSpatialEventRectangle(rectangle(0, 0, 1, 1).intersects(rectangle(x, y, width, height)))";
             env.compileDeploy(eplNoIndex);
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
+            SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
             env.undeployAll();
 
             String eplIndexed = "@name('s0') expression myindex {mxcifquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialEventRectangle(rectangle(10, 20, 5, 6, filterindex:myindex).intersects(rectangle(x, y, width, height)))";
             env.compileDeploy(eplIndexed).addListener("s0");
-            SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/mxcifquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
+            SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/mxcifquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
 
             sendAssertEventRectangle(env, env.listener("s0"), 10, 20, 0, 0, true);
             sendAssertEventRectangle(env, env.listener("s0"), 9, 19, 0.9999, 0.9999, false);

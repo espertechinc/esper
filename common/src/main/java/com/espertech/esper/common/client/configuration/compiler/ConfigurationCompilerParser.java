@@ -102,6 +102,7 @@ public class ConfigurationCompilerParser {
             compiler.getExecution().setFilterServiceMaxFilterWidth(Integer.parseInt(filterServiceMaxFilterWidthStr));
         }
         parseOptionalBoolean(element, "enable-declared-expr-value-cache", b -> compiler.getExecution().setEnabledDeclaredExprValueCache(b));
+        parseOptionalBoolean(element, "filter-service-advanced-planning", b -> compiler.getExecution().setFilterServiceAdvancedPlanning(b));
     }
 
     private static void handleExpression(ConfigurationCompiler compiler, Element element) {

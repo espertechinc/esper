@@ -24,6 +24,7 @@ public class SupportBeanArrayCollMap {
     private Object anyObject;
     private Map<String, Object> otherMap;
     private Set<String> setOfString;
+    private String id;
 
     public SupportBeanArrayCollMap() {
         this.anyObject = anyObject;
@@ -154,6 +155,14 @@ public class SupportBeanArrayCollMap {
 
     public void setOtherMap(Map<String, Object> otherMap) {
         this.otherMap = otherMap;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     private static HashMap<Long, String> convertMap(Long[] longArr) {

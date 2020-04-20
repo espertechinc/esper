@@ -42,7 +42,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.assertFilterSingle;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
@@ -173,7 +172,7 @@ public class ExprFilterOptimizable {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                assertFilterSingle(env.statement("s0"), epl, "theString", FilterOperator.IN_LIST_OF_VALUES);
+                SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "theString", FilterOperator.IN_LIST_OF_VALUES);
 
                 env.sendEventBean(new SupportBean("a", 0));
                 assertTrue(env.listener("s0").getAndClearIsInvoked());
@@ -187,7 +186,7 @@ public class ExprFilterOptimizable {
 
             String epl = "@name('s0') select * from SupportBean(intPrimitive = 1 and (theString='a' or theString='b'))";
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-            SupportFilterHelper.assertFilterTwo(env.statement("s0"), epl, "intPrimitive", FilterOperator.EQUAL, "theString", FilterOperator.IN_LIST_OF_VALUES);
+            SupportFilterHelper.assertFilterTwo(env.statement("s0"), "intPrimitive", FilterOperator.EQUAL, "theString", FilterOperator.IN_LIST_OF_VALUES);
             env.undeployAll();
         }
     }
@@ -225,14 +224,14 @@ public class ExprFilterOptimizable {
 
     private static void runAssertionBetweenWSubsWNumeric(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", 10, "p1", 11));
-        assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.RANGE_CLOSED);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.RANGE_CLOSED);
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
     }
 
     private static void runAssertionBetweenWVariableWNumeric(RegressionEnvironment env, String epl) {
         env.compileDeploy("@name('s0') " + epl).addListener("s0");
-        assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.RANGE_CLOSED);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.RANGE_CLOSED);
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
     }
@@ -248,7 +247,7 @@ public class ExprFilterOptimizable {
     }
 
     private static void tryAssertionBetweenDeplotTimeConst(RegressionEnvironment env, String epl) {
-        assertFilterSingle(env.statement("s0"), epl, "theString", FilterOperator.RANGE_CLOSED);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "theString", FilterOperator.RANGE_CLOSED);
 
         env.sendEventBean(new SupportBean("b", 0));
         assertFalse(env.listener("s0").getAndClearIsInvoked());
@@ -267,14 +266,14 @@ public class ExprFilterOptimizable {
 
     private static void runAssertionInWSubsWArray(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", new int[]{10, 11}));
-        assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
     }
 
     private static void runAssertionInWVariableWArray(RegressionEnvironment env, String epl) {
         env.compileDeploy("@name('s0') " + epl).addListener("s0");
-        assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
     }
@@ -295,14 +294,14 @@ public class ExprFilterOptimizable {
 
     private static void runAssertionInWSubs(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", 10, "p1", 11));
-        assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
     }
 
     private static void runAssertionInWVariable(RegressionEnvironment env, String epl) {
         env.compileDeploy("@name('s0') " + epl).addListener("s0");
-        assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
     }
@@ -318,7 +317,7 @@ public class ExprFilterOptimizable {
     }
 
     private static void tryAssertionRelOpWDeployTimeConst(RegressionEnvironment env, String epl) {
-        assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.GREATER);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "intPrimitive", FilterOperator.GREATER);
 
         env.sendEventBean(new SupportBean("E1", 10));
         assertFalse(env.listener("s0").getAndClearIsInvoked());
@@ -340,7 +339,7 @@ public class ExprFilterOptimizable {
     }
 
     private static void tryAssertionEqualsWDeployTimeConst(RegressionEnvironment env, String epl) {
-        assertFilterSingle(env.statement("s0"), epl, "theString", FilterOperator.EQUAL);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "theString", FilterOperator.EQUAL);
 
         env.sendEventBean(new SupportBean("abc", 0));
         assertTrue(env.listener("s0").getAndClearIsInvoked());
@@ -353,7 +352,7 @@ public class ExprFilterOptimizable {
 
     private static void runAssertionEqualsWSubsWCoercion(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", 100));
-        assertFilterSingle(env.statement("s0"), epl, "longPrimitive", FilterOperator.EQUAL);
+        SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, "longPrimitive", FilterOperator.EQUAL);
 
         SupportBean sb = new SupportBean();
         sb.setLongPrimitive(100);
@@ -377,7 +376,7 @@ public class ExprFilterOptimizable {
         assertInKeywordReceivedPattern(env, SerializableObjectCopier.copyMayFail(prototype), 2, true);
         assertInKeywordReceivedPattern(env, SerializableObjectCopier.copyMayFail(prototype), 3, false);
 
-        SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+        SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
             {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
         });
 
@@ -417,7 +416,7 @@ public class ExprFilterOptimizable {
         assertInKeywordReceivedPattern(env, SerializableObjectCopier.copyMayFail(prototype), 3, true);
 
         assertInKeywordReceivedPattern(env, SerializableObjectCopier.copyMayFail(prototype), 1, false);
-        SupportFilterHelper.assertFilterMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+        SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
             {new FilterItem("intPrimitive", FilterOperator.NOT_IN_LIST_OF_VALUES)},
         });
 
@@ -441,7 +440,7 @@ public class ExprFilterOptimizable {
         env.sendEventBean(new SupportBean("E3", 3));
         assertFalse(env.listener("s1").getIsInvokedAndReset() || env.listener("s2").getIsInvokedAndReset());
 
-        SupportFilterHelper.assertFilterMulti(env.statement("s2"), "SupportBean", new FilterItem[][]{
+        SupportFilterHelper.assertFilterByTypeMulti(env.statement("s2"), "SupportBean", new FilterItem[][]{
             {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
         });
 

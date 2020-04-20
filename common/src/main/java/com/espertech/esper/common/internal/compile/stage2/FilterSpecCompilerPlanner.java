@@ -175,7 +175,7 @@ public class FilterSpecCompilerPlanner {
 
         // Make filter parameter for each expression node, if it can be optimized
         for (ExprNode constituent : constituents) {
-            FilterSpecParamForge param = FilterSpecCompilerMakeParamUtil.makeFilterParam(constituent, args.arrayEventTypes, args.statementRawInfo.getStatementName());
+            FilterSpecParamForge param = FilterSpecCompilerMakeParamUtil.makeFilterParam(constituent, args.taggedEventTypes, args.arrayEventTypes, args.allTagNamesOrdered, args.statementRawInfo.getStatementName(), args.compileTimeServices.getConfiguration().getCompiler().getExecution().isFilterServiceAdvancedPlanning());
             filterParamExprMap.put(constituent, param); // accepts null values as the expression may not be optimized
         }
 
