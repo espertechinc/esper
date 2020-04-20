@@ -188,4 +188,8 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
         result = 31 * result + resultEventProperty.hashCode();
         return result;
     }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("indexed event property '").append(resultEventProperty).append("'");
+    }
 }

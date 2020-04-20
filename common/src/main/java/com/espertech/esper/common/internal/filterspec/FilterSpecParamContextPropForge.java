@@ -27,11 +27,13 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 
 public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
+    private final String propertyName;
     private final EventPropertyGetterSPI getter;
     private final SimpleNumberCoercer numberCoercer;
 
-    public FilterSpecParamContextPropForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, EventPropertyGetterSPI getter, SimpleNumberCoercer numberCoercer) {
+    public FilterSpecParamContextPropForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String propertyName, EventPropertyGetterSPI getter, SimpleNumberCoercer numberCoercer) {
         super(lookupable, filterOperator);
+        this.propertyName = propertyName;
         this.getter = getter;
         this.numberCoercer = numberCoercer;
     }
@@ -57,5 +59,9 @@ public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
 
         method.getBlock().methodReturn(param);
         return method;
+    }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("context property '").append(propertyName).append("'");
     }
 }

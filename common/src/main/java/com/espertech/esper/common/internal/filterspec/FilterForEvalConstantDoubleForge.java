@@ -52,4 +52,8 @@ public class FilterForEvalConstantDoubleForge implements FilterSpecParamFilterFo
         long temp = doubleValue != +0.0d ? Double.doubleToLongBits(doubleValue) : 0L;
         return (int) (temp ^ (temp >>> 32));
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("double-value ").append(doubleValue);
+    }
 }

@@ -180,4 +180,8 @@ public final class FilterSpecParamEventPropForge extends FilterSpecParamForge {
         method.getBlock().methodReturn(param);
         return method;
     }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("event property '").append(resultEventProperty).append("'");
+    }
 }

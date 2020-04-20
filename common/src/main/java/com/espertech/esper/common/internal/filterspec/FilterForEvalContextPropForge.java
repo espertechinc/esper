@@ -89,4 +89,8 @@ public class FilterForEvalContextPropForge implements FilterSpecParamInValueForg
     public int hashCode() {
         return propertyName.hashCode();
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("context property '").append(propertyName).append("'");
+    }
 }

@@ -228,6 +228,10 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
         return method;
     }
 
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("expression '").append(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(exprNode)).append("'");
+    }
+
     private EventType findMayNull(String tag, LinkedHashMap<String, Pair<EventType, String>> tags) {
         if (tags == null || !tags.containsKey(tag)) {
             return null;

@@ -18,6 +18,7 @@ import java.io.Serializable;
 public class ConfigurationCompilerLogging implements Serializable {
     private static final long serialVersionUID = 2629607342543286828L;
     private boolean enableCode;
+    private boolean enableFilterPlan;
 
     /**
      * Ctor - sets up defaults.
@@ -44,4 +45,21 @@ public class ConfigurationCompilerLogging implements Serializable {
         this.enableCode = enableCode;
     }
 
+    /**
+     * Returns indicator whether filter plan logging is enabled or not.
+     *
+     * @return indicator
+     */
+    public boolean isEnableFilterPlan() {
+        return enableFilterPlan;
+    }
+
+    /**
+     * Set indicator whether filter plan logging is enabled, by default it is disabled.
+     *
+     * @param enableFilterPlan indicator
+     */
+    public void setEnableFilterPlan(boolean enableFilterPlan) {
+        this.enableFilterPlan = enableFilterPlan;
+    }
 }

@@ -186,6 +186,9 @@ public class ConfigurationCompilerParser {
             if (subElement.getNodeName().equals("code")) {
                 parseRequiredBoolean(subElement, "enabled", b -> compiler.getLogging().setEnableCode(b));
             }
+            if (subElement.getNodeName().equals("filter-plan")) {
+                parseRequiredBoolean(subElement, "enabled", b -> compiler.getLogging().setEnableFilterPlan(b));
+            }
         }
     }
 

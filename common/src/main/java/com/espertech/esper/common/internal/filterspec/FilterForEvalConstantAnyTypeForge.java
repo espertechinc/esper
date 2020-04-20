@@ -77,4 +77,8 @@ public class FilterForEvalConstantAnyTypeForge implements FilterSpecParamInValue
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
         return constant(constant);
     }
+
+    public void valueToString(StringBuilder out) {
+        FilterSpecParamConstantForge.valueExprToString(out, constant);
+    }
 }

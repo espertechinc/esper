@@ -176,5 +176,7 @@ public class TestSuiteExprFilter extends TestCase {
         configuration.getCompiler().getPlugInSingleRowFunctions().add(func);
 
         configuration.getCompiler().addPlugInSingleRowFunction("getLocalValue", ExprFilterPlanOneFilterNonNested.class.getName(), "getLocalValue");
+
+        configuration.getCompiler().getLogging().setEnableFilterPlan(true);
     }
 }

@@ -35,6 +35,7 @@ public class TestSuiteExprFilterWConfig extends TestCase {
         session.getConfiguration().getCommon().addEventType(SupportBean.class);
         session.getConfiguration().getCommon().addEventType(SupportTradeEvent.class);
         session.getConfiguration().getCommon().getExecution().setThreadingProfile(ThreadingProfile.LARGE);
+        session.getConfiguration().getCompiler().getLogging().setEnableFilterPlan(true);
         RegressionRunner.run(session, new ExprFilterLargeThreading());
         session.destroy();
     }
@@ -46,6 +47,7 @@ public class TestSuiteExprFilterWConfig extends TestCase {
         Configuration configuration = SupportConfigFactory.getConfiguration();
         configuration.getCommon().addEventType(SupportBean.class);
         configuration.getCompiler().getExecution().setFilterServiceAdvancedPlanning(false);
+        configuration.getCompiler().getLogging().setEnableFilterPlan(true);
         try {
             EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments(configuration));
         } catch (EPCompileException e) {

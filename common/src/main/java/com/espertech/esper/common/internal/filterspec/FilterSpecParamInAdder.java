@@ -14,4 +14,5 @@ import java.util.Collection;
 
 public interface FilterSpecParamInAdder {
     void add(Collection<Object> constants, Object value);
+    void valueToString(StringBuilder out);
 }

@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
@@ -64,5 +65,9 @@ public class FilterForEvalLimitedExprForge implements FilterSpecParamInValueForg
 
     public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {
         return null;
+    }
+
+    public void valueToString(StringBuilder out) {
+        out.append("expression '").append(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(value)).append("'");
     }
 }

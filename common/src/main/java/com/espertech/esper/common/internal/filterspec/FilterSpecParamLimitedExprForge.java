@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMet
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
@@ -65,5 +66,9 @@ public class FilterSpecParamLimitedExprForge extends FilterSpecParamForge {
 
         method.getBlock().methodReturn(param);
         return method;
+    }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("expression '").append(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(value)).append("'");
     }
 }

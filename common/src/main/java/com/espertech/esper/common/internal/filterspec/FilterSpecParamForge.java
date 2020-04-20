@@ -26,6 +26,7 @@ public abstract class FilterSpecParamForge {
     public final static FilterSpecParamForge[] EMPTY_PARAM_ARRAY = new FilterSpecParamForge[0];
 
     public abstract CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols);
+    public abstract void valueExprToString(StringBuilder out, int indent);
 
     /**
      * The property name of the filter parameter.

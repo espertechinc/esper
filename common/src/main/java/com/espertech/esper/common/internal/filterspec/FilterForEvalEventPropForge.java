@@ -95,4 +95,11 @@ public class FilterForEvalEventPropForge implements FilterSpecParamInValueForge 
         method.getBlock().methodReturn(ref("value"));
         return localMethod(method, GET_FILTER_VALUE_REFS);
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("property '").append(resultEventProperty).append("'");
+        if (resultEventAsName != null) {
+            out.append("of '").append(resultEventAsName).append("'");
+        }
+    }
 }

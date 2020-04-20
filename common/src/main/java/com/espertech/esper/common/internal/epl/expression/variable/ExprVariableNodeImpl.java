@@ -212,4 +212,8 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
         }
         return variableMeta.getVariableName() + "." + optSubPropName;
     }
+
+    public void renderForFilterPlan(StringBuilder out) {
+        out.append("variable '").append(getVariableNameWithSubProp()).append("'");
+    }
 }

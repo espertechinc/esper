@@ -86,4 +86,8 @@ public class FilterForEvalEventPropIndexedDoubleForge implements FilterSpecParam
     public int hashCode() {
         return resultEventProperty.hashCode();
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("indexed event property '").append(resultEventProperty).append("'");
+    }
 }

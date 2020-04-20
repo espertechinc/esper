@@ -123,4 +123,8 @@ public class FilterForEvalEventPropIndexedForge implements FilterSpecParamInValu
     public int hashCode() {
         return resultEventProperty.hashCode();
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("indexed eventy property '").append(resultEventProperty).append("'");
+    }
 }

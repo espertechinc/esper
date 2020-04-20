@@ -70,4 +70,16 @@ public final class FilterSpecParamAdvancedIndexQuadTreeMXCIFForge extends Filter
     public int hashCode() {
         return super.hashCode();
     }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("MXCIF ");
+        out.append("x ");
+        xEval.valueToString(out);
+        out.append("y ");
+        yEval.valueToString(out);
+        out.append("w ");
+        widthEval.valueToString(out);
+        out.append("h ");
+        heightEval.valueToString(out);
+    }
 }

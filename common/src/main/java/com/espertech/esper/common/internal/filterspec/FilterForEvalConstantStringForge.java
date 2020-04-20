@@ -60,4 +60,8 @@ public class FilterForEvalConstantStringForge implements FilterSpecParamFilterFo
     public int hashCode() {
         return theStringValue != null ? theStringValue.hashCode() : 0;
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("string-type constant '").append(theStringValue).append("'");
+    }
 }

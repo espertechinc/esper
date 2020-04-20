@@ -14,11 +14,14 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -84,5 +87,15 @@ public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
         int result = super.hashCode();
         result = 31 * result + (filterConstant != null ? filterConstant.hashCode() : 0);
         return result;
+    }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        valueExprToString(out, filterConstant);
+    }
+
+    public static void valueExprToString(StringBuilder out, Object constant) {
+        out.append("constant ");
+        CodegenExpressionUtil.renderConstant(out, constant, Collections.emptyMap());
+        out.append(" type ").append(JavaClassHelper.getClassNameFullyQualPretty(constant == null ? null : constant.getClass()));
     }
 }

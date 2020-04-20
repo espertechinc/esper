@@ -15,4 +15,5 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 
 public interface ExprNodeDeployTimeConst {
     CodegenExpression codegenGetDeployTimeConstValue(CodegenClassScope classScope);
+    void renderForFilterPlan(StringBuilder out);
 }

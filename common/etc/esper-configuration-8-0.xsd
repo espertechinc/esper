@@ -625,6 +625,7 @@
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:choice>
 				<xs:element ref="esper:code" minOccurs="0"/>
+				<xs:element ref="esper:filter-plan" minOccurs="0"/>
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
@@ -732,6 +733,11 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="code">
+		<xs:complexType>
+			<xs:attribute name="enabled" type="xs:boolean" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="filter-plan">
 		<xs:complexType>
 			<xs:attribute name="enabled" type="xs:boolean" use="required"/>
 		</xs:complexType>

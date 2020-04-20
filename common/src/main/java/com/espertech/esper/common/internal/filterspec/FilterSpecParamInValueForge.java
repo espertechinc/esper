@@ -12,6 +12,6 @@ package com.espertech.esper.common.internal.filterspec;
 
 public interface FilterSpecParamInValueForge extends FilterSpecParamFilterForEvalForge {
     Class getReturnType();
-
     boolean isConstant();
+    void valueToString(StringBuilder out);
 }

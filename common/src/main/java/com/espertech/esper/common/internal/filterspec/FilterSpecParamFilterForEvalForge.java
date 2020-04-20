@@ -19,4 +19,6 @@ public interface FilterSpecParamFilterForEvalForge {
     CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent);
 
     Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext);
+
+    void valueToString(StringBuilder out);
 }

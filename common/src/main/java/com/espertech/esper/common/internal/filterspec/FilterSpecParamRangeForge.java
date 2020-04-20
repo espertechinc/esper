@@ -103,4 +103,11 @@ public final class FilterSpecParamRangeForge extends FilterSpecParamForge {
         method.getBlock().methodReturn(param);
         return method;
     }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("lower ");
+        min.valueToString(out);
+        out.append(" upper ");
+        max.valueToString(out);
+    }
 }

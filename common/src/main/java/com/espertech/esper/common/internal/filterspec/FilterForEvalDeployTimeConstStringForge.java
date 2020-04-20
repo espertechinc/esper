@@ -58,4 +58,9 @@ public class FilterForEvalDeployTimeConstStringForge implements FilterSpecParamF
     public int hashCode() {
         return deployTimeConst.hashCode();
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("deploy-time constant ");
+        deployTimeConst.renderForFilterPlan(out);
+    }
 }

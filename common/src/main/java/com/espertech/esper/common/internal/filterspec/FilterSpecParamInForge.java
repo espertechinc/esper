@@ -10,16 +10,17 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
+import com.espertech.esper.common.internal.util.Indent;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.annotation.Annotation;
@@ -27,6 +28,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiler.NEWLINE;
 
 /**
  * This class represents a 'in' filter parameter in an {@link FilterSpecActivatable} filter specification.
@@ -50,7 +52,7 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
     public FilterSpecParamInForge(ExprFilterSpecLookupableForge lookupable,
                                   FilterOperator filterOperator,
                                   List<FilterSpecParamInValueForge> listofValues)
-            throws IllegalArgumentException {
+        throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.listOfValues = listofValues;
 
@@ -94,7 +96,7 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
 
         if ((filterOperator != FilterOperator.IN_LIST_OF_VALUES) && ((filterOperator != FilterOperator.NOT_IN_LIST_OF_VALUES))) {
             throw new IllegalArgumentException("Illegal filter operator " + filterOperator + " supplied to " +
-                    "in-values filter parameter");
+                "in-values filter parameter");
         }
     }
 
@@ -143,8 +145,8 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParam.class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+            .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+            .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
         CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
         CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
@@ -164,11 +166,11 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
                 String valueName = "value" + i;
                 String adderName = "adder" + i;
                 getFilterValue.getBlock()
-                        .declareVar(Object.class, valueName, listOfValues.get(i).makeCodegen(classScope, parent))
-                        .ifRefNotNull(valueName)
-                        .declareVar(adders[i].getClass(), adderName, enumValue(adders[i].getClass(), "INSTANCE"))
-                        .exprDotMethod(ref(adderName), "add", ref("values"), ref(valueName))
-                        .blockEnd();
+                    .declareVar(Object.class, valueName, listOfValues.get(i).makeCodegen(classScope, parent))
+                    .ifRefNotNull(valueName)
+                    .declareVar(adders[i].getClass(), adderName, enumValue(adders[i].getClass(), "INSTANCE"))
+                    .exprDotMethod(ref(adderName), "add", ref("values"), ref(valueName))
+                    .blockEnd();
             }
             getFilterValue.getBlock().methodReturn(newInstance(HashableMultiKey.class, exprDotMethod(ref("values"), "toArray")));
         }
@@ -211,6 +213,10 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
                 constants.add(Array.get(value, i));
             }
         }
+
+        public void valueToString(StringBuilder out) {
+            out.append("collection");
+        }
     }
 
     public static class InValueAdderMap implements FilterSpecParamInAdder {
@@ -222,6 +228,10 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
         public void add(Collection<Object> constants, Object value) {
             Map map = (Map) value;
             constants.addAll(map.keySet());
+        }
+
+        public void valueToString(StringBuilder out) {
+            out.append("map keys");
         }
     }
 
@@ -235,6 +245,10 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
             Collection coll = (Collection) value;
             constants.addAll(coll);
         }
+
+        public void valueToString(StringBuilder out) {
+            out.append("collection");
+        }
     }
 
     public static class InValueAdderPlain implements FilterSpecParamInAdder {
@@ -245,6 +259,30 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
 
         public void add(Collection<Object> constants, Object value) {
             constants.add(value);
+        }
+
+        public void valueToString(StringBuilder out) {
+            out.append("collection");
+        }
+    }
+
+    public void valueExprToString(StringBuilder out, int indent) {
+        if (inListConstantsOnly != null) {
+            out.append("constant values, ").append(inListConstantsOnly.length).append(" entries").append(NEWLINE);
+            for (int i = 0; i < inListConstantsOnly.length; i++) {
+                out.append(Indent.indent(indent)).append("value #").append(i).append(": ");
+                FilterSpecParamConstantForge.valueExprToString(out, inListConstantsOnly[i]);
+                out.append(NEWLINE);
+            }
+        }
+
+        out.append("non-constant values, ").append(listOfValues.size()).append(" entries").append(NEWLINE);
+        int valueIndex = 0;
+        for (FilterSpecParamInValueForge forge : listOfValues) {
+            out.append(Indent.indent(indent)).append("value #").append(valueIndex).append(": ");
+            forge.valueToString(out);
+            out.append(NEWLINE);
+            valueIndex++;
         }
     }
 }

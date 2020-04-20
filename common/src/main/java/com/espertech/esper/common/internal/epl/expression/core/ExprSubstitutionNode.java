@@ -140,6 +140,16 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
         return type;
     }
 
+    public void renderForFilterPlan(StringBuilder out) {
+        out.append("substitution parameter");
+        if (optionalName != null) {
+            out.append(" name '").append(optionalName).append("'");
+        }
+        if (optionalType != null) {
+            out.append(" type '").append(optionalType.toEPL()).append("'");
+        }
+    }
+
     private CodegenExpressionField asField(CodegenClassScope classScope) {
         if (field == null) {
             field = field(classScope.addSubstitutionParameter(optionalName, type));

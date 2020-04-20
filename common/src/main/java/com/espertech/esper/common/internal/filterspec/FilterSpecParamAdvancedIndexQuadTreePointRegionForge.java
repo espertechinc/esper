@@ -63,4 +63,12 @@ public final class FilterSpecParamAdvancedIndexQuadTreePointRegionForge extends 
     public int hashCode() {
         return super.hashCode();
     }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("Point-Region ");
+        out.append("x ");
+        xEval.valueToString(out);
+        out.append("y ");
+        yEval.valueToString(out);
+    }
 }

@@ -277,7 +277,7 @@ public final class FilterSpecCompilerMakeParamUtil {
             ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
-                return new FilterSpecParamContextPropForge(lookupable, op, ctxNode.getGetter(), numberCoercer);
+                return new FilterSpecParamContextPropForge(lookupable, op, ctxNode.getPropertyName(), ctxNode.getGetter(), numberCoercer);
             }
         }
         if ((left instanceof ExprContextPropertyNode) && (right instanceof ExprFilterOptimizableNode)) {
@@ -287,7 +287,7 @@ public final class FilterSpecCompilerMakeParamUtil {
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 op = getReversedOperator(constituent, op); // reverse operators, as the expression is "stream1.prop xyz stream0.prop"
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
-                return new FilterSpecParamContextPropForge(lookupable, op, ctxNode.getGetter(), numberCoercer);
+                return new FilterSpecParamContextPropForge(lookupable, op, ctxNode.getPropertyName(), ctxNode.getGetter(), numberCoercer);
             }
         }
 

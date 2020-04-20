@@ -15,10 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCompare;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
+import com.espertech.esper.common.internal.epl.expression.core.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -58,5 +55,9 @@ public class FilterForEvalConstRuntimeExprForge implements FilterSpecParamFilter
 
     public int hashCode() {
         return 0;
+    }
+
+    public void valueToString(StringBuilder out) {
+        out.append("runtime constant expression '").append(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(runtimeConstant)).append("'");
     }
 }

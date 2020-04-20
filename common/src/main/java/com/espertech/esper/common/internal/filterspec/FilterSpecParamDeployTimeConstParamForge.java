@@ -56,4 +56,9 @@ public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamFor
         method.getBlock().methodReturn(param);
         return method;
     }
+
+    public void valueExprToString(StringBuilder out, int i) {
+        out.append("deploy-time constant ");
+        deployTimeConstant.renderForFilterPlan(out);
+    }
 }

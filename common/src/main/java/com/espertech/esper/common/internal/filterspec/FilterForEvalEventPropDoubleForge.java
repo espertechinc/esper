@@ -97,4 +97,8 @@ public class FilterForEvalEventPropDoubleForge implements FilterSpecParamFilterF
     public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {
         throw new IllegalStateException("Cannot evaluate");
     }
+
+    public void valueToString(StringBuilder out) {
+        out.append("event property '").append(resultEventAsName).append("'");
+    }
 }
