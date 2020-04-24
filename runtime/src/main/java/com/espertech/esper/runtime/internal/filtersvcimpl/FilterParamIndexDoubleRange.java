@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.DoubleRange;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
@@ -37,8 +38,8 @@ public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRan
         }
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
-        Object objAttributeValue = lookupable.getGetter().get(theEvent);
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
+        Object objAttributeValue = lookupable.getEval().eval(theEvent, ctx);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterReverseIndex(this, objAttributeValue);
         }
@@ -65,7 +66,7 @@ public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRan
             for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue > entry.getKey().getMin()) &&
                         (attributeValue < entry.getKey().getMax())) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else if (this.getFilterOperator() == FilterOperator.RANGE_CLOSED) {
@@ -73,7 +74,7 @@ public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRan
             for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue >= entry.getKey().getMin()) &&
                         (attributeValue <= entry.getKey().getMax())) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else if (this.getFilterOperator() == FilterOperator.RANGE_HALF_CLOSED) {
@@ -81,7 +82,7 @@ public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRan
             for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue > entry.getKey().getMin()) &&
                         (attributeValue <= entry.getKey().getMax())) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else if (this.getFilterOperator() == FilterOperator.RANGE_HALF_OPEN) {
@@ -89,7 +90,7 @@ public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRan
             for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue >= entry.getKey().getMin()) &&
                         (attributeValue < entry.getKey().getMax())) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else {

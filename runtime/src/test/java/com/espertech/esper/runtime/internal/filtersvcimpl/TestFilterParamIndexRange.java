@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.internal.support.SupportEventBeanFactory;
+import com.espertech.esper.runtime.internal.support.SupportExprEventEvaluator;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;
@@ -214,13 +215,13 @@ public class TestFilterParamIndexRange extends TestCase {
 
     private void verifyDoublePrimitive(FilterParamIndexBase index, double testValue, int numExpected) {
         testBean.setDoublePrimitive(testValue);
-        index.matchEvent(testEventBean, matchesList);
+        index.matchEvent(testEventBean, matchesList, null);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
     private void verifyLongPrimitive(FilterParamIndexBase index, long testValue, int numExpected) {
         testBean.setLongPrimitive(testValue);
-        index.matchEvent(testEventBean, matchesList);
+        index.matchEvent(testEventBean, matchesList, null);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
@@ -230,6 +231,7 @@ public class TestFilterParamIndexRange extends TestCase {
     }
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
-        return new ExprFilterSpecLookupable(fieldName, testEventType.getGetter(fieldName), testEventType.getPropertyType(fieldName), false, null);
+        SupportExprEventEvaluator eval = new SupportExprEventEvaluator(testEventType.getGetter(fieldName));
+        return new ExprFilterSpecLookupable(fieldName, eval, testEventType.getPropertyType(fieldName), false, null);
     }
 }

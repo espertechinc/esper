@@ -21,15 +21,11 @@ import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessN
 import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 
-public class FilterSpecExprNodeVisitorLimitedExpr implements ExprNodeVisitor {
-    private boolean rhsLimited;
-
-    public FilterSpecExprNodeVisitorLimitedExpr(boolean advancedPlanning) {
-        this.rhsLimited = advancedPlanning;
-    }
+public class FilterSpecExprNodeVisitorValueLimitedExpr implements ExprNodeVisitor {
+    private boolean limited = true;
 
     public boolean isVisit(ExprNode exprNode) {
-        return rhsLimited;
+        return limited;
     }
 
     public void visit(ExprNode exprNode) {
@@ -37,27 +33,27 @@ public class FilterSpecExprNodeVisitorLimitedExpr implements ExprNodeVisitor {
             ExprStreamRefNode streamRefNode = (ExprStreamRefNode) exprNode;
             Integer stream = streamRefNode.getStreamReferencedIfAny();
             if (stream != null && stream == 0) {
-                rhsLimited = false;
+                limited = false;
             }
         } else if (exprNode instanceof ExprVariableNode) {
             ExprVariableNode node = (ExprVariableNode) exprNode;
             if (!node.getVariableMetadata().isConstant()) {
-                rhsLimited = false;
+                limited = false;
             }
         } else if (exprNode instanceof ExprTableAccessNode ||
             exprNode instanceof ExprSubselectNode ||
             exprNode instanceof ExprLambdaGoesNode ||
             exprNode instanceof ExprWildcard) {
-            rhsLimited = false;
+            limited = false;
         } else if (exprNode instanceof ExprPlugInSingleRowNode) {
             ExprPlugInSingleRowNode plugIn = (ExprPlugInSingleRowNode) exprNode;
             if (plugIn.getConfig() != null && plugIn.getConfig().getFilterOptimizable() == ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable.DISABLED) {
-                rhsLimited = false;
+                limited = false;
             }
         }
     }
 
-    public boolean isRhsLimited() {
-        return rhsLimited;
+    public boolean isLimited() {
+        return limited;
     }
 }

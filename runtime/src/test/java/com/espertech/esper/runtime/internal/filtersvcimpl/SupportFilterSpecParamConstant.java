@@ -13,9 +13,8 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.filterspec.FilterOperator;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParam;
-import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
+import com.espertech.esper.common.internal.filterspec.*;
 
 public class SupportFilterSpecParamConstant extends FilterSpecParam {
     private final Object filterConstant;
@@ -24,14 +23,14 @@ public class SupportFilterSpecParamConstant extends FilterSpecParam {
     /**
      * Constructor.
      *
-     * @param lookupable     is the lookupable
+     * @param lookupableFactory     is the lookupable
      * @param filterOperator is the type of compare
      * @param filterConstant contains the value to match against the event's property value
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
-    public SupportFilterSpecParamConstant(ExprFilterSpecLookupable lookupable, FilterOperator filterOperator, Object filterConstant)
+    public SupportFilterSpecParamConstant(ExprFilterSpecLookupableFactory lookupableFactory, FilterOperator filterOperator, Object filterConstant)
             throws IllegalArgumentException {
-        super(lookupable, filterOperator);
+        super(lookupableFactory, filterOperator);
         this.filterConstant = filterConstant;
 
         if (filterOperator.isRangeOperator()) {
@@ -40,8 +39,9 @@ public class SupportFilterSpecParamConstant extends FilterSpecParam {
         }
     }
 
-    public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
-        return filterConstant;
+    public FilterValueSetParam getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
+        ExprFilterSpecLookupable lookupable = lookupableFactory.make(matchedEvents, exprEvaluatorContext);
+        return new FilterValueSetParamImpl(lookupable, filterOperator, filterConstant);
     }
 
     /**

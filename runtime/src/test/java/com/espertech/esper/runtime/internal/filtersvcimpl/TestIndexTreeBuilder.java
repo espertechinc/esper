@@ -60,7 +60,7 @@ public class TestIndexTreeBuilder extends TestCase {
         assertTrue(topNode.contains(testFilterCallback[0]));
 
         // Attempt a match
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 1);
         matches.clear();
 
@@ -71,7 +71,7 @@ public class TestIndexTreeBuilder extends TestCase {
         assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 1);
 
         // Match again
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 1);
         matches.clear();
 
@@ -82,7 +82,7 @@ public class TestIndexTreeBuilder extends TestCase {
         assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 2);
 
         // match
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 2);
         matches.clear();
 
@@ -93,7 +93,7 @@ public class TestIndexTreeBuilder extends TestCase {
         assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 2);
         assertTrue(topNode.getIndizes().get(1).sizeExpensive() == 1);
 
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 3);
         matches.clear();
 
@@ -104,7 +104,7 @@ public class TestIndexTreeBuilder extends TestCase {
         assertTrue(topNode.getIndizes().get(1).sizeExpensive() == 1);
         assertTrue(topNode.getIndizes().get(2).sizeExpensive() == 1);
 
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 4);
         matches.clear();
 
@@ -120,7 +120,7 @@ public class TestIndexTreeBuilder extends TestCase {
         assertTrue(nextLevelSetNode != null);
         assertTrue(nextLevelSetNode.getIndizes().size() == 1);
 
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 5);
         matches.clear();
 
@@ -128,7 +128,7 @@ public class TestIndexTreeBuilder extends TestCase {
                 "theString", FilterOperator.EQUAL, "beta");
         IndexTreeBuilderAdd.add(filterSpec, testFilterCallback[6], topNode, lockFactory);
 
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 5);
         matches.clear();
 
@@ -139,7 +139,7 @@ public class TestIndexTreeBuilder extends TestCase {
         FilterHandleSetNode nodeTwo = (FilterHandleSetNode) nextLevelSetNode.getIndizes().get(0).get("jack");
         assertTrue(nodeTwo.getFilterCallbackCount() == 2);
 
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 6);
         matches.clear();
 
@@ -149,7 +149,7 @@ public class TestIndexTreeBuilder extends TestCase {
                 "shortPrimitive", FilterOperator.EQUAL, (short) 20);
         IndexTreeBuilderAdd.add(filterSpec, testFilterCallback[8], topNode, lockFactory);
 
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 7);
         matches.clear();
 
@@ -166,7 +166,7 @@ public class TestIndexTreeBuilder extends TestCase {
                 "theString", FilterOperator.EQUAL, "joe");
         IndexTreeBuilderAdd.add(filterSpec, testFilterCallback[11], topNode, lockFactory);
 
-        topNode.matchEvent(eventBean, matches);
+        topNode.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 8);
         matches.clear();
     }
@@ -179,7 +179,7 @@ public class TestIndexTreeBuilder extends TestCase {
         IndexTreeBuilderAdd.add(filterSpecNoParams, testFilterCallback[0], top, lockFactory);
 
         // Try a match
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 1);
         matches.clear();
 
@@ -187,7 +187,7 @@ public class TestIndexTreeBuilder extends TestCase {
         IndexTreeBuilderRemove.remove(eventType, testFilterCallback[0], filterSpecNoParams[0], top);
 
         // Match should not be found
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 0);
         matches.clear();
 
@@ -217,42 +217,42 @@ public class TestIndexTreeBuilder extends TestCase {
                 "longPrimitive", FilterOperator.EQUAL, 10L);
         IndexTreeBuilderAdd.add(filterSpecFive, testFilterCallback[5], top, lockFactory);
 
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 5);
         matches.clear();
 
         // Remove some of the nodes
         IndexTreeBuilderRemove.remove(eventType, testFilterCallback[2], filterSpecTwo[0], top);
 
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 4);
         matches.clear();
 
         // Remove some of the nodes
         IndexTreeBuilderRemove.remove(eventType, testFilterCallback[4], filterSpecFour[0], top);
 
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 3);
         matches.clear();
 
         // Remove some of the nodes
         IndexTreeBuilderRemove.remove(eventType, testFilterCallback[5], filterSpecFive[0], top);
 
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 2);
         matches.clear();
 
         // Remove some of the nodes
         IndexTreeBuilderRemove.remove(eventType, testFilterCallback[1], filterSpecOne[0], top);
 
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 1);
         matches.clear();
 
         // Remove some of the nodes
         IndexTreeBuilderRemove.remove(eventType, testFilterCallback[3], filterSpecThree[0], top);
 
-        top.matchEvent(eventBean, matches);
+        top.matchEvent(eventBean, matches, null);
         assertTrue(matches.size() == 0);
         matches.clear();
     }

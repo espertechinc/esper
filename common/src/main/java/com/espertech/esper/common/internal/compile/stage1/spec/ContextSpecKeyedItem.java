@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.controller.keyed.ContextControllerDetailKeyedItem;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEventEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
@@ -95,7 +96,7 @@ public class ContextSpecKeyedItem {
             .declareVar(FilterSpecActivatable.class, "activatable", localMethod(filterSpecCompiled.makeCodegen(method, symbols, classScope)))
             .declareVar(ExprFilterSpecLookupable[].class, "lookupables", newArrayByLength(ExprFilterSpecLookupable.class, constant(getters.length)));
         for (int i = 0; i < getters.length; i++) {
-            CodegenExpression getter = EventTypeUtility.codegenGetterWCoerceWArray(getters[i], types[i], types[i], method, this.getClass(), classScope);
+            CodegenExpression getter = EventTypeUtility.codegenGetterWCoerceWArray(ExprEventEvaluator.class, getters[i], types[i], types[i], method, this.getClass(), classScope);
             CodegenExpression lookupable = newInstance(ExprFilterSpecLookupable.class, constant(propertyNames.get(i)), getter,
                 constant(types[i]), constantFalse(), lookupableSerdes[i].codegen(method, classScope, null));
             CodegenExpression eventType = exprDotMethod(ref("activatable"), "getFilterForEventType");

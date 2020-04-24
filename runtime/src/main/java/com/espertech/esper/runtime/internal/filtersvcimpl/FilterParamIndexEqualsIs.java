@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
@@ -28,8 +29,8 @@ public final class FilterParamIndexEqualsIs extends FilterParamIndexEqualsBase {
         super(lookupable, readWriteLock, FilterOperator.IS);
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
-        Object attributeValue = lookupable.getGetter().get(theEvent);
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
+        Object attributeValue = lookupable.getEval().eval(theEvent, ctx);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);
         }
@@ -53,6 +54,6 @@ public final class FilterParamIndexEqualsIs extends FilterParamIndexEqualsBase {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aFilterReverseIndex(true);
         }
-        evaluator.matchEvent(theEvent, matches);
+        evaluator.matchEvent(theEvent, matches, ctx);
     }
 }

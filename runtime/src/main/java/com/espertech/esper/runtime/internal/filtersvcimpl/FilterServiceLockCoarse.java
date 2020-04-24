@@ -13,6 +13,7 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 
@@ -46,19 +47,19 @@ public final class FilterServiceLockCoarse extends FilterServiceBase {
         }
     }
 
-    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches) {
+    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         lock.readLock().lock();
         try {
-            return super.evaluateInternal(theEvent, matches);
+            return super.evaluateInternal(theEvent, matches, ctx);
         } finally {
             lock.readLock().unlock();
         }
     }
 
-    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId) {
+    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId, ExprEvaluatorContext ctx) {
         lock.readLock().lock();
         try {
-            return super.evaluateInternal(theEvent, matches, statementId);
+            return super.evaluateInternal(theEvent, matches, statementId, ctx);
         } finally {
             lock.readLock().unlock();
         }

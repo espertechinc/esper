@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeDeployTimeConst;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
@@ -30,7 +30,7 @@ public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamFor
     private final Class returnType;
     private final SimpleNumberCoercer numberCoercer;
 
-    public FilterSpecParamDeployTimeConstParamForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, ExprNodeDeployTimeConst deployTimeConstant, Class returnType, SimpleNumberCoercer numberCoercer) {
+    public FilterSpecParamDeployTimeConstParamForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, ExprNodeDeployTimeConst deployTimeConstant, Class returnType, SimpleNumberCoercer numberCoercer) {
         super(lookupable, filterOperator);
         this.deployTimeConstant = deployTimeConstant;
         this.returnType = returnType;
@@ -45,13 +45,13 @@ public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamFor
                 .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
         CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
         CodegenExpression value = deployTimeConstant.codegenGetDeployTimeConstValue(classScope);
         if (numberCoercer != null) {
             value = numberCoercer.coerceCodegenMayNullBoxed(value, returnType, method, classScope);
         }
-        getFilterValue.getBlock().methodReturn(value);
+        getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(value));
 
         method.getBlock().methodReturn(param);
         return method;

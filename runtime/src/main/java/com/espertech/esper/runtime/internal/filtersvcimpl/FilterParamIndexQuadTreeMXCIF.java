@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
 import com.espertech.esper.common.internal.epl.spatial.quadtree.core.QuadTreeCollector;
@@ -34,8 +35,8 @@ public class FilterParamIndexQuadTreeMXCIF extends FilterParamIndexLookupableBas
     private final FilterSpecLookupableAdvancedIndex advancedIndex;
 
     private final static QuadTreeCollector<EventEvaluator, Collection<FilterHandle>> COLLECTOR = new QuadTreeCollector<EventEvaluator, Collection<FilterHandle>>() {
-        public void collectInto(EventBean event, EventEvaluator eventEvaluator, Collection<FilterHandle> c) {
-            eventEvaluator.matchEvent(event, c);
+        public void collectInto(EventBean event, EventEvaluator eventEvaluator, Collection<FilterHandle> c, ExprEvaluatorContext ctx) {
+            eventEvaluator.matchEvent(event, c, ctx);
         }
     };
 
@@ -47,7 +48,7 @@ public class FilterParamIndexQuadTreeMXCIF extends FilterParamIndexLookupableBas
         quadTree = MXCIFQuadTreeFactory.make(quadTreeConfig.getX(), quadTreeConfig.getY(), quadTreeConfig.getWidth(), quadTreeConfig.getHeight());
     }
 
-    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterReverseIndex(this, null);
         }
@@ -56,7 +57,7 @@ public class FilterParamIndexQuadTreeMXCIF extends FilterParamIndexLookupableBas
         double y = ((Number) advancedIndex.getY().get(theEvent)).doubleValue();
         double width = ((Number) advancedIndex.getWidth().get(theEvent)).doubleValue();
         double height = ((Number) advancedIndex.getHeight().get(theEvent)).doubleValue();
-        MXCIFQuadTreeFilterIndexCollect.collectRange(quadTree, x, y, width, height, theEvent, matches, COLLECTOR);
+        MXCIFQuadTreeFilterIndexCollect.collectRange(quadTree, x, y, width, height, theEvent, matches, COLLECTOR, ctx);
 
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aFilterReverseIndex(null);
@@ -91,7 +92,7 @@ public class FilterParamIndexQuadTreeMXCIF extends FilterParamIndexLookupableBas
     }
 
     public void getTraverseStatement(EventTypeIndexTraverse traverse, Set<Integer> statementIds, ArrayDeque<FilterItem> evaluatorStack) {
-        evaluatorStack.push(new FilterItem(advancedIndex.getExpression(), FilterOperator.ADVANCED_INDEX));
+        evaluatorStack.push(new FilterItem(advancedIndex.getExpression(), FilterOperator.ADVANCED_INDEX, this));
         MXCIFQuadTreeFilterIndexTraverse.traverse(quadTree, object -> {
             if (object instanceof FilterHandleSetNode) {
                 ((FilterHandleSetNode) object).getTraverseStatement(traverse, statementIds, evaluatorStack);

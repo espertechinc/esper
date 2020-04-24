@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filterspec.ExprNodeAdapterBase;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
@@ -66,7 +67,7 @@ public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase {
         return constantsMapRWLock;
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterBoolean(this);
         }
@@ -81,13 +82,13 @@ public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase {
                     boolean result = evals.getKey().evaluate(theEvent);
                     InstrumentationHelper.get().aFilterBooleanExpr(result);
                     if (result) {
-                        evals.getValue().matchEvent(theEvent, matches);
+                        evals.getValue().matchEvent(theEvent, matches, ctx);
                     }
                 }
             } else {
                 for (Map.Entry<ExprNodeAdapterBase, EventEvaluator> evals : evaluatorsMap.entrySet()) {
                     if (evals.getKey().evaluate(theEvent)) {
-                        evals.getValue().matchEvent(theEvent, matches);
+                        evals.getValue().matchEvent(theEvent, matches, ctx);
                     }
                 }
             }
@@ -102,7 +103,7 @@ public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase {
 
     public void getTraverseStatement(EventTypeIndexTraverse traverse, Set<Integer> statementIds, ArrayDeque<FilterItem> evaluatorStack) {
         for (Map.Entry<ExprNodeAdapterBase, EventEvaluator> entry : evaluatorsMap.entrySet()) {
-            evaluatorStack.add(new FilterItem(PROPERTY_NAME_BOOLEAN_EXPRESSION, getFilterOperator(), entry));
+            evaluatorStack.add(new FilterItem(PROPERTY_NAME_BOOLEAN_EXPRESSION, getFilterOperator(), entry, this));
             entry.getValue().getTraverseStatement(traverse, statementIds, evaluatorStack);
             evaluatorStack.removeLast();
         }

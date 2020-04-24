@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLoo
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.internal.support.SupportEventBeanFactory;
+import com.espertech.esper.runtime.internal.support.SupportExprEventEvaluator;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;
@@ -88,25 +89,25 @@ public class TestFilterParamIndexEquals extends TestCase {
 
     private void verifyShortBoxed(FilterParamIndexBase index, Short testValue, int numExpected) {
         testBean.setShortBoxed(testValue);
-        index.matchEvent(testEventBean, matchesList);
+        index.matchEvent(testEventBean, matchesList, null);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
     private void verifyBooleanPrimitive(FilterParamIndexBase index, boolean testValue, int numExpected) {
         testBean.setBoolPrimitive(testValue);
-        index.matchEvent(testEventBean, matchesList);
+        index.matchEvent(testEventBean, matchesList, null);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
     private void verifyString(FilterParamIndexBase index, String testValue, int numExpected) {
         testBean.setTheString(testValue);
-        index.matchEvent(testEventBean, matchesList);
+        index.matchEvent(testEventBean, matchesList, null);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
     private void verifyFloatPrimitive(FilterParamIndexBase index, float testValue, int numExpected) {
         testBean.setFloatPrimitive(testValue);
-        index.matchEvent(testEventBean, matchesList);
+        index.matchEvent(testEventBean, matchesList, null);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
@@ -115,6 +116,7 @@ public class TestFilterParamIndexEquals extends TestCase {
     }
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
-        return new ExprFilterSpecLookupable(fieldName, testEventType.getGetter(fieldName), testEventType.getPropertyType(fieldName), false, null);
+        SupportExprEventEvaluator eval = new SupportExprEventEvaluator(testEventType.getGetter(fieldName));
+        return new ExprFilterSpecLookupable(fieldName, eval, testEventType.getPropertyType(fieldName), false, null);
     }
 }

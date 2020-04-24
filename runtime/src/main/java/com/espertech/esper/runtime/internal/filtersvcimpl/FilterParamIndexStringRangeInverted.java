@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.StringRange;
@@ -36,8 +37,8 @@ public final class FilterParamIndexStringRangeInverted extends FilterParamIndexS
         }
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
-        Object objAttributeValue = lookupable.getGetter().get(theEvent);
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
+        Object objAttributeValue = lookupable.getEval().eval(theEvent, ctx);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterReverseIndex(this, objAttributeValue);
         }
@@ -55,27 +56,27 @@ public final class FilterParamIndexStringRangeInverted extends FilterParamIndexS
             // include all endpoints
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) > 0 || entry.getKey().getMax().compareTo(attributeValue) < 0) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_OPEN) {  // include neither endpoint
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) >= 0 || entry.getKey().getMax().compareTo(attributeValue) <= 0) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_HALF_CLOSED) {
             // include high endpoint not low endpoint
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) >= 0 || entry.getKey().getMax().compareTo(attributeValue) < 0) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_HALF_OPEN) {
             // include low endpoint not high endpoint
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) > 0 || entry.getKey().getMax().compareTo(attributeValue) <= 0) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } else {

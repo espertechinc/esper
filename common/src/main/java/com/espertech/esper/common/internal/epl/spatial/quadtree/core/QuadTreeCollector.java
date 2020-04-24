@@ -11,7 +11,8 @@
 package com.espertech.esper.common.internal.epl.spatial.quadtree.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface QuadTreeCollector<L, T> {
-    void collectInto(EventBean event, L value, T target);
+    void collectInto(EventBean event, L value, T target, ExprEvaluatorContext ctx);
 }

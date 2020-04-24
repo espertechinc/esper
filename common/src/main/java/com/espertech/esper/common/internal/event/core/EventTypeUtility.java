@@ -35,6 +35,8 @@ import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEventEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
@@ -289,16 +291,25 @@ public class EventTypeUtility {
         return anonymous;
     }
 
-    public static CodegenExpression codegenGetterWCoerceWArray(EventPropertyGetterSPI getter, Class getterType, Class optionalCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+    public static CodegenExpression codegenGetterWCoerceWArray(Class interfaceClass, EventPropertyGetterSPI getter, Class getterType, Class optionalCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
         getterType = JavaClassHelper.getBoxedType(getterType);
-        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyValueGetter.class);
-        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(CodegenNamedParam.from(EventBean.class, "bean"));
-        anonymous.addMethod("get", get);
+        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), interfaceClass);
+
+        List<CodegenNamedParam> params;
+        if (interfaceClass == EventPropertyValueGetter.class) {
+            params = CodegenNamedParam.from(EventBean.class, "bean");
+        } else if (interfaceClass == ExprEventEvaluator.class) {
+            params = CodegenNamedParam.from(EventBean.class, "bean", ExprEvaluatorContext.class, "ctx");
+        } else {
+            throw new IllegalStateException("Unrecognized interface class " + interfaceClass.getSimpleName());
+        }
+        CodegenMethod getOrEval = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(params);
+        anonymous.addMethod(interfaceClass == EventPropertyValueGetter.class ? "get" : "eval", getOrEval);
 
         CodegenExpression result = getter.eventBeanGetCodegen(ref("bean"), method, classScope);
         if (optionalCoercionType != null && getterType != optionalCoercionType && JavaClassHelper.isNumeric(getterType)) {
             SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(getterType, JavaClassHelper.getBoxedType(optionalCoercionType));
-            get.getBlock().declareVar(getterType, "prop", cast(getterType, result));
+            getOrEval.getBlock().declareVar(getterType, "prop", cast(getterType, result));
             result = coercer.coerceCodegen(ref("prop"), getterType);
         }
 
@@ -307,11 +318,11 @@ public class EventTypeUtility {
             result = newInstance(mkType, cast(getterType, result));
         }
 
-        get.getBlock().methodReturn(result);
+        getOrEval.getBlock().methodReturn(result);
         return anonymous;
     }
 
-    public static CodegenExpression codegenWriter(EventType eventType, Class targetType, Class evaluationType, EventPropertyWriterSPI writer, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+    public static CodegenExpression codegenWriter(EventType eventType, Class evaluationType, EventPropertyWriterSPI writer, CodegenMethod method, Class generator, CodegenClassScope classScope) {
         CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyWriter.class);
         CodegenMethod write = CodegenMethod.makeParentNode(void.class, generator, classScope).addParam(CodegenNamedParam.from(Object.class, "value", EventBean.class, "bean"));
         anonymous.addMethod("write", write);

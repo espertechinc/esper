@@ -219,7 +219,7 @@ public class AgentInstanceUtil {
     public static boolean evaluateFilterForStatement(EventBean theEvent, AgentInstanceContext agentInstanceContext, FilterHandle filterHandle) {
         // context was created - reevaluate for the given event
         ArrayDeque<FilterHandle> callbacks = new ArrayDeque<FilterHandle>();
-        agentInstanceContext.getFilterService().evaluate(theEvent, callbacks, agentInstanceContext.getStatementContext().getStatementId());
+        agentInstanceContext.getFilterService().evaluate(theEvent, callbacks, agentInstanceContext.getStatementContext().getStatementId(), agentInstanceContext);
 
         try {
             agentInstanceContext.getVariableManagementService().setLocalVersion();

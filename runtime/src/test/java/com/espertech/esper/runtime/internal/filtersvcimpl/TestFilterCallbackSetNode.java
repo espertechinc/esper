@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBeanSimple;
 import com.espertech.esper.runtime.internal.support.SupportEventBeanFactory;
 import com.espertech.esper.runtime.internal.support.SupportEventTypeFactory;
+import com.espertech.esper.runtime.internal.support.SupportExprEventEvaluator;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;
@@ -52,7 +53,8 @@ public class TestFilterCallbackSetNode extends TestCase {
 
         // Add an indexOne
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
-        ExprFilterSpecLookupable lookupable = new ExprFilterSpecLookupable("intPrimitive", eventType.getGetter("intPrimitive"), eventType.getPropertyType("intPrimitive"), false, null);
+        SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter("intPrimitive"));
+        ExprFilterSpecLookupable lookupable = new ExprFilterSpecLookupable("intPrimitive", eval, eventType.getPropertyType("intPrimitive"), false, null);
         FilterParamIndexBase indexOne = new SupportFilterParamIndex(lookupable);
         testNode.add(indexOne);
 
@@ -78,7 +80,7 @@ public class TestFilterCallbackSetNode extends TestCase {
 
         // Check matching without an index node
         List<FilterHandle> matches = new LinkedList<FilterHandle>();
-        testNode.matchEvent(eventBean, matches);
+        testNode.matchEvent(eventBean, matches, null);
         assertEquals(1, matches.size());
         assertEquals(expr, matches.get(0));
         matches.clear();
@@ -89,7 +91,7 @@ public class TestFilterCallbackSetNode extends TestCase {
         index.put("DepositEvent_1", testEvaluator);
 
         // Verify matcher instance stored in index is called
-        testNode.matchEvent(eventBean, matches);
+        testNode.matchEvent(eventBean, matches, null);
 
         assertTrue(testEvaluator.getAndResetCountInvoked() == 1);
         assertTrue(testEvaluator.getLastEvent() == eventBean);
@@ -98,6 +100,7 @@ public class TestFilterCallbackSetNode extends TestCase {
     }
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName, EventType eventType) {
-        return new ExprFilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false, null);
+        SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter(fieldName));
+        return new ExprFilterSpecLookupable(fieldName, eval, eventType.getPropertyType(fieldName), false, null);
     }
 }

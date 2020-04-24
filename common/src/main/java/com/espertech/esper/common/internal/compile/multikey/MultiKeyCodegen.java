@@ -179,7 +179,7 @@ public class MultiKeyCodegen {
             String propertyName = propertyNames[0];
             Class result = eventType.getPropertyType(propertyName);
             EventPropertyGetterSPI getter = spi.getGetterSPI(propertyName);
-            return EventTypeUtility.codegenGetterWCoerceWArray(getter, result, null, method, MultiKeyCodegen.class, classScope);
+            return EventTypeUtility.codegenGetterWCoerceWArray(EventPropertyValueGetter.class, getter, result, null, method, MultiKeyCodegen.class, classScope);
         }
         EventPropertyGetterSPI[] getters = new EventPropertyGetterSPI[propertyNames.length];
         Class[] getterResultTypes = new Class[propertyNames.length];

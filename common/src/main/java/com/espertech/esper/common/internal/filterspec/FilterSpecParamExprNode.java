@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 
 /**
@@ -31,8 +31,8 @@ public abstract class FilterSpecParamExprNode extends FilterSpecParam {
     private int filterBoolExprId;
     private EventType[] eventTypesProvidedBy;
 
-    public FilterSpecParamExprNode(ExprFilterSpecLookupable lookupable, FilterOperator filterOperator) {
-        super(lookupable, filterOperator);
+    public FilterSpecParamExprNode(ExprFilterSpecLookupableFactory lookupableFactory, FilterOperator filterOperator) {
+        super(lookupableFactory, filterOperator);
     }
 
     public void setExprNode(ExprEvaluator exprNode) {

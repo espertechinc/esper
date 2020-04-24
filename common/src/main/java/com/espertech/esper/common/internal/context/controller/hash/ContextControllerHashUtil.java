@@ -18,10 +18,7 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactory;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
-import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSingleton;
@@ -86,7 +83,8 @@ public class ContextControllerHashUtil {
             // create and register expression
             String expression = hashFuncName + "(" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
             DataInputOutputSerdeForge valueSerde = new DataInputOutputSerdeForgeSingleton(DIONullableIntegerSerde.class);
-            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, getter, Integer.class, true, valueSerde);
+            ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(getter);
+            ExprFilterSpecLookupableFactoryForgePremade lookupable = new ExprFilterSpecLookupableFactoryForgePremade(expression, eval, Integer.class, true, valueSerde);
             item.setLookupable(lookupable);
         }
     }

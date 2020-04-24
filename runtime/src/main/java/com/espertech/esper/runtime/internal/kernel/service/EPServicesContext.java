@@ -15,8 +15,6 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 import com.espertech.esper.common.internal.collection.PathRegistry;
-import com.espertech.esper.common.internal.context.util.ParentClassLoader;
-import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFactory;
@@ -26,6 +24,7 @@ import com.espertech.esper.common.internal.context.mgr.ContextServiceFactory;
 import com.espertech.esper.common.internal.context.module.RuntimeExtensionServices;
 import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryService;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.dataflow.core.EPDataFlowServiceImpl;
 import com.espertech.esper.common.internal.epl.dataflow.filtersvcadapter.DataFlowFilterServiceAdapter;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
@@ -324,11 +323,13 @@ public class EPServicesContext implements EPServicesEvaluation, EPServicesPath {
     public StageRuntimeServices getStageRuntimeServices() {
         if (stageRuntimeServices == null) {
             stageRuntimeServices = new StageRuntimeServices(dispatchService,
+                eventBeanService,
                 eventBeanTypedEventFactory,
                 eventTypeRepositoryBus,
                 eventTypeResolvingBeanFactory,
                 exceptionHandlingService,
                 namedWindowDispatchService,
+                runtimeURI,
                 runtimeSettingsService,
                 statementLifecycleService,
                 tableExprEvaluatorContext,

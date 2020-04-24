@@ -12,15 +12,15 @@ package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEventEvaluatorForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForgeInstrumentable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderable;
-import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
 
 import java.lang.reflect.Method;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
-public abstract class ExprPlugInSingleRowNodeForge implements ExprForgeInstrumentable, EventPropertyValueGetterForge {
+public abstract class ExprPlugInSingleRowNodeForge implements ExprForgeInstrumentable, ExprEventEvaluatorForge {
 
     private final ExprPlugInSingleRowNode parent;
     private final boolean isReturnsConstantResult;
@@ -56,7 +56,7 @@ public abstract class ExprPlugInSingleRowNodeForge implements ExprForgeInstrumen
             parameterTypes[i] = method.getParameterTypes()[i].getName();
         }
         return new CodegenExpression[]{constant(method.getDeclaringClass().getName()),
-                constant(method.getName()), constant(method.getReturnType().getSimpleName()), constant(parameterTypes)};
+            constant(method.getName()), constant(method.getReturnType().getSimpleName()), constant(parameterTypes)};
     }
 
 }

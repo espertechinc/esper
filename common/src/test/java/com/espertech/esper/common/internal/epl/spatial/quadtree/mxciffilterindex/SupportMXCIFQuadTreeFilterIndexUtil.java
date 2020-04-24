@@ -22,9 +22,9 @@ import static junit.framework.TestCase.assertTrue;
 
 public class SupportMXCIFQuadTreeFilterIndexUtil {
 
-    private static final QuadTreeCollector<String, Collection<Object>> COLLECTION_COLLECTOR = (event, s, target) -> target.add(s);
+    private static final QuadTreeCollector<String, Collection<Object>> COLLECTION_COLLECTOR = (event, s, target, ctx) -> target.add(s);
 
-    private static final QuadTreeCollector<String, Map<Integer, String>> MAP_COLLECTOR = (event, s, target) -> {
+    private static final QuadTreeCollector<String, Map<Integer, String>> MAP_COLLECTOR = (event, s, target, ctx) -> {
         int num = Integer.parseInt(s.substring(1));
         if (target.containsKey(num)) {
             throw new IllegalStateException();
@@ -34,7 +34,7 @@ public class SupportMXCIFQuadTreeFilterIndexUtil {
 
     public final static SupportQuadTreeUtil.Querier<MXCIFQuadTree<Object>> MXCIF_FI_QUERIER = (tree, x, y, width, height) -> {
         List<Object> received = new ArrayList<>();
-        MXCIFQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, COLLECTION_COLLECTOR);
+        MXCIFQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, COLLECTION_COLLECTOR, null);
         // Comment-me-in: System.out.println("// query(tree, " + x + ", " + y + ", " + width + ", " + height + "); --> " + received);
         return received.isEmpty() ? null : received;
     };
@@ -55,7 +55,7 @@ public class SupportMXCIFQuadTreeFilterIndexUtil {
 
     static void assertCollect(MXCIFQuadTree<Object> tree, double x, double y, double width, double height, String expected) {
         Map<Integer, String> received = new TreeMap<>();
-        MXCIFQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, MAP_COLLECTOR);
+        MXCIFQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, MAP_COLLECTOR, null);
         assertCompare(tree, expected, received);
     }
 

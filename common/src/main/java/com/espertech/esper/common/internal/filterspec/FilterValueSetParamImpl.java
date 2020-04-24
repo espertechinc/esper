@@ -10,9 +10,15 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 
 import java.io.StringWriter;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.cast;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
+import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.REF_FILTEROPERATOR;
+import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.REF_LOOKUPABLEFACTORY;
 
 /**
  * Filter parameter value defining the event property to filter, the filter operator, and the filter value.
@@ -33,6 +39,10 @@ public class FilterValueSetParamImpl implements FilterValueSetParam {
         this.lookupable = lookupable;
         this.filterOperator = filterOperator;
         this.filterValue = filterValue;
+    }
+
+    public static CodegenExpression codegenNew(CodegenExpression filterForValue) {
+        return newInstance(FilterValueSetParamImpl.class, cast(ExprFilterSpecLookupable.class, REF_LOOKUPABLEFACTORY), REF_FILTEROPERATOR, filterForValue);
     }
 
     public ExprFilterSpecLookupable getLookupable() {

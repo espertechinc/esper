@@ -15,7 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +29,8 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 public abstract class FilterSpecParam {
     public final static CodegenExpressionRef REF_MATCHEDEVENTMAP = new CodegenExpressionRef("matchedEvents");
     public final static CodegenExpressionRef REF_STMTCTXFILTEREVALENV = new CodegenExpressionRef("stmtCtxFilterEnv");
+    public final static CodegenExpressionRef REF_LOOKUPABLEFACTORY = new CodegenExpressionRef("lookupableFactory"); // see name below
+    public final static CodegenExpressionRef REF_FILTEROPERATOR = new CodegenExpressionRef("filterOperator"); // see name below
     public final static List<CodegenNamedParam> GET_FILTER_VALUE_FP = CodegenNamedParam.from(
             MatchedEventMap.class, REF_MATCHEDEVENTMAP.getRef(),
             ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(),
@@ -38,18 +40,18 @@ public abstract class FilterSpecParam {
     public final static FilterSpecParam[] EMPTY_PARAM_ARRAY = new FilterSpecParam[0];
     public final static FilterValueSetParam[] EMPTY_VALUE_ARRAY = new FilterValueSetParam[0];
 
-    public abstract Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv);
+    public abstract FilterValueSetParam getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv);
 
-    protected final ExprFilterSpecLookupable lookupable;
-    private final FilterOperator filterOperator;
+    protected final ExprFilterSpecLookupableFactory lookupableFactory;
+    protected final FilterOperator filterOperator;
 
-    public FilterSpecParam(ExprFilterSpecLookupable lookupable, FilterOperator filterOperator) {
-        this.lookupable = lookupable;
+    public FilterSpecParam(ExprFilterSpecLookupableFactory lookupableFactory, FilterOperator filterOperator) {
+        this.lookupableFactory = lookupableFactory;
         this.filterOperator = filterOperator;
     }
 
-    public ExprFilterSpecLookupable getLookupable() {
-        return lookupable;
+    public ExprFilterSpecLookupableFactory getLookupableFactory() {
+        return lookupableFactory;
     }
 
     public FilterOperator getFilterOperator() {
@@ -58,7 +60,7 @@ public abstract class FilterSpecParam {
 
     public String toString() {
         return "FilterSpecParam" +
-                " lookupable=" + lookupable +
+                " lookupable=" + lookupableFactory +
                 " filterOp=" + filterOperator;
     }
 

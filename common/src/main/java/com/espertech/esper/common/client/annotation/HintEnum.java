@@ -98,6 +98,12 @@ public enum HintEnum {
     MAX_FILTER_WIDTH("MAX_FILTER_WIDTH", true, true, false),
 
     /**
+     * For use when filter expression optimization may filter index composite lookupable expressions (typically LHS, i.e. left hand side).
+     * Such as "select * from MyEvent(a+b=0)" wherein "a+b" is a composite lookupable expression, i.e. provides lookup values for filter index lookup.
+     */
+    FILTERINDEX("FILTERINDEX", false, false, true),
+
+    /**
      * For use everywhere where unique data window are used
      */
     DISABLE_WHEREEXPR_MOVETO_FILTER("DISABLE_WHEREEXPR_MOVETO_FILTER", false, false, false),

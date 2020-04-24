@@ -12,6 +12,7 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
@@ -99,8 +100,8 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase {
         return constantsMapRWLock;
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
-        Object attributeValue = lookupable.getGetter().get(theEvent);
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
+        Object attributeValue = lookupable.getEval().eval(theEvent, ctx);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);
         }
@@ -127,7 +128,7 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase {
 
         try {
             for (EventEvaluator evaluator : evaluators) {
-                evaluator.matchEvent(theEvent, matches);
+                evaluator.matchEvent(theEvent, matches, ctx);
             }
         } finally {
             constantsMapRWLock.readLock().unlock();
@@ -140,7 +141,7 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase {
 
     public void getTraverseStatement(EventTypeIndexTraverse traverse, Set<Integer> statementIds, ArrayDeque<FilterItem> evaluatorStack) {
         for (Map.Entry<HashableMultiKey, EventEvaluator> entry : evaluatorsMap.entrySet()) {
-            evaluatorStack.add(new FilterItem(lookupable.getExpression(), getFilterOperator(), entry.getValue()));
+            evaluatorStack.add(new FilterItem(lookupable.getExpression(), getFilterOperator(), entry.getValue(), this));
             entry.getValue().getTraverseStatement(traverse, statementIds, evaluatorStack);
             evaluatorStack.removeLast();
         }

@@ -81,7 +81,7 @@ public class ContextControllerHashImpl extends ContextControllerHash {
     }
 
     public void matchFound(ContextControllerDetailHashItem item, EventBean theEvent, IntSeqKey controllerPath) {
-        int value = (Integer) item.getLookupable().getGetter().get(theEvent);
+        int value = (Integer) item.getLookupable().getEval().eval(theEvent, realization.getAgentInstanceContextCreate());
 
         if (hashSvc.hashHasSeenPartition(controllerPath, value)) {
             return;

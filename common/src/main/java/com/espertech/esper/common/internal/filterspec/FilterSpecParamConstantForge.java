@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
     private final Object filterConstant;
 
-    public FilterSpecParamConstantForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, Object filterConstant)
+    public FilterSpecParamConstantForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, Object filterConstant)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.filterConstant = filterConstant;
@@ -49,9 +49,9 @@ public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
                 .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
         CodegenExpressionNewAnonymousClass inner = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         inner.addMethod("getFilterValue", getFilterValue);
-        getFilterValue.getBlock().methodReturn(constant(filterConstant));
+        getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(constant(filterConstant)));
 
         method.getBlock().methodReturn(inner);
         return method;

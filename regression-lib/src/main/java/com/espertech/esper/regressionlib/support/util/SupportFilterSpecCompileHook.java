@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class SupportFilterSpecCompileHook implements FilterSpecCompileHook {
     private static List<SupportFilterSpecCompileEntry> entries;
@@ -36,6 +36,22 @@ public class SupportFilterSpecCompileHook implements FilterSpecCompileHook {
 
     public void filterSpec(EventType eventType, List<FilterSpecParamForge>[] spec) {
         entries.add(new SupportFilterSpecCompileEntry(eventType, spec));
+    }
+
+    public static FilterSpecParamForge assertSingleForTypeAndReset(String typeName) {
+        SupportFilterSpecCompileEntry found = null;
+        for (SupportFilterSpecCompileEntry entry : entries) {
+            if (!entry.getEventType().getName().equals(typeName)) {
+                continue;
+            }
+            if (found != null) {
+                fail("Found multiple");
+            }
+            found = entry;
+        }
+        assertNotNull(found);
+        reset();
+        return found.getAssertSingle(typeName);
     }
 
     public static FilterSpecParamForge assertSingleAndReset(String typeName) {

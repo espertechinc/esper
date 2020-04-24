@@ -13,6 +13,7 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
@@ -86,7 +87,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI {
         }
     }
 
-    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches) {
+    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilter(theEvent);
         }
@@ -95,7 +96,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI {
         numEventsEvaluated.incrementAndGet();
 
         // Finds all matching filters and return their callbacks.
-        retryableMatchEvent(theEvent, matches);
+        retryableMatchEvent(theEvent, matches, ctx);
 
         if ((AuditPath.isAuditEnabled) && (!filterServiceListeners.isEmpty())) {
             for (FilterServiceListener listener : filterServiceListeners) {
@@ -110,14 +111,14 @@ public abstract class FilterServiceBase implements FilterServiceSPI {
         return version;
     }
 
-    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches, int statementId) {
+    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches, int statementId, ExprEvaluatorContext ctx) {
         long version = filtersVersion;
         numEventsEvaluated.incrementAndGet();
 
         ArrayDeque<FilterHandle> allMatches = new ArrayDeque<FilterHandle>();
 
         // Finds all matching filters
-        retryableMatchEvent(theEvent, allMatches);
+        retryableMatchEvent(theEvent, allMatches, ctx);
 
         // Add statement matches to collection passed
         for (FilterHandle match : allMatches) {
@@ -175,10 +176,10 @@ public abstract class FilterServiceBase implements FilterServiceSPI {
         eventTypeIndex.removeType(type);
     }
 
-    private void retryableMatchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+    private void retryableMatchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         // Install lock backoff exception handler that retries the evaluation.
         try {
-            eventTypeIndex.matchEvent(theEvent, matches);
+            eventTypeIndex.matchEvent(theEvent, matches, ctx);
         } catch (FilterLockBackoffException ex) {
             // retry on lock back-off
             // lock-backoff may occur when stateful evaluations take place such as boolean expressions that are subqueries
@@ -201,7 +202,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI {
 
                     // evaluate
                     matches.clear();
-                    eventTypeIndex.matchEvent(theEvent, matches);
+                    eventTypeIndex.matchEvent(theEvent, matches, ctx);
                     break;
                 } catch (FilterLockBackoffException ex2) {
                     // retried

@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.filterspec;
 
 
-import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEventEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
 
@@ -24,7 +24,7 @@ public class FilterSpecLookupableAdvancedIndex extends ExprFilterSpecLookupable 
     private EventPropertyValueGetter height;
     private String indexType;
 
-    public FilterSpecLookupableAdvancedIndex(String expression, EventPropertyGetter getter, Class returnType) {
+    public FilterSpecLookupableAdvancedIndex(String expression, ExprEventEvaluator getter, Class returnType) {
         super(expression, getter, returnType, true, null);
     }
 

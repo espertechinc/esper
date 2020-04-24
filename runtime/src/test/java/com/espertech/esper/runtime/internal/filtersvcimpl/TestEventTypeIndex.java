@@ -47,7 +47,7 @@ public class TestEventTypeIndex extends TestCase {
         List<FilterHandle> matchesList = new LinkedList<FilterHandle>();
 
         // Invoke match
-        testIndex.matchEvent(testEventBean, matchesList);
+        testIndex.matchEvent(testEventBean, matchesList, null);
 
         assertEquals(1, matchesList.size());
         assertEquals(filterCallback, matchesList.get(0));

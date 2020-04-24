@@ -10,24 +10,24 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
-import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
-public class ExprFilterSpecLookupable {
+public class ExprFilterSpecLookupable implements ExprFilterSpecLookupableFactory {
     private final String expression;
-    private transient final EventPropertyValueGetter getter;
+    private transient final ExprEventEvaluator eval;
     private final Class returnType;
-    private final boolean isNonPropertyGetter;
+    private final boolean isNonPropertyEval;
     private final DataInputOutputSerde<Object> valueSerde;
 
-    public ExprFilterSpecLookupable(String expression, EventPropertyValueGetter getter, Class returnType, boolean isNonPropertyGetter, DataInputOutputSerde<Object> valueSerde) {
+    public ExprFilterSpecLookupable(String expression, ExprEventEvaluator eval, Class returnType, boolean isNonPropertyEval, DataInputOutputSerde<Object> valueSerde) {
         this.expression = expression;
-        this.getter = getter;
+        this.eval = eval;
         this.returnType = JavaClassHelper.getBoxedType(returnType); // For type consistency for recovery and serde define as boxed type
-        this.isNonPropertyGetter = isNonPropertyGetter;
+        this.isNonPropertyEval = isNonPropertyEval;
         this.valueSerde = valueSerde;
     }
 
@@ -35,8 +35,8 @@ public class ExprFilterSpecLookupable {
         return expression;
     }
 
-    public EventPropertyValueGetter getGetter() {
-        return getter;
+    public ExprEventEvaluator getEval() {
+        return eval;
     }
 
     public Class getReturnType() {
@@ -68,12 +68,18 @@ public class ExprFilterSpecLookupable {
                 '}';
     }
 
-    public boolean isNonPropertyGetter() {
-        return isNonPropertyGetter;
+    public boolean isNonPropertyEval() {
+        return isNonPropertyEval;
     }
 
     public DataInputOutputSerde<Object> getValueSerde() {
         return valueSerde;
+    }
+
+    public ExprFilterSpecLookupable make(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {
+        // this lookupable does not depend on matched-events or evaluation-context
+        // we allow it to be a factory of itself
+        return this;
     }
 }
 

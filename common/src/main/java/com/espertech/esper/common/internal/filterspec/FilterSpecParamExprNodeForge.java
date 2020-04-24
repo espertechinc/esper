@@ -35,8 +35,7 @@ import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
-import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.REF_MATCHEDEVENTMAP;
-import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.REF_STMTCTXFILTEREVALENV;
+import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.*;
 
 /**
  * This class represents an arbitrary expression node returning a boolean value as a filter parameter in an {@link FilterSpecActivatable} filter specification.
@@ -53,7 +52,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
 
     private int filterBoolExprId = -1;
 
-    public FilterSpecParamExprNodeForge(ExprFilterSpecLookupableForge lookupable,
+    public FilterSpecParamExprNodeForge(ExprFilterSpecLookupableFactoryForge lookupable,
                                         FilterOperator filterOperator,
                                         ExprNode exprNode,
                                         LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
@@ -148,7 +147,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
 
         // getFilterValue-FilterSpecParamExprNode code
         CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParamExprNode.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
 
         if ((taggedEventTypes != null && !taggedEventTypes.isEmpty()) || (arrayEventTypes != null && !arrayEventTypes.isEmpty())) {
@@ -180,12 +179,13 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
         }
 
         getFilterValue.getBlock()
-                .methodReturn(exprDotMethod(ref("filterBooleanExpressionFactory"), "make",
-                        ref("this"), // FilterSpecParamExprNode filterSpecParamExprNode
-                        ref("events"), // EventBean[] events
-                        REF_EXPREVALCONTEXT, // ExprEvaluatorContext exprEvaluatorContext
-                        exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId"), // int agentInstanceId
-                        REF_STMTCTXFILTEREVALENV));
+                .declareVar(Object.class, "value", exprDotMethod(ref("filterBooleanExpressionFactory"), "make",
+                    ref("this"), // FilterSpecParamExprNode filterSpecParamExprNode
+                    ref("events"), // EventBean[] events
+                    REF_EXPREVALCONTEXT, // ExprEvaluatorContext exprEvaluatorContext
+                    exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId"), // int agentInstanceId
+                    REF_STMTCTXFILTEREVALENV))
+                .methodReturn(FilterValueSetParamImpl.codegenNew(ref("value")));
 
         // expression evaluator
         CodegenExpressionNewAnonymousClass evaluator = ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(exprNode.getForge(), method, this.getClass(), classScope);

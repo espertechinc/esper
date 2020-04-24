@@ -137,8 +137,7 @@ public final class FilterSpecActivatable {
         // Ask each filter specification parameter for the actual value to filter for
         int count = 0;
         for (FilterSpecParam specParam : specParams) {
-            Object filterForValue = specParam.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
-            FilterValueSetParam valueParam = new FilterValueSetParamImpl(specParam.getLookupable(), specParam.getFilterOperator(), filterForValue);
+            FilterValueSetParam valueParam = specParam.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
             valueList[count] = valueParam;
             count++;
         }
@@ -243,7 +242,7 @@ public final class FilterSpecActivatable {
         String delimiter = "";
         for (FilterSpecParam param : paramLine) {
             writer.write(delimiter);
-            writer.write(param.getLookupable().getExpression());
+            writer.write(param.getLookupableFactory().getExpression());
             writer.write(param.getFilterOperator().getTextualOp());
             writer.write("...");
             delimiter = ",";

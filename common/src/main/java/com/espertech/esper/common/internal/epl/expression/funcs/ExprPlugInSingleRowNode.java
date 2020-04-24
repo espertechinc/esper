@@ -110,10 +110,10 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
         return eligible;
     }
 
-    public ExprFilterSpecLookupableForge getFilterLookupable() {
+    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
         checkValidated(forge);
         DataInputOutputSerdeForge filterSerde = compileTimeServices.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), statementRawInfo);
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, forge.getEvaluationType(), true, filterSerde);
+        return new ExprFilterSpecLookupableFactoryForgePremade(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, forge.getEvaluationType(), true, filterSerde);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

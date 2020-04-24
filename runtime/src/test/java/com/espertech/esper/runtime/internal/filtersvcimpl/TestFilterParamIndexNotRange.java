@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.internal.support.SupportEventBeanFactory;
+import com.espertech.esper.runtime.internal.support.SupportExprEventEvaluator;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;
@@ -118,13 +119,14 @@ public class TestFilterParamIndexNotRange extends TestCase {
 
     private void verify(FilterParamIndexBase index, Long testValue, boolean[] expected) {
         testBean.setLongBoxed(testValue);
-        index.matchEvent(testEventBean, matchesList);
+        index.matchEvent(testEventBean, matchesList, null);
         for (int i = 0; i < expected.length; i++) {
             assertEquals("Unexpected result for eval " + i, expected[i], testEvaluators[i].getAndResetCountInvoked() == 1);
         }
     }
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
-        return new ExprFilterSpecLookupable(fieldName, testEventType.getGetter(fieldName), testEventType.getPropertyType(fieldName), false, null);
+        SupportExprEventEvaluator eval = new SupportExprEventEvaluator(testEventType.getGetter(fieldName));
+        return new ExprFilterSpecLookupable(fieldName, eval, testEventType.getPropertyType(fieldName), false, null);
     }
 }

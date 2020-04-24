@@ -39,8 +39,8 @@ public class SupportFilterHelper {
         assertEquals(count, SupportFilterHelper.getFilterCountAnyType(statement));
     }
 
-    public static String getFilterToString(RegressionEnvironment env, String name) {
-        EPStatementSPI statementSPI = (EPStatementSPI) env.statement(name);
+    public static String getFilterToString(RegressionEnvironment env, String statementName) {
+        EPStatementSPI statementSPI = (EPStatementSPI) env.statement(statementName);
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
         Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = filterServiceSPI.get(Collections.singleton(statementSPI.getStatementId()));
 
@@ -174,20 +174,31 @@ public class SupportFilterHelper {
         return spi.getFilterCountApprox();
     }
 
-    public static String getFilterAll(EPRuntime runtime) {
+    public static Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> getFilterAllStmt(EPRuntime runtime) {
         String[] deployments = runtime.getDeploymentService().getDeployments();
         Set<Integer> statements = new HashSet<>();
+        EPStatementSPI statementSPI = null;
         for (String deployment : deployments) {
             EPDeployment info = runtime.getDeploymentService().getDeployment(deployment);
             for (EPStatement statement : info.getStatements()) {
-                EPStatementSPI spi = (EPStatementSPI) statement;
-                statements.add(spi.getStatementId());
+                statementSPI = (EPStatementSPI) statement;
+                statements.add(statementSPI.getStatementId());
             }
+        }
+        if (statementSPI == null) {
+            throw new IllegalStateException("Empty statements");
         }
 
         FilterServiceSPI filterService = ((EPRuntimeSPI) runtime).getServicesContext().getFilterService();
-        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = filterService.get(statements);
-        return pairs.toString();
+        return filterService.get(statements);
+    }
+
+    public static Map<Integer, List<FilterItem[]>> getFilterAllStmtForType(EPRuntime runtime, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterAllStmt(runtime);
+
+        EventType eventType = runtime.getEventTypeService().getBusEventType(eventTypeName);
+        EventTypeIdPair typeId = eventType.getMetadata().getEventTypeIdPair();
+        return pairs.get(typeId);
     }
 
     public static FilterItem[][] getFilterMulti(EPStatement statement, String eventTypeName) {
@@ -210,5 +221,36 @@ public class SupportFilterHelper {
         assertFalse(params.isEmpty());
 
         return params.toArray(new FilterItem[params.size()][]);
+    }
+
+    public static void assertFilterMultiSameIndexDepthOne(EPStatement stmt, String eventType, int numEntries, String expression, FilterOperator operator) {
+        FilterItem[][] items = getFilterMulti(stmt, eventType);
+        assertEquals(numEntries, items.length);
+        for (int i = 0; i < numEntries; i++) {
+            FilterItem[] entries = items[i];
+            assertEquals(1, entries.length);
+            FilterItem item = entries[0];
+            assertEquals(expression, item.getName());
+            assertEquals(operator, item.getOp());
+            assertSame(items[0][0].getIndex(), item.getIndex());
+        }
+    }
+
+    public static void assertFilterMultiSameIndexDepthOne(Map<Integer, List<FilterItem[]>> filters, int numEntries, String expression, FilterOperator operator) {
+        assertEquals(numEntries, filters.size());
+        FilterItem first = null;
+        for (Map.Entry<Integer, List<FilterItem[]>> stmtEntry : filters.entrySet()) {
+            FilterItem[][] entriesStmt = stmtEntry.getValue().toArray(new FilterItem[0][]);
+            assertEquals(1, entriesStmt.length);
+            FilterItem[] entries = entriesStmt[0];
+            assertEquals(1, entries.length);
+            FilterItem item = entries[0];
+            assertEquals(expression, item.getName());
+            assertEquals(operator, item.getOp());
+            if (first == null) {
+                first = item;
+            }
+            assertSame(first.getIndex(), item.getIndex());
+        }
     }
 }

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.analyze;
 
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerMakeParamUtil;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerOrToInRewrite;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
@@ -61,7 +61,7 @@ public class FilterExprAnalyzer {
             ExprInNode inNode = (ExprInNode) topNode;
             analyzeInNode(inNode, queryGraph);
         } else if (topNode instanceof ExprOrNode) {
-            ExprNode rewritten = FilterSpecCompilerMakeParamUtil.rewriteOrToInIfApplicable(topNode);
+            ExprNode rewritten = FilterSpecCompilerIndexPlannerOrToInRewrite.rewriteOrToInIfApplicable(topNode);
             if (rewritten instanceof ExprInNode) {
                 ExprInNode inNode = (ExprInNode) rewritten;
                 analyzeInNode(inNode, queryGraph);

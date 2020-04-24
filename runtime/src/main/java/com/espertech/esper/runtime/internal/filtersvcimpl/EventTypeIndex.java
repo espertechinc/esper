@@ -13,6 +13,7 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 
 import java.util.*;
@@ -117,11 +118,11 @@ public class EventTypeIndex implements EventEvaluator {
         return result;
     }
 
-    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         EventType eventType = theEvent.getEventType();
 
         // Attempt to match exact type
-        matchType(eventType, theEvent, matches);
+        matchType(eventType, theEvent, matches, ctx);
 
         // No supertype means we are done
         if (eventType.getSuperTypes() == null) {
@@ -130,7 +131,7 @@ public class EventTypeIndex implements EventEvaluator {
 
         for (Iterator<EventType> it = eventType.getDeepSuperTypes(); it.hasNext(); ) {
             EventType superType = it.next();
-            matchType(superType, theEvent, matches);
+            matchType(superType, theEvent, matches, ctx);
         }
     }
 
@@ -160,7 +161,7 @@ public class EventTypeIndex implements EventEvaluator {
         return count;
     }
 
-    private void matchType(EventType eventType, EventBean eventBean, Collection<FilterHandle> matches) {
+    private void matchType(EventType eventType, EventBean eventBean, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         eventTypesRWLock.readLock().lock();
         FilterHandleSetNode rootNode = null;
         try {
@@ -175,6 +176,6 @@ public class EventTypeIndex implements EventEvaluator {
             return;
         }
 
-        rootNode.matchEvent(eventBean, matches);
+        rootNode.matchEvent(eventBean, matches, ctx);
     }
 }

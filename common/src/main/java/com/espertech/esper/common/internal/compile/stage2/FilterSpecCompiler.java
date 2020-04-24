@@ -168,7 +168,6 @@ public final class FilterSpecCompiler {
             String expression = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(andNode);
             buf.append(" expression '").append(expression).append("' for ").append(spec.length).append(" path");
         }
-        buf.append(NEWLINE);
 
         for (int i = 0; i < spec.length; i++) {
             logFilterPlanPath(i, spec[i], buf);

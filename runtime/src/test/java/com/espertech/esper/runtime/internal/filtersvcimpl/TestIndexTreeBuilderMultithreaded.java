@@ -107,14 +107,14 @@ public class TestIndexTreeBuilderMultithreaded extends TestCase {
         // None of the not-matching events should cause any match
         for (EventBean theEvent : unmatchedEvents) {
             List<FilterHandle> matches = new LinkedList<FilterHandle>();
-            topNode.matchEvent(theEvent, matches);
+            topNode.matchEvent(theEvent, matches, null);
             assertTrue(matches.size() == 0);
         }
 
         // All of the matching events should cause exactly one match
         for (EventBean theEvent : matchedEvents) {
             List<FilterHandle> matches = new LinkedList<FilterHandle>();
-            topNode.matchEvent(theEvent, matches);
+            topNode.matchEvent(theEvent, matches, null);
             assertTrue(matches.size() == 1);
         }
 
@@ -129,7 +129,7 @@ public class TestIndexTreeBuilderMultithreaded extends TestCase {
         // After the remove no matches are expected
         for (EventBean theEvent : matchedEvents) {
             List<FilterHandle> matches = new LinkedList<FilterHandle>();
-            topNode.matchEvent(theEvent, matches);
+            topNode.matchEvent(theEvent, matches, null);
             assertTrue(matches.size() == 0);
         }
     }

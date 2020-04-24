@@ -70,7 +70,7 @@ public class ExprPlugInSingleRowNodeForgeConst extends ExprPlugInSingleRowNodeFo
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprPlugInSingleRow", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).qparams(getMethodAsParams()).build();
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+    public CodegenExpression eventBeanWithCtxGet(CodegenExpression beanExpression, CodegenExpression ctxExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 }

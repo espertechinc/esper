@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.filterspec;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
 import com.espertech.esper.common.internal.type.XYWHRectangle;
 
 public final class FilterSpecParamAdvancedIndexQuadTreeMXCIF extends FilterSpecParam {
@@ -21,16 +22,18 @@ public final class FilterSpecParamAdvancedIndexQuadTreeMXCIF extends FilterSpecP
     private FilterSpecParamFilterForEvalDouble widthEval;
     private FilterSpecParamFilterForEvalDouble heightEval;
 
-    public FilterSpecParamAdvancedIndexQuadTreeMXCIF(ExprFilterSpecLookupable lookupable, FilterOperator filterOperator) {
-        super(lookupable, filterOperator);
+    public FilterSpecParamAdvancedIndexQuadTreeMXCIF(ExprFilterSpecLookupableFactory lookupableFactory, FilterOperator filterOperator) {
+        super(lookupableFactory, filterOperator);
     }
 
-    public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
+    public FilterValueSetParam getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
         Double x = xEval.getFilterValueDouble(matchedEvents, exprEvaluatorContext, filterEvalEnv);
         Double y = yEval.getFilterValueDouble(matchedEvents, exprEvaluatorContext, filterEvalEnv);
         Double width = widthEval.getFilterValueDouble(matchedEvents, exprEvaluatorContext, filterEvalEnv);
         Double height = heightEval.getFilterValueDouble(matchedEvents, exprEvaluatorContext, filterEvalEnv);
-        return new XYWHRectangle(x, y, width, height);
+        XYWHRectangle rectangle = new XYWHRectangle(x, y, width, height);
+        ExprFilterSpecLookupable lookupable = lookupableFactory.make(matchedEvents, exprEvaluatorContext);
+        return new FilterValueSetParamImpl(lookupable, filterOperator, rectangle);
     }
 
     public boolean equals(Object obj) {

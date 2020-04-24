@@ -13,6 +13,7 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
 import com.espertech.esper.common.internal.filterspec.*;
 
 public final class SupportFilterSpecParamRange extends FilterSpecParam {
@@ -29,7 +30,7 @@ public final class SupportFilterSpecParamRange extends FilterSpecParam {
      * @param max            is the end point of the range
      * @throws IllegalArgumentException if an operator was supplied that does not take a double range value
      */
-    public SupportFilterSpecParamRange(ExprFilterSpecLookupable lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEval min, FilterSpecParamFilterForEval max)
+    public SupportFilterSpecParamRange(ExprFilterSpecLookupableFactory lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEval min, FilterSpecParamFilterForEval max)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.min = min;
@@ -41,13 +42,19 @@ public final class SupportFilterSpecParamRange extends FilterSpecParam {
         }
     }
 
-    public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
+    public FilterValueSetParam getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
+        ExprFilterSpecLookupable lookupable = lookupableFactory.make(matchedEvents, exprEvaluatorContext);
+        Object range;
         if (lookupable.getReturnType() == String.class) {
-            return new StringRange((String) min.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv), (String) max.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv));
+            String begin = (String) min.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
+            String end = (String) max.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
+            range = new StringRange(begin, end);
+        } else {
+            Double begin = (Double) min.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
+            Double end = (Double) max.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
+            range = new DoubleRange(begin, end);
         }
-        Double begin = (Double) min.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
-        Double end = (Double) max.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
-        return new DoubleRange(begin, end);
+        return new FilterValueSetParamImpl(lookupable, filterOperator, range);
     }
 
     /**

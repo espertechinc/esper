@@ -99,7 +99,7 @@ public class FilterForEvalEventPropForge implements FilterSpecParamInValueForge 
     public void valueToString(StringBuilder out) {
         out.append("property '").append(resultEventProperty).append("'");
         if (resultEventAsName != null) {
-            out.append("of '").append(resultEventAsName).append("'");
+            out.append(" of '").append(resultEventAsName).append("'");
         }
     }
 }

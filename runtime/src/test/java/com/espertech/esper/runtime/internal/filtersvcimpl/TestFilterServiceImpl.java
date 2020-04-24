@@ -105,7 +105,7 @@ public class TestFilterServiceImpl extends TestCase {
     public void testEvalEvents() {
         for (int i = 0; i < events.size(); i++) {
             List<FilterHandle> matchList = new LinkedList<FilterHandle>();
-            filterService.evaluate(events.get(i), matchList);
+            filterService.evaluate(events.get(i), matchList, null);
             for (FilterHandle match : matchList) {
                 SupportFilterHandle handle = (SupportFilterHandle) match;
                 handle.matchFound(events.get(i), null);
@@ -148,7 +148,7 @@ public class TestFilterServiceImpl extends TestCase {
         // send event
         EventBean theEvent = makeTypeOneEvent(1, "HELLO", false, 1);
         List<FilterHandle> matches = new LinkedList<FilterHandle>();
-        filterService.evaluate(theEvent, matches);
+        filterService.evaluate(theEvent, matches, null);
         for (FilterHandle match : matches) {
             FilterHandleCallback handle = (FilterHandleCallback) match;
             handle.matchFound(theEvent, null);

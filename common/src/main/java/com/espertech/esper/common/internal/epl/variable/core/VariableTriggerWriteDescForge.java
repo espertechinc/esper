@@ -58,7 +58,7 @@ public class VariableTriggerWriteDescForge extends VariableTriggerWriteForge {
                 .declareVar(VariableTriggerWriteDesc.class, "desc", newInstance(VariableTriggerWriteDesc.class))
                 .exprDotMethod(ref("desc"), "setType", EventTypeUtility.resolveTypeCodegen(type, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("desc"), "setVariableName", constant(variableName))
-                .exprDotMethod(ref("desc"), "setWriter", EventTypeUtility.codegenWriter(type, getterType, evaluationType, writer, method, this.getClass(), classScope))
+                .exprDotMethod(ref("desc"), "setWriter", EventTypeUtility.codegenWriter(type, evaluationType, writer, method, this.getClass(), classScope))
                 .exprDotMethod(ref("desc"), "setGetter", EventTypeUtility.codegenGetterWCoerce(getter, getterType, null, method, this.getClass(), classScope))
                 .methodReturn(ref("desc"));
         return localMethod(method);

@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
@@ -31,7 +31,7 @@ public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
     private final EventPropertyGetterSPI getter;
     private final SimpleNumberCoercer numberCoercer;
 
-    public FilterSpecParamContextPropForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String propertyName, EventPropertyGetterSPI getter, SimpleNumberCoercer numberCoercer) {
+    public FilterSpecParamContextPropForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, String propertyName, EventPropertyGetterSPI getter, SimpleNumberCoercer numberCoercer) {
         super(lookupable, filterOperator);
         this.propertyName = propertyName;
         this.getter = getter;
@@ -46,7 +46,7 @@ public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
                 .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
         CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
         getFilterValue.getBlock()
                 .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
@@ -55,7 +55,7 @@ public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
         if (numberCoercer != null) {
             getFilterValue.getBlock().assignRef("result", numberCoercer.coerceCodegenMayNullBoxed(cast(Number.class, ref("result")), Number.class, method, classScope));
         }
-        getFilterValue.getBlock().methodReturn(ref("result"));
+        getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(ref("result")));
 
         method.getBlock().methodReturn(param);
         return method;

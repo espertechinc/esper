@@ -94,7 +94,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         return true;
     }
 
-    public ExprFilterSpecLookupableForge getFilterLookupable() {
+    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
         EventPropertyValueGetterForge eventPropertyForge = new EventPropertyValueGetterForge() {
             public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
                 CodegenMethod method = parent.makeChild(String.class, this.getClass(), classScope).addParam(EventBean.class, "bean");
@@ -103,7 +103,8 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
             }
         };
         DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(String.class, exprValidationContext.getStatementRawInfo());
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eventPropertyForge, String.class, true, serde);
+        ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(eventPropertyForge);
+        return new ExprFilterSpecLookupableFactoryForgePremade(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eval, String.class, true, serde);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

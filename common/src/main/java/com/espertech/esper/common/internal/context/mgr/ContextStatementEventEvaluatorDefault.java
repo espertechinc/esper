@@ -26,7 +26,7 @@ public class ContextStatementEventEvaluatorDefault implements ContextStatementEv
     public void evaluateEventForStatement(EventBean theEvent, List<AgentInstance> agentInstances, AgentInstanceContext agentInstanceContextCreate) {
         // context was created - reevaluate for the given event
         ArrayDeque<FilterHandle> callbacks = new ArrayDeque<FilterHandle>(2);
-        agentInstanceContextCreate.getFilterService().evaluate(theEvent, callbacks);   // evaluates for ALL statements
+        agentInstanceContextCreate.getFilterService().evaluate(theEvent, callbacks, agentInstanceContextCreate);   // evaluates for ALL statements
         if (callbacks.isEmpty()) {
             return;
         }

@@ -17,7 +17,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEventEvaluatorForgeFromProp;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForgePremade;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
@@ -26,7 +27,7 @@ import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookupableForge {
+public class FilterSpecLookupableAdvancedIndexFactoryForge extends ExprFilterSpecLookupableFactoryForgePremade {
     private final AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig;
     private final EventPropertyGetterSPI x;
     private final EventPropertyGetterSPI y;
@@ -34,8 +35,8 @@ public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookup
     private final EventPropertyGetterSPI height;
     private final String indexType;
 
-    public FilterSpecLookupableAdvancedIndexForge(String expression, EventPropertyGetterSPI getter, Class returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetterSPI x, EventPropertyGetterSPI y, EventPropertyGetterSPI width, EventPropertyGetterSPI height, String indexType) {
-        super(expression, getter, returnType, true, null);
+    public FilterSpecLookupableAdvancedIndexFactoryForge(String expression, EventPropertyGetterSPI getter, Class returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetterSPI x, EventPropertyGetterSPI y, EventPropertyGetterSPI width, EventPropertyGetterSPI height, String indexType) {
+        super(expression, new ExprEventEvaluatorForgeFromProp(getter), returnType, true, null);
         this.quadTreeConfig = quadTreeConfig;
         this.x = x;
         this.y = y;
@@ -46,7 +47,7 @@ public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookup
 
     @Override
     public CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FilterSpecLookupableAdvancedIndex.class, FilterSpecLookupableAdvancedIndexForge.class, classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecLookupableAdvancedIndex.class, FilterSpecLookupableAdvancedIndexFactoryForge.class, classScope);
         Function<EventPropertyGetterSPI, CodegenExpression> toEval = getter -> EventTypeUtility.codegenGetterWCoerce(getter, Double.class, null, method, this.getClass(), classScope);
         method.getBlock()
                 .declareVar(FilterSpecLookupableAdvancedIndex.class, "lookupable", newInstance(FilterSpecLookupableAdvancedIndex.class,

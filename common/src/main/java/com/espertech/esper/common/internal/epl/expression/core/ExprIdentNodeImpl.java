@@ -175,9 +175,10 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         return evaluator.getStreamNum() == 0 && !(evaluator.isContextEvaluated());
     }
 
-    public ExprFilterSpecLookupableForge getFilterLookupable() {
+    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
         DataInputOutputSerdeForge serde = compileTimeServices.getSerdeResolver().serdeForFilter(evaluator.getEvaluationType(), statementRawInfo);
-        return new ExprFilterSpecLookupableForge(resolvedPropertyName, evaluator.getGetter(), evaluator.getEvaluationType(), false, serde);
+        ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(evaluator.getGetter());
+        return new ExprFilterSpecLookupableFactoryForgePremade(resolvedPropertyName, eval, evaluator.getEvaluationType(), false, serde);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {

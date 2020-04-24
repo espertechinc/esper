@@ -94,7 +94,7 @@ public abstract class FilterParamIndexDoubleRangeBase extends FilterParamIndexLo
 
     public void getTraverseStatement(EventTypeIndexTraverse traverse, Set<Integer> statementIds, ArrayDeque<FilterItem> evaluatorStack) {
         for (Map.Entry<DoubleRange, EventEvaluator> entry : ranges.entrySet()) {
-            evaluatorStack.add(new FilterItem(lookupable.getExpression(), getFilterOperator(), entry.getKey()));
+            evaluatorStack.add(new FilterItem(lookupable.getExpression(), getFilterOperator(), entry.getKey(), this));
             entry.getValue().getTraverseStatement(traverse, statementIds, evaluatorStack);
             evaluatorStack.removeLast();
         }

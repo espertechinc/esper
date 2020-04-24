@@ -54,7 +54,7 @@ public class ExprPlugInSingleRowNodeForgeNC extends ExprPlugInSingleRowNodeForge
         return inner.getEvaluationType();
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+    public CodegenExpression eventBeanWithCtxGet(CodegenExpression beanExpression, CodegenExpression ctxExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return inner.eventBeanGetCodegen(beanExpression, codegenMethodScope, codegenClassScope);
     }
 }

@@ -14,11 +14,12 @@ import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.util.Indent;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -49,7 +50,7 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
      * @param listofValues   is a list of constants and event property names
      * @throws IllegalArgumentException for illegal args
      */
-    public FilterSpecParamInForge(ExprFilterSpecLookupableForge lookupable,
+    public FilterSpecParamInForge(ExprFilterSpecLookupableFactoryForge lookupable,
                                   FilterOperator filterOperator,
                                   List<FilterSpecParamInValueForge> listofValues)
         throws IllegalArgumentException {
@@ -145,21 +146,23 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParam.class, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+            .declareVar(ExprFilterSpecLookupableFactory.class, "factory", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
             .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("factory"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
+
+        CodegenExpression filterForValue;
         if (inListConstantsOnly != null) {
-            getFilterValue.getBlock().methodReturn(newInstance(HashableMultiKey.class, constant(inListConstantsOnly)));
+            filterForValue = newInstance(HashableMultiKey.class, constant(inListConstantsOnly));
         } else if (!hasCollMapOrArray) {
             getFilterValue.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(listOfValues.size())));
             for (int i = 0; i < listOfValues.size(); i++) {
                 FilterSpecParamInValueForge forge = listOfValues.get(i);
                 getFilterValue.getBlock().assignArrayElement(ref("values"), constant(i), forge.makeCodegen(classScope, method));
             }
-            getFilterValue.getBlock().methodReturn(newInstance(HashableMultiKey.class, ref("values")));
+            filterForValue = newInstance(HashableMultiKey.class, ref("values"));
         } else {
             getFilterValue.getBlock().declareVar(ArrayDeque.class, "values", newInstance(ArrayDeque.class, constant(listOfValues.size())));
             for (int i = 0; i < listOfValues.size(); i++) {
@@ -172,10 +175,14 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
                     .exprDotMethod(ref(adderName), "add", ref("values"), ref(valueName))
                     .blockEnd();
             }
-            getFilterValue.getBlock().methodReturn(newInstance(HashableMultiKey.class, exprDotMethod(ref("values"), "toArray")));
+            filterForValue = newInstance(HashableMultiKey.class, exprDotMethod(ref("values"), "toArray"));
         }
+        getFilterValue.getBlock()
+            .declareVar(Object.class, "val", filterForValue)
+            .methodReturn(FilterValueSetParamImpl.codegenNew(ref("val")));
 
-        method.getBlock().methodReturn(param);
+        method.getBlock()
+            .methodReturn(param);
         return method;
     }
 

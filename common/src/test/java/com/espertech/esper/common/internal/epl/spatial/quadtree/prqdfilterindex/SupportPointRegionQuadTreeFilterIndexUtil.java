@@ -21,7 +21,7 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class SupportPointRegionQuadTreeFilterIndexUtil {
-    private static final QuadTreeCollector<String, Map<Integer, String>> MAP_COLLECTOR = (event, s, target) -> {
+    private static final QuadTreeCollector<String, Map<Integer, String>> MAP_COLLECTOR = (event, s, target, ctx) -> {
         int num = Integer.parseInt(s.substring(1));
         if (target.containsKey(num)) {
             throw new IllegalStateException();
@@ -29,11 +29,11 @@ public class SupportPointRegionQuadTreeFilterIndexUtil {
         target.put(num, s);
     };
 
-    private static final QuadTreeCollector<String, Collection<Object>> COLLECTION_COLLECTOR = (event, s, target) -> target.add(s);
+    private static final QuadTreeCollector<String, Collection<Object>> COLLECTION_COLLECTOR = (event, s, target, ctx) -> target.add(s);
 
     public final static SupportQuadTreeUtil.Querier<PointRegionQuadTree<Object>> POINTREGION_FI_QUERIER = (tree, x, y, width, height) -> {
         List<Object> received = new ArrayList<>();
-        PointRegionQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, COLLECTION_COLLECTOR);
+        PointRegionQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, COLLECTION_COLLECTOR, null);
         return received.isEmpty() ? null : received;
     };
     public final static SupportQuadTreeUtil.AdderUnique<PointRegionQuadTree<Object>> POINTREGION_FI_ADDERUNIQUE = (tree, value) -> set(tree, value.getX(), value.getY(), value.getId());
@@ -56,7 +56,7 @@ public class SupportPointRegionQuadTreeFilterIndexUtil {
 
     static void assertCollect(PointRegionQuadTree<Object> tree, double x, double y, double width, double height, String expected) {
         Map<Integer, String> received = new TreeMap<>();
-        PointRegionQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, MAP_COLLECTOR);
+        PointRegionQuadTreeFilterIndexCollect.collectRange(tree, x, y, width, height, null, received, MAP_COLLECTOR, null);
         assertCompare(tree, expected, received);
     }
 

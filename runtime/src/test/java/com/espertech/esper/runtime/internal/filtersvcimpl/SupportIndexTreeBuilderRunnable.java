@@ -67,7 +67,7 @@ public class SupportIndexTreeBuilderRunnable implements Runnable {
 
         // Fire a no-match
         List<FilterHandle> matches = new LinkedList<FilterHandle>();
-        topNode.matchEvent(unmatchedEvent, matches);
+        topNode.matchEvent(unmatchedEvent, matches, null);
 
         if (matches.size() != 0) {
             log.error(".run (" + currentThreadId + ") Got a match but expected no-match, matchCount=" + matches.size() + "  bean=" + unmatchedEvent +
@@ -76,7 +76,7 @@ public class SupportIndexTreeBuilderRunnable implements Runnable {
         }
 
         // Fire a match
-        topNode.matchEvent(matchedEvent, matches);
+        topNode.matchEvent(matchedEvent, matches, null);
 
         if (matches.size() != 1) {
             log.error(".run (" + currentThreadId + ") Got zero or two or more match but expected a match, count=" + matches.size() +

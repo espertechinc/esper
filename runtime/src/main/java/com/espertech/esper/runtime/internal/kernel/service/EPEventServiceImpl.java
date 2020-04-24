@@ -91,7 +91,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
     private AtomicLong routedInternal;
     private AtomicLong routedExternal;
     private InternalEventRouter internalEventRouter;
-    private ExprEvaluatorContext runtimeFilterAndDispatchTimeContext;
+    protected ExprEvaluatorContext runtimeFilterAndDispatchTimeContext;
     private ThreadWorkQueue threadWorkQueue;
     protected ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
     private ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
@@ -116,7 +116,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         routedExternal = new AtomicLong();
         runtimeFilterAndDispatchTimeContext = new ExprEvaluatorContext() {
             public TimeProvider getTimeProvider() {
-                throw new UnsupportedOperationException();
+                return services.getSchedulingService();
             }
 
             public int getAgentInstanceId() {
@@ -128,11 +128,11 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
             }
 
             public String getStatementName() {
-                return null;
+                return "(statement name not available)";
             }
 
             public String getRuntimeURI() {
-                return null;
+                return services.getRuntimeURI();
             }
 
             public int getStatementId() {
@@ -140,7 +140,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
             }
 
             public String getDeploymentId() {
-                return null;
+                return "(deployment id not available)";
             }
 
             public Object getUserObjectCompileTime() {
@@ -148,7 +148,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
             }
 
             public EventBeanService getEventBeanService() {
-                return null;
+                return services.getEventBeanService();
             }
 
             public StatementAgentInstanceLock getAgentInstanceLock() {
@@ -610,7 +610,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
     protected void processMatches(EventBean theEvent) {
         // get matching filters
         ArrayBackedCollection<FilterHandle> matches = matchesArrayThreadLocal.get();
-        long version = services.getFilterService().evaluate(theEvent, matches);
+        long version = services.getFilterService().evaluate(theEvent, matches, runtimeFilterAndDispatchTimeContext);
 
         if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.trace("Found matches for underlying ", matches.size(), theEvent.getUnderlying());
@@ -812,8 +812,8 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
     }
 
     protected void handleFilterFault(EPStatementAgentInstanceHandle faultingHandle, EventBean theEvent, int filterFaultCount) {
-        ArrayDeque<FilterHandle> callbacksForStatement = new ArrayDeque<FilterHandle>();
-        long version = services.getFilterService().evaluate(theEvent, callbacksForStatement, faultingHandle.getStatementId());
+        ArrayDeque<FilterHandle> callbacksForStatement = new ArrayDeque<>();
+        long version = services.getFilterService().evaluate(theEvent, callbacksForStatement, faultingHandle.getStatementId(), runtimeFilterAndDispatchTimeContext);
 
         if (callbacksForStatement.size() == 1) {
             EPStatementHandleCallbackFilter handleCallback = (EPStatementHandleCallbackFilter) callbacksForStatement.getFirst();

@@ -18,15 +18,21 @@ public class FilterItem {
     private final String name;
     private final FilterOperator op;
     private final Object optionalValue;
+    private final Object index;
 
-    public FilterItem(String name, FilterOperator op, Object optionalValue) {
+    public FilterItem(String name, FilterOperator op, Object optionalValue, Object index) {
         this.name = name;
         this.op = op;
         this.optionalValue = optionalValue;
+        this.index = index;
     }
 
     public FilterItem(String name, FilterOperator op) {
-        this(name, op, null);
+        this(name, op, null, null);
+    }
+
+    public FilterItem(String name, FilterOperator op, Object index) {
+        this(name, op, null, index);
     }
 
     public String getName() {
@@ -41,11 +47,17 @@ public class FilterItem {
         return optionalValue;
     }
 
+    public Object getIndex() {
+        return index;
+    }
+
     public String toString() {
         return "FilterItem{" +
-                "name='" + name + '\'' +
-                ", op=" + op +
-                '}';
+            "name='" + name + '\'' +
+            ", op=" + op +
+            ", optionalValue=" + optionalValue +
+            ", index=" + index +
+            '}';
     }
 
     public boolean equals(Object o) {

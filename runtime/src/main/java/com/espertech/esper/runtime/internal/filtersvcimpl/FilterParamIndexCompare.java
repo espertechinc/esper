@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
@@ -84,8 +85,8 @@ public final class FilterParamIndexCompare extends FilterParamIndexLookupableBas
         return constantsMapRWLock;
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
-        Object propertyValue = lookupable.getGetter().get(theEvent);
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
+        Object propertyValue = lookupable.getEval().eval(theEvent, ctx);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterReverseIndex(this, propertyValue);
         }
@@ -160,13 +161,13 @@ public final class FilterParamIndexCompare extends FilterParamIndexLookupableBas
                     continue;
                 }
 
-                matcher.matchEvent(theEvent, matches);
+                matcher.matchEvent(theEvent, matches, ctx);
             }
 
             if (filterOperator == FilterOperator.GREATER_OR_EQUAL) {
                 EventEvaluator matcher = constantsMap.get(propertyValue);
                 if (matcher != null) {
-                    matcher.matchEvent(theEvent, matches);
+                    matcher.matchEvent(theEvent, matches, ctx);
                 }
             }
         } finally {
@@ -180,7 +181,7 @@ public final class FilterParamIndexCompare extends FilterParamIndexLookupableBas
 
     public void getTraverseStatement(EventTypeIndexTraverse traverse, Set<Integer> statementIds, ArrayDeque<FilterItem> evaluatorStack) {
         for (Map.Entry<Object, EventEvaluator> entry : constantsMap.entrySet()) {
-            evaluatorStack.add(new FilterItem(lookupable.getExpression(), getFilterOperator(), entry.getKey()));
+            evaluatorStack.add(new FilterItem(lookupable.getExpression(), getFilterOperator(), entry.getKey(), this));
             entry.getValue().getTraverseStatement(traverse, statementIds, evaluatorStack);
             evaluatorStack.removeLast();
         }

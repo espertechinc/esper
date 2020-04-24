@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
@@ -59,7 +59,7 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
      * @param eventType           event type
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
-    public FilterSpecParamEventPropIndexedForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String resultEventAsName,
+    public FilterSpecParamEventPropIndexedForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, String resultEventAsName,
                                                 int resultEventIndex, String resultEventProperty, EventType eventType, boolean isMustCoerce,
                                                 SimpleNumberCoercer numberCoercer, Class coercionType, String statementName)
             throws IllegalArgumentException {
@@ -88,7 +88,7 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
                 .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
         CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
         getFilterValue.getBlock()
                 .declareVar(EventBean[].class, "events", cast(EventBean[].class, exprDotMethod(ref("matchedEvents"), "getMatchingEventAsObjectByTag", constant(resultEventAsName))))
@@ -100,7 +100,7 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
         if (isMustCoerce) {
             getFilterValue.getBlock().assignRef("value", numberCoercer.coerceCodegenMayNullBoxed(cast(Number.class, ref("value")), Number.class, method, classScope));
         }
-        getFilterValue.getBlock().methodReturn(ref("value"));
+        getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(ref("value")));
 
         method.getBlock().methodReturn(param);
         return method;

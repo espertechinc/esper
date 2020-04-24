@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLoo
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.internal.support.SupportEventTypeFactory;
+import com.espertech.esper.runtime.internal.support.SupportExprEventEvaluator;
 import junit.framework.TestCase;
 
 public class TestIndexFactory extends TestCase {
@@ -75,7 +76,8 @@ public class TestIndexFactory extends TestCase {
     }
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
-        return new ExprFilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false, null);
+        SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter(fieldName));
+        return new ExprFilterSpecLookupable(fieldName, eval, eventType.getPropertyType(fieldName), false, null);
     }
 }
 

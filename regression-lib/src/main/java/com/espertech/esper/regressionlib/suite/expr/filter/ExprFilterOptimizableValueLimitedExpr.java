@@ -33,29 +33,29 @@ import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelp
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.assertFilterSingle;
 import static org.junit.Assert.assertEquals;
 
-public class ExprFilterOptimizableLimitedExpr {
+public class ExprFilterOptimizableValueLimitedExpr {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
-        executions.add(new ExprFilterEqualsIsConstant());
-        executions.add(new ExprFilterEqualsFromPatternSingle());
-        executions.add(new ExprFilterEqualsFromPatternMulti());
-        executions.add(new ExprFilterEqualsFromPatternConstant());
-        executions.add(new ExprFilterEqualsFromPatternHalfConstant());
-        executions.add(new ExprFilterEqualsFromPatternWithDotMethod());
-        executions.add(new ExprFilterEqualsContextWithStart());
-        executions.add(new ExprFilterEqualsSubstitutionParams());
-        executions.add(new ExprFilterEqualsDeclaredExpr());
-        executions.add(new ExprFilterEqualsConstantVariable());
-        executions.add(new ExprFilterEqualsCoercion());
-        executions.add(new ExprFilterRelOpCoercion());
-        executions.add(new ExprFilterDisqualify());
-        executions.add(new ExprFilterInSetOfValueWPatternWCoercion());
-        executions.add(new ExprFilterInRangeWCoercion());
-        executions.add(new ExprFilterOrRewrite());
+        executions.add(new ExprFilterOptValEqualsIsConstant());
+        executions.add(new ExprFilterOptValEqualsFromPatternSingle());
+        executions.add(new ExprFilterOptValEqualsFromPatternMulti());
+        executions.add(new ExprFilterOptValEqualsFromPatternConstant());
+        executions.add(new ExprFilterOptValEqualsFromPatternHalfConstant());
+        executions.add(new ExprFilterOptValEqualsFromPatternWithDotMethod());
+        executions.add(new ExprFilterOptValEqualsContextWithStart());
+        executions.add(new ExprFilterOptValEqualsSubstitutionParams());
+        executions.add(new ExprFilterOptValEqualsDeclaredExpr());
+        executions.add(new ExprFilterOptValEqualsConstantVariable());
+        executions.add(new ExprFilterOptValEqualsCoercion());
+        executions.add(new ExprFilterOptValRelOpCoercion());
+        executions.add(new ExprFilterOptValDisqualify());
+        executions.add(new ExprFilterOptValInSetOfValueWPatternWCoercion());
+        executions.add(new ExprFilterOptValInRangeWCoercion());
+        executions.add(new ExprFilterOptValOrRewrite());
         return executions;
     }
 
-    private static class ExprFilterOrRewrite implements RegressionExecution {
+    private static class ExprFilterOptValOrRewrite implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create context MyContext start SupportBean_S0 as s0;\n" +
                 "@name('s0') context MyContext select * from SupportBean(theString = context.s0.p00 || context.s0.p01 or theString = context.s0.p01 || context.s0.p00);\n";
@@ -72,7 +72,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    private static class ExprFilterInRangeWCoercion implements RegressionExecution {
+    private static class ExprFilterOptValInRangeWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive in [a.id - 2 : b.id + 2])];\n";
@@ -101,7 +101,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    private static class ExprFilterInSetOfValueWPatternWCoercion implements RegressionExecution {
+    private static class ExprFilterOptValInSetOfValueWPatternWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> c=SupportBean_S2 -> every SupportBean(longPrimitive in (a.id, b.id, c.id))];\n";
@@ -123,8 +123,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    // test pattern
-    public static class ExprFilterEqualsFromPatternWithDotMethod implements RegressionExecution {
+    public static class ExprFilterOptValEqualsFromPatternWithDotMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern [a=SupportBean -> b=SupportBean(theString=a.getTheString())]";
             env.compileDeploy(epl).addListener("s0");
@@ -136,7 +135,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterRelOpCoercion implements RegressionExecution {
+    public static class ExprFilterOptValRelOpCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from SupportBean(Integer.parseInt('10') > doublePrimitive)";
             runAssertionRelOpCoercion(env, epl);
@@ -146,7 +145,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsCoercion implements RegressionExecution {
+    public static class ExprFilterOptValEqualsCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from SupportBean(doublePrimitive = Integer.parseInt('10') + Long.parseLong('20'))";
             env.compileDeploy(epl).addListener("s0");
@@ -160,7 +159,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsConstantVariable implements RegressionExecution {
+    public static class ExprFilterOptValEqualsConstantVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String variable = "create constant variable string MYCONST = 'a';\n";
             tryDeployAndAssertionSB(env, variable + "@name('s0') select * from SupportBean(theString = MYCONST || 'x')", EQUAL);
@@ -168,7 +167,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsDeclaredExpr implements RegressionExecution {
+    public static class ExprFilterOptValEqualsDeclaredExpr implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') expression AandX {'a' || 'x'}" +
                     "select * from SupportBean(AandX() = theString)";
@@ -176,7 +175,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsSubstitutionParams implements RegressionExecution {
+    public static class ExprFilterOptValEqualsSubstitutionParams implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from SupportBean(theString = ?::string)";
             EPCompiled compiled = env.compile(epl);
@@ -187,14 +186,14 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsIsConstant implements RegressionExecution {
+    public static class ExprFilterOptValEqualsIsConstant implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean(theString = 'a' || 'x')", EQUAL);
             tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean('a' || 'x' is theString)", IS);
         }
     }
 
-    public static class ExprFilterEqualsFromPatternSingle implements RegressionExecution {
+    public static class ExprFilterOptValEqualsFromPatternSingle implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[every a=SupportBean_S0 -> SupportBean(a.p00 || a.p01 = theString)]";
 
@@ -215,7 +214,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsFromPatternConstant implements RegressionExecution {
+    public static class ExprFilterOptValEqualsFromPatternConstant implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[every SupportBean_S0 -> SupportBean_S1 -> SupportBean('a' || 'x' = theString)]";
 
@@ -231,7 +230,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsFromPatternHalfConstant implements RegressionExecution {
+    public static class ExprFilterOptValEqualsFromPatternHalfConstant implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[every s0=SupportBean_S0 -> s1=SupportBean_S1 -> SupportBean('a' || s1.p10 = theString)]";
 
@@ -247,7 +246,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsFromPatternMulti implements RegressionExecution {
+    public static class ExprFilterOptValEqualsFromPatternMulti implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[every [2] a=SupportBean_S0 -> b=SupportBean_S1 -> SupportBean(theString = a[0].p00 || b.p10)]";
 
@@ -273,7 +272,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterEqualsContextWithStart implements RegressionExecution {
+    public static class ExprFilterOptValEqualsContextWithStart implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create context MyContext start SupportBean_S0 as s0;\n" +
                     "@name('s0') context MyContext select * from SupportBean(theString = context.s0.p00 || context.s0.p01)";
@@ -294,7 +293,7 @@ public class ExprFilterOptimizableLimitedExpr {
         }
     }
 
-    public static class ExprFilterDisqualify implements RegressionExecution {
+    public static class ExprFilterOptValDisqualify implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String objects = "@public create variable string MYVARIABLE_NONCONSTANT = 'abc';\n" +
@@ -346,7 +345,7 @@ public class ExprFilterOptimizableLimitedExpr {
         env.undeployAll();
     }
 
-    private static void assertDisqualified(RegressionEnvironment env, RegressionPath path, String typeName, String filters) {
+    protected static void assertDisqualified(RegressionEnvironment env, RegressionPath path, String typeName, String filters) {
         String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterSpecCompileHook.class.getName() + "')";
         String epl = hook + "select * from " + typeName + "(" + filters + ") as me";
         env.compile(epl, path);

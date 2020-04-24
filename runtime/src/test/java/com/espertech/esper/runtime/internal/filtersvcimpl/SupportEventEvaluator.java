@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 
 import java.util.ArrayDeque;
@@ -23,7 +24,7 @@ public class SupportEventEvaluator implements EventEvaluator {
     private EventBean lastEvent;
     private Collection<FilterHandle> lastMatches;
 
-    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         countInvoked++;
         lastEvent = theEvent;
         lastMatches = matches;

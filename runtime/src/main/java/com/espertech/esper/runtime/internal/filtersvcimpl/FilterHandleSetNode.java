@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.filtersvc.FilterHandleSize;
 import com.espertech.esper.common.internal.util.CollectionUtil;
@@ -82,11 +83,11 @@ public final class FilterHandleSetNode implements EventEvaluator, FilterHandleSi
      * Evaluate an event by asking each index to match the event. Any filter callbacks at this node automatically
      * match the event and do not need to be further evaluated, and are thus added to the "matches" list of callbacks.
      * NOTE: This client should not use the lock before calling this method.
-     *
-     * @param theEvent is the event wrapper supplying the event property values
+     *  @param theEvent is the event wrapper supplying the event property values
      * @param matches  is the list of callbacks to add to for any matches found
+     * @param ctx
      */
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         nodeRWLock.readLock().lock();
         try {
             if (InstrumentationHelper.ENABLED) {
@@ -97,7 +98,7 @@ public final class FilterHandleSetNode implements EventEvaluator, FilterHandleSi
 
             // Ask each of the indizes to match against the attribute values
             for (FilterParamIndexBase index : indizes) {
-                index.matchEvent(theEvent, matches);
+                index.matchEvent(theEvent, matches, ctx);
             }
 
             if (InstrumentationHelper.ENABLED) {

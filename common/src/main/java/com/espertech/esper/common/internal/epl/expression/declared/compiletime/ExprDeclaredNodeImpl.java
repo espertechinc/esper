@@ -31,7 +31,6 @@ import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisito
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -302,14 +301,14 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return forge instanceof ExprDeclaredForgeBase;
     }
 
-    public ExprFilterSpecLookupableForge getFilterLookupable() {
+    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
         if (!(forge instanceof ExprDeclaredForgeBase)) {
             return null;
         }
         ExprDeclaredForgeBase declaredForge = (ExprDeclaredForgeBase) forge;
         ExprForge forge = declaredForge.getInnerForge();
         DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), exprValidationContext.getStatementRawInfo());
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), forge.getEvaluationType(), true, serde);
+        return new ExprFilterSpecLookupableFactoryForgePremade(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), forge.getEvaluationType(), true, serde);
     }
 
     public boolean isConstantResult() {
@@ -411,16 +410,16 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return ExprPrecedenceEnum.UNARY;
     }
 
-    private final static class DeclaredNodeEventPropertyGetterForge implements EventPropertyValueGetterForge {
+    private final static class DeclaredNodeEventPropertyGetterForge implements ExprEventEvaluatorForge {
         private final ExprForge exprForge;
 
         public DeclaredNodeEventPropertyGetterForge(ExprForge exprForge) {
             this.exprForge = exprForge;
         }
 
-        public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
-            CodegenMethod method = parent.makeChild(exprForge.getEvaluationType(), this.getClass(), codegenClassScope).addParam(EventBean.class, "bean");
-            CodegenMethod exprMethod = CodegenLegoMethodExpression.codegenExpression(exprForge, method, codegenClassScope);
+        public CodegenExpression eventBeanWithCtxGet(CodegenExpression beanExpression, CodegenExpression ctxExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
+            CodegenMethod method = parent.makeChild(exprForge.getEvaluationType(), this.getClass(), classScope).addParam(EventBean.class, "bean");
+            CodegenMethod exprMethod = CodegenLegoMethodExpression.codegenExpression(exprForge, method, classScope);
 
             method.getBlock()
                 .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.filtersvc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 
@@ -33,9 +34,10 @@ public interface FilterService {
      *
      * @param theEvent is the event to be matched against filters
      * @param matches  is a collection that is populated via add method with any handles for matching filters
+     * @param ctx
      * @return filter current version
      */
-    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches);
+    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx);
 
     /**
      * Finds matching filters to the event passed in and collects their associated callback method, for a particular statement only
@@ -43,9 +45,10 @@ public interface FilterService {
      * @param theEvent    is the event to be matched against filters
      * @param matches     is a collection that is populated via add method with any handles for matching filters
      * @param statementId statement for which to return results for
+     * @param ctx
      * @return filter current version
      */
-    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId);
+    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId, ExprEvaluatorContext ctx);
 
     /**
      * Add a filter for events as defined by the filter specification, and register a

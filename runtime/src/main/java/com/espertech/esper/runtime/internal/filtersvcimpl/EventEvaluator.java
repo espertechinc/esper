@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 
 import java.util.ArrayDeque;
@@ -25,11 +26,11 @@ public interface EventEvaluator {
     /**
      * Perform the matching of an event based on the event property values,
      * adding any callbacks for matches found to the matches list.
-     *
-     * @param theEvent is the event object wrapper to obtain event property values from
+     *  @param theEvent is the event object wrapper to obtain event property values from
      * @param matches  accumulates the matching filter callbacks
+     * @param ctx
      */
-    void matchEvent(EventBean theEvent, Collection<FilterHandle> matches);
+    void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx);
 
     void getTraverseStatement(EventTypeIndexTraverse traverse, Set<Integer> statementIds, ArrayDeque<FilterItem> evaluatorStack);
 }

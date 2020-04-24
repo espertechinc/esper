@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
@@ -29,8 +30,8 @@ public final class FilterParamIndexNotEqualsIs extends FilterParamIndexNotEquals
         super(lookupable, readWriteLock, FilterOperator.IS_NOT);
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
-        Object attributeValue = lookupable.getGetter().get(theEvent);
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
+        Object attributeValue = lookupable.getEval().eval(theEvent, ctx);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);
         }
@@ -41,13 +42,13 @@ public final class FilterParamIndexNotEqualsIs extends FilterParamIndexNotEquals
             for (Map.Entry<Object, EventEvaluator> entry : constantsMap.entrySet()) {
                 if (entry.getKey() == null) {
                     if (attributeValue != null) {
-                        entry.getValue().matchEvent(theEvent, matches);
+                        entry.getValue().matchEvent(theEvent, matches, ctx);
                     }
                     continue;
                 }
 
                 if (!entry.getKey().equals(attributeValue)) {
-                    entry.getValue().matchEvent(theEvent, matches);
+                    entry.getValue().matchEvent(theEvent, matches, ctx);
                 }
             }
         } finally {

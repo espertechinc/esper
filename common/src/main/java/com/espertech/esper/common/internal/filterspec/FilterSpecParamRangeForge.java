@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
 
 import java.util.Arrays;
 
@@ -38,7 +38,7 @@ public final class FilterSpecParamRangeForge extends FilterSpecParamForge {
      * @param max            is the end point of the range
      * @throws IllegalArgumentException if an operator was supplied that does not take a double range value
      */
-    public FilterSpecParamRangeForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEvalForge min, FilterSpecParamFilterForEvalForge max)
+    public FilterSpecParamRangeForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEvalForge min, FilterSpecParamFilterForEvalForge max)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.min = min;
@@ -86,7 +86,7 @@ public final class FilterSpecParamRangeForge extends FilterSpecParamForge {
                 .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
         CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
 
         Class returnType = DoubleRange.class;
@@ -98,7 +98,8 @@ public final class FilterSpecParamRangeForge extends FilterSpecParamForge {
         getFilterValue.getBlock()
                 .declareVar(Object.class, "min", min.makeCodegen(classScope, method))
                 .declareVar(Object.class, "max", max.makeCodegen(classScope, method))
-                .methodReturn(newInstance(returnType, cast(castType, ref("min")), cast(castType, ref("max"))));
+                .declareVar(Object.class, "value", newInstance(returnType, cast(castType, ref("min")), cast(castType, ref("max"))))
+                .methodReturn(FilterValueSetParamImpl.codegenNew(ref("value")));
 
         method.getBlock().methodReturn(param);
         return method;
