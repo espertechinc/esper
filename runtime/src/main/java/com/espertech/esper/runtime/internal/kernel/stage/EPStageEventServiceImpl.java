@@ -12,15 +12,9 @@ package com.espertech.esper.runtime.internal.kernel.stage;
 
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.hook.exception.ExceptionHandlerExceptionType;
-import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.internal.collection.ArrayBackedCollection;
 import com.espertech.esper.common.internal.collection.DualWorkQueue;
-import com.espertech.esper.common.internal.collection.ThreadWorkQueue;
 import com.espertech.esper.common.internal.context.util.*;
-import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.script.core.AgentInstanceScriptContext;
-import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.arr.EventSenderObjectArray;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.avro.AvroSchemaEventType;
@@ -37,14 +31,8 @@ import com.espertech.esper.common.internal.event.xml.BaseXMLEventType;
 import com.espertech.esper.common.internal.event.xml.EventSenderXMLDOM;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.filtersvc.FilterHandleCallback;
-import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
-import com.espertech.esper.common.internal.metrics.audit.AuditProviderDefault;
-import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
-import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommonDefault;
 import com.espertech.esper.common.internal.schedule.ScheduleHandle;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
-import com.espertech.esper.common.internal.schedule.TimeProvider;
-import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.statement.insertintolatch.InsertIntoLatchSpin;
 import com.espertech.esper.common.internal.statement.insertintolatch.InsertIntoLatchWait;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
@@ -52,6 +40,7 @@ import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import com.espertech.esper.common.internal.util.MetricUtil;
 import com.espertech.esper.common.internal.util.ThreadLogUtil;
 import com.espertech.esper.runtime.client.UnmatchedListener;
+import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceThreadLocalEntry;
 import com.espertech.esper.runtime.internal.kernel.service.EPStatementAgentInstanceHandleComparator;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 import com.espertech.esper.runtime.internal.kernel.thread.*;
@@ -68,8 +57,7 @@ import org.w3c.dom.Node;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.espertech.esper.runtime.internal.kernel.service.EPEventServiceHelper.processStatementScheduleMultiple;
-import static com.espertech.esper.runtime.internal.kernel.service.EPEventServiceHelper.processStatementScheduleSingle;
+import static com.espertech.esper.runtime.internal.kernel.service.EPEventServiceHelper.*;
 import static com.espertech.esper.runtime.internal.kernel.service.EPEventServiceImpl.MAX_FILTER_FAULT_COUNT;
 
 public class EPStageEventServiceImpl implements EPStageEventServiceSPI, InternalEventRouteDest, EPRuntimeEventProcessWrapped {
@@ -89,12 +77,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
     private AtomicLong routedInternal;
     private AtomicLong routedExternal;
     private InternalEventRouter internalEventRouter;
-    protected ExprEvaluatorContext runtimeFilterAndDispatchTimeContext;
-    private ThreadWorkQueue threadWorkQueue;
-    protected ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
-    private ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> matchesPerStmtThreadLocal;
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
+    protected ThreadLocal<EPEventServiceThreadLocalEntry> threadLocals;
 
     public EPStageEventServiceImpl(StageSpecificServices specificServices, StageRuntimeServices runtimeServices, String stageUri) {
         this.specificServices = specificServices;
@@ -103,77 +86,11 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
         this.inboundThreading = specificServices.getThreadingService().isInboundThreading();
         this.routeThreading = specificServices.getThreadingService().isRouteThreading();
         this.timerThreading = specificServices.getThreadingService().isTimerThreading();
-        this.threadWorkQueue = new ThreadWorkQueue();
         isLatchStatementInsertStream = runtimeServices.getRuntimeSettingsService().getConfigurationRuntime().getThreading().isInsertIntoDispatchPreserveOrder();
         isUsingExternalClocking = true;
         isPrioritized = runtimeServices.getRuntimeSettingsService().getConfigurationRuntime().getExecution().isPrioritized();
         routedInternal = new AtomicLong();
         routedExternal = new AtomicLong();
-        runtimeFilterAndDispatchTimeContext = new ExprEvaluatorContext() {
-            public TimeProvider getTimeProvider() {
-                return specificServices.getSchedulingService();
-            }
-
-            public int getAgentInstanceId() {
-                return -1;
-            }
-
-            public EventBean getContextProperties() {
-                return null;
-            }
-
-            public String getStatementName() {
-                return "(statement name not available)";
-            }
-
-            public String getRuntimeURI() {
-                return runtimeServices.getRuntimeURI();
-            }
-
-            public int getStatementId() {
-                return -1;
-            }
-
-            public String getDeploymentId() {
-                return "(deployment id not available)";
-            }
-
-            public Object getUserObjectCompileTime() {
-                return null;
-            }
-
-            public EventBeanService getEventBeanService() {
-                return runtimeServices.getEventBeanService();
-            }
-
-            public StatementAgentInstanceLock getAgentInstanceLock() {
-                return null;
-            }
-
-            public ExpressionResultCacheService getExpressionResultCacheService() {
-                return null;
-            }
-
-            public TableExprEvaluatorContext getTableExprEvaluatorContext() {
-                throw new UnsupportedOperationException("Table-access evaluation is not supported in this expression");
-            }
-
-            public AgentInstanceScriptContext getAllocateAgentInstanceScriptContext() {
-                return null;
-            }
-
-            public AuditProvider getAuditProvider() {
-                return AuditProviderDefault.INSTANCE;
-            }
-
-            public InstrumentationCommon getInstrumentationProvider() {
-                return InstrumentationCommonDefault.INSTANCE;
-            }
-
-            public ExceptionHandlingService getExceptionHandlingService() {
-                return runtimeServices.getExceptionHandlingService();
-            }
-        };
 
         initThreadLocals();
 
@@ -202,7 +119,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
     public long getRoutedExternal() {
         return routedExternal.get();
     }
-    
+
     public void sendEventAvro(Object avroGenericDataDotRecord, String avroEventTypeName) {
         if (avroGenericDataDotRecord == null) {
             throw new IllegalArgumentException("Invalid null event object");
@@ -382,7 +299,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
     }
 
     public void routeEventBean(EventBean theEvent) {
-        threadWorkQueue.addBack(theEvent);
+        threadLocals.get().getDualWorkQueue().getBackQueue().addLast(theEvent);
     }
 
     // Internal route of events via insert-into, holds a statement lock
@@ -395,20 +312,21 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
             theEvent = ((NaturalEventBean) theEvent).getOptionalSynthetic();
         }
         routedInternal.incrementAndGet();
+        DualWorkQueue<Object> threadWorkQueue = threadLocals.get().getDualWorkQueue();
 
         if (isLatchStatementInsertStream) {
             if (addToFront) {
                 Object latch = epStatementHandle.getInsertIntoFrontLatchFactory().newLatch(theEvent);
-                threadWorkQueue.addFront(latch);
+                threadWorkQueue.getFrontQueue().addLast(latch);
             } else {
                 Object latch = epStatementHandle.getInsertIntoBackLatchFactory().newLatch(theEvent);
-                threadWorkQueue.addBack(latch);
+                threadWorkQueue.getBackQueue().addLast(latch);
             }
         } else {
             if (addToFront) {
-                threadWorkQueue.addFront(theEvent);
+                threadWorkQueue.getFrontQueue().addLast(theEvent);
             } else {
-                threadWorkQueue.addBack(theEvent);
+                threadWorkQueue.getBackQueue().addLast(theEvent);
             }
         }
 
@@ -422,8 +340,9 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
             InstrumentationHelper.get().qStimulantEvent(eventBean, stageUri);
         }
 
+        EPEventServiceThreadLocalEntry tlEntry = threadLocals.get();
         if (internalEventRouter.isHasPreprocessing()) {
-            eventBean = internalEventRouter.preprocess(eventBean, runtimeFilterAndDispatchTimeContext, InstrumentationHelper.get());
+            eventBean = internalEventRouter.preprocess(eventBean, tlEntry.getExprEvaluatorContext(), InstrumentationHelper.get());
             if (eventBean == null) {
                 return;
             }
@@ -437,7 +356,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
         try {
             processMatches(eventBean);
         } catch (RuntimeException ex) {
-            matchesArrayThreadLocal.get().clear();
+            tlEntry.getMatchesArrayThreadLocal().clear();
             throw new EPException(ex);
         } finally {
             specificServices.getEventProcessingRWLock().releaseReadLock();
@@ -462,7 +381,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
      * Works off the thread's work queue.
      */
     public void processThreadWorkQueue() {
-        DualWorkQueue queues = threadWorkQueue.getThreadQueue();
+        DualWorkQueue<Object> queues = threadLocals.get().getDualWorkQueue();
 
         if (queues.getFrontQueue().isEmpty()) {
             boolean haveDispatched = runtimeServices.getNamedWindowDispatchService().dispatch();
@@ -528,7 +447,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
         try {
             processMatches(eventBean);
         } catch (RuntimeException ex) {
-            matchesArrayThreadLocal.get().clear();
+            threadLocals.get().getMatchesArrayThreadLocal().clear();
             throw ex;
         } finally {
             insertIntoLatch.done();
@@ -552,7 +471,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
         try {
             processMatches(eventBean);
         } catch (RuntimeException ex) {
-            matchesArrayThreadLocal.get().clear();
+            threadLocals.get().getMatchesArrayThreadLocal().clear();
             throw ex;
         } finally {
             insertIntoLatch.done();
@@ -580,7 +499,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
         try {
             processMatches(eventBean);
         } catch (RuntimeException ex) {
-            matchesArrayThreadLocal.get().clear();
+            threadLocals.get().getMatchesArrayThreadLocal().clear();
             throw ex;
         } finally {
             specificServices.getEventProcessingRWLock().releaseReadLock();
@@ -594,8 +513,9 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
 
     protected void processMatches(EventBean theEvent) {
         // get matching filters
-        ArrayBackedCollection<FilterHandle> matches = matchesArrayThreadLocal.get();
-        long version = specificServices.getFilterService().evaluate(theEvent, matches, runtimeFilterAndDispatchTimeContext);
+        EPEventServiceThreadLocalEntry tlEntry = threadLocals.get();
+        ArrayBackedCollection<FilterHandle> matches = tlEntry.getMatchesArrayThreadLocal();
+        long version = specificServices.getFilterService().evaluate(theEvent, matches, tlEntry.getExprEvaluatorContext());
 
         if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.trace("Found matches for underlying ", matches.size(), theEvent.getUnderlying());
@@ -616,7 +536,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
             return;
         }
 
-        Map<EPStatementAgentInstanceHandle, Object> stmtCallbacks = matchesPerStmtThreadLocal.get();
+        Map<EPStatementAgentInstanceHandle, Object> stmtCallbacks = tlEntry.getMatchesPerStmtThreadLocal();
         Object[] matchArray = matches.getArray();
         int entryCount = matches.size();
 
@@ -798,7 +718,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
 
     protected void handleFilterFault(EPStatementAgentInstanceHandle faultingHandle, EventBean theEvent, int filterFaultCount) {
         ArrayDeque<FilterHandle> callbacksForStatement = new ArrayDeque<FilterHandle>();
-        long version = specificServices.getFilterService().evaluate(theEvent, callbacksForStatement, faultingHandle.getStatementId(), runtimeFilterAndDispatchTimeContext);
+        long version = specificServices.getFilterService().evaluate(theEvent, callbacksForStatement, faultingHandle.getStatementId(), threadLocals.get().getExprEvaluatorContext());
 
         if (callbacksForStatement.size() == 1) {
             EPStatementHandleCallbackFilter handleCallback = (EPStatementHandleCallbackFilter) callbacksForStatement.getFirst();
@@ -811,9 +731,9 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
 
         Map<EPStatementAgentInstanceHandle, Object> stmtCallbacks;
         if (isPrioritized) {
-            stmtCallbacks = new TreeMap<EPStatementAgentInstanceHandle, Object>(EPStatementAgentInstanceHandleComparator.INSTANCE);
+            stmtCallbacks = new TreeMap<>(EPStatementAgentInstanceHandleComparator.INSTANCE);
         } else {
-            stmtCallbacks = new HashMap<EPStatementAgentInstanceHandle, Object>();
+            stmtCallbacks = new HashMap<>();
         }
 
         for (FilterHandle filterHandle : callbacksForStatement) {
@@ -876,17 +796,12 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
     public void destroy() {
         runtimeServices = null;
         specificServices = null;
-
         removeFromThreadLocals();
-        matchesArrayThreadLocal = null;
-        matchesPerStmtThreadLocal = null;
-        scheduleArrayThreadLocal = null;
-        schedulePerStmtThreadLocal = null;
+        threadLocals = null;
     }
 
     public void initialize() {
         initThreadLocals();
-        threadWorkQueue = new ThreadWorkQueue();
     }
 
     public void clearCaches() {
@@ -906,55 +821,14 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
     }
 
     private void removeFromThreadLocals() {
-        if (matchesArrayThreadLocal != null) {
-            matchesArrayThreadLocal.remove();
-        }
-        if (matchesPerStmtThreadLocal != null) {
-            matchesPerStmtThreadLocal.remove();
-        }
-        if (scheduleArrayThreadLocal != null) {
-            scheduleArrayThreadLocal.remove();
-        }
-        if (schedulePerStmtThreadLocal != null) {
-            schedulePerStmtThreadLocal.remove();
+        if (threadLocals != null) {
+            threadLocals.remove();
         }
     }
 
     private void initThreadLocals() {
         removeFromThreadLocals();
-
-        matchesArrayThreadLocal = new ThreadLocal<ArrayBackedCollection<FilterHandle>>() {
-            protected synchronized ArrayBackedCollection<FilterHandle> initialValue() {
-                return new ArrayBackedCollection<>(100);
-            }
-        };
-
-        scheduleArrayThreadLocal = new ThreadLocal<ArrayBackedCollection<ScheduleHandle>>() {
-            protected synchronized ArrayBackedCollection<ScheduleHandle> initialValue() {
-                return new ArrayBackedCollection<>(100);
-            }
-        };
-
-        matchesPerStmtThreadLocal =
-            new ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>>() {
-                protected synchronized Map<EPStatementAgentInstanceHandle, Object> initialValue() {
-                    if (isPrioritized) {
-                        return new TreeMap<>(EPStatementAgentInstanceHandleComparator.INSTANCE);
-                    } else {
-                        return new HashMap<>();
-                    }
-                }
-            };
-
-        schedulePerStmtThreadLocal = new ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>>() {
-            protected synchronized Map<EPStatementAgentInstanceHandle, Object> initialValue() {
-                if (isPrioritized) {
-                    return new TreeMap<>(EPStatementAgentInstanceHandleComparator.INSTANCE);
-                } else {
-                    return new HashMap<>();
-                }
-            }
-        };
+        threadLocals = allocateThreadLocals(isPrioritized, runtimeServices.getRuntimeURI(), runtimeServices.getEventBeanService(), runtimeServices.getExceptionHandlingService(), specificServices.getSchedulingService());
     }
 
     private void processSchedule(long time) {
@@ -962,7 +836,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
             InstrumentationHelper.get().qTime(time, stageUri);
         }
 
-        ArrayBackedCollection<ScheduleHandle> handles = scheduleArrayThreadLocal.get();
+        ArrayBackedCollection<ScheduleHandle> handles = threadLocals.get().getScheduleArrayThreadLocal();
 
         // Evaluation of schedules is protected by an optional scheduling service lock and then the runtimelock
         // We want to stay in this order for allowing the runtimelock as a second-order lock to the
@@ -1029,7 +903,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
         int entryCount = handles.size();
 
         // sort multiple matches for the event into statements
-        Map<EPStatementAgentInstanceHandle, Object> stmtCallbacks = schedulePerStmtThreadLocal.get();
+        Map<EPStatementAgentInstanceHandle, Object> stmtCallbacks = threadLocals.get().getSchedulePerStmtThreadLocal();
         stmtCallbacks.clear();
         for (int i = 0; i < entryCount; i++) {
             EPStatementHandleCallbackSchedule handleCallback = (EPStatementHandleCallbackSchedule) matchArray[i];
@@ -1237,12 +1111,13 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
     }
 
     private void routeEventInternal(EventBean theEvent) {
+        EPEventServiceThreadLocalEntry tlEntry = threadLocals.get();
         if (internalEventRouter.isHasPreprocessing()) {
-            theEvent = internalEventRouter.preprocess(theEvent, runtimeFilterAndDispatchTimeContext, InstrumentationHelper.get());
+            theEvent = internalEventRouter.preprocess(theEvent, tlEntry.getExprEvaluatorContext(), InstrumentationHelper.get());
             if (theEvent == null) {
                 return;
             }
         }
-        threadWorkQueue.addBack(theEvent);
+        tlEntry.getDualWorkQueue().getBackQueue().addLast(theEvent);
     }
 }
