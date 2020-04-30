@@ -181,7 +181,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
         return variableMeta.isConstant() ? ExprForgeConstantType.DEPLOYCONST : ExprForgeConstantType.NONCONST;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(variableMeta.getVariableName());
         if (optSubPropName != null) {
             writer.append(".");

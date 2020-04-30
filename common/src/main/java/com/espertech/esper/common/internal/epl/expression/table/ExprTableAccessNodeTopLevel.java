@@ -86,8 +86,8 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         throw new UnsupportedOperationException("Typable-multi is not available for table top-level access");
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        toPrecedenceFreeEPLInternal(writer);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        toPrecedenceFreeEPLInternal(writer, flags);
     }
 
     protected boolean equalsNodeInternal(ExprTableAccessNode other) {

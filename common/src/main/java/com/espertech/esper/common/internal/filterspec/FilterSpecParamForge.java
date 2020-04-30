@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 
 import java.util.Collection;
 
@@ -31,16 +31,16 @@ public abstract class FilterSpecParamForge {
     /**
      * The property name of the filter parameter.
      */
-    protected final ExprFilterSpecLookupableFactoryForge lookupable;
+    protected final ExprFilterSpecLookupableForge lookupable;
 
     protected final FilterOperator filterOperator;
 
-    FilterSpecParamForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator) {
+    FilterSpecParamForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator) {
         this.lookupable = lookupable;
         this.filterOperator = filterOperator;
     }
 
-    public ExprFilterSpecLookupableFactoryForge getLookupable() {
+    public ExprFilterSpecLookupableForge getLookupable() {
         return lookupable;
     }
 

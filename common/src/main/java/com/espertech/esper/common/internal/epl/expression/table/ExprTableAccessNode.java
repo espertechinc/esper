@@ -136,20 +136,20 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    protected void toPrecedenceFreeEPLInternal(StringWriter writer, String subprop) {
-        toPrecedenceFreeEPLInternal(writer);
+    protected void toPrecedenceFreeEPLInternal(StringWriter writer, String subprop, ExprNodeRenderableFlags flags) {
+        toPrecedenceFreeEPLInternal(writer, flags);
         writer.append(".");
         writer.append(subprop);
     }
 
-    protected void toPrecedenceFreeEPLInternal(StringWriter writer) {
+    protected void toPrecedenceFreeEPLInternal(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(getTableName());
         if (this.getChildNodes().length > 0) {
             writer.append("[");
             String delimiter = "";
             for (ExprNode expr : this.getChildNodes()) {
                 writer.append(delimiter);
-                expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+                expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
                 delimiter = ",";
             }
             writer.append("]");

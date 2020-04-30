@@ -50,7 +50,7 @@ public class ExprEvalWithTypeWidener implements ExprForge {
 
     public ExprNodeRenderable getForgeRenderable() {
         return new ExprNodeRenderable() {
-            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
                 writer.append(ExprEvalWithTypeWidener.class.getSimpleName());
             }
         };

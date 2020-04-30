@@ -649,7 +649,7 @@ public class SelectExprInsertEventBeanFactory {
             return this;
         }
 
-        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
             writer.append(this.getClass().getSimpleName());
         }
     }
@@ -687,7 +687,7 @@ public class SelectExprInsertEventBeanFactory {
             return localMethod(methodNode);
         }
 
-        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
             writer.append(ExprForgeStreamUnderlying.class.getSimpleName());
         }
 
@@ -722,7 +722,7 @@ public class SelectExprInsertEventBeanFactory {
             return this;
         }
 
-        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
             writer.append(ExprForgeStreamWithInner.class.getSimpleName());
         }
 
@@ -786,7 +786,7 @@ public class SelectExprInsertEventBeanFactory {
             return this;
         }
 
-        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
             writer.append(ExprForgeStreamWithGetter.class.getSimpleName());
         }
 

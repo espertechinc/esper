@@ -79,7 +79,7 @@ class ExprNodeVarargOnlyArrayForge implements ExprForge, ExprNodeRenderable {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
         writer.append(this.getClass().getSimpleName());
     }
 }

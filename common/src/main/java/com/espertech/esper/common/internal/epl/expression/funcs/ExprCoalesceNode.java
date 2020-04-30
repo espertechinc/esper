@@ -75,7 +75,7 @@ public class ExprCoalesceNode extends ExprNodeBase {
         return false;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         ExprNodeUtilityPrint.toExpressionStringWFunctionName("coalesce", this.getChildNodes(), writer);
     }
 

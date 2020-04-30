@@ -30,15 +30,15 @@ import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompi
  */
 public class FilterSpecCompilerIndexPlannerInSetOfValues {
 
-    protected static FilterSpecParamForge handleInSetNode(ExprInNode constituent, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, boolean advancedPlanning, StatementRawInfo raw, StatementCompileTimeServices services)
+    protected static FilterSpecParamForge handleInSetNode(ExprInNode constituent, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, StatementRawInfo raw, StatementCompileTimeServices services)
         throws ExprValidationException {
         ExprNode left = constituent.getChildNodes()[0];
-        ExprFilterSpecLookupableFactoryForge lookupable = null;
+        ExprFilterSpecLookupableForge lookupable = null;
 
         if (left instanceof ExprFilterOptimizableNode) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             lookupable = filterOptimizableNode.getFilterLookupable();
-        } else if (advancedPlanning && isLimitedLookupableExpression(left)) {
+        } else if (FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.LKUPCOMPOSITE, raw, services) && isLimitedLookupableExpression(left)) {
             lookupable = makeLimitedLookupableForgeMayNull(left, raw, services);
         }
         if (lookupable == null) {
@@ -137,7 +137,7 @@ public class FilterSpecCompilerIndexPlannerInSetOfValues {
                 }
 
                 listofValues.add(inValue);
-            } else if (advancedPlanning && isLimitedValueExpression(subNode)) {
+            } else if (FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.VALUECOMPOSITE, raw, services) && isLimitedValueExpression(subNode)) {
                 MatchedEventConvertorForge convertor = getMatchEventConvertor(subNode, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
                 Class valueType = subNode.getForge().getEvaluationType();
                 Class lookupableType = lookupable.getReturnType();

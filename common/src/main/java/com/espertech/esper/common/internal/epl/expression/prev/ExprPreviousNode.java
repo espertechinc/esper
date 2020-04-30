@@ -414,16 +414,16 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return method;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(previousType.toString().toLowerCase(Locale.ENGLISH));
         writer.append("(");
         if (previousType == ExprPreviousNodePreviousType.PREVCOUNT || previousType == ExprPreviousNodePreviousType.PREVWINDOW) {
-            this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         } else {
-            this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
             if (this.getChildNodes().length > 1) {
                 writer.append(",");
-                this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+                this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
             }
         }
         writer.append(')');

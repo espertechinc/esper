@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNodeEvaluator;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
@@ -56,7 +56,7 @@ public final class FilterSpecParamEventPropForge extends FilterSpecParamForge {
      * @param exprIdentNodeEvaluator evaluator
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
-    public FilterSpecParamEventPropForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, String resultEventAsName,
+    public FilterSpecParamEventPropForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String resultEventAsName,
                                          String resultEventProperty, ExprIdentNodeEvaluator exprIdentNodeEvaluator, boolean isMustCoerce,
                                          SimpleNumberCoercer numberCoercer, Class coercionType,
                                          String statementName)

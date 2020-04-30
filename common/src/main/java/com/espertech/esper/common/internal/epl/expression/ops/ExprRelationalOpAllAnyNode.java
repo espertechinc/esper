@@ -125,8 +125,8 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase {
         return null;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        this.getChildNodes()[0].toEPL(writer, getPrecedence());
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
         writer.append(relationalOpEnum.getExpressionText());
         if (isAll) {
             writer.append("all");
@@ -139,7 +139,7 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase {
 
         for (int i = 0; i < this.getChildNodes().length - 1; i++) {
             writer.append(delimiter);
-            this.getChildNodes()[i + 1].toEPL(writer, getPrecedence());
+            this.getChildNodes()[i + 1].toEPL(writer, getPrecedence(), flags);
             delimiter = ",";
         }
         writer.append(")");

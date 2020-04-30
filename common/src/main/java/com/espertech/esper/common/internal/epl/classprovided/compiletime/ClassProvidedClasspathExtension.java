@@ -24,4 +24,5 @@ public interface ClassProvidedClasspathExtension extends ClasspathExtensionClass
     ClasspathExtensionAggregationFunction, ClasspathExtensionAggregationMultiFunction {
     void add(List<Class> classes, Map<String, byte[]> bytes) throws StatementSpecCompileException, ExprValidationException;
     Map<String, byte[]> getBytes();
+    boolean isLocalInlinedClass(Class<?> declaringClass);
 }

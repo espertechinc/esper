@@ -147,5 +147,9 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
     public ExprNodeRenderable getForgeRenderable() {
         return parent;
     }
+
+    public boolean isLocalInlinedClass() {
+        return false;
+    }
 }
 

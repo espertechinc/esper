@@ -75,9 +75,9 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         return CronParameter.class;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         if (this.getChildNodes().length != 0) {
-            this.getChildNodes()[0].toEPL(writer, getPrecedence());
+            this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
             writer.append(" ");
         }
         writer.append(cronOperator.getSyntax());

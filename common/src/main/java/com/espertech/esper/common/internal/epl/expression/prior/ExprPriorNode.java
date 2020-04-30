@@ -142,11 +142,11 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator, ExprFo
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprPrior", requiredType, parent, exprSymbol, codegenClassScope).build();
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("prior(");
-        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         writer.append(',');
-        this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         writer.append(')');
     }
 

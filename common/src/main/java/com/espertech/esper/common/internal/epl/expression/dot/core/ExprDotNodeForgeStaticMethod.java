@@ -37,8 +37,9 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
     private final boolean rethrowExceptions;
     private final ValueAndFieldDesc targetObject;
     private final String optionalStatementName;
+    private final boolean localInlinedClass;
 
-    public ExprDotNodeForgeStaticMethod(ExprNode parent, boolean isReturnsConstantResult, String classOrPropertyName, Method staticMethod, ExprForge[] childForges, boolean isConstantParameters, ExprDotForge[] chainForges, ExprDotStaticMethodWrap resultWrapLambda, boolean rethrowExceptions, ValueAndFieldDesc targetObject, String optionalStatementName) {
+    public ExprDotNodeForgeStaticMethod(ExprNode parent, boolean isReturnsConstantResult, String classOrPropertyName, Method staticMethod, ExprForge[] childForges, boolean isConstantParameters, ExprDotForge[] chainForges, ExprDotStaticMethodWrap resultWrapLambda, boolean rethrowExceptions, ValueAndFieldDesc targetObject, String optionalStatementName, boolean localInlinedClass) {
         this.parent = parent;
         this.isReturnsConstantResult = isReturnsConstantResult;
         this.classOrPropertyName = classOrPropertyName;
@@ -54,6 +55,7 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
         this.rethrowExceptions = rethrowExceptions;
         this.targetObject = targetObject;
         this.optionalStatementName = optionalStatementName;
+        this.localInlinedClass = localInlinedClass;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -135,6 +137,10 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
 
     public String getOptionalStatementName() {
         return optionalStatementName;
+    }
+
+    public boolean isLocalInlinedClass() {
+        return localInlinedClass;
     }
 }
 

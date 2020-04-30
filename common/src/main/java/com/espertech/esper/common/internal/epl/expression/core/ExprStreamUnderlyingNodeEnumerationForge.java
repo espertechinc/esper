@@ -61,7 +61,7 @@ public class ExprStreamUnderlyingNodeEnumerationForge implements ExprEnumeration
 
     public ExprNodeRenderable getForgeRenderable() {
         return new ExprNodeRenderable() {
-            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
                 writer.append(streamName);
             }
         };

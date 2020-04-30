@@ -35,8 +35,8 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprForge, ExprEval
         isDescending = descending;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         if (isDescending) {
             writer.append(" desc");
         }

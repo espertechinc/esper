@@ -55,7 +55,7 @@ public class SelectExprProcessorEvalByGetterFragmentAvro implements ExprEvaluato
         return localMethod(methodNode);
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
         writer.append(this.getClass().getSimpleName());
     }
 

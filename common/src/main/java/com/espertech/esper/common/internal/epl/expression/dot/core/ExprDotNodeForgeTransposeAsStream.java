@@ -64,4 +64,8 @@ public class ExprDotNodeForgeTransposeAsStream extends ExprDotNodeForge {
     public ExprDotNodeImpl getForgeRenderable() {
         return parent;
     }
+
+    public boolean isLocalInlinedClass() {
+        return false;
+    }
 }

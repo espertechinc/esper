@@ -132,7 +132,7 @@ public class PropertyDotScalarArrayForge implements ExprEnumerationEval, ExprEnu
         return this;
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
         writer.append(this.getClass().getSimpleName());
     }
 

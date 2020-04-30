@@ -70,7 +70,7 @@ public class ExprIdentNodeFragmentTypeEnumerationForge implements ExprEnumeratio
 
     public ExprNodeRenderable getForgeRenderable() {
         return new ExprNodeRenderable() {
-            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
                 writer.append(propertyName);
             }
         };

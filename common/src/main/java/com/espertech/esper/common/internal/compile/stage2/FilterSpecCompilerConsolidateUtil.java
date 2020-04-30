@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.filterspec.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -31,7 +31,7 @@ public final class FilterSpecCompilerConsolidateUtil {
         // i.e. we are looking for "a!=5 and a!=6"  to transform to "a not in (5,6)" which can match faster
         // considering that "a not in (5,6) and a not in (7,8)" is "a not in (5, 6, 7, 8)" therefore
         // we need to consolidate until there is no more work to do
-        Map<Pair<ExprFilterSpecLookupableFactoryForge, FilterOperator>, List<FilterSpecParamForge>> mapOfParams = new HashMap<>();
+        Map<Pair<ExprFilterSpecLookupableForge, FilterOperator>, List<FilterSpecParamForge>> mapOfParams = new HashMap<>();
 
         boolean haveConsolidated;
         do {
@@ -40,9 +40,9 @@ public final class FilterSpecCompilerConsolidateUtil {
 
             // sort into buckets of propertyName + filterOperator combination
             for (FilterSpecParamForge currentParam : filterParamExprMap.getFilterParams()) {
-                ExprFilterSpecLookupableFactoryForge lookupable = currentParam.getLookupable();
+                ExprFilterSpecLookupableForge lookupable = currentParam.getLookupable();
                 FilterOperator op = currentParam.getFilterOperator();
-                Pair<ExprFilterSpecLookupableFactoryForge, FilterOperator> key = new Pair<>(lookupable, op);
+                Pair<ExprFilterSpecLookupableForge, FilterOperator> key = new Pair<>(lookupable, op);
 
                 List<FilterSpecParamForge> existingParam = mapOfParams.get(key);
                 if (existingParam == null) {

@@ -61,13 +61,13 @@ public class ExprEvalSystemProperty extends ExprNodeBase implements ExprForge, E
 
     public ExprNodeRenderable getForgeRenderable() {
         return new ExprNodeRenderable() {
-            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
-                toPrecedenceFreeEPL(writer);
+            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
+                toPrecedenceFreeEPL(writer, flags);
             }
         };
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(SYSTEM_PROPETIES_NAME).append("'").append(systemPropertyName).append("'");
     }
 

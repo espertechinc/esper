@@ -74,7 +74,7 @@ public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator, Ex
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("current_timestamp()");
     }
 

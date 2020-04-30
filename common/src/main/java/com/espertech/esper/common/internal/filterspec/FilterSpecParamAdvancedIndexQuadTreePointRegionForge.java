@@ -15,7 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.filterspec.FilterSpecParamFilterForEvalDoubleForge.makeAnonymous;
@@ -25,7 +25,7 @@ public final class FilterSpecParamAdvancedIndexQuadTreePointRegionForge extends 
     private FilterSpecParamFilterForEvalDoubleForge xEval;
     private FilterSpecParamFilterForEvalDoubleForge yEval;
 
-    public FilterSpecParamAdvancedIndexQuadTreePointRegionForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEvalDoubleForge xEval, FilterSpecParamFilterForEvalDoubleForge yEval) {
+    public FilterSpecParamAdvancedIndexQuadTreePointRegionForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEvalDoubleForge xEval, FilterSpecParamFilterForEvalDoubleForge yEval) {
         super(lookupable, filterOperator);
         this.xEval = xEval;
         this.yEval = yEval;

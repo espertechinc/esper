@@ -35,7 +35,7 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEva
     public ExprWildcardImpl() {
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("*");
     }
 

@@ -175,10 +175,10 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         return evaluator.getStreamNum() == 0 && !(evaluator.isContextEvaluated());
     }
 
-    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
+    public ExprFilterSpecLookupableForge getFilterLookupable() {
         DataInputOutputSerdeForge serde = compileTimeServices.getSerdeResolver().serdeForFilter(evaluator.getEvaluationType(), statementRawInfo);
         ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(evaluator.getGetter());
-        return new ExprFilterSpecLookupableFactoryForgePremade(resolvedPropertyName, eval, evaluator.getEvaluationType(), false, serde);
+        return new ExprFilterSpecLookupableForge(resolvedPropertyName, eval, null, evaluator.getEvaluationType(), false, serde);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -309,12 +309,12 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
                 " resolvedPropertyName=" + resolvedPropertyName;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        toPrecedenceFreeEPL(writer, streamOrPropertyName, unresolvedPropertyName);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        toPrecedenceFreeEPL(writer, streamOrPropertyName, unresolvedPropertyName, flags);
     }
 
-    public static void toPrecedenceFreeEPL(StringWriter writer, String streamOrPropertyName, String unresolvedPropertyName) {
-        if (streamOrPropertyName != null) {
+    public static void toPrecedenceFreeEPL(StringWriter writer, String streamOrPropertyName, String unresolvedPropertyName, ExprNodeRenderableFlags flags) {
+        if (streamOrPropertyName != null && flags.isWithStreamPrefix()) {
             writer.append(StringValue.unescapeDot(streamOrPropertyName)).append('.');
         }
         writer.append(StringValue.unescapeDot(StringValue.unescapeBacktick(unresolvedPropertyName)));

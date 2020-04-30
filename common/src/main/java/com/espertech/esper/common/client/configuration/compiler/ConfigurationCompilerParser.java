@@ -102,7 +102,11 @@ public class ConfigurationCompilerParser {
             compiler.getExecution().setFilterServiceMaxFilterWidth(Integer.parseInt(filterServiceMaxFilterWidthStr));
         }
         parseOptionalBoolean(element, "enable-declared-expr-value-cache", b -> compiler.getExecution().setEnabledDeclaredExprValueCache(b));
-        parseOptionalBoolean(element, "filter-service-advanced-planning", b -> compiler.getExecution().setFilterServiceAdvancedPlanning(b));
+
+        String filterIndexPlanningStr = getOptionalAttribute(element, "filter-index-planning");
+        if (filterIndexPlanningStr != null) {
+            compiler.getExecution().setFilterIndexPlanning(ConfigurationCompilerExecution.FilterIndexPlanning.valueOf(filterIndexPlanningStr.toUpperCase(Locale.ENGLISH)));
+        }
     }
 
     private static void handleExpression(ConfigurationCompiler compiler, Element element) {

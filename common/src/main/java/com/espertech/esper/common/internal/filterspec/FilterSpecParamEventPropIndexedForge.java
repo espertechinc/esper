@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
@@ -59,7 +59,7 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
      * @param eventType           event type
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
-    public FilterSpecParamEventPropIndexedForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, String resultEventAsName,
+    public FilterSpecParamEventPropIndexedForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String resultEventAsName,
                                                 int resultEventIndex, String resultEventProperty, EventType eventType, boolean isMustCoerce,
                                                 SimpleNumberCoercer numberCoercer, Class coercionType, String statementName)
             throws IllegalArgumentException {

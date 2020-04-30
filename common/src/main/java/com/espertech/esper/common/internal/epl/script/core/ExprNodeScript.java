@@ -67,7 +67,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         return script.getOptionalEventTypeName();
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(script.getName());
         ExprNodeUtilityPrint.toExpressionStringIncludeParen(parameters, writer);
     }

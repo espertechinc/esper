@@ -77,7 +77,7 @@ public class TestIndexFactory extends TestCase {
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
         SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter(fieldName));
-        return new ExprFilterSpecLookupable(fieldName, eval, eventType.getPropertyType(fieldName), false, null);
+        return new ExprFilterSpecLookupable(fieldName, eval, null, eventType.getPropertyType(fieldName), false, null);
     }
 }
 

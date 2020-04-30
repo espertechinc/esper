@@ -104,4 +104,8 @@ public class ExprDotNodeForgeStream extends ExprDotNodeForge {
     public EventType getEventType() {
         return eventType;
     }
+
+    public boolean isLocalInlinedClass() {
+        return false;
+    }
 }

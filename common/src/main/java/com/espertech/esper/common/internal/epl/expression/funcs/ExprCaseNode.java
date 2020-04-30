@@ -196,7 +196,7 @@ public class ExprCaseNode extends ExprNodeBase {
         return this.isCase2 == otherExprCaseNode.isCase2;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         CaseAnalysis analysis;
         try {
             analysis = analyzeCase();
@@ -207,17 +207,17 @@ public class ExprCaseNode extends ExprNodeBase {
         writer.append("case");
         if (isCase2) {
             writer.append(' ');
-            analysis.getOptionalCompareExprNode().toEPL(writer, getPrecedence());
+            analysis.getOptionalCompareExprNode().toEPL(writer, getPrecedence(), flags);
         }
         for (UniformPair<ExprNode> p : analysis.getWhenThenNodeList()) {
             writer.append(" when ");
-            p.getFirst().toEPL(writer, getPrecedence());
+            p.getFirst().toEPL(writer, getPrecedence(), flags);
             writer.append(" then ");
-            p.getSecond().toEPL(writer, getPrecedence());
+            p.getSecond().toEPL(writer, getPrecedence(), flags);
         }
         if (analysis.getOptionalElseExprNode() != null) {
             writer.append(" else ");
-            analysis.getOptionalElseExprNode().toEPL(writer, getPrecedence());
+            analysis.getOptionalElseExprNode().toEPL(writer, getPrecedence(), flags);
         }
         writer.append(" end");
     }

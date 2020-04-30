@@ -58,12 +58,12 @@ public class ExprNodeValidated extends ExprNodeBase implements ExprForge, ExprEv
         return inner.getPrecedence();
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
-        inner.toEPL(writer, parentPrecedence);
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
+        inner.toEPL(writer, parentPrecedence, flags);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        inner.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        inner.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {

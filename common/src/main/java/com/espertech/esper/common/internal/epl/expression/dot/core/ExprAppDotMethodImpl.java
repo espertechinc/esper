@@ -60,7 +60,7 @@ public class ExprAppDotMethodImpl extends ExprNodeBase implements FilterSpecComp
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(desc.getLhsName());
         writer.append("(");
         ExprNodeUtilityPrint.toExpressionStringMinPrecedenceAsList(desc.getLhs(), writer);

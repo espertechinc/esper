@@ -146,7 +146,7 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprStreamUnd", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(streamName);
         if (isWildcard) {
             writer.append(".*");

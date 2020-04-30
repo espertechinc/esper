@@ -32,7 +32,7 @@ public abstract class ExprNodeBase implements ExprNode {
         childNodes = EMPTY_EXPR_ARRAY;
     }
 
-    public abstract void toPrecedenceFreeEPL(StringWriter writer);
+    public abstract void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags);
 
     public void accept(ExprNodeVisitor visitor) {
         if (visitor.isVisit(this)) {
@@ -92,13 +92,13 @@ public abstract class ExprNodeBase implements ExprNode {
         this.childNodes[index] = newNode;
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
         if (this.getPrecedence().getLevel() < parentPrecedence.getLevel()) {
             writer.write("(");
-            toPrecedenceFreeEPL(writer);
+            toPrecedenceFreeEPL(writer, flags);
             writer.write(")");
         } else {
-            toPrecedenceFreeEPL(writer);
+            toPrecedenceFreeEPL(writer, flags);
         }
     }
 

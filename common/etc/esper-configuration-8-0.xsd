@@ -946,9 +946,15 @@
 	</xs:complexType>
 	<xs:complexType name="compiler-execution-type">
 		<xs:attribute name="filter-service-max-filter-width" type="xs:int" use="optional"/>
-		<xs:attribute name="filter-service-advanced-planning" type="xs:boolean" use="optional"/>
+		<xs:attribute name="filter-index-planning" type="esper:filterIndexPlanningEnum" use="optional"/>
 		<xs:attribute name="enable-declared-expr-value-cache" type="xs:boolean" use="optional"/>
 	</xs:complexType>
+	<xs:simpleType name="filterIndexPlanningEnum">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="basic"/>
+			<xs:enumeration value="all"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:complexType name="runtime-execution-type">
 		<xs:attribute name="prioritized" type="xs:boolean" use="optional"/>
 		<xs:attribute name="fairlock" type="xs:boolean" use="optional"/>

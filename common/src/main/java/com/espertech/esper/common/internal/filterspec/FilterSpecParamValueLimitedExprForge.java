@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
@@ -36,7 +36,7 @@ public class FilterSpecParamValueLimitedExprForge extends FilterSpecParamForge {
     private final MatchedEventConvertorForge convertor;
     private final SimpleNumberCoercer numberCoercer;
 
-    public FilterSpecParamValueLimitedExprForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, ExprNode value, MatchedEventConvertorForge convertor, SimpleNumberCoercer numberCoercer) {
+    public FilterSpecParamValueLimitedExprForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, ExprNode value, MatchedEventConvertorForge convertor, SimpleNumberCoercer numberCoercer) {
         super(lookupable, filterOperator);
         this.value = value;
         this.convertor = convertor;

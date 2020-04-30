@@ -52,7 +52,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
         return this;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         String delimiter = "";
 
         writer.append('[');
@@ -60,7 +60,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
         do {
             ExprNode expr = it.next();
             writer.append(delimiter);
-            expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
             delimiter = ",";
         }
         while (it.hasNext());

@@ -26,7 +26,7 @@ public class ExprNodeUtilityPrint {
         String[] expressions = new String[nodes.length];
         for (int i = 0; i < expressions.length; i++) {
             StringWriter writer = new StringWriter();
-            nodes[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            nodes[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM, ExprNodeRenderableFlags.DEFAULTFLAGS);
             expressions[i] = writer.toString();
         }
         return expressions;
@@ -42,7 +42,7 @@ public class ExprNodeUtilityPrint {
         String delimiter = "";
         for (ExprNode node : nodes) {
             writer.append(delimiter);
-            node.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            node.toEPL(writer, ExprPrecedenceEnum.MINIMUM, ExprNodeRenderableFlags.DEFAULTFLAGS);
             delimiter = ",";
         }
     }
@@ -59,7 +59,7 @@ public class ExprNodeUtilityPrint {
         String[] texts = new String[expressions.length];
         for (int i = 0; i < expressions.length; i++) {
             StringWriter writer = new StringWriter();
-            expressions[i].getForgeRenderable().toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            expressions[i].getForgeRenderable().toEPL(writer, ExprPrecedenceEnum.MINIMUM, ExprNodeRenderableFlags.DEFAULTFLAGS);
             texts[i] = writer.toString();
         }
         return texts;
@@ -67,25 +67,20 @@ public class ExprNodeUtilityPrint {
 
     public static String toExpressionStringMinPrecedence(ExprForge expression) {
         StringWriter writer = new StringWriter();
-        expression.getForgeRenderable().toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        expression.getForgeRenderable().toEPL(writer, ExprPrecedenceEnum.MINIMUM, ExprNodeRenderableFlags.DEFAULTFLAGS);
         return writer.toString();
     }
 
-    public static String printEvaluators(ExprEvaluator[] evaluators) {
+    public static String toExpressionStringMinPrecedence(ExprNode expression, ExprNodeRenderableFlags flags) {
         StringWriter writer = new StringWriter();
-        String delimiter = "";
-        for (ExprEvaluator evaluator : evaluators) {
-            writer.append(delimiter);
-            writer.append(evaluator.getClass().getSimpleName());
-            delimiter = ", ";
-        }
+        expression.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         return writer.toString();
     }
 
     public static String toExpressionStringMinPrecedenceSafe(ExprNode node) {
         try {
             StringWriter writer = new StringWriter();
-            node.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            node.toEPL(writer, ExprPrecedenceEnum.MINIMUM, ExprNodeRenderableFlags.DEFAULTFLAGS);
             return writer.toString();
         } catch (RuntimeException ex) {
             log.debug("Failed to render expression text: " + ex.getMessage(), ex);
@@ -130,7 +125,7 @@ public class ExprNodeUtilityPrint {
     }
 
     public static void toExpressionString(ExprNode node, StringWriter buffer) {
-        node.toEPL(buffer, ExprPrecedenceEnum.MINIMUM);
+        node.toEPL(buffer, ExprPrecedenceEnum.MINIMUM, ExprNodeRenderableFlags.DEFAULTFLAGS);
     }
 
     public static void toExpressionStringIncludeParen(List<ExprNode> parameters, StringWriter buffer) {

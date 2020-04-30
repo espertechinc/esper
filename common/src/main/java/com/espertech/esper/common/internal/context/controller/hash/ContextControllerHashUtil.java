@@ -84,7 +84,7 @@ public class ContextControllerHashUtil {
             String expression = hashFuncName + "(" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
             DataInputOutputSerdeForge valueSerde = new DataInputOutputSerdeForgeSingleton(DIONullableIntegerSerde.class);
             ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(getter);
-            ExprFilterSpecLookupableFactoryForgePremade lookupable = new ExprFilterSpecLookupableFactoryForgePremade(expression, eval, Integer.class, true, valueSerde);
+            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, eval, null, Integer.class, true, valueSerde);
             item.setLookupable(lookupable);
         }
     }

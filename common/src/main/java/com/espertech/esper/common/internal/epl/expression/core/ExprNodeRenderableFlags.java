@@ -10,14 +10,20 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
-import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
+public class ExprNodeRenderableFlags {
+    public final static ExprNodeRenderableFlags DEFAULTFLAGS = new ExprNodeRenderableFlags(true);
 
-public interface ExprFilterSpecLookupableFactoryForge {
-    CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols, CodegenClassScope classScope);
-    String getExpression();
-    Class getReturnType();
+    private boolean withStreamPrefix;
+
+    public ExprNodeRenderableFlags(boolean withStreamPrefix) {
+        this.withStreamPrefix = withStreamPrefix;
+    }
+
+    public boolean isWithStreamPrefix() {
+        return withStreamPrefix;
+    }
+
+    public void setWithStreamPrefix(boolean withStreamPrefix) {
+        this.withStreamPrefix = withStreamPrefix;
+    }
 }
-

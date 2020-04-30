@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.table;
 
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderableFlags;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyEnum;
@@ -25,8 +26,8 @@ public class ExprTableAccessNodeKeys extends ExprTableAccessNode {
         super(tableName);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        toPrecedenceFreeEPLInternal(writer);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        toPrecedenceFreeEPLInternal(writer, flags);
         writer.append(".keys()");
     }
 

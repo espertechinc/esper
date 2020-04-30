@@ -52,7 +52,7 @@ public class ExprForgeWildcard implements ExprForge {
         private ExprForgeWildcardRenderable() {
         }
 
-        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
             writer.append("underlying-stream-0");
         }
     }

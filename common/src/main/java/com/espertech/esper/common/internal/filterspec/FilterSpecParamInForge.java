@@ -18,8 +18,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.util.Indent;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -50,7 +50,7 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
      * @param listofValues   is a list of constants and event property names
      * @throws IllegalArgumentException for illegal args
      */
-    public FilterSpecParamInForge(ExprFilterSpecLookupableFactoryForge lookupable,
+    public FilterSpecParamInForge(ExprFilterSpecLookupableForge lookupable,
                                   FilterOperator filterOperator,
                                   List<FilterSpecParamInValueForge> listofValues)
         throws IllegalArgumentException {
@@ -146,10 +146,10 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParam.class, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ExprFilterSpecLookupableFactory.class, "factory", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+            .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
             .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("factory"), ref("op")));
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
         CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
 

@@ -132,10 +132,10 @@ public class ExprInNodeImpl extends ExprNodeBase implements ExprInNode {
         return other.isNotIn == this.isNotIn;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         String delimiter = "";
         Iterator<ExprNode> it = Arrays.asList(this.getChildNodes()).iterator();
-        it.next().toEPL(writer, getPrecedence());
+        it.next().toEPL(writer, getPrecedence(), flags);
         if (isNotIn) {
             writer.append(" not in (");
         } else {
@@ -145,7 +145,7 @@ public class ExprInNodeImpl extends ExprNodeBase implements ExprInNode {
         do {
             ExprNode inSetValueExpr = it.next();
             writer.append(delimiter);
-            inSetValueExpr.toEPL(writer, getPrecedence());
+            inSetValueExpr.toEPL(writer, getPrecedence(), flags);
             delimiter = ",";
         }
         while (it.hasNext());

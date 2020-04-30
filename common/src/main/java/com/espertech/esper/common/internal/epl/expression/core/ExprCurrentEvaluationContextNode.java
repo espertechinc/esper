@@ -83,7 +83,7 @@ public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements Ex
         return new EPLExpressionEvaluationContext(exprEvaluatorContext.getStatementName(), exprEvaluatorContext.getAgentInstanceId(), exprEvaluatorContext.getRuntimeURI(), exprEvaluatorContext.getUserObjectCompileTime());
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("current_evaluation_context()");
     }
 

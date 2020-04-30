@@ -56,4 +56,11 @@ public interface ExprEvaluatorContext {
     InstrumentationCommon getInstrumentationProvider();
 
     ExceptionHandlingService getExceptionHandlingService();
+
+    default Object getFilterReboolConstant() {
+        return null;
+    }
+
+    default void setFilterReboolConstant(Object value) {
+    }
 }

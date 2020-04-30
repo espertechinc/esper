@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamConstantForge;
@@ -25,7 +25,7 @@ public class FilterSpecCompilerIndexPlannerPlugInSingleRow {
         if (!constituent.getFilterLookupEligible()) {
             return null;
         }
-        ExprFilterSpecLookupableFactoryForge lookupable = constituent.getFilterLookupable();
+        ExprFilterSpecLookupableForge lookupable = constituent.getFilterLookupable();
         return new FilterSpecParamConstantForge(lookupable, FilterOperator.EQUAL, true);
     }
 }

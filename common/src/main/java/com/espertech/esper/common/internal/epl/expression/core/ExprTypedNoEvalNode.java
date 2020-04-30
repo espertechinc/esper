@@ -56,7 +56,7 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprForge, Expr
         return false;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(returnTypeName);
     }
 

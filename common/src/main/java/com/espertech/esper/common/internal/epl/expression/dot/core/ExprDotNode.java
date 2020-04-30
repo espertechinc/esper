@@ -32,5 +32,7 @@ public interface ExprDotNode extends ExprNode, FilterExprAnalyzerAffectorProvide
     VariableMetaData isVariableOpGetName(VariableCompileTimeResolver variableCompileTimeResolver);
 
     void setChainSpec(List<Chainable> modified);
+
+    boolean isLocalInlinedClass();
 }
 

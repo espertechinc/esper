@@ -98,10 +98,10 @@ public class ExprMathNode extends ExprNodeBase {
         return false;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        this.getChildNodes()[0].toEPL(writer, getPrecedence());
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
         writer.append(mathArithTypeEnum.getExpressionText());
-        this.getChildNodes()[1].toEPL(writer, getPrecedence());
+        this.getChildNodes()[1].toEPL(writer, getPrecedence(), flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

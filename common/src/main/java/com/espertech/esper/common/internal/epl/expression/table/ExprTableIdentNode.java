@@ -48,8 +48,8 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForgeInstrum
         this.columnNum = columnNum;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        ExprIdentNodeImpl.toPrecedenceFreeEPL(writer, streamOrPropertyName, unresolvedPropertyName);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        ExprIdentNodeImpl.toPrecedenceFreeEPL(writer, streamOrPropertyName, unresolvedPropertyName, ExprNodeRenderableFlags.DEFAULTFLAGS);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

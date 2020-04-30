@@ -55,7 +55,7 @@ public class ExprGroupingIdNode extends ExprNodeBase implements ExprForge, ExprE
         return this;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         ExprNodeUtilityPrint.toExpressionStringWFunctionName("grouping_id", this.getChildNodes(), writer);
     }
 

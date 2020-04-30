@@ -39,10 +39,10 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
 
     private transient ExprEvaluator[] evaluators;
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         writer.append(":");
-        this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

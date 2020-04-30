@@ -15,11 +15,13 @@ import com.espertech.esper.common.internal.epl.enummethod.dot.ExprLambdaGoesNode
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprStreamRefNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprWildcard;
+import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
+import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;
 
 public class FilterSpecExprNodeVisitorValueLimitedExpr implements ExprNodeVisitor {
     private boolean limited = true;
@@ -32,10 +34,14 @@ public class FilterSpecExprNodeVisitorValueLimitedExpr implements ExprNodeVisito
         if (exprNode instanceof ExprStreamRefNode) {
             ExprStreamRefNode streamRefNode = (ExprStreamRefNode) exprNode;
             Integer stream = streamRefNode.getStreamReferencedIfAny();
-            if (stream != null && stream == 0) {
-                limited = false;
+            if (stream != null) {
+                if (stream == 0) {
+                    limited = false;
+                }
             }
-        } else if (exprNode instanceof ExprVariableNode) {
+        }
+
+        if (exprNode instanceof ExprVariableNode) {
             ExprVariableNode node = (ExprVariableNode) exprNode;
             if (!node.getVariableMetadata().isConstant()) {
                 limited = false;
@@ -43,7 +49,9 @@ public class FilterSpecExprNodeVisitorValueLimitedExpr implements ExprNodeVisito
         } else if (exprNode instanceof ExprTableAccessNode ||
             exprNode instanceof ExprSubselectNode ||
             exprNode instanceof ExprLambdaGoesNode ||
-            exprNode instanceof ExprWildcard) {
+            exprNode instanceof ExprWildcard ||
+            exprNode instanceof ExprNodeScript ||
+            exprNode instanceof ExprDeclaredNode) {
             limited = false;
         } else if (exprNode instanceof ExprPlugInSingleRowNode) {
             ExprPlugInSingleRowNode plugIn = (ExprPlugInSingleRowNode) exprNode;

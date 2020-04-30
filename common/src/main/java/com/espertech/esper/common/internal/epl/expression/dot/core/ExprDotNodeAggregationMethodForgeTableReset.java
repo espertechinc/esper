@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValid
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderableFlags;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
 
@@ -44,8 +45,8 @@ public class ExprDotNodeAggregationMethodForgeTableReset extends ExprDotNodeAggr
         return localMethod(method);
     }
 
-    protected void toEPL(StringWriter writer) {
-        identNode.toPrecedenceFreeEPL(writer);
+    protected void toEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        identNode.toPrecedenceFreeEPL(writer, flags);
     }
 
     protected String getTableName() {
@@ -54,5 +55,9 @@ public class ExprDotNodeAggregationMethodForgeTableReset extends ExprDotNodeAggr
 
     protected String getTableColumnName() {
         return column.getColumnName();
+    }
+
+    public boolean isLocalInlinedClass() {
+        return false;
     }
 }

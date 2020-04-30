@@ -194,4 +194,5 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
     public ExceptionHandlingService getExceptionHandlingService() {
         return agentInstanceContext.getExceptionHandlingService();
     }
+
 }

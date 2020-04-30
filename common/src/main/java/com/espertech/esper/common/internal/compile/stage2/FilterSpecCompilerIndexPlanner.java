@@ -16,10 +16,8 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
-import com.espertech.esper.common.internal.epl.expression.ops.ExprBetweenNode;
-import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNode;
-import com.espertech.esper.common.internal.epl.expression.ops.ExprInNode;
-import com.espertech.esper.common.internal.epl.expression.ops.ExprRelationalOpNode;
+import com.espertech.esper.common.internal.epl.expression.ops.*;
+import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.filterspec.FilterSpecCompilerAdvIndexDescProvider;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 
@@ -27,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerAdvancedIndex.handleAdvancedIndexDescProvider;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerBooleanLimited.handleBooleanLimited;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerEquals.handleEqualsAndRelOp;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerInSetOfValues.handleInSetNode;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerOrToInRewrite.rewriteOrToInIfApplicable;
@@ -45,6 +44,7 @@ public class FilterSpecCompilerIndexPlanner {
      * @param taggedEventTypes event types that provide non-array values
      * @param arrayEventTypes  event types that provide array values
      * @param statementName    statement name
+     * @param streamTypeService
      * @return filter parameter representing the expression, or null
      * @throws ExprValidationException if the expression is invalid
      */
@@ -53,15 +53,13 @@ public class FilterSpecCompilerIndexPlanner {
                                                           LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
                                                           LinkedHashSet<String> allTagNamesOrdered,
                                                           String statementName,
-                                                          StatementRawInfo raw,
+                                                          StreamTypeService streamTypeService, StatementRawInfo raw,
                                                           StatementCompileTimeServices services)
         throws ExprValidationException {
 
-        boolean advancedPlanning = services.getConfiguration().getCompiler().getExecution().isFilterServiceAdvancedPlanning();
-
         // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
         if ((constituent instanceof ExprEqualsNode) || (constituent instanceof ExprRelationalOpNode)) {
-            FilterSpecParamForge param = handleEqualsAndRelOp(constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning, raw, services);
+            FilterSpecParamForge param = handleEqualsAndRelOp(constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, raw, services);
             if (param != null) {
                 return param;
             }
@@ -71,14 +69,14 @@ public class FilterSpecCompilerIndexPlanner {
 
         // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
         if (constituent instanceof ExprInNode) {
-            FilterSpecParamForge param = handleInSetNode((ExprInNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, advancedPlanning, raw, services);
+            FilterSpecParamForge param = handleInSetNode((ExprInNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, raw, services);
             if (param != null) {
                 return param;
             }
         }
 
         if (constituent instanceof ExprBetweenNode) {
-            FilterSpecParamForge param = handleRangeNode((ExprBetweenNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning, raw, services);
+            FilterSpecParamForge param = handleRangeNode((ExprBetweenNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, raw, services);
             if (param != null) {
                 return param;
             }
@@ -98,6 +96,6 @@ public class FilterSpecCompilerIndexPlanner {
             }
         }
 
-        return null;
+        return handleBooleanLimited(constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, raw, services);
     }
 }

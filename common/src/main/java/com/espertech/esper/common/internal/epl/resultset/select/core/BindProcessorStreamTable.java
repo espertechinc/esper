@@ -84,7 +84,7 @@ public class BindProcessorStreamTable implements ExprForge, ExprEvaluator, ExprN
         return this;
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
         writer.append(this.getClass().getSimpleName());
     }
 }

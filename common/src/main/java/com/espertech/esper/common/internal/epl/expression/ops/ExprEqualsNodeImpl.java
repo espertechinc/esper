@@ -107,8 +107,8 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
         return null;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        this.getChildNodes()[0].toEPL(writer, getPrecedence());
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
         if (isIs) {
             writer.append(" is ");
             if (isNotEquals) {
@@ -121,7 +121,7 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
                 writer.append("!=");
             }
         }
-        this.getChildNodes()[1].toEPL(writer, getPrecedence());
+        this.getChildNodes()[1].toEPL(writer, getPrecedence(), flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

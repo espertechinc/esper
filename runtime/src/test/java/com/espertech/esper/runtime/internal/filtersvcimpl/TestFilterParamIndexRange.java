@@ -232,6 +232,6 @@ public class TestFilterParamIndexRange extends TestCase {
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
         SupportExprEventEvaluator eval = new SupportExprEventEvaluator(testEventType.getGetter(fieldName));
-        return new ExprFilterSpecLookupable(fieldName, eval, testEventType.getPropertyType(fieldName), false, null);
+        return new ExprFilterSpecLookupable(fieldName, eval, null, testEventType.getPropertyType(fieldName), false, null);
     }
 }

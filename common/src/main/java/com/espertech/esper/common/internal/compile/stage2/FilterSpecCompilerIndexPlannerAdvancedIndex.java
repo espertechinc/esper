@@ -69,7 +69,7 @@ public class FilterSpecCompilerIndexPlannerAdvancedIndex {
                 throw new IllegalStateException("Unrecognized index type " + filterDesc.getIndexType());
         }
 
-        FilterSpecLookupableAdvancedIndexFactoryForge lookupable = new FilterSpecLookupableAdvancedIndexFactoryForge(expression, null, returnType, config, xGetter, yGetter, widthGetter, heightGetter, filterDesc.getIndexType());
+        FilterSpecLookupableAdvancedIndexForge lookupable = new FilterSpecLookupableAdvancedIndexForge(expression, null, returnType, config, xGetter, yGetter, widthGetter, heightGetter, filterDesc.getIndexType());
 
         ExprNode[] indexExpressions = filterDesc.getIndexExpressions();
         FilterSpecParamFilterForEvalDoubleForge xEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[0], arrayEventTypes, statementName);

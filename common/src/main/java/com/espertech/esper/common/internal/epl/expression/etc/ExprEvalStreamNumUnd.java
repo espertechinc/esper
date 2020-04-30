@@ -56,7 +56,7 @@ public class ExprEvalStreamNumUnd implements ExprForge, ExprEvaluator, ExprNodeR
         return this;
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
         writer.append(this.getClass().getSimpleName());
     }
 }

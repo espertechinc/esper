@@ -242,7 +242,7 @@ public final class FilterSpecActivatable {
         String delimiter = "";
         for (FilterSpecParam param : paramLine) {
             writer.write(delimiter);
-            writer.write(param.getLookupableFactory().getExpression());
+            writer.write(param.getLkupable().getExpression());
             writer.write(param.getFilterOperator().getTextualOp());
             writer.write("...");
             delimiter = ",";

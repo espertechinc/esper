@@ -117,6 +117,11 @@ public enum FilterOperator {
     ADVANCED_INDEX("ai"),
 
     /**
+     * reusable boolean expression filter operator
+     */
+    REBOOL("rebool"),
+
+    /**
      * Boolean expression filter operator
      */
     BOOLEAN_EXPRESSION("boolean_expr");

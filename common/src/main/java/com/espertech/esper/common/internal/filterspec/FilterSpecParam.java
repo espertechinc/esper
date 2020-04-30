@@ -15,7 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +29,7 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 public abstract class FilterSpecParam {
     public final static CodegenExpressionRef REF_MATCHEDEVENTMAP = new CodegenExpressionRef("matchedEvents");
     public final static CodegenExpressionRef REF_STMTCTXFILTEREVALENV = new CodegenExpressionRef("stmtCtxFilterEnv");
-    public final static CodegenExpressionRef REF_LOOKUPABLEFACTORY = new CodegenExpressionRef("lookupableFactory"); // see name below
+    public final static CodegenExpressionRef REF_LOOKUPABLE = new CodegenExpressionRef("lkupable"); // see name below
     public final static CodegenExpressionRef REF_FILTEROPERATOR = new CodegenExpressionRef("filterOperator"); // see name below
     public final static List<CodegenNamedParam> GET_FILTER_VALUE_FP = CodegenNamedParam.from(
             MatchedEventMap.class, REF_MATCHEDEVENTMAP.getRef(),
@@ -42,16 +42,16 @@ public abstract class FilterSpecParam {
 
     public abstract FilterValueSetParam getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv);
 
-    protected final ExprFilterSpecLookupableFactory lookupableFactory;
+    protected final ExprFilterSpecLookupable lkupable;
     protected final FilterOperator filterOperator;
 
-    public FilterSpecParam(ExprFilterSpecLookupableFactory lookupableFactory, FilterOperator filterOperator) {
-        this.lookupableFactory = lookupableFactory;
+    public FilterSpecParam(ExprFilterSpecLookupable lookupable, FilterOperator filterOperator) {
+        this.lkupable = lookupable;
         this.filterOperator = filterOperator;
     }
 
-    public ExprFilterSpecLookupableFactory getLookupableFactory() {
-        return lookupableFactory;
+    public ExprFilterSpecLookupable getLkupable() {
+        return lkupable;
     }
 
     public FilterOperator getFilterOperator() {
@@ -60,7 +60,7 @@ public abstract class FilterSpecParam {
 
     public String toString() {
         return "FilterSpecParam" +
-                " lookupable=" + lookupableFactory +
+                " lookupable=" + lkupable +
                 " filterOp=" + filterOperator;
     }
 

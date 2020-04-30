@@ -48,7 +48,7 @@ public class ExprEventIdentityEqualsNode extends ExprNodeBase {
         return node instanceof ExprEventIdentityEqualsNode;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(NAME);
         ExprNodeUtilityPrint.toExpressionStringParams(writer, this.getChildNodes());
     }

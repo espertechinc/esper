@@ -95,8 +95,8 @@ public class SelectExprProcessorTypableSingleForge implements SelectExprProcesso
         return EventBean[].class;
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
-        typable.getForgeRenderable().toEPL(writer, parentPrecedence);
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
+        typable.getForgeRenderable().toEPL(writer, parentPrecedence, flags);
     }
 
     public ExprNodeRenderable getForgeRenderable() {

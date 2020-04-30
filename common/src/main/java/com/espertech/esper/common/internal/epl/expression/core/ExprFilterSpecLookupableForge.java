@@ -24,16 +24,18 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprFilterSpecLookupableFactoryForgePremade implements ExprFilterSpecLookupableFactoryForge {
+public class ExprFilterSpecLookupableForge {
     protected final String expression;
     protected final ExprEventEvaluatorForge optionalEventEvalForge;
+    protected final ExprForge optionalExprForge;
     protected final Class returnType;
     protected final boolean isNonPropertyGetter;
     protected final DataInputOutputSerdeForge valueSerde;
 
-    public ExprFilterSpecLookupableFactoryForgePremade(String expression, ExprEventEvaluatorForge optionalEventEvalForge, Class returnType, boolean isNonPropertyGetter, DataInputOutputSerdeForge valueSerde) {
+    public ExprFilterSpecLookupableForge(String expression, ExprEventEvaluatorForge optionalEventEvalForge, ExprForge optionalExprForge, Class returnType, boolean isNonPropertyGetter, DataInputOutputSerdeForge valueSerde) {
         this.expression = expression;
         this.optionalEventEvalForge = optionalEventEvalForge;
+        this.optionalExprForge = optionalExprForge;
         this.returnType = JavaClassHelper.getBoxedType(returnType); // For type consistency for recovery and serde define as boxed type
         this.isNonPropertyGetter = isNonPropertyGetter;
         this.valueSerde = valueSerde;
@@ -48,24 +50,32 @@ public class ExprFilterSpecLookupableFactoryForgePremade implements ExprFilterSp
     }
 
     public CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ExprFilterSpecLookupable.class, ExprFilterSpecLookupableFactoryForgePremade.class, classScope);
-        CodegenExpression evalExpr;
+        CodegenMethod method = parent.makeChild(ExprFilterSpecLookupable.class, ExprFilterSpecLookupableForge.class, classScope);
+
+        CodegenExpression singleEventEvalExpr = constantNull();
         if (optionalEventEvalForge != null) {
             CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), ExprEventEvaluator.class);
             CodegenMethod eval = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(CodegenNamedParam.from(EventBean.class, "bean", ExprEvaluatorContext.class, "ctx"));
             anonymous.addMethod("eval", eval);
             eval.getBlock().methodReturn(optionalEventEvalForge.eventBeanWithCtxGet(ref("bean"), ref("ctx"), method, classScope));
-            evalExpr = anonymous;
-        } else {
-            evalExpr = constantNull();
+            singleEventEvalExpr = anonymous;
         }
-        method.getBlock().declareVar(ExprEventEvaluator.class, "eval", evalExpr);
+
+        CodegenExpression epsEvalExpr = constantNull();
+        if (optionalExprForge != null) {
+            epsEvalExpr = ExprNodeUtilityCodegen.codegenEvaluator(optionalExprForge, method, ExprFilterSpecLookupableForge.class, classScope);
+        }
+
+        CodegenExpression serdeExpr = valueSerde == null ? constantNull() : valueSerde.codegen(method, classScope, null);
+        CodegenExpression returnTypeExpr = returnType == null ? constantNull() : enumValue(returnType, "class");
 
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", newInstance(ExprFilterSpecLookupable.class,
-                        constant(expression), ref("eval"), enumValue(returnType, "class"), constant(isNonPropertyGetter), valueSerde.codegen(method, classScope, null)))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", symbols.getAddEventType(method), ref("lookupable")))
-                .methodReturn(ref("lookupable"));
+            .declareVar(ExprEventEvaluator.class, "eval", singleEventEvalExpr)
+            .declareVar(ExprEvaluator.class, "expr", epsEvalExpr)
+            .declareVar(ExprFilterSpecLookupable.class, "lookupable", newInstance(ExprFilterSpecLookupable.class,
+                constant(expression), ref("eval"), ref("expr"), returnTypeExpr, constant(isNonPropertyGetter), serdeExpr))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", symbols.getAddEventType(method), ref("lookupable")))
+            .methodReturn(ref("lookupable"));
         return method;
     }
 
@@ -73,7 +83,7 @@ public class ExprFilterSpecLookupableFactoryForgePremade implements ExprFilterSp
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ExprFilterSpecLookupableFactoryForgePremade that = (ExprFilterSpecLookupableFactoryForgePremade) o;
+        ExprFilterSpecLookupableForge that = (ExprFilterSpecLookupableForge) o;
 
         if (!expression.equals(that.expression)) return false;
 

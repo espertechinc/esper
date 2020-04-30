@@ -20,7 +20,7 @@ public class ConfigurationCompilerExecution implements Serializable {
 
     private int filterServiceMaxFilterWidth = 16;
     private boolean enabledDeclaredExprValueCache = true;
-    private boolean filterServiceAdvancedPlanning = true;
+    private FilterIndexPlanning filterIndexPlanning = FilterIndexPlanning.BASIC;
 
     /**
      * Returns the maximum width for breaking up "or" expression in filters to
@@ -61,20 +61,35 @@ public class ConfigurationCompilerExecution implements Serializable {
     }
 
     /**
-     * Sets the flag instructing the filter expression planning to perform only basic planning.
+     * Returns the setting instructing the compiler which level of filter index planning to perform.
      * Please check the documentation for information on advanced planning.
      * @return flag
      */
-    public boolean isFilterServiceAdvancedPlanning() {
-        return filterServiceAdvancedPlanning;
+    public FilterIndexPlanning getFilterIndexPlanning() {
+        return filterIndexPlanning;
     }
 
     /**
-     * Returns the flag instructing the filter expression planning to perform only basic planning.
+     * Sets the setting instructing the compiler which level of filter index planning to perform.
      * Please check the documentation for information on advanced planning.
-     * @param filterServiceAdvancedPlanning flag
+     * @param filterIndexPlanning setting
      */
-    public void setFilterServiceAdvancedPlanning(boolean filterServiceAdvancedPlanning) {
-        this.filterServiceAdvancedPlanning = filterServiceAdvancedPlanning;
+    public void setFilterIndexPlanning(FilterIndexPlanning filterIndexPlanning) {
+        this.filterIndexPlanning = filterIndexPlanning;
+    }
+
+    /**
+     * Controls the level of planning of filter indexes from filter expressions.
+     */
+    public enum FilterIndexPlanning {
+        /**
+         * Only basic planning for filter indexes
+         */
+        BASIC,
+
+        /**
+         * All planning
+         */
+        ALL
     }
 }

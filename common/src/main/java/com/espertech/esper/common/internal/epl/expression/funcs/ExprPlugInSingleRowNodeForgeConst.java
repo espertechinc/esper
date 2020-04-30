@@ -73,4 +73,8 @@ public class ExprPlugInSingleRowNodeForgeConst extends ExprPlugInSingleRowNodeFo
     public CodegenExpression eventBeanWithCtxGet(CodegenExpression beanExpression, CodegenExpression ctxExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
+
+    public boolean isLocalInlinedClass() {
+        return inner.isLocalInlinedClass();
+    }
 }

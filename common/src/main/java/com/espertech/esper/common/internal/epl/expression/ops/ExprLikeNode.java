@@ -120,19 +120,19 @@ public class ExprLikeNode extends ExprNodeBase {
         return true;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        this.getChildNodes()[0].toEPL(writer, getPrecedence());
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
 
         if (isNot) {
             writer.append(" not");
         }
 
         writer.append(" like ");
-        this.getChildNodes()[1].toEPL(writer, getPrecedence());
+        this.getChildNodes()[1].toEPL(writer, getPrecedence(), flags);
 
         if (this.getChildNodes().length == 3) {
             writer.append(" escape ");
-            this.getChildNodes()[2].toEPL(writer, getPrecedence());
+            this.getChildNodes()[2].toEPL(writer, getPrecedence(), flags);
         }
 
     }

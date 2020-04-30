@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAf
 
 public abstract class ExprDotNodeForge implements ExprForgeInstrumentable {
     public abstract boolean isReturnsConstantResult();
+    public abstract boolean isLocalInlinedClass();
 
     public abstract FilterExprAnalyzerAffector getFilterExprAnalyzerAffector();
 

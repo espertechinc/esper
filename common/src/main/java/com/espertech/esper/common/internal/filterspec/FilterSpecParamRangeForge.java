@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 
 import java.util.Arrays;
 
@@ -38,7 +38,7 @@ public final class FilterSpecParamRangeForge extends FilterSpecParamForge {
      * @param max            is the end point of the range
      * @throws IllegalArgumentException if an operator was supplied that does not take a double range value
      */
-    public FilterSpecParamRangeForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEvalForge min, FilterSpecParamFilterForEvalForge max)
+    public FilterSpecParamRangeForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEvalForge min, FilterSpecParamFilterForEvalForge max)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.min = min;

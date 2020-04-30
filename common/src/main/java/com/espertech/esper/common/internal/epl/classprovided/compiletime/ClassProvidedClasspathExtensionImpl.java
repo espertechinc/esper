@@ -135,4 +135,13 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
     public Map<String, byte[]> getBytes() {
         return bytes;
     }
+
+    public boolean isLocalInlinedClass(Class<?> declaringClass) {
+        for (Class clazz : classes) {
+            if (declaringClass == clazz) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

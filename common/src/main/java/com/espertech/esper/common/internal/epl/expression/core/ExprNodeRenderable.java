@@ -14,5 +14,5 @@ import java.io.StringWriter;
 
 public interface ExprNodeRenderable {
 
-    void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence);
+    void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags);
 }

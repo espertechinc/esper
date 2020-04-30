@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HintEnum;
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerExecution;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -34,6 +35,7 @@ import java.io.StringWriter;
 import java.util.*;
 
 public class FilterSpecCompilerIndexPlannerHelper {
+
     protected static SimpleNumberCoercer getNumberCoercer(Class leftType, Class rightType, String expression) throws ExprValidationException {
         Class numericCoercionType = JavaClassHelper.getBoxedType(leftType);
         if (rightType != leftType) {
@@ -107,7 +109,7 @@ public class FilterSpecCompilerIndexPlannerHelper {
 
     // expressions automatically coerce to the most upwards type
     // filters require the same type
-    protected static Object handleConstantsCoercion(ExprFilterSpecLookupableFactoryForge lookupable, Object constant)
+    protected static Object handleConstantsCoercion(ExprFilterSpecLookupableForge lookupable, Object constant)
         throws ExprValidationException {
         Class identNodeType = lookupable.getReturnType();
         if (!JavaClassHelper.isNumeric(identNodeType)) {
@@ -147,24 +149,45 @@ public class FilterSpecCompilerIndexPlannerHelper {
         return visitor.isLimited() && visitor.isHasStreamZeroReference();
     }
 
-    protected static ExprFilterSpecLookupableFactoryForgePremade makeLimitedLookupableForgeMayNull(ExprNode lookupable, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
-        List<String> hints = HintEnum.FILTERINDEX.getHintAssignedValues(raw.getAnnotations());
-        if (hints == null) {
+    protected static ExprFilterSpecLookupableForge makeLimitedLookupableForgeMayNull(ExprNode lookupable, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
+        if (!FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.LKUPCOMPOSITE, raw, services)) {
             return null;
-        }
-        for (String hint : hints) {
-            String[] hintAtoms = HintEnum.splitCommaUnlessInParen(hint);
-            for (int i = 0; i < hintAtoms.length; i++) {
-                String hintAtom = hintAtoms[i];
-                if (!hintAtom.toLowerCase(Locale.ENGLISH).trim().equals("lkupcomposite")) {
-                    throw new ExprValidationException("Unrecognized filterindex hint value '" + hintAtom + "'");
-                }
-            }
         }
         Class lookupableType = lookupable.getForge().getEvaluationType();
         String expression = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(lookupable);
         FilterSpecCompilerIndexLimitedLookupableGetterForge getterForge = new FilterSpecCompilerIndexLimitedLookupableGetterForge(lookupable);
         DataInputOutputSerdeForge serde = services.getSerdeResolver().serdeForFilter(lookupableType, raw);
-        return new ExprFilterSpecLookupableFactoryForgePremade(expression, getterForge, lookupableType, true, serde);
+        return new ExprFilterSpecLookupableForge(expression, getterForge, null, lookupableType, true, serde);
+    }
+
+    protected static boolean hasLevelOrHint(FilterSpecCompilerIndexPlannerHint requiredHint, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
+        ConfigurationCompilerExecution.FilterIndexPlanning config = services.getConfiguration().getCompiler().getExecution().getFilterIndexPlanning();
+        if (config == ConfigurationCompilerExecution.FilterIndexPlanning.ALL) {
+            return true;
+        }
+        List<String> hints = HintEnum.FILTERINDEX.getHintAssignedValues(raw.getAnnotations());
+        if (hints == null) {
+            return false;
+        }
+        for (String hint : hints) {
+            String[] hintAtoms = HintEnum.splitCommaUnlessInParen(hint);
+            for (int i = 0; i < hintAtoms.length; i++) {
+                String hintAtom = hintAtoms[i];
+                String hintLowercase = hintAtom.toLowerCase(Locale.ENGLISH).trim();
+                FilterSpecCompilerIndexPlannerHint found = null;
+                for (FilterSpecCompilerIndexPlannerHint available : FilterSpecCompilerIndexPlannerHint.values()) {
+                    if (hintLowercase.equals(available.getNameLowercase())) {
+                        found = available;
+                        if (requiredHint == available) {
+                            return true;
+                        }
+                    }
+                }
+                if (found == null) {
+                    throw new ExprValidationException("Unrecognized filterindex hint value '" + hintAtom + "'");
+                }
+            }
+        }
+        return false;
     }
 }

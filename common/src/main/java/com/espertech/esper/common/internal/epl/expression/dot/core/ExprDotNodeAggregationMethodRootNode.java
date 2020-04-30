@@ -71,8 +71,8 @@ public class ExprDotNodeAggregationMethodRootNode extends ExprNodeBase implement
         return forge.getEvaluationType();
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        forge.toPrecedenceFreeEPL(writer);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        forge.toPrecedenceFreeEPL(writer, flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {
@@ -88,7 +88,7 @@ public class ExprDotNodeAggregationMethodRootNode extends ExprNodeBase implement
     }
 
     public ExprNodeRenderable getForgeRenderable() {
-        return (writer, parentPrecedence) -> forge.toPrecedenceFreeEPL(writer);
+        return (writer, parentPrecedence, flags) -> forge.toPrecedenceFreeEPL(writer, flags);
     }
 
     public ExprEnumerationEval getExprEvaluatorEnumeration() {

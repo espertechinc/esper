@@ -112,7 +112,7 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
         return returnType;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(propertyName);
     }
 

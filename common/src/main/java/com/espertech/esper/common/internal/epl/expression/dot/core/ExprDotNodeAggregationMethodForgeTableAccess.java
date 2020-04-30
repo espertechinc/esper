@@ -57,8 +57,8 @@ public class ExprDotNodeAggregationMethodForgeTableAccess extends ExprDotNodeAgg
         return localMethod(method);
     }
 
-    protected void toEPL(StringWriter writer) {
-        subprop.toPrecedenceFreeEPL(writer);
+    protected void toEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        subprop.toPrecedenceFreeEPL(writer, flags);
     }
 
     protected String getTableName() {
@@ -67,5 +67,9 @@ public class ExprDotNodeAggregationMethodForgeTableAccess extends ExprDotNodeAgg
 
     protected String getTableColumnName() {
         return column.getColumnName();
+    }
+
+    public boolean isLocalInlinedClass() {
+        return false;
     }
 }

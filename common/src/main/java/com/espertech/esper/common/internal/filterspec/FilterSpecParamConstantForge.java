@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
     private final Object filterConstant;
 
-    public FilterSpecParamConstantForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, Object filterConstant)
+    public FilterSpecParamConstantForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, Object filterConstant)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.filterConstant = filterConstant;

@@ -263,59 +263,59 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         return true;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         int exprCtr = 0;
         String delimiter = "";
         if (hasYear) {
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" years");
             delimiter = " ";
         }
         if (hasMonth) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" months");
             delimiter = " ";
         }
         if (hasWeek) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" weeks");
             delimiter = " ";
         }
         if (hasDay) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" days");
             delimiter = " ";
         }
         if (hasHour) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" hours");
             delimiter = " ";
         }
         if (hasMinute) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" minutes");
             delimiter = " ";
         }
         if (hasSecond) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" seconds");
             delimiter = " ";
         }
         if (hasMillisecond) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence(), flags);
             writer.append(" milliseconds");
             delimiter = " ";
         }
         if (hasMicrosecond) {
             writer.append(delimiter);
-            getChildNodes()[exprCtr].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr].toEPL(writer, getPrecedence(), flags);
             writer.append(" microseconds");
         }
     }

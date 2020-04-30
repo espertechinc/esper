@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.support.filter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.support.events.SupportEventTypeHelper;
@@ -119,9 +120,10 @@ public class SupportFilterHelper {
         assertEquals(expression, param.getName());
     }
 
-    public static FilterItem[] getFilterMulti(EPStatementSPI statementSPI) {
-        int statementId = statementSPI.getStatementContext().getStatementId();
-        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
+    public static FilterItem[] getFilterMulti(EPStatement statementSPI) {
+        StatementContext ctx = ((EPStatementSPI) statementSPI).getStatementContext();
+        int statementId = ctx.getStatementId();
+        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) ctx.getFilterService();
         Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = filterServiceSPI.get(Collections.singleton(statementId));
         assertEquals(1, set.size());
         Map<Integer, List<FilterItem[]>> filters = set.values().iterator().next();
@@ -201,6 +203,51 @@ public class SupportFilterHelper {
         return pairs.get(typeId);
     }
 
+    public static Map<String, FilterItem> getFilterAllStmtForTypeSingleFilter(EPRuntime runtime, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterAllStmt(runtime);
+
+        EventType eventType = runtime.getEventTypeService().getBusEventType(eventTypeName);
+        EventTypeIdPair typeId = eventType.getMetadata().getEventTypeIdPair();
+        Map<Integer, List<FilterItem[]>> filters = pairs.get(typeId);
+
+        String[] deployments = runtime.getDeploymentService().getDeployments();
+        Map<String, FilterItem> statements = new HashMap<>();
+        for (String deployment : deployments) {
+            EPDeployment info = runtime.getDeploymentService().getDeployment(deployment);
+            for (EPStatement statement : info.getStatements()) {
+                List<FilterItem[]> list = filters.get(((EPStatementSPI) statement).getStatementId());
+                if (list != null) {
+                    assertEquals(1, list.size());
+                    assertEquals(1, list.get(0).length);
+                    statements.put(statement.getName(), list.get(0)[0]);
+                }
+            }
+        }
+        return statements;
+    }
+
+    public static Map<String, FilterItem[]> getFilterAllStmtForTypeMulti(EPRuntime runtime, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterAllStmt(runtime);
+
+        EventType eventType = runtime.getEventTypeService().getBusEventType(eventTypeName);
+        EventTypeIdPair typeId = eventType.getMetadata().getEventTypeIdPair();
+        Map<Integer, List<FilterItem[]>> filters = pairs.get(typeId);
+
+        String[] deployments = runtime.getDeploymentService().getDeployments();
+        Map<String, FilterItem[]> statements = new HashMap<>();
+        for (String deployment : deployments) {
+            EPDeployment info = runtime.getDeploymentService().getDeployment(deployment);
+            for (EPStatement statement : info.getStatements()) {
+                List<FilterItem[]> list = filters.get(((EPStatementSPI) statement).getStatementId());
+                if (list != null) {
+                    assertEquals(1, list.size());
+                    statements.put(statement.getName(), list.get(0));
+                }
+            }
+        }
+        return statements;
+    }
+
     public static FilterItem[][] getFilterMulti(EPStatement statement, String eventTypeName) {
         EPStatementSPI spi = (EPStatementSPI) statement;
         EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(spi.getStatementContext(), eventTypeName);
@@ -252,5 +299,15 @@ public class SupportFilterHelper {
             }
             assertSame(first.getIndex(), item.getIndex());
         }
+    }
+
+    public static FilterItem getFilterSingleForStmt(Map<Integer, List<FilterItem[]>> filters, EPStatement statement) {
+        List<FilterItem[]> list = filters.get(((EPStatementSPI) statement).getStatementId());
+        if (list == null) {
+            fail();
+        }
+        assertEquals(1, list.size());
+        assertEquals(1, list.get(0).length);
+        return list.get(0)[0];
     }
 }

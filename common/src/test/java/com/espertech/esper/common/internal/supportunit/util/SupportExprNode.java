@@ -86,7 +86,7 @@ public class SupportExprNode extends ExprNodeBase implements ExprForge, ExprEval
         this.value = value;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         if (value instanceof String) {
             writer.append("\"" + value + "\"");
         } else {

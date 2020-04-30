@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeDeployTimeConst;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
@@ -30,7 +30,7 @@ public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamFor
     private final Class returnType;
     private final SimpleNumberCoercer numberCoercer;
 
-    public FilterSpecParamDeployTimeConstParamForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, ExprNodeDeployTimeConst deployTimeConstant, Class returnType, SimpleNumberCoercer numberCoercer) {
+    public FilterSpecParamDeployTimeConstParamForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, ExprNodeDeployTimeConst deployTimeConstant, Class returnType, SimpleNumberCoercer numberCoercer) {
         super(lookupable, filterOperator);
         this.deployTimeConstant = deployTimeConstant;
         this.returnType = returnType;

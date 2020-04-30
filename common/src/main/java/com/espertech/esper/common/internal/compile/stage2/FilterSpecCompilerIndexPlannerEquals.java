@@ -33,7 +33,6 @@ public class FilterSpecCompilerIndexPlannerEquals {
                                                                LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
                                                                LinkedHashSet<String> allTagNamesOrdered,
                                                                String statementName,
-                                                               boolean advancedPlanning,
                                                                StatementRawInfo raw,
                                                                StatementCompileTimeServices services)
         throws ExprValidationException {
@@ -73,7 +72,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
         if ((right.getForge().getForgeConstantType().isCompileTimeConstant()) && (left instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             if (filterOptimizableNode.getFilterLookupEligible()) {
-                ExprFilterSpecLookupableFactoryForge lookupable = filterOptimizableNode.getFilterLookupable();
+                ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
                 Object constant = right.getForge().getExprEvaluator().evaluate(null, true, null);
                 constant = handleConstantsCoercion(lookupable, constant);
                 return new FilterSpecParamConstantForge(lookupable, op, constant);
@@ -82,7 +81,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
         if ((left.getForge().getForgeConstantType().isCompileTimeConstant()) && (right instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) right;
             if (filterOptimizableNode.getFilterLookupEligible()) {
-                ExprFilterSpecLookupableFactoryForge lookupable = filterOptimizableNode.getFilterLookupable();
+                ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
                 Object constant = left.getForge().getExprEvaluator().evaluate(null, true, null);
                 constant = handleConstantsCoercion(lookupable, constant);
                 FilterOperator opReversed = op.isComparisonOperator() ? op.reversedRelationalOp() : op;
@@ -106,7 +105,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
         if ((left instanceof ExprFilterOptimizableNode) && (right instanceof ExprContextPropertyNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             ExprContextPropertyNode ctxNode = (ExprContextPropertyNode) right;
-            ExprFilterSpecLookupableFactoryForge lookupable = filterOptimizableNode.getFilterLookupable();
+            ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
                 return new FilterSpecParamContextPropForge(lookupable, op, ctxNode.getPropertyName(), ctxNode.getGetter(), numberCoercer);
@@ -115,7 +114,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
         if ((left instanceof ExprContextPropertyNode) && (right instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) right;
             ExprContextPropertyNode ctxNode = (ExprContextPropertyNode) left;
-            ExprFilterSpecLookupableFactoryForge lookupable = filterOptimizableNode.getFilterLookupable();
+            ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 op = getReversedOperator(constituent, op); // reverse operators, as the expression is "stream1.prop xyz stream0.prop"
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
@@ -126,7 +125,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
         if ((left instanceof ExprFilterOptimizableNode) && (right.getForge().getForgeConstantType().isDeployTimeTimeConstant() && right instanceof ExprNodeDeployTimeConst)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             ExprNodeDeployTimeConst deployTimeConst = (ExprNodeDeployTimeConst) right;
-            ExprFilterSpecLookupableFactoryForge lookupable = filterOptimizableNode.getFilterLookupable();
+            ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 Class returnType = right.getForge().getEvaluationType();
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), returnType, lookupable.getExpression());
@@ -136,7 +135,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
         if ((left.getForge().getForgeConstantType().isDeployTimeTimeConstant() && left instanceof ExprNodeDeployTimeConst) && (right instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) right;
             ExprNodeDeployTimeConst deployTimeConst = (ExprNodeDeployTimeConst) left;
-            ExprFilterSpecLookupableFactoryForge lookupable = filterOptimizableNode.getFilterLookupable();
+            ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 Class returnType = left.getForge().getEvaluationType();
                 op = getReversedOperator(constituent, op); // reverse operators, as the expression is "stream1.prop xyz stream0.prop"
@@ -146,21 +145,19 @@ public class FilterSpecCompilerIndexPlannerEquals {
         }
 
         // check lookable-limited and value-limited expression
-        if (advancedPlanning) {
-            ExprNode lookupable = null;
-            ExprNode value = null;
-            FilterOperator opWReverse = op;
-            if (isLimitedLookupableExpression(left) && isLimitedValueExpression(right)) {
-                lookupable = left;
-                value = right;
-            } else if (isLimitedLookupableExpression(right) && isLimitedValueExpression(left)) {
-                lookupable = right;
-                value = left;
-                opWReverse = getReversedOperator(constituent, op);
-            }
-            if (lookupable != null) {
-                return handleLimitedExpr(opWReverse, lookupable, value, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, raw, services);
-            }
+        ExprNode lookupable = null;
+        ExprNode value = null;
+        FilterOperator opWReverse = op;
+        if (isLimitedLookupableExpression(left) && isLimitedValueExpression(right)) {
+            lookupable = left;
+            value = right;
+        } else if (isLimitedLookupableExpression(right) && isLimitedValueExpression(left)) {
+            lookupable = right;
+            value = left;
+            opWReverse = getReversedOperator(constituent, op);
+        }
+        if (lookupable != null) {
+            return handleLimitedExpr(opWReverse, lookupable, value, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, raw, services);
         }
 
         return null;
@@ -168,16 +165,22 @@ public class FilterSpecCompilerIndexPlannerEquals {
 
     private static FilterSpecParamForge handleLimitedExpr(FilterOperator op, ExprNode lookupable, ExprNode value, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, StatementRawInfo raw,
                                                           StatementCompileTimeServices services) throws ExprValidationException {
-        ExprFilterSpecLookupableFactoryForge lookupableForge;
+        ExprFilterSpecLookupableForge lookupableForge;
         Class lookupableType = lookupable.getForge().getEvaluationType();
         Class valueType = value.getForge().getEvaluationType();
         if (lookupable instanceof ExprIdentNode) {
+            if (!FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.VALUECOMPOSITE, raw, services)) {
+                return null;
+            }
             ExprIdentNode identNode = (ExprIdentNode) lookupable;
             if (!identNode.getFilterLookupEligible()) {
                 return null;
             }
             lookupableForge = identNode.getFilterLookupable();
         } else {
+            if (!FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.LKUPCOMPOSITE, raw, services)) {
+                return null;
+            }
             lookupableForge = makeLimitedLookupableForgeMayNull(lookupable, raw, services);
             if (lookupableForge == null) {
                 return null;

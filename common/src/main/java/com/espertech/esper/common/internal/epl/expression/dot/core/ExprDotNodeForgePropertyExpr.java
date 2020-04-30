@@ -120,4 +120,8 @@ public class ExprDotNodeForgePropertyExpr extends ExprDotNodeForge {
     public ExprNode getForgeRenderable() {
         return parent;
     }
+
+    public boolean isLocalInlinedClass() {
+        return false;
+    }
 }

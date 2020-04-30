@@ -85,10 +85,10 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprRelati
         return null;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        this.getChildNodes()[0].toEPL(writer, getPrecedence());
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
         writer.append(relationalOpEnum.getExpressionText());
-        this.getChildNodes()[1].toEPL(writer, getPrecedence());
+        this.getChildNodes()[1].toEPL(writer, getPrecedence(), flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

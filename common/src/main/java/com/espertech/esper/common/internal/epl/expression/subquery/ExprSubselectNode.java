@@ -211,7 +211,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         this.havingExpr = havingExpr;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         if ((selectAsNames != null) && (selectAsNames[0] != null)) {
             writer.append(selectAsNames[0]);
             return;

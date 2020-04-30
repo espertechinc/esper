@@ -261,14 +261,14 @@ public class ExprCastNode extends ExprNodeBase {
         return forge.getEvaluationType();
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("cast(");
-        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         writer.append(",");
         classIdentifierWArray.toEPL(writer);
         for (int i = 1; i < this.getChildNodes().length; i++) {
             writer.write(",");
-            this.getChildNodes()[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            this.getChildNodes()[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         }
         writer.append(')');
     }

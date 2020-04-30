@@ -294,7 +294,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         return stateType.toString().toLowerCase(Locale.ENGLISH);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(stateType.toString().toLowerCase(Locale.ENGLISH));
         ExprNodeUtilityPrint.toExpressionStringParams(writer, this.getChildNodes());
     }

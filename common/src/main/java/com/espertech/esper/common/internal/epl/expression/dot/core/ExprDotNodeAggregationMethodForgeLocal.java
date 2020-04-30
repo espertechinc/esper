@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggM
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderableFlags;
 import com.espertech.esper.common.internal.epl.expression.core.ExprPrecedenceEnum;
 
 import java.io.StringWriter;
@@ -44,8 +45,8 @@ public class ExprDotNodeAggregationMethodForgeLocal extends ExprDotNodeAggregati
         return localMethod(method);
     }
 
-    protected void toEPL(StringWriter writer) {
-        agg.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+    protected void toEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        agg.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
     }
 
     protected String getTableName() {
@@ -54,5 +55,9 @@ public class ExprDotNodeAggregationMethodForgeLocal extends ExprDotNodeAggregati
 
     protected String getTableColumnName() {
         return null;
+    }
+
+    public boolean isLocalInlinedClass() {
+        return false;
     }
 }

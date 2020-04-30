@@ -16,11 +16,13 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprContextProper
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprStreamRefNode;
+import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
+import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;
 
 public class FilterSpecExprNodeVisitorLookupableLimitedExpr implements ExprNodeVisitor {
     private boolean limited = true;
@@ -47,7 +49,9 @@ public class FilterSpecExprNodeVisitorLookupableLimitedExpr implements ExprNodeV
                     limited = false;
                 }
             }
-        } else if (exprNode instanceof ExprVariableNode) {
+        }
+
+        if (exprNode instanceof ExprVariableNode) {
             ExprVariableNode node = (ExprVariableNode) exprNode;
             if (!node.getVariableMetadata().isConstant()) {
                 limited = false;
@@ -55,11 +59,20 @@ public class FilterSpecExprNodeVisitorLookupableLimitedExpr implements ExprNodeV
         } else if (exprNode instanceof ExprTableAccessNode ||
             exprNode instanceof ExprSubselectNode ||
             exprNode instanceof ExprLambdaGoesNode ||
-            exprNode instanceof ExprContextPropertyNode) {
+            exprNode instanceof ExprContextPropertyNode ||
+            exprNode instanceof ExprNodeScript) {
             limited = false;
         } else if (exprNode instanceof ExprPlugInSingleRowNode) {
             ExprPlugInSingleRowNode plugIn = (ExprPlugInSingleRowNode) exprNode;
             if (plugIn.getConfig() != null && plugIn.getConfig().getFilterOptimizable() == ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable.DISABLED) {
+                limited = false;
+            }
+            if (plugIn.isLocalInlinedClass()) {
+                limited = false;
+            }
+        } else if (exprNode instanceof ExprDotNode) {
+            ExprDotNode node = (ExprDotNode) exprNode;
+            if (node.isLocalInlinedClass()) {
                 limited = false;
             }
         }

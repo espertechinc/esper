@@ -74,11 +74,11 @@ public class ExprAndNodeImpl extends ExprNodeBase implements ExprForgeInstrument
         return false;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         String appendStr = "";
         for (ExprNode child : this.getChildNodes()) {
             writer.append(appendStr);
-            child.toEPL(writer, getPrecedence());
+            child.toEPL(writer, getPrecedence(), flags);
             appendStr = " and ";
         }
     }

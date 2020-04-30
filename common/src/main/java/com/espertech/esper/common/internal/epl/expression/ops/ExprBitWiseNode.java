@@ -91,10 +91,10 @@ public class ExprBitWiseNode extends ExprNodeBase {
         return true;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        getChildNodes()[0].toEPL(writer, getPrecedence());
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
         writer.append(bitWiseOpEnum.getComputeDescription());
-        getChildNodes()[1].toEPL(writer, getPrecedence());
+        getChildNodes()[1].toEPL(writer, getPrecedence(), flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

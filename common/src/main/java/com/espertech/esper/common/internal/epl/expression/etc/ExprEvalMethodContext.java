@@ -81,7 +81,7 @@ public class ExprEvalMethodContext implements ExprForge, ExprEvaluator, ExprNode
         return this;
     }
 
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
         writer.append(ExprEvalMethodContext.class.getSimpleName());
     }
 }

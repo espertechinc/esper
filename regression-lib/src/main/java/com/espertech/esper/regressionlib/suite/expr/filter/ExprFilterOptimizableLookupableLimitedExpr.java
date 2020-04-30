@@ -43,7 +43,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
         executions.add(new ExprFilterOptLkupEqualsCoercion());
         executions.add(new ExprFilterOptLkupInSetOfValue());
         executions.add(new ExprFilterOptLkupInRangeWCoercion());
-        executions.add(new ExprFilterOptLkupDisqualify());        
+        executions.add(new ExprFilterOptLkupDisqualify());
         executions.add(new ExprFilterOptLkupCurrentTimestamp());
         return executions;
     }
@@ -79,7 +79,8 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
                 "  }\n" +
                 "\"\"\";\n" +
                 "@public create expression MyDeclaredExpr { (select theString from MyWindow) };\n" +
-                "@public create expression MyHandThrough {v => v};\n";
+                "@public create expression MyHandThrough {v => v};\n" +
+                "@public create expression string js:MyJavaScript(param) [\"a\"];\n";
             env.compile(objects, path);
 
             String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterSpecCompileHook.class.getName() + "')";
@@ -101,6 +102,8 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
                 hook + HINT_PREFIX + "select * from SupportBeanArrayCollMap(id || setOfString.where(v => v=id).firstOf() = 'ax')");
             assertDisqualified(env, path, "SupportBean",
                 hook + HINT_PREFIX + "select * from pattern[s0=SupportBean_S0 -> SupportBean(theString||s0.p00='x')]");
+            assertDisqualified(env, path, "SupportBean",
+                hook + HINT_PREFIX + "select * from pattern[s0=SupportBean_S0 -> SupportBean(MyJavaScript(theString)='x')]");
 
             String eplWContext = "create context MyContext start SupportBean_S0 as s0;\n" +
                 hook + HINT_PREFIX + "context MyContext select * from SupportBean(theString || context.s0.p00 = 'ax');\n";
@@ -108,16 +111,28 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
             // references an event property
             assertDisqualified(env, path, "SupportBean", hook + HINT_PREFIX + "select * from SupportBean(1+1+1=3)");
+
+            // local inlined class
+            String eplWithLocalHelper = hook + HINT_PREFIX + "inlined_class \"\"\"\n" +
+                "  public class LocalHelper {\n" +
+                "    public static String doit(Object param) {\n" +
+                "      return null;\n" +
+                "    }\n" +
+                "  }\n" +
+                "\"\"\"\n" +
+                "select * from SupportBean(LocalHelper.doit(theString) = 'abc')";
+            assertDisqualified(env, path, "SupportBean", eplWithLocalHelper);
         }
     }
 
     private static class ExprFilterOptLkupInRangeWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern [" +
+            String prefixes = ExprFilterOptimizableValueLimitedExpr.HINT_PREFIX + HINT_PREFIX;
+            String epl = prefixes + "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive+longBoxed in [a.id - 2 : b.id + 2])];\n";
             runAssertionInRange(env, epl, false);
 
-            epl = HINT_PREFIX + "@name('s0') select * from pattern [" +
+            epl = prefixes + "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive+longBoxed not in [a.id - 2 : b.id + 2])];\n";
             runAssertionInRange(env, epl, true);
         }

@@ -153,30 +153,30 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         return other.isNotBetween == this.isNotBetween;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         Iterator<ExprNode> it = Arrays.asList(this.getChildNodes()).iterator();
         if (isLowEndpointIncluded && isHighEndpointIncluded) {
-            it.next().toEPL(writer, getPrecedence());
+            it.next().toEPL(writer, getPrecedence(), flags);
             if (isNotBetween) {
                 writer.append(" not between ");
             } else {
                 writer.append(" between ");
             }
 
-            it.next().toEPL(writer, getPrecedence());
+            it.next().toEPL(writer, getPrecedence(), flags);
             writer.append(" and ");
-            it.next().toEPL(writer, getPrecedence());
+            it.next().toEPL(writer, getPrecedence(), flags);
         } else {
-            it.next().toEPL(writer, getPrecedence());
+            it.next().toEPL(writer, getPrecedence(), flags);
             writer.write(" in ");
             if (isLowEndpointIncluded) {
                 writer.write('[');
             } else {
                 writer.write('(');
             }
-            it.next().toEPL(writer, getPrecedence());
+            it.next().toEPL(writer, getPrecedence(), flags);
             writer.write(':');
-            it.next().toEPL(writer, getPrecedence());
+            it.next().toEPL(writer, getPrecedence(), flags);
             if (isHighEndpointIncluded) {
                 writer.write(']');
             } else {

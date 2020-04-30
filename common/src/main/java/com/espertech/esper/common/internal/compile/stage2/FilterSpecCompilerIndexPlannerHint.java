@@ -8,12 +8,20 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.expression.core;
+package com.espertech.esper.common.internal.compile.stage2;
 
-import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
+public enum FilterSpecCompilerIndexPlannerHint {
+    LKUPCOMPOSITE("lkupcomposite"),
+    VALUECOMPOSITE("valuecomposite"),
+    BOOLCOMPOSITE("boolcomposite");
 
-public interface ExprFilterSpecLookupableFactory {
-    String getExpression();
-    ExprFilterSpecLookupable make(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext);
+    private final String nameLowercase;
+
+    private FilterSpecCompilerIndexPlannerHint(String nameLowercase) {
+        this.nameLowercase = nameLowercase;
+    }
+
+    public String getNameLowercase() {
+        return nameLowercase;
+    }
 }
-

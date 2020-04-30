@@ -97,7 +97,7 @@ public class ContextSpecKeyedItem {
             .declareVar(ExprFilterSpecLookupable[].class, "lookupables", newArrayByLength(ExprFilterSpecLookupable.class, constant(getters.length)));
         for (int i = 0; i < getters.length; i++) {
             CodegenExpression getter = EventTypeUtility.codegenGetterWCoerceWArray(ExprEventEvaluator.class, getters[i], types[i], types[i], method, this.getClass(), classScope);
-            CodegenExpression lookupable = newInstance(ExprFilterSpecLookupable.class, constant(propertyNames.get(i)), getter,
+            CodegenExpression lookupable = newInstance(ExprFilterSpecLookupable.class, constant(propertyNames.get(i)), getter, constantNull(),
                 constant(types[i]), constantFalse(), lookupableSerdes[i].codegen(method, classScope, null));
             CodegenExpression eventType = exprDotMethod(ref("activatable"), "getFilterForEventType");
             method.getBlock()

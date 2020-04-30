@@ -82,7 +82,7 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge
         return this;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
     }
 
     public ExprPrecedenceEnum getPrecedence() {

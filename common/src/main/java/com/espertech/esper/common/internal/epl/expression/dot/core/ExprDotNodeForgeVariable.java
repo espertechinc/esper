@@ -87,4 +87,8 @@ public class ExprDotNodeForgeVariable extends ExprDotNodeForge {
     public ExprDotForge[] getChainForge() {
         return chainForge;
     }
+
+    public boolean isLocalInlinedClass() {
+        return false;
+    }
 }

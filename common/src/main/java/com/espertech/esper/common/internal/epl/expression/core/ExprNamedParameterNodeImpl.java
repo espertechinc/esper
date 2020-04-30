@@ -31,7 +31,7 @@ public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprName
         return parameterName;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(parameterName);
         writer.append(":");
         if (this.getChildNodes().length > 1) {

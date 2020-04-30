@@ -88,7 +88,7 @@ public class ExprNewStructNode extends ExprNodeBase {
         return Arrays.deepEquals(other.columnNames, columnNames);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.write("new{");
         String delimiter = "";
         for (int i = 0; i < this.getChildNodes().length; i++) {
@@ -106,7 +106,7 @@ public class ExprNewStructNode extends ExprNodeBase {
 
             if (outputexpr) {
                 writer.append("=");
-                expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+                expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
             }
             delimiter = ",";
         }

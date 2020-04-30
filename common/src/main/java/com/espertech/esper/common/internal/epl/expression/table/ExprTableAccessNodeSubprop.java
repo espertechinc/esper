@@ -100,8 +100,8 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         }
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        toPrecedenceFreeEPLInternal(writer, subpropName);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        toPrecedenceFreeEPLInternal(writer, subpropName, flags);
     }
 
     public String getSubpropName() {

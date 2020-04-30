@@ -91,9 +91,9 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
         return !evaluated;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("not ");
-        this.getChildNodes()[0].toEPL(writer, getPrecedence());
+        this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

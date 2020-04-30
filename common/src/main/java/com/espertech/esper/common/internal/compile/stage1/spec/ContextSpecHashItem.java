@@ -22,7 +22,7 @@ import com.espertech.esper.common.internal.context.controller.hash.ContextContro
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -33,7 +33,7 @@ public class ContextSpecHashItem {
     private final FilterSpecRaw filterSpecRaw;
 
     private FilterSpecCompiled filterSpecCompiled;
-    private ExprFilterSpecLookupableFactoryForge lookupable;
+    private ExprFilterSpecLookupableForge lookupable;
 
     public ContextSpecHashItem(Chainable function, FilterSpecRaw filterSpecRaw) {
         this.function = function;
@@ -56,11 +56,11 @@ public class ContextSpecHashItem {
         this.filterSpecCompiled = filterSpecCompiled;
     }
 
-    public ExprFilterSpecLookupableFactoryForge getLookupable() {
+    public ExprFilterSpecLookupableForge getLookupable() {
         return lookupable;
     }
 
-    public void setLookupable(ExprFilterSpecLookupableFactoryForge lookupable) {
+    public void setLookupable(ExprFilterSpecLookupableForge lookupable) {
         this.lookupable = lookupable;
     }
 

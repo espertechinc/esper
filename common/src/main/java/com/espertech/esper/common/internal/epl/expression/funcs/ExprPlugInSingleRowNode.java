@@ -110,13 +110,13 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
         return eligible;
     }
 
-    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
+    public ExprFilterSpecLookupableForge getFilterLookupable() {
         checkValidated(forge);
         DataInputOutputSerdeForge filterSerde = compileTimeServices.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), statementRawInfo);
-        return new ExprFilterSpecLookupableFactoryForgePremade(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, forge.getEvaluationType(), true, filterSerde);
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, null, forge.getEvaluationType(), true, filterSerde);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         ExprNodeUtilityPrint.toExpressionString(chainSpec, writer, false, functionName);
     }
 
@@ -179,7 +179,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
         EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(staticMethodDesc.getReflectionMethod().getReturnType());
 
         ExprDotForge[] eval = ExprDotNodeUtility.getChainEvaluators(-1, typeInfo, chainList, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic()).getChainWithUnpack();
-        ExprDotNodeForgeStaticMethod staticMethodForge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, clazz.getName(), staticMethodDesc.getReflectionMethod(), staticMethodDesc.getChildForges(), allowValueCache && staticMethodDesc.isAllConstants(), eval, optionalLambdaWrap, config.isRethrowExceptions(), null, validationContext.getStatementName());
+        ExprDotNodeForgeStaticMethod staticMethodForge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, clazz.getName(), staticMethodDesc.getReflectionMethod(), staticMethodDesc.getChildForges(), allowValueCache && staticMethodDesc.isAllConstants(), eval, optionalLambdaWrap, config.isRethrowExceptions(), null, validationContext.getStatementName(), staticMethodDesc.isLocalInlinedClass());
 
         // If caching the result, evaluate now and return the result.
         if (isReturnsConstantResult) {
@@ -220,5 +220,9 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
 
     public ClasspathImportSingleRowDesc getConfig() {
         return config;
+    }
+
+    public boolean isLocalInlinedClass() {
+        return forge.isLocalInlinedClass();
     }
 }

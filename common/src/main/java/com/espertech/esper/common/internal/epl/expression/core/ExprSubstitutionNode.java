@@ -92,7 +92,7 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
         return this;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("?");
     }
 
@@ -126,7 +126,7 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
 
     public ExprNodeRenderable getForgeRenderable() {
         return new ExprNodeRenderable() {
-            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {
                 writer.append("?");
             }
         };

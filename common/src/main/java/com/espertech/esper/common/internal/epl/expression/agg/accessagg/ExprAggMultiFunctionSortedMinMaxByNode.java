@@ -243,7 +243,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     }
 
     @Override
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(getAggregationFunctionName());
         ExprNodeUtilityPrint.toExpressionStringParams(writer, this.positionalParams);
     }

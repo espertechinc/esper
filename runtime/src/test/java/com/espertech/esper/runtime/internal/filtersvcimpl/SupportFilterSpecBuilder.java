@@ -11,13 +11,10 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParam;
-import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 import com.espertech.esper.runtime.internal.support.SupportExprEventEvaluator;
 
 import java.util.LinkedList;
@@ -52,17 +49,9 @@ public class SupportFilterSpecBuilder {
         return filterParams.toArray(new FilterSpecParam[0]);
     }
 
-    private static ExprFilterSpecLookupableFactory makeLookupable(EventType eventType, String fieldName) {
-        return new ExprFilterSpecLookupableFactory() {
-            public String getExpression() {
-                return fieldName;
-            }
-
-            public ExprFilterSpecLookupable make(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {
-                SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter(fieldName));
-                return new ExprFilterSpecLookupable(fieldName, eval, eventType.getPropertyType(fieldName), false, null);
-            }
-        };
+    private static ExprFilterSpecLookupable makeLookupable(EventType eventType, String fieldName) {
+        SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter(fieldName));
+        return new ExprFilterSpecLookupable(fieldName, eval, null, eventType.getPropertyType(fieldName), false, null);
     }
 }
 

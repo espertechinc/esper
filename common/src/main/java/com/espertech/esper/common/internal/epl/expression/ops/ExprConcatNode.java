@@ -55,11 +55,11 @@ public class ExprConcatNode extends ExprNodeBase {
         return false;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         String delimiter = "";
         for (ExprNode child : this.getChildNodes()) {
             writer.append(delimiter);
-            child.toEPL(writer, getPrecedence());
+            child.toEPL(writer, getPrecedence(), flags);
             delimiter = "||";
         }
     }

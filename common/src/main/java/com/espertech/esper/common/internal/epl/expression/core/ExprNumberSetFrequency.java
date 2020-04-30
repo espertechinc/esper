@@ -51,9 +51,9 @@ public class ExprNumberSetFrequency extends ExprNodeBase implements ExprForge, E
         return this;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("*/");
-        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

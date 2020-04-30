@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionrun.suite.expr;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerExecution;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -62,6 +63,10 @@ public class TestSuiteExprFilter extends TestCase {
 
     public void testExprFilterOptimizableLookupableLimitedExpr() {
         RegressionRunner.run(session, ExprFilterOptimizableLookupableLimitedExpr.executions());
+    }
+
+    public void testExprFilterOptimizableBooleanLimitedExpr() {
+        RegressionRunner.run(session, ExprFilterOptimizableBooleanLimitedExpr.executions());
     }
 
     public void testExprFilterExpressions() {

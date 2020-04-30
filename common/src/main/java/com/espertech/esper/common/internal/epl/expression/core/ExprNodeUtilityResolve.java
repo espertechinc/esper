@@ -157,6 +157,7 @@ public class ExprNodeUtilityResolve {
             childForges = ExprNodeUtilityMake.makeVarargArrayForges(method, childForges);
         }
 
-        return new ExprNodeUtilMethodDesc(allConstants, childForges, method);
+        boolean localInlinedClass = services.getClassProvidedClasspathExtension().isLocalInlinedClass(method.getDeclaringClass());
+        return new ExprNodeUtilMethodDesc(allConstants, childForges, method, localInlinedClass);
     }
 }

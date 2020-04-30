@@ -331,7 +331,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
             ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
             forge = new ExprDotNodeForgeStaticMethod(this, false, firstItemName, methodDesc.getReflectionMethod(),
-                methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstantDesc, validationContext.getStatementName());
+                methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstantDesc, validationContext.getStatementName(), methodDesc.isLocalInlinedClass());
             return null;
         }
 
@@ -360,7 +360,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(method.getReflectionMethod().getReturnType());
 
         ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
-        forge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, firstItemName, method.getReflectionMethod(), method.getChildForges(), isConstantParameters, evals.getChainWithUnpack(), optionalLambdaWrap, false, null, validationContext.getStatementName());
+        forge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, firstItemName, method.getReflectionMethod(), method.getChildForges(), isConstantParameters, evals.getChainWithUnpack(), optionalLambdaWrap, false, null, validationContext.getStatementName(), method.isLocalInlinedClass());
 
         return null;
     }
@@ -658,7 +658,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         return forge.getRootPropertyName();
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         if (this.getChildNodes().length != 0) {
             writer.append(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this.getChildNodes()[0]));
         }
@@ -785,6 +785,10 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             predefined = new SettingsApplicationDotMethodRectangeIntersectsRectangle(this, lhsName, lhs, operationName, rhsName, rhs, indexNamedParameter);
         }
         return new ExprAppDotMethodImpl(predefined);
+    }
+
+    public boolean isLocalInlinedClass() {
+        return forge.isLocalInlinedClass();
     }
 
     private ExprValidationException getAppDocMethodException(String lhsName, String operationName) {

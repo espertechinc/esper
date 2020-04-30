@@ -175,7 +175,7 @@ public class FilterSpecCompilerPlanner {
 
         // Make filter parameter for each expression node, if it can be optimized
         for (ExprNode constituent : constituents) {
-            FilterSpecParamForge param = FilterSpecCompilerIndexPlanner.makeFilterParam(constituent, args.taggedEventTypes, args.arrayEventTypes, args.allTagNamesOrdered, args.statementRawInfo.getStatementName(), args.statementRawInfo, args.compileTimeServices);
+            FilterSpecParamForge param = FilterSpecCompilerIndexPlanner.makeFilterParam(constituent, args.taggedEventTypes, args.arrayEventTypes, args.allTagNamesOrdered, args.statementRawInfo.getStatementName(), args.streamTypeService, args.statementRawInfo, args.compileTimeServices);
             filterParamExprMap.put(constituent, param); // accepts null values as the expression may not be optimized
         }
 
@@ -220,7 +220,7 @@ public class FilterSpecCompilerPlanner {
 
         Class evalType = exprNode.getForge().getEvaluationType();
         DataInputOutputSerdeForge serdeForge = args.compileTimeServices.getSerdeResolver().serdeForFilter(evalType, args.statementRawInfo);
-        ExprFilterSpecLookupableFactoryForgePremade lookupable = new ExprFilterSpecLookupableFactoryForgePremade(PROPERTY_NAME_BOOLEAN_EXPRESSION, null, evalType, false, serdeForge);
+        ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(PROPERTY_NAME_BOOLEAN_EXPRESSION, null, null, evalType, false, serdeForge);
 
         return new FilterSpecParamExprNodeForge(lookupable, FilterOperator.BOOLEAN_EXPRESSION, exprNode, args.taggedEventTypes, args.arrayEventTypes, args.streamTypeService, hasSubselectFilterStream, hasTableAccess, hasVariable, args.compileTimeServices);
     }

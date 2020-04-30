@@ -66,7 +66,7 @@ public class ExprLambdaGoesNode extends ExprNodeBase implements ExprForge, ExprE
         return false;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
     }
 
     public ExprPrecedenceEnum getPrecedence() {

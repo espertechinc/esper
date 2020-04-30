@@ -40,7 +40,7 @@ public abstract class ExprDotNodeAggregationMethodForge extends ExprDotNodeForge
     protected AggregationMultiFunctionMethodDesc methodDesc;
 
     protected abstract CodegenExpression evaluateCodegen(String readerMethodName, Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope);
-    protected abstract void toEPL(StringWriter writer);
+    protected abstract void toEPL(StringWriter writer, ExprNodeRenderableFlags flags);
     protected abstract String getTableName();
     protected abstract String getTableColumnName();
 
@@ -84,7 +84,7 @@ public abstract class ExprDotNodeAggregationMethodForge extends ExprDotNodeForge
     }
 
     public ExprNodeRenderable getForgeRenderable() {
-        return (writer, parentPrecedence) -> toPrecedenceFreeEPL(writer);
+        return (writer, parentPrecedence, flags) -> toPrecedenceFreeEPL(writer, flags);
     }
 
     protected CodegenExpressionField getReader(CodegenClassScope classScope) {
@@ -123,8 +123,8 @@ public abstract class ExprDotNodeAggregationMethodForge extends ExprDotNodeForge
         return evaluateCodegen("getValueEventBean", EventBean.class, parent, symbols, classScope);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
-        toEPL(writer);
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        toEPL(writer, flags);
         writer.append(".").append(aggregationMethodName).append("(");
         ExprNodeUtilityPrint.toExpressionStringParameterList(parameters, writer);
         writer.append(")");

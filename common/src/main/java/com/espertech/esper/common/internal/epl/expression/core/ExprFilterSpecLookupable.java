@@ -16,16 +16,18 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
-public class ExprFilterSpecLookupable implements ExprFilterSpecLookupableFactory {
+public class ExprFilterSpecLookupable {
     private final String expression;
     private transient final ExprEventEvaluator eval;
     private final Class returnType;
     private final boolean isNonPropertyEval;
     private final DataInputOutputSerde<Object> valueSerde;
+    private transient final ExprEvaluator expr;
 
-    public ExprFilterSpecLookupable(String expression, ExprEventEvaluator eval, Class returnType, boolean isNonPropertyEval, DataInputOutputSerde<Object> valueSerde) {
+    public ExprFilterSpecLookupable(String expression, ExprEventEvaluator eval, ExprEvaluator expr, Class returnType, boolean isNonPropertyEval, DataInputOutputSerde<Object> valueSerde) {
         this.expression = expression;
         this.eval = eval;
+        this.expr = expr;
         this.returnType = JavaClassHelper.getBoxedType(returnType); // For type consistency for recovery and serde define as boxed type
         this.isNonPropertyEval = isNonPropertyEval;
         this.valueSerde = valueSerde;
@@ -80,6 +82,10 @@ public class ExprFilterSpecLookupable implements ExprFilterSpecLookupableFactory
         // this lookupable does not depend on matched-events or evaluation-context
         // we allow it to be a factory of itself
         return this;
+    }
+
+    public ExprEvaluator getExpr() {
+        return expr;
     }
 }
 

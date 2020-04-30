@@ -301,14 +301,14 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return forge instanceof ExprDeclaredForgeBase;
     }
 
-    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
+    public ExprFilterSpecLookupableForge getFilterLookupable() {
         if (!(forge instanceof ExprDeclaredForgeBase)) {
             return null;
         }
         ExprDeclaredForgeBase declaredForge = (ExprDeclaredForgeBase) forge;
         ExprForge forge = declaredForge.getInnerForge();
         DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), exprValidationContext.getStatementRawInfo());
-        return new ExprFilterSpecLookupableFactoryForgePremade(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), forge.getEvaluationType(), true, serde);
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), null, forge.getEvaluationType(), true, serde);
     }
 
     public boolean isConstantResult() {
@@ -388,7 +388,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         }
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         ExpressionDeclItem prototype = prototypeWVisibility;
         writer.append(prototype.getName());
 
@@ -400,7 +400,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         String delimiter = "";
         for (ExprNode parameter : chainParameters) {
             writer.append(delimiter);
-            parameter.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            parameter.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
             delimiter = ",";
         }
         writer.append(")");

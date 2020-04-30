@@ -192,5 +192,6 @@ public final class FilterSpecCompiler {
         buf.append("      lookupable: ").append(forge.getLookupable().getExpression()).append(NEWLINE);
         buf.append("      value-expression: ");
         forge.valueExprToString(buf, 8);
+        buf.append(NEWLINE);
     }
 }

@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactoryForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
@@ -31,7 +31,7 @@ public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
     private final EventPropertyGetterSPI getter;
     private final SimpleNumberCoercer numberCoercer;
 
-    public FilterSpecParamContextPropForge(ExprFilterSpecLookupableFactoryForge lookupable, FilterOperator filterOperator, String propertyName, EventPropertyGetterSPI getter, SimpleNumberCoercer numberCoercer) {
+    public FilterSpecParamContextPropForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String propertyName, EventPropertyGetterSPI getter, SimpleNumberCoercer numberCoercer) {
         super(lookupable, filterOperator);
         this.propertyName = propertyName;
         this.getter = getter;

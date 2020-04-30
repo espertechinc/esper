@@ -70,7 +70,7 @@ public class ExprIStreamNode extends ExprNodeBase implements ExprForgeInstrument
         return ExprForgeConstantType.NONCONST;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("istream()");
     }
 

@@ -128,7 +128,7 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         return other.classIdent.equals(this.classIdent) && other.numArrayDimensions == this.numArrayDimensions;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.write("new ");
         writer.write(classIdent);
         if (numArrayDimensions == 0) {
@@ -136,11 +136,11 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         } else {
             if (arrayInitializedByExpr) {
                 writer.write("[] ");
-                this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.UNARY);
+                this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.UNARY, flags);
             } else {
                 for (ExprNode child : this.getChildNodes()) {
                     writer.write("[");
-                    child.toEPL(writer, ExprPrecedenceEnum.UNARY);
+                    child.toEPL(writer, ExprPrecedenceEnum.UNARY, flags);
                     writer.write("]");
                 }
             }

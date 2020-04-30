@@ -27,14 +27,14 @@ import java.util.LinkedHashSet;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerHelper.*;
 
 public class FilterSpecCompilerIndexPlannerRange {
-    public static FilterSpecParamForge handleRangeNode(ExprBetweenNode betweenNode, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, boolean advancedPlanning, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
+    public static FilterSpecParamForge handleRangeNode(ExprBetweenNode betweenNode, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
         ExprNode left = betweenNode.getChildNodes()[0];
-        ExprFilterSpecLookupableFactoryForge lookupable = null;
+        ExprFilterSpecLookupableForge lookupable = null;
 
         if (left instanceof ExprFilterOptimizableNode) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             lookupable = filterOptimizableNode.getFilterLookupable();
-        } else if (advancedPlanning && isLimitedLookupableExpression(left)) {
+        } else if (FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.LKUPCOMPOSITE, raw, services) && isLimitedLookupableExpression(left)) {
             lookupable = makeLimitedLookupableForgeMayNull(left, raw, services);
         }
         if (lookupable == null) {
@@ -43,12 +43,12 @@ public class FilterSpecCompilerIndexPlannerRange {
 
         FilterOperator op = FilterOperator.parseRangeOperator(betweenNode.isLowEndpointIncluded(), betweenNode.isHighEndpointIncluded(), betweenNode.isNotBetween());
 
-        FilterSpecParamFilterForEvalForge low = handleRangeNodeEndpoint(betweenNode.getChildNodes()[1], taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning);
-        FilterSpecParamFilterForEvalForge high = handleRangeNodeEndpoint(betweenNode.getChildNodes()[2], taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, advancedPlanning);
+        FilterSpecParamFilterForEvalForge low = handleRangeNodeEndpoint(betweenNode.getChildNodes()[1], taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, raw, services);
+        FilterSpecParamFilterForEvalForge high = handleRangeNodeEndpoint(betweenNode.getChildNodes()[2], taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, raw, services);
         return low == null || high == null ? null :  new FilterSpecParamRangeForge(lookupable, op, low, high);
     }
 
-    private static FilterSpecParamFilterForEvalForge handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, boolean advancedPlanning) throws ExprValidationException {
+    private static FilterSpecParamFilterForEvalForge handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
         // constant
         if (endpoint.getForge().getForgeConstantType().isCompileTimeConstant()) {
             Object value = endpoint.getForge().getExprEvaluator().evaluate(null, true, null);
@@ -86,7 +86,7 @@ public class FilterSpecCompilerIndexPlannerRange {
         }
 
         // or limited expression
-        if (advancedPlanning && isLimitedValueExpression(endpoint)) {
+        if (FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.VALUECOMPOSITE, raw, services) && isLimitedValueExpression(endpoint)) {
             Class returnType = endpoint.getForge().getEvaluationType();
             MatchedEventConvertorForge convertor = getMatchEventConvertor(endpoint, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
             if (JavaClassHelper.isImplementsCharSequence(returnType)) {

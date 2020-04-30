@@ -94,6 +94,14 @@ public class IndexFactory {
             return new FilterParamIndexNotIn(lookupable, lockFactory.obtainNew());
         }
 
+        // Handle re-usable boolean expression
+        if (filterOperator == FilterOperator.REBOOL) {
+            if (lookupable.getReturnType() == null) {
+                return new FilterParamIndexReboolNoValue(lookupable, lockFactory.obtainNew());
+            }
+            return new FilterParamIndexReboolWithValue(lookupable, lockFactory.obtainNew());
+        }
+
         // Handle all boolean expression
         if (filterOperator == FilterOperator.BOOLEAN_EXPRESSION) {
             return new FilterParamIndexBooleanExpr(lockFactory.obtainNew());

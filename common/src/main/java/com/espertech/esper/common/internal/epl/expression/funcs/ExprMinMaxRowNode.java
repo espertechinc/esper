@@ -83,17 +83,17 @@ public class ExprMinMaxRowNode extends ExprNodeBase {
         return false;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(minMaxTypeEnum.getExpressionText());
         writer.append('(');
 
-        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         writer.append(',');
-        this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
 
         for (int i = 2; i < this.getChildNodes().length; i++) {
             writer.append(',');
-            this.getChildNodes()[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            this.getChildNodes()[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         }
 
         writer.append(')');

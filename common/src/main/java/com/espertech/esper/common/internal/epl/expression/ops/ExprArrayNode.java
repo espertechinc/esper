@@ -147,12 +147,12 @@ public class ExprArrayNode extends ExprNodeBase {
         return null;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         String delimiter = "";
         writer.append("{");
         for (ExprNode expr : this.getChildNodes()) {
             writer.append(delimiter);
-            expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
             delimiter = ",";
         }
         writer.append('}');

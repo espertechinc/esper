@@ -37,6 +37,7 @@ public class FilterSpecParamComparator implements Comparator<FilterOperator>, Se
         FilterOperator.LESS_OR_EQUAL,
         FilterOperator.GREATER_OR_EQUAL,
         FilterOperator.GREATER,
+        FilterOperator.REBOOL,
         FilterOperator.NOT_RANGE_CLOSED,
         FilterOperator.NOT_RANGE_HALF_CLOSED,
         FilterOperator.NOT_RANGE_HALF_OPEN,

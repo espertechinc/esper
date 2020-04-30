@@ -13,5 +13,5 @@ package com.espertech.esper.common.internal.epl.expression.core;
 public interface ExprFilterOptimizableNode {
     boolean getFilterLookupEligible();
 
-    ExprFilterSpecLookupableFactoryForge getFilterLookupable();
+    ExprFilterSpecLookupableForge getFilterLookupable();
 }

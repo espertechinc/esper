@@ -52,7 +52,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
 
     private int filterBoolExprId = -1;
 
-    public FilterSpecParamExprNodeForge(ExprFilterSpecLookupableFactoryForge lookupable,
+    public FilterSpecParamExprNodeForge(ExprFilterSpecLookupableForge lookupable,
                                         FilterOperator filterOperator,
                                         ExprNode exprNode,
                                         LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,

@@ -94,7 +94,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         return true;
     }
 
-    public ExprFilterSpecLookupableFactoryForge getFilterLookupable() {
+    public ExprFilterSpecLookupableForge getFilterLookupable() {
         EventPropertyValueGetterForge eventPropertyForge = new EventPropertyValueGetterForge() {
             public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
                 CodegenMethod method = parent.makeChild(String.class, this.getClass(), classScope).addParam(EventBean.class, "bean");
@@ -104,12 +104,12 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         };
         DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(String.class, exprValidationContext.getStatementRawInfo());
         ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(eventPropertyForge);
-        return new ExprFilterSpecLookupableFactoryForgePremade(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eval, String.class, true, serde);
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eval, null, String.class, true, serde);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append("typeof(");
-        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+        this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM, flags);
         writer.append(')');
     }
 

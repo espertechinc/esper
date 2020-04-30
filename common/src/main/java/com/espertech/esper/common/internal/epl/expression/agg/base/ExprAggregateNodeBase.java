@@ -254,7 +254,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return new ExprValidationException(message);
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(getAggregationFunctionName());
         writer.append('(');
 
@@ -263,13 +263,13 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         }
 
         if (this.getChildNodes().length > 0) {
-            this.getChildNodes()[0].toEPL(writer, getPrecedence());
+            this.getChildNodes()[0].toEPL(writer, getPrecedence(), flags);
 
             String delimiter = ",";
             for (int i = 1; i < this.getChildNodes().length; i++) {
                 writer.write(delimiter);
                 delimiter = ",";
-                this.getChildNodes()[i].toEPL(writer, getPrecedence());
+                this.getChildNodes()[i].toEPL(writer, getPrecedence(), flags);
             }
         } else {
             if (isExprTextWildcardWhenNoParams()) {

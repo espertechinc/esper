@@ -36,7 +36,7 @@ public class ExprTableResetRowAggNode extends ExprNodeBase implements ExprForgeI
         this.streamNum = streamNum;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.append(tableMetadata.getTableName()).append(".reset()");
     }
 

@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.filterspec;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
-import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableFactory;
 import com.espertech.esper.common.internal.type.XYPoint;
 
 public final class FilterSpecParamAdvancedIndexQuadTreePointRegion extends FilterSpecParam {
@@ -21,8 +20,8 @@ public final class FilterSpecParamAdvancedIndexQuadTreePointRegion extends Filte
     private FilterSpecParamFilterForEvalDouble xEval;
     private FilterSpecParamFilterForEvalDouble yEval;
 
-    public FilterSpecParamAdvancedIndexQuadTreePointRegion(ExprFilterSpecLookupableFactory lookupableFactory, FilterOperator filterOperator) {
-        super(lookupableFactory, filterOperator);
+    public FilterSpecParamAdvancedIndexQuadTreePointRegion(ExprFilterSpecLookupable lookupable, FilterOperator filterOperator) {
+        super(lookupable, filterOperator);
     }
 
 
@@ -30,7 +29,7 @@ public final class FilterSpecParamAdvancedIndexQuadTreePointRegion extends Filte
         Double x = xEval.getFilterValueDouble(matchedEvents, exprEvaluatorContext, filterEvalEnv);
         Double y = yEval.getFilterValueDouble(matchedEvents, exprEvaluatorContext, filterEvalEnv);
         XYPoint point = new XYPoint(x, y);
-        ExprFilterSpecLookupable lookupable = lookupableFactory.make(matchedEvents, exprEvaluatorContext);
+        ExprFilterSpecLookupable lookupable = this.lkupable.make(matchedEvents, exprEvaluatorContext);
         return new FilterValueSetParamImpl(lookupable, filterOperator, point);
     }
 

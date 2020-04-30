@@ -45,7 +45,7 @@ public class ExprGroupingNode extends ExprNodeBase implements ExprForge, ExprEva
         return this;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer) {
+    public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         ExprNodeUtilityPrint.toExpressionStringWFunctionName("grouping", this.getChildNodes(), writer);
     }
 

@@ -47,8 +47,8 @@ public class ExprDotNodeAggregationMethodForgeTableIdent extends ExprDotNodeAggr
         return localMethod(method);
     }
 
-    protected void toEPL(StringWriter writer) {
-        identNode.toPrecedenceFreeEPL(writer);
+    protected void toEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
+        identNode.toPrecedenceFreeEPL(writer, flags);
     }
 
     protected String getTableName() {
@@ -57,5 +57,9 @@ public class ExprDotNodeAggregationMethodForgeTableIdent extends ExprDotNodeAggr
 
     protected String getTableColumnName() {
         return column.getColumnName();
+    }
+
+    public boolean isLocalInlinedClass() {
+        return false;
     }
 }
