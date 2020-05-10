@@ -164,8 +164,8 @@ public class PatternExpressionText implements RegressionExecution {
         tryAssertion(env, "every b=SupportBean_B -> (every d=SupportBean_D) where timer:withinmax(1 days,3)", null);
         tryAssertion(env, "a=SupportBean_A -> (every b=SupportBean_B) while (b.id!=\"B3\")", null);
         tryAssertion(env, "(every b=SupportBean_B) while (b.id!=\"B1\")", null);
-        tryAssertion(env, "every-distinct(a.intPrimitive,1) a=SupportBean(theString like \"A%\")", null);
-        tryAssertion(env, "every-distinct(a.intPrimitive,1 seconds) a=SupportBean(theString like \"A%\")", null);
+        tryAssertion(env, "every-distinct(a.intPrimitive,1) a=SupportBean(theString like \"A%\")", "every-distinct(a.intPrimitive,1) a=SupportBean(theString like ?)");
+        tryAssertion(env, "every-distinct(a.intPrimitive,1 seconds) a=SupportBean(theString like \"A%\")", "every-distinct(a.intPrimitive,1 seconds) a=SupportBean(theString like ?)");
         tryAssertion(env, "every-distinct(intPrimitive) a=SupportBean", null);
         tryAssertion(env, "[2] every-distinct(a.intPrimitive) a=SupportBean", null);
         tryAssertion(env, "every-distinct(a[0].intPrimitive) ([2] a=SupportBean)", null);
@@ -173,12 +173,12 @@ public class PatternExpressionText implements RegressionExecution {
         tryAssertion(env, "(every-distinct(a.intPrimitive) a=SupportBean) where timer:within(10 seconds)", null);
         tryAssertion(env, "every-distinct(a.intPrimitive) a=SupportBean where timer:within(10)", null);
         tryAssertion(env, "every-distinct(a.intPrimitive,1 hours) a=SupportBean where timer:within(10)", null);
-        tryAssertion(env, "every-distinct(a.intPrimitive,b.intPrimitive) (a=SupportBean(theString like \"A%\") and b=SupportBean(theString like \"B%\"))", null);
+        tryAssertion(env, "every-distinct(a.intPrimitive,b.intPrimitive) (a=SupportBean(theString like \"A%\") and b=SupportBean(theString like \"B%\"))", "every-distinct(a.intPrimitive,b.intPrimitive) (a=SupportBean(theString like ?) and b=SupportBean(theString like ?))");
         tryAssertion(env, "every-distinct(a.intPrimitive) (a=SupportBean and not SupportBean)", null);
         tryAssertion(env, "every-distinct(a.intPrimitive,1 hours) (a=SupportBean and not SupportBean)", null);
         tryAssertion(env, "every-distinct(a.intPrimitive+b.intPrimitive,1 hours) (a=SupportBean -> b=SupportBean)", null);
         tryAssertion(env, "every-distinct(a.intPrimitive) a=SupportBean -> b=SupportBean(intPrimitive=a.intPrimitive)", null);
-        tryAssertion(env, "every-distinct(a.intPrimitive) a=SupportBean -> every-distinct(b.intPrimitive) b=SupportBean(theString like \"B%\")", null);
+        tryAssertion(env, "every-distinct(a.intPrimitive) a=SupportBean -> every-distinct(b.intPrimitive) b=SupportBean(theString like \"B%\")", "every-distinct(a.intPrimitive) a=SupportBean -> every-distinct(b.intPrimitive) b=SupportBean(theString like ?)");
 
         SupportPatternCompileHook.reset();
     }

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.compile.stage2;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.filter.ExprFilterReboolValueNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentifierAndStreamRefVisitor;
@@ -91,7 +92,7 @@ public class FilterSpecCompilerIndexPlannerBooleanLimited {
                 break;
             }
         }
-        return hasStreamRefZero;
+        return hasStreamRefZero && !streamRefVisitor.isHasWildcardOrStreamAlias();
     }
 
     private static RewriteDescriptor findRewrite(ExprNode parent) {
@@ -129,23 +130,36 @@ public class FilterSpecCompilerIndexPlannerBooleanLimited {
 
     private static void findValueExpressionsDeepRecursive(ExprNode parent, AtomicReference<List<ExprNodeWithParentPair>> pairsRef) {
         for (ExprNode child : parent.getChildNodes()) {
-            FilterSpecExprNodeVisitorValueLimitedExpr valueVisitor = new FilterSpecExprNodeVisitorValueLimitedExpr();
-            child.accept(valueVisitor);
-
-            // not by itself a value expression, but itself it may decompose into some value expressions
-            if (!valueVisitor.isLimited()) {
-                findValueExpressionsDeepRecursive(child, pairsRef);
-                continue;
-            }
-
-            // add value expression, don't traverse child
-            List<ExprNodeWithParentPair> pairs = pairsRef.get();
-            if (pairs == null) {
-                pairs = new ArrayList<>(2);
-                pairsRef.set(pairs);
-            }
-            pairs.add(new ExprNodeWithParentPair(child, parent));
+            findValueExpr(child, parent, pairsRef);
         }
+
+        if (parent instanceof ExprNodeWithChainSpec) {
+            ExprNodeWithChainSpec chainableNode = (ExprNodeWithChainSpec) parent;
+            for (Chainable chainable : chainableNode.getChainSpec()) {
+                for (ExprNode param : chainable.getParametersOrEmpty()) {
+                    findValueExpr(param, parent, pairsRef);
+                }
+            }
+        }
+    }
+
+    private static void findValueExpr(ExprNode child, ExprNode parent, AtomicReference<List<ExprNodeWithParentPair>> pairsRef) {
+        FilterSpecExprNodeVisitorValueLimitedExpr valueVisitor = new FilterSpecExprNodeVisitorValueLimitedExpr();
+        child.accept(valueVisitor);
+
+        // not by itself a value expression, but itself it may decompose into some value expressions
+        if (!valueVisitor.isLimited()) {
+            findValueExpressionsDeepRecursive(child, pairsRef);
+            return;
+        }
+
+        // add value expression, don't traverse child
+        List<ExprNodeWithParentPair> pairs = pairsRef.get();
+        if (pairs == null) {
+            pairs = new ArrayList<>(2);
+            pairsRef.set(pairs);
+        }
+        pairs.add(new ExprNodeWithParentPair(child, parent));
     }
 
     private abstract static class RewriteDescriptor {

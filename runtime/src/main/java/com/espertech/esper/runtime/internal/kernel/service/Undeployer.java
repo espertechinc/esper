@@ -35,6 +35,8 @@ import com.espertech.esper.runtime.client.EPUndeployPreconditionException;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 import com.espertech.esper.runtime.internal.metrics.instrumentation.Instrumentation;
 import com.espertech.esper.runtime.internal.metrics.instrumentation.InstrumentationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Locale;
@@ -42,6 +44,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class Undeployer {
+
+    private static final Logger log = LoggerFactory.getLogger(Undeployer.class);
 
     public static void checkModulePreconditions(String deploymentId, String moduleName, DeploymentInternal deployment, EPServicesContext services) throws EPUndeployPreconditionException {
         for (String namedWindow : deployment.getPathNamedWindows()) {
@@ -109,10 +113,23 @@ public class Undeployer {
                 it.next().statementDestroyed(statement);
             }
 
-            if (statement.getDestroyCallback() != null) {
-                statement.getDestroyCallback().destroy(new StatementDestroyServices(services.getFilterService()), statement);
-            } else {
-                statement.getStatementAIFactoryProvider().getFactory().statementDestroy(statement);
+            try {
+                if (statement.getDestroyCallback() != null) {
+                    statement.getDestroyCallback().destroy(new StatementDestroyServices(services.getFilterService()), statement);
+                } else {
+                    statement.getStatementAIFactoryProvider().getFactory().statementDestroy(statement);
+                }
+            } catch (Throwable t) {
+                log.error("Exception encountered during stop: " + t.getMessage(), t);
+            }
+
+            if (statement.getContextRuntimeDescriptor() != null) {
+                try {
+                    services.getContextManagementService().stoppedStatement(statement.getContextRuntimeDescriptor().getContextDeploymentId(), statement.getContextName(),
+                        statement.getStatementId(), statement.getStatementName(), statement.getDeploymentId());
+                } catch (Throwable t) {
+                    log.error("Exception encountered during stop: " + t.getMessage(), t);
+                }
             }
 
             services.getEpServicesHA().getListenerRecoveryService().remove(statement.getStatementId());

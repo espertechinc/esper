@@ -18,21 +18,21 @@ import java.util.*;
 
 public class FilterTestMultiStmtRunner {
 
-    public static List<? extends RegressionExecution> computePermutations(Class originator, PermutationSpec permutationSpec, List<FilterTestMultiStmtPermutable> cases) {
+    public static List<? extends RegressionExecution> computePermutations(Class originator, PermutationSpec permutationSpec, List<FilterTestMultiStmtPermutable> cases, boolean withStats) {
 
         // For each permutable test
         List<FilterTestMultiStmtExecution> executions = new ArrayList<>();
         for (FilterTestMultiStmtPermutable permutableCase : cases) {
-            List<FilterTestMultiStmtExecution> execs = computePermutationsCase(originator, permutationSpec, permutableCase);
+            List<FilterTestMultiStmtExecution> execs = computePermutationsCase(originator, permutationSpec, permutableCase, withStats);
             executions.addAll(execs);
         }
         return executions;
     }
 
-    private static List<FilterTestMultiStmtExecution> computePermutationsCase(Class originator, PermutationSpec permutationSpec, FilterTestMultiStmtPermutable permutableCase) {
+    private static List<FilterTestMultiStmtExecution> computePermutationsCase(Class originator, PermutationSpec permutationSpec, FilterTestMultiStmtPermutable permutableCase, boolean withStats) {
 
         if (!permutationSpec.isAll()) {
-            return Collections.singletonList(caseOf(originator, permutationSpec.getSpecific(), permutableCase));
+            return Collections.singletonList(caseOf(originator, permutationSpec.getSpecific(), permutableCase, withStats));
         } else {
             // determine that filters is different
             Set<String> filtersUnique = new HashSet<String>(Arrays.asList(permutableCase.getFilters()));
@@ -44,15 +44,15 @@ public class FilterTestMultiStmtRunner {
             PermutationEnumeration permutationEnumeration = new PermutationEnumeration(permutableCase.getFilters().length);
             while (permutationEnumeration.hasMoreElements()) {
                 int[] permutation = permutationEnumeration.nextElement();
-                executions.add(caseOf(originator, permutation, permutableCase));
+                executions.add(caseOf(originator, permutation, permutableCase, withStats));
             }
             return executions;
         }
     }
 
-    private static FilterTestMultiStmtExecution caseOf(Class originator, int[] permutation, FilterTestMultiStmtPermutable permutableCase) {
+    private static FilterTestMultiStmtExecution caseOf(Class originator, int[] permutation, FilterTestMultiStmtPermutable permutableCase, boolean withStats) {
         FilterTestMultiStmtCase theCase = computePermutation(permutableCase, permutation);
-        return new FilterTestMultiStmtExecution(originator, theCase);
+        return new FilterTestMultiStmtExecution(originator, theCase, withStats);
     }
 
     private static FilterTestMultiStmtCase computePermutation(FilterTestMultiStmtPermutable permutableCase, int[] permutation) {

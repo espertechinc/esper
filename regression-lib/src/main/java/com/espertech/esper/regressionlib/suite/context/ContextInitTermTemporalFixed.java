@@ -28,7 +28,7 @@ import com.espertech.esper.regressionlib.support.context.AgentInstanceAssertionU
 import com.espertech.esper.regressionlib.support.context.SupportContextMgmtHelper;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorFilteredInitTerm;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import junit.framework.TestCase;
@@ -693,11 +693,11 @@ public class ContextInitTermTemporalFixed {
 
             env.compileDeploy("@name('s0') context NineToFive select theString, (select p00 from SupportBean_S0#lastevent) as col from SupportBean", path);
             env.addListener("s0");
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));   // from the context
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));   // from the context
 
             // now started
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));   // from the context
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));   // from the context
 
             env.milestone(0);
 
@@ -715,7 +715,7 @@ public class ContextInitTermTemporalFixed {
 
             // now gone
             sendTimeEvent(env, "2002-05-1T17:00:00.000");
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));   // from the context
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));   // from the context
 
             env.milestone(3);
 
@@ -726,7 +726,7 @@ public class ContextInitTermTemporalFixed {
 
             // now started
             sendTimeEvent(env, "2002-05-2T09:00:00.000");
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));   // from the context
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));   // from the context
             TestCase.assertFalse(env.listener("s0").isInvoked());
 
             env.sendEventBean(new SupportBean("E3", 3));
@@ -744,7 +744,7 @@ public class ContextInitTermTemporalFixed {
 
             // now gone
             sendTimeEvent(env, "2002-05-2T17:00:00.000");
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));   // from the context
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));   // from the context
 
             env.milestone(7);
 

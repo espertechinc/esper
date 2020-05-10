@@ -232,6 +232,10 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
         out.append("expression '").append(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(exprNode)).append("'");
     }
 
+    public static String valueExprToString(String expression) {
+        return "expression '" + expression + "'";
+    }
+
     private EventType findMayNull(String tag, LinkedHashMap<String, Pair<EventType, String>> tags) {
         if (tags == null || !tags.containsKey(tag)) {
             return null;

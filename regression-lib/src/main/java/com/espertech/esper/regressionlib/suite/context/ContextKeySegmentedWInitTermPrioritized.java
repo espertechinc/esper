@@ -26,13 +26,13 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.assertFilterCount;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.assertFilterSvcCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -118,7 +118,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean("A", 11));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 11 + 12});
 
-            assertFilterCount(env, 1, "ctx");
+            assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
         }
     }
@@ -159,7 +159,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendBean(env, "A", 100, 8, false);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 1 + 4 + 6L});
 
-            assertFilterCount(env, 1, "ctx");
+            assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
         }
 
@@ -205,7 +205,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean_S1(2, "B"));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, 2, "B", 12});
 
-            assertFilterCount(env, 2, "ctx");
+            assertFilterSvcCount(env, 2, "ctx");
             env.undeployAll();
         }
     }
@@ -292,12 +292,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendS2(env, "z", "C");
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C", 0L});
 
-            assertFilterCount(env, 2, "ctx");
+            assertFilterSvcCount(env, 2, "ctx");
             env.undeployModuleContaining("s0");
 
             env.milestone(2);
 
-            assertFilterCount(env, 0, "ctx");
+            assertFilterSvcCount(env, 0, "ctx");
             env.undeployAll();
         }
     }
@@ -426,9 +426,9 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean("A", 1000));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 40});
 
-            assertFilterCount(env, 1, "ctx");
+            assertFilterSvcCount(env, 1, "ctx");
             env.undeployModuleContaining("s0");
-            assertFilterCount(env, 0, "ctx");
+            assertFilterSvcCount(env, 0, "ctx");
             env.undeployAll();
         }
     }
@@ -472,7 +472,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean_S2(0, "A"));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 3L});
 
-            assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             env.undeployAll();
         }
     }
@@ -515,7 +515,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendBean(env, "B", 1, 0, false);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 1, 31L});
 
-            assertFilterCount(env, 1, "ctx");
+            assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
         }
     }
@@ -553,7 +553,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 1L}});
 
             env.undeployModuleContaining("s0");
-            assertFilterCount(env, 0, "ctx");
+            assertFilterSvcCount(env, 0, "ctx");
             env.undeployAll();
         }
     }
@@ -586,7 +586,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.sendEventBean(new SupportBean("A", 0));
             env.undeployModuleContaining("s0");
-            assertFilterCount(env, 0, "ctx");
+            assertFilterSvcCount(env, 0, "ctx");
             env.undeployAll();
         }
     }

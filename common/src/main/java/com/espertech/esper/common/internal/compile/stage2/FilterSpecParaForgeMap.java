@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 
 import java.util.*;
 
@@ -20,8 +19,8 @@ import java.util.*;
  * back. For use in optimizing filter expressions.
  */
 public class FilterSpecParaForgeMap {
-    private Map<ExprNode, FilterSpecParamForge> exprNodes;
-    private Map<FilterSpecParamForge, ExprNode> specParams;
+    private Map<ExprNode, FilterSpecPlanPathTripletForge> exprNodes;
+    private Map<FilterSpecPlanPathTripletForge, ExprNode> specParams;
 
     /**
      * Ctor.
@@ -37,7 +36,7 @@ public class FilterSpecParaForgeMap {
      * @param exprNode is the node to add
      * @param param    is null if the expression node has not optimized form
      */
-    public void put(ExprNode exprNode, FilterSpecParamForge param) {
+    public void put(ExprNode exprNode, FilterSpecPlanPathTripletForge param) {
         exprNodes.put(exprNode, param);
         if (param != null) {
             specParams.put(param, exprNode);
@@ -51,7 +50,7 @@ public class FilterSpecParaForgeMap {
      */
     public List<ExprNode> getUnassignedExpressions() {
         List<ExprNode> unassigned = new ArrayList<ExprNode>();
-        for (Map.Entry<ExprNode, FilterSpecParamForge> entry : exprNodes.entrySet()) {
+        for (Map.Entry<ExprNode, FilterSpecPlanPathTripletForge> entry : exprNodes.entrySet()) {
             if (entry.getValue() == null) {
                 unassigned.add(entry.getKey());
             }
@@ -61,7 +60,7 @@ public class FilterSpecParaForgeMap {
 
     public int countUnassignedExpressions() {
         int count = 0;
-        for (Map.Entry<ExprNode, FilterSpecParamForge> entry : exprNodes.entrySet()) {
+        for (Map.Entry<ExprNode, FilterSpecPlanPathTripletForge> entry : exprNodes.entrySet()) {
             if (entry.getValue() == null) {
                 count++;
             }
@@ -74,12 +73,12 @@ public class FilterSpecParaForgeMap {
      *
      * @return filter parameters
      */
-    public Collection<FilterSpecParamForge> getFilterParams() {
+    public Collection<FilterSpecPlanPathTripletForge> getTriplets() {
         return specParams.keySet();
     }
 
     public void removeNode(ExprNode node) {
-        FilterSpecParamForge param = exprNodes.remove(node);
+        FilterSpecPlanPathTripletForge param = exprNodes.remove(node);
         if (param != null) {
             specParams.remove(param);
         }
@@ -91,7 +90,7 @@ public class FilterSpecParaForgeMap {
      * @param param is the parameter to remove
      * @return expression node removed
      */
-    public ExprNode removeEntry(FilterSpecParamForge param) {
+    public ExprNode removeEntry(FilterSpecPlanPathTripletForge param) {
         ExprNode exprNode = specParams.get(param);
         if (exprNode == null) {
             throw new IllegalStateException("Not found in collection param: " + param);
@@ -108,7 +107,7 @@ public class FilterSpecParaForgeMap {
      *
      * @param param filter parameter to remove
      */
-    public void removeValue(FilterSpecParamForge param) {
+    public void removeValue(FilterSpecPlanPathTripletForge param) {
         ExprNode exprNode = specParams.get(param);
         if (exprNode == null) {
             throw new IllegalStateException("Not found in collection param: " + param);

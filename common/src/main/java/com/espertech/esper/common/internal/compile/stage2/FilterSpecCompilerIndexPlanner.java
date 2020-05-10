@@ -10,92 +10,113 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
-import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.client.annotation.Hint;
+import com.espertech.esper.common.client.annotation.HintEnum;
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerExecution;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
-import com.espertech.esper.common.internal.epl.expression.ops.*;
-import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
-import com.espertech.esper.common.internal.filterspec.FilterSpecCompilerAdvIndexDescProvider;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerAdvancedIndex.handleAdvancedIndexDescProvider;
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerBooleanLimited.handleBooleanLimited;
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerEquals.handleEqualsAndRelOp;
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerInSetOfValues.handleInSetNode;
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerOrToInRewrite.rewriteOrToInIfApplicable;
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerPlugInSingleRow.handlePlugInSingleRow;
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerRange.handleRangeNode;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerHelper.*;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerWidthBasic.planRemainingNodesBasic;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerWidthWithConditions.planRemainingNodesWithConditions;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanForge.makePlanFromTriplets;
 
-/**
- * Helper to compile (validate and optimize) filter expressions as used in pattern and filter-based streams.
- */
 public class FilterSpecCompilerIndexPlanner {
     /**
-     * For a given expression determine if this is optimizable and create the filter parameter
-     * representing the expression, or null if not optimizable.
-     *
-     * @param constituent      is the expression to look at
-     * @param taggedEventTypes event types that provide non-array values
-     * @param arrayEventTypes  event types that provide array values
-     * @param statementName    statement name
-     * @param streamTypeService
-     * @return filter parameter representing the expression, or null
-     * @throws ExprValidationException if the expression is invalid
+     * Assigned for filter parameters that are based on boolean expression and not on
+     * any particular property name.
+     * <p>
+     * Keeping this artificial property name is a simplification as optimized filter parameters
+     * generally keep a property name.
      */
-    protected static FilterSpecParamForge makeFilterParam(ExprNode constituent,
-                                                          LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
-                                                          LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                                                          LinkedHashSet<String> allTagNamesOrdered,
-                                                          String statementName,
-                                                          StreamTypeService streamTypeService, StatementRawInfo raw,
-                                                          StatementCompileTimeServices services)
+    public final static String PROPERTY_NAME_BOOLEAN_EXPRESSION = ".boolean_expression";
+
+    public static FilterSpecPlanForge planFilterParameters(List<ExprNode> validatedNodes, FilterSpecCompilerArgs args) throws ExprValidationException {
+        FilterSpecPlanForge plan = planFilterParametersInternal(validatedNodes, args);
+        promoteControlConfirmSinglePathSingleTriplet(plan);
+        return plan;
+    }
+
+    private static FilterSpecPlanForge planFilterParametersInternal(List<ExprNode> validatedNodes, FilterSpecCompilerArgs args)
         throws ExprValidationException {
 
-        // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
-        if ((constituent instanceof ExprEqualsNode) || (constituent instanceof ExprRelationalOpNode)) {
-            FilterSpecParamForge param = handleEqualsAndRelOp(constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, raw, services);
-            if (param != null) {
-                return param;
+        if (validatedNodes.isEmpty()) {
+            return FilterSpecPlanForge.EMPTY;
+        }
+        if (args.compileTimeServices.getConfiguration().getCompiler().getExecution().getFilterIndexPlanning() == ConfigurationCompilerExecution.FilterIndexPlanning.NONE) {
+            decomposeCheckAggregation(validatedNodes);
+            return buildNoPlan(validatedNodes, args);
+        }
+
+        boolean performConditionPlanning = hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.CONDITIONS, args.statementRawInfo, args.compileTimeServices);
+        FilterSpecParaForgeMap filterParamExprMap = new FilterSpecParaForgeMap();
+
+        // Make filter parameter for each expression node, if it can be optimized.
+        // Optionally receive a top-level control condition that negates
+        ExprNode topLevelNegation = decomposePopulateConsolidate(filterParamExprMap, performConditionPlanning, validatedNodes, args);
+
+        // Use all filter parameter and unassigned expressions
+        int countUnassigned = filterParamExprMap.countUnassignedExpressions();
+
+        // we are done if there are no remaining nodes
+        if (countUnassigned == 0) {
+            return makePlanFromTriplets(filterParamExprMap.getTriplets(), topLevelNegation, args);
+        }
+
+        // determine max-width
+        int filterServiceMaxFilterWidth = args.compileTimeServices.getConfiguration().getCompiler().getExecution().getFilterServiceMaxFilterWidth();
+        Hint hint = HintEnum.MAX_FILTER_WIDTH.getHint(args.statementRawInfo.getAnnotations());
+        if (hint != null) {
+            String hintValue = HintEnum.MAX_FILTER_WIDTH.getHintAssignedValue(hint);
+            filterServiceMaxFilterWidth = Integer.parseInt(hintValue);
+        }
+
+        FilterSpecPlanForge plan = null;
+        if (filterServiceMaxFilterWidth > 0) {
+            if (performConditionPlanning) {
+                plan = planRemainingNodesWithConditions(filterParamExprMap, args, filterServiceMaxFilterWidth, topLevelNegation);
+            } else {
+                plan = planRemainingNodesBasic(filterParamExprMap, args, filterServiceMaxFilterWidth);
             }
         }
 
-        constituent = rewriteOrToInIfApplicable(constituent);
-
-        // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
-        if (constituent instanceof ExprInNode) {
-            FilterSpecParamForge param = handleInSetNode((ExprInNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, raw, services);
-            if (param != null) {
-                return param;
-            }
+        if (plan != null) {
+            return plan;
         }
 
-        if (constituent instanceof ExprBetweenNode) {
-            FilterSpecParamForge param = handleRangeNode((ExprBetweenNode) constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, raw, services);
-            if (param != null) {
-                return param;
-            }
-        }
+        // handle no-plan
+        List<FilterSpecPlanPathTripletForge> triplets = new ArrayList<>(filterParamExprMap.getTriplets());
+        List<ExprNode> unassignedExpressions = filterParamExprMap.getUnassignedExpressions();
+        FilterSpecPlanPathTripletForge triplet = makeRemainingNode(unassignedExpressions, args);
+        triplets.add(triplet);
+        return makePlanFromTriplets(triplets, topLevelNegation, args);
+    }
 
-        if (constituent instanceof ExprPlugInSingleRowNode) {
-            FilterSpecParamForge param = handlePlugInSingleRow((ExprPlugInSingleRowNode) constituent);
-            if (param != null) {
-                return param;
-            }
-        }
+    private static FilterSpecPlanForge buildNoPlan(List<ExprNode> validatedNodes, FilterSpecCompilerArgs args)
+        throws ExprValidationException {
+        FilterSpecPlanPathTripletForge triplet = makeRemainingNode(validatedNodes, args);
+        FilterSpecPlanPathTripletForge[] triplets = new FilterSpecPlanPathTripletForge[]{triplet};
+        FilterSpecPlanPathForge path = new FilterSpecPlanPathForge(triplets, null);
+        FilterSpecPlanPathForge[] paths = new FilterSpecPlanPathForge[]{path};
+        return new FilterSpecPlanForge(paths, null, null, null);
+    }
 
-        if (constituent instanceof FilterSpecCompilerAdvIndexDescProvider) {
-            FilterSpecParamForge param = handleAdvancedIndexDescProvider((FilterSpecCompilerAdvIndexDescProvider) constituent, arrayEventTypes, statementName);
-            if (param != null) {
-                return param;
-            }
+    private static void promoteControlConfirmSinglePathSingleTriplet(FilterSpecPlanForge plan) {
+        if (plan.getPaths().length != 1) {
+            return;
         }
-
-        return handleBooleanLimited(constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, raw, services);
+        FilterSpecPlanPathForge path = plan.getPaths()[0];
+        if (path.getTriplets().length != 1) {
+            return;
+        }
+        ExprNode controlConfirm = path.getTriplets()[0].getTripletConfirm();
+        if (controlConfirm == null) {
+            return;
+        }
+        plan.setFilterConfirm(controlConfirm);
+        path.getTriplets()[0].setTripletConfirm(null);
     }
 }

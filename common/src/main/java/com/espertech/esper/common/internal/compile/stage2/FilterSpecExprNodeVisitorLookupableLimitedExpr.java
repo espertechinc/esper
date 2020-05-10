@@ -12,10 +12,7 @@ package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprLambdaGoesNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprContextPropertyNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprStreamRefNode;
+import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
@@ -48,6 +45,12 @@ public class FilterSpecExprNodeVisitorLookupableLimitedExpr implements ExprNodeV
                 if (identNode.getExprEvaluatorIdent().isContextEvaluated()) {
                     limited = false;
                 }
+            }
+        }
+        // we don't process enumeration methods
+        if (exprNode instanceof ExprNodeWithChainSpec) {
+            if (!((ExprNodeWithChainSpec) exprNode).getChainSpec().isEmpty()) {
+                limited = false;
             }
         }
 

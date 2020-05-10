@@ -30,17 +30,17 @@ import java.util.*;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertTrue;
 import static org.junit.Assert.*;
 
-public class SupportFilterHelper {
+public class SupportFilterServiceHelper {
 
-    public static void assertFilterCount(RegressionEnvironment env, int count, String stmtName) {
+    public static void assertFilterSvcCount(RegressionEnvironment env, int count, String stmtName) {
         EPStatement statement = env.statement(stmtName);
         if (statement == null) {
             fail("Statement not found '" + stmtName + "'");
         }
-        assertEquals(count, SupportFilterHelper.getFilterCountAnyType(statement));
+        assertEquals(count, SupportFilterServiceHelper.getFilterSvcCountAnyType(statement));
     }
 
-    public static String getFilterToString(RegressionEnvironment env, String statementName) {
+    public static String getFilterSvcToString(RegressionEnvironment env, String statementName) {
         EPStatementSPI statementSPI = (EPStatementSPI) env.statement(statementName);
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
         Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = filterServiceSPI.get(Collections.singleton(statementSPI.getStatementId()));
@@ -69,7 +69,7 @@ public class SupportFilterHelper {
         return sorted.toString();
     }
 
-    public static int getFilterCount(EPStatement statement, String eventTypeName) {
+    public static int getFilterSvcCount(EPStatement statement, String eventTypeName) {
         EPStatementSPI statementSPI = (EPStatementSPI) statement;
         EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(statementSPI.getStatementContext(), eventTypeName);
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
@@ -83,7 +83,7 @@ public class SupportFilterHelper {
         return 0;
     }
 
-    public static int getFilterCountAnyType(EPStatement statement) {
+    public static int getFilterSvcCountAnyType(EPStatement statement) {
         EPStatementSPI statementSPI = (EPStatementSPI) statement;
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
         Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = filterServiceSPI.get(Collections.singleton(statementSPI.getStatementId()));
@@ -97,9 +97,9 @@ public class SupportFilterHelper {
         return total;
     }
 
-    public static void assertFilterTwo(EPStatement statement, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
+    public static void assertFilterSvcTwo(EPStatement statement, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
         EPStatementSPI statementSPI = (EPStatementSPI) statement;
-        FilterItem[] multi = getFilterMulti(statementSPI);
+        FilterItem[] multi = getFilterSvcMultiAssertNonEmpty(statementSPI);
         assertEquals(2, multi.length);
         assertEquals(opOne, multi[0].getOp());
         assertEquals(expressionOne, multi[0].getName());
@@ -107,20 +107,20 @@ public class SupportFilterHelper {
         assertEquals(expressionTwo, multi[1].getName());
     }
 
-    public static FilterItem getFilterSingle(EPStatement statement) {
-        FilterItem[] params = getFilterMulti((EPStatementSPI) statement);
+    public static FilterItem getFilterSvcSingle(EPStatement statement) {
+        FilterItem[] params = getFilterSvcMultiAssertNonEmpty((EPStatementSPI) statement);
         assertEquals(1, params.length);
         return params[0];
     }
 
-    public static void assertFilterSingle(EPStatement stmt, String epl, String expression, FilterOperator op) {
+    public static void assertFilterSvcSingle(EPStatement stmt, String expression, FilterOperator op) {
         EPStatementSPI statementSPI = (EPStatementSPI) stmt;
-        FilterItem param = getFilterSingle(statementSPI);
-        assertEquals("failed for '" + epl + "'", op, param.getOp());
+        FilterItem param = getFilterSvcSingle(statementSPI);
+        assertEquals(op, param.getOp());
         assertEquals(expression, param.getName());
     }
 
-    public static FilterItem[] getFilterMulti(EPStatement statementSPI) {
+    public static FilterItem[] getFilterSvcMultiAssertNonEmpty(EPStatement statementSPI) {
         StatementContext ctx = ((EPStatementSPI) statementSPI).getStatementContext();
         int statementId = ctx.getStatementId();
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) ctx.getFilterService();
@@ -134,31 +134,29 @@ public class SupportFilterHelper {
         return paths.iterator().next();
     }
 
-    public static void assertFilterByTypeSingle(EPStatement statement, String eventTypeName, FilterItem expected) {
-        FilterItem[][] filtersAll = getFilterMulti(statement, eventTypeName);
+    public static void assertFilterSvcByTypeSingle(EPStatement statement, String eventTypeName, FilterItem expected) {
+        FilterItem[][] filtersAll = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
         assertEquals(1, filtersAll.length);
         FilterItem[] filters = filtersAll[0];
         assertEquals(1, filters.length);
         assertEquals(expected, filters[0]);
     }
 
-    public static void assertFilterByTypeMulti(EPStatement statement, String eventTypeName, FilterItem[][] expected) {
-        Comparator<FilterItem> comparator = new Comparator<FilterItem>() {
-            public int compare(FilterItem o1, FilterItem o2) {
-                if (o1.getName().equals(o2.getName())) {
-                    if (o1.getOp().ordinal() > o1.getOp().ordinal()) {
-                        return 1;
-                    }
-                    if (o1.getOp().ordinal() < o1.getOp().ordinal()) {
-                        return -1;
-                    }
-                    return 0;
+    public static void assertFilterSvcByTypeMulti(EPStatement statement, String eventTypeName, FilterItem[][] expected) {
+        Comparator<FilterItem> comparator = (o1, o2) -> {
+            if (o1.getName().equals(o2.getName())) {
+                if (o1.getOp().ordinal() > o1.getOp().ordinal()) {
+                    return 1;
                 }
-                return o1.getName().compareTo(o2.getName());
+                if (o1.getOp().ordinal() < o1.getOp().ordinal()) {
+                    return -1;
+                }
+                return 0;
             }
+            return o1.getName().compareTo(o2.getName());
         };
 
-        FilterItem[][] found = getFilterMulti(statement, eventTypeName);
+        FilterItem[][] found = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
 
         for (int i = 0; i < found.length; i++) {
             Arrays.sort(found[i], comparator);
@@ -171,12 +169,12 @@ public class SupportFilterHelper {
         EPAssertionUtil.assertEqualsAnyOrder(expected, found);
     }
 
-    public static int getFilterCountApprox(RegressionEnvironment env) {
+    public static int getFilterSvcCountApprox(RegressionEnvironment env) {
         FilterServiceSPI spi = ((EPRuntimeSPI) env.runtime()).getServicesContext().getFilterService();
         return spi.getFilterCountApprox();
     }
 
-    public static Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> getFilterAllStmt(EPRuntime runtime) {
+    public static Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> getFilterSvcAllStmt(EPRuntime runtime) {
         String[] deployments = runtime.getDeploymentService().getDeployments();
         Set<Integer> statements = new HashSet<>();
         EPStatementSPI statementSPI = null;
@@ -195,16 +193,16 @@ public class SupportFilterHelper {
         return filterService.get(statements);
     }
 
-    public static Map<Integer, List<FilterItem[]>> getFilterAllStmtForType(EPRuntime runtime, String eventTypeName) {
-        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterAllStmt(runtime);
+    public static Map<Integer, List<FilterItem[]>> getFilterSvcAllStmtForType(EPRuntime runtime, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterSvcAllStmt(runtime);
 
         EventType eventType = runtime.getEventTypeService().getBusEventType(eventTypeName);
         EventTypeIdPair typeId = eventType.getMetadata().getEventTypeIdPair();
         return pairs.get(typeId);
     }
 
-    public static Map<String, FilterItem> getFilterAllStmtForTypeSingleFilter(EPRuntime runtime, String eventTypeName) {
-        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterAllStmt(runtime);
+    public static Map<String, FilterItem> getFilterSvcAllStmtForTypeSingleFilter(EPRuntime runtime, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterSvcAllStmt(runtime);
 
         EventType eventType = runtime.getEventTypeService().getBusEventType(eventTypeName);
         EventTypeIdPair typeId = eventType.getMetadata().getEventTypeIdPair();
@@ -226,8 +224,8 @@ public class SupportFilterHelper {
         return statements;
     }
 
-    public static Map<String, FilterItem[]> getFilterAllStmtForTypeMulti(EPRuntime runtime, String eventTypeName) {
-        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterAllStmt(runtime);
+    public static Map<String, FilterItem[]> getFilterSvcAllStmtForTypeMulti(EPRuntime runtime, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = getFilterSvcAllStmt(runtime);
 
         EventType eventType = runtime.getEventTypeService().getBusEventType(eventTypeName);
         EventTypeIdPair typeId = eventType.getMetadata().getEventTypeIdPair();
@@ -248,12 +246,22 @@ public class SupportFilterHelper {
         return statements;
     }
 
-    public static FilterItem[][] getFilterMulti(EPStatement statement, String eventTypeName) {
+    public static void assertFilterSvcEmpty(EPStatement statement, String eventTypeName) {
+        FilterItem[][] filters = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
+        assertEquals(1, filters.length);
+        assertEquals(0, filters[0].length);
+    }
+
+    public static void assertFilterSvcNone(EPStatement statement, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = getFilterSvcForStatement(statement);
+        EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(((EPStatementSPI) statement).getStatementContext(), eventTypeName);
+        assertFalse(set.containsKey(typeId));
+    }
+
+    public static FilterItem[][] getFilterSvcMultiAssertNonEmpty(EPStatement statement, String eventTypeName) {
+        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = getFilterSvcForStatement(statement);
         EPStatementSPI spi = (EPStatementSPI) statement;
         EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(spi.getStatementContext(), eventTypeName);
-        int statementId = spi.getStatementContext().getStatementId();
-        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) spi.getStatementContext().getFilterService();
-        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = filterServiceSPI.get(Collections.singleton(statementId));
 
         Map<Integer, List<FilterItem[]>> filters = null;
         for (Map.Entry<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> entry : set.entrySet()) {
@@ -264,14 +272,14 @@ public class SupportFilterHelper {
         assertNotNull(filters);
         assertFalse(filters.isEmpty());
 
-        List<FilterItem[]> params = filters.get(statementId);
+        List<FilterItem[]> params = filters.get(spi.getStatementId());
         assertFalse(params.isEmpty());
 
         return params.toArray(new FilterItem[params.size()][]);
     }
 
-    public static void assertFilterMultiSameIndexDepthOne(EPStatement stmt, String eventType, int numEntries, String expression, FilterOperator operator) {
-        FilterItem[][] items = getFilterMulti(stmt, eventType);
+    public static void assertFilterSvcMultiSameIndexDepthOne(EPStatement stmt, String eventType, int numEntries, String expression, FilterOperator operator) {
+        FilterItem[][] items = getFilterSvcMultiAssertNonEmpty(stmt, eventType);
         assertEquals(numEntries, items.length);
         for (int i = 0; i < numEntries; i++) {
             FilterItem[] entries = items[i];
@@ -283,7 +291,7 @@ public class SupportFilterHelper {
         }
     }
 
-    public static void assertFilterMultiSameIndexDepthOne(Map<Integer, List<FilterItem[]>> filters, int numEntries, String expression, FilterOperator operator) {
+    public static void assertFilterSvcMultiSameIndexDepthOne(Map<Integer, List<FilterItem[]>> filters, int numEntries, String expression, FilterOperator operator) {
         assertEquals(numEntries, filters.size());
         FilterItem first = null;
         for (Map.Entry<Integer, List<FilterItem[]>> stmtEntry : filters.entrySet()) {
@@ -301,13 +309,10 @@ public class SupportFilterHelper {
         }
     }
 
-    public static FilterItem getFilterSingleForStmt(Map<Integer, List<FilterItem[]>> filters, EPStatement statement) {
-        List<FilterItem[]> list = filters.get(((EPStatementSPI) statement).getStatementId());
-        if (list == null) {
-            fail();
-        }
-        assertEquals(1, list.size());
-        assertEquals(1, list.get(0).length);
-        return list.get(0)[0];
+    public static Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> getFilterSvcForStatement(EPStatement statement) {
+        EPStatementSPI spi = (EPStatementSPI) statement;
+        int statementId = spi.getStatementContext().getStatementId();
+        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) spi.getStatementContext().getFilterService();
+        return filterServiceSPI.get(Collections.singleton(statementId));
     }
 }

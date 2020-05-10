@@ -98,4 +98,10 @@ public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
         CodegenExpressionUtil.renderConstant(out, constant, Collections.emptyMap());
         out.append(" type ").append(JavaClassHelper.getClassNameFullyQualPretty(constant == null ? null : constant.getClass()));
     }
+
+    public static String valueExprToString(Object constant) {
+        StringBuilder builder = new StringBuilder();
+        valueExprToString(builder, constant);
+        return builder.toString();
+    }
 }

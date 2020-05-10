@@ -21,7 +21,7 @@ import java.util.List;
 
 
 public class ExprFilterPlanOneFilterNestedThreeLvl extends TestCase {
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<FilterTestMultiStmtPermutable>();
 
         FilterTestMultiStmtAssertStats[] stats = FilterTestMultiStmtAssertStats.makeSingleStat("P0=(fh:1, fi:3),P1=(fh:0, fi:0, fipar:0)");
@@ -36,6 +36,6 @@ public class ExprFilterPlanOneFilterNestedThreeLvl extends TestCase {
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("B", 1, 10), false),
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("A", 1, 0), false));
 
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanOneFilterNestedThreeLvl.class, new PermutationSpec(true), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanOneFilterNestedThreeLvl.class, new PermutationSpec(true), cases, withStats);
     }
 }

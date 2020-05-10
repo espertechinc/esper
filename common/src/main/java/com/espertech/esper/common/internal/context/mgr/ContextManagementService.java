@@ -22,7 +22,7 @@ public interface ContextManagementService {
 
     void addStatement(String deploymentIdCreateContext, String contextName, ContextControllerStatementDesc statement, boolean recovery);
 
-    void stoppedStatement(String deploymentIdCreateContext, String contextName, ContextControllerStatementDesc statement);
+    void stoppedStatement(String deploymentIdCreateContext, String contextName, int statementId, String statementName, String statementDeploymentId);
 
     ContextManager getContextManager(String deploymentIdCreateContext, String contextName);
 

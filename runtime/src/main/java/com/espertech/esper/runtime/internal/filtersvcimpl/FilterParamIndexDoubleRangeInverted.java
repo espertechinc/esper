@@ -82,6 +82,10 @@ public final class FilterParamIndexDoubleRangeInverted extends FilterParamIndexD
             throw new IllegalStateException("Invalid filter operator " + this.getFilterOperator());
         }
 
+        if (rangesNullEndpoints != null) {
+            rangesNullEndpoints.matchEvent(theEvent, matches, ctx);
+        }
+
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aFilterReverseIndex(null);
         }

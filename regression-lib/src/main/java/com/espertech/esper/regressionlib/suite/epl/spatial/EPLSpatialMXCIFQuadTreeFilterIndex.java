@@ -16,7 +16,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialEventRectangle;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.regressionlib.support.util.SupportSpatialUtil;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
@@ -45,13 +45,13 @@ public class EPLSpatialMXCIFQuadTreeFilterIndex {
         public void run(RegressionEnvironment env) {
             String eplNoIndex = "@name('s0') select * from SupportSpatialEventRectangle(rectangle(0, 0, 1, 1).intersects(rectangle(x, y, width, height)))";
             env.compileDeploy(eplNoIndex);
-            SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
+            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
             env.undeployAll();
 
             String eplIndexed = "@name('s0') expression myindex {mxcifquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialEventRectangle(rectangle(10, 20, 5, 6, filterindex:myindex).intersects(rectangle(x, y, width, height)))";
             env.compileDeploy(eplIndexed).addListener("s0");
-            SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/mxcifquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
+            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportSpatialEventRectangle", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/mxcifquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
 
             sendAssertEventRectangle(env, env.listener("s0"), 10, 20, 0, 0, true);
             sendAssertEventRectangle(env, env.listener("s0"), 9, 19, 0.9999, 0.9999, false);
@@ -87,12 +87,12 @@ public class EPLSpatialMXCIFQuadTreeFilterIndex {
             sendEventRectangle(env, "R2", 60, 10, 1, 1);
             sendEventRectangle(env, "R3", 10, 60, 1, 1);
             sendEventRectangle(env, "R4", 10, 10, 1, 1);
-            assertEquals(6, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             assertRectanglesManyRow(env, env.listener("out"), BOXES, "R0,R4", "R2", "R3", "R1", "R1");
 
             env.milestone(1);
 
-            assertEquals(6, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             assertRectanglesManyRow(env, env.listener("out"), BOXES, "R0,R4", "R2", "R3", "R1", "R1");
 
             env.undeployAll();

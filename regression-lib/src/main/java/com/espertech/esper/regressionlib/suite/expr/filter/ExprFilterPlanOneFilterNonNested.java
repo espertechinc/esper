@@ -27,7 +27,7 @@ import static com.espertech.esper.regressionlib.support.filter.FilterTestMultiSt
 
 public class ExprFilterPlanOneFilterNonNested extends TestCase {
 
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
 
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<FilterTestMultiStmtPermutable>();
 
@@ -55,7 +55,7 @@ public class ExprFilterPlanOneFilterNonNested extends TestCase {
         // nullable-endpoint range handled as boolean
         addCase(cases, stats, "theString between null and 'Z'", makeItem(makeBean("A"), false), makeItem(makeBean("B"), false));
 
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanOneFilterNonNested.class, new PermutationSpec(true), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanOneFilterNonNested.class, new PermutationSpec(true), cases, withStats);
     }
 
     public static String getLocalValue(String value) {

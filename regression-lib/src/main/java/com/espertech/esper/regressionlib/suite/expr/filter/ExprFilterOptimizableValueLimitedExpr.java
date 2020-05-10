@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.util.SupportFilterSpecCompileHook;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterPlanHook;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 
@@ -29,13 +29,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.common.internal.filterspec.FilterOperator.*;
-import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.assertFilterByTypeSingle;
-import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.assertFilterSingle;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.assertFilterSvcByTypeSingle;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.assertFilterSvcSingle;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ExprFilterOptimizableValueLimitedExpr {
-    public final static String HINT_PREFIX = "@Hint('filterindex(valuecomposite)')";
-
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
         executions.add(new ExprFilterOptValEqualsIsConstant());
@@ -59,10 +59,12 @@ public class ExprFilterOptimizableValueLimitedExpr {
     private static class ExprFilterOptValOrRewrite implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create context MyContext start SupportBean_S0 as s0;\n" +
-                HINT_PREFIX + "@name('s0') context MyContext select * from SupportBean(theString = context.s0.p00 || context.s0.p01 or theString = context.s0.p01 || context.s0.p00);\n";
+                "@name('s0') context MyContext select * from SupportBean(theString = context.s0.p00 || context.s0.p01 or theString = context.s0.p01 || context.s0.p00);\n";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "a", "b"));
-            assertFilterSingle(env.statement("s0"), epl, "theString", IN_LIST_OF_VALUES);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "theString", IN_LIST_OF_VALUES);
+            }
 
             sendSBAssert(env, "ab", true);
             sendSBAssert(env, "ba", true);
@@ -75,11 +77,11 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     private static class ExprFilterOptValInRangeWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern [" +
+            String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive in [a.id - 2 : b.id + 2])];\n";
             runAssertionInRange(env, epl, false);
 
-            epl = HINT_PREFIX + "@name('s0') select * from pattern [" +
+            epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive not in [a.id - 2 : b.id + 2])];\n";
             runAssertionInRange(env, epl, true);
         }
@@ -90,7 +92,9 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.sendEventBean(new SupportBean_S1(200));
 
             env.milestone(0);
-            assertFilterSingle(env.statement("s0"), epl, "longPrimitive", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "longPrimitive", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
+            }
 
             sendSBAssert(env, 7, not);
             sendSBAssert(env, 8, !not);
@@ -104,7 +108,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     private static class ExprFilterOptValInSetOfValueWPatternWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern [" +
+            String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> c=SupportBean_S2 -> every SupportBean(longPrimitive in (a.id, b.id, c.id))];\n";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(10));
@@ -113,7 +117,9 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
             env.milestone(0);
 
-            assertFilterSingle(env.statement("s0"), epl, "longPrimitive", IN_LIST_OF_VALUES);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "longPrimitive", IN_LIST_OF_VALUES);
+            }
 
             sendSBAssert(env, 0, false);
             sendSBAssert(env, 10, true);
@@ -126,10 +132,12 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     public static class ExprFilterOptValEqualsFromPatternWithDotMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern [a=SupportBean -> b=SupportBean(theString=a.getTheString())]";
+            String epl = "@name('s0') select * from pattern [a=SupportBean -> b=SupportBean(theString=a.getTheString())]";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFilterSingle(env.statement("s0"), epl, "theString", EQUAL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
+            }
             env.sendEventBean(new SupportBean("E1", 2));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
             env.undeployAll();
@@ -138,19 +146,21 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     public static class ExprFilterOptValRelOpCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from SupportBean(Integer.parseInt('10') > doublePrimitive)";
+            String epl = "@name('s0') select * from SupportBean(Integer.parseInt('10') > doublePrimitive)";
             runAssertionRelOpCoercion(env, epl);
 
-            epl = HINT_PREFIX + "@name('s0') select * from SupportBean(doublePrimitive < Integer.parseInt('10'))";
+            epl = "@name('s0') select * from SupportBean(doublePrimitive < Integer.parseInt('10'))";
             runAssertionRelOpCoercion(env, epl);
         }
     }
 
     public static class ExprFilterOptValEqualsCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from SupportBean(doublePrimitive = Integer.parseInt('10') + Long.parseLong('20'))";
+            String epl = "@name('s0') select * from SupportBean(doublePrimitive = Integer.parseInt('10') + Long.parseLong('20'))";
             env.compileDeploy(epl).addListener("s0");
-            assertFilterSingle(env.statement("s0"), epl, "doublePrimitive", EQUAL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "doublePrimitive", EQUAL);
+            }
 
             sendSBAssert(env, 30d, true);
             sendSBAssert(env, 20d, false);
@@ -163,14 +173,14 @@ public class ExprFilterOptimizableValueLimitedExpr {
     public static class ExprFilterOptValEqualsConstantVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String variable = "create constant variable string MYCONST = 'a';\n";
-            tryDeployAndAssertionSB(env, variable + HINT_PREFIX + "@name('s0') select * from SupportBean(theString = MYCONST || 'x')", EQUAL);
-            tryDeployAndAssertionSB(env, variable + HINT_PREFIX + "@name('s0') select * from SupportBean(MYCONST || 'x' = theString)", EQUAL);
+            tryDeployAndAssertionSB(env, variable + "@name('s0') select * from SupportBean(theString = MYCONST || 'x')", EQUAL);
+            tryDeployAndAssertionSB(env, variable + "@name('s0') select * from SupportBean(MYCONST || 'x' = theString)", EQUAL);
         }
     }
 
     public static class ExprFilterOptValEqualsSubstitutionParams implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from SupportBean(theString = ?::string)";
+            String epl = "@name('s0') select * from SupportBean(theString = ?::string)";
             EPCompiled compiled = env.compile(epl);
             DeploymentOptions options = new DeploymentOptions();
             options.setStatementSubstitutionParameter(opt -> opt.setObject(1, "ax"));
@@ -181,18 +191,20 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     public static class ExprFilterOptValEqualsIsConstant implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryDeployAndAssertionSB(env, HINT_PREFIX + "@name('s0') select * from SupportBean(theString = 'a' || 'x')", EQUAL);
-            tryDeployAndAssertionSB(env, HINT_PREFIX + "@name('s0') select * from SupportBean('a' || 'x' is theString)", IS);
+            tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean(theString = 'a' || 'x')", EQUAL);
+            tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean('a' || 'x' is theString)", IS);
         }
     }
 
     public static class ExprFilterOptValEqualsFromPatternSingle implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern[every a=SupportBean_S0 -> SupportBean(a.p00 || a.p01 = theString)]";
+            String epl = "@name('s0') select * from pattern[every a=SupportBean_S0 -> SupportBean(a.p00 || a.p01 = theString)]";
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(0, "a", "x"));
-            assertFilterByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            }
 
             sendSBAssert(env, "a", false);
             sendSBAssert(env, "ax", true);
@@ -209,12 +221,14 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     public static class ExprFilterOptValEqualsFromPatternConstant implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern[every SupportBean_S0 -> SupportBean_S1 -> SupportBean('a' || 'x' = theString)]";
+            String epl = "@name('s0') select * from pattern[every SupportBean_S0 -> SupportBean_S1 -> SupportBean('a' || 'x' = theString)]";
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S1(2));
-            assertFilterByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            }
 
             sendSBAssert(env, "a", false);
             sendSBAssert(env, "ax", true);
@@ -225,12 +239,14 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     public static class ExprFilterOptValEqualsFromPatternHalfConstant implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern[every s0=SupportBean_S0 -> s1=SupportBean_S1 -> SupportBean('a' || s1.p10 = theString)]";
+            String epl = "@name('s0') select * from pattern[every s0=SupportBean_S0 -> s1=SupportBean_S1 -> SupportBean('a' || s1.p10 = theString)]";
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S1(2, "x"));
-            assertFilterByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            }
 
             sendSBAssert(env, "a", false);
             sendSBAssert(env, "ax", true);
@@ -241,13 +257,15 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     public static class ExprFilterOptValEqualsFromPatternMulti implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern[every [2] a=SupportBean_S0 -> b=SupportBean_S1 -> SupportBean(theString = a[0].p00 || b.p10)]";
+            String epl = "@name('s0') select * from pattern[every [2] a=SupportBean_S0 -> b=SupportBean_S1 -> SupportBean(theString = a[0].p00 || b.p10)]";
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "a"));
             env.sendEventBean(new SupportBean_S0(2, "b"));
             env.sendEventBean(new SupportBean_S1(2, "x"));
-            assertFilterByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            }
 
             sendSBAssert(env, "a", false);
             sendSBAssert(env, "ax", true);
@@ -268,11 +286,13 @@ public class ExprFilterOptimizableValueLimitedExpr {
     public static class ExprFilterOptValEqualsContextWithStart implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create context MyContext start SupportBean_S0 as s0;\n" +
-                HINT_PREFIX + "@name('s0') context MyContext select * from SupportBean(theString = context.s0.p00 || context.s0.p01)";
+                "@name('s0') context MyContext select * from SupportBean(theString = context.s0.p00 || context.s0.p01)";
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(0, "a", "x"));
-            assertFilterByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+            }
 
             sendSBAssert(env, "a", false);
             sendSBAssert(env, "ax", true);
@@ -327,7 +347,9 @@ public class ExprFilterOptimizableValueLimitedExpr {
     }
 
     private static void runAssertionSB(RegressionEnvironment env, String epl, FilterOperator op) {
-        assertFilterSingle(env.statement("s0"), epl, "theString", op);
+        if (hasFilterIndexPlanAdvanced(env)) {
+            assertFilterSvcSingle(env.statement("s0"), "theString", op);
+        }
 
         sendSBAssert(env, "ax", true);
         sendSBAssert(env, "a", false);
@@ -341,11 +363,14 @@ public class ExprFilterOptimizableValueLimitedExpr {
     }
 
     protected static void assertDisqualified(RegressionEnvironment env, RegressionPath path, String typeName, String filters) {
-        String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterSpecCompileHook.class.getName() + "')";
-        String epl = HINT_PREFIX + hook + "select * from " + typeName + "(" + filters + ") as me";
+        String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterPlanHook.class.getName() + "')";
+        String epl = hook + "select * from " + typeName + "(" + filters + ") as me";
+        SupportFilterPlanHook.reset();
         env.compile(epl, path);
-        FilterSpecParamForge forge = SupportFilterSpecCompileHook.assertSingleAndReset(typeName);
-        assertEquals(FilterOperator.BOOLEAN_EXPRESSION, forge.getFilterOperator());
+        FilterSpecParamForge forge = SupportFilterPlanHook.assertPlanSingleTripletAndReset(typeName);
+        if (forge.getFilterOperator() != FilterOperator.BOOLEAN_EXPRESSION && forge.getFilterOperator() != REBOOL) {
+            fail();
+        }
     }
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, boolean received) {
@@ -369,7 +394,9 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     private static void runAssertionRelOpCoercion(RegressionEnvironment env, String epl) {
         env.compileDeploy(epl).addListener("s0");
-        assertFilterSingle(env.statement("s0"), epl, "doublePrimitive", LESS);
+        if (hasFilterIndexPlanAdvanced(env)) {
+            assertFilterSvcSingle(env.statement("s0"), "doublePrimitive", LESS);
+        }
 
         sendSBAssert(env, 3d, true);
         sendSBAssert(env, 20d, false);

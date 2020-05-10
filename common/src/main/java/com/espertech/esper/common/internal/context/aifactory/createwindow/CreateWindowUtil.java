@@ -22,10 +22,7 @@ import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.SelectClauseElementCompiled;
-import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompiledSpec;
-import com.espertech.esper.common.internal.compile.stage2.StreamSpecCompiler;
+import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
@@ -163,7 +160,7 @@ public class CreateWindowUtil {
             throw new ExprValidationException(ex.getMessage(), ex);
         }
 
-        FilterSpecCompiled filter = new FilterSpecCompiled(targetType, typeName, new List[0], null);
+        FilterSpecCompiled filter = new FilterSpecCompiled(targetType, typeName, FilterSpecPlanForge.EMPTY, null);
         return new CreateWindowCompileResult(filter, newSelectClauseSpecRaw, optionalSelectFrom == null ? null : optionalSelectFrom.getEventType(), additionalForgeables);
     }
 

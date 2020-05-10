@@ -56,11 +56,13 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
             }
         };
 
-        FilterValueSetParam[][] filterValueSet = computeFilterValues(agentInstanceContext);
         filterHandle = new EPStatementHandleCallbackFilter(agentInstanceContext.getEpStatementAgentInstanceHandle(), filterCallback);
-        agentInstanceContext.getFilterService().add(filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet, filterHandle);
-        long filtersVersion = agentInstanceContext.getFilterService().getFiltersVersion();
-        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+        FilterValueSetParam[][] filterValueSet = computeFilterValues(agentInstanceContext);
+        if (filterValueSet != null) {
+            agentInstanceContext.getFilterService().add(filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet, filterHandle);
+            long filtersVersion = agentInstanceContext.getFilterService().getFiltersVersion();
+            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+        }
 
         boolean match = false;
         if (optionalTriggeringEvent != null) {
@@ -75,10 +77,12 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
         }
         AgentInstanceContext agentInstanceContext = controller.getRealization().getAgentInstanceContextCreate();
         FilterValueSetParam[][] filterValueSet = computeFilterValues(agentInstanceContext);
-        agentInstanceContext.getFilterService().remove(filterHandle, filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet);
+        if (filterValueSet != null) {
+            agentInstanceContext.getFilterService().remove(filterHandle, filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet);
+            long filtersVersion = agentInstanceContext.getStatementContext().getFilterService().getFiltersVersion();
+            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+        }
         filterHandle = null;
-        long filtersVersion = agentInstanceContext.getStatementContext().getFilterService().getFiltersVersion();
-        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }
 
     private FilterValueSetParam[][] computeFilterValues(AgentInstanceContext agentInstanceContext) {
@@ -107,13 +111,15 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
             return;
         }
         FilterValueSetParam[][] filterValueSet = computeFilterValues(xfer.getAgentInstanceContext());
-        xfer.getAgentInstanceContext().getFilterService().remove(filterHandle, filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet);
-        xfer.getTargetFilterService().add(filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet, filterHandle);
+        if (filterValueSet != null) {
+            xfer.getAgentInstanceContext().getFilterService().remove(filterHandle, filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet);
+            xfer.getTargetFilterService().add(filter.getFilterSpecActivatable().getFilterForEventType(), filterValueSet, filterHandle);
+        }
     }
 
     private void filterMatchFound(EventBean theEvent) {
         // For OR-type filters we de-duplicate here by keeping the last event instance
-        if (filter.getFilterSpecActivatable().getParameters().length > 1) {
+        if (filter.getFilterSpecActivatable().getPlan().getPaths().length > 1) {
             if (theEvent == lastEvent) {
                 return;
             }

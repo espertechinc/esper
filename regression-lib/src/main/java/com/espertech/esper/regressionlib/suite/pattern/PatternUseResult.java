@@ -18,7 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportTradeEvent;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
@@ -375,7 +375,7 @@ public class PatternUseResult {
         env.sendEventBean(new SupportBean_A(id));
         final String[] fields = "c0".split(",");
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{intPrimitiveExpected});
-        assertEquals(numFiltersRemaining, SupportFilterHelper.getFilterCount(env.statement("s0"), "SupportBean_A"));
+        assertEquals(numFiltersRemaining, SupportFilterServiceHelper.getFilterSvcCount(env.statement("s0"), "SupportBean_A"));
     }
 
     private static void sendBeanAMiss(RegressionEnvironment env, String idCSV) {

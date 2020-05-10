@@ -83,6 +83,10 @@ public final class FilterParamIndexStringRangeInverted extends FilterParamIndexS
             throw new IllegalStateException("Invalid filter operator " + this.getFilterOperator());
         }
 
+        if (rangesNullEndpoints != null) {
+            rangesNullEndpoints.matchEvent(theEvent, matches, ctx);
+        }
+
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aFilterReverseIndex(null);
         }

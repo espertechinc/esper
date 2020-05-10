@@ -30,7 +30,7 @@ import static com.espertech.esper.regressionlib.support.filter.FilterTestMultiSt
  * - index: {key: [filter, index: {filter}]}
  */
 public class ExprFilterPlanTwoFilterIndexReuse extends TestCase {
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<FilterTestMultiStmtPermutable>();
 
         FilterTestMultiStmtAssertStats[] reuseStats = new FilterTestMultiStmtAssertStats[]{
@@ -99,6 +99,6 @@ public class ExprFilterPlanTwoFilterIndexReuse extends TestCase {
             makeItem(makeBean("B", 0), false, true),
             makeItem(makeBean("B", 2), false, false));
 
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanTwoFilterIndexReuse.class, new PermutationSpec(true), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanTwoFilterIndexReuse.class, new PermutationSpec(true), cases, withStats);
     }
 }

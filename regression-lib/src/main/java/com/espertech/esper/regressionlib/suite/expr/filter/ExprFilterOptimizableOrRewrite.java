@@ -16,7 +16,8 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_IntAlphabetic;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_StringAlphabetic;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class ExprFilterOptimizableOrRewrite {
         public void run(RegressionEnvironment env) {
             String epl = "@Hint('MAX_FILTER_WIDTH=0') @name('s0') select * from SupportBean_IntAlphabetic((b=1 or c=1) and (d=1 or e=1))";
             env.compileDeployAddListenerMile(epl, "s0", 0);
-            SupportFilterHelper.assertFilterSingle(env.statement("s0"), epl, ".boolean_expression", FilterOperator.BOOLEAN_EXPRESSION);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), ".boolean_expression", FilterOperator.BOOLEAN_EXPRESSION);
             env.undeployAll();
         }
     }
@@ -133,12 +134,14 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filters) {
                 String epl = "@name('s0') select * from SupportBean_StringAlphabetic(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean_StringAlphabetic", new FilterItem[][]{
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-                    {new FilterItem("b", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-                    {FilterItem.getBoolExprFilterItem()},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasic(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_StringAlphabetic", new FilterItem[][]{
+                        {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL)},
+                        {new FilterItem("a", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
+                        {new FilterItem("b", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
+                        {FilterItem.getBoolExprFilterItem()},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new Object[]{stringEvent("a", "b"), stringEvent("A1", "b"), stringEvent("a", "B1"), stringEvent("A1", "B1")},
@@ -158,10 +161,12 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filters) {
                 String epl = "@name('s0') select * from SupportBean_StringAlphabetic(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean_StringAlphabetic", new FilterItem[][]{
-                    {new FilterItem("b", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-                    {new FilterItem("c", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasic(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_StringAlphabetic", new FilterItem[][]{
+                        {new FilterItem("b", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
+                        {new FilterItem("c", FilterOperator.EQUAL), FilterItem.getBoolExprFilterItem()},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new Object[]{stringEvent("a1", "b", null), stringEvent("a1", null, "c")},
@@ -181,10 +186,12 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filters) {
                 String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), FilterItem.getBoolExprFilterItem()},
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), FilterItem.getBoolExprFilterItem()},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
+                        {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), FilterItem.getBoolExprFilterItem()},
+                        {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), FilterItem.getBoolExprFilterItem()},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new Object[]{intEvent(3), intEvent(4), intEvent(0)},
@@ -204,10 +211,12 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filters) {
                 String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
+                        {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
+                        {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new Object[]{intEvent(3), intEvent(4), intEvent(0)},
@@ -227,10 +236,12 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filters) {
                 String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("b", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("c", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
+                        {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("b", FilterOperator.EQUAL)},
+                        {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("c", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new Object[]{intEvent(3, 1, 0), intEvent(3, 0, 1), intEvent(0, 1, 0)},
@@ -250,10 +261,12 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+                        {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("longPrimitive", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new SupportBean[]{makeEvent("a", 1, 0), makeEvent("a", 0, 10), makeEvent("a", 1, 10)},
@@ -273,12 +286,14 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean_IntAlphabetic(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_IntAlphabetic", new FilterItem[][]{
+                        {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
+                        {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
+                        {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
+                        {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new Object[]{intEvent(1, 1, 0, 1, 0), intEvent(1, 0, 1, 0, 1), intEvent(1, 1, 0, 0, 1), intEvent(1, 0, 1, 1, 0)},
@@ -301,16 +316,18 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("boolPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("intBoxed", FilterOperator.EQUAL)},
-                    {new FilterItem("longBoxed", FilterOperator.EQUAL)},
-                    {new FilterItem("doubleBoxed", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+                        {new FilterItem("theString", FilterOperator.EQUAL)},
+                        {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("boolPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("intBoxed", FilterOperator.EQUAL)},
+                        {new FilterItem("longBoxed", FilterOperator.EQUAL)},
+                        {new FilterItem("doubleBoxed", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new SupportBean[]{makeEvent("a", 1, 10, 100, true, 2, 20, 200), makeEvent("a", 0, 0, 0, true, 0, 0, 0),
@@ -333,12 +350,14 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+                        {new FilterItem("theString", FilterOperator.EQUAL)},
+                        {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new SupportBean[]{makeEvent("a", 1, 10, 100), makeEvent("x", 0, 0, 100), makeEvent("x", 0, 10, 100), makeEvent("a", 0, 0, 0)},
@@ -385,11 +404,13 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+                        {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("theString", FilterOperator.EQUAL)},
+                        {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new SupportBean[]{makeEvent("a", 0, 0), makeEvent("b", 1, 0), makeEvent("c", 0, 2), makeEvent("c", 0, 2)},
@@ -424,11 +445,13 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+                        {new FilterItem("theString", FilterOperator.EQUAL)},
+                        {new FilterItem("theString", FilterOperator.EQUAL)},
+                        {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new SupportBean[]{makeEvent("a", 1), makeEvent("b", 0), makeEvent("x", 1)},
@@ -454,10 +477,12 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 env.compileDeployAddListenerMile("@name('s0')" + filter, "s0", milestone.getAndIncrement());
 
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+                        {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("theString", FilterOperator.EQUAL)},
+                    });
+                }
 
                 env.sendEventBean(new SupportBean("a", 0));
                 env.listener("s0").assertOneGetNewAndReset();
@@ -482,10 +507,12 @@ public class ExprFilterOptimizableOrRewrite {
             for (String filter : filtersAB) {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
-                SupportFilterHelper.assertFilterByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                });
+                if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                    SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+                        {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                        {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    });
+                }
 
                 sendAssertEvents(env,
                     new SupportBean[]{makeEvent("a", 1), makeEvent("b", 2)},

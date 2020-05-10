@@ -681,7 +681,7 @@ public class ExprFilterExpressions {
             tryPattern3Stream(env, text, milestone, new Integer[]{2, 1, 1, null, 1, null, 1}, new Double[]{0d, 0d, 0d, 0d, 0d, 0d, 0d},
                 new Integer[]{1, 2, 1, null, null, 2, 0}, new Double[]{0d, 0d, 0d, 0d, 0d, 0d, 0d},
                 new Integer[]{2, 1, 3, null, 1, null, null}, new Double[]{0d, 0d, 0d, 0d, 0d, 0d, 0d},
-                new boolean[]{false, false, true, false, false, false, false});
+                new boolean[]{false, false, true, false, true, false, false});
         }
     }
 

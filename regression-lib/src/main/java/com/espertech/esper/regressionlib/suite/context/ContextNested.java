@@ -23,7 +23,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.support.context.*;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -231,7 +231,7 @@ public class ContextNested {
 
             env.undeployAll();
 
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
 
@@ -412,7 +412,7 @@ public class ContextNested {
             assertFilters(env, "[SupportBean(intPrimitive<0,theStringisE1)]", "s0");
             env.undeployAll();
             path.clear();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // category over partition over category
             eplContext = "@name('ctx') create context TheContext " +
@@ -433,7 +433,7 @@ public class ContextNested {
             assertFilters(env, "[SupportBean(intPrimitive<0), SupportBean(intPrimitive>0)]", "ctx");
             env.undeployAll();
             path.clear();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // partition over partition over partition
             eplContext = "@name('ctx') create context TheContext " +
@@ -454,7 +454,7 @@ public class ContextNested {
 
             env.undeployAll();
             path.clear();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // category over hash
             eplContext = "@name('ctx') create context TheContext " +
@@ -474,7 +474,7 @@ public class ContextNested {
             assertFilters(env, "[SupportBean(intPrimitive<0), SupportBean(intPrimitive>0)]", "ctx");
             env.undeployAll();
             path.clear();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             eplContext = "@name('ctx') create context TheContext " +
                 "context CtxOne as partition by theString from SupportBean, " +
@@ -490,11 +490,11 @@ public class ContextNested {
             assertFilters(env, "[]", "s0");
             assertFilters(env, "[SupportBean(), SupportBean_S0()]", "ctx");
             env.undeployAll();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
 
         private static void assertFilters(RegressionEnvironment env, String expected, String name) {
-            assertEquals(expected, SupportFilterHelper.getFilterToString(env, name));
+            assertEquals(expected, SupportFilterServiceHelper.getFilterSvcToString(env, name));
         }
     }
 
@@ -618,7 +618,7 @@ public class ContextNested {
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"g2", "S0_4", "S1_4", 9}});
 
             env.undeployAll();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
 
@@ -678,7 +678,7 @@ public class ContextNested {
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"S0_1", "E1", 8}, {"S0_2", "E1", 6}});
 
             env.undeployAll();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
 
@@ -723,7 +723,7 @@ public class ContextNested {
 
             env.undeployAll();
             path.clear();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // Test partitioned context
             //
@@ -750,7 +750,7 @@ public class ContextNested {
 
             env.undeployModuleContaining("s0");
             env.undeployModuleContaining("ctx");
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             path.clear();
 
             // Test partitioned context
@@ -771,7 +771,7 @@ public class ContextNested {
 
             env.undeployModuleContaining("s0");
             env.undeployAll();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
 
@@ -919,7 +919,7 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("E16", 16));
             assertFalse(listener.isInvoked());
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.undeployAll();
@@ -1199,35 +1199,35 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean());
             assertFalse(env.listener("s0").isInvoked());
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.milestone(0);
 
             // starts EightToNine context
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
-            Assert.assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
-            Assert.assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.milestone(2);
 
             // ends EightToNine context
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 0));
@@ -1237,7 +1237,7 @@ public class ContextNested {
 
             // starts EightToNine context
             sendTimeEvent(env, "2002-05-2T08:00:00.000");
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
@@ -1261,7 +1261,7 @@ public class ContextNested {
             env.sendEventBean(new SupportBean("E2", 0));
             assertFalse(listener.isInvoked());
 
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
         }
     }
@@ -1283,45 +1283,45 @@ public class ContextNested {
             env.compileDeploy("create context NestedContext " +
                 "context SegmentedByAString partition by theString from SupportBean, " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *)", path);
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
 
             String[] fields = "c1".split(",");
             env.compileDeploy("@name('s0') context NestedContext select count(*) as c1 from SupportBean", path);
             env.addListener("s0");
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
             assertFalse(env.listener("s0").isInvoked());
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
             // starts EightToNine context
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.sendEventBean(new SupportBean("E2", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
-            Assert.assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
-            Assert.assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // ends EightToNine context
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 0));
@@ -1332,7 +1332,7 @@ public class ContextNested {
 
             // starts EightToNine context
             sendTimeEvent(env, "2002-05-2T08:00:00.000");
-            Assert.assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
@@ -1352,7 +1352,7 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("E1", 0));
             assertFalse(listener.isInvoked());
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
         }
     }
@@ -1387,14 +1387,14 @@ public class ContextNested {
                 "count(*) as c6 " +
                 "from SupportBean";
             env.compileDeploy(epl, path).addListener("s0");
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 10));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
                 "SegmentedByAString", "E1",
                 "NestedContext",
                 10, 1L});
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(0);
 
@@ -1404,14 +1404,14 @@ public class ContextNested {
                 "NestedContext",
                 20, 1L});
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
 
             env.milestone(1);
 
             env.undeployModuleContaining("s0");
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(2);
 
@@ -1423,7 +1423,7 @@ public class ContextNested {
                 "NestedContext",
                 30, 1L});
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
 
             env.milestone(3);
@@ -1437,7 +1437,7 @@ public class ContextNested {
             env.sendEventBean(new SupportBean("E2", 30));
             assertFalse(listener.isInvoked());
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
 
@@ -2153,7 +2153,7 @@ public class ContextNested {
 
     private static void assertFilterCount(RegressionEnvironment env, int count, String stmtName) {
         EPStatement statement = env.statement(stmtName);
-        assertEquals(count, SupportFilterHelper.getFilterCount(statement, "SupportBean"));
+        assertEquals(count, SupportFilterServiceHelper.getFilterSvcCount(statement, "SupportBean"));
     }
 
     private static SupportBean sendSBEvent(RegressionEnvironment env, String theString, int intPrimitive) {

@@ -11,45 +11,54 @@
 package com.espertech.esper.regressionlib.suite.expr.filter;
 
 import com.espertech.esper.common.client.EPCompiled;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.junit.Assert.assertTrue;
 
-public class ExprFilterWhereClauseNoDataWindowPerformance implements RegressionExecution {
+public class ExprFilterWhereClauseNoDataWindowPerformance {
 
-    @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public static Collection<RegressionExecution> executions() {
+        ArrayList<RegressionExecution> executions = new ArrayList<>();
+        executions.add(new ExprFilterWhereClauseNoDataWindowPerf());
+        return executions;
     }
 
-    // Compares the performance of
-    //     select * from SupportBean(theString = 'xyz')
-    //  against
-    //     select * from SupportBean where theString = 'xyz'
-
-    public void run(RegressionEnvironment env) {
-        StringWriter module = new StringWriter();
-
-        for (int i = 0; i < 100; i++) {
-            String epl = "@name('s" + i + "') select * from SupportBean where theString = '" + Integer.toString(i) + "';\n";
-            module.append(epl);
+    private static class ExprFilterWhereClauseNoDataWindowPerf implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
         }
-        EPCompiled compiled = env.compile(module.toString());
-        env.deploy(compiled);
 
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
-            SupportBean bean = new SupportBean("NOMATCH", 0);
-            env.sendEventBean(bean);
+        public void run(RegressionEnvironment env) {
+            // Compares the performance of
+            //     select * from SupportBean(theString = 'xyz')
+            //  against
+            //     select * from SupportBean where theString = 'xyz'
+            StringWriter module = new StringWriter();
+
+            for (int i = 0; i < 100; i++) {
+                String epl = "@name('s" + i + "') select * from SupportBean where theString = '" + Integer.toString(i) + "';\n";
+                module.append(epl);
+            }
+            EPCompiled compiled = env.compile(module.toString());
+            env.deploy(compiled);
+
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 10000; i++) {
+                SupportBean bean = new SupportBean("NOMATCH", 0);
+                env.sendEventBean(bean);
+            }
+            long end = System.currentTimeMillis();
+            long delta = end - start;
+            assertTrue("Delta=" + delta, delta < 500);
+
+            env.undeployAll();
         }
-        long end = System.currentTimeMillis();
-        long delta = end - start;
-        assertTrue("Delta=" + delta, delta < 500);
-
-        env.undeployAll();
     }
 }

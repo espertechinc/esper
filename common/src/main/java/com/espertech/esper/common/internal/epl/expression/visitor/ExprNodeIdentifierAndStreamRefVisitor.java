@@ -22,6 +22,7 @@ import java.util.List;
 public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
     private final boolean isVisitAggregateNodes;
     private List<ExprNodePropOrStreamDesc> refs;
+    private boolean hasWildcardOrStreamAlias;
 
     public ExprNodeIdentifierAndStreamRefVisitor(boolean isVisitAggregateNodes) {
         this.isVisitAggregateNodes = isVisitAggregateNodes;
@@ -58,6 +59,10 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
             if (stream != null) {
                 refs.add(new ExprNodePropOrStreamExprDesc(stream, streamRefNode));
             }
+
+            if (exprNode instanceof ExprWildcard || exprNode instanceof ExprStreamUnderlyingNode) {
+                hasWildcardOrStreamAlias = true;
+            }
         }
     }
 
@@ -69,6 +74,10 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
 
     public boolean isWalkDeclExprParam() {
         return false;
+    }
+
+    public boolean isHasWildcardOrStreamAlias() {
+        return hasWildcardOrStreamAlias;
     }
 
     private void checkAllocatedRefs() {

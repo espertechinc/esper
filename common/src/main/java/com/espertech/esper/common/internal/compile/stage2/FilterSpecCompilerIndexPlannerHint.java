@@ -13,7 +13,8 @@ package com.espertech.esper.common.internal.compile.stage2;
 public enum FilterSpecCompilerIndexPlannerHint {
     LKUPCOMPOSITE("lkupcomposite"),
     VALUECOMPOSITE("valuecomposite"),
-    BOOLCOMPOSITE("boolcomposite");
+    BOOLCOMPOSITE("boolcomposite"),
+    CONDITIONS("condition");
 
     private final String nameLowercase;
 

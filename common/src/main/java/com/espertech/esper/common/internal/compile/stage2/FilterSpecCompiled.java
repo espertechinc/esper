@@ -20,7 +20,9 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.filterspec.*;
+import com.espertech.esper.common.internal.filterspec.FilterOperator;
+import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
+import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -36,7 +38,7 @@ public final class FilterSpecCompiled {
 
     private final EventType filterForEventType;
     private final String filterForEventTypeName;
-    private final FilterSpecParamForge[][] parameters;
+    private final FilterSpecPlanForge parameters;
     private final PropertyEvaluatorForge optionalPropertyEvaluator;
     private int filterCallbackId = -1;
 
@@ -50,7 +52,7 @@ public final class FilterSpecCompiled {
      * @param optionalPropertyEvaluator optional if evaluating properties returned by filtered events
      * @throws IllegalArgumentException if validation invalid
      */
-    public FilterSpecCompiled(EventType eventType, String eventTypeName, List<FilterSpecParamForge>[] filterParameters,
+    public FilterSpecCompiled(EventType eventType, String eventTypeName, FilterSpecPlanForge filterParameters,
                               PropertyEvaluatorForge optionalPropertyEvaluator) {
         this.filterForEventType = eventType;
         this.filterForEventTypeName = eventTypeName;
@@ -76,7 +78,7 @@ public final class FilterSpecCompiled {
      *
      * @return list of filter params
      */
-    public final FilterSpecParamForge[][] getParameters() {
+    public final FilterSpecPlanForge getParameters() {
         return parameters;
     }
 
@@ -115,7 +117,7 @@ public final class FilterSpecCompiled {
     public final String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("FilterSpecCompiled type=" + this.filterForEventType);
-        buffer.append(" parameters=" + Arrays.toString(parameters));
+        buffer.append(" parameters=" + parameters.toString());
         return buffer.toString();
     }
 
@@ -155,67 +157,46 @@ public final class FilterSpecCompiled {
         if (this.filterForEventType != other.filterForEventType) {
             return false;
         }
-        if (this.parameters.length != other.parameters.length) {
-            return false;
-        }
-
-        for (int i = 0; i < this.parameters.length; i++) {
-            FilterSpecParamForge[] lineThis = this.parameters[i];
-            FilterSpecParamForge[] lineOther = other.parameters[i];
-            if (lineThis.length != lineOther.length) {
-                return false;
-            }
-
-            for (int j = 0; j < lineThis.length; j++) {
-                if (!lineThis[j].equals(lineOther[j])) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return parameters.equalsFilter(other.parameters);
     }
 
     public int hashCode() {
         int hashCode = filterForEventType.hashCode();
-        for (FilterSpecParamForge[] paramLine : parameters) {
-            for (FilterSpecParamForge param : paramLine) {
-                hashCode ^= 31 * param.hashCode();
+        for (FilterSpecPlanPathForge path : parameters.getPaths()) {
+            for (FilterSpecPlanPathTripletForge triplet : path.getTriplets()) {
+                hashCode ^= 31 * triplet.hashCode();
             }
         }
         return hashCode;
     }
 
-    protected static FilterSpecParamForge[][] sortRemoveDups(List<FilterSpecParamForge>[] parameters) {
-        FilterSpecParamForge[][] processed = new FilterSpecParamForge[parameters.length][];
-        for (int i = 0; i < parameters.length; i++) {
-            processed[i] = sortRemoveDups(parameters[i]);
+    protected static FilterSpecPlanForge sortRemoveDups(FilterSpecPlanForge parameters) {
+        FilterSpecPlanPathForge[] processed = new FilterSpecPlanPathForge[parameters.getPaths().length];
+        for (int i = 0; i < parameters.getPaths().length; i++) {
+            processed[i] = sortRemoveDups(parameters.getPaths()[i]);
         }
-        return processed;
+        return new FilterSpecPlanForge(processed, parameters.getFilterConfirm(), parameters.getFilterNegate(), parameters.getConvertorForge());
     }
 
-    protected static FilterSpecParamForge[] sortRemoveDups(List<FilterSpecParamForge> parameters) {
+    protected static FilterSpecPlanPathForge sortRemoveDups(FilterSpecPlanPathForge parameters) {
 
-        if (parameters.isEmpty()) {
-            return FilterSpecParamForge.EMPTY_PARAM_ARRAY;
+        if (parameters.getTriplets().length <= 1) {
+            return parameters;
         }
 
-        if (parameters.size() == 1) {
-            return new FilterSpecParamForge[]{parameters.get(0)};
-        }
+        ArrayDeque<FilterSpecPlanPathTripletForge> result = new ArrayDeque<>();
+        TreeMap<FilterOperator, List<FilterSpecPlanPathTripletForge>> map = new TreeMap<>(COMPARATOR_PARAMETERS);
+        for (FilterSpecPlanPathTripletForge parameter : parameters.getTriplets()) {
 
-        ArrayDeque<FilterSpecParamForge> result = new ArrayDeque<>();
-        TreeMap<FilterOperator, List<FilterSpecParamForge>> map = new TreeMap<>(COMPARATOR_PARAMETERS);
-        for (FilterSpecParamForge parameter : parameters) {
-
-            List<FilterSpecParamForge> list = map.get(parameter.getFilterOperator());
+            List<FilterSpecPlanPathTripletForge> list = map.get(parameter.getParam().getFilterOperator());
             if (list == null) {
                 list = new ArrayList<>();
-                map.put(parameter.getFilterOperator(), list);
+                map.put(parameter.getParam().getFilterOperator(), list);
             }
 
             boolean hasDuplicate = false;
-            for (FilterSpecParamForge existing : list) {
-                if (existing.getLookupable().equals(parameter.getLookupable())) {
+            for (FilterSpecPlanPathTripletForge existing : list) {
+                if (existing.getParam().getLookupable().equals(parameter.getParam().getLookupable())) {
                     hasDuplicate = true;
                     break;
                 }
@@ -227,10 +208,11 @@ public final class FilterSpecCompiled {
             list.add(parameter);
         }
 
-        for (Map.Entry<FilterOperator, List<FilterSpecParamForge>> entry : map.entrySet()) {
+        for (Map.Entry<FilterOperator, List<FilterSpecPlanPathTripletForge>> entry : map.entrySet()) {
             result.addAll(entry.getValue());
         }
-        return FilterSpecParamForge.toArray(result);
+        FilterSpecPlanPathTripletForge[] triplets = result.toArray(new FilterSpecPlanPathTripletForge[0]);
+        return new FilterSpecPlanPathForge(triplets, parameters.getPathNegate());
     }
 
     public CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -243,9 +225,9 @@ public final class FilterSpecCompiled {
         CodegenExpression propertyEval = optionalPropertyEvaluator == null ? constantNull() : optionalPropertyEvaluator.make(method, symbols, classScope);
         method.getBlock()
                 .declareVar(EventType.class, "eventType", EventTypeUtility.resolveTypeCodegen(filterForEventType, EPStatementInitServices.REF))
-                .declareVar(FilterSpecParam[][].class, "params", localMethod(FilterSpecParamForge.makeParamArrayArrayCodegen(parameters, classScope, method), ref("eventType"), symbols.getAddInitSvc(method)))
+                .declareVar(FilterSpecPlan.class, "plan", localMethod(parameters.codegenWithEventType(method, classScope), ref("eventType"), symbols.getAddInitSvc(method)))
                 .declareVar(FilterSpecActivatable.class, "activatable", newInstance(FilterSpecActivatable.class, SAIFFInitializeSymbolWEventType.REF_EVENTTYPE,
-                        constant(filterForEventType.getName()), ref("params"), propertyEval, constant(filterCallbackId)))
+                        constant(filterForEventType.getName()), ref("plan"), propertyEval, constant(filterCallbackId)))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSPECACTIVATABLEREGISTRY).add("register", ref("activatable")))
                 .methodReturn(ref("activatable"));
 
@@ -262,10 +244,10 @@ public final class FilterSpecCompiled {
     }
 
     public void traverseFilterBooleanExpr(Consumer<FilterSpecParamExprNodeForge> consumer) {
-        for (FilterSpecParamForge[] params : parameters) {
-            for (FilterSpecParamForge param : params) {
-                if (param instanceof FilterSpecParamExprNodeForge) {
-                    consumer.accept((FilterSpecParamExprNodeForge) param);
+        for (FilterSpecPlanPathForge path : parameters.getPaths()) {
+            for (FilterSpecPlanPathTripletForge triplet : path.getTriplets()) {
+                if (triplet.getParam() instanceof FilterSpecParamExprNodeForge) {
+                    consumer.accept((FilterSpecParamExprNodeForge) triplet.getParam());
                 }
             }
         }

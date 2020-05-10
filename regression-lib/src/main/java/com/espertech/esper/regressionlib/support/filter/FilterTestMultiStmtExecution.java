@@ -29,10 +29,12 @@ public class FilterTestMultiStmtExecution implements RegressionExecution {
 
     private final FilterTestMultiStmtCase theCase;
     private final String testCaseName;
+    private String[] stats;
 
-    public FilterTestMultiStmtExecution(Class originator, FilterTestMultiStmtCase theCase) {
+    public FilterTestMultiStmtExecution(Class originator, FilterTestMultiStmtCase theCase, boolean withStats) {
         this.theCase = theCase;
         this.testCaseName = originator.getSimpleName() + " permutation " + Arrays.toString(theCase.getFilters());
+        this.stats = withStats ? new String[] {theCase.getStats()} : null;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class FilterTestMultiStmtExecution implements RegressionExecution {
 
     @Override
     public String[] milestoneStats() {
-        return new String[]{theCase.getStats()};
+        return stats;
     }
 
     public void run(RegressionEnvironment env) {

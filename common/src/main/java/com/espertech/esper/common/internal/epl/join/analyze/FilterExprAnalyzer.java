@@ -61,7 +61,7 @@ public class FilterExprAnalyzer {
             ExprInNode inNode = (ExprInNode) topNode;
             analyzeInNode(inNode, queryGraph);
         } else if (topNode instanceof ExprOrNode) {
-            ExprNode rewritten = FilterSpecCompilerIndexPlannerOrToInRewrite.rewriteOrToInIfApplicable(topNode);
+            ExprNode rewritten = FilterSpecCompilerIndexPlannerOrToInRewrite.rewriteOrToInIfApplicable(topNode, true);
             if (rewritten instanceof ExprInNode) {
                 ExprInNode inNode = (ExprInNode) rewritten;
                 analyzeInNode(inNode, queryGraph);

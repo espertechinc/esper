@@ -274,7 +274,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) compiledDescItems.getStreamSpecCompiled();
                 additionalForgeables.addAll(compiledDescItems.getAdditionalForgeables());
                 compiled.getFilterSpecCompiled().traverseFilterBooleanExpr(validationEnv.getFilterBooleanExpressions()::add);
-                item.setCompiledFilterParam(compiled.getFilterSpecCompiled().getParameters());
+                item.setFilterPlan(compiled.getFilterSpecCompiled().getParameters());
             }
         } else if (contextSpec instanceof ContextSpecHash) {
             ContextSpecHash hashed = (ContextSpecHash) contextSpec;

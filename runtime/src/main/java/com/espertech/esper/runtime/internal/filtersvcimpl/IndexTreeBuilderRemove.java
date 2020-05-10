@@ -85,27 +85,23 @@ public final class IndexTreeBuilderRemove {
             for (FilterParamIndexBase index : currentNode.getIndizes()) {
                 for (int i = 0; i < params.length; i++) {
                     FilterValueSetParam param = params[i];
-                    // if property-based index, we prefer this in matching
+
+                    boolean indexMatch = false;
                     if (index instanceof FilterParamIndexLookupableBase) {
                         FilterParamIndexLookupableBase baseIndex = (FilterParamIndexLookupableBase) index;
                         if ((param.getLookupable().getExpression().equals(baseIndex.getLookupable().getExpression())) &&
                                 (param.getFilterOperator().equals(baseIndex.getFilterOperator()))) {
-                            boolean found = removeFromIndex(filterCallback, index, params, currentLevel + 1, param.getFilterForValue());
-                            if (found) {
-                                indexFound = baseIndex;
-                                break;
-                            }
+                            indexMatch = true;
                         }
-                    } else if (index instanceof FilterParamIndexBooleanExpr && currentLevel == params.length - 1) {
-                        // if boolean-expression then match only if this is the last parameter,
-                        // all others considered are higher order and sort ahead
-                        if (param.getFilterOperator().equals(FilterOperator.BOOLEAN_EXPRESSION)) {
-                            FilterParamIndexBooleanExpr booleanIndex = (FilterParamIndexBooleanExpr) index;
-                            boolean found = booleanIndex.removeMayNotExist(param.getFilterForValue());
-                            if (found) {
-                                indexFound = booleanIndex;
-                                break;
-                            }
+                    } else if (index instanceof FilterParamIndexBooleanExpr && param.getFilterOperator() == FilterOperator.BOOLEAN_EXPRESSION) {
+                        indexMatch = true;
+                    }
+
+                    if (indexMatch) {
+                        boolean found = removeFromIndex(filterCallback, index, params, currentLevel + 1, param.getFilterForValue());
+                        if (found) {
+                            indexFound = index;
+                            break;
                         }
                     }
                 }

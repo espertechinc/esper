@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Represents an invocation of a plug-in single-row function  in the expression tree.
  */
-public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterOptimizableNode, ExprNodeInnerNodeProvider {
+public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterOptimizableNode, ExprNodeInnerNodeProvider, ExprNodeWithChainSpec {
 
     private final String functionName;
     private final Class clazz;

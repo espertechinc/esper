@@ -31,7 +31,9 @@ public class ViewableActivatorFilterMgmtCallback implements AgentInstanceMgmtCal
     public synchronized void stop(AgentInstanceStopServices services) {
         if (filterHandle != null) {
             FilterValueSetParam[][] filterValues = computeFilterValues(services.getAgentInstanceContext());
-            services.getAgentInstanceContext().getFilterService().remove(filterHandle, filterSpecActivatable.getFilterForEventType(), filterValues);
+            if (filterValues != null) {
+                services.getAgentInstanceContext().getFilterService().remove(filterHandle, filterSpecActivatable.getFilterForEventType(), filterValues);
+            }
         }
         filterHandle = null;
     }
@@ -42,8 +44,10 @@ public class ViewableActivatorFilterMgmtCallback implements AgentInstanceMgmtCal
             return;
         }
         FilterValueSetParam[][] filterValues = computeFilterValues(services.getAgentInstanceContext());
-        services.getAgentInstanceContext().getFilterService().remove(filterHandle, filterSpecActivatable.getFilterForEventType(), filterValues);
-        services.getTargetFilterService().add(filterSpecActivatable.getFilterForEventType(), filterValues, filterHandle);
+        if (filterValues != null) {
+            services.getAgentInstanceContext().getFilterService().remove(filterHandle, filterSpecActivatable.getFilterForEventType(), filterValues);
+            services.getTargetFilterService().add(filterSpecActivatable.getFilterForEventType(), filterValues, filterHandle);
+        }
     }
 
     private FilterValueSetParam[][] computeFilterValues(AgentInstanceContext agentInstanceContext) {

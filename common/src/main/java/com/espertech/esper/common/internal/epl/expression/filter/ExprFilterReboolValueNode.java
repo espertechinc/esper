@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.expression.filter;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 
@@ -54,7 +55,7 @@ public class ExprFilterReboolValueNode extends ExprNodeBase implements ExprForge
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return cast(requiredType, exprDotMethod(symbols.getAddExprEvalCtx(parent), "getFilterReboolConstant"));
+        return cast(requiredType, CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(symbols.getAddExprEvalCtx(parent), "getFilterReboolConstant")));
     }
 
     public Class getEvaluationType() {

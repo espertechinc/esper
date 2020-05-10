@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 import com.espertech.esper.runtime.internal.kernel.service.EPVariableServiceSPI;
@@ -618,7 +618,7 @@ public class EPLVariablesUse {
         }
 
         // assert type of expression
-        FilterItem item = SupportFilterHelper.getFilterSingle(env.statement("s0"));
+        FilterItem item = SupportFilterServiceHelper.getFilterSvcSingle(env.statement("s0"));
         assertTrue(item.getOp() != FilterOperator.BOOLEAN_EXPRESSION);
 
         env.undeployModuleContaining("s0");

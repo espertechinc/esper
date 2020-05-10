@@ -8,37 +8,46 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.regressionlib.support.util;
+package com.espertech.esper.regressionlib.support.filter;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanForge;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPathForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class SupportFilterSpecCompileEntry  {
+public class SupportFilterPlanEntry {
     private final EventType eventType;
-    private final List<FilterSpecParamForge>[] forges;
+    private final FilterSpecPlanForge plan;
+    private final List<ExprNode> planNodes;
 
-    public SupportFilterSpecCompileEntry(EventType eventType, List<FilterSpecParamForge>[] forges) {
+    public SupportFilterPlanEntry(EventType eventType, FilterSpecPlanForge forges, List<ExprNode> planNodes) {
         this.eventType = eventType;
-        this.forges = forges;
+        this.plan = forges;
+        this.planNodes = planNodes;
     }
 
     public EventType getEventType() {
         return eventType;
     }
 
-    public List<FilterSpecParamForge>[] getForges() {
-        return forges;
+    public FilterSpecPlanForge getPlan() {
+        return plan;
+    }
+
+    public List<ExprNode> getPlanNodes() {
+        return planNodes;
     }
 
     public FilterSpecParamForge getAssertSingle(String typeName) {
         assertEquals(typeName, eventType.getName());
-        assertEquals(1, forges.length);
-        List<FilterSpecParamForge> forgeList = forges[0];
-        assertEquals(1, forgeList.size());
-        return forgeList.get(0);
+        assertEquals(1, plan.getPaths().length);
+        FilterSpecPlanPathForge path = plan.getPaths()[0];
+        assertEquals(1, path.getTriplets().length);
+        return path.getTriplets()[0].getParam();
     }
 }

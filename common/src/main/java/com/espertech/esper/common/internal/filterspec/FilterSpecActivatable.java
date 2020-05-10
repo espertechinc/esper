@@ -11,12 +11,13 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlan;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPath;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPathTriplet;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.io.StringWriter;
-import java.util.Arrays;
 
 /**
  * Contains the filter criteria to sift through events. The filter criteria are the event class to look for and
@@ -25,7 +26,7 @@ import java.util.Arrays;
 public final class FilterSpecActivatable {
     private final EventType filterForEventType;
     private final String filterForEventTypeName;
-    private final FilterSpecParam[][] parameters;
+    private final FilterSpecPlan plan;
     private final PropertyEvaluator optionalPropertyEvaluator;
     private final int filterCallbackId;
 
@@ -34,17 +35,17 @@ public final class FilterSpecActivatable {
      * property names or mismatcing filter operators are found.
      *
      * @param eventType                 is the event type
-     * @param filterParameters          is a list of filter parameters
+     * @param plan                      plan is a list of filter parameters, i.e. paths and triplets
      * @param eventTypeName             is the name of the event type
      * @param optionalPropertyEvaluator optional if evaluating properties returned by filtered events
      * @param filterCallbackId          filter id
      * @throws IllegalArgumentException if validation invalid
      */
-    public FilterSpecActivatable(EventType eventType, String eventTypeName, FilterSpecParam[][] filterParameters,
+    public FilterSpecActivatable(EventType eventType, String eventTypeName, FilterSpecPlan plan,
                                  PropertyEvaluator optionalPropertyEvaluator, int filterCallbackId) {
         this.filterForEventType = eventType;
         this.filterForEventTypeName = eventTypeName;
-        this.parameters = filterParameters;
+        this.plan = plan;
         this.optionalPropertyEvaluator = optionalPropertyEvaluator;
         if (filterCallbackId == -1) {
             throw new IllegalArgumentException("Filter callback id is unassigned");
@@ -66,8 +67,8 @@ public final class FilterSpecActivatable {
      *
      * @return list of filter params
      */
-    public final FilterSpecParam[][] getParameters() {
-        return parameters;
+    public final FilterSpecPlan getPlan() {
+        return plan;
     }
 
     /**
@@ -109,110 +110,33 @@ public final class FilterSpecActivatable {
      * @param addendum             context addendum
      * @param exprEvaluatorContext context
      * @param filterEvalEnv        env
-     * @return filter values
+     * @return filter values, or null when negated
      **/
     public FilterValueSetParam[][] getValueSet(MatchedEventMap matchedEvents, FilterValueSetParam[][] addendum, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
-        FilterValueSetParam[][] valueList = evaluateValueSet(parameters, matchedEvents, exprEvaluatorContext, filterEvalEnv);
+        FilterValueSetParam[][] valueList = plan.evaluateValueSet(matchedEvents, exprEvaluatorContext, filterEvalEnv);
         if (addendum != null) {
             valueList = FilterAddendumUtil.multiplyAddendum(addendum, valueList);
         }
         return valueList;
     }
 
-
-    public static FilterValueSetParam[][] evaluateValueSet(FilterSpecParam[][] parameters, MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
-        return evaluateValueSet(parameters, matchedEvents, agentInstanceContext, agentInstanceContext.getStatementContextFilterEvalEnv());
-    }
-
-    public static FilterValueSetParam[][] evaluateValueSet(FilterSpecParam[][] parameters, MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
-        FilterValueSetParam[][] valueList = new FilterValueSetParam[parameters.length][];
-        for (int i = 0; i < parameters.length; i++) {
-            valueList[i] = new FilterValueSetParam[parameters[i].length];
-            populateValueSet(valueList[i], matchedEvents, parameters[i], exprEvaluatorContext, filterEvalEnv);
-        }
-        return valueList;
-    }
-
-    private static void populateValueSet(FilterValueSetParam[] valueList, MatchedEventMap matchedEvents, FilterSpecParam[] specParams, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
-        // Ask each filter specification parameter for the actual value to filter for
-        int count = 0;
-        for (FilterSpecParam specParam : specParams) {
-            FilterValueSetParam valueParam = specParam.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
-            valueList[count] = valueParam;
-            count++;
-        }
-    }
-
     @SuppressWarnings({"StringConcatenationInsideStringBufferAppend"})
     public final String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("FilterSpecActivatable type=" + this.filterForEventType);
-        buffer.append(" parameters=" + Arrays.toString(parameters));
+        buffer.append(" parameters=" + plan.toString());
         return buffer.toString();
     }
 
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof FilterSpecActivatable)) {
-            return false;
-        }
-
-        FilterSpecActivatable other = (FilterSpecActivatable) obj;
-        if (!equalsTypeAndFilter(other)) {
-            return false;
-        }
-
-        if ((this.optionalPropertyEvaluator == null) && (other.optionalPropertyEvaluator == null)) {
-            return true;
-        }
-        if ((this.optionalPropertyEvaluator != null) && (other.optionalPropertyEvaluator == null)) {
-            return false;
-        }
-        if ((this.optionalPropertyEvaluator == null) && (other.optionalPropertyEvaluator != null)) {
-            return false;
-        }
-
-        return this.optionalPropertyEvaluator.compareTo(other.optionalPropertyEvaluator);
-    }
-
-    /**
-     * Compares only the type and filter portion and not the property evaluation portion.
-     *
-     * @param other filter to compare
-     * @return true if same
-     */
-    public boolean equalsTypeAndFilter(FilterSpecActivatable other) {
-        if (this.filterForEventType != other.filterForEventType) {
-            return false;
-        }
-        if (this.parameters.length != other.parameters.length) {
-            return false;
-        }
-
-        for (int i = 0; i < this.parameters.length; i++) {
-            FilterSpecParam[] lineThis = this.parameters[i];
-            FilterSpecParam[] lineOther = other.parameters[i];
-            if (lineThis.length != lineOther.length) {
-                return false;
-            }
-
-            for (int j = 0; j < lineThis.length; j++) {
-                if (!lineThis[j].equals(lineOther[j])) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return this == obj;
     }
 
     public int hashCode() {
         int hashCode = filterForEventType.hashCode();
-        for (FilterSpecParam[] paramLine : parameters) {
-            for (FilterSpecParam param : paramLine) {
-                hashCode ^= 31 * param.hashCode();
+        for (FilterSpecPlanPath path : plan.getPaths()) {
+            for (FilterSpecPlanPathTriplet triplet : path.getTriplets()) {
+                hashCode ^= 31 * triplet.getParam().hashCode();
             }
         }
         return hashCode;
@@ -225,12 +149,12 @@ public final class FilterSpecActivatable {
     public String getFilterText() {
         StringWriter writer = new StringWriter();
         writer.write(getFilterForEventType().getName());
-        if (getParameters() != null && getParameters().length > 0) {
+        if (getPlan().getPaths() != null && getPlan().getPaths().length > 0) {
             writer.write('(');
             String delimiter = "";
-            for (FilterSpecParam[] paramLine : getParameters()) {
+            for (FilterSpecPlanPath path : getPlan().getPaths()) {
                 writer.write(delimiter);
-                writeFilter(writer, paramLine);
+                writeFilter(writer, path);
                 delimiter = " or ";
             }
             writer.write(')');
@@ -238,12 +162,12 @@ public final class FilterSpecActivatable {
         return writer.toString();
     }
 
-    private static void writeFilter(StringWriter writer, FilterSpecParam[] paramLine) {
+    private static void writeFilter(StringWriter writer, FilterSpecPlanPath path) {
         String delimiter = "";
-        for (FilterSpecParam param : paramLine) {
+        for (FilterSpecPlanPathTriplet triplet : path.getTriplets()) {
             writer.write(delimiter);
-            writer.write(param.getLkupable().getExpression());
-            writer.write(param.getFilterOperator().getTextualOp());
+            writer.write(triplet.getParam().getLkupable().getExpression());
+            writer.write(triplet.getParam().getFilterOperator().getTextualOp());
             writer.write("...");
             delimiter = ",";
         }

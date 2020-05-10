@@ -26,7 +26,7 @@ import static com.espertech.esper.regressionlib.support.filter.FilterTestMultiSt
 
 public class ExprFilterPlanNoFilter {
 
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<>();
 
         // no filter
@@ -35,6 +35,6 @@ public class ExprFilterPlanNoFilter {
             "",
             makeItem(SupportBean.makeBean("E1"), true)); // no filter
 
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanNoFilter.class, new PermutationSpec(true), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanNoFilter.class, new PermutationSpec(true), cases, withStats);
     }
 }

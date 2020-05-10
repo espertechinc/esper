@@ -24,7 +24,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportWebEvent;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorPartitioned;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import junit.framework.TestCase;
 import org.junit.Assert;
 
@@ -468,7 +468,7 @@ public class ContextKeySegmented {
             // first send a view events
             env.sendEventBean(new SupportBean("B1", -1));
             env.sendEventBean(new SupportBean_S0(-2, "S0"));
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             String[] fields = "col1,col2".split(",");
             env.compileDeploy("@name('s0') context SegmentedByAString " +
@@ -476,7 +476,7 @@ public class ContextKeySegmented {
                 "from pattern [every (s0=SupportBean_S0 or sb=SupportBean)]", path);
             env.addListener("s0");
 
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(0);
 
@@ -484,7 +484,7 @@ public class ContextKeySegmented {
             env.sendEventBean(new SupportBean("S0", -1));
             env.sendEventBean(new SupportBean("S1", -2));
             assertFalse(env.listener("s0").isInvoked());
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(1);
 
@@ -515,7 +515,7 @@ public class ContextKeySegmented {
             env.milestone(6);
 
             env.undeployAll();
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(7);
 
@@ -535,7 +535,7 @@ public class ContextKeySegmented {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@Name('context') create context SegmentedByAString " +
                 "partition by theString from SupportBean, p00 from SupportBean_S0", path);
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // first send a view events
             env.sendEventBean(new SupportBean("B1", 1));
@@ -545,56 +545,56 @@ public class ContextKeySegmented {
             env.compileDeploy("@name('s0') context SegmentedByAString select sum(id) as col1 from SupportBean_S0", path);
             env.addListener("s0");
 
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean_S0(10, "S0"));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
 
             env.milestone(0);
 
-            Assert.assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean_S0(8, "S1"));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{8});
 
             env.milestone(1);
 
-            Assert.assertEquals(4, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean_S0(4, "S0"));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{14});
 
             env.milestone(2);
 
-            Assert.assertEquals(4, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.compileDeploy("@name('s1') context SegmentedByAString select sum(intPrimitive) as col1 from SupportBean", path);
             env.addListener("s1");
 
-            Assert.assertEquals(6, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("S0", 5));
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{5});
 
-            Assert.assertEquals(6, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("S2", 6));
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{6});
 
-            Assert.assertEquals(8, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(8, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.undeployModuleContaining("s0");
-            Assert.assertEquals(5, SupportFilterHelper.getFilterCountApprox(env));  // 5 = 3 from context instances and 2 from context itself
+            Assert.assertEquals(5, SupportFilterServiceHelper.getFilterSvcCountApprox(env));  // 5 = 3 from context instances and 2 from context itself
 
             env.milestone(4);
 
             env.undeployModuleContaining("s1");
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.undeployModuleContaining("context");
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.undeployAll();
         }

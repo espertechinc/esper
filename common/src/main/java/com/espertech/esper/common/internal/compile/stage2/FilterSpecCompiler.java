@@ -23,7 +23,6 @@ import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselect
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperFilters;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,22 +91,25 @@ public final class FilterSpecCompiler {
             optionalPropertyEvaluator = PropertyEvaluatorForgeFactory.makeEvaluator(optionalPropertyEvalSpec, eventType, optionalStreamName, statementRawInfo, compileTimeServices);
         }
 
+        // unwind "and" and "or"
+        List<ExprNode> unwound = FilterSpecCompilerIndexPlannerUnwindAndOr.unwindAndOr(validatedNodes);
+
         FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, null, statementRawInfo, compileTimeServices);
-        List<FilterSpecParamForge>[] spec = FilterSpecCompilerPlanner.planFilterParameters(validatedNodes, args);
+        FilterSpecPlanForge plan = FilterSpecCompilerIndexPlanner.planFilterParameters(unwound, args);
 
         FilterSpecCompileHook hook = (FilterSpecCompileHook) ClasspathImportUtil.getAnnotationHook(statementRawInfo.getAnnotations(), HookType.INTERNAL_FILTERSPEC, FilterSpecCompileHook.class, compileTimeServices.getClasspathImportServiceCompileTime());
         if (hook != null) {
-            hook.filterSpec(eventType, spec);
+            hook.filterIndexPlan(eventType, unwound, plan);
         }
 
         if (compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableFilterPlan()) {
-            logFilterPlans(validatedNodes, spec, eventType, optionalStreamName, statementRawInfo);
+            logFilterPlans(unwound, plan, eventType, optionalStreamName, statementRawInfo);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug(".makeFilterSpec spec=" + spec);
+            log.debug(".makeFilterSpec spec=" + plan);
         }
-        return new FilterSpecCompiled(eventType, eventTypeName, spec, optionalPropertyEvaluator);
+        return new FilterSpecCompiled(eventType, eventTypeName, plan, optionalPropertyEvaluator);
     }
 
     public static FilterSpecValidatedDesc validateAllowSubquery(ExprNodeOrigin exprNodeOrigin,
@@ -155,7 +157,7 @@ public final class FilterSpecCompiler {
         return new FilterSpecValidatedDesc(validatedNodes, additionalForgeables);
     }
 
-    private static void logFilterPlans(List<ExprNode> validatedNodes, List<FilterSpecParamForge>[] spec, EventType eventType, String optionalStreamName, StatementRawInfo statementRawInfo) {
+    private static void logFilterPlans(List<ExprNode> validatedNodes, FilterSpecPlanForge plan, EventType eventType, String optionalStreamName, StatementRawInfo statementRawInfo) {
         StringBuilder buf = new StringBuilder();
         buf.append("Filter plan for statement '").append(statementRawInfo.getStatementName()).append("' filtering event type '").append(eventType.getName() + "'");
         if (optionalStreamName != null) {
@@ -166,32 +168,12 @@ public final class FilterSpecCompiler {
         } else {
             ExprNode andNode = ExprNodeUtilityMake.connectExpressionsByLogicalAndWhenNeeded(validatedNodes);
             String expression = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(andNode);
-            buf.append(" expression '").append(expression).append("' for ").append(spec.length).append(" path");
+            buf.append(" expression '").append(expression).append("' for ").append(plan.getPaths().length).append(" paths");
         }
+        buf.append(NEWLINE);
 
-        for (int i = 0; i < spec.length; i++) {
-            logFilterPlanPath(i, spec[i], buf);
-        }
+        plan.appendPlan(buf);
 
         log.info(buf.toString());
-    }
-
-    private static void logFilterPlanPath(int indexPath, List<FilterSpecParamForge> forges, StringBuilder buf) {
-        buf.append("  path #").append(indexPath).append(" there are ").append(forges.size()).append(" tuplets").append(NEWLINE);
-
-        int indexForge = 0;
-        for (FilterSpecParamForge forge : forges) {
-            logFilterPlanForge(indexForge, forge, buf);
-            indexForge++;
-        }
-    }
-
-    private static void logFilterPlanForge(int indexForge, FilterSpecParamForge forge, StringBuilder buf) {
-        buf.append("    tuplet #").append(indexForge).append(NEWLINE);
-        buf.append("      operator: ").append(forge.getFilterOperator().getTextualOp()).append(NEWLINE);
-        buf.append("      lookupable: ").append(forge.getLookupable().getExpression()).append(NEWLINE);
-        buf.append("      value-expression: ");
-        forge.valueExprToString(buf, 8);
-        buf.append(NEWLINE);
     }
 }

@@ -23,7 +23,7 @@ import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.context.*;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
@@ -392,11 +392,11 @@ public class ContextHashSegmented {
             String eplStmt = "@name('s0') context " + ctx + " " +
                 "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall group by theString";
             env.compileDeploy(eplStmt, path).addListener("s0");
-            assertEquals(4, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 4, null, null, null);
 
             tryAssertionHash(env, milestone, "s0", ctx); // equivalent to: SupportHashCodeFuncGranularCRC32(4)
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             path.clear();
 
             // test same with SODA
@@ -414,11 +414,11 @@ public class ContextHashSegmented {
             env.compileDeploy("@name('s0') context " + ctx + " " +
                 "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall group by theString", path);
             env.addListener("s0");
-            assertEquals(6, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 6, null, null, null);
 
             tryAssertionHash(env, milestone, "s0", ctx);
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             path.clear();
 
             // test no pre-allocate
@@ -429,11 +429,11 @@ public class ContextHashSegmented {
             env.compileDeploy("@name('s0') context " + ctx + " " +
                 "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall group by theString", path);
             env.addListener("s0");
-            assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0, null, null, null);
 
             tryAssertionHash(env, milestone, "s0", ctx);
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.undeployAll();
         }

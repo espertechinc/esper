@@ -123,7 +123,8 @@ public class DeployerHelperStatement {
             epRuntime.getServicesContext().getContextManagementService().addStatement(contextDeploymentId, contextName, statement, recovery);
             statementDestroyCallback = new StatementDestroyCallback() {
                 public void destroy(StatementDestroyServices destroyServices, StatementContext statementContext) {
-                    epRuntime.getServicesContext().getContextManagementService().stoppedStatement(contextDeploymentId, contextName, statement);
+                    StatementContext ctx = statement.getLightweight().getStatementContext();
+                    epRuntime.getServicesContext().getContextManagementService().stoppedStatement(contextDeploymentId, contextName, ctx.getStatementId(), ctx.getStatementName(), ctx.getDeploymentId());
                     statementAgentInstanceFactory.statementDestroy(lightweight.getStatementContext());
                 }
             };

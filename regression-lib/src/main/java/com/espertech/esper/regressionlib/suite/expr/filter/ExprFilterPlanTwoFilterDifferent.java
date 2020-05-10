@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.filter;
 
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.filter.*;
 import junit.framework.TestCase;
 
@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class ExprFilterPlanTwoFilterDifferent extends TestCase {
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
 
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<FilterTestMultiStmtPermutable>();
 
@@ -31,6 +31,6 @@ public class ExprFilterPlanTwoFilterDifferent extends TestCase {
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("E1", 0), true, false), FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("E2", 1), false, true),
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("E3", -1), false, false));
 
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanTwoFilterDifferent.class, new PermutationSpec(true), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanTwoFilterDifferent.class, new PermutationSpec(true), cases, withStats);
     }
 }

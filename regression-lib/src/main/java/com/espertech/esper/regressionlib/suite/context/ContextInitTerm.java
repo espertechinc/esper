@@ -29,7 +29,7 @@ import com.espertech.esper.regressionlib.support.context.AgentInstanceAssertionU
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorFilteredInitTerm;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
 import org.junit.Assert;
 
@@ -238,7 +238,7 @@ public class ContextInitTerm {
 
             env.undeployAll();
             assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
 
@@ -748,29 +748,29 @@ public class ContextInitTerm {
 
             env.compileDeploy("context EverySupportBean select * from SupportBean_S0#time(2 min) sb0", path);
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(0, "S0_1"));
             Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(2);
 
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.undeployAll();
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
-            Assert.assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
 
@@ -1372,7 +1372,7 @@ public class ContextInitTerm {
 
             env.sendEventBean(new SupportBean("E1", 10));
             assertFalse(env.listener("s0").getAndClearIsInvoked());
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0);
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, null);
 
@@ -1382,7 +1382,7 @@ public class ContextInitTerm {
 
             env.milestone(1);
 
-            assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
             env.sendEventBean(new SupportBean("E2", 5));
             Object[][] expected = new Object[][]{{"E2", 5}};
@@ -1393,7 +1393,7 @@ public class ContextInitTerm {
 
             env.milestone(2);
 
-            assertEquals(1, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
             env.sendEventBean(new SupportBean("E3", 6));
             expected = new Object[][]{{"E3", 11}};
@@ -1407,7 +1407,7 @@ public class ContextInitTerm {
 
             env.milestone(4);
 
-            assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
             env.sendEventBean(new SupportBean("E4", 7));
             expected = new Object[][]{{"E4", 18}, {"E4", 7}};
@@ -1418,7 +1418,7 @@ public class ContextInitTerm {
 
             env.milestone(5);
 
-            assertEquals(2, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
             env.sendEventBean(new SupportBean("E5", 8));
             expected = new Object[][]{{"E5", 26}, {"E5", 15}};
@@ -1429,7 +1429,7 @@ public class ContextInitTerm {
 
             env.milestone(6);
 
-            assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E6", 9));
             expected = new Object[][]{{"E6", 35}, {"E6", 24}, {"E6", 9}};
@@ -1440,7 +1440,7 @@ public class ContextInitTerm {
 
             env.milestone(7);
 
-            assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E7", 10));
             expected = new Object[][]{{"E7", 34}, {"E7", 19}, {"E7", 10}};
@@ -1451,7 +1451,7 @@ public class ContextInitTerm {
 
             env.milestone(8);
 
-            assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E8", 11));
             expected = new Object[][]{{"E8", 30}, {"E8", 21}, {"E8", 11}};

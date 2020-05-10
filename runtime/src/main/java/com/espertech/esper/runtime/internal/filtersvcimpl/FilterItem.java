@@ -12,7 +12,7 @@ package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
 
 public class FilterItem {
     private final String name;

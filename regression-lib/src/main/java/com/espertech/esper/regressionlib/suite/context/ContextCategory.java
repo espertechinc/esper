@@ -19,7 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.context.*;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -279,7 +279,7 @@ public class ContextCategory {
                 "select context.name as c0, context.label as c1, sum(intPrimitive) as c2 from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3, null, null, null);
 
             env.milestoneInc(milestone);
@@ -312,11 +312,11 @@ public class ContextCategory {
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{ctx, "cat1", 12}, {ctx, "cat2", 11}, {ctx, "cat3", 50}});
 
             assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
-            assertEquals(3, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.undeployModuleContaining("s0");
 
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
         }
     }

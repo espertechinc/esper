@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.common.internal.context.controller.category;
 
-import com.espertech.esper.common.internal.filterspec.FilterSpecParam;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlan;
 
 public class ContextControllerDetailCategoryItem {
 
     private String name;
-    private FilterSpecParam[][] compiledFilterParam;
+    private FilterSpecPlan filterPlan;
 
     public String getName() {
         return name;
@@ -25,11 +25,11 @@ public class ContextControllerDetailCategoryItem {
         this.name = name;
     }
 
-    public FilterSpecParam[][] getCompiledFilterParam() {
-        return compiledFilterParam;
+    public FilterSpecPlan getFilterPlan() {
+        return filterPlan;
     }
 
-    public void setCompiledFilterParam(FilterSpecParam[][] compiledFilterParam) {
-        this.compiledFilterParam = compiledFilterParam;
+    public void setFilterPlan(FilterSpecPlan filterPlan) {
+        this.filterPlan = filterPlan;
     }
 }

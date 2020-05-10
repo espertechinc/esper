@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.compile.stage2;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeWithChainSpec;
+import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
@@ -37,7 +39,8 @@ public class FilterSpecExprNodeVisitorBooleanLimitedExprPrequalify implements Ex
         } else if (exprNode instanceof ExprTableAccessNode ||
             exprNode instanceof ExprSubselectNode ||
             exprNode instanceof ExprLambdaGoesNode ||
-            exprNode instanceof ExprNodeScript) {
+            exprNode instanceof ExprNodeScript ||
+            exprNode instanceof ExprDeclaredNode) {
             limited = false;
         } else if (exprNode instanceof ExprPlugInSingleRowNode) {
             ExprPlugInSingleRowNode plugIn = (ExprPlugInSingleRowNode) exprNode;
@@ -50,6 +53,13 @@ public class FilterSpecExprNodeVisitorBooleanLimitedExprPrequalify implements Ex
         } else if (exprNode instanceof ExprDotNode) {
             ExprDotNode node = (ExprDotNode) exprNode;
             if (node.isLocalInlinedClass()) {
+                limited = false;
+            }
+        }
+
+        // we don't process enumeration methods
+        if (exprNode instanceof ExprNodeWithChainSpec) {
+            if (!((ExprNodeWithChainSpec) exprNode).getChainSpec().isEmpty()) {
                 limited = false;
             }
         }

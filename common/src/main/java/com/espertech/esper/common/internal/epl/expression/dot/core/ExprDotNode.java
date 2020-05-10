@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeWithChainSpec;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffectorProvider;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
@@ -22,12 +23,10 @@ import java.util.List;
 /**
  * Represents an Dot-operator expression, for use when "(expression).method(...).method(...)"
  */
-public interface ExprDotNode extends ExprNode, FilterExprAnalyzerAffectorProvider {
+public interface ExprDotNode extends ExprNode, FilterExprAnalyzerAffectorProvider, ExprNodeWithChainSpec {
     String FILTERINDEX_NAMED_PARAMETER = "filterindex";
 
     Integer getStreamReferencedIfAny();
-
-    List<Chainable> getChainSpec();
 
     VariableMetaData isVariableOpGetName(VariableCompileTimeResolver variableCompileTimeResolver);
 

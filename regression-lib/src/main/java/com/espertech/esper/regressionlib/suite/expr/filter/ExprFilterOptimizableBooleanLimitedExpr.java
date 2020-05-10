@@ -19,8 +19,8 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
-import com.espertech.esper.regressionlib.support.util.SupportFilterSpecCompileHook;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterPlanHook;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPDeploymentService;
@@ -30,15 +30,15 @@ import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 
 import java.util.*;
 
+import static com.espertech.esper.common.internal.filterspec.FilterOperator.EQUAL;
 import static com.espertech.esper.common.internal.filterspec.FilterOperator.REBOOL;
-import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.*;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.*;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 public class ExprFilterOptimizableBooleanLimitedExpr {
-    private final static String HINT = "@Hint('filterindex(boolcomposite)')";
-
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
         executions.add(new ExprFilterOptReboolConstValueRegexpRHS());
@@ -50,7 +50,6 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
         executions.add(new ExprFilterOptReboolContextValueDeep());
         executions.add(new ExprFilterOptReboolContextValueWithConst());
         executions.add(new ExprFilterOptReboolPatternValueWithConst());
-        executions.add(new ExprFilterOptReboolNoValueStaticFuncWithWildcard());
         executions.add(new ExprFilterOptReboolWithEquals());
         executions.add(new ExprFilterOptReboolMultiple());
         executions.add(new ExprFilterOptReboolDisqualify());
@@ -59,14 +58,15 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
     private static class ExprFilterOptReboolWithEquals implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT + "@name('s0') select * from pattern[s0=SupportBean_S0 -> SupportBean(intPrimitive+5=s0.id and theString='a')]";
+            String epl = "@name('s0') select * from pattern[s0=SupportBean_S0 -> SupportBean(intPrimitive+5=s0.id and theString='a')]";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(10));
 
-            FilterItem[] params = getFilterMulti(env.statement("s0"));
-            assertEquals(FilterOperator.EQUAL, params[0].getOp());
-            assertEquals(REBOOL, params[1].getOp());
-            assertEquals("intPrimitive+5=?", params[1].getName());
+            if (hasFilterIndexPlanAdvanced(env)) {
+                FilterItem[] params = getFilterSvcMultiAssertNonEmpty(env.statement("s0"));
+                assertEquals(EQUAL, params[0].getOp());
+                assertEquals(EQUAL, params[1].getOp());
+            }
 
             env.milestone(0);
 
@@ -80,20 +80,22 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
     private static class ExprFilterOptReboolMultiple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.compileDeploy(HINT + "@name('s0') select * from SupportBean_S0(p00 regexp '.*X' and p01 regexp '.*Y')").addListener("s0");
-            env.compileDeploy(HINT + "@name('s1') select * from SupportBean_S0(p01 regexp '.*Y' and p00 regexp '.*X')").addListener("s1");
+            env.compileDeploy("@name('s0') select * from SupportBean_S0(p00 regexp '.*X' and p01 regexp '.*Y')").addListener("s0");
+            env.compileDeploy("@name('s1') select * from SupportBean_S0(p01 regexp '.*Y' and p00 regexp '.*X')").addListener("s1");
 
             env.milestone(0);
 
-            Map<String, FilterItem[]> filters = getFilterAllStmtForTypeMulti(env.runtime(), "SupportBean_S0");
-            FilterItem[] s0 = filters.get("s0");
-            FilterItem[] s1 = filters.get("s1");
-            assertEquals(REBOOL, s0[0].getOp());
-            assertEquals("p00 regexp ?", s0[0].getName());
-            assertEquals(REBOOL, s0[1].getOp());
-            assertEquals("p01 regexp ?", s0[1].getName());
-            assertEquals(s0[0], s1[0]);
-            assertEquals(s0[1], s1[1]);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                Map<String, FilterItem[]> filters = getFilterSvcAllStmtForTypeMulti(env.runtime(), "SupportBean_S0");
+                FilterItem[] s0 = filters.get("s0");
+                FilterItem[] s1 = filters.get("s1");
+                assertEquals(REBOOL, s0[0].getOp());
+                assertEquals("p00 regexp ?", s0[0].getName());
+                assertEquals(REBOOL, s0[1].getOp());
+                assertEquals("p01 regexp ?", s0[1].getName());
+                assertEquals(s0[0], s1[0]);
+                assertEquals(s0[1], s1[1]);
+            }
 
             sendS0Assert(env, "AX", "AZ", false);
             sendS0Assert(env, "AY", "AX", false);
@@ -103,29 +105,14 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
         }
     }
 
-    private static class ExprFilterOptReboolNoValueStaticFuncWithWildcard implements RegressionExecution {
-        public void run(RegressionEnvironment env) {
-            String method = ExprFilterOptimizableBooleanLimitedExpr.class.getName() + ".myStaticMethod(*)";
-            String epl = HINT + "@name('s0') select * from SupportBean(theString = " + method + ")";
-            env.compileDeploy(epl).addListener("s0");
-
-            assertFilterSingle(env.statement("s0"), epl, "theString=" + method, REBOOL);
-
-            env.milestone(0);
-
-            sendSBAssert(env, "E1", true);
-            sendSBAssert(env, "X1", false);
-
-            env.undeployAll();
-        }
-    }
-
     private static class ExprFilterOptReboolPatternValueWithConst implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT + "@name('s0') select * from pattern[s0=SupportBean_S0 -> SupportBean_S1(p10 || 'abc' regexp s0.p00)];\n";
+            String epl = "@name('s0') select * from pattern[s0=SupportBean_S0 -> SupportBean_S1(p10 || 'abc' regexp s0.p00)];\n";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "x.*abc"));
-            assertFilterSingle(env.statement("s0"), epl, "p10||\"abc\" regexp ?", REBOOL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "p10||\"abc\" regexp ?", REBOOL);
+            }
 
             env.milestone(0);
 
@@ -139,10 +126,12 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
     private static class ExprFilterOptReboolContextValueWithConst implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create context MyContext start SupportBean_S0 as s0;\n" +
-                HINT + "@name('s0') context MyContext select * from SupportBean_S1(p10 || 'abc' regexp context.s0.p00);\n";
+                "@name('s0') context MyContext select * from SupportBean_S1(p10 || 'abc' regexp context.s0.p00);\n";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "x.*abc"));
-            assertFilterSingle(env.statement("s0"), epl, "p10||\"abc\" regexp ?", REBOOL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "p10||\"abc\" regexp ?", REBOOL);
+            }
 
             env.milestone(0);
 
@@ -156,10 +145,12 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
     private static class ExprFilterOptReboolContextValueDeep implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create context MyContext start SupportBean_S0 as s0;\n" +
-                HINT + "@name('s0') context MyContext select * from SupportBean_S1(p10 regexp p11 || context.s0.p00);\n";
+                "@name('s0') context MyContext select * from SupportBean_S1(p10 regexp p11 || context.s0.p00);\n";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, ".*X"));
-            assertFilterSingle(env.statement("s0"), epl, "p10 regexp p11||?", REBOOL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "p10 regexp p11||?", REBOOL);
+            }
 
             env.milestone(0);
 
@@ -209,14 +200,14 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
     private static class ExprFilterOptReboolMixedValueRegexpRHS implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('var') create constant variable string MYVAR = '.*abc.*';\n" +
-                HINT + "@name('s0') select * from SupportBean(theString regexp MYVAR);\n" +
+                "@name('s0') select * from SupportBean(theString regexp MYVAR);\n" +
                 "" +
                 "@name('ctx') create context MyContext start SupportBean_S0 as s0;\n" +
-                HINT + "@name('s1') context MyContext select * from SupportBean(theString regexp context.s0.p00);\n" +
+                "@name('s1') context MyContext select * from SupportBean(theString regexp context.s0.p00);\n" +
                 "" +
-                HINT + "@name('s2') select * from pattern[s0=SupportBean_S0 -> every SupportBean(theString regexp s0.p00)];\n" +
+                "@name('s2') select * from pattern[s0=SupportBean_S0 -> every SupportBean(theString regexp s0.p00)];\n" +
                 "" +
-                HINT + "@name('s3') select * from SupportBean(theString regexp '.*' || 'abc' || '.*');\n";
+                "@name('s3') select * from SupportBean(theString regexp '.*' || 'abc' || '.*');\n";
             env.compileDeploy(epl);
             EPDeployment deployment = env.deployment().getDeployment(env.deploymentId("s0"));
             Set<String> statementNames = new LinkedHashSet<>();
@@ -234,15 +225,17 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             sendSBAssert(env, "xabsx", statementNames, false);
             sendSBAssert(env, "xabcx", statementNames, true);
 
-            Map<String, FilterItem> filters = SupportFilterHelper.getFilterAllStmtForTypeSingleFilter(env.runtime(), "SupportBean");
-            FilterItem s0 = filters.get("s0");
-            for (String name : statementNames) {
-                FilterItem sn = filters.get(name);
-                assertEquals(FilterOperator.REBOOL, sn.getOp());
-                assertNotNull(s0.getOptionalValue());
-                assertNotNull(s0.getIndex());
-                assertSame(s0.getIndex(), sn.getIndex());
-                assertSame(s0.getOptionalValue(), sn.getOptionalValue());
+            if (hasFilterIndexPlanAdvanced(env)) {
+                Map<String, FilterItem> filters = SupportFilterServiceHelper.getFilterSvcAllStmtForTypeSingleFilter(env.runtime(), "SupportBean");
+                FilterItem s0 = filters.get("s0");
+                for (String name : statementNames) {
+                    FilterItem sn = filters.get(name);
+                    assertEquals(FilterOperator.REBOOL, sn.getOp());
+                    assertNotNull(s0.getOptionalValue());
+                    assertNotNull(s0.getIndex());
+                    assertSame(s0.getIndex(), sn.getIndex());
+                    assertSame(s0.getOptionalValue(), sn.getOptionalValue());
+                }
             }
 
             env.undeployAll();
@@ -251,34 +244,39 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
     private static class ExprFilterOptReboolConstValueRegexpRHS implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterSpecCompileHook.class.getName() + "')";
-            String epl = HINT + hook + "@name('s0') select * from SupportBean(theString regexp '.*a.*')";
+            SupportFilterPlanHook.reset();
+            String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterPlanHook.class.getName() + "')";
+            String epl = hook + "@name('s0') select * from SupportBean(theString regexp '.*a.*')";
             env.compileDeploy(epl).addListener("s0");
-            FilterSpecParamForge forge = SupportFilterSpecCompileHook.assertSingleAndReset("SupportBean");
-            assertEquals(FilterOperator.REBOOL, forge.getFilterOperator());
-            assertEquals("theString regexp ?", forge.getLookupable().getExpression());
-            assertEquals(String.class, forge.getLookupable().getReturnType());
-            assertFilterSingle(env.statement("s0"), epl, "theString regexp ?", REBOOL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                FilterSpecParamForge forge = SupportFilterPlanHook.assertPlanSingleTripletAndReset("SupportBean");
+                assertEquals(FilterOperator.REBOOL, forge.getFilterOperator());
+                assertEquals("theString regexp ?", forge.getLookupable().getExpression());
+                assertEquals(String.class, forge.getLookupable().getReturnType());
+                assertFilterSvcSingle(env.statement("s0"), "theString regexp ?", REBOOL);
+            }
 
-            epl = HINT + "@name('s1') select * from SupportBean(theString regexp '.*a.*')";
+            epl = "@name('s1') select * from SupportBean(theString regexp '.*a.*')";
             env.compileDeploy(epl).addListener("s1");
 
-            epl = HINT + "@name('s2') select * from SupportBean(theString regexp '.*b.*')";
+            epl = "@name('s2') select * from SupportBean(theString regexp '.*b.*')";
             env.compileDeploy(epl).addListener("s2");
 
             env.milestone(0);
 
-            Map<String, FilterItem> filters = SupportFilterHelper.getFilterAllStmtForTypeSingleFilter(env.runtime(), "SupportBean");
-            FilterItem s0 = filters.get("s0");
-            FilterItem s1 = filters.get("s1");
-            FilterItem s2 = filters.get("s2");
-            assertEquals(FilterOperator.REBOOL, s0.getOp());
-            assertNotNull(s0.getOptionalValue());
-            assertNotNull(s0.getIndex());
-            assertSame(s0.getIndex(), s1.getIndex());
-            assertSame(s0.getOptionalValue(), s1.getOptionalValue());
-            assertSame(s0.getIndex(), s2.getIndex());
-            assertNotSame(s0.getOptionalValue(), s2.getOptionalValue());
+            if (hasFilterIndexPlanAdvanced(env)) {
+                Map<String, FilterItem> filters = SupportFilterServiceHelper.getFilterSvcAllStmtForTypeSingleFilter(env.runtime(), "SupportBean");
+                FilterItem s0 = filters.get("s0");
+                FilterItem s1 = filters.get("s1");
+                FilterItem s2 = filters.get("s2");
+                assertEquals(FilterOperator.REBOOL, s0.getOp());
+                assertNotNull(s0.getOptionalValue());
+                assertNotNull(s0.getIndex());
+                assertSame(s0.getIndex(), s1.getIndex());
+                assertSame(s0.getOptionalValue(), s1.getOptionalValue());
+                assertSame(s0.getIndex(), s2.getIndex());
+                assertNotSame(s0.getOptionalValue(), s2.getOptionalValue());
+            }
 
             sendSBAssert(env, "garden", true, true, false);
             sendSBAssert(env, "house", false, false, false);
@@ -297,7 +295,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            String epl = HINT + "select * from SupportBean(theString regexp '.*,.*,.*,.*,.*,13,.*,.*,.*,.*,.*,.*')";
+            String epl = "select * from SupportBean(theString regexp '.*,.*,.*,.*,.*,13,.*,.*,.*,.*,.*,.*')";
             int count = 5;
             deployMultiple(count, path, epl, env);
 
@@ -371,7 +369,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
                 "@public create expression MyHandThrough {v => v};" +
                 "@public create expression string js:MyJavaScript() [\"a\"];\n";
             env.compile(objects, path);
-            String hook = HINT + "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterSpecCompileHook.class.getName() + "')";
+            String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterPlanHook.class.getName() + "')";
 
             // Core disqualifing: non-constant variables, tables, subselects, lambda, plug-in UDF with filter-opt-disabled, scripts
             assertDisqualified(env, path, "SupportBean", hook + "select * from SupportBean(theString regexp MYVARIABLE_NONCONSTANT)");
@@ -401,8 +399,9 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
     }
 
     protected static void assertDisqualified(RegressionEnvironment env, RegressionPath path, String typeName, String epl) {
+        SupportFilterPlanHook.reset();
         env.compile(epl, path);
-        FilterSpecParamForge forge = SupportFilterSpecCompileHook.assertSingleForTypeAndReset(typeName);
+        FilterSpecParamForge forge = SupportFilterPlanHook.assertPlanSingleForTypeAndReset(typeName);
         assertEquals(FilterOperator.BOOLEAN_EXPRESSION, forge.getFilterOperator());
     }
 
@@ -439,7 +438,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
     }
 
     private static void assertSameFilterEntry(RegressionEnvironment env, String eventTypeName) {
-        Map<String, FilterItem> filters = SupportFilterHelper.getFilterAllStmtForTypeSingleFilter(env.runtime(), eventTypeName);
+        Map<String, FilterItem> filters = SupportFilterServiceHelper.getFilterSvcAllStmtForTypeSingleFilter(env.runtime(), eventTypeName);
         FilterItem s0 = filters.get("s0");
         FilterItem s1 = filters.get("s1");
         assertEquals(FilterOperator.REBOOL, s0.getOp());
@@ -459,16 +458,23 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
     private static void runTwoStmt(RegressionEnvironment env, String eplZero, String eplOne, String reboolExpressionText, String eventTypeName,
                                    Object eventReceived, Object eventNotReceived) {
-        env.compileDeploy(HINT + "@name('s0') " + eplZero).addListener("s0");
-        assertFilterSingle(env.statement("s0"), eplZero, reboolExpressionText, REBOOL);
+        env.compileDeploy("@name('s0') " + eplZero).addListener("s0");
+        boolean advanced = hasFilterIndexPlanAdvanced(env);
+        if (advanced) {
+            assertFilterSvcSingle(env.statement("s0"), reboolExpressionText, REBOOL);
+        }
 
-        env.compileDeploy(HINT + "@name('s1') " + eplOne).addListener("s1");
-        assertFilterSingle(env.statement("s1"), eplOne, reboolExpressionText, REBOOL);
+        env.compileDeploy("@name('s1') " + eplOne).addListener("s1");
+        if (advanced) {
+            assertFilterSvcSingle(env.statement("s1"), reboolExpressionText, REBOOL);
+        }
         List<String> statementNames = Arrays.asList("s0", "s1");
 
         env.milestone(0);
 
-        assertSameFilterEntry(env, eventTypeName);
+        if (advanced) {
+            assertSameFilterEntry(env, eventTypeName);
+        }
 
         env.sendEventBean(eventReceived);
         assertReceived(env, statementNames, true);

@@ -25,11 +25,14 @@ import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceService;
 import com.espertech.esper.common.internal.util.CollectionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
 
 public class ContextManagerRealization implements ContextControllerLifecycleCallback, FilterFaultHandler {
+    private static final Logger log = LoggerFactory.getLogger(ContextManagerRealization.class);
     private final ContextManagerResident contextManager;
     private final AgentInstanceContext agentInstanceContextCreate;
     private final ContextController[] contextControllers;
@@ -234,7 +237,11 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
     public void removeStatement(ContextControllerStatementDesc statementDesc) {
         Collection<Integer> ids = contextManager.getContextPartitionIdService().getIds();
         for (Integer id : ids) {
-            AgentInstanceUtil.contextPartitionTerminate(id, statementDesc, contextControllers, null, false, null);
+            try {
+                AgentInstanceUtil.contextPartitionTerminate(id, statementDesc, contextControllers, null, false, null);
+            } catch (RuntimeException ex) {
+                log.error("Failed to terminated context partition: " + ex.getMessage(), ex);
+            }
         }
     }
 

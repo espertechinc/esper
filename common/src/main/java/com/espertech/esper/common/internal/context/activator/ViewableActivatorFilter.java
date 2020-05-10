@@ -62,11 +62,15 @@ public class ViewableActivatorFilter implements ViewableActivator {
         FilterValueSetParam[][] filterValues = filterSpec.getValueSet(null, addendum, agentInstanceContext, agentInstanceContext.getStatementContextFilterEvalEnv());
 
         EventStream theStream;
-        if (!agentInstanceContext.getAuditProvider().activated() && !agentInstanceContext.getInstrumentationProvider().activated()) {
-            theStream = canIterate ? new ZeroDepthStreamIterable(filterSpec.getResultEventType()) : new ZeroDepthStreamNoIterate(filterSpec.getResultEventType());
+        if (filterValues == null) {
+            theStream = new ZeroDepthStreamNoIterate(filterSpec.getResultEventType());
         } else {
-            int streamNum = streamNumFromClause == null ? -1 : streamNumFromClause;
-            theStream = canIterate ? new ZeroDepthStreamIterableWAudit(filterSpec.getResultEventType(), agentInstanceContext, filterSpec, streamNum, isSubselect, subselectNumber) : new ZeroDepthStreamNoIterateWAudit(filterSpec.getResultEventType(), agentInstanceContext, filterSpec, streamNum, isSubselect, subselectNumber);
+            if (!agentInstanceContext.getAuditProvider().activated() && !agentInstanceContext.getInstrumentationProvider().activated()) {
+                theStream = canIterate ? new ZeroDepthStreamIterable(filterSpec.getResultEventType()) : new ZeroDepthStreamNoIterate(filterSpec.getResultEventType());
+            } else {
+                int streamNum = streamNumFromClause == null ? -1 : streamNumFromClause;
+                theStream = canIterate ? new ZeroDepthStreamIterableWAudit(filterSpec.getResultEventType(), agentInstanceContext, filterSpec, streamNum, isSubselect, subselectNumber) : new ZeroDepthStreamNoIterateWAudit(filterSpec.getResultEventType(), agentInstanceContext, filterSpec, streamNum, isSubselect, subselectNumber);
+            }
         }
 
         FilterHandleCallback filterCallback;
@@ -97,7 +101,9 @@ public class ViewableActivatorFilter implements ViewableActivator {
         }
 
         EPStatementHandleCallbackFilter filterHandle = new EPStatementHandleCallbackFilter(agentInstanceContext.getEpStatementAgentInstanceHandle(), filterCallback);
-        agentInstanceContext.getStatementContext().getFilterService().add(filterSpec.getFilterForEventType(), filterValues, filterHandle);
+        if (filterValues != null) {
+            agentInstanceContext.getStatementContext().getFilterService().add(filterSpec.getFilterForEventType(), filterValues, filterHandle);
+        }
         ViewableActivatorFilterMgmtCallback stopCallback = new ViewableActivatorFilterMgmtCallback(filterHandle, filterSpec);
         return new ViewableActivationResult(theStream, stopCallback, null, false, false, null, null, null);
     }

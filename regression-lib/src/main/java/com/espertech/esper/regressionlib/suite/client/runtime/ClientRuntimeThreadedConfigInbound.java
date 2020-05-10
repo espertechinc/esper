@@ -49,7 +49,7 @@ public class ClientRuntimeThreadedConfigInbound implements RegressionExecutionWi
         xmlDOMEventTypeDesc.setRootElementName("myevent");
         configuration.getCommon().addEventType("XMLType", xmlDOMEventTypeDesc);
 
-        configuration.getCompiler().addPlugInSingleRowFunction("throwException", this.getClass().getName(), "throwException", ConfigurationCompilerPlugInSingleRowFunction.ValueCache.DISABLED, ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable.ENABLED, true);
+        configuration.getCompiler().addPlugInSingleRowFunction("throwException", this.getClass().getName(), "throwException", ConfigurationCompilerPlugInSingleRowFunction.ValueCache.DISABLED, ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable.DISABLED, true);
     }
 
     public void run(RegressionEnvironment env) {

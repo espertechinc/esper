@@ -130,7 +130,7 @@ public class StatementInformationalsUtil {
 
     private static boolean isNeedDedup(List<FilterSpecCompiled> filterSpecCompileds) {
         for (FilterSpecCompiled provider : filterSpecCompileds) {
-            if (provider.getParameters().length > 1) {
+            if (provider.getParameters().getPaths().length > 1) {
                 return true;
             }
         }

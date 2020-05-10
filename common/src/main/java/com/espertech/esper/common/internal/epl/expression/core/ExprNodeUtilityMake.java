@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalUnderlying
 import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalUnderlyingEvaluatorTable;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprAndNode;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprAndNodeImpl;
+import com.espertech.esper.common.internal.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -187,6 +188,32 @@ public class ExprNodeUtilityMake {
         return connectExpressionsByLogicalAnd(nodes);
     }
 
+    public static ExprNode connectExpressionsByLogicalAndWhenNeeded(ExprNode left, ExprNode right) {
+        if (left == null && right == null) {
+            return null;
+        }
+        if (left != null && right == null) {
+            return left;
+        }
+        if (left == null) {
+            return right;
+        }
+        ExprAndNode andNode = new ExprAndNodeImpl();
+        andNode.addChildNode(left);
+        andNode.addChildNode(right);
+        return andNode;
+    }
+
+    public static ExprNode connectExpressionsByLogicalOrWhenNeeded(Collection<ExprNode> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            return null;
+        }
+        if (nodes.size() == 1) {
+            return nodes.iterator().next();
+        }
+        return connectExpressionsByLogicalOr(nodes);
+    }
+
     public static ExprNode connectExpressionsByLogicalAnd(List<ExprNode> nodes, ExprNode optionalAdditionalFilter) {
         if (nodes.isEmpty()) {
             return optionalAdditionalFilter;
@@ -214,6 +241,17 @@ public class ExprNodeUtilityMake {
             andNode.addChildNode(node);
         }
         return andNode;
+    }
+
+    public static ExprOrNode connectExpressionsByLogicalOr(Collection<ExprNode> nodes) {
+        if (nodes.size() < 2) {
+            throw new IllegalArgumentException("Invalid empty or 1-element list of nodes");
+        }
+        ExprOrNode orNode = new ExprOrNode();
+        for (ExprNode node : nodes) {
+            orNode.addChildNode(node);
+        }
+        return orNode;
     }
 
     public static void setChildIdentNodesOptionalEvent(ExprNode exprNode) {

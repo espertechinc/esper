@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class ExprFilterPlanThreeFilterIndexReuse extends TestCase {
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<FilterTestMultiStmtPermutable>();
 
         // Permutations:
@@ -57,6 +57,6 @@ public class ExprFilterPlanThreeFilterIndexReuse extends TestCase {
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("E2", 1, 0, 100), true, false, false),
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("E3", 1, 10, 0), true, true, false));
 
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanThreeFilterIndexReuse.class, new PermutationSpec(2, 1, 0), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanThreeFilterIndexReuse.class, new PermutationSpec(2, 1, 0), cases, withStats);
     }
 }

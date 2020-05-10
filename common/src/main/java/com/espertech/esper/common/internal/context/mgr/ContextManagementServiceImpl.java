@@ -41,9 +41,9 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         contextManager.addStatement(statement, recovery);
     }
 
-    public void stoppedStatement(String deploymentIdCreateContext, String contextName, ContextControllerStatementDesc statement) {
+    public void stoppedStatement(String deploymentIdCreateContext, String contextName, int statementId, String statementName, String statementDeploymentId) {
         ContextManager contextManager = getAssertContextManager(deploymentIdCreateContext, contextName);
-        contextManager.stopStatement(statement);
+        contextManager.stopStatement(statementId, statementName, statementDeploymentId);
     }
 
     public ContextManager getContextManager(String deploymentIdCreateContext, String contextName) {

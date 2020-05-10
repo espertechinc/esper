@@ -20,7 +20,7 @@ public class ConfigurationCompilerExecution implements Serializable {
 
     private int filterServiceMaxFilterWidth = 16;
     private boolean enabledDeclaredExprValueCache = true;
-    private FilterIndexPlanning filterIndexPlanning = FilterIndexPlanning.BASIC;
+    private FilterIndexPlanning filterIndexPlanning = FilterIndexPlanning.ADVANCED;
 
     /**
      * Returns the maximum width for breaking up "or" expression in filters to
@@ -61,7 +61,7 @@ public class ConfigurationCompilerExecution implements Serializable {
     }
 
     /**
-     * Returns the setting instructing the compiler which level of filter index planning to perform.
+     * Returns the setting instructing the compiler which level of filter index planning to perform (default is ADVANCED).
      * Please check the documentation for information on advanced planning.
      * @return flag
      */
@@ -70,7 +70,7 @@ public class ConfigurationCompilerExecution implements Serializable {
     }
 
     /**
-     * Sets the setting instructing the compiler which level of filter index planning to perform.
+     * Sets the setting instructing the compiler which level of filter index planning to perform (default is ADVANCED).
      * Please check the documentation for information on advanced planning.
      * @param filterIndexPlanning setting
      */
@@ -83,13 +83,18 @@ public class ConfigurationCompilerExecution implements Serializable {
      */
     public enum FilterIndexPlanning {
         /**
+         * No planning for filter indexes
+         */
+        NONE,
+
+        /**
          * Only basic planning for filter indexes
          */
         BASIC,
 
         /**
-         * All planning
+         * Advanced planning
          */
-        ALL
+        ADVANCED
     }
 }

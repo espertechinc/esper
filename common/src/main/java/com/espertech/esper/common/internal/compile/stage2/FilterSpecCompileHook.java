@@ -11,10 +11,10 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 import java.util.List;
 
 public interface FilterSpecCompileHook {
-    void filterSpec(EventType eventType, List<FilterSpecParamForge>[] spec);
+    void filterIndexPlan(EventType eventType, List<ExprNode> validatedNodes, FilterSpecPlanForge plan);
 }

@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 public abstract class FilterParamIndexDoubleRangeBase extends FilterParamIndexLookupableBase {
     protected final TreeMap<DoubleRange, EventEvaluator> ranges;
-    private EventEvaluator rangesNullEndpoints;
+    protected EventEvaluator rangesNullEndpoints;
     private final ReadWriteLock rangesRWLock;
 
     protected double largestRangeValueDouble = Double.MIN_VALUE;

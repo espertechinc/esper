@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.core;
 
 public abstract class ContextControllerForgeBase implements ContextControllerFactoryForge {
-    private final ContextControllerFactoryEnv ctx;
+    protected final ContextControllerFactoryEnv ctx;
 
     public ContextControllerForgeBase(ContextControllerFactoryEnv ctx) {
         this.ctx = ctx;

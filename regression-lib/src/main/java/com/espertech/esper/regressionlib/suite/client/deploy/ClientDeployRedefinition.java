@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class ClientDeployRedefinition {
                 "create window MyWindowOne#keepall as select * from MyTypeOne;" +
                 "insert into MyWindowOne select * from MyTypeOne;";
             env.compileDeploy(text).undeployAll();
-            assertEquals(0, SupportFilterHelper.getFilterCountApprox(env));
+            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // test on-merge
             String moduleString =

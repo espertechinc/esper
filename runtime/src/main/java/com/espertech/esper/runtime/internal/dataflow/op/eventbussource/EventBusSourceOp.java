@@ -17,7 +17,6 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowEventBeanCollec
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.dataflow.filtersvcadapter.DataFlowFilterServiceAdapter;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.*;
-import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filtersvc.FilterHandleCallback;
 import com.espertech.esper.common.internal.filtersvc.FilterService;
@@ -50,10 +49,12 @@ public class EventBusSourceOp implements DataFlowSourceOperator, DataFlowOperato
     public void open(DataFlowOpOpenContext openContext) {
         DataFlowFilterServiceAdapter adapter = agentInstanceContext.getDataFlowFilterServiceAdapter();
         FilterService filterService = agentInstanceContext.getFilterService();
-        FilterValueSetParam[][] filterValues = FilterSpecActivatable.evaluateValueSet(factory.getFilterSpecActivatable().getParameters(), null, agentInstanceContext);
-        adapter.addFilterCallback(this, agentInstanceContext, factory.getFilterSpecActivatable().getFilterForEventType(), filterValues, factory.getFilterSpecActivatable().getFilterCallbackId());
-        long filtersVersion = filterService.getFiltersVersion();
-        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+        FilterValueSetParam[][] filterValues = factory.getFilterSpecActivatable().getPlan().evaluateValueSet(null, agentInstanceContext, agentInstanceContext.getStatementContextFilterEvalEnv());
+        if (filterValues != null) {
+            adapter.addFilterCallback(this, agentInstanceContext, factory.getFilterSpecActivatable().getFilterForEventType(), filterValues, factory.getFilterSpecActivatable().getFilterCallbackId());
+            long filtersVersion = filterService.getFiltersVersion();
+            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+        }
     }
 
     public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
@@ -74,9 +75,11 @@ public class EventBusSourceOp implements DataFlowSourceOperator, DataFlowOperato
     public synchronized void close(DataFlowOpCloseContext closeContext) {
         DataFlowFilterServiceAdapter adapter = agentInstanceContext.getDataFlowFilterServiceAdapter();
         FilterService filterService = agentInstanceContext.getFilterService();
-        FilterValueSetParam[][] filterValues = FilterSpecActivatable.evaluateValueSet(factory.getFilterSpecActivatable().getParameters(), null, agentInstanceContext);
-        adapter.removeFilterCallback(this, agentInstanceContext, factory.getFilterSpecActivatable().getFilterForEventType(), filterValues, factory.getFilterSpecActivatable().getFilterCallbackId());
-        long filtersVersion = filterService.getFiltersVersion();
-        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+        FilterValueSetParam[][] filterValues = factory.getFilterSpecActivatable().getPlan().evaluateValueSet(null, agentInstanceContext, agentInstanceContext.getStatementContextFilterEvalEnv());
+        if (filterValues != null) {
+            adapter.removeFilterCallback(this, agentInstanceContext, factory.getFilterSpecActivatable().getFilterForEventType(), filterValues, factory.getFilterSpecActivatable().getFilterCallbackId());
+            long filtersVersion = filterService.getFiltersVersion();
+            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
+        }
     }
 }

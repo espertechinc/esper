@@ -77,13 +77,12 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
         }
     }
 
-    public void stopStatement(ContextControllerStatementDesc statement) {
-        int statementId = statement.getLightweight().getStatementContext().getStatementId();
+    public void stopStatement(int statementId, String statementName, String statementDeploymentId) {
         if (!statements.containsKey(statementId)) {
             return;
         }
         removeStatement(statementId);
-        ContextStateEventUtil.dispatchPartition(listenersLazy, () -> new ContextStateEventContextStatementRemoved(statementContextCreate.getRuntimeURI(), contextRuntimeDescriptor.getContextDeploymentId(), contextRuntimeDescriptor.getContextName(), statement.getLightweight().getStatementContext().getDeploymentId(), statement.getLightweight().getStatementContext().getStatementName()), ContextPartitionStateListener::onContextStatementRemoved);
+        ContextStateEventUtil.dispatchPartition(listenersLazy, () -> new ContextStateEventContextStatementRemoved(statementContextCreate.getRuntimeURI(), contextRuntimeDescriptor.getContextDeploymentId(), contextRuntimeDescriptor.getContextName(), statementDeploymentId, statementName), ContextPartitionStateListener::onContextStatementRemoved);
         if (statements.isEmpty()) {
             getRealization().stopContext();
             contextPartitionIdService.clear();

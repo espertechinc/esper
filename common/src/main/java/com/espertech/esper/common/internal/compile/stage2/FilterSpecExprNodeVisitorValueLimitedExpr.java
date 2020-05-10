@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessN
 import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;
+import com.espertech.esper.common.internal.filterspec.FilterSpecCompilerAdvIndexDescProvider;
 
 public class FilterSpecExprNodeVisitorValueLimitedExpr implements ExprNodeVisitor {
     private boolean limited = true;
@@ -39,6 +40,9 @@ public class FilterSpecExprNodeVisitorValueLimitedExpr implements ExprNodeVisito
                     limited = false;
                 }
             }
+        }
+        if (exprNode instanceof FilterSpecCompilerAdvIndexDescProvider) {
+            limited = false;
         }
 
         if (exprNode instanceof ExprVariableNode) {

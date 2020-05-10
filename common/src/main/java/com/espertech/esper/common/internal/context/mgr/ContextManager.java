@@ -14,11 +14,11 @@ import com.espertech.esper.common.client.context.ContextPartitionCollection;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.client.context.ContextPartitionStateListener;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirements;
 import com.espertech.esper.common.internal.context.airegistry.StatementAIResourceRegistry;
 import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -30,7 +30,7 @@ public interface ContextManager extends FilterFaultHandler {
 
     void addStatement(ContextControllerStatementDesc statement, boolean recovery);
 
-    void stopStatement(ContextControllerStatementDesc statement);
+    void stopStatement(int statementId, String statementName, String statementDeploymentId);
 
     int countStatements(Function<StatementContext, Boolean> filter);
 

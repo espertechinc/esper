@@ -20,7 +20,7 @@ import com.espertech.esper.runtime.internal.metrics.instrumentation.Instrumentat
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
+import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
 
 /**
  * Index that simply maintains a list of boolean expressions.

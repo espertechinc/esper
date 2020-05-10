@@ -17,6 +17,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper;
 import com.espertech.esper.regressionlib.support.multistmtassert.EPLWithInvokedFlags;
 import com.espertech.esper.regressionlib.support.multistmtassert.MultiStmtAssertUtil;
 import com.espertech.esper.runtime.client.DeploymentOptions;
@@ -231,13 +232,15 @@ public class ExprFilterInAndBetween {
 
     private static class ExprFilterInInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            // we do not coerce
-            tryInvalidFilter(env, "select * from SupportBean(intPrimitive in (1L, 10L))");
-            tryInvalidFilter(env, "select * from SupportBean(intPrimitive in (1, 10L))");
-            tryInvalidFilter(env, "select * from SupportBean(intPrimitive in (1, 'x'))");
+            if (SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore(env)) {
+                // we do not coerce
+                tryInvalidFilter(env, "select * from SupportBean(intPrimitive in (1L, 10L))");
+                tryInvalidFilter(env, "select * from SupportBean(intPrimitive in (1, 10L))");
+                tryInvalidFilter(env, "select * from SupportBean(intPrimitive in (1, 'x'))");
 
-            String expr = "select * from pattern [a=SupportBean -> b=SupportBean(intPrimitive in (a.longPrimitive, a.longBoxed))]";
-            tryInvalidFilter(env, expr);
+                String expr = "select * from pattern [a=SupportBean -> b=SupportBean(intPrimitive in (a.longPrimitive, a.longBoxed))]";
+                tryInvalidFilter(env, expr);
+            }
         }
     }
 

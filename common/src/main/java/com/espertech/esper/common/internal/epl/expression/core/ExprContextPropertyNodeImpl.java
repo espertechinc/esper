@@ -113,7 +113,7 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
-        writer.append(propertyName);
+        writer.append("context.").append(propertyName);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

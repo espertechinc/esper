@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.util.SupportFilterSpecCompileHook;
+import com.espertech.esper.regressionlib.support.filter.SupportFilterPlanHook;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 
 import java.util.ArrayList;
@@ -29,12 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.filterspec.FilterOperator.*;
-import static com.espertech.esper.regressionlib.support.filter.SupportFilterHelper.*;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
+import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class ExprFilterOptimizableLookupableLimitedExpr {
-    private final static String HINT_PREFIX = "@Hint('filterindex(lkupcomposite)')";
-
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
         executions.add(new ExprFilterOptLkupEqualsOneStmt());
@@ -50,12 +49,14 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
     
     private static class ExprFilterOptLkupCurrentTimestamp implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern[a=SupportBean -> SupportBean(a.longPrimitive = current_timestamp() + longPrimitive)];\n";
+            String epl = "@name('s0') select * from pattern[a=SupportBean -> SupportBean(a.longPrimitive = current_timestamp() + longPrimitive)];\n";
             env.compileDeploy(epl).addListener("s0");
 
             env.advanceTime(1000);
             env.sendEventBean(makeSBLong(1123));
-            assertFilterSingle(env.statement("s0"), epl, "current_timestamp()+longPrimitive", EQUAL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "current_timestamp()+longPrimitive", EQUAL);
+            }
 
             env.milestone(0);
 
@@ -83,37 +84,21 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
                 "@public create expression string js:MyJavaScript(param) [\"a\"];\n";
             env.compile(objects, path);
 
-            String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterSpecCompileHook.class.getName() + "')";
+            String hook = "@Hook(type=HookType.INTERNAL_FILTERSPEC, hook='" + SupportFilterPlanHook.class.getName() + "')";
 
             assertDisqualified(env, path, "SupportBean",
-                hook + "select * from SupportBean(theString||theString='ax')");
+                hook + "select * from SupportBean(theString||MYVARIABLE_NONCONSTANT='ax')");
             assertDisqualified(env, path, "SupportBean",
-                hook + "select * from SupportBean(theString||theString in ('ax'))");
+                hook + "select * from SupportBean(theString||MyTable.tablecol='ax')");
             assertDisqualified(env, path, "SupportBean",
-                hook + "select * from SupportBean(intPrimitive+1 between 0 and 100)");
-
-            assertDisqualified(env, path, "SupportBean",
-                hook + HINT_PREFIX + "select * from SupportBean(theString||MYVARIABLE_NONCONSTANT='ax')");
-            assertDisqualified(env, path, "SupportBean",
-                hook + HINT_PREFIX + "select * from SupportBean(theString||MyTable.tablecol='ax')");
-            assertDisqualified(env, path, "SupportBean",
-                hook + HINT_PREFIX + "select * from SupportBean(theString||(select theString from MyWindow)='ax')");
+                hook + "select * from SupportBean(theString||(select theString from MyWindow)='ax')");
             assertDisqualified(env, path, "SupportBeanArrayCollMap",
-                hook + HINT_PREFIX + "select * from SupportBeanArrayCollMap(id || setOfString.where(v => v=id).firstOf() = 'ax')");
+                hook + "select * from SupportBeanArrayCollMap(id || setOfString.where(v => v=id).firstOf() = 'ax')");
             assertDisqualified(env, path, "SupportBean",
-                hook + HINT_PREFIX + "select * from pattern[s0=SupportBean_S0 -> SupportBean(theString||s0.p00='x')]");
-            assertDisqualified(env, path, "SupportBean",
-                hook + HINT_PREFIX + "select * from pattern[s0=SupportBean_S0 -> SupportBean(MyJavaScript(theString)='x')]");
-
-            String eplWContext = "create context MyContext start SupportBean_S0 as s0;\n" +
-                hook + HINT_PREFIX + "context MyContext select * from SupportBean(theString || context.s0.p00 = 'ax');\n";
-            assertDisqualified(env, path, "SupportBean", eplWContext);
-
-            // references an event property
-            assertDisqualified(env, path, "SupportBean", hook + HINT_PREFIX + "select * from SupportBean(1+1+1=3)");
+                hook + "select * from pattern[s0=SupportBean_S0 -> SupportBean(MyJavaScript(theString)='x')]");
 
             // local inlined class
-            String eplWithLocalHelper = hook + HINT_PREFIX + "inlined_class \"\"\"\n" +
+            String eplWithLocalHelper = hook + "inlined_class \"\"\"\n" +
                 "  public class LocalHelper {\n" +
                 "    public static String doit(Object param) {\n" +
                 "      return null;\n" +
@@ -127,12 +112,11 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
     private static class ExprFilterOptLkupInRangeWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String prefixes = ExprFilterOptimizableValueLimitedExpr.HINT_PREFIX + HINT_PREFIX;
-            String epl = prefixes + "@name('s0') select * from pattern [" +
+            String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive+longBoxed in [a.id - 2 : b.id + 2])];\n";
             runAssertionInRange(env, epl, false);
 
-            epl = prefixes + "@name('s0') select * from pattern [" +
+            epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive+longBoxed not in [a.id - 2 : b.id + 2])];\n";
             runAssertionInRange(env, epl, true);
         }
@@ -143,7 +127,9 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             env.sendEventBean(new SupportBean_S1(200));
 
             env.milestone(0);
-            assertFilterSingle(env.statement("s0"), epl, "longPrimitive+longBoxed", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "longPrimitive+longBoxed", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
+            }
 
             sendSBLongsAssert(env, 3, 4, not);
             sendSBLongsAssert(env, 5, 3, !not);
@@ -157,7 +143,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
     private static class ExprFilterOptLkupInSetOfValue implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern [" +
+            String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> c=SupportBean_S2 -> every SupportBean(longPrimitive+longBoxed in (a.id, b.id, c.id))];\n";
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(10));
@@ -166,7 +152,9 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
             env.milestone(0);
 
-            assertFilterSingle(env.statement("s0"), epl, "longPrimitive+longBoxed", IN_LIST_OF_VALUES);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "longPrimitive+longBoxed", IN_LIST_OF_VALUES);
+            }
 
             sendSBLongsAssert(env, 0, 9, false);
             sendSBLongsAssert(env, 9, 1, true);
@@ -179,9 +167,11 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
     private static class ExprFilterOptLkupEqualsCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from SupportBean(doublePrimitive + doubleBoxed = Integer.parseInt('10'))";
+            String epl = "@name('s0') select * from SupportBean(doublePrimitive + doubleBoxed = Integer.parseInt('10'))";
             env.compileDeploy(epl).addListener("s0");
-            assertFilterSingle(env.statement("s0"), epl, "doublePrimitive+doubleBoxed", EQUAL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "doublePrimitive+doubleBoxed", EQUAL);
+            }
 
             env.milestone(0);
 
@@ -196,11 +186,13 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
     private static class ExprFilterOptLkupEqualsOneStmt implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@Audit @name('s0') select * from pattern[s0=SupportBean_S0 -> every SupportBean_S1(p10 || p11 = 'ax')];\n";
+            String epl = "@Audit @name('s0') select * from pattern[s0=SupportBean_S0 -> every SupportBean_S1(p10 || p11 = 'ax')];\n";
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1));
-            assertFilterSingle(env.statement("s0"), epl, "p10||p11", EQUAL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcSingle(env.statement("s0"), "p10||p11", EQUAL);
+            }
 
             env.milestone(0);
 
@@ -215,7 +207,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
     private static class ExprFilterOptLkupEqualsOneStmtWPatternSharingIndex implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from pattern[every s0=SupportBean_S0 -> every SupportBean_S1('ax' = p10 || p11)];\n";
+            String epl = "@name('s0') select * from pattern[every s0=SupportBean_S0 -> every SupportBean_S1('ax' = p10 || p11)] order by s0.id asc;\n";
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1));
@@ -223,7 +215,9 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
             env.milestone(0);
 
-            assertFilterMultiSameIndexDepthOne(env.statement("s0"), "SupportBean_S1", 2, "p10||p11", EQUAL);
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcMultiSameIndexDepthOne(env.statement("s0"), "SupportBean_S1", 2, "p10||p11", EQUAL);
+            }
 
             env.sendEventBean(new SupportBean_S1(10, "a", "x"));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "s0.id".split(","), new Object[][]{{1}, {2}});
@@ -234,17 +228,17 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
     private static class ExprFilterOptLkupEqualsMultiStmtSharingIndex implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = HINT_PREFIX + "@name('s0') select * from SupportBean_S0(p00 || p01 = 'ax');\n" +
-                HINT_PREFIX + "@name('s1') select * from SupportBean_S0(p00 || p01 = 'ax');\n" +
+            String epl = "@name('s0') select * from SupportBean_S0(p00 || p01 = 'ax');\n" +
+                "@name('s1') select * from SupportBean_S0(p00 || p01 = 'ax');\n" +
                 "" +
                 "create constant variable string VAR = 'ax';\n" +
-                HINT_PREFIX + "@name('s2') select * from SupportBean_S0(p00 || p01 = VAR);\n" +
+                "@name('s2') select * from SupportBean_S0(p00 || p01 = VAR);\n" +
                 "" +
                 "create context MyContextOne start SupportBean_S1 as s1;\n" +
-                HINT_PREFIX + "@name('s3') context MyContextOne select * from SupportBean_S0(p00 || p01 = context.s1.p10);\n" +
+                "@name('s3') context MyContextOne select * from SupportBean_S0(p00 || p01 = context.s1.p10);\n" +
                 "" +
                 "create context MyContextTwo start SupportBean_S1 as s1;\n" +
-                HINT_PREFIX + "@name('s4') context MyContextTwo select * from pattern[a=SupportBean_S1 -> SupportBean_S0(a.p10 = p00     ||     p01)];\n";
+                "@name('s4') context MyContextTwo select * from pattern[a=SupportBean_S1 -> SupportBean_S0(a.p10 = p00     ||     p01)];\n";
             env.compileDeploy(epl);
             String[] names = "s0,s1,s2,s3,s4".split(",");
             for (String name : names) {
@@ -254,8 +248,10 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
             env.milestone(0);
 
-            Map<Integer, List<FilterItem[]>> filters = getFilterAllStmtForType(env.runtime(), "SupportBean_S0");
-            assertFilterMultiSameIndexDepthOne(filters, 5, "p00||p01", EQUAL);
+            Map<Integer, List<FilterItem[]>> filters = getFilterSvcAllStmtForType(env.runtime(), "SupportBean_S0");
+            if (hasFilterIndexPlanAdvanced(env)) {
+                assertFilterSvcMultiSameIndexDepthOne(filters, 5, "p00||p01", EQUAL);
+            }
 
             env.sendEventBean(new SupportBean_S0(10, "a", "x"));
             for (String name : names) {
@@ -294,8 +290,9 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
     }
 
     protected static void assertDisqualified(RegressionEnvironment env, RegressionPath path, String typeName, String epl) {
+        SupportFilterPlanHook.reset();
         env.compile(epl, path);
-        FilterSpecParamForge forge = SupportFilterSpecCompileHook.assertSingleForTypeAndReset(typeName);
+        FilterSpecParamForge forge = SupportFilterPlanHook.assertPlanSingleForTypeAndReset(typeName);
         assertEquals(FilterOperator.BOOLEAN_EXPRESSION, forge.getFilterOperator());
     }
 }

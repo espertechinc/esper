@@ -26,7 +26,7 @@ import static com.espertech.esper.regressionlib.support.filter.FilterTestMultiSt
 import static com.espertech.esper.regressionlib.support.filter.FilterTestMultiStmtPermutable.addCase;
 
 public class ExprFilterPlanTwoFilterNestedTwoSame extends TestCase {
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
 
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<FilterTestMultiStmtPermutable>();
 
@@ -84,6 +84,6 @@ public class ExprFilterPlanTwoFilterNestedTwoSame extends TestCase {
             makeItem(makeBean("E4", -1, 2), false, false));
 
         // we permute only [0, 1] as all filters are the same
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanTwoFilterNestedTwoSame.class, new PermutationSpec(0, 1), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanTwoFilterNestedTwoSame.class, new PermutationSpec(0, 1), cases, withStats);
     }
 }

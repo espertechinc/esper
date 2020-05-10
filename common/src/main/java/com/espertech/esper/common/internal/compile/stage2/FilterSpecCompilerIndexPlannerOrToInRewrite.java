@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.epl.expression.ops.ExprInNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprOrNode;
 
 public class FilterSpecCompilerIndexPlannerOrToInRewrite {
-    public static ExprNode rewriteOrToInIfApplicable(ExprNode constituent) {
+    public static ExprNode rewriteOrToInIfApplicable(ExprNode constituent, boolean rewriteRegardlessOfLookupable) {
         if (!(constituent instanceof ExprOrNode) || constituent.getChildNodes().length < 2) {
             return constituent;
         }
@@ -48,6 +48,15 @@ public class FilterSpecCompilerIndexPlannerOrToInRewrite {
             commonExpressionNode = rhs;
         } else {
             return constituent;
+        }
+
+        // if the common expression doesn't reference an event property, no need to rewrite
+        if (!rewriteRegardlessOfLookupable) {
+            FilterSpecExprNodeVisitorLookupableLimitedExpr lookupableVisitor = new FilterSpecExprNodeVisitorLookupableLimitedExpr();
+            commonExpressionNode.accept(lookupableVisitor);
+            if (!lookupableVisitor.isHasStreamZeroReference() || !lookupableVisitor.isLimited()) {
+                return constituent;
+            }
         }
 
         // build node

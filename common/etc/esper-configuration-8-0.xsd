@@ -951,8 +951,9 @@
 	</xs:complexType>
 	<xs:simpleType name="filterIndexPlanningEnum">
 		<xs:restriction base="xs:token">
+			<xs:enumeration value="none"/>
 			<xs:enumeration value="basic"/>
-			<xs:enumeration value="all"/>
+			<xs:enumeration value="advanced"/> <!-- the default -->
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="runtime-execution-type">

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.category;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifierCategory;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryFactoryMultiPerm;
@@ -30,6 +31,7 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.context.util.ContextPropertyEventType.PROP_CTX_LABEL;
 
 public class ContextControllerCategoryFactory extends ContextControllerFactoryBase {
+    private String contextName;
     private ContextControllerDetailCategory categorySpec;
 
     public ContextControllerDetailCategory getCategorySpec() {
@@ -38,6 +40,10 @@ public class ContextControllerCategoryFactory extends ContextControllerFactoryBa
 
     public void setCategorySpec(ContextControllerDetailCategory categorySpec) {
         this.categorySpec = categorySpec;
+    }
+
+    public void setContextName(String contextName) {
+        this.contextName = contextName;
     }
 
     public ContextController create(ContextManagerRealization contextManagerRealization) {
@@ -53,7 +59,11 @@ public class ContextControllerCategoryFactory extends ContextControllerFactoryBa
 
         int categoryNum = (Integer) partitionKey;
         ContextControllerDetailCategoryItem item = categorySpec.getItems()[categoryNum];
-        return FilterSpecActivatable.evaluateValueSet(item.getCompiledFilterParam(), null, agentInstanceContextStatement);
+        FilterValueSetParam[][] filters = item.getFilterPlan().evaluateValueSet(null, agentInstanceContextStatement, agentInstanceContextStatement.getStatementContextFilterEvalEnv());
+        if (filters == null) {
+            throw new EPException("Category context '" + contextName + "' for category '" + item.getName() + "' has evaluated to a condition that cannot become true");
+        }
+        return filters;
     }
 
     public void populateContextProperties(Map<String, Object> props, Object allPartitionKey) {

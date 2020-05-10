@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 public abstract class FilterParamIndexStringRangeBase extends FilterParamIndexLookupableBase {
     protected final TreeMap<StringRange, EventEvaluator> ranges;
-    private EventEvaluator rangesNullEndpoints;
+    protected EventEvaluator rangesNullEndpoints;
     private final ReadWriteLock rangesRWLock;
 
     protected FilterParamIndexStringRangeBase(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {

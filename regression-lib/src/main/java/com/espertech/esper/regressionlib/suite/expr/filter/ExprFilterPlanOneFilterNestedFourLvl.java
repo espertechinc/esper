@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class ExprFilterPlanOneFilterNestedFourLvl extends TestCase {
-    public static Collection<? extends RegressionExecution> executions() {
+    public static Collection<? extends RegressionExecution> executions(boolean withStats) {
         List<FilterTestMultiStmtPermutable> cases = new ArrayList<FilterTestMultiStmtPermutable>();
 
         FilterTestMultiStmtAssertStats[] stats = FilterTestMultiStmtAssertStats.makeSingleStat("P0=(fh:1, fi:4),P1=(fh:0, fi:0, fipar:0)");
@@ -35,6 +35,6 @@ public class ExprFilterPlanOneFilterNestedFourLvl extends TestCase {
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("B", 1, 10, 100), false),
             FilterTestMultiStmtAssertItem.makeItem(SupportBean.makeBean("A", 1, 10, 0), false));
 
-        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanOneFilterNestedFourLvl.class, new PermutationSpec(true), cases);
+        return FilterTestMultiStmtRunner.computePermutations(ExprFilterPlanOneFilterNestedFourLvl.class, new PermutationSpec(true), cases, withStats);
     }
 }

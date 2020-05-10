@@ -14,11 +14,11 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlan;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanForge;
 import com.espertech.esper.common.internal.context.controller.category.ContextControllerDetailCategoryItem;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParam;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType.REF_EVENTTYPE;
@@ -28,7 +28,7 @@ public class ContextSpecCategoryItem {
 
     private final ExprNode expression;
     private final String name;
-    private FilterSpecParamForge[][] compiledFilterParam;
+    private FilterSpecPlanForge filterPlan;
 
     public ContextSpecCategoryItem(ExprNode expression, String name) {
         this.expression = expression;
@@ -43,22 +43,21 @@ public class ContextSpecCategoryItem {
         return name;
     }
 
-    public FilterSpecParamForge[][] getCompiledFilterParam() {
-        return compiledFilterParam;
+    public FilterSpecPlanForge getFilterPlan() {
+        return filterPlan;
     }
 
-    public void setCompiledFilterParam(FilterSpecParamForge[][] compiledFilterParam) {
-        this.compiledFilterParam = compiledFilterParam;
+    public void setFilterPlan(FilterSpecPlanForge filterPlan) {
+        this.filterPlan = filterPlan;
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
         CodegenMethod method = parent.makeChild(ContextControllerDetailCategoryItem.class, this.getClass(), classScope).addParam(EventType.class, REF_EVENTTYPE.getRef()).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
-
-        CodegenMethod makeFilter = FilterSpecParamForge.makeParamArrayArrayCodegen(compiledFilterParam, classScope, method);
+        CodegenMethod makeFilter = filterPlan.codegenWithEventType(method, classScope);
         method.getBlock()
-                .declareVar(FilterSpecParam[][].class, "params", localMethod(makeFilter, REF_EVENTTYPE, REF_STMTINITSVC))
+                .declareVar(FilterSpecPlan.class, "filterPlan", localMethod(makeFilter, REF_EVENTTYPE, REF_STMTINITSVC))
                 .declareVar(ContextControllerDetailCategoryItem.class, "item", newInstance(ContextControllerDetailCategoryItem.class))
-                .exprDotMethod(ref("item"), "setCompiledFilterParam", ref("params"))
+                .exprDotMethod(ref("item"), "setFilterPlan", ref("filterPlan"))
                 .exprDotMethod(ref("item"), "setName", constant(name))
                 .methodReturn(ref("item"));
         return method;

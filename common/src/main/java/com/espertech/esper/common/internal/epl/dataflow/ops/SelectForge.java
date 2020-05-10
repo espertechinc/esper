@@ -32,7 +32,6 @@ import com.espertech.esper.common.internal.epl.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerSubselectAndDeclaredDot;
-import com.espertech.esper.common.internal.filterspec.FilterSpecParam;
 import com.espertech.esper.common.internal.type.AnnotationEventRepresentation;
 
 import java.lang.annotation.Annotation;
@@ -108,7 +107,7 @@ public class SelectForge implements DataFlowOperatorForge {
             EventType eventType = inputPort.getValue().getTypeDesc().getEventType();
             originatingStreamToViewableStream[inputPort.getKey()] = streamNum;
             String streamAlias = filter.getOptionalStreamName();
-            FilterSpecCompiled filterSpecCompiled = new FilterSpecCompiled(eventType, streamAlias, new List[]{Collections.<FilterSpecParam>emptyList()}, null);
+            FilterSpecCompiled filterSpecCompiled = new FilterSpecCompiled(eventType, streamAlias, FilterSpecPlanForge.EMPTY, null);
             ViewSpec[] viewSpecs = select.getStreamSpecs().get(streamNum).getViewSpecs();
             FilterStreamSpecCompiled filterStreamSpecCompiled = new FilterStreamSpecCompiled(filterSpecCompiled, viewSpecs, streamAlias, StreamSpecOptions.DEFAULT);
             streamSpecCompileds.add(filterStreamSpecCompiled);
@@ -173,11 +172,11 @@ public class SelectForge implements DataFlowOperatorForge {
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(OP_PACKAGE_NAME + ".select.SelectFactory", this.getClass(), "select", parent, symbols, classScope);
         return builder.eventtypesMayNull("eventTypes", eventTypes)
-                .constant("submitEventBean", submitEventBean)
-                .constant("iterate", iterate)
-                .constant("originatingStreamToViewableStream", originatingStreamToViewableStream)
-                .expression("factoryProvider", newInstance(classNameAIFactoryProvider, symbols.getAddInitSvc(builder.getMethod())))
-                .build();
+            .constant("submitEventBean", submitEventBean)
+            .constant("iterate", iterate)
+            .constant("originatingStreamToViewableStream", originatingStreamToViewableStream)
+            .expression("factoryProvider", newInstance(classNameAIFactoryProvider, symbols.getAddInitSvc(builder.getMethod())))
+            .build();
     }
 
     private String[] getInputPortNames(Map<Integer, DataFlowOpInputPort> inputPorts) {

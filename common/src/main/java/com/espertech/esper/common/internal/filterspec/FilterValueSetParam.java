@@ -19,6 +19,8 @@ import java.io.StringWriter;
  * <p> Each filtering parameter has a lookup-able and operator type, and a value to filter for.
  */
 public interface FilterValueSetParam {
+    FilterValueSetParam[][] EMPTY = new FilterValueSetParam[0][];
+
     /**
      * Returns the lookup-able for the filter parameter.
      *

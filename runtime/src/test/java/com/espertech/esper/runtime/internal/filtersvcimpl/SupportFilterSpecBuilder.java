@@ -11,6 +11,9 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlan;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPath;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPathTriplet;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
@@ -22,12 +25,15 @@ import java.util.List;
 
 public class SupportFilterSpecBuilder {
     public static FilterSpecActivatable build(EventType eventType, Object[] objects) {
-        FilterSpecParam[][] params = new FilterSpecParam[][]{buildList(eventType, objects)};
-        return new FilterSpecActivatable(eventType, "SomeAliasNameForType", params, null, 1);
+        FilterSpecPlanPathTriplet[] triplets = buildTriplets(eventType, objects);
+        FilterSpecPlanPath[] paths = new FilterSpecPlanPath[] {new FilterSpecPlanPath(triplets)};
+        FilterSpecPlan plan = new FilterSpecPlan(paths, null, null);
+        plan.initialize();
+        return new FilterSpecActivatable(eventType, "SomeAliasNameForType", plan, null, 1);
     }
 
-    public static FilterSpecParam[] buildList(EventType eventType, Object[] objects) {
-        List<FilterSpecParam> filterParams = new LinkedList<FilterSpecParam>();
+    public static FilterSpecPlanPathTriplet[] buildTriplets(EventType eventType, Object[] objects) {
+        List<FilterSpecPlanPathTriplet> filterParams = new LinkedList<>();
 
         int index = 0;
         while (objects.length > index) {
@@ -36,17 +42,19 @@ public class SupportFilterSpecBuilder {
 
             if (!(filterOperator.isRangeOperator())) {
                 Object filterForConstant = objects[index++];
-                filterParams.add(new SupportFilterSpecParamConstant(makeLookupable(eventType, propertyName), filterOperator, filterForConstant));
+                FilterSpecParam param = new SupportFilterSpecParamConstant(makeLookupable(eventType, propertyName), filterOperator, filterForConstant);
+                filterParams.add(new FilterSpecPlanPathTriplet(param));
             } else {
                 double min = ((Number) objects[index++]).doubleValue();
                 double max = ((Number) objects[index++]).doubleValue();
-                filterParams.add(new SupportFilterSpecParamRange(makeLookupable(eventType, propertyName), filterOperator,
+                FilterSpecParam param = new SupportFilterSpecParamRange(makeLookupable(eventType, propertyName), filterOperator,
                     new SupportFilterForEvalConstantDouble(min),
-                    new SupportFilterForEvalConstantDouble(max)));
+                    new SupportFilterForEvalConstantDouble(max));
+                filterParams.add(new FilterSpecPlanPathTriplet(param));
             }
         }
 
-        return filterParams.toArray(new FilterSpecParam[0]);
+        return filterParams.toArray(new FilterSpecPlanPathTriplet[0]);
     }
 
     private static ExprFilterSpecLookupable makeLookupable(EventType eventType, String fieldName) {

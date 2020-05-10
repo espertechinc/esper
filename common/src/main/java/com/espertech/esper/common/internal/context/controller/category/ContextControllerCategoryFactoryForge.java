@@ -26,8 +26,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 
 import java.util.LinkedHashMap;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethodChain;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ContextControllerCategoryFactoryForge extends ContextControllerForgeBase {
 
@@ -49,6 +48,7 @@ public class ContextControllerCategoryFactoryForge extends ContextControllerForg
         CodegenMethod method = parent.makeChild(ContextControllerCategoryFactory.class, ContextControllerCategoryFactoryForge.class, classScope);
         method.getBlock()
                 .declareVar(ContextControllerCategoryFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("categoryFactory"))
+                .exprDotMethod(ref("factory"), "setContextName", constant(ctx.getContextName()))
                 .exprDotMethod(ref("factory"), "setCategorySpec", detail.makeCodegen(method, symbols, classScope))
                 .methodReturn(ref("factory"));
         return method;
