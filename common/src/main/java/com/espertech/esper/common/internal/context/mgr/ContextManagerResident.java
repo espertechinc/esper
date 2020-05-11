@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.mgr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.util.SafeIterator;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryFactoryMap;
@@ -24,12 +25,12 @@ import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ContextManagerResident implements ContextManager, ContextIteratorHandler {
 
@@ -155,8 +156,8 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
     }
 
     public AgentInstanceFilterProxy computeFilterAddendum(ContextControllerStatementDesc statement, Object[] contextPartitionKeys) {
-        Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = agentInstanceContext ->
-                ContextManagerUtil.computeAddendumForStatement(statement, statements, contextDefinition.getControllerFactories(), contextPartitionKeys, agentInstanceContext);
+        Supplier<IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = () ->
+                ContextManagerUtil.computeAddendumForStatement(statement, statements, contextDefinition.getControllerFactories(), contextPartitionKeys, getRealization().getAgentInstanceContextCreate());
         return new AgentInstanceFilterProxyImpl(generator);
     }
 

@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ContextManagerRealization implements ContextControllerLifecycleCallback, FilterFaultHandler {
     private static final Logger log = LoggerFactory.getLogger(ContextManagerRealization.class);
@@ -119,8 +119,8 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
         for (Map.Entry<Integer, ContextControllerStatementDesc> statementEntry : contextManager.getStatements().entrySet()) {
             ContextControllerStatementDesc statementDesc = statementEntry.getValue();
 
-            Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = agentInstanceContext ->
-                ContextManagerUtil.computeAddendumForStatement(statementDesc, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), allPartitionKeys, agentInstanceContext);
+            Supplier<IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = () ->
+                ContextManagerUtil.computeAddendumForStatement(statementDesc, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), allPartitionKeys, agentInstanceContextCreate);
             AgentInstanceFilterProxy proxy = new AgentInstanceFilterProxyImpl(generator);
 
             AgentInstance agentInstance = AgentInstanceUtil.startStatement(contextManager.getStatementContextCreate().getStatementContextRuntimeServices(), assignedContextId, statementDesc, contextBean, proxy);
@@ -189,8 +189,8 @@ public class ContextManagerRealization implements ContextControllerLifecycleCall
             MappedEventBean contextBean = ContextManagerUtil.buildContextProperties(cpid, partitionKeys, contextManager.getContextDefinition(), agentInstanceContextCreate.getStatementContext());
 
             // create filter proxies
-            Function<AgentInstanceContext, IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = agentInstanceContext ->
-                ContextManagerUtil.computeAddendumForStatement(statement, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), partitionKeys, agentInstanceContext);
+            Supplier<IdentityHashMap<FilterSpecActivatable, FilterValueSetParam[][]>> generator = () ->
+                ContextManagerUtil.computeAddendumForStatement(statement, contextManager.getStatements(), contextManager.getContextDefinition().getControllerFactories(), partitionKeys, agentInstanceContextCreate);
             AgentInstanceFilterProxy proxy = new AgentInstanceFilterProxyImpl(generator);
 
             // start
