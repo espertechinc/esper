@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.compile.stage2.FilterStreamSpecCompil
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadataUtil;
-import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.type.OuterJoinType;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
@@ -49,7 +48,7 @@ public class StatementForgeMethodSelectUtil {
         return streamNames;
     }
 
-    static StreamJoinAnalysisResultCompileTime verifyJoinViews(StatementSpecCompiled statementSpec, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver)
+    static StreamJoinAnalysisResultCompileTime verifyJoinViews(StatementSpecCompiled statementSpec)
             throws ExprValidationException {
         StreamSpecCompiled[] streamSpecs = statementSpec.getStreamSpecs();
         StreamJoinAnalysisResultCompileTime analysisResult = new StreamJoinAnalysisResultCompileTime(streamSpecs.length);
@@ -87,17 +86,26 @@ public class StatementForgeMethodSelectUtil {
         // count streams that provide data, excluding streams that poll data (DB and method)
         int countProviderNonpolling = 0;
         for (int i = 0; i < statementSpec.getStreamSpecs().length; i++) {
-            StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
-            if ((streamSpec instanceof MethodStreamSpec) ||
-                    (streamSpec instanceof DBStatementStreamSpec) ||
-                    (streamSpec instanceof TableQueryStreamSpec)) {
-                continue;
+            if (!isPolling(statementSpec.getStreamSpecs()[i])) {
+                countProviderNonpolling++;
             }
-            countProviderNonpolling++;
         }
 
         // if there is only one stream providing data, the analysis is done
         if (countProviderNonpolling == 1) {
+
+            // set the non-polling stream as unidirectional if there is no data window
+            int nonPolling = 0;
+            for (int i = 0; i < statementSpec.getStreamSpecs().length; i++) {
+                if (!isPolling(statementSpec.getStreamSpecs()[i])) {
+                    nonPolling = i;
+                    break;
+                }
+            }
+            if (statementSpec.getStreamSpecs()[nonPolling].getViewSpecs().length == 0) {
+                analysisResult.setUnidirectionalInd(nonPolling);
+            }
+
             return analysisResult;
         }
         // there are multiple driving streams, verify the presence of a view for insert/remove stream
@@ -165,6 +173,12 @@ public class StatementForgeMethodSelectUtil {
         }
 
         return analysisResult;
+    }
+
+    private static boolean isPolling(StreamSpecCompiled streamSpec) {
+        return streamSpec instanceof MethodStreamSpec ||
+            streamSpec instanceof DBStatementStreamSpec ||
+            streamSpec instanceof TableQueryStreamSpec;
     }
 
     private static void verifyJoinUnidirectional(StreamJoinAnalysisResultCompileTime analysisResult, StatementSpecCompiled statementSpec) throws ExprValidationException {

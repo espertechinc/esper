@@ -54,7 +54,32 @@ public class EPLFromClauseMethod {
         execs.add(new EPLFromClauseMethodInvalid());
         execs.add(new EPLFromClauseMethodEventBeanArray());
         execs.add(new EPLFromClauseMethodUDFAndScriptReturningEvents());
+        execs.add(new EPLFromClauseMethod2JoinEventItselfProvidesMethod());
         return execs;
+    }
+
+    private static class EPLFromClauseMethod2JoinEventItselfProvidesMethod implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "import " + SupportEventWithStaticMethod.class.getName() + ";\n" +
+                "@public @buseventtype create schema SupportEventWithStaticMethod as SupportEventWithStaticMethod;\n" +
+                "@name('s0') select * from SupportEventWithStaticMethod as e, " +
+                "  method:SupportEventWithStaticMethod.returnLower() as lower,\n" +
+                "  method:SupportEventWithStaticMethod.returnUpper() as upper\n" +
+                "  where e.value in [lower.getValue():upper.getValue()]";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, 9, false);
+            sendAssert(env, 10, true);
+            sendAssert(env, 20, true);
+            sendAssert(env, 21, false);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, int value, boolean expected) {
+            env.sendEventBean(new SupportEventWithStaticMethod(value));
+            assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+        }
     }
 
     private static class EPLFromClauseMethodWithMethodResultParam implements RegressionExecution {
@@ -758,5 +783,37 @@ public class EPLFromClauseMethod {
 
     public static String getWithMethodResultParamCompute(boolean param, EPLMethodInvocationContext context) {
         return context.getStatementName();
+    }
+
+    public static class SupportEventWithStaticMethod {
+        private final int value;
+
+        public SupportEventWithStaticMethod(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static SupportEventWithStaticMethodValue returnLower() {
+            return new SupportEventWithStaticMethodValue(10);
+        }
+
+        public static SupportEventWithStaticMethodValue returnUpper() {
+            return new SupportEventWithStaticMethodValue(20);
+        }
+    }
+
+    public static class SupportEventWithStaticMethodValue {
+        private final int value;
+
+        public SupportEventWithStaticMethodValue(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
 }

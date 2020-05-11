@@ -103,7 +103,7 @@ public class StmtForgeMethodSelectUtil {
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 
         // verify for joins that required views are present
-        StreamJoinAnalysisResultCompileTime joinAnalysisResult = verifyJoinViews(statementSpec, services.getNamedWindowCompileTimeResolver());
+        StreamJoinAnalysisResultCompileTime joinAnalysisResult = verifyJoinViews(statementSpec);
 
         EventType[] streamEventTypes = new EventType[statementSpec.getStreamSpecs().length];
         String[] eventTypeNames = new String[numStreams];
