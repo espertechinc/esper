@@ -13,18 +13,20 @@ package com.espertech.esper.common.internal.epl.script.core;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCompare;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class ScriptCodegenFieldSharable implements CodegenFieldSharable {
     private final String scriptName;
-    private final int parameterNumber;
+    private final ExprNode[] parameters;
     private final ScriptDescriptorCompileTime scriptDescriptor;
     private final CodegenClassScope classScope;
 
     public ScriptCodegenFieldSharable(ScriptDescriptorCompileTime scriptDescriptor, CodegenClassScope classScope) {
         this.scriptName = scriptDescriptor.getScriptName();
-        this.parameterNumber = scriptDescriptor.getParameterNames().length;
+        this.parameters = scriptDescriptor.getParameters();
         this.scriptDescriptor = scriptDescriptor;
         this.classScope = classScope;
     }
@@ -43,13 +45,15 @@ public class ScriptCodegenFieldSharable implements CodegenFieldSharable {
 
         ScriptCodegenFieldSharable that = (ScriptCodegenFieldSharable) o;
 
-        if (parameterNumber != that.parameterNumber) return false;
+        if (!(ExprNodeUtilityCompare.deepEquals(parameters, that.parameters, false))) {
+            return false;
+        }
         return scriptName.equals(that.scriptName);
     }
 
     public int hashCode() {
         int result = scriptName.hashCode();
-        result = 31 * result + parameterNumber;
+        result = 31 * result + parameters.length;
         return result;
     }
 }

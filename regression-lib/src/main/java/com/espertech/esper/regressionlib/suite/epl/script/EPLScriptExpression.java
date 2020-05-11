@@ -15,18 +15,19 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportColorEvent;
 import com.espertech.esper.regressionlib.support.script.MyImportedClass;
 
 import java.util.*;
 
+import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static org.junit.Assert.*;
@@ -49,7 +50,24 @@ public class EPLScriptExpression {
         execs.add(new EPLScriptMVELStatelessReturnPassArgs());
         execs.add(new EPLScriptSubqueryParam());
         execs.add(new EPLScriptReturnNullWhenNumeric());
+        if (TEST_MVEL) {
+            execs.add(new EPLScriptMVELMultiUseWithDeclaredExpr());
+        }
         return execs;
+    }
+
+    private static class EPLScriptMVELMultiUseWithDeclaredExpr implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create expression F1 {1};\n" +
+                        "create expression int mvel:F(T) [ return T];\n" +
+                        "@Name('s0') select F(F1()) as c0, F(2) as c1 from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean());
+            assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {1, 2});
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLScriptReturnNullWhenNumeric implements RegressionExecution {
@@ -618,7 +636,7 @@ public class EPLScriptExpression {
         assertEquals(SupportBean.class, env.statement("s0").getEventType().getPropertyType("val0"));
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0.theString,val0.intPrimitive,val1".split(","), new Object[]{"E1", 10, "E1"});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0.theString,val0.intPrimitive,val1".split(","), new Object[]{"E1", 10, "E1"});
 
         env.undeployAll();
     }
@@ -632,13 +650,13 @@ public class EPLScriptExpression {
         assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("val0"));
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{9, 5});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{9, 5});
 
         env.undeployAll();
 
         env.eplToModelCompileDeploy(epl).addListener("s0");
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{9, 5});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{9, 5});
 
         env.undeployAll();
     }
@@ -651,7 +669,7 @@ public class EPLScriptExpression {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{1000});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{1000});
 
         env.undeployAll();
     }
@@ -664,7 +682,7 @@ public class EPLScriptExpression {
         assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("c0"));
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{"x"});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{"x"});
 
         env.undeployAll();
     }
@@ -678,7 +696,7 @@ public class EPLScriptExpression {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2".split(","), new Object[]{10, 20, 60});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2".split(","), new Object[]{10, 20, 60});
 
         env.undeployAll();
     }
@@ -707,7 +725,7 @@ public class EPLScriptExpression {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0.p00".split(","), new Object[]{MyImportedClass.VALUE_P00});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0.p00".split(","), new Object[]{MyImportedClass.VALUE_P00});
 
         env.undeployAll();
     }
@@ -719,13 +737,13 @@ public class EPLScriptExpression {
         assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("val0"));
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0".split(","), new Object[]{2});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0".split(","), new Object[]{2});
 
         env.undeployAll();
 
         env.eplToModelCompileDeploy(epl).addListener("s0");
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0".split(","), new Object[]{2});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0".split(","), new Object[]{2});
 
         env.undeployAll();
     }
@@ -766,10 +784,10 @@ public class EPLScriptExpression {
         env.compileDeploy("@name('s0') select change(first(intPrimitive), last(intPrimitive)) as ch from SupportBean#time(1 day)", path).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "ch".split(","), new Object[]{0d});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "ch".split(","), new Object[]{0d});
 
         env.sendEventBean(new SupportBean("E2", 10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "ch".split(","), new Object[]{-0.9d});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "ch".split(","), new Object[]{-0.9d});
 
         env.undeployAll();
     }
@@ -781,7 +799,7 @@ public class EPLScriptExpression {
             "select getResultOne() from SupportBean").addListener("s0");
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "getResultOne()".split(","), new Object[]{value});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "getResultOne()".split(","), new Object[]{value});
         env.undeployAll();
 
         env.compileDeploy("@name('s0') expression mvel:getResultOne [" +
@@ -795,7 +813,7 @@ public class EPLScriptExpression {
         env.sendEventBean(new SupportBean());
         assertEquals(type, env.statement("s0").getEventType().getPropertyType("val0"));
         assertEquals(type, env.statement("s0").getEventType().getPropertyType("val1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{value, value});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{value, value});
 
         env.undeployAll();
     }
@@ -813,7 +831,7 @@ public class EPLScriptExpression {
         env.compileDeploy("@name('s0') select test('a') as c0 from SupportBean_S0", path).addListener("s0");
         env.listener("s0").reset();
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{-1d});
+        assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{-1d});
 
         env.undeployAll();
     }

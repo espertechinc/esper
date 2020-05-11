@@ -158,7 +158,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         }
 
         scriptDescriptor = new ScriptDescriptorCompileTime(script.getOptionalDialect(), script.getName(), script.getExpression(),
-                script.getParameterNames(), forges, returnType, defaultDialect);
+                script.getParameterNames(), parameters.toArray(new ExprNode[0]), returnType, defaultDialect);
         return null;
     }
 
