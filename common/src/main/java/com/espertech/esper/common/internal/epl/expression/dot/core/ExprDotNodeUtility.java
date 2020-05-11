@@ -212,14 +212,25 @@ public class ExprDotNodeUtility {
             if (currentInputType instanceof ClassMultiValuedEPType) {
                 ClassMultiValuedEPType type = (ClassMultiValuedEPType) currentInputType;
                 if (chainElementName.toLowerCase(Locale.ENGLISH).equals("size") && paramTypes.length == 0 && lastElement == chainElement) {
-                    ExprDotForgeArraySize sizeExpr = new ExprDotForgeArraySize();
-                    methodForges.add(sizeExpr);
-                    currentInputType = sizeExpr.getTypeInfo();
+                    ExprDotForge size;
+                    Class containerType = ((ClassMultiValuedEPType) currentInputType).getContainer();
+                    if (containerType.isArray()) {
+                        size = new ExprDotForgeSizeArray();
+                    } else {
+                        size = new ExprDotForgeSizeCollection();
+                    }
+                    methodForges.add(size);
+                    currentInputType = size.getTypeInfo();
                     continue;
                 }
                 if (chainElementName.toLowerCase(Locale.ENGLISH).equals("get") && paramTypes.length == 1 && JavaClassHelper.getBoxedType(paramTypes[0]) == Integer.class) {
+                    ExprDotForge get;
                     Class componentType = JavaClassHelper.getBoxedType(type.getComponent());
-                    ExprDotForgeArrayGet get = new ExprDotForgeArrayGet(paramForges[0], componentType);
+                    if (type.getContainer().isArray()) {
+                        get = new ExprDotForgeGetArray(paramForges[0], componentType);
+                    } else {
+                        get = new ExprDotForgeGetCollection(paramForges[0], componentType);
+                    }
                     methodForges.add(get);
                     currentInputType = get.getTypeInfo();
                     continue;
@@ -229,7 +240,7 @@ public class ExprDotNodeUtility {
                     final EPType typeInfo = currentInputType;
                     ExprNode indexExpr = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "operation on type " + EPTypeHelper.toTypeDescriptive(typeInfo));
                     Class componentType = JavaClassHelper.getBoxedType(type.getComponent());
-                    ExprDotForgeArrayGet get = new ExprDotForgeArrayGet(indexExpr.getForge(), componentType);
+                    ExprDotForgeGetArray get = new ExprDotForgeGetArray(indexExpr.getForge(), componentType);
                     methodForges.add(get);
                     currentInputType = get.getTypeInfo();
                     continue;

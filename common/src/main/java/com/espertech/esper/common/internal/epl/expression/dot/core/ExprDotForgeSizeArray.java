@@ -24,7 +24,7 @@ import java.lang.reflect.Array;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprDotForgeArraySize implements ExprDotForge, ExprDotEval {
+public class ExprDotForgeSizeArray implements ExprDotForge, ExprDotEval {
 
     public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (target == null) {
@@ -50,7 +50,7 @@ public class ExprDotForgeArraySize implements ExprDotForge, ExprDotEval {
     }
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Integer.class, ExprDotForgeArraySize.class, classScope).addParam(innerType, "target").getBlock()
+        CodegenMethod method = parent.makeChild(Integer.class, ExprDotForgeSizeArray.class, classScope).addParam(innerType, "target").getBlock()
                 .ifRefNullReturnNull("target")
                 .methodReturn(arrayLength(ref("target")));
         return localMethodBuild(method).pass(inner).call();

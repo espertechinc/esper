@@ -16,22 +16,24 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
 
-import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
 
-public class ExprDotForgeArrayGetEval implements ExprDotEval {
-    private final ExprDotForgeArrayGet forge;
+public class ExprDotForgeGetCollectionEval implements ExprDotEval {
+    private final ExprDotForgeGetCollection forge;
     private final ExprEvaluator indexExpression;
 
-    public ExprDotForgeArrayGetEval(ExprDotForgeArrayGet forge, ExprEvaluator indexExpression) {
+    public ExprDotForgeGetCollectionEval(ExprDotForgeGetCollection forge, ExprEvaluator indexExpression) {
         this.forge = forge;
         this.indexExpression = indexExpression;
     }
@@ -40,20 +42,40 @@ public class ExprDotForgeArrayGetEval implements ExprDotEval {
         if (target == null) {
             return null;
         }
-
         Object index = indexExpression.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (index == null) {
-            return null;
-        }
         if (!(index instanceof Integer)) {
             return null;
         }
         int indexNum = (Integer) index;
+        return collectionElementAt(target, indexNum);
 
-        if (Array.getLength(target) <= indexNum) {
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param target collection
+     * @return frequence params
+     */
+    public static Object collectionElementAt(Object target, int indexNum) {
+        Collection<Object> collection = (Collection<Object>) target;
+        if (collection.size() <= indexNum) {
             return null;
         }
-        return Array.get(target, indexNum);
+
+        if (collection instanceof List) {
+            return ((List<Object>) collection).get(indexNum);
+        }
+        int count = 0;
+        Iterator<Object> it = collection.iterator();
+        while (count < indexNum && it.hasNext()) {
+            it.next();
+            count++;
+        }
+        if (it.hasNext()) {
+            return it.next();
+        }
+        return null;
     }
 
     public EPType getTypeInfo() {
@@ -64,17 +86,16 @@ public class ExprDotForgeArrayGetEval implements ExprDotEval {
         return forge;
     }
 
-    public static CodegenExpression codegen(ExprDotForgeArrayGet forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypeHelper.getNormalizedClass(forge.getTypeInfo()), ExprDotForgeArrayGetEval.class, codegenClassScope).addParam(innerType, "target");
+    public static CodegenExpression codegen(ExprDotForgeGetCollection forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypeHelper.getNormalizedClass(forge.getTypeInfo()), ExprDotForgeGetCollectionEval.class, codegenClassScope).addParam(innerType, "target");
 
         CodegenBlock block = methodNode.getBlock();
         if (!innerType.isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
-        block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(int.class, methodNode, exprSymbol, codegenClassScope));
-        block.ifCondition(relational(arrayLength(ref("target")), LE, ref("index")))
-                .blockReturn(constantNull())
-                .methodReturn(arrayAtIndex(ref("target"), ref("index")));
+        Class targetType = EPTypeHelper.getCodegenReturnType(forge.getTypeInfo());
+        block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(int.class, methodNode, exprSymbol, codegenClassScope))
+            .methodReturn(CodegenLegoCast.castSafeFromObjectType(targetType, staticMethod(ExprDotForgeGetCollectionEval.class, "collectionElementAt", ref("target"), ref("index"))));
         return localMethod(methodNode, inner);
     }
 }

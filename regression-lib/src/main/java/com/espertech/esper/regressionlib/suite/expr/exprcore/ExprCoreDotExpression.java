@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -27,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class ExprCoreDotExpression {
     public static Collection<RegressionExecution> executions() {
@@ -41,7 +43,32 @@ public class ExprCoreDotExpression {
         execs.add(new ExprCoreDotArrayPropertySizeAndGetChained());
         execs.add(new ExprCoreDotNestedPropertyInstanceExpr());
         execs.add(new ExprCoreDotNestedPropertyInstanceNW());
+        execs.add(new ExprCoreDotCollectionSelectFromGetAndSize());
         return execs;
+    }
+
+    private static class ExprCoreDotCollectionSelectFromGetAndSize implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select p01.split(',').selectFrom(v -> v).size() as sz from SupportBean_S0(p00=p01.split(',').selectFrom(v -> v).get(2))";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, "A", "A,B,C", null);
+            sendAssert(env, "A", "C,B,A", 3);
+            sendAssert(env, "A", "", null);
+            sendAssert(env, "A", "A,B,C,A", null);
+            sendAssert(env, "A", "A,B,A,B", 4);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, String p00, String p01, Integer sizeExpected) {
+            env.sendEventBean(new SupportBean_S0(0, p00, p01));
+            if (sizeExpected == null) {
+                assertFalse(env.listener("s0").getIsInvokedAndReset());
+            } else {
+                assertEquals(sizeExpected, env.listener("s0").assertOneGetNewAndReset().get("sz"));
+            }
+        }
     }
 
     private static class ExprCoreDotObjectEquals implements RegressionExecution {

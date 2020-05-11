@@ -18,11 +18,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
 
-public class ExprDotForgeArrayGet implements ExprDotForge {
+public class ExprDotForgeGetCollection implements ExprDotForge {
     private final EPType typeInfo;
     private final ExprForge indexExpression;
 
-    public ExprDotForgeArrayGet(ExprForge index, Class componentType) {
+    public ExprDotForgeGetCollection(ExprForge index, Class componentType) {
         this.indexExpression = index;
         this.typeInfo = EPTypeHelper.singleValue(componentType);
     }
@@ -36,11 +36,11 @@ public class ExprDotForgeArrayGet implements ExprDotForge {
     }
 
     public ExprDotEval getDotEvaluator() {
-        return new ExprDotForgeArrayGetEval(this, indexExpression.getExprEvaluator());
+        return new ExprDotForgeGetCollectionEval(this, indexExpression.getExprEvaluator());
     }
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return ExprDotForgeArrayGetEval.codegen(this, inner, innerType, parent, symbols, classScope);
+        return ExprDotForgeGetCollectionEval.codegen(this, inner, innerType, parent, symbols, classScope);
     }
 
     public ExprForge getIndexExpression() {
