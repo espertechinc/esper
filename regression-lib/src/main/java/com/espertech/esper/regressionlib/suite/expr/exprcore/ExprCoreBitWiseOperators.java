@@ -13,10 +13,10 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -45,7 +46,15 @@ public class ExprCoreBitWiseOperators {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
         executions.add(new ExprCoreBitWiseOp());
         executions.add(new ExprCoreBitWiseOpOM());
+        executions.add(new ExprCoreBitWiseInvalid());
         return executions;
+    }
+
+    private static class ExprCoreBitWiseInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            tryInvalidCompile(env, "select * from SupportBean(theString = 'a' | 'x')",
+                "Failed to validate filter expression 'theString=\"a\"|\"x\"': Invalid datatype for binary operator, java.lang.String is not allowed");
+        }
     }
 
     private static class ExprCoreBitWiseOpOM implements RegressionExecution {

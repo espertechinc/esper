@@ -58,7 +58,7 @@ public class ExprBitWiseNode extends ExprNodeBase {
         }
 
         Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
-        Class typeTwo = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        Class typeTwo = JavaClassHelper.getBoxedType(getChildNodes()[1].getForge().getEvaluationType());
         checkNumericOrBoolean(typeOne);
         checkNumericOrBoolean(typeTwo);
 
@@ -103,7 +103,7 @@ public class ExprBitWiseNode extends ExprNodeBase {
 
     private void checkNumericOrBoolean(Class childType) throws ExprValidationException {
         if ((!JavaClassHelper.isBoolean(childType)) && (!JavaClassHelper.isNumeric(childType))) {
-            throw new ExprValidationException("Invalid datatype for bitwise " +
+            throw new ExprValidationException("Invalid datatype for binary operator, " +
                     childType.getName() + " is not allowed");
         }
     }
