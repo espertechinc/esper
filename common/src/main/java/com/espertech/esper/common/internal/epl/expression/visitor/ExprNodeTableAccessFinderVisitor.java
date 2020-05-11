@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.visitor;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 
 public class ExprNodeTableAccessFinderVisitor implements ExprNodeVisitor {
@@ -26,6 +27,12 @@ public class ExprNodeTableAccessFinderVisitor implements ExprNodeVisitor {
     public void visit(ExprNode exprNode) {
         if (exprNode instanceof ExprTableAccessNode) {
             hasTableAccess = true;
+        }
+        if (exprNode instanceof ExprSubselectNode) {
+            ExprSubselectNode subselect = (ExprSubselectNode) exprNode;
+            if (subselect.getRawEventType() != null) {
+                hasTableAccess |= subselect.getRawEventType().getMetadata().getTypeClass().isTable();
+            }
         }
     }
 

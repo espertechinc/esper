@@ -112,6 +112,9 @@ public enum EventTypeTypeClass {
     /**
      * An event type for exclude-plan evaluation.
      */
-    EXCLUDEPLANHINTDERIVED(),
+    EXCLUDEPLANHINTDERIVED();
 
+    public boolean isTable() {
+        return this == TABLE_PUBLIC || this == TABLE_INTERNAL;
+    }
 }

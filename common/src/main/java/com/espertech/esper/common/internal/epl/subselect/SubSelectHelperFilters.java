@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecOptions;
+import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamSpec;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
@@ -25,6 +26,7 @@ import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselect
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
+import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
@@ -39,7 +41,7 @@ public class SubSelectHelperFilters {
     public static List<StmtClassForgeableFactory> handleSubselectSelectClauses(ExprSubselectNode subselect, EventType outerEventType, String outerEventTypeName, String outerStreamName,
                                                                                LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
                                                                                StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
 
         if (subselect.getSubselectNumber() == -1) {
             throw new IllegalStateException("Subselect is unassigned");
@@ -56,8 +58,9 @@ public class SubSelectHelperFilters {
         EventType eventType;
         try {
             ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(-1, true, subselect.getSubselectNumber(), StreamSpecOptions.DEFAULT, null, statementRawInfo, services);
+            StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[0];
 
-            if (statementSpec.getStreamSpecs()[0] instanceof FilterStreamSpecCompiled) {
+            if (streamSpec instanceof FilterStreamSpecCompiled) {
                 FilterStreamSpecCompiled filterStreamSpecCompiled = (FilterStreamSpecCompiled) statementSpec.getStreamSpecs()[0];
                 subselecteventTypeName = filterStreamSpecCompiled.getFilterSpecCompiled().getFilterForEventTypeName();
 
@@ -72,7 +75,7 @@ public class SubSelectHelperFilters {
                 // Register filter, create view factories
                 eventType = viewForges.isEmpty() ? filterStreamSpecCompiled.getFilterSpecCompiled().getResultEventType() : viewForges.get(viewForges.size() - 1).getEventType();
                 subselect.setRawEventType(eventType);
-            } else {
+            } else if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
                 NamedWindowMetaData namedWindow = namedSpec.getNamedWindow();
                 ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(namedSpec.getViewSpecs(), args, namedWindow.getEventType());
@@ -83,6 +86,19 @@ public class SubSelectHelperFilters {
                 EPLValidationUtil.validateContextName(false, namedWindowName, namedWindow.getContextName(), statementRawInfo.getContextName(), true);
                 subselect.setRawEventType(namedWindow.getEventType());
                 eventType = namedWindow.getEventType();
+            } else if (streamSpec instanceof TableQueryStreamSpec) {
+                TableQueryStreamSpec namedSpec = (TableQueryStreamSpec) statementSpec.getStreamSpecs()[0];
+                TableMetaData table = namedSpec.getTable();
+                ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(namedSpec.getViewSpecs(), args, table.getInternalEventType());
+                viewForges = viewForgeDesc.getForges();
+                additionalForgeables = viewForgeDesc.getMultikeyForges();
+                String namedWindowName = table.getTableName();
+                subselecteventTypeName = namedWindowName;
+                EPLValidationUtil.validateContextName(false, namedWindowName, table.getOptionalContextName(), statementRawInfo.getContextName(), true);
+                subselect.setRawEventType(table.getInternalEventType());
+                eventType = table.getInternalEventType();
+            } else {
+                throw new IllegalStateException("Unexpected stream spec " + streamSpec);
             }
         } catch (ViewProcessingException ex) {
             throw new ExprValidationException("Error validating subexpression: " + ex.getMessage(), ex);
@@ -92,22 +108,22 @@ public class SubSelectHelperFilters {
         String subexpressionStreamName = SubselectUtil.getStreamName(filterStreamSpec.getOptionalStreamName(), subselect.getSubselectNumber());
 
         // Named windows don't allow data views
-        if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
+        if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec | filterStreamSpec instanceof TableQueryStreamSpec) {
             EPStatementStartMethodHelperValidate.validateNoDataWindowOnNamedWindow(viewForges);
         }
 
         // Streams event types are the original stream types with the stream zero the subselect stream
-        LinkedHashMap<String, Pair<EventType, String>> namesAndTypes = new LinkedHashMap<String, Pair<EventType, String>>();
-        namesAndTypes.put(subexpressionStreamName, new Pair<EventType, String>(eventType, subselecteventTypeName));
-        namesAndTypes.put(outerStreamName, new Pair<EventType, String>(outerEventType, outerEventTypeName));
+        LinkedHashMap<String, Pair<EventType, String>> namesAndTypes = new LinkedHashMap<>();
+        namesAndTypes.put(subexpressionStreamName, new Pair<>(eventType, subselecteventTypeName));
+        namesAndTypes.put(outerStreamName, new Pair<>(outerEventType, outerEventTypeName));
         if (taggedEventTypes != null) {
             for (Map.Entry<String, Pair<EventType, String>> entry : taggedEventTypes.entrySet()) {
-                namesAndTypes.put(entry.getKey(), new Pair<EventType, String>(entry.getValue().getFirst(), entry.getValue().getSecond()));
+                namesAndTypes.put(entry.getKey(), new Pair<>(entry.getValue().getFirst(), entry.getValue().getSecond()));
             }
         }
         if (arrayEventTypes != null) {
             for (Map.Entry<String, Pair<EventType, String>> entry : arrayEventTypes.entrySet()) {
-                namesAndTypes.put(entry.getKey(), new Pair<EventType, String>(entry.getValue().getFirst(), entry.getValue().getSecond()));
+                namesAndTypes.put(entry.getKey(), new Pair<>(entry.getValue().getFirst(), entry.getValue().getSecond()));
             }
         }
         StreamTypeService subselectTypeService = new StreamTypeServiceImpl(namesAndTypes, true, true);
@@ -127,14 +143,14 @@ public class SubSelectHelperFilters {
                 SelectClauseExprCompiledSpec compiled = (SelectClauseExprCompiledSpec) element;
                 ExprNode selectExpression = compiled.getSelectExpression();
                 ExprValidationContext validationContext = new ExprValidationContextBuilder(subselectTypeService, statementRawInfo, services)
-                        .withViewResourceDelegate(viewResourceDelegateSubselect).withAllowBindingConsumption(true)
-                        .withMemberName(new ExprValidationMemberNameQualifiedSubquery(subselect.getSubselectNumber())).build();
+                    .withViewResourceDelegate(viewResourceDelegateSubselect).withAllowBindingConsumption(true)
+                    .withMemberName(new ExprValidationMemberNameQualifiedSubquery(subselect.getSubselectNumber())).build();
                 selectExpression = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.SUBQUERYSELECT, selectExpression, validationContext);
                 subselect.setSelectClause(new ExprNode[]{selectExpression});
                 subselect.setSelectAsNames(new String[]{compiled.getAssignedName()});
 
                 // handle aggregation
-                List<ExprAggregateNode> aggExprNodes = new LinkedList<ExprAggregateNode>();
+                List<ExprAggregateNode> aggExprNodes = new LinkedList<>();
                 ExprAggregateNodeUtil.getAggregatesBottomUp(selectExpression, aggExprNodes);
                 if (aggExprNodes.size() > 0) {
                     // Other stream properties, if there is aggregation, cannot be under aggregation.

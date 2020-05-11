@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +33,44 @@ public class InfraTableSubquery {
         execs.add(new InfraTableSubqueryAgainstKeyed());
         execs.add(new InfraTableSubqueryAgainstUnkeyed());
         execs.add(new InfraTableSubquerySecondaryIndex());
+        execs.add(new InfraTableSubqueryInFilter());
         return execs;
+    }
+
+    private static class InfraTableSubqueryInFilter implements RegressionExecution {
+
+        public void run(RegressionEnvironment env) {
+            String epl = "create table MyTable(tablecol string primary key);\n" +
+                "insert into MyTable select p00 as tablecol from SupportBean_S0;\n" +
+                "@name('s0') select * from SupportBean(theString=(select tablecol from MyTable).orderBy().firstOf())";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, "E", false);
+            sendS0(env, "E");
+            sendAssert(env, "E", true);
+            sendS0(env, "C");
+            sendAssert(env, "E", false);
+            sendAssert(env, "C", true);
+
+            env.milestone(0);
+
+            sendAssert(env, "A", false);
+            sendAssert(env, "C", true);
+            sendS0(env, "A");
+            sendAssert(env, "A", true);
+            sendAssert(env, "C", false);
+
+            env.undeployAll();
+        }
+
+        private void sendS0(RegressionEnvironment env, String p00) {
+            env.sendEventBean(new SupportBean_S0(0, p00));
+        }
+
+        private void sendAssert(RegressionEnvironment env, String theString, boolean expected) {
+            env.sendEventBean(new SupportBean(theString, 0));
+            assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+        }
     }
 
     private static class InfraTableSubqueryAgainstKeyed implements RegressionExecution {
