@@ -10,11 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.client.compile;
 
-import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.module.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.*;
 
@@ -27,7 +27,18 @@ public class ClientCompileModuleUses {
         execs.add(new ClientCompileModuleUsesOrder());
         execs.add(new ClientCompileModuleUsesCircular());
         execs.add(new ClientCompileModuleUsesUnresolvedUses());
+        execs.add(new ClientCompileModuleUsesIgnorableUses());
         return execs;
+    }
+
+    private static class ClientCompileModuleUsesIgnorableUses implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String eplObjects = "@public create variable int MYVAR;\n";
+            env.compile(eplObjects, path);
+
+            env.compile("uses dummy; select MYVAR from SupportBean", path);
+        }
     }
 
     private static class ClientCompileModuleUsesOrder implements RegressionExecution {

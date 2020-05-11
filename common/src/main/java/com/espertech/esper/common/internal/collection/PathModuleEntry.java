@@ -12,9 +12,7 @@ package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -51,21 +49,25 @@ public class PathModuleEntry<E> {
                 return null;
             }
             return new Pair<>(entry.getEntity(), moduleName);
-        } else {
-            PathDeploymentEntry<E> found = null;
-            String moduleNameFound = null;
-            for (String moduleName : moduleNames) {
-                PathDeploymentEntry<E> entry = modules.get(moduleName);
-                if (entry != null) {
-                    if (found != null) {
-                        throw new PathExceptionAmbiguous(entityName, objectType);
-                    }
-                    found = entry;
-                    moduleNameFound = moduleName;
-                }
-            }
-            return found == null ? null : new Pair<>(found.getEntity(), moduleNameFound);
         }
+        if (modules.size() == 1) {
+            Map.Entry<String, PathDeploymentEntry<E>> entry = modules.entrySet().iterator().next();
+            return new Pair<>(entry.getValue().getEntity(), entry.getKey());
+        }
+        List<Map.Entry<String, PathDeploymentEntry<E>>> found = new ArrayList<>(2);
+        for (Map.Entry<String, PathDeploymentEntry<E>> entry : modules.entrySet()) {
+            if (moduleNames.contains(entry.getKey())) {
+                found.add(entry);
+            }
+        }
+        if (found.size() > 1) {
+            throw new PathExceptionAmbiguous(entityName, objectType);
+        }
+        if (found.size() == 1) {
+            Map.Entry<String, PathDeploymentEntry<E>> entry = found.get(0);
+            return new Pair<>(entry.getValue().getEntity(), entry.getKey());
+        }
+        return null;
     }
 
     public String getDeploymentId(String moduleName) {
