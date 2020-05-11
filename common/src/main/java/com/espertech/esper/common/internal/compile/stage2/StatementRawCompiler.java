@@ -77,9 +77,13 @@ public class StatementRawCompiler {
                 disqualified = viewResourceVisitor.getExprNodes().size() > 0;
             }
 
+            FilterStreamSpecRaw streamSpec = (FilterStreamSpecRaw) spec.getStreamSpecs().get(0);
+            if (streamSpec.getRawFilterSpec().getOptionalPropertyEvalSpec() != null) {
+                disqualified = true;
+            }
+
             if (!disqualified) {
                 spec.setWhereClause(null);
-                FilterStreamSpecRaw streamSpec = (FilterStreamSpecRaw) spec.getStreamSpecs().get(0);
                 streamSpec.getRawFilterSpec().getFilterExpressions().add(whereClause);
             }
         }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.contained;
 
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -18,8 +20,10 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class EPLContainedEventArray {
 
@@ -27,7 +31,34 @@ public class EPLContainedEventArray {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new EPLContainedEventDocSample());
         execs.add(new EPLContainedEventIntArray());
+        execs.add(new EPLContainedStringArrayWithWhere());
         return execs;
+    }
+
+    private static class EPLContainedStringArrayWithWhere implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create schema MyRow(id String);\n" +
+                "@public @buseventtype create schema MyEvent(idsBefore string[], idsAfter string[]);\n" +
+                "@name('s0') select id from MyEvent[select idsBefore, * from idsAfter@type(MyRow)] where id not in (idsBefore);\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            assertSend(env, "A,B,C", "D,E", new Object[][] {{"D"}, {"E"}});
+            assertSend(env, "A,C", "C,A", null);
+            assertSend(env, "A", "B", new Object[][] {{"B"}});
+            assertSend(env, "A,B", "F,B,A", new Object[][] {{"F"}});
+
+            env.undeployAll();
+        }
+
+        private void assertSend(RegressionEnvironment env, String idsBeforeCSV, String idsAfterCSV, Object[][] expected) {
+            Map<String, Object> data = CollectionUtil.buildMap("idsBefore", idsBeforeCSV.split(","), "idsAfter", idsAfterCSV.split(","));
+            env.sendEventMap(data, "MyEvent");
+            if (expected == null) {
+                assertFalse(env.listener("s0").getIsInvokedAndReset());
+            } else {
+                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "id".split(","), expected);
+            }
+        }
     }
 
     private static class EPLContainedEventDocSample implements RegressionExecution {
