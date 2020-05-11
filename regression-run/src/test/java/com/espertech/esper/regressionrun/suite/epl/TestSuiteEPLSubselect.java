@@ -106,6 +106,10 @@ public class TestSuiteEPLSubselect extends TestCase {
         RegressionRunner.run(session, EPLSubselectWithinPattern.executions());
     }
 
+    public void testEPLSubselectWithinFilter() {
+        RegressionRunner.run(session, EPLSubselectWithinFilter.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
             SupportBean_S2.class, SupportBean_S3.class, SupportBean_S4.class,

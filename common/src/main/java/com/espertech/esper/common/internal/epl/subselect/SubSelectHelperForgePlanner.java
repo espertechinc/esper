@@ -531,6 +531,13 @@ public class SubSelectHelperForgePlanner {
             filterExpr, correlatedSubquery, aggregationServiceForgeDesc,  /* viewResourceDelegateVerified */ subqueryNum, groupByNodes, namedWindow,
             namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
 
+        // For subselect in filters, we must validate-subquery again as the first validate was not including the information compiled herein.
+        // This is because filters are validated first so their information is available to stream-type-service and this validation.
+        // Validate-subquery validates and builds the subselect strategy forge.
+        if (subselect.isFilterStreamSubselect()) {
+            subselect.validateSubquery(subselect.getFilterStreamExprValidationContext());
+        }
+
         SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
         return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
     }

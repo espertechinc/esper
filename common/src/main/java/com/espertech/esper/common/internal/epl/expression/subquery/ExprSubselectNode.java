@@ -54,6 +54,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
     private SubqueryAggregationType subselectAggregationType;
     private int subselectNumber = -1;
     private boolean filterStreamSubselect;
+    private ExprValidationContext filterStreamExprValidationContext;
 
     public abstract boolean isAllowMultiColumnSelect();
 
@@ -100,6 +101,9 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         validateSubquery(validationContext);
+        if (filterStreamSubselect) {
+            filterStreamExprValidationContext = validationContext;
+        }
         return null;
     }
 
@@ -295,6 +299,10 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
     public ExprEnumerationEval getExprEvaluatorEnumeration() {
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
+    }
+
+    public ExprValidationContext getFilterStreamExprValidationContext() {
+        return filterStreamExprValidationContext;
     }
 
     public static ExprSubselectNode[] toArray(List<ExprSubselectNode> subselectNodes) {
