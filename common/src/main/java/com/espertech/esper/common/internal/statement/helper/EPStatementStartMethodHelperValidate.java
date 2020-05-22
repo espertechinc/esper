@@ -114,7 +114,7 @@ public class EPStatementStartMethodHelperValidate {
                     throw new ExprValidationException("An aggregate function may not appear in a WHERE clause (use the HAVING clause)");
                 }
             } catch (ExprValidationException ex) {
-                throw new ExprValidationException("Error validating expression: " + ex.getMessage(), ex);
+                throw new ExprValidationException("Failed to validate expression: " + ex.getMessage(), ex);
             }
         }
 
@@ -177,7 +177,7 @@ public class EPStatementStartMethodHelperValidate {
                         if (!streamSet.contains(streamIdPairAdd.getFirst()) || (!streamSet.contains(streamIdPairAdd.getSecond()))) {
                             String message = "Outer join ON-clause columns must refer to properties of the same joined streams" +
                                     " when using multiple columns in the on-clause";
-                            throw new ExprValidationException("Error validating outer-join expression: " + message);
+                            throw new ExprValidationException("Failed to validate outer-join expression: " + message);
                         }
 
                     }
@@ -202,7 +202,7 @@ public class EPStatementStartMethodHelperValidate {
                     .withViewResourceDelegate(viewResourceDelegate).withAllowBindingConsumption(true).withIsFilterExpression(true).build();
             ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.JOINON, equalsNode, validationContext);
         } catch (ExprValidationException ex) {
-            throw new ExprValidationException("Error validating outer-join expression: " + ex.getMessage(), ex);
+            throw new ExprValidationException("Failed to validate outer-join expression: " + ex.getMessage(), ex);
         }
 
         // Make sure we have left-hand-side and right-hand-side refering to different streams
@@ -210,7 +210,7 @@ public class EPStatementStartMethodHelperValidate {
         int streamIdRight = rightNode.getStreamId();
         if (streamIdLeft == streamIdRight) {
             String message = "Outer join ON-clause cannot refer to properties of the same stream";
-            throw new ExprValidationException("Error validating outer-join expression: " + message);
+            throw new ExprValidationException("Failed to validate outer-join expression: " + message);
         }
 
         // Make sure one of the properties refers to the acutual stream currently being joined
@@ -218,7 +218,7 @@ public class EPStatementStartMethodHelperValidate {
         if ((streamIdLeft != expectedStreamJoined) && (streamIdRight != expectedStreamJoined)) {
             String message = "Outer join ON-clause must refer to at least one property of the joined stream" +
                     " for stream " + expectedStreamJoined;
-            throw new ExprValidationException("Error validating outer-join expression: " + message);
+            throw new ExprValidationException("Failed to validate outer-join expression: " + message);
         }
 
         // Make sure neither of the streams refer to a 'future' stream
@@ -232,7 +232,7 @@ public class EPStatementStartMethodHelperValidate {
         if (badPropertyName != null) {
             String message = "Outer join ON-clause invalid scope for property" +
                     " '" + badPropertyName + "', expecting the current or a prior stream scope";
-            throw new ExprValidationException("Error validating outer-join expression: " + message);
+            throw new ExprValidationException("Failed to validate outer-join expression: " + message);
         }
 
         return new UniformPair<Integer>(streamIdLeft, streamIdRight);

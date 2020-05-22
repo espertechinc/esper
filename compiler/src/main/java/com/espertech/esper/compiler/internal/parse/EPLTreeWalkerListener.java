@@ -3163,4 +3163,10 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitChainableElements(EsperEPL2GrammarParser.ChainableElementsContext ctx) {
     }
+
+    public void enterColumnListKeywordAllowed(EsperEPL2GrammarParser.ColumnListKeywordAllowedContext ctx) {
+    }
+
+    public void exitColumnListKeywordAllowed(EsperEPL2GrammarParser.ColumnListKeywordAllowedContext ctx) {
+    }
 }

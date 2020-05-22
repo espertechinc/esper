@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 import com.espertech.esper.common.client.hook.enummethod.EnumMethodDescriptor;
 import com.espertech.esper.common.client.hook.enummethod.EnumMethodForgeFactory;
 import com.espertech.esper.common.client.hook.enummethod.EnumMethodInitializeContext;
-import com.espertech.esper.common.internal.epl.enummethod.plugin.ExprDotForgeEnumMethodFactoryPlugin;
+import com.espertech.esper.common.internal.epl.enummethod.eval.plugin.ExprDotForgeEnumMethodFactoryPlugin;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -47,7 +47,7 @@ public class EnumMethodResolver {
             if (factory != null) {
                 EnumMethodForgeFactory forgeFactory = (EnumMethodForgeFactory) JavaClassHelper.instantiate(EnumMethodForgeFactory.class, factory);
                 EnumMethodDescriptor descriptor = forgeFactory.initialize(new EnumMethodInitializeContext());
-                ExprDotForgeEnumMethodFactoryPlugin plugin = new ExprDotForgeEnumMethodFactoryPlugin(name, forgeFactory);
+                ExprDotForgeEnumMethodFactoryPlugin plugin = new ExprDotForgeEnumMethodFactoryPlugin(forgeFactory);
                 return new EnumMethodDesc(name, EnumMethodEnum.PLUGIN, plugin, descriptor.getFootprints());
             }
         } catch (Exception ex) {

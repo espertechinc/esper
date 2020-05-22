@@ -136,7 +136,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
             try {
                 expressionBodyCopy = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.ALIASEXPRBODY, expressionBodyCopy, validationContext);
             } catch (ExprValidationException ex) {
-                String message = "Error validating expression alias '" + prototype.getName() + "': " + ex.getMessage();
+                String message = "Failed to validate expression alias '" + prototype.getName() + "': " + ex.getMessage();
                 throw new ExprValidationException(message, ex);
             }
 
@@ -252,7 +252,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
             ExprValidationContext expressionBodyContext = new ExprValidationContext(copyTypes, validationContext);
             expressionBodyCopy = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, expressionBodyCopy, expressionBodyContext);
         } catch (ExprValidationException ex) {
-            String message = "Error validating expression declaration '" + prototype.getName() + "': " + ex.getMessage();
+            String message = "Failed to validate expression declaration '" + prototype.getName() + "': " + ex.getMessage();
             throw new ExprValidationException(message, ex);
         }
 

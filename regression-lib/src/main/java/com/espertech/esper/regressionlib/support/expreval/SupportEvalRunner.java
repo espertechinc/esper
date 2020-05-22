@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
+import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.event.map.MapEventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
@@ -31,14 +32,13 @@ public class SupportEvalRunner {
 
     public static <T> void run(RegressionEnvironment env, boolean soda, SupportEvalBuilder builder) {
         verifyAssertions(builder);
-        runEPL(env, builder, soda);
+        if (!builder.isExcludeEPLAssertion()) {
+            runEPL(env, builder, soda);
+        }
         runNonCompile(env, builder);
     }
 
     private static void verifyAssertions(SupportEvalBuilder builder) {
-        if (builder.getAssertions().isEmpty()) {
-            throw new IllegalArgumentException("No assertions");
-        }
         for (SupportEvalAssertionPair assertion : builder.getAssertions()) {
             Map<String, SupportEvalExpected> expected = assertion.getBuilder().getResults();
             for (Map.Entry<String, String> expression : builder.getExpressions().entrySet()) {
@@ -59,14 +59,21 @@ public class SupportEvalRunner {
 
         Map<String, ExprEvaluator> nodes = new HashMap<>();
         for (Map.Entry<String, String> entry : builder.getExpressions().entrySet()) {
+            if (builder.getExludeNamesExcept() != null && !builder.getExludeNamesExcept().equals(entry.getKey())) {
+                continue;
+            }
             ExprNode node = ((EPRuntimeSPI) env.runtime()).getReflectiveCompileSvc().reflectiveCompileExpression(entry.getValue(), typesPerStream, typeAliases);
             ExprEvaluator eval = node.getForge().getExprEvaluator();
             nodes.put(entry.getKey(), eval);
         }
 
-        int count = 0;
+        int count = -1;
         for (SupportEvalAssertionPair assertion : builder.getAssertions()) {
-            runNonCompileAssertion(count++, eventType, nodes, assertion, env);
+            count++;
+            if (builder.getExludeAssertionsExcept() != null && count != builder.getExludeAssertionsExcept()) {
+                continue;
+            }
+            runNonCompileAssertion(count, eventType, nodes, assertion, env, builder);
         }
     }
 
@@ -76,6 +83,9 @@ public class SupportEvalRunner {
 
         String delimiter = "";
         for (Map.Entry<String, String> entry : builder.getExpressions().entrySet()) {
+            if (builder.getExludeNamesExcept() != null && !builder.getExludeNamesExcept().equals(entry.getKey())) {
+                continue;
+            }
             epl.append(delimiter);
             epl.append(entry.getValue());
             if (!entry.getValue().equals(entry.getKey())) {
@@ -89,6 +99,9 @@ public class SupportEvalRunner {
             epl.append(" as ").append(builder.getStreamAlias());
         }
         String eplText = epl.toString();
+        if (builder.isLogging()) {
+            log.info("EPL: " + eplText);
+        }
 
         if (builder.getPath() != null) {
             env.compileDeploy(soda, eplText, builder.getPath()).addListener("s0");
@@ -96,31 +109,52 @@ public class SupportEvalRunner {
             env.compileDeploy(soda, eplText).addListener("s0");
         }
 
-        if (builder.getStatementConsumer() != null) {
+        if (builder.getStatementConsumer() != null && builder.getExludeAssertionsExcept() == null && builder.getExludeNamesExcept() == null) {
             builder.getStatementConsumer().accept(env.statement("s0"));
         }
 
-        int count = 0;
+        int count = -1;
         for (SupportEvalAssertionPair assertion : builder.getAssertions()) {
-            runEPLAssertion(count++, builder.getEventType(), env, assertion);
+            count++;
+            if (builder.getExludeAssertionsExcept() != null && count != builder.getExludeAssertionsExcept()) {
+                continue;
+            }
+            runEPLAssertion(count, builder.getEventType(), env, assertion, builder);
         }
 
         env.undeployModuleContaining("s0");
     }
 
-    private static void runEPLAssertion(int assertionNumber, String eventType, RegressionEnvironment env, SupportEvalAssertionPair assertion) {
+    private static void runEPLAssertion(int assertionNumber, String eventType, RegressionEnvironment env, SupportEvalAssertionPair assertion, SupportEvalBuilder builder) {
         if (assertion.getUnderlying() instanceof Map) {
-            env.sendEventMap((Map<String, Object>) assertion.getUnderlying(), eventType);
+            Map<String, Object> underlying = (Map<String, Object>) assertion.getUnderlying();
+            env.sendEventMap(underlying, eventType);
+            if (builder.isLogging()) {
+                log.info("Sending event: " + underlying);
+            }
         } else {
             env.sendEventBean(assertion.getUnderlying());
+            if (builder.isLogging()) {
+                log.info("Sending event: " + assertion.getUnderlying());
+            }
         }
+
         EventBean event = env.listener("s0").assertOneGetNewAndReset();
+        if (builder.isLogging()) {
+            log.info("Received event: " + EventBeanUtility.printEvent(event));
+        }
+
         for (Map.Entry<String, SupportEvalExpected> expected : assertion.getBuilder().getResults().entrySet()) {
-            doAssert(true, assertionNumber, expected.getKey(), expected.getValue(), event.get(expected.getKey()));
+            String name = expected.getKey();
+            if (builder.getExludeNamesExcept() != null && !builder.getExludeNamesExcept().equals(name)) {
+                continue;
+            }
+            Object actual = event.get(name);
+            doAssert(true, assertionNumber, expected.getKey(), expected.getValue(), actual);
         }
     }
 
-    private static void runNonCompileAssertion(int assertionNumber, EventType eventType, Map<String, ExprEvaluator> nodes, SupportEvalAssertionPair assertion, RegressionEnvironment env) {
+    private static void runNonCompileAssertion(int assertionNumber, EventType eventType, Map<String, ExprEvaluator> nodes, SupportEvalAssertionPair assertion, RegressionEnvironment env, SupportEvalBuilder builder) {
         EventBean event;
         if (assertion.getUnderlying() instanceof Map) {
             event = new MapEventBean((Map<String, Object>) assertion.getUnderlying(), eventType);
@@ -133,6 +167,10 @@ public class SupportEvalRunner {
         EventBean[] eventsPerStream = new EventBean[]{event};
 
         for (Map.Entry<String, SupportEvalExpected> expected : assertion.getBuilder().getResults().entrySet()) {
+            if (builder.getExludeNamesExcept() != null && !builder.getExludeNamesExcept().equals(expected.getKey())) {
+                continue;
+            }
+
             ExprEvaluator eval = nodes.get(expected.getKey());
             Object result = null;
             try {

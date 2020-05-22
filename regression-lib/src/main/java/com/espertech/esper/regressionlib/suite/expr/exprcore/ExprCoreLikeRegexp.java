@@ -127,7 +127,7 @@ public class ExprCoreLikeRegexp {
             tryInvalidExpr(env, "string regexp intPrimitive");
 
             tryInvalidCompile(env, "select theString regexp \"*any*\" from SupportBean",
-                "Failed to validate select-clause expression 'theString regexp \"*any*\"': Error compiling regex pattern '*any*': Dangling meta character '*' near index 0");
+                "Failed to validate select-clause expression 'theString regexp \"*any*\"': Failed to compile regex pattern '*any*': Dangling meta character '*' near index 0");
         }
     }
 

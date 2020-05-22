@@ -25,11 +25,11 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // primitive array property
         epl = "select arrayProperty.where(x=>x.boolPrimitive) from SupportBeanComplexProps";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'arrayProperty.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select arrayProperty.where(x=>x.boolPrimitive) from SupportBeanComplexProps]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'arrayProperty.where()': Failed to validate enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select arrayProperty.where(x=>x.boolPrimitive) from SupportBeanComplexProps]");
 
         // property not there
         epl = "select contained.where(x=>x.dummy = 1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.dummy=1': Failed to resolve property 'x.dummy' to a stream or nested property in a stream [select contained.where(x=>x.dummy = 1) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where()': Failed to validate enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.dummy=1': Failed to resolve property 'x.dummy' to a stream or nested property in a stream [select contained.where(x=>x.dummy = 1) from SupportBean_ST0_Container]");
         epl = "select * from SupportBean(products.where(p => code = '1'))";
         SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate filter expression 'products.where()': Failed to resolve 'products.where' to a property, single-row function, aggregation function, script, stream or class name ");
 
@@ -47,19 +47,19 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // invalid incompatible params
         epl = "select contained.take('a') from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.take('a')': Failed to resolve enumeration method, date-time method or mapped property 'contained.take('a')': Error validating enumeration method 'take', expected a number-type result for expression parameter 0 but received java.lang.String [select contained.take('a') from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.take('a')': Failed to resolve enumeration method, date-time method or mapped property 'contained.take('a')': Failed to validate enumeration method 'take', expected a number-type result for expression parameter 0 but received java.lang.String [select contained.take('a') from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.take(x => x.p00) from SupportBean_ST0_Container";
         SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.take()': Parameters mismatch for enumeration method 'take', the method requires an (non-lambda) expression providing count, but receives a lambda expression [select contained.take(x => x.p00) from SupportBean_ST0_Container]");
 
         // invalid too many lambda parameter
-        epl = "select contained.where((x,y,z) => true) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where()': Parameters mismatch for enumeration method 'where', the method requires a lambda expression providing predicate, but receives a 3-parameter lambda expression [select contained.where((x,y,z) => true) from SupportBean_ST0_Container]");
+        epl = "select contained.where((x,y,z,a) => true) from SupportBean_ST0_Container";
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where()': Parameters mismatch for enumeration method 'where', the method requires a lambda expression providing predicate, but receives a 4-parameter lambda expression");
 
         // invalid no parameter
         epl = "select contained.where() from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where()': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), but receives no parameters [select contained.where() from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where()': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), or a 3-parameter lambda expression providing (predicate, index, size), but receives no parameters");
 
         // invalid no parameter
         epl = "select window(intPrimitive).takeLast() from SupportBean#length(2)";
@@ -67,7 +67,7 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // invalid wrong parameter
         epl = "select contained.where(x=>true,y=>true) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where(,)': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), but receives a lambda expression and a lambda expression [select contained.where(x=>true,y=>true) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where(,)': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), or a 3-parameter lambda expression providing (predicate, index, size), but receives a lambda expression and a lambda expression");
 
         // invalid wrong parameter
         epl = "select contained.where(1) from SupportBean_ST0_Container";
@@ -75,15 +75,15 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // invalid too many parameter
         epl = "select contained.where(1,2) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where(1,2)': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), but receives an (non-lambda) expression and an (non-lambda) expression [select contained.where(1,2) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.where(1,2)': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), or a 3-parameter lambda expression providing (predicate, index, size), but receives an (non-lambda) expression and an (non-lambda) expression");
 
         // subselect multiple columns
         epl = "select (select theString, intPrimitive from SupportBean#lastevent).where(x=>x.boolPrimitive) from SupportBean_ST0";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'theString.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString, intPrimitive from SupportBean#lastevent).where(x=>x.boolPrimitive) from SupportBean_ST0]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'theString.where()': Failed to validate enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString, intPrimitive from SupportBean#lastevent).where(x=>x.boolPrimitive) from SupportBean_ST0]");
 
         // subselect individual column
         epl = "select (select theString from SupportBean#lastevent).where(x=>x.boolPrimitive) from SupportBean_ST0";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'theString.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString from SupportBean#lastevent).where(x=>x.boolPrimitive) from SupportBean_ST0]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'theString.where()': Failed to validate enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString from SupportBean#lastevent).where(x=>x.boolPrimitive) from SupportBean_ST0]");
 
         // aggregation
         epl = "select avg(intPrimitive).where(x=>x.boolPrimitive) from SupportBean_ST0";
@@ -91,19 +91,19 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // invalid incompatible params
         epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Error validating enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Failed to validate enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Error validating enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Failed to validate enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.aggregate(0, (result, item) => result || ',') from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.aggregate(0,)': Error validating enumeration method 'aggregate' parameter 1: Failed to validate declared expression body expression 'result||\",\"': Implicit conversion from datatype 'Integer' to string is not allowed [select contained.aggregate(0, (result, item) => result || ',') from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.aggregate(0,)': Failed to validate enumeration method 'aggregate' parameter 1: Failed to validate declared expression body expression 'result||\",\"': Implicit conversion from datatype 'Integer' to string is not allowed [select contained.aggregate(0, (result, item) => result || ',') from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.average(x => x.id) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.average()': Error validating enumeration method 'average', expected a number-type result for expression parameter 0 but received java.lang.String [select contained.average(x => x.id) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.average()': Failed to validate enumeration method 'average', expected a number-type result for expression parameter 0 but received java.lang.String [select contained.average(x => x.id) from SupportBean_ST0_Container]");
 
         // not a property
         epl = "select contained.firstof().dummy from SupportBean_ST0_Container";

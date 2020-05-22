@@ -10,111 +10,89 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
 
 public class ExprEnumSequenceEqual {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        execs.add(new ExprEnumSelectFrom());
-        execs.add(new ExprEnumTwoProperties());
-        execs.add(new ExprEnumInvalid());
+        execs.add(new ExprEnumSequenceEqualWSelectFrom());
+        execs.add(new ExprEnumSequenceEqualTwoProperties());
+        execs.add(new ExprEnumSequenceEqualInvalid());
         return execs;
     }
 
-    private static class ExprEnumSelectFrom implements RegressionExecution {
+    private static class ExprEnumSequenceEqualWSelectFrom implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "val0".split(",");
-            String eplFragment = "@name('s0') select contained.selectFrom(x => key0).sequenceEqual(contained.selectFrom(y => id)) as val0 " +
-                "from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.selectFrom(x => key0).sequenceEqual(contained.selectFrom(y => id))");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Boolean.class});
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Boolean.class));
 
-            env.sendEventBean(SupportBean_ST0_Container.make3Value("I1,E1,0", "I2,E2,0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportBean_ST0_Container.make3Value("I1,E1,0", "I2,E2,0")).expect(fields, false);
 
-            env.sendEventBean(SupportBean_ST0_Container.make3Value("I3,I3,0", "X4,X4,0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(SupportBean_ST0_Container.make3Value("I3,I3,0", "X4,X4,0")).expect(fields, true);
 
-            env.sendEventBean(SupportBean_ST0_Container.make3Value("I3,I3,0", "X4,Y4,0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportBean_ST0_Container.make3Value("I3,I3,0", "X4,Y4,0")).expect(fields, false);
 
-            env.sendEventBean(SupportBean_ST0_Container.make3Value("I3,I3,0", "Y4,X4,0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportBean_ST0_Container.make3Value("I3,I3,0", "Y4,X4,0")).expect(fields, false);
 
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
-    private static class ExprEnumTwoProperties implements RegressionExecution {
+    private static class ExprEnumSequenceEqualTwoProperties implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.sequenceEqual(strvalstwo)");
 
-            String[] fields = "val0".split(",");
-            String eplFragment = "@name('s0') select " +
-                "strvals.sequenceEqual(strvalstwo) as val0 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Boolean.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Boolean.class});
+            builder.assertion(SupportCollection.makeString("E1,E2,E3", "E1,E2,E3")).expect(fields, true);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2,E3", "E1,E2,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(SupportCollection.makeString("E1,E3", "E1,E2,E3")).expect(fields, false);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E3", "E1,E2,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportCollection.makeString("E1,E3", "E1,E3")).expect(fields, true);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E3", "E1,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(SupportCollection.makeString("E1,E2,E3", "E1,E3")).expect(fields, false);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2,E3", "E1,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportCollection.makeString("E1,E2,null,E3", "E1,E2,null,E3")).expect(fields, true);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2,null,E3", "E1,E2,null,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(SupportCollection.makeString("E1,E2,E3", "E1,E2,null")).expect(fields, false);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2,E3", "E1,E2,null"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportCollection.makeString("E1,E2,null", "E1,E2,E3")).expect(fields, false);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2,null", "E1,E2,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportCollection.makeString("E1", "")).expect(fields, false);
 
-            env.sendEventBean(SupportCollection.makeString("E1", ""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportCollection.makeString("", "E1")).expect(fields, false);
 
-            env.sendEventBean(SupportCollection.makeString("", "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportCollection.makeString("E1", "E1")).expect(fields, true);
 
-            env.sendEventBean(SupportCollection.makeString("E1", "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(SupportCollection.makeString("", "")).expect(fields, true);
 
-            env.sendEventBean(SupportCollection.makeString("", ""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(SupportCollection.makeString(null, "")).expect(fields, new Object[] {null});
 
-            env.sendEventBean(SupportCollection.makeString(null, ""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+            builder.assertion(SupportCollection.makeString("", null)).expect(fields, false);
 
-            env.sendEventBean(SupportCollection.makeString("", null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+            builder.assertion(SupportCollection.makeString(null, null)).expect(fields, new Object[] {null});
 
-            env.sendEventBean(SupportCollection.makeString(null, null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
-    private static class ExprEnumInvalid implements RegressionExecution {
+    private static class ExprEnumSequenceEqualInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl;
 

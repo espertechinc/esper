@@ -60,6 +60,10 @@ public class SupportBean_ST0_Container {
         return new SupportBean_ST0_Container(contained);
     }
 
+    public static SupportBean_ST0_Container make3ValueNull() {
+        return new SupportBean_ST0_Container(null);
+    }
+
     public static List<SupportBean_ST0> make2ValueList(String... values) {
         if (values == null) {
             return null;
@@ -76,6 +80,10 @@ public class SupportBean_ST0_Container {
         return new SupportBean_ST0_Container(make2ValueList(values));
     }
 
+    public static SupportBean_ST0_Container make2ValueNull() {
+        return new SupportBean_ST0_Container(null);
+    }
+
     public List<SupportBean_ST0> getContained() {
         return contained;
     }
@@ -86,5 +94,11 @@ public class SupportBean_ST0_Container {
 
     public static SupportBean_ST0 makeTest(String value) {
         return make2Value(value).getContained().get(0);
+    }
+
+    public String toString() {
+        return "SupportBean_ST0_Container{" +
+            "contained=" + contained +
+            '}';
     }
 }

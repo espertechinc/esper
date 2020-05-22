@@ -96,7 +96,7 @@ public class ResultSetAggregationMethodSorted {
                 "Failed to validate select-clause expression 'MyTable.sortcol.firstKey(id)': Parameters mismatch for aggregation method 'firstKey', the method requires no parameters");
 
             tryInvalidCompile(env, path, "select MyTable.sortcol.submap(1, 2, 3, true) from SupportBean_S0",
-                "Failed to validate select-clause expression 'MyTable.sortcol.submap(1,2,3,true)': Error validating aggregation method 'submap', expected a boolean-type result for expression parameter 1 but received int");
+                "Failed to validate select-clause expression 'MyTable.sortcol.submap(1,2,3,true)': Failed to validate aggregation method 'submap', expected a boolean-type result for expression parameter 1 but received int");
             tryInvalidCompile(env, path, "select MyTable.sortcol.submap('a', true, 3, true) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.submap(\"a\",true,3,true)': Method 'submap' for parameter 0 requires a key of type 'java.lang.Integer' but receives 'java.lang.String'");
 

@@ -10,137 +10,148 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypes;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
 
 public class ExprEnumSumOf {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumSumEvents());
-        execs.add(new ExprEnumSumOfScalar());
+        execs.add(new ExprEnumSumEventsPlus());
+        execs.add(new ExprEnumSumScalar());
+        execs.add(new ExprEnumSumScalarStringValue());
         execs.add(new ExprEnumInvalid());
-        execs.add(new ExprEnumSumOfArray());
+        execs.add(new ExprEnumSumArray());
         return execs;
     }
 
-    private static class ExprEnumSumOfArray implements RegressionExecution {
+    private static class ExprEnumSumArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "{1d, 2d}.sumOf() as c0," +
-                "{BigInteger.valueOf(1), BigInteger.valueOf(2)}.sumOf() as c1, " +
-                "{1L, 2L}.sumOf() as c2, " +
-                "{1L, 2L, null}.sumOf() as c3 " +
-                " from SupportBean";
-            env.compileDeploy(epl).addListener("s0");
+            String[] fields = "c0,c1,c2,c3".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean");
+            builder.expression(fields[0], "{1d, 2d}.sumOf()");
+            builder.expression(fields[1], "{BigInteger.valueOf(1), BigInteger.valueOf(2)}.sumOf()");
+            builder.expression(fields[2], "{1L, 2L}.sumOf()");
+            builder.expression(fields[3], "{1L, 2L, null}.sumOf()");
 
-            env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[]{3d, BigInteger.valueOf(3), 3L, 3L});
+            builder.assertion(new SupportBean()).expect(fields, 3d, BigInteger.valueOf(3), 3L, 3L);
 
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
     private static class ExprEnumSumEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_Container");
+            builder.expression(fields[0], "beans.sumOf(x => intBoxed)");
+            builder.expression(fields[1], "beans.sumOf(x => doubleBoxed)");
+            builder.expression(fields[2], "beans.sumOf(x => longBoxed)");
+            builder.expression(fields[3], "beans.sumOf(x => bigDecimal)");
+            builder.expression(fields[4], "beans.sumOf(x => bigInteger)");
 
-            String[] fields = "val0,val1,val2,val3,val4".split(",");
-            String eplFragment = "@name('s0') select " +
-                "beans.sumOf(x => intBoxed) as val0," +
-                "beans.sumOf(x => doubleBoxed) as val1," +
-                "beans.sumOf(x => longBoxed) as val2," +
-                "beans.sumOf(x => bigDecimal) as val3, " +
-                "beans.sumOf(x => bigInteger) as val4 " +
-                "from SupportBean_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, Double.class, Long.class, BigDecimal.class, BigInteger.class}));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Double.class, Long.class, BigDecimal.class, BigInteger.class});
+            builder.assertion(new SupportBean_Container(null)).expect(fields, null, null, null, null, null);
 
-            env.sendEventBean(new SupportBean_Container(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            builder.assertion(new SupportBean_Container(Collections.emptyList())).expect(fields, null, null, null, null, null);
 
-            env.sendEventBean(new SupportBean_Container(Collections.emptyList()));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            List<SupportBean> listOne = new ArrayList<>(Arrays.asList(make(2, 3d, 4L, 5, 6)));
+            builder.assertion(new SupportBean_Container(listOne)).expect(fields, 2, 3d, 4L, new BigDecimal(5), new BigInteger("6"));
 
-            List<SupportBean> list = new ArrayList<>();
-            list.add(make(2, 3d, 4L, 5, 6));
-            env.sendEventBean(new SupportBean_Container(list));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 3d, 4L, new BigDecimal(5), new BigInteger("6")});
+            List<SupportBean> listTwo = new ArrayList<>(Arrays.asList(make(2, 3d, 4L, 5, 6), make(4, 6d, 8L, 10, 12)));
+            builder.assertion(new SupportBean_Container(listTwo)).expect(fields, 2 + 4, 3d + 6d, 4L + 8L, new BigDecimal(5 + 10), new BigInteger("18"));
 
-            list.add(make(4, 6d, 8L, 10, 12));
-            env.sendEventBean(new SupportBean_Container(list));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2 + 4, 3d + 6d, 4L + 8L, new BigDecimal(5 + 10), new BigInteger("18")});
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
-    private static class ExprEnumSumOfScalar implements RegressionExecution {
+    private static class ExprEnumSumEventsPlus implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_Container");
+            builder.expression(fields[0], "beans.sumOf(x => intBoxed)");
+            builder.expression(fields[1], "beans.sumOf( (x, i) => intBoxed + i*10)");
+            builder.expression(fields[2], "beans.sumOf( (x, i, s) => intBoxed + i*10 + s*100)");
 
-            String[] fields = "val0,val1".split(",");
-            String eplFragment = "@name('s0') select " +
-                "intvals.sumOf() as val0, " +
-                "bdvals.sumOf() as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, BigDecimal.class});
+            builder.assertion(new SupportBean_Container(null)).expect(fields, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeNumeric("1,4,5"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1 + 4 + 5, new BigDecimal(1 + 4 + 5)});
+            builder.assertion(new SupportBean_Container(Collections.emptyList())).expect(fields, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeNumeric("3,4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3 + 4, new BigDecimal(3 + 4)});
+            List<SupportBean> listOne = new ArrayList<>(Arrays.asList(makeSB("E1", 10)));
+            builder.assertion(new SupportBean_Container(listOne)).expect(fields, 10, 10, 110);
 
-            env.sendEventBean(SupportCollection.makeNumeric("3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, new BigDecimal(3)});
+            List<SupportBean> listTwo = new ArrayList<>(Arrays.asList(makeSB("E1", 10), makeSB("E2", 11)));
+            builder.assertion(new SupportBean_Container(listTwo)).expect(fields, 21, 31, 431);
 
-            env.sendEventBean(SupportCollection.makeNumeric(""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            builder.run(env);
+        }
 
-            env.sendEventBean(SupportCollection.makeNumeric(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+        private SupportBean makeSB(String theString, int intBoxed) {
+            SupportBean bean = new SupportBean(theString, intBoxed);
+            bean.setIntBoxed(intBoxed);
+            return bean;
+        }
+    }
 
-            env.undeployAll();
+    private static class ExprEnumSumScalar implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "intvals.sumOf()");
+            builder.expression(fields[1], "bdvals.sumOf()");
 
-            // test average with lambda
-            // lambda with string-array input
-            String[] fieldsLambda = "val0,val1".split(",");
-            String eplLambda = "@name('s0') select " +
-                "strvals.sumOf(v => extractNum(v)) as val0, " +
-                "strvals.sumOf(v => extractBigDecimal(v)) as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplLambda).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fieldsLambda, new Class[]{Integer.class, BigDecimal.class});
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, BigDecimal.class}));
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E5,E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{2 + 1 + 5 + 4, new BigDecimal(2 + 1 + 5 + 4)});
+            builder.assertion(SupportCollection.makeNumeric("1,4,5")).expect(fields, 1 + 4 + 5, new BigDecimal(1 + 4 + 5));
 
-            env.sendEventBean(SupportCollection.makeString("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{1, new BigDecimal(1)});
+            builder.assertion(SupportCollection.makeNumeric("3,4")).expect(fields, 3 + 4, new BigDecimal(3 + 4));
 
-            env.sendEventBean(SupportCollection.makeString(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{null, null});
+            builder.assertion(SupportCollection.makeNumeric("3")).expect(fields, 3, new BigDecimal(3));
 
-            env.sendEventBean(SupportCollection.makeString(""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{null, null});
+            builder.assertion(SupportCollection.makeNumeric("")).expect(fields, null, null);
 
-            env.undeployAll();
+            builder.assertion(SupportCollection.makeNumeric(null)).expect(fields, null, null);
+
+            builder.run(env);
+        }
+    }
+
+    private static class ExprEnumSumScalarStringValue implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.sumOf(v => extractNum(v))");
+            builder.expression(fields[1], "strvals.sumOf(v => extractBigDecimal(v))");
+            builder.expression(fields[2], "strvals.sumOf( (v, i) => extractNum(v) + i*10)");
+            builder.expression(fields[3], "strvals.sumOf( (v, i, s) => extractNum(v) + i*10 + s*100)");
+
+            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, BigDecimal.class, Integer.class, Integer.class}));
+
+            builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, 2 + 1 + 5 + 4, new BigDecimal(2 + 1 + 5 + 4), 2 + 11 + 25 + 34, 402 + 411 + 425 + 434);
+
+            builder.assertion(SupportCollection.makeString("E1")).expect(fields, 1, new BigDecimal(1), 1, 101);
+
+            builder.assertion(SupportCollection.makeString(null)).expect(fields, null, null, null, null);
+
+            builder.assertion(SupportCollection.makeString("")).expect(fields, null, null, null, null);
+
+            builder.run(env);
         }
     }
 

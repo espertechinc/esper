@@ -55,7 +55,7 @@ public class ExprFilterWhereClause {
             // invalid return type for filter during compilation time
             SupportMessageAssertUtil.tryInvalidCompile(env,
                 "Select theString From SupportBean#time(30 seconds) where intPrimitive group by theString",
-                "Error validating expression: The where-clause filter expression must return a boolean value");
+                "Failed to validate expression: The where-clause filter expression must return a boolean value");
 
             // invalid return type for filter at eventService
             epl = "select * From MapEventWithCriteriaBool#time(30 seconds) where criteria";

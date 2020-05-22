@@ -47,7 +47,7 @@ public class ClientExtendDateTimeMethod {
 
             // validate pre-made argument test
             tryInvalidCompile(env, "select caldate.dtmInvalidMethodNotExists('x') from SupportDateTime",
-                "Failed to validate select-clause expression 'caldate.dtmInvalidMethodNotExists('x')': Failed to resolve enumeration method, date-time method or mapped property 'caldate.dtmInvalidMethodNotExists('x')': Error validating date-time method 'dtmInvalidMethodNotExists', expected a Integer-type result for expression parameter 0 but received java.lang.String");
+                "Failed to validate select-clause expression 'caldate.dtmInvalidMethodNotExists('x')': Failed to resolve enumeration method, date-time method or mapped property 'caldate.dtmInvalidMethodNotExists('x')': Failed to validate date-time method 'dtmInvalidMethodNotExists', expected a Integer-type result for expression parameter 0 but received java.lang.String");
 
             // validate static method not matching
             tryInvalidCompile(env, "select localdate.dtmInvalidMethodNotExists(1) from SupportDateTime",

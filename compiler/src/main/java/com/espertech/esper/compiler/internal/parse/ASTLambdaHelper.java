@@ -52,7 +52,7 @@ public class ASTLambdaHelper {
             parameters = new ArrayList<String>(1);
             parameters.add(ctx.i.getText());
         } else {
-            parameters = ASTUtil.getIdentList(ctx.columnList());
+            parameters = ASTUtil.getIdentList(ctx.columnListKeywordAllowed());
         }
         return parameters;
     }

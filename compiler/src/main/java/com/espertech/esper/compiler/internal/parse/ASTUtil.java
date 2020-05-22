@@ -37,6 +37,17 @@ public class ASTUtil {
 
     private final static String PROPERTY_ENABLED_AST_DUMP = "ENABLE_AST_DUMP";
 
+    public static List<String> getIdentList(EsperEPL2GrammarParser.ColumnListKeywordAllowedContext ctx) {
+        if (ctx == null || ctx.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<String> parameters = new ArrayList<String>(ctx.keywordAllowedIdent().size());
+        for (EsperEPL2GrammarParser.KeywordAllowedIdentContext ident : ctx.keywordAllowedIdent()) {
+            parameters.add(ident.getText());
+        }
+        return parameters;
+    }
+
     public static List<String> getIdentList(EsperEPL2GrammarParser.ColumnListContext ctx) {
         if (ctx == null || ctx.isEmpty()) {
             return Collections.emptyList();

@@ -15,110 +15,155 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
 
 public class ExprEnumOrderBy {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumOrderByEvents());
+        execs.add(new ExprEnumOrderByEventsPlus());
         execs.add(new ExprEnumOrderByScalar());
+        execs.add(new ExprEnumOrderByScalarWithParam());
         execs.add(new ExprEnumInvalid());
         return execs;
     }
 
+    private static class ExprEnumOrderByEventsPlus implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.orderBy( (x, i) => case when i <= 2 then p00 else i-10 end)");
+            builder.expression(fields[1], "contained.orderByDesc( (x, i) => case when i <= 2 then p00 else i-10 end)");
+            builder.expression(fields[2], "contained.orderBy( (x, i, s) => case when s <= 2 then p00 else i-10 end)");
+            builder.expression(fields[3], "contained.orderByDesc( (x, i, s) => case when s <= 2 then p00 else i-10 end)");
+
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2"))
+                .verify("c0", val -> assertST0Id(val, "E1,E2"))
+                .verify("c1", val -> assertST0Id(val, "E2,E1"))
+                .verify("c2", val -> assertST0Id(val, "E1,E2"))
+                .verify("c3", val -> assertST0Id(val, "E2,E1"));
+
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2", "E3,3", "E4,4"))
+                .verify("c0", val -> assertST0Id(val, "E4,E1,E2,E3"))
+                .verify("c1", val -> assertST0Id(val, "E3,E2,E1,E4"))
+                .verify("c2", val -> assertST0Id(val, "E1,E2,E3,E4"))
+                .verify("c3", val -> assertST0Id(val, "E4,E3,E2,E1"));
+
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null, null, null);
+
+            builder.assertion(SupportBean_ST0_Container.make2Value())
+                .verify("c0", val -> assertST0Id(val, ""))
+                .verify("c1", val -> assertST0Id(val, ""))
+                .verify("c2", val -> assertST0Id(val, ""))
+                .verify("c3", val -> assertST0Id(val, ""));
+
+            builder.run(env);
+        }
+    }
+
     private static class ExprEnumOrderByEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.orderBy(x => p00)");
+            builder.expression(fields[1], "contained.orderBy(x => 10 - p00)");
+            builder.expression(fields[2], "contained.orderBy(x => 0)");
+            builder.expression(fields[3], "contained.orderByDesc(x => p00)");
+            builder.expression(fields[4], "contained.orderByDesc(x => 10 - p00)");
+            builder.expression(fields[5], "contained.orderByDesc(x => 0)");
 
-            String[] fields = "val0,val1,val2,val3,val4,val5".split(",");
-            String eplFragment = "@name('s0') select " +
-                "contained.orderBy(x => p00) as val0," +
-                "contained.orderBy(x => 10 - p00) as val1," +
-                "contained.orderBy(x => 0) as val2," +
-                "contained.orderByDesc(x => p00) as val3," +
-                "contained.orderByDesc(x => 10 - p00) as val4," +
-                "contained.orderByDesc(x => 0) as val5" +
-                " from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class, Collection.class, Collection.class, Collection.class, Collection.class, Collection.class});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2"))
+                .verify("c0", val -> assertST0Id(val, "E1,E2"))
+                .verify("c1", val -> assertST0Id(val, "E2,E1"))
+                .verify("c2", val -> assertST0Id(val, "E1,E2"))
+                .verify("c3", val -> assertST0Id(val, "E2,E1"))
+                .verify("c4", val -> assertST0Id(val, "E1,E2"))
+                .verify("c5", val -> assertST0Id(val, "E1,E2"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,2"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E1,E2");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E2,E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E1,E2");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val3", "E2,E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val4", "E1,E2");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val5", "E1,E2");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value("E3,1", "E2,2", "E4,1", "E1,2"))
+                .verify("c0", val -> assertST0Id(val, "E3,E4,E2,E1"))
+                .verify("c1", val -> assertST0Id(val, "E2,E1,E3,E4"))
+                .verify("c2", val -> assertST0Id(val, "E3,E2,E4,E1"))
+                .verify("c3", val -> assertST0Id(val, "E2,E1,E3,E4"))
+                .verify("c4", val -> assertST0Id(val, "E3,E4,E2,E1"))
+                .verify("c5", val -> assertST0Id(val, "E3,E2,E4,E1"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E3,1", "E2,2", "E4,1", "E1,2"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E3,E4,E2,E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E2,E1,E3,E4");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E3,E2,E4,E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val3", "E2,E1,E3,E4");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val4", "E3,E4,E2,E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val5", "E3,E2,E4,E1");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            for (String field : fields) {
-                LambdaAssertionUtil.assertST0Id(env.listener("s0"), field, null);
-            }
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value())
+                .verify("c0", val -> assertST0Id(val, ""))
+                .verify("c1", val -> assertST0Id(val, ""))
+                .verify("c2", val -> assertST0Id(val, ""))
+                .verify("c3", val -> assertST0Id(val, ""))
+                .verify("c4", val -> assertST0Id(val, ""))
+                .verify("c5", val -> assertST0Id(val, ""));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            for (String field : fields) {
-                LambdaAssertionUtil.assertST0Id(env.listener("s0"), field, "");
-            }
-            env.listener("s0").reset();
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
     private static class ExprEnumOrderByScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.orderBy()");
+            builder.expression(fields[1], "strvals.orderByDesc()");
 
-            String[] fields = "val0,val1".split(",");
-            String eplFragment = "@name('s0') select " +
-                "strvals.orderBy() as val0, " +
-                "strvals.orderByDesc() as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
+            builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
+                .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2", "E4", "E5"))
+                .verify("c1", val -> assertValuesArrayScalar(val, "E5", "E4", "E2", "E1"));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class, Collection.class});
+            LambdaAssertionUtil.assertSingleAndEmptySupportColl(builder, fields);
+            builder.run(env);
+        }
+    }
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E5,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E1", "E2", "E4", "E5");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", "E5", "E4", "E2", "E1");
-            env.listener("s0").reset();
+    private static class ExprEnumOrderByScalarWithParam implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.orderBy(v => extractNum(v))");
+            builder.expression(fields[1], "strvals.orderByDesc(v => extractNum(v))");
+            builder.expression(fields[2], "strvals.orderBy( (v, i) => case when i <= 2 then extractNum(v) else i-10 end)");
+            builder.expression(fields[3], "strvals.orderByDesc( (v, i) => case when i <= 2 then extractNum(v) else i-10 end)");
+            builder.expression(fields[4], "strvals.orderBy( (v, i, s) => case when s <= 2 then extractNum(v) else i-10 end)");
+            builder.expression(fields[5], "strvals.orderByDesc( (v, i, s) => case when s <= 2 then extractNum(v) else i-10 end)");
 
-            LambdaAssertionUtil.assertSingleAndEmptySupportColl(env, fields);
-            env.undeployAll();
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
-            // test scalar-coll with lambda
-            String eplLambda = "@name('s0') select " +
-                "strvals.orderBy(v => extractNum(v)) as val0, " +
-                "strvals.orderByDesc(v => extractNum(v)) as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplLambda).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class, Collection.class});
+            builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
+                .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2", "E4", "E5"))
+                .verify("c1", val -> assertValuesArrayScalar(val, "E5", "E4", "E2", "E1"))
+                .verify("c2", val -> assertValuesArrayScalar(val, "E4", "E1", "E2", "E5"))
+                .verify("c3", val -> assertValuesArrayScalar(val, "E5", "E2", "E1", "E4"))
+                .verify("c4", val -> assertValuesArrayScalar(val, "E2", "E1", "E5", "E4"))
+                .verify("c5", val -> assertValuesArrayScalar(val, "E4", "E5", "E1", "E2"));
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E5,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E1", "E2", "E4", "E5");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", "E5", "E4", "E2", "E1");
-            env.listener("s0").reset();
+            builder.assertion(SupportCollection.makeString("E2,E1"))
+                .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2"))
+                .verify("c1", val -> assertValuesArrayScalar(val, "E2", "E1"))
+                .verify("c2", val -> assertValuesArrayScalar(val, "E1", "E2"))
+                .verify("c3", val -> assertValuesArrayScalar(val, "E2", "E1"))
+                .verify("c4", val -> assertValuesArrayScalar(val, "E1", "E2"))
+                .verify("c5", val -> assertValuesArrayScalar(val, "E2", "E1"));
 
-            LambdaAssertionUtil.assertSingleAndEmptySupportColl(env, fields);
+            LambdaAssertionUtil.assertSingleAndEmptySupportColl(builder, fields);
 
-            env.undeployAll();
+            builder.run(env);
         }
     }
 

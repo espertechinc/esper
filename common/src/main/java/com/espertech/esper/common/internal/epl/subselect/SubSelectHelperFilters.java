@@ -101,7 +101,7 @@ public class SubSelectHelperFilters {
                 throw new IllegalStateException("Unexpected stream spec " + streamSpec);
             }
         } catch (ViewProcessingException ex) {
-            throw new ExprValidationException("Error validating subexpression: " + ex.getMessage(), ex);
+            throw new ExprValidationException("Failed to validate subexpression: " + ex.getMessage(), ex);
         }
 
         // determine a stream name unless one was supplied

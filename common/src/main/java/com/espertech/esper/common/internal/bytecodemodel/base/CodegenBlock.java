@@ -168,6 +168,9 @@ public class CodegenBlock {
     }
 
     public CodegenBlock declareVar(Class clazz, String var, CodegenExpression initializer) {
+        if (initializer == null) {
+            throw new IllegalArgumentException();
+        }
         checkClosed();
         statements.add(new CodegenStatementDeclareVar(clazz, null, var, initializer));
         return this;

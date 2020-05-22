@@ -18,11 +18,13 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
 import static org.junit.Assert.assertEquals;
 
 public class ExprEnumDistinct {
@@ -38,8 +40,8 @@ public class ExprEnumDistinct {
 
     private static class ExprEnumDistinctScalarMultikeyWArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String eplFragment = "@name('s0') select intArrayCollection.distinctOf() as c0, intArrayCollection.distinctOf(v => v) as c1 from SupportEventWithManyArray";
-            env.compileDeploy(eplFragment).addListener("s0");
+            String epl = "@name('s0') select intArrayCollection.distinctOf() as c0, intArrayCollection.distinctOf(v => v) as c1 from SupportEventWithManyArray";
+            env.compileDeploy(epl).addListener("s0");
 
             Collection<int[]> coll = new ArrayList<>();
             coll.add(new int[]{1, 2});
@@ -85,58 +87,63 @@ public class ExprEnumDistinct {
 
     private static class ExprEnumDistinctEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.distinctOf(x => p00)");
+            builder.expression(fields[1], "contained.distinctOf( (x, i) => case when i<2 then p00 else -1*p00 end)");
+            builder.expression(fields[2], "contained.distinctOf( (x, i, s) => case when s<=2 then p00 else 0 end)");
 
-            String[] fields = "val0".split(",");
-            String eplFragment = "@name('s0') select " +
-                "contained.distinctOf(x => p00) as val0 " +
-                " from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2", "E3,1"))
+                .verify("c0", val -> assertST0Id(val, "E1,E2"))
+                .verify("c1", val -> assertST0Id(val, "E1,E2,E3"))
+                .verify("c2", val -> assertST0Id(val, "E1"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,2", "E3,1"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E1,E2");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value("E3,1", "E2,2", "E4,1", "E1,2"))
+                .verify("c0", val -> assertST0Id(val, "E3,E2"))
+                .verify("c1", val -> assertST0Id(val, "E3,E2,E4,E1"))
+                .verify("c2", val -> assertST0Id(val, "E3"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E3,1", "E2,2", "E4,1", "E1,2"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E3,E2");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value("E3,1", "E2,2"))
+                .verify("c0", val -> assertST0Id(val, "E3,E2"))
+                .verify("c1", val -> assertST0Id(val, "E3,E2"))
+                .verify("c2", val -> assertST0Id(val, "E3,E2"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            for (String field : fields) {
-                LambdaAssertionUtil.assertST0Id(env.listener("s0"), field, null);
-            }
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull())
+                .verify("c0", val -> assertST0Id(val, null))
+                .verify("c1", val -> assertST0Id(val, null))
+                .verify("c2", val -> assertST0Id(val, null));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            for (String field : fields) {
-                LambdaAssertionUtil.assertST0Id(env.listener("s0"), field, "");
-            }
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value())
+                .verify("c0", val -> assertST0Id(val, ""))
+                .verify("c1", val -> assertST0Id(val, ""))
+                .verify("c2", val -> assertST0Id(val, ""));
 
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
     private static class ExprEnumDistinctScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.distinctOf()");
+            builder.expression(fields[1], "strvals.distinctOf(v => extractNum(v))");
+            builder.expression(fields[2], "strvals.distinctOf((v, i) => case when i<2 then extractNum(v) else 0 end)");
+            builder.expression(fields[3], "strvals.distinctOf((v, i, s) => case when s<=2 then extractNum(v) else 0 end)");
 
-            String[] fields = "val0,val1".split(",");
-            String eplFragment = "@name('s0') select " +
-                "strvals.distinctOf() as val0, " +
-                "strvals.distinctOf(v => extractNum(v)) as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class, Collection.class});
+            builder.assertion(SupportCollection.makeString("E2,E1,E2,E2"))
+                .verify("c0", val -> assertValuesArrayScalar(val, "E2", "E1"))
+                .verify("c1", val -> assertValuesArrayScalar(val, "E2", "E1"))
+                .verify("c2", val -> assertValuesArrayScalar(val, "E2", "E1", "E2"))
+                .verify("c3", val -> assertValuesArrayScalar(val, "E2"));
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E2,E2"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E2", "E1");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", "E2", "E1");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertSingleAndEmptySupportColl(builder, fields);
 
-            LambdaAssertionUtil.assertSingleAndEmptySupportColl(env, fields);
-            env.undeployAll();
+            builder.run(env);
         }
     }
 }

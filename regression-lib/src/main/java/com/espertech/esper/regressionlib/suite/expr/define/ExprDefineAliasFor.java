@@ -124,7 +124,7 @@ public class ExprDefineAliasFor {
     private static class ExprDefineInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryInvalidCompile(env, "expression total alias for {sum(xxx)} select total+1 from SupportBean",
-                "Failed to validate select-clause expression 'total+1': Error validating expression alias 'total': Failed to validate alias expression body expression 'sum(xxx)': Property named 'xxx' is not valid in any stream [expression total alias for {sum(xxx)} select total+1 from SupportBean]");
+                "Failed to validate select-clause expression 'total+1': Failed to validate expression alias 'total': Failed to validate alias expression body expression 'sum(xxx)': Property named 'xxx' is not valid in any stream [expression total alias for {sum(xxx)} select total+1 from SupportBean]");
             tryInvalidCompile(env, "expression total xxx for {1} select total+1 from SupportBean",
                 "For expression alias 'total' expecting 'alias' keyword but received 'xxx' [expression total xxx for {1} select total+1 from SupportBean]");
             tryInvalidCompile(env, "expression total(a) alias for {1} select total+1 from SupportBean",

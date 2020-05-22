@@ -29,4 +29,10 @@ public class SupportBean_Container {
     public void setBeans(List<SupportBean> beans) {
         this.beans = beans;
     }
+
+    public String toString() {
+        return "SupportBean_Container{" +
+            "beans=" + beans +
+            '}';
+    }
 }

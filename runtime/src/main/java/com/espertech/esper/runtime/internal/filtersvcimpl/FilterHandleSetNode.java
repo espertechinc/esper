@@ -85,7 +85,7 @@ public final class FilterHandleSetNode implements EventEvaluator, FilterHandleSi
      * NOTE: This client should not use the lock before calling this method.
      *  @param theEvent is the event wrapper supplying the event property values
      * @param matches  is the list of callbacks to add to for any matches found
-     * @param ctx
+     * @param ctx evaluator context
      */
     public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx) {
         nodeRWLock.readLock().lock();

@@ -24,6 +24,8 @@ public class EnumMethodEnumParams {
     public static final DotMethodFP[] COUNTOF_FIRST_LAST = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.ANY),
         new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(1, "predicate", EPLExpressionParamType.BOOLEAN)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(predicate, index)", EPLExpressionParamType.BOOLEAN)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(3, "(predicate, index, size)", EPLExpressionParamType.BOOLEAN)),
     };
 
     public static final DotMethodFP[] TAKELAST = new DotMethodFP[]{
@@ -36,73 +38,73 @@ public class EnumMethodEnumParams {
 
     public static final DotMethodFP[] AGGREGATE_FP = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.ANY,
-                new DotMethodFPParam(0, "initialization-value", EPLExpressionParamType.ANY),
-                new DotMethodFPParam(2, "(result, next)", EPLExpressionParamType.ANY)),
+            new DotMethodFPParam(0, "initialization-value", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(2, "(result, next)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(0, "initialization-value", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(3, "(result, next, index)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(0, "initialization-value", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(4, "(result, next, index, size)", EPLExpressionParamType.ANY)),
     };
 
     public static final DotMethodFP[] ALLOF_ANYOF = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(1, "predicate", EPLExpressionParamType.BOOLEAN)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(predicate, index)", EPLExpressionParamType.BOOLEAN)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(3, "(predicate, index, size)", EPLExpressionParamType.BOOLEAN)),
     };
 
-    public static final DotMethodFP[] MIN_MAX = new DotMethodFP[]{
+    public static final DotMethodFP[] ORDERBY_DISTINCT_ARRAYOF_MOSTLEAST_MINMAX = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY),
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(3, "(value-selector, index, size)", EPLExpressionParamType.ANY)),
     };
 
-    public static final DotMethodFP[] MINBY_MAXBY = new DotMethodFP[]{
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-    };
-
-    public static final DotMethodFP[] SELECTFROM = new DotMethodFP[]{
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
+    public static final DotMethodFP[] SELECTFROM_MINMAXBY = new DotMethodFP[]{
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(3, "(value-selector, index, size)", EPLExpressionParamType.ANY)),
     };
 
     public static final DotMethodFP[] AVERAGE_SUMOF = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.SCALAR_NUMERIC),
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.NUMERIC)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.NUMERIC))
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.NUMERIC)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.NUMERIC)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(3, "(value-selector, index, size)", EPLExpressionParamType.NUMERIC))
     };
 
-    public static final DotMethodFP[] MOST_LEAST_FREQ = new DotMethodFP[]{
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY),
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY))
-    };
-
-    public static final DotMethodFP[] MAP = new DotMethodFP[]{
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY,
-                new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY),
-                new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL,
-                new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY),
-                new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+    public static final DotMethodFP[] TOMAP = new DotMethodFP[]{
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(2, "(key-selector, index)", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(3, "(key-selector, index, size)", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(3, "(value-selector, index, size)", EPLExpressionParamType.ANY))
     };
 
     public static final DotMethodFP[] GROUP = new DotMethodFP[]{
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY,
-                new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY),
-                new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL,
-                new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY),
-                new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
-    };
-
-    public static final DotMethodFP[] ORDERBY_DISTINCT = new DotMethodFP[]{
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY),
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "compare-selector", EPLExpressionParamType.ANY)),
-        new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "compare-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(key-selector, index)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(3, "(key-selector, index, size)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(1, "key-selector", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(2, "(key-selector, index)", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.ANY)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY,
+            new DotMethodFPParam(3, "(key-selector, index, size)", EPLExpressionParamType.ANY),
+            new DotMethodFPParam(3, "(value-selector, index, size)", EPLExpressionParamType.ANY))
     };
 
     public static final DotMethodFP[] WHERE_FP = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(1, "predicate", EPLExpressionParamType.BOOLEAN)),
-        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(predicate, index)", EPLExpressionParamType.BOOLEAN))
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "(predicate, index)", EPLExpressionParamType.BOOLEAN)),
+        new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(3, "(predicate, index, size)", EPLExpressionParamType.BOOLEAN))
     };
 
     public static final DotMethodFP[] SET_LOGIC_FP = new DotMethodFP[]{
@@ -111,9 +113,5 @@ public class EnumMethodEnumParams {
 
     public static final DotMethodFP[] SEQ_EQUALS_FP = new DotMethodFP[]{
         new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(0, "sequence", EPLExpressionParamType.ANY)),
-    };
-
-    public static final DotMethodFP[] TOARRAY = new DotMethodFP[]{
-        new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY),
     };
 }

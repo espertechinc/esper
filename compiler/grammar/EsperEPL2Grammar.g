@@ -267,7 +267,7 @@ expressionDef :	LCURLY expressionLambdaDecl? expression RCURLY
 		| LBRACK stringconstant RBRACK 
 		;
 
-expressionLambdaDecl : (i=IDENT | (LPAREN columnList RPAREN)) (GOES | FOLLOWED_BY);
+expressionLambdaDecl : (i=keywordAllowedIdent | (LPAREN columnListKeywordAllowed RPAREN)) (GOES | FOLLOWED_BY);
 
 expressionTypeAnno : ATCHAR n=IDENT (LPAREN v=IDENT RPAREN);
 
@@ -540,6 +540,8 @@ insertIntoExpr
 		: (i=ISTREAM | r=RSTREAM | ir=IRSTREAM)? INTO classIdentifier (LPAREN columnList? RPAREN)?;
 		
 columnList : IDENT (COMMA IDENT)*;
+
+columnListKeywordAllowed : keywordAllowedIdent (COMMA keywordAllowedIdent)*;
 	
 fromClause 
 @init  { paraphrases.push("from clause"); }

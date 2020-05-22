@@ -10,155 +10,149 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static org.junit.Assert.assertEquals;
 
 public class ExprEnumFirstLastOf {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumFirstLastScalar());
-        execs.add(new ExprEnumFirstLastProperty());
-        execs.add(new ExprEnumFirstLastNoPred());
-        execs.add(new ExprEnumFirstLastPredicate());
+        execs.add(new ExprEnumFirstLastEventProperty());
+        execs.add(new ExprEnumFirstLastEvent());
+        execs.add(new ExprEnumFirstLastEventWithPredicate());
         return execs;
     }
 
     private static class ExprEnumFirstLastScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.firstOf()");
+            builder.expression(fields[1], "strvals.lastOf()");
+            builder.expression(fields[2], "strvals.firstOf(x => x like '%1%')");
+            builder.expression(fields[3], "strvals.lastOf(x => x like '%1%')");
+            builder.expression(fields[4], "strvals.firstOf((x, i) => x like '%1%' and i >= 1)");
+            builder.expression(fields[5], "strvals.lastOf((x, i) => x like '%1%' and i >= 1)");
+            builder.expression(fields[6], "strvals.firstOf((x, i, s) => x like '%1%' and i >= 1 and s > 2)");
+            builder.expression(fields[7], "strvals.lastOf((x, i, s) => x like '%1%' and i >= 1 and s > 2)");
 
-            String[] fields = "val0,val1,val2,val3".split(",");
-            String eplFragment = "@name('s0') select " +
-                "strvals.firstOf() as val0, " +
-                "strvals.lastOf() as val1, " +
-                "strvals.firstOf(x => x like '%1%') as val2, " +
-                "strvals.lastOf(x => x like '%1%') as val3 " +
-                " from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String.class));
+            
+            builder.assertion(SupportCollection.makeString("E1,E2,E3")).expect(fields, "E1", "E3", "E1", "E1", null, null, null, null);
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{String.class, String.class, String.class, String.class});
+            builder.assertion(SupportCollection.makeString("E1")).expect(fields, "E1", "E1", "E1", "E1", null, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E3", "E1", "E1"});
+            builder.assertion(SupportCollection.makeString("E2,E3,E4")).expect(fields, "E2", "E4", null, null, null, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeString("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", "E1", "E1"});
+            builder.assertion(SupportCollection.makeString("")).expect(fields, null, null, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeString("E2,E3,E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E4", null, null});
+            builder.assertion(SupportCollection.makeString(null)).expect(fields, null, null, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeString(""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
+            builder.assertion(SupportCollection.makeString("E5,E2,E3,A1,B1")).expect(fields, "E5", "B1", "A1", "B1", "A1", "B1", "A1", "B1");
 
-            env.sendEventBean(SupportCollection.makeString(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
+            builder.assertion(SupportCollection.makeString("A1,B1,E5,E2,E3")).expect(fields, "A1", "E3", "A1", "B1", "B1", "B1", "B1", "B1");
 
-            env.undeployAll();
+            builder.assertion(SupportCollection.makeString("A1,B1")).expect(fields, "A1", "B1", "A1", "B1", "B1", "B1", null, null);
+
+            builder.run(env);
         }
     }
 
-    private static class ExprEnumFirstLastProperty implements RegressionExecution {
+    private static class ExprEnumFirstLastEventProperty implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.firstOf().p00");
+            builder.expression(fields[1], "contained.lastOf().p00");
 
-            String[] fields = "val0,val1".split(",");
-            String eplFragment = "@name('s0') select " +
-                "contained.firstOf().p00 as val0, " +
-                "contained.lastOf().p00 as val1 " +
-                " from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E3,3")).expect(fields, 1, 3);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E3,3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 3});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1")).expect(fields, 1, 1);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 1});
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            builder.assertion(SupportBean_ST0_Container.make2Value()).expect(fields, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
-    private static class ExprEnumFirstLastNoPred implements RegressionExecution {
+    private static class ExprEnumFirstLastEvent implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.firstOf()");
+            builder.expression(fields[1], "contained.lastOf()");
 
-            String eplFragment = "@name('s0') select " +
-                "contained.firstOf() as val0, " +
-                "contained.lastOf() as val1 " +
-                " from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, SupportBean_ST0.class));
 
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E3,9", "E2,9"))
+                .verify("c0", value -> assertId(value, "E1"))
+                .verify("c1", value -> assertId(value, "E2"));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0,val1".split(","), new Class[]{SupportBean_ST0.class, SupportBean_ST0.class});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E2,2"))
+                .verify("c0", value -> assertId(value, "E2"))
+                .verify("c1", value -> assertId(value, "E2"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E3,9", "E2,9"));
-            assertId(env.listener("s0"), "val0", "E1");
-            assertId(env.listener("s0"), "val1", "E2");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E2,2"));
-            assertId(env.listener("s0"), "val0", "E2");
-            assertId(env.listener("s0"), "val1", "E2");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value()).expect(fields, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            assertNull(env.listener("s0").assertOneGetNew().get("val0"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("val1"));
-
-            env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            assertNull(env.listener("s0").assertOneGetNew().get("val0"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("val1"));
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
-    private static class ExprEnumFirstLastPredicate implements RegressionExecution {
+    private static class ExprEnumFirstLastEventWithPredicate implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.firstOf(x => p00 = 9)");
+            builder.expression(fields[1], "contained.lastOf(x => p00 = 9)");
+            builder.expression(fields[2], "contained.firstOf( (x, i) => p00 = 9 and i >= 1)");
+            builder.expression(fields[3], "contained.lastOf( (x, i) => p00 = 9 and i >= 1)");
+            builder.expression(fields[4], "contained.firstOf( (x, i, s) => p00 = 9 and i >= 1 and s > 2)");
+            builder.expression(fields[5], "contained.lastOf((x, i, s) => p00 = 9 and i >= 1 and s > 2)");
 
-            String eplFragment = "@name('s0') select contained.firstOf(x => p00 = 9) as val from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, SupportBean_ST0.class));
 
+            SupportBean_ST0_Container beanOne = SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E2,9");
+            builder.assertion(beanOne).expect(fields, beanOne.getContained().get(1), beanOne.getContained().get(2),
+                beanOne.getContained().get(1), beanOne.getContained().get(2),
+                beanOne.getContained().get(1), beanOne.getContained().get(2));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val".split(","), new Class[]{SupportBean_ST0.class});
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null, null, null, null, null);
 
-            SupportBean_ST0_Container bean = SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E2,9");
-            env.sendEventBean(bean);
-            SupportBean_ST0 result = (SupportBean_ST0) env.listener("s0").assertOneGetNewAndReset().get("val");
-            assertSame(result, bean.getContained().get(1));
+            builder.assertion(SupportBean_ST0_Container.make2Value()).expect(fields, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("val"));
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,1", "E2,1")).expect(fields, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("val"));
+            SupportBean_ST0_Container beanTwo = SupportBean_ST0_Container.make2Value("E1,1", "E2,9");
+            builder.assertion(beanTwo).expect(fields, beanTwo.getContained().get(1), beanTwo.getContained().get(1),
+                beanTwo.getContained().get(1), beanTwo.getContained().get(1), null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,1", "E2,1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("val"));
+            SupportBean_ST0_Container beanThree = SupportBean_ST0_Container.make2Value("E2,9", "E1,1");
+            builder.assertion(beanThree).expect(fields, beanThree.getContained().get(0), beanThree.getContained().get(0),
+                null, null, null, null);
 
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
-    private static void assertId(SupportListener listener, String property, String id) {
-        SupportBean_ST0 result = (SupportBean_ST0) listener.assertOneGetNew().get(property);
+    private static void assertId(Object value, String id) {
+        SupportBean_ST0 result = (SupportBean_ST0) value;
         assertEquals(id, result.getId());
     }
 }

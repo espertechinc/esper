@@ -11,18 +11,20 @@
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.*;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
 import static org.junit.Assert.assertEquals;
 
 public class ExprEnumExceptIntersectUnion {
@@ -41,6 +43,7 @@ public class ExprEnumExceptIntersectUnion {
 
     private static class ExprEnumStringArrayIntersection implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+
             String epl = "create objectarray schema Event(meta1 string[], meta2 string[]);\n" +
                 "@Name('s0') select * from Event(meta1.intersect(meta2).countOf() > 0);\n";
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
@@ -57,23 +60,22 @@ public class ExprEnumExceptIntersectUnion {
 
     private static class ExprEnumSetLogicWithContained implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "contained.except(containedTwo) as val0," +
-                "contained.intersect(containedTwo) as val1, " +
-                "contained.union(containedTwo) as val2 " +
-                " from SupportBean_ST0_Container";
-            env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Collection.class});
+            String[] fields = "c0,c1,c2".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.except(containedTwo)");
+            builder.expression(fields[1], "contained.intersect(containedTwo)");
+            builder.expression(fields[2], "contained.union(containedTwo)");
+
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
             List<SupportBean_ST0> first = SupportBean_ST0_Container.make2ValueList("E1,1", "E2,10", "E3,1", "E4,10", "E5,11");
             List<SupportBean_ST0> second = SupportBean_ST0_Container.make2ValueList("E1,1", "E3,1", "E4,10");
-            env.sendEventBean(new SupportBean_ST0_Container(first, second));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E2,E5");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E1,E3,E4");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E1,E2,E3,E4,E5,E1,E3,E4");
-            env.listener("s0").reset();
+            builder.assertion(new SupportBean_ST0_Container(first, second))
+                .verify("c0", val -> assertST0Id(val, "E2,E5"))
+                .verify("c1", val -> assertST0Id(val, "E1,E3,E4"))
+                .verify("c2", val -> assertST0Id(val, "E1,E2,E3,E4,E5,E1,E3,E4"));
 
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
@@ -97,45 +99,45 @@ public class ExprEnumExceptIntersectUnion {
 
             env.sendEventBean(new SupportBean_ST0("E1", "A1", 10));    // in both
             env.sendEventBean(new SupportBean());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E1,E1");
+            assertST0Id(env.listener("s0"), "val0", "");
+            assertST0Id(env.listener("s0"), "val1", "E1");
+            assertST0Id(env.listener("s0"), "val2", "E1,E1");
             env.listener("s0").reset();
 
             env.sendEventBean(new SupportBean_ST0("E2", "A1", 0));
             env.sendEventBean(new SupportBean());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E2");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E1,E2,E1");
+            assertST0Id(env.listener("s0"), "val0", "E2");
+            assertST0Id(env.listener("s0"), "val1", "E1");
+            assertST0Id(env.listener("s0"), "val2", "E1,E2,E1");
             env.listener("s0").reset();
 
             env.sendEventBean(new SupportBean_ST0("E3", "B1", 0));
             env.sendEventBean(new SupportBean());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E2");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E1");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E1,E2,E1");
+            assertST0Id(env.listener("s0"), "val0", "E2");
+            assertST0Id(env.listener("s0"), "val1", "E1");
+            assertST0Id(env.listener("s0"), "val2", "E1,E2,E1");
             env.listener("s0").reset();
 
             env.sendEventBean(new SupportBean_ST0("E4", "A2", -1));
             env.sendEventBean(new SupportBean());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E2,E4");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E2,E4,E1");
+            assertST0Id(env.listener("s0"), "val0", "E2,E4");
+            assertST0Id(env.listener("s0"), "val1", "");
+            assertST0Id(env.listener("s0"), "val2", "E2,E4,E1");
             env.listener("s0").reset();
 
             env.sendEventBean(new SupportBean_ST0("E5", "A3", -2));
             env.sendEventBean(new SupportBean());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E4,E5");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E4,E5,E1");
+            assertST0Id(env.listener("s0"), "val0", "E4,E5");
+            assertST0Id(env.listener("s0"), "val1", "");
+            assertST0Id(env.listener("s0"), "val2", "E4,E5,E1");
             env.listener("s0").reset();
 
             env.sendEventBean(new SupportBean_ST0("E6", "A6", 11));    // in both
             env.sendEventBean(new SupportBean_ST0("E7", "A7", 12));    // in both
             env.sendEventBean(new SupportBean());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E6,E7");
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val2", "E6,E7,E6,E7");
+            assertST0Id(env.listener("s0"), "val0", "");
+            assertST0Id(env.listener("s0"), "val1", "E6,E7");
+            assertST0Id(env.listener("s0"), "val2", "E6,E7,E6,E7");
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -144,39 +146,35 @@ public class ExprEnumExceptIntersectUnion {
 
     private static class ExprEnumSetLogicWithScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select " +
-                "strvals.except(strvalstwo) as val0," +
-                "strvals.intersect(strvalstwo) as val1, " +
-                "strvals.union(strvalstwo) as val2 " +
-                " from SupportCollection as bean";
-            env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Collection.class});
+            String[] fields = "c0,c1,c2".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.except(strvalstwo)");
+            builder.expression(fields[1], "strvals.intersect(strvalstwo)");
+            builder.expression(fields[2], "strvals.union(strvalstwo)");
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2", "E3,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E1", "E2");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val2", "E1", "E2", "E3", "E4");
-            env.listener("s0").reset();
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
-            env.sendEventBean(SupportCollection.makeString(null, "E3,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", (Object[]) null);
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", (Object[]) null);
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val2", (Object[]) null);
-            env.listener("s0").reset();
+            builder.assertion(SupportCollection.makeString("E1,E2", "E3,E4"))
+                .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2"))
+                .verify("c1", val -> assertValuesArrayScalar(val))
+                .verify("c2", val -> assertValuesArrayScalar(val, "E1", "E2", "E3", "E4"));
 
-            env.sendEventBean(SupportCollection.makeString("", "E3,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val2", "E3", "E4");
-            env.listener("s0").reset();
+            builder.assertion(SupportCollection.makeString(null, "E3,E4"))
+                .verify("c0", val -> assertValuesArrayScalar(val, (Object[]) null))
+                .verify("c1", val -> assertValuesArrayScalar(val, (Object[]) null))
+                .verify("c2", val -> assertValuesArrayScalar(val, (Object[]) null));
 
-            env.sendEventBean(SupportCollection.makeString("E1,E3,E5", "E3,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E1", "E5");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", "E3");
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val2", "E1", "E3", "E5", "E3", "E4");
-            env.listener("s0").reset();
+            builder.assertion(SupportCollection.makeString("", "E3,E4"))
+                .verify("c0", val -> assertValuesArrayScalar(val))
+                .verify("c1", val -> assertValuesArrayScalar(val))
+                .verify("c2", val -> assertValuesArrayScalar(val, "E3", "E4"));
 
-            env.undeployAll();
+            builder.assertion(SupportCollection.makeString("E1,E3,E5", "E3,E4"))
+                .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E5"))
+                .verify("c1", val -> assertValuesArrayScalar(val, "E3"))
+                .verify("c2", val -> assertValuesArrayScalar(val, "E1", "E3", "E5", "E3", "E4"));
+
+            builder.run(env);
         }
     }
 
@@ -215,23 +213,23 @@ public class ExprEnumExceptIntersectUnion {
             LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Collection.class});
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,10", "E3,1", "E4,10", "E5,11"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E2,E4,E5");
+            assertST0Id(env.listener("s0"), "val0", "E2,E4,E5");
             env.listener("s0").reset();
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,10", "E2,1", "E3,1"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E1");
+            assertST0Id(env.listener("s0"), "val0", "E1");
             env.listener("s0").reset();
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,1", "E3,10", "E4,11"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "E3,E4");
+            assertST0Id(env.listener("s0"), "val0", "E3,E4");
             env.listener("s0").reset();
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value((String[]) null));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", null);
+            assertST0Id(env.listener("s0"), "val0", null);
             env.listener("s0").reset();
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val0", "");
+            assertST0Id(env.listener("s0"), "val0", "");
             env.listener("s0").reset();
 
             env.undeployAll();

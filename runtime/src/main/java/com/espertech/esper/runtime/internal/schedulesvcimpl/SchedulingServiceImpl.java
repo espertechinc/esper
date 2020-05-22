@@ -48,6 +48,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI {
      *
      * @param timeSourceService time source provider
      * @param stageId stage id or -1 when not applicable
+     * @param defaultFormatterTimeZone time zone for audit formatter
      */
     public SchedulingServiceImpl(int stageId, TimeSourceService timeSourceService, ZoneId defaultFormatterTimeZone) {
         this.stageId = stageId;

@@ -19,6 +19,9 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheStackEntry;
 import com.espertech.esper.common.internal.epl.enummethod.compile.EnumMethodCallStackHelperImpl;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
+import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDesc;
+import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDescFactory;
+import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeLambdaDesc;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEval;
@@ -56,17 +59,7 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         // override as required
     }
 
-    public abstract EventType[] getAddStreamTypes(DotMethodFP footprint, int parameterNum, EnumMethodEnum enumMethod, String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services);
-
-    public abstract EnumForge getEnumForge(DotMethodFP footprint, EnumMethodDesc enumMethodEnum, StreamTypeService streamTypeService, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException;
-
-    public EnumMethodDesc getEnumMethodDesc() {
-        return enumMethodDesc;
-    }
-
-    public EnumMethodEnum getEnumMethodEnum() {
-        return enumMethodDesc.getEnumMethod();
-    }
+    public abstract EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext) throws ExprValidationException;
 
     public void visit(ExprDotEvalVisitor visitor) {
         visitor.visitEnumeration(enumMethodDesc.getEnumMethodName());
@@ -134,15 +127,20 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         EventType inputEventType = eventTypeBean == null ? eventTypeColl : eventTypeBean;
         initialize(footprint, enumMethodDesc.getEnumMethod(), enumMethodUsedName, inputEventType, collectionComponentType, parameters, validationContext.getStreamTypeService(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
+        // get-forge-desc-factory
+        EnumForgeDescFactory forgeDescFactory = getForgeFactory(footprint, parameters, enumMethodDesc.getEnumMethod(), enumMethodUsedName, inputEventType, collectionComponentType, validationContext);
+
         // handle body and parameter list
-        List<ExprDotEvalParam> bodiesAndParameters = new ArrayList<ExprDotEvalParam>();
+        List<ExprDotEvalParam> bodiesAndParameters = new ArrayList<>();
         int count = 0;
         for (ExprNode node : parameters) {
-            ExprDotEvalParam bodyAndParameter = getBodyAndParameter(enumMethodDesc.getEnumMethod(), enumMethodUsedName, count++, node, inputEventType, collectionComponentType, validationContext, bodiesAndParameters, footprint);
+            ExprDotEvalParam bodyAndParameter = getBodyAndParameter(forgeDescFactory, enumMethodUsedName, count++, node, validationContext, footprint);
             bodiesAndParameters.add(bodyAndParameter);
         }
 
-        this.enumForge = getEnumForge(footprint, enumMethodDesc, validationContext.getStreamTypeService(), enumMethodUsedName, bodiesAndParameters, inputEventType, collectionComponentType, streamCountIncoming, validationContext.isDisablePropertyExpressionEventCollCache(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+        EnumForgeDesc forgeDesc = forgeDescFactory.makeEnumForgeDesc(bodiesAndParameters, streamCountIncoming, validationContext.getStatementCompileTimeService());
+        this.enumForge = forgeDesc.getForge();
+        this.typeInfo = forgeDesc.getType();
         this.enumEvalNumRequiredEvents = enumForge.getStreamNumSize();
 
         // determine the stream ids of event properties asked for in the evaluator(s)
@@ -176,22 +174,15 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         }
     }
 
-    public void setTypeInfo(EPType typeInfo) {
-        this.typeInfo = typeInfo;
-    }
-
     public EPType getTypeInfo() {
         return typeInfo;
     }
 
-    private ExprDotEvalParam getBodyAndParameter(EnumMethodEnum enumMethod,
+    private ExprDotEvalParam getBodyAndParameter(EnumForgeDescFactory forgeDescFactory,
                                                  String enumMethodUsedName,
                                                  int parameterNum,
                                                  ExprNode parameterNode,
-                                                 EventType inputEventType,
-                                                 Class collectionComponentType,
                                                  ExprValidationContext validationContext,
-                                                 List<ExprDotEvalParam> priorParameters,
                                                  DotMethodFP footprint) throws ExprValidationException {
 
         // handle an expression that is a constant or other (not =>)
@@ -205,13 +196,14 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         ExprLambdaGoesNode goesNode = (ExprLambdaGoesNode) parameterNode;
 
         // Get secondary
-        EventType[] additionalTypes = getAddStreamTypes(footprint, parameterNum, enumMethod, enumMethodUsedName, goesNode.getGoesToNames(), inputEventType, collectionComponentType, priorParameters, validationContext.getStreamTypeService(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
-        String[] additionalStreamNames = goesNode.getGoesToNames().toArray(new String[goesNode.getGoesToNames().size()]);
+        EnumForgeLambdaDesc lambdaDesc = forgeDescFactory.getLambdaStreamTypesForParameter(parameterNum);
+        String[] additionalStreamNames = lambdaDesc.getStreamNames();
+        EventType[] additionalEventTypes = lambdaDesc.getTypes();
 
-        validateDuplicateStreamNames(validationContext.getStreamTypeService().getStreamNames(), additionalStreamNames);
+        validateDuplicateStreamNames(validationContext.getStreamTypeService().getStreamNames(), goesNode.getGoesToNames());
 
         // add name and type to list of known types
-        EventType[] addTypes = (EventType[]) CollectionUtil.arrayExpandAddElements(validationContext.getStreamTypeService().getEventTypes(), additionalTypes);
+        EventType[] addTypes = (EventType[]) CollectionUtil.arrayExpandAddElements(validationContext.getStreamTypeService().getEventTypes(), additionalEventTypes);
         String[] addNames = (String[]) CollectionUtil.arrayExpandAddElements(validationContext.getStreamTypeService().getStreamNames(), additionalStreamNames);
 
         StreamTypeServiceImpl types = new StreamTypeServiceImpl(addTypes, addNames, new boolean[addTypes.length], false, validationContext.getStreamTypeService().isOptionalStreams());
@@ -222,7 +214,7 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
             ExprValidationContext filterValidationContext = new ExprValidationContext(types, validationContext);
             filter = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, filter, filterValidationContext);
         } catch (ExprValidationException ex) {
-            throw new ExprValidationException("Error validating enumeration method '" + enumMethodUsedName + "' parameter " + parameterNum + ": " + ex.getMessage(), ex);
+            throw new ExprValidationException("Failed to validate enumeration method '" + enumMethodUsedName + "' parameter " + parameterNum + ": " + ex.getMessage(), ex);
         }
 
         ExprForge filterForge = filter.getForge();
@@ -232,14 +224,14 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
 
         int numStreamsIncoming = validationContext.getStreamTypeService().getEventTypes().length;
         return new ExprDotEvalParamLambda(parameterNum, filter, filterForge,
-                numStreamsIncoming, goesNode.getGoesToNames(), additionalTypes);
+                numStreamsIncoming, goesNode.getGoesToNames(), lambdaDesc);
     }
 
-    private void validateDuplicateStreamNames(String[] streamNames, String[] additionalStreamNames) throws ExprValidationException {
-        for (int added = 0; added < additionalStreamNames.length; added++) {
+    private void validateDuplicateStreamNames(String[] streamNames, List<String> goesToNames) throws ExprValidationException {
+        for (int nameIdx = 0; nameIdx < goesToNames.size(); nameIdx++) {
             for (int exist = 0; exist < streamNames.length; exist++) {
-                if (streamNames[exist] != null && streamNames[exist].equalsIgnoreCase(additionalStreamNames[added])) {
-                    String message = "Error validating enumeration method '" + enumMethodUsedName + "', the lambda-parameter name '" + additionalStreamNames[added] + "' has already been declared in this context";
+                if (streamNames[exist] != null && streamNames[exist].equalsIgnoreCase(goesToNames.get(nameIdx))) {
+                    String message = "Failed to validate enumeration method '" + enumMethodUsedName + "', the lambda-parameter name '" + goesToNames.get(nameIdx) + "' has already been declared in this context";
                     throw new ExprValidationException(message);
                 }
             }

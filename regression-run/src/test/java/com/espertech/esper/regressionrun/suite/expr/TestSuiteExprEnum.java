@@ -89,7 +89,7 @@ public class TestSuiteExprEnum extends TestCase {
     }
 
     public void testExprEnumMinMaxBy() {
-        RegressionRunner.run(session, new ExprEnumMinMaxBy());
+        RegressionRunner.run(session, ExprEnumMinMaxBy.executions());
     }
 
     public void testExprEnumMostLeastFrequent() {
@@ -137,15 +137,15 @@ public class TestSuiteExprEnum extends TestCase {
     }
 
     public void testExprEnumToMap() {
-        RegressionRunner.run(session, new ExprEnumToMap());
+        RegressionRunner.run(session, ExprEnumToMap.executions());
     }
 
     public void testExprEnumWhere() {
         RegressionRunner.run(session, ExprEnumWhere.executions());
     }
 
-    public void testExprEnumToArray() {
-        RegressionRunner.run(session, ExprEnumToArray.executions());
+    public void testExprEnumArrayOf() {
+        RegressionRunner.run(session, ExprEnumArrayOf.executions());
     }
 
     private static void configure(Configuration configuration) {

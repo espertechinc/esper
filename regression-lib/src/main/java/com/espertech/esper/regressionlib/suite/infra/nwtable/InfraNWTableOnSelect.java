@@ -601,7 +601,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.compileDeploy(stmtTextCreate, path);
 
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "on SupportBean_A select * from MyInfraInvalid where sum(intPrimitive) > 100",
-                "Error validating expression: An aggregate function may not appear in a WHERE clause (use the HAVING clause) [");
+                "Failed to validate expression: An aggregate function may not appear in a WHERE clause (use the HAVING clause) [");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "on SupportBean_A insert into MyStream select * from DUMMY",
                 "A named window or table 'DUMMY' has not been declared [");

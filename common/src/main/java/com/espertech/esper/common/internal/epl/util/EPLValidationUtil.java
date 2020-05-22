@@ -135,7 +135,7 @@ public class EPLValidationUtil {
     }
 
     public static String getInvokablePrefix(String invocableName, String invocableType, boolean isFunction) {
-        return "Error validating " + invocableType + " " + (isFunction ? "function '" : "method '") + invocableName + "', ";
+        return "Failed to validate " + invocableType + " " + (isFunction ? "function '" : "method '") + invocableName + "', ";
     }
 
     public static void validateContextName(boolean table, String tableOrNamedWindowName, String tableOrNamedWindowContextName, String optionalContextName, boolean mustMatchContext)

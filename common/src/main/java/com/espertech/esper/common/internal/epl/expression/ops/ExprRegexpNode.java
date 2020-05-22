@@ -73,7 +73,7 @@ public class ExprRegexpNode extends ExprNodeBase {
             try {
                 pattern = Pattern.compile(patternText);
             } catch (PatternSyntaxException ex) {
-                throw new ExprValidationException("Error compiling regex pattern '" + patternText + "': " + ex.getMessage(), ex);
+                throw new ExprValidationException("Failed to compile regex pattern '" + patternText + "': " + ex.getMessage(), ex);
             }
             CodegenExpression patternInit = staticMethod(Pattern.class, "compile", constant(patternText));
             forge = new ExprRegexpNodeForgeConst(this, isNumericValue, pattern, patternInit);

@@ -12,9 +12,10 @@ package com.espertech.esper.regressionlib.support.util;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalAssertionBuilder;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
@@ -25,6 +26,10 @@ public class LambdaAssertionUtil {
 
     public static void assertValuesArrayScalar(SupportListener listener, String field, Object... expected) {
         Object result = listener.assertOneGetNew().get(field);
+        assertValuesArrayScalar(result, expected);
+    }
+
+    public static void assertValuesArrayScalar(Object result, Object... expected) {
         if (expected == null) {
             Assert.assertNull(result);
             return;
@@ -34,7 +39,11 @@ public class LambdaAssertionUtil {
     }
 
     public static void assertST0Id(SupportListener listener, String property, String expectedList) {
-        SupportBean_ST0[] arr = toArray((Collection<SupportBean_ST0>) listener.assertOneGetNew().get(property));
+        assertST0Id(listener.assertOneGetNew().get(property), expectedList);
+    }
+
+    public static void assertST0Id(Object value, String expectedList) {
+        SupportBean_ST0[] arr = toArray((Collection<SupportBean_ST0>) value);
         if (expectedList == null && arr == null) {
             return;
         }
@@ -76,6 +85,10 @@ public class LambdaAssertionUtil {
         }
     }
 
+    public static void assertTypes(EventType type, String field, Class clazz) {
+        assertTypes(type, new String[]{field}, new Class[]{clazz});
+    }
+
     public static void assertTypesAllSame(EventType type, String[] fields, Class clazz) {
         int count = 0;
         for (String field : fields) {
@@ -83,23 +96,20 @@ public class LambdaAssertionUtil {
         }
     }
 
-    public static void assertSingleAndEmptySupportColl(RegressionEnvironment env, String[] fields) {
-        env.sendEventBean(SupportCollection.makeString("E1"));
+    public static void assertSingleAndEmptySupportColl(SupportEvalBuilder builder, String[] fields) {
+        SupportEvalAssertionBuilder assertionOne = builder.assertion(SupportCollection.makeString("E1"));
         for (String field : fields) {
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), field, "E1");
+            assertionOne.verify(field, value -> LambdaAssertionUtil.assertValuesArrayScalar(value, "E1"));
         }
-        env.listener("s0").reset();
 
-        env.sendEventBean(SupportCollection.makeString(null));
+        SupportEvalAssertionBuilder assertionTwo = builder.assertion(SupportCollection.makeString(null));
         for (String field : fields) {
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), field, null);
+            assertionTwo.verify(field, value -> LambdaAssertionUtil.assertValuesArrayScalar(value, null));
         }
-        env.listener("s0").reset();
 
-        env.sendEventBean(SupportCollection.makeString(""));
+        SupportEvalAssertionBuilder assertionThree = builder.assertion(SupportCollection.makeString(""));
         for (String field : fields) {
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), field);
+            assertionThree.verify(field, value -> LambdaAssertionUtil.assertValuesArrayScalar(value));
         }
-        env.listener("s0").reset();
     }
 }

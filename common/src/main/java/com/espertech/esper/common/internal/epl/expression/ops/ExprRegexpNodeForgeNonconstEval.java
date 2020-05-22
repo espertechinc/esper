@@ -48,7 +48,7 @@ public class ExprRegexpNodeForgeNonconstEval implements ExprEvaluator {
         try {
             return Pattern.compile(text);
         } catch (PatternSyntaxException ex) {
-            throw new EPException("Error compiling regex pattern '" + text + "': " + ex.getMessage(), ex);
+            throw new EPException("Failed to compile regex pattern '" + text + "': " + ex.getMessage(), ex);
         }
     }
 

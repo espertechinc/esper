@@ -24,6 +24,7 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.junit.Assert;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -44,7 +45,25 @@ public class ExprCoreDotExpression {
         execs.add(new ExprCoreDotNestedPropertyInstanceExpr());
         execs.add(new ExprCoreDotNestedPropertyInstanceNW());
         execs.add(new ExprCoreDotCollectionSelectFromGetAndSize());
+        execs.add(new ExprCoreDotToArray());
         return execs;
+    }
+
+    private static class ExprCoreDotToArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyEvent(mycoll Collection);\n" +
+                "@name('s0') select mycoll.toArray() as c0," +
+                "  mycoll.toArray(new Object[0]) as c1," +
+                "  mycoll.toArray(new Object[]{}) as c2 " +
+                "from MyEvent";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventMap(Collections.singletonMap("mycoll", new ArrayList<>(Arrays.asList(1, 2))), "MyEvent");
+            Object[] expected = new Object[] {1, 2};
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2".split(","), new Object[] {expected, expected, expected});
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprCoreDotCollectionSelectFromGetAndSize implements RegressionExecution {

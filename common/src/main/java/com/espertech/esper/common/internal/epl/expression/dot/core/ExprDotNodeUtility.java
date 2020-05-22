@@ -152,14 +152,6 @@ public class ExprDotNodeUtility {
         return new ExprDotEnumerationSourceForgeForProps(enumEvaluator, typeInfo, streamId, (ExprEnumerationGivenEventForge) enumEvaluator);
     }
 
-    public static EventType[] getSingleLambdaParamEventType(String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
-        if (inputEventType != null) {
-            return new EventType[]{inputEventType};
-        } else {
-            return new EventType[]{ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(0), collectionComponentType, statementRawInfo, services)};
-        }
-    }
-
     public static ExprDotEval[] getEvaluators(ExprDotForge[] forges) {
         ExprDotEval[] evals = new ExprDotEval[forges.length];
         for (int i = 0; i < forges.length; i++) {
@@ -261,7 +253,7 @@ public class ExprDotNodeUtility {
 
             if (EnumMethodResolver.isEnumerationMethod(chainElementName, validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
                 EnumMethodDesc enumerationMethod = EnumMethodResolver.fromName(chainElementName, validationContext.getClasspathImportService());
-                ExprDotForgeEnumMethod eval = enumerationMethod.getFactory().make();
+                ExprDotForgeEnumMethod eval = enumerationMethod.getFactory().make(chainElement.getParametersOrEmpty().size());
                 if (currentInputType instanceof ClassEPType && JavaClassHelper.isImplementsInterface(((ClassEPType) currentInputType).getType(), Collection.class)) {
                     currentInputType = EPTypeHelper.collectionOfSingleValue(Object.class);
                 }

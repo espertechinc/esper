@@ -208,4 +208,10 @@ public class SupportCollection {
     public void setIntiterable(Iterable<Integer> intiterable) {
         this.intiterable = intiterable;
     }
+
+    public String toString() {
+        return "SupportCollection{" +
+            "strvals=" + strvals +
+            '}';
+    }
 }

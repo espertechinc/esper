@@ -14,10 +14,13 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
 
 public class ExprEnumReverse {
 
@@ -30,54 +33,45 @@ public class ExprEnumReverse {
 
     private static class ExprEnumReverseEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.reverse()");
 
-            String epl = "@name('s0') select contained.reverse() as val from SupportBean_ST0_Container";
-            env.compileDeploy(epl).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val".split(","), new Class[]{Collection.class});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E3,1"))
+                .verify("c0", val -> assertST0Id(val, "E3,E2,E1"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E3,1"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val", "E3,E2,E1");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value("E2,9", "E1,1"))
+                .verify("c0", val -> assertST0Id(val, "E1,E2"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E2,9", "E1,1"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val", "E1,E2");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1"))
+                .verify("c0", val -> assertST0Id(val, "E1"));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1"));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val", "E1");
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull())
+                .verify("c0", val -> assertST0Id(val, null));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val", null);
-            env.listener("s0").reset();
+            builder.assertion(SupportBean_ST0_Container.make2Value())
+                .verify("c0", val -> assertST0Id(val, ""));
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val", "");
-            env.listener("s0").reset();
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
     private static class ExprEnumReverseScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.reverse()");
 
-            String[] fields = "val0".split(",");
-            String eplFragment = "@name('s0') select " +
-                "strvals.reverse() as val0 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class, Collection.class});
+            builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
+                .verify("c0", val -> assertValuesArrayScalar(val, "E4", "E5", "E1", "E2"));
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E5,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E4", "E5", "E1", "E2");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertSingleAndEmptySupportColl(builder, fields);
 
-            LambdaAssertionUtil.assertSingleAndEmptySupportColl(env, fields);
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 }

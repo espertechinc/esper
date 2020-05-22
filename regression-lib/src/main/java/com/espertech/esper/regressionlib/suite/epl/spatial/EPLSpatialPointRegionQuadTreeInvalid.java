@@ -134,13 +134,13 @@ public class EPLSpatialPointRegionQuadTreeInvalid {
     private static class EPLSpatialInvalidMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point('a', 0).inside(rectangle(0, 0, 0, 0)))",
-                "Failed to validate filter expression 'point(\"a\",0).inside(rectangle(0,0,0,0))': Error validating left-hand-side function 'point', expected a number-type result for expression parameter 0 but received java.lang.String");
+                "Failed to validate filter expression 'point(\"a\",0).inside(rectangle(0,0,0,0))': Failed to validate left-hand-side function 'point', expected a number-type result for expression parameter 0 but received java.lang.String");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0).inside(rectangle(0, 0, 0, 0)))",
-                "Failed to validate filter expression 'point(0).inside(rectangle(0,0,0,0))': Error validating left-hand-side method 'point', expected 2 parameters but received 1 parameters");
+                "Failed to validate filter expression 'point(0).inside(rectangle(0,0,0,0))': Failed to validate left-hand-side method 'point', expected 2 parameters but received 1 parameters");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0,0).inside(rectangle('a', 0, 0, 0)))",
-                "Failed to validate filter expression 'point(0,0).inside(rectangle(\"a\",0,0,0))': Error validating right-hand-side function 'rectangle', expected a number-type result for expression parameter 0 but received java.lang.String");
+                "Failed to validate filter expression 'point(0,0).inside(rectangle(\"a\",0,0,0))': Failed to validate right-hand-side function 'rectangle', expected a number-type result for expression parameter 0 but received java.lang.String");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0,0).inside(rectangle(0)))",
-                "Failed to validate filter expression 'point(0,0).inside(rectangle(0))': Error validating right-hand-side function 'rectangle', expected 4 parameters but received 1 parameters");
+                "Failed to validate filter expression 'point(0,0).inside(rectangle(0))': Failed to validate right-hand-side function 'rectangle', expected 4 parameters but received 1 parameters");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0,0).inside(0))",
                 "Failed to validate filter expression 'point(0,0).inside(0)': point.inside requires a single rectangle as parameter");
         }
@@ -163,11 +163,11 @@ public class EPLSpatialPointRegionQuadTreeInvalid {
         public void run(RegressionEnvironment env) {
             // unrecognized named parameter
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportSpatialAABB#keepall where point(0, 0, a:1).inside(rectangle(x, y, width, height))",
-                "Error validating expression: Failed to validate filter expression 'point(0,0,a:1).inside(rectangle(x,y...(50 chars)': point does not accept 'a' as a named parameter");
+                "Failed to validate expression: Failed to validate filter expression 'point(0,0,a:1).inside(rectangle(x,y...(50 chars)': point does not accept 'a' as a named parameter");
 
             // not a filter
             SupportMessageAssertUtil.tryInvalidCompile(env, "expression myindex {pointregionquadtree(0, 0, 100, 100)} select * from SupportSpatialAABB#keepall where point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height))",
-                "Error validating expression: Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': The 'filterindex' named parameter can only be used in in filter expressions");
+                "Failed to validate expression: Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': The 'filterindex' named parameter can only be used in in filter expressions");
 
             // invalid index expression
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportSpatialAABB(point(0, 0, filterindex:1).inside(rectangle(x, y, width, height)))",

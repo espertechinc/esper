@@ -940,6 +940,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitColumnList(EsperEPL2GrammarParser.ColumnListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#columnListKeywordAllowed}.
+	 * @param ctx the parse tree
+	 */
+	void enterColumnListKeywordAllowed(EsperEPL2GrammarParser.ColumnListKeywordAllowedContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#columnListKeywordAllowed}.
+	 * @param ctx the parse tree
+	 */
+	void exitColumnListKeywordAllowed(EsperEPL2GrammarParser.ColumnListKeywordAllowedContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#fromClause}.
 	 * @param ctx the parse tree
 	 */

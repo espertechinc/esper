@@ -30,7 +30,7 @@ public enum EnumMethodEnum {
     LEASTFREQUENT,
 
     SELECTFROM,
-    TOARRAY,
+    ARRAYOF,
 
     FIRSTOF,
     LASTOF,

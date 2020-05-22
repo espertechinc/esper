@@ -115,11 +115,11 @@ public class ViewInvalid implements RegressionExecution {
 
         // where-clause relational op has invalid type
         exception = getStatementExceptionView(env, "select * from " + EVENT_ALLTYPES + "#length(1) where theString > 5");
-        SupportMessageAssertUtil.assertMessage(exception, "Error validating expression: Failed to validate filter expression 'theString>5': Implicit conversion from datatype 'String' to numeric is not allowed");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate expression: Failed to validate filter expression 'theString>5': Implicit conversion from datatype 'String' to numeric is not allowed");
 
         // where-clause has aggregation function
         exception = getStatementExceptionView(env, "select * from " + EVENT_ALLTYPES + "#length(1) where sum(intPrimitive) > 5");
-        SupportMessageAssertUtil.assertMessage(exception, "Error validating expression: An aggregate function may not appear in a WHERE clause (use the HAVING clause)");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate expression: An aggregate function may not appear in a WHERE clause (use the HAVING clause)");
 
         // invalid numerical expression
         exception = getStatementExceptionView(env, "select 2 * 's' from " + EVENT_ALLTYPES + "#length(1)");
@@ -164,30 +164,30 @@ public class ViewInvalid implements RegressionExecution {
         // invalid outer join - not a symbol
         exception = getStatementExceptionView(env, "select * from " + EVENT_ALLTYPES + "#length(1) as aStr " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) on xxxx=yyyy");
-        SupportMessageAssertUtil.assertMessage(exception, "Error validating outer-join expression: Failed to validate on-clause join expression 'xxxx=yyyy': Property named 'xxxx' is not valid in any stream");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate outer-join expression: Failed to validate on-clause join expression 'xxxx=yyyy': Property named 'xxxx' is not valid in any stream");
 
         // invalid outer join for 3 streams - not a symbol
         exception = getStatementExceptionView(env, "select * from " + EVENT_ALLTYPES + "#length(1) as s0 " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) as s1 on s0.intPrimitive = s1.intPrimitive " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) as s2 on s0.intPrimitive = s2.yyyy");
-        SupportMessageAssertUtil.assertMessage(exception, "Error validating outer-join expression: Failed to validate on-clause join expression 's0.intPrimitive=s2.yyyy': Failed to resolve property 's2.yyyy' to a stream or nested property in a stream");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate outer-join expression: Failed to validate on-clause join expression 's0.intPrimitive=s2.yyyy': Failed to resolve property 's2.yyyy' to a stream or nested property in a stream");
 
         // invalid outer join for 3 streams - wrong stream, the properties in on-clause don't refer to streams
         exception = getStatementExceptionView(env, "select * from " + EVENT_ALLTYPES + "#length(1) as s0 " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) as s1 on s0.intPrimitive = s1.intPrimitive " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) as s2 on s0.intPrimitive = s1.intPrimitive");
-        SupportMessageAssertUtil.assertMessage(exception, "Error validating outer-join expression: Outer join ON-clause must refer to at least one property of the joined stream for stream 2");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate outer-join expression: Outer join ON-clause must refer to at least one property of the joined stream for stream 2");
 
         // invalid outer join - referencing next stream
         exception = getStatementExceptionView(env, "select * from " + EVENT_ALLTYPES + "#length(1) as s0 " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) as s1 on s2.intPrimitive = s1.intPrimitive " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) as s2 on s1.intPrimitive = s2.intPrimitive");
-        SupportMessageAssertUtil.assertMessage(exception, "Error validating outer-join expression: Outer join ON-clause invalid scope for property 'intPrimitive', expecting the current or a prior stream scope");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate outer-join expression: Outer join ON-clause invalid scope for property 'intPrimitive', expecting the current or a prior stream scope");
 
         // invalid outer join - same properties
         exception = getStatementExceptionView(env, "select * from " + EVENT_NUM + "#length(1) as aStr " +
             "left outer join " + EVENT_ALLTYPES + "#length(1) on theString=theString");
-        SupportMessageAssertUtil.assertMessage(exception, "Error validating outer-join expression: Outer join ON-clause cannot refer to properties of the same stream");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate outer-join expression: Outer join ON-clause cannot refer to properties of the same stream");
 
         // invalid order by
         exception = getStatementExceptionView(env, "select * from " + EVENT_NUM + "#length(1) as aStr order by X");

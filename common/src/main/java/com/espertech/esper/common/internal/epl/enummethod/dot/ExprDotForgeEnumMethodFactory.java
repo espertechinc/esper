@@ -11,5 +11,5 @@
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 public interface ExprDotForgeEnumMethodFactory {
-    ExprDotForgeEnumMethod make();
+    ExprDotForgeEnumMethod make(int numParameters);
 }

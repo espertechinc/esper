@@ -10,20 +10,18 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypes;
 
 public class ExprEnumAverage {
 
@@ -31,87 +29,91 @@ public class ExprEnumAverage {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumAverageEvents());
         execs.add(new ExprEnumAverageScalar());
+        execs.add(new ExprEnumAverageScalarMore());
         execs.add(new ExprEnumInvalid());
         return execs;
     }
 
     private static class ExprEnumAverageEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_Container");
+            builder.expression(fields[0], "beans.average(x => intBoxed)");
+            builder.expression(fields[1], "beans.average(x => doubleBoxed)");
+            builder.expression(fields[2], "beans.average(x => longBoxed)");
+            builder.expression(fields[3], "beans.average(x => bigDecimal)");
+            builder.expression(fields[4], "beans.average( (x, i) => intBoxed + i*10)");
+            builder.expression(fields[5], "beans.average( (x, i) => bigDecimal + i*10)");
+            builder.expression(fields[6], "beans.average( (x, i, s) => intBoxed + i*10 + s*100)");
+            builder.expression(fields[7], "beans.average( (x, i, s) => bigDecimal + i*10 + s*100)");
 
-            String[] fields = "val0,val1,val2,val3".split(",");
-            String eplFragment = "@name('s0') select " +
-                "beans.average(x => intBoxed) as val0," +
-                "beans.average(x => doubleBoxed) as val1," +
-                "beans.average(x => longBoxed) as val2," +
-                "beans.average(x => bigDecimal) as val3 " +
-                "from SupportBean_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields,
+                new Class[]{Double.class, Double.class, Double.class, BigDecimal.class, Double.class, BigDecimal.class, Double.class, BigDecimal.class}));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class, Double.class, Double.class, BigDecimal.class});
+            builder.assertion(new SupportBean_Container(null))
+                .expect(fields, null, null, null, null, null, null, null, null);
 
-            env.sendEventBean(new SupportBean_Container(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
+            builder.assertion(new SupportBean_Container(Collections.emptyList()))
+                .expect(fields, null, null, null, null, null, null, null, null);
 
-            env.sendEventBean(new SupportBean_Container(Collections.emptyList()));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
+            List<SupportBean> listOne = new ArrayList<>(Arrays.asList(make(2, 3d, 4L, 5)));
+            builder.assertion(new SupportBean_Container(listOne))
+                .expect(fields, 2d, 3d, 4d, new BigDecimal(5.0d), 2d, new BigDecimal(5.0d), 102d, new BigDecimal(105.0d));
 
-            List<SupportBean> list = new ArrayList<>();
-            list.add(make(2, 3d, 4L, 5));
-            env.sendEventBean(new SupportBean_Container(list));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2d, 3d, 4d, new BigDecimal(5.0d)});
+            List<SupportBean> listTwo = new ArrayList<>(Arrays.asList(make(2, 3d, 4L, 5), make(4, 6d, 8L, 10)));
+            builder.assertion(new SupportBean_Container(listTwo))
+                .expect(fields, (2 + 4) / 2d, (3d + 6d) / 2d, (4L + 8L) / 2d, new BigDecimal((5 + 10) / 2d),
+                    (2 + 14) / 2d, new BigDecimal((5 + 20) / 2d), (202 + 214) / 2d, new BigDecimal((205 + 220) / 2d));
 
-            list.add(make(4, 6d, 8L, 10));
-            env.sendEventBean(new SupportBean_Container(list));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{(2 + 4) / 2d, (3d + 6d) / 2d, (4L + 8L) / 2d, new BigDecimal((5 + 10) / 2d)});
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
     private static class ExprEnumAverageScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "intvals.average()");
+            builder.expression(fields[1], "bdvals.average()");
 
-            String[] fields = "val0,val1".split(",");
-            String eplFragment = "@name('s0') select " +
-                "intvals.average() as val0," +
-                "bdvals.average() as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class, BigDecimal.class}));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class, BigDecimal.class});
+            builder.assertion(SupportCollection.makeNumeric("1,2,3")).expect(fields, 2d, new BigDecimal(2d));
 
-            env.sendEventBean(SupportCollection.makeNumeric("1,2,3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2d, new BigDecimal(2d)});
+            builder.assertion(SupportCollection.makeNumeric("1,null,3")).expect(fields, 2d, new BigDecimal(2d));
 
-            env.sendEventBean(SupportCollection.makeNumeric("1,null,3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2d, new BigDecimal(2d)});
+            builder.assertion(SupportCollection.makeNumeric("4")).expect(fields, 4d, new BigDecimal(4d));
 
-            env.sendEventBean(SupportCollection.makeNumeric("4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4d, new BigDecimal(4d)});
-            env.undeployAll();
+            builder.run(env);
+        }
+    }
 
-            // test average with lambda
-            String[] fieldsLambda = "val0,val1".split(",");
-            String eplLambda = "@name('s0') select " +
-                "strvals.average(v => extractNum(v)) as val0, " +
-                "strvals.average(v => extractBigDecimal(v)) as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplLambda).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fieldsLambda, new Class[]{Double.class, BigDecimal.class});
+    private static class ExprEnumAverageScalarMore implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.average(v => extractNum(v))");
+            builder.expression(fields[1], "strvals.average(v => extractBigDecimal(v))");
+            builder.expression(fields[2], "strvals.average( (v, i) => extractNum(v) + i*10)");
+            builder.expression(fields[3], "strvals.average( (v, i) => extractBigDecimal(v) + i*10)");
+            builder.expression(fields[4], "strvals.average( (v, i, s) => extractNum(v) + i*10 + s*100)");
+            builder.expression(fields[5], "strvals.average( (v, i, s) => extractBigDecimal(v) + i*10 + s*100)");
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E5,E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{(2 + 1 + 5 + 4) / 4d, new BigDecimal((2 + 1 + 5 + 4) / 4d)});
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields,
+                new Class[]{Double.class, BigDecimal.class, Double.class, BigDecimal.class, Double.class, BigDecimal.class}));
 
-            env.sendEventBean(SupportCollection.makeString("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{1d, new BigDecimal(1)});
+            builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
+                .expect(fields, (2 + 1 + 5 + 4) / 4d, new BigDecimal((2 + 1 + 5 + 4) / 4d),
+                    (2 + 11 + 25 + 34) / 4d, new BigDecimal((2 + 11 + 25 + 34) / 4d), (402 + 411 + 425 + 434) / 4d, new BigDecimal((402 + 411 + 425 + 434) / 4d));
 
-            env.sendEventBean(SupportCollection.makeString(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{null, null});
+            builder.assertion(SupportCollection.makeString("E1"))
+                .expect(fields, 1d, new BigDecimal(1), 1d, new BigDecimal(1), 101d, new BigDecimal(101));
 
-            env.sendEventBean(SupportCollection.makeString(""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsLambda, new Object[]{null, null});
+            builder.assertion(SupportCollection.makeString(null)).expect(fields, null, null, null, null, null, null);
 
-            env.undeployAll();
+            builder.assertion(SupportCollection.makeString("")).expect(fields, null, null, null, null, null, null);
+
+            builder.run(env);
         }
     }
 

@@ -26,6 +26,10 @@ public class SupportEvalBuilder {
     private LinkedHashMap<String, String> expressions = new LinkedHashMap<>();
     private List<SupportEvalAssertionPair> assertions = new ArrayList<>();
     private Consumer<EPStatement> statementConsumer;
+    private Integer exludeAssertionsExcept;
+    private String exludeNamesExcept;
+    private boolean excludeEPLAssertion;
+    private boolean logging;
 
     public SupportEvalBuilder(String eventType) {
         this(eventType, null);
@@ -94,11 +98,47 @@ public class SupportEvalBuilder {
         return path;
     }
 
+    public Integer getExludeAssertionsExcept() {
+        return exludeAssertionsExcept;
+    }
+
+    public String getExludeNamesExcept() {
+        return exludeNamesExcept;
+    }
+
+    public boolean isLogging() {
+        return logging;
+    }
+
+    public boolean isExcludeEPLAssertion() {
+        return excludeEPLAssertion;
+    }
+
     public void run(RegressionEnvironment environment) {
         run(environment, false);
     }
 
     public void run(RegressionEnvironment environment, boolean soda) {
         SupportEvalRunner.run(environment, soda, this);
+    }
+
+    public SupportEvalBuilder setExludeAssertionsExcept(int included) {
+        this.exludeAssertionsExcept = included;
+        return this;
+    }
+
+    public SupportEvalBuilder setExcludeNamesExcept(String name) {
+        this.exludeNamesExcept = name;
+        return this;
+    }
+
+    public SupportEvalBuilder setLogging(boolean flag) {
+        this.logging = flag;
+        return this;
+    }
+
+    public SupportEvalBuilder setExcludeEPLAssertion(boolean flag) {
+        this.excludeEPLAssertion = flag;
+        return this;
     }
 }

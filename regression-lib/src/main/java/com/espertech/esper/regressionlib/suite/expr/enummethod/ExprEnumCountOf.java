@@ -10,15 +10,16 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
 
 public class ExprEnumCountOf {
 
@@ -31,59 +32,53 @@ public class ExprEnumCountOf {
 
     private static class ExprEnumCountOfEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.countof()");
+            builder.expression(fields[1], "contained.countof(x => x.p00 = 9)");
+            builder.expression(fields[2], "contained.countof((x, i) => x.p00 + i = 10)");
+            builder.expression(fields[3], "contained.countof((x, i, s) => x.p00 + i + s = 100)");
 
-            String[] fields = new String[]{"val0", "val1"};
-            String eplFragment = "@name('s0') select " +
-                "contained.countof(x=> x.p00 = 9) as val0, " +
-                "contained.countof() as val1 " +
-                " from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E2,9")).expect(fields, 3, 2, 1, 0);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E2,9"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{2, 3});
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{null, null});
+            builder.assertion(SupportBean_ST0_Container.make2Value()).expect(fields, 0, 0, 0, 0);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(new String[0]));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{0, 0});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,9")).expect(fields, 1, 1, 0, 0);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,9"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{1, 1});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,1")).expect(fields, 1, 0, 0, 0);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
-                new Object[]{0, 1});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,10", "E2,9")).expect(fields, 2, 1, 2, 0);
 
-            env.undeployAll();
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,98", "E2,97")).expect(fields, 2, 0, 0, 2);
+
+            builder.run(env);
         }
     }
 
     private static class ExprEnumCountOfScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.countof()");
+            builder.expression(fields[1], "strvals.countof(x => x = 'E1')");
+            builder.expression(fields[2], "strvals.countof((x, i) => x = 'E1' and i >= 1)");
+            builder.expression(fields[3], "strvals.countof((x, i, s) => x = 'E1' and i >= 1 and s > 2)");
 
-            String[] fields = new String[]{"val0", "val1"};
-            String eplFragment = "@name('s0') select " +
-                "strvals.countof() as val0, " +
-                "strvals.countof(x => x = 'E1') as val1 " +
-                " from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class});
+            builder.assertion(SupportCollection.makeString("E1,E2")).expect(fields, 2, 1, 0, 0);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 1});
+            builder.assertion(SupportCollection.makeString("E1,E2,E1,E3")).expect(fields, 4, 2, 1, 1);
 
-            env.sendEventBean(SupportCollection.makeString("E1,E2,E1,E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4, 2});
+            builder.assertion(SupportCollection.makeString("E1")).expect(fields, 1, 1, 0, 0);
 
-            env.undeployAll();
+            builder.assertion(SupportCollection.makeString("E1,E1")).expect(fields, 2, 2, 1, 0);
+
+            builder.run(env);
         }
     }
 }

@@ -14,6 +14,7 @@ package com.espertech.esper.common.client.hook.enummethod;
  * Enumeration method extension API for adding enum-methods.
  */
 public interface EnumMethodForgeFactory {
+
     /**
      * Called by the compiler to receive the list of footprints.
      *

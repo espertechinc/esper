@@ -80,4 +80,11 @@ public class SupportBean_ST0 implements Serializable {
     public int hashCode() {
         return id.hashCode();
     }
+
+    public String toString() {
+        return "SupportBean_ST0{" +
+            "id='" + id + '\'' +
+            ", p00=" + p00 +
+            '}';
+    }
 }

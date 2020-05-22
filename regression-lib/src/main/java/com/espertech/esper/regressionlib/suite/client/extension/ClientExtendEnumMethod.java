@@ -17,7 +17,10 @@ import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFPInputEnum;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFPParam;
 import com.espertech.esper.common.internal.epl.util.EPLExpressionParamType;
-import com.espertech.esper.common.internal.rettype.*;
+import com.espertech.esper.common.internal.rettype.ClassEPType;
+import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EventEPType;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -257,24 +260,26 @@ public class ClientExtendEnumMethod {
 
     private static class ClientExtendEnumScalarLambdaMedian implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "val0".split(",");
+            String[] fields = "c0,c1,c2".split(",");
             String epl = "@name('s0') select " +
-                "strvals.enumPlugInMedian(v => extractNum(v)) as val0 " +
+                "strvals.enumPlugInMedian(v => extractNum(v)) as c0," +
+                "strvals.enumPlugInMedian((v, i) => extractNum(v) + i*10) as c1," +
+                "strvals.enumPlugInMedian((v, i, s) => extractNum(v) + i*10+s*100) as c2 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class});
+            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class, Double.class, Double.class});
 
-            sendAssert(env, fields, 3d, "E2,E1,E5,E4");
-            sendAssert(env, fields, null, "E1");
-            sendAssert(env, fields, null, "");
-            sendAssert(env, fields, null, null);
+            sendAssert(env, fields, 3d, 18d, 418d, "E2,E1,E5,E4");
+            sendAssert(env, fields, null, null, null, "E1");
+            sendAssert(env, fields, null, null, null, "");
+            sendAssert(env, fields, null, null, null, null);
 
             env.undeployAll();
         }
 
-        private void sendAssert(RegressionEnvironment env, String[] fields, Double expected, String csv) {
+        private void sendAssert(RegressionEnvironment env, String[] fields, Double c0, Double c1, Double c2, String csv) {
             env.sendEventBean(SupportCollection.makeString(csv));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{c0, c1, c2});
         }
     }
 
@@ -339,7 +344,11 @@ public class ClientExtendEnumMethod {
         public static final DotMethodFP[] FOOTPRINTS = new DotMethodFP[]{
             new DotMethodFP(DotMethodFPInputEnum.SCALAR_NUMERIC),
             new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.NUMERIC)),
-            new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.NUMERIC))
+            new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "value-selector", EPLExpressionParamType.NUMERIC)),
+            new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.NUMERIC)),
+            new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(2, "(value-selector, index)", EPLExpressionParamType.NUMERIC)),
+            new DotMethodFP(DotMethodFPInputEnum.SCALAR_ANY, new DotMethodFPParam(3, "(value-selector, index, size)", EPLExpressionParamType.NUMERIC)),
+            new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(3, "(value-selector, index, size)", EPLExpressionParamType.NUMERIC))
         };
 
         public EnumMethodDescriptor initialize(EnumMethodInitializeContext context) {
@@ -352,7 +361,21 @@ public class ClientExtendEnumMethod {
             String methodName = "next"; // the name of the method for processing an item of input values
             EPType returnType = new ClassEPType(Double.class); // indicate that we are returning a Double-type value
             boolean earlyExit = false;
-            return new EnumMethodModeStaticMethod(stateClass, serviceClass, methodName, returnType, earlyExit);
+
+            EnumMethodModeStaticMethod mode = new EnumMethodModeStaticMethod(stateClass, serviceClass, methodName, returnType, earlyExit);
+
+            // we allow 1, 2 or 3 parameters
+            mode.setLambdaParameters(descriptor -> {
+                if (descriptor.getLambdaParameterNumber() == 1) {
+                    return EnumMethodLambdaParameterTypeIndex.INSTANCE;
+                }
+                if (descriptor.getLambdaParameterNumber() == 2) {
+                    return EnumMethodLambdaParameterTypeSize.INSTANCE;
+                }
+                return EnumMethodLambdaParameterTypeValue.INSTANCE;
+            });
+
+            return mode;
         }
     }
 
@@ -467,7 +490,7 @@ public class ClientExtendEnumMethod {
 
     public static class MyLocalEnumMethodForgePredicateReturnEvents implements EnumMethodForgeFactory {
         public EnumMethodDescriptor initialize(EnumMethodInitializeContext context) {
-            DotMethodFP[] footprints = new DotMethodFP[] {
+            DotMethodFP[] footprints = new DotMethodFP[]{
                 new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "predicate", EPLExpressionParamType.BOOLEAN))
             };
             return new EnumMethodDescriptor(footprints);
@@ -499,7 +522,7 @@ public class ClientExtendEnumMethod {
 
     public static class MyLocalEnumMethodForgePredicateReturnSingleEvent implements EnumMethodForgeFactory {
         public EnumMethodDescriptor initialize(EnumMethodInitializeContext context) {
-            DotMethodFP[] footprints = new DotMethodFP[] {
+            DotMethodFP[] footprints = new DotMethodFP[]{
                 new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "predicate", EPLExpressionParamType.BOOLEAN))
             };
             return new EnumMethodDescriptor(footprints);
@@ -535,7 +558,7 @@ public class ClientExtendEnumMethod {
 
     public static class MyLocalEnumMethodForgeTwoLambda implements EnumMethodForgeFactory {
         public EnumMethodDescriptor initialize(EnumMethodInitializeContext context) {
-            DotMethodFP[] footprints = new DotMethodFP[] {
+            DotMethodFP[] footprints = new DotMethodFP[]{
                 new DotMethodFP(DotMethodFPInputEnum.EVENTCOLL, new DotMethodFPParam(1, "v1", EPLExpressionParamType.ANY), new DotMethodFPParam(1, "v2", EPLExpressionParamType.ANY))
             };
             return new EnumMethodDescriptor(footprints);
@@ -568,7 +591,7 @@ public class ClientExtendEnumMethod {
 
     public static class MyLocalEnumMethodForgeThree implements EnumMethodForgeFactory {
         public EnumMethodDescriptor initialize(EnumMethodInitializeContext context) {
-            DotMethodFP[] footprints = new DotMethodFP[] {
+            DotMethodFP[] footprints = new DotMethodFP[]{
                 new DotMethodFP(DotMethodFPInputEnum.ANY, new DotMethodFPParam(2, "value, index", EPLExpressionParamType.BOOLEAN))
             };
 
@@ -613,7 +636,7 @@ public class ClientExtendEnumMethod {
 
     public static class MyLocalEnumMethodForgeStateWValue implements EnumMethodForgeFactory {
         public EnumMethodDescriptor initialize(EnumMethodInitializeContext context) {
-            DotMethodFP[] footprints = new DotMethodFP[] {
+            DotMethodFP[] footprints = new DotMethodFP[]{
                 new DotMethodFP(DotMethodFPInputEnum.ANY,
                     new DotMethodFPParam(0, "initialvalue", EPLExpressionParamType.ANY),
                     new DotMethodFPParam(2, "result, index", EPLExpressionParamType.ANY))

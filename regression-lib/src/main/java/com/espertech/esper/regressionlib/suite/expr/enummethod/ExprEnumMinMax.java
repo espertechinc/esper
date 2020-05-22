@@ -10,28 +10,29 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithLongArray;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
+import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypes;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
 
 public class ExprEnumMinMax {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        execs.add(new ExprEnumMinMaxScalarWithLambda());
         execs.add(new ExprEnumMinMaxEvents());
         execs.add(new ExprEnumMinMaxScalar());
+        execs.add(new ExprEnumMinMaxScalarWithPredicate());
         execs.add(new ExprEnumMinMaxScalarChain());
         execs.add(new ExprEnumInvalid());
         return execs;
@@ -39,105 +40,91 @@ public class ExprEnumMinMax {
 
     private static class ExprEnumMinMaxScalarChain implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.compileDeploy("@name('s0') select coll.max().minus(1 minute) >= coll.min() as c0 from SupportEventWithLongArray");
-            env.addListener("s0");
             String[] fields = "c0".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportEventWithLongArray");
+            builder.expression(fields[0], "coll.max().minus(1 minute) >= coll.min()");
 
-            env.sendEventBean(new SupportEventWithLongArray("E1", new long[]{150000, 140000, 200000, 190000}));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(new SupportEventWithLongArray("E1", new long[]{150000, 140000, 200000, 190000}))
+                .expect(fields, true);
 
-            env.sendEventBean(new SupportEventWithLongArray("E2", new long[]{150000, 139999, 200000, 190000}));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+            builder.assertion(new SupportEventWithLongArray("E2", new long[]{150000, 139999, 200000, 190000}))
+                .expect(fields, true);
 
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
-    private static class ExprEnumMinMaxScalarWithLambda implements RegressionExecution {
+    private static class ExprEnumMinMaxScalarWithPredicate implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.min(v => extractNum(v))");
+            builder.expression(fields[1], "strvals.max(v => extractNum(v))");
+            builder.expression(fields[2], "strvals.min(v => v)");
+            builder.expression(fields[3], "strvals.max(v => v)");
+            builder.expression(fields[4], "strvals.min( (v, i) => extractNum(v) + i*10)");
+            builder.expression(fields[5], "strvals.max( (v, i) => extractNum(v) + i*10)");
+            builder.expression(fields[6], "strvals.min( (v, i, s) => extractNum(v) + i*10 + s*100)");
+            builder.expression(fields[7], "strvals.max( (v, i, s) => extractNum(v) + i*10 + s*100)");
 
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, Integer.class, String.class, String.class,
+                Integer.class, Integer.class, Integer.class, Integer.class}));
 
-            String[] fields = "val0,val1,val2,val3".split(",");
-            String eplFragment = "@name('s0') select " +
-                "strvals.min(v => extractNum(v)) as val0, " +
-                "strvals.max(v => extractNum(v)) as val1, " +
-                "strvals.min(v => v) as val2, " +
-                "strvals.max(v => v) as val3 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, 1, 5, "E1", "E5", 2, 34, 402, 434);
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class, String.class, String.class});
+            builder.assertion(SupportCollection.makeString("E1")).expect(fields, 1, 1, "E1", "E1", 1, 1, 101, 101);
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E5,E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 5, "E1", "E5"});
+            builder.assertion(SupportCollection.makeString(null)).expect(fields, null, null, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeString("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 1, "E1", "E1"});
+            builder.assertion(SupportCollection.makeString("")).expect(fields, null, null, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportCollection.makeString(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
-
-            env.sendEventBean(SupportCollection.makeString(""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
     private static class ExprEnumMinMaxEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
+            builder.expression(fields[0], "contained.min(x => p00)");
+            builder.expression(fields[1], "contained.max(x => p00)");
+            builder.expression(fields[2], "contained.min( (x, i) => p00 + i*10)");
+            builder.expression(fields[3], "contained.max( (x, i) => p00 + i*10)");
+            builder.expression(fields[4], "contained.min( (x, i, s) => p00 + i*10 + s*100)");
+            builder.expression(fields[5], "contained.max( (x, i, s) => p00 + i*10 + s*100)");
 
-            String[] fields = "val0,val1".split(",");
-            String eplFragment = "@name('s0') select " +
-                "contained.min(x => p00) as val0, " +
-                "contained.max(x => p00) as val1 " +
-                "from SupportBean_ST0_Container";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,12", "E2,11", "E2,2")).expect(fields, 2, 12, 12, 22, 312, 322);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,12", "E2,11", "E2,2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 12});
+            builder.assertion(SupportBean_ST0_Container.make2Value("E1,12", "E2,0", "E2,2")).expect(fields, 0, 12, 10, 22, 310, 322);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,12", "E2,0", "E2,2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0, 12});
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            builder.assertion(SupportBean_ST0_Container.make2Value()).expect(fields, null, null, null, null, null, null);
 
-            env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
     private static class ExprEnumMinMaxScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
+            builder.expression(fields[0], "strvals.min()");
+            builder.expression(fields[1], "strvals.max()");
 
-            String[] fields = "val0,val1".split(",");
-            String eplFragment = "@name('s0') select " +
-                "strvals.min() as val0, " +
-                "strvals.max() as val1 " +
-                "from SupportCollection";
-            env.compileDeploy(eplFragment).addListener("s0");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String.class));
 
+            builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, "E1", "E5");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{String.class, String.class});
+            builder.assertion(SupportCollection.makeString("E1")).expect(fields, "E1", "E1");
 
-            env.sendEventBean(SupportCollection.makeString("E2,E1,E5,E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E5"});
+            builder.assertion(SupportCollection.makeString(null)).expect(fields, null, null);
 
-            env.sendEventBean(SupportCollection.makeString("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1"});
+            builder.assertion(SupportCollection.makeString("")).expect(fields, null, null);
 
-            env.sendEventBean(SupportCollection.makeString(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
-
-            env.sendEventBean(SupportCollection.makeString(""));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
-
-            env.undeployAll();
+            builder.run(env);
         }
     }
 
