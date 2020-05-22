@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanWithArray;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -466,7 +467,7 @@ public class ExprCoreArrayAtElement {
         return new int[][] {{1, 10}, {2, 20}};
     }
 
-    public static class MyHolder {
+    public static class MyHolder implements Serializable {
         private final String id;
 
         public MyHolder(String id) {
