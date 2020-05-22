@@ -1,6 +1,40 @@
 Esper Changelog
 ===================
 
+Changes in version 8.5.0
+------------------------
+  - Support for all enumeration methods to have an index and size formal parameter
+  - Support for the arrayof enumeration method
+  - Support for array element expressions ([expr]) in chaining
+  - Support for compiler filter plan logging  
+  - Support for compiler filter index planning to plan composite value expressions, composite lookupable expressions, composite boolean expressions and confirming and negating conditions
+  - Support for inlined class to expose a plug-in single-row functions, aggregation functions and aggregation multi-functions
+  - Support for inlined class to become a variable type
+  - Support for audit to include runtime current time
+  - Support for compiler flag that disallows inlined-classes
+  - Support for mutation expressions in update-istream and on-set
+  - Support for assignment left-hand-side array expressions
+  - Support for the new-keyword to allow array length and initializer expressions
+  - Fixed issue #185 On-merge with assign column as typed event causes cast exception when assigned using stream alias for OA and Map types
+  - Fixed issue #187 Event type is not an runtime-native event type when using AMQPToObjectCollectorJson
+  - Fixed issue #190 Improve exception message when EPL object model has expression constant that holds application that has no compile representation
+  - Fixed issue #194 Memory leak in from-clause method invocation when no data window and indexable where-clause
+  - Fixed issue #195 Module-uses providing wrong module name causes fails to resolve EPL object when the EPL object doesn't need disambiguate
+  - Fixed issue #197 Mvel same script invoked with different params returns wrong result
+  - Fixed issue MIZ-174-87260 Binary operator and string-type fails with compile exception
+  - Fixed issue QAS-554-23879 Filter expression subquery against table throws ClassCastException
+  - Fixed issue JXU-229-37952 Compiler exception "get" with selectFrom
+  - Fixed issue EWQ-541-63692 Exists-subselect in filter with udf not processing
+  - Fixed issue KFJ-950-98528 Contained-event with where-clause fails to validate when no data window when referencing contained type field
+  - Fixed issue WFP-422-50932 Incorrect function name in multi-function aggregation validation
+  - Fixed issue XZO-914-34823 Fully-grouped query with irstream and output last unordered outputs groups without changes
+  - Fixed issue SZP-674-85240 Compiler exception "no applicable method found" for private static class with public method
+  - Fixed issue VJS-994-99492 Aggregation with nested static calls causing UnsupportedOperationException
+  - Fixed issue DJE-274-32309 EPL compilation error serde not provided
+  - Fixed issue IJW-152-82035 Timer:interval with zero-size interval doesn't fire on context allocation
+  - Fixed issue BTE-313-35520 Keyed and nested context does not include end or termination event in output
+  - Fixed issue UQR-251-48674 Constant variable not allowed to set
+
 Changes in version 8.4.0
 ------------------------
   - The following dependent jar files are upgraded:
