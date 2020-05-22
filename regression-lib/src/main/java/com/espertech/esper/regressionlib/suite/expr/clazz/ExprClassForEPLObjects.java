@@ -111,7 +111,7 @@ public class ExprClassForEPLObjects {
                 env.sendEventBean(new SupportBean("E1", 1));
                 fail();
             } catch (EPException ex) {
-                assertMessage(ex, "java.lang.RuntimeException: Unexpected exception in statement 's0': java.lang.ClassNotFoundException: MyScriptResult");
+                assertMessage(ex, "java.lang.RuntimeException: Unexpected exception in statement 's0'");
             }
 
             env.undeployAll();
