@@ -123,54 +123,59 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         EnumMethodCallStackHelperImpl enumCallStackHelper = validationContext.getEnumMethodCallStackHelper();
         enumCallStackHelper.pushStack(this);
 
-        // initialize
-        EventType inputEventType = eventTypeBean == null ? eventTypeColl : eventTypeBean;
-        initialize(footprint, enumMethodDesc.getEnumMethod(), enumMethodUsedName, inputEventType, collectionComponentType, parameters, validationContext.getStreamTypeService(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+        try {
+            // initialize
+            EventType inputEventType = eventTypeBean == null ? eventTypeColl : eventTypeBean;
+            initialize(footprint, enumMethodDesc.getEnumMethod(), enumMethodUsedName, inputEventType, collectionComponentType, parameters, validationContext.getStreamTypeService(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
-        // get-forge-desc-factory
-        EnumForgeDescFactory forgeDescFactory = getForgeFactory(footprint, parameters, enumMethodDesc.getEnumMethod(), enumMethodUsedName, inputEventType, collectionComponentType, validationContext);
+            // get-forge-desc-factory
+            EnumForgeDescFactory forgeDescFactory = getForgeFactory(footprint, parameters, enumMethodDesc.getEnumMethod(), enumMethodUsedName, inputEventType, collectionComponentType, validationContext);
 
-        // handle body and parameter list
-        List<ExprDotEvalParam> bodiesAndParameters = new ArrayList<>();
-        int count = 0;
-        for (ExprNode node : parameters) {
-            ExprDotEvalParam bodyAndParameter = getBodyAndParameter(forgeDescFactory, enumMethodUsedName, count++, node, validationContext, footprint);
-            bodiesAndParameters.add(bodyAndParameter);
-        }
-
-        EnumForgeDesc forgeDesc = forgeDescFactory.makeEnumForgeDesc(bodiesAndParameters, streamCountIncoming, validationContext.getStatementCompileTimeService());
-        this.enumForge = forgeDesc.getForge();
-        this.typeInfo = forgeDesc.getType();
-        this.enumEvalNumRequiredEvents = enumForge.getStreamNumSize();
-
-        // determine the stream ids of event properties asked for in the evaluator(s)
-        HashSet<Integer> streamsRequired = new HashSet<Integer>();
-        ExprNodeIdentifierCollectVisitor visitor = new ExprNodeIdentifierCollectVisitor();
-        for (ExprDotEvalParam desc : bodiesAndParameters) {
-            desc.getBody().accept(visitor);
-            for (ExprIdentNode ident : visitor.getExprProperties()) {
-                streamsRequired.add(ident.getStreamId());
+            // handle body and parameter list
+            List<ExprDotEvalParam> bodiesAndParameters = new ArrayList<>();
+            int count = 0;
+            for (ExprNode node : parameters) {
+                ExprDotEvalParam bodyAndParameter = getBodyAndParameter(forgeDescFactory, enumMethodUsedName, count++, node, validationContext, footprint);
+                bodiesAndParameters.add(bodyAndParameter);
             }
-        }
-        if (streamOfProviderIfApplicable != null) {
-            streamsRequired.add(streamOfProviderIfApplicable);
-        }
 
-        // We turn on caching if the stack is not empty (we are an inner lambda) and the dependency does not include the stream.
-        boolean isInner = !enumCallStackHelper.popLambda();
-        if (isInner) {
-            // If none of the properties that the current lambda uses comes from the ultimate parent(s) or subsequent streams, then cache.
-            Deque<ExpressionResultCacheStackEntry> parents = enumCallStackHelper.getStack();
-            boolean found = false;
-            for (int req : streamsRequired) {
-                ExprDotForgeEnumMethodBase first = (ExprDotForgeEnumMethodBase) parents.getFirst();
-                int parentIncoming = first.streamCountIncoming - 1;
-                int selfAdded = streamCountIncoming;    // the one we use ourselfs
-                if (req > parentIncoming && req < selfAdded) {
-                    found = true;
+            EnumForgeDesc forgeDesc = forgeDescFactory.makeEnumForgeDesc(bodiesAndParameters, streamCountIncoming, validationContext.getStatementCompileTimeService());
+            this.enumForge = forgeDesc.getForge();
+            this.typeInfo = forgeDesc.getType();
+            this.enumEvalNumRequiredEvents = enumForge.getStreamNumSize();
+
+            // determine the stream ids of event properties asked for in the evaluator(s)
+            HashSet<Integer> streamsRequired = new HashSet<Integer>();
+            ExprNodeIdentifierCollectVisitor visitor = new ExprNodeIdentifierCollectVisitor();
+            for (ExprDotEvalParam desc : bodiesAndParameters) {
+                desc.getBody().accept(visitor);
+                for (ExprIdentNode ident : visitor.getExprProperties()) {
+                    streamsRequired.add(ident.getStreamId());
                 }
             }
-            cache = !found;
+            if (streamOfProviderIfApplicable != null) {
+                streamsRequired.add(streamOfProviderIfApplicable);
+            }
+
+            // We turn on caching if the stack is not empty (we are an inner lambda) and the dependency does not include the stream.
+            boolean isInner = !enumCallStackHelper.popLambda();
+            if (isInner) {
+                // If none of the properties that the current lambda uses comes from the ultimate parent(s) or subsequent streams, then cache.
+                Deque<ExpressionResultCacheStackEntry> parents = enumCallStackHelper.getStack();
+                boolean found = false;
+                for (int req : streamsRequired) {
+                    ExprDotForgeEnumMethodBase first = (ExprDotForgeEnumMethodBase) parents.getFirst();
+                    int parentIncoming = first.streamCountIncoming - 1;
+                    int selfAdded = streamCountIncoming;    // the one we use ourselfs
+                    if (req > parentIncoming && req < selfAdded) {
+                        found = true;
+                    }
+                }
+                cache = !found;
+            }
+        } catch (ExprValidationException ex) {
+            enumCallStackHelper.popLambda();
+            throw ex;
         }
     }
 
