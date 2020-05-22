@@ -644,8 +644,8 @@ public class ExprFilterOptimizableConditionNegateConfirm {
                 HOOK + "@name('s0') context MyContext select * from SupportBean_S1(" + filter + ");\n";
             SupportFilterPlanHook.reset();
             env.compileDeploy(epl).addListener("s0");
-            SupportFilterPlanTriplet tripletOne = makeTripletRebool("p10 regexp ?", "\".*a.*\"");
-            SupportFilterPlanTriplet tripletTwo = makeTripletRebool("p11 regexp ?", "\".*b.*\"");
+            SupportFilterPlanTriplet tripletOne = makeTripletRebool(".p10 regexp ?", "\".*a.*\"");
+            SupportFilterPlanTriplet tripletTwo = makeTripletRebool(".p11 regexp ?", "\".*b.*\"");
             if (advanced) {
                 assertPlanSingleByType("SupportBean_S1", new SupportFilterPlan("context.s0.p00=\"x\" or context.s0.p01=\"y\"", null, new SupportFilterPlanPath(tripletOne), new SupportFilterPlanPath(tripletTwo)));
             }
@@ -653,8 +653,8 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S0(1, "-", "-"));
             if (advanced) {
                 assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
-                    new FilterItem[]{new FilterItem("p10 regexp ?", REBOOL)},
-                    new FilterItem[]{new FilterItem("p11 regexp ?", REBOOL)}
+                    new FilterItem[]{new FilterItem(".p10 regexp ?", REBOOL)},
+                    new FilterItem[]{new FilterItem(".p11 regexp ?", REBOOL)}
                 });
             }
             env.milestoneInc(milestone);
@@ -696,7 +696,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             SupportFilterPlanHook.reset();
             env.compileDeploy(epl).addListener("s0");
             SupportFilterPlanTriplet tripletOne = makeTriplet("p10", EQUAL, "a");
-            SupportFilterPlanTriplet tripletTwo = makeTripletRebool("p11 regexp ?", "\".*b.*\"");
+            SupportFilterPlanTriplet tripletTwo = makeTripletRebool(".p11 regexp ?", "\".*b.*\"");
             SupportFilterPlanPath path = new SupportFilterPlanPath(tripletOne, tripletTwo);
             if (advanced) {
                 assertPlanSingleByType("SupportBean_S1", new SupportFilterPlan("s0.p00=\"x\"", null, path));
@@ -705,7 +705,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
                 assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
-                    new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p11 regexp ?", REBOOL)}
+                    new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem(".p11 regexp ?", REBOOL)}
                 });
             }
             sendS1Assert(env, 10, "-", "b", false);

@@ -90,9 +90,9 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
                 FilterItem[] s0 = filters.get("s0");
                 FilterItem[] s1 = filters.get("s1");
                 assertEquals(REBOOL, s0[0].getOp());
-                assertEquals("p00 regexp ?", s0[0].getName());
+                assertEquals(".p00 regexp ?", s0[0].getName());
                 assertEquals(REBOOL, s0[1].getOp());
-                assertEquals("p01 regexp ?", s0[1].getName());
+                assertEquals(".p01 regexp ?", s0[1].getName());
                 assertEquals(s0[0], s1[0]);
                 assertEquals(s0[1], s1[1]);
             }
@@ -111,7 +111,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "x.*abc"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "p10||\"abc\" regexp ?", REBOOL);
+                assertFilterSvcSingle(env.statement("s0"), ".p10||\"abc\" regexp ?", REBOOL);
             }
 
             env.milestone(0);
@@ -130,7 +130,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "x.*abc"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "p10||\"abc\" regexp ?", REBOOL);
+                assertFilterSvcSingle(env.statement("s0"), ".p10||\"abc\" regexp ?", REBOOL);
             }
 
             env.milestone(0);
@@ -149,7 +149,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, ".*X"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "p10 regexp p11||?", REBOOL);
+                assertFilterSvcSingle(env.statement("s0"), ".p10 regexp p11||?", REBOOL);
             }
 
             env.milestone(0);
@@ -166,7 +166,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
         public void run(RegressionEnvironment env) {
             String epl = "select * from SupportBean_S0(p00 || p01 = p02 || p03)";
             runTwoStmt(env, epl, epl,
-                "p00||p01=p02||p03",
+                ".p00||p01=p02||p03",
                 "SupportBean_S0",
                 new SupportBean_S0(1, "a", "b", "a", "b"),
                 new SupportBean_S0(1, "a", "b", "a", "c"));
@@ -178,7 +178,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             runTwoStmt(env,
                 "select * from SupportBean_S0(p00 regexp p01) as a",
                 "select * from SupportBean_S0(s0.p00 regexp s0.p01) as s0",
-                "p00 regexp p01",
+                ".p00 regexp p01",
                 "SupportBean_S0",
                 new SupportBean_S0(1, "abc", ".*c"),
                 new SupportBean_S0(2, "abc", ".*d"));
@@ -190,7 +190,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             runTwoStmt(env,
                 "select * from SupportBean('abc' regexp a.theString) as a",
                 "select * from SupportBean('abc' regexp theString)",
-                "? regexp theString",
+                ".? regexp theString",
                 "SupportBean",
                 new SupportBean(".*bc", 0),
                 new SupportBean(".*d", 0));
@@ -251,9 +251,9 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             if (hasFilterIndexPlanAdvanced(env)) {
                 FilterSpecParamForge forge = SupportFilterPlanHook.assertPlanSingleTripletAndReset("SupportBean");
                 assertEquals(FilterOperator.REBOOL, forge.getFilterOperator());
-                assertEquals("theString regexp ?", forge.getLookupable().getExpression());
+                assertEquals(".theString regexp ?", forge.getLookupable().getExpression());
                 assertEquals(String.class, forge.getLookupable().getReturnType());
-                assertFilterSvcSingle(env.statement("s0"), "theString regexp ?", REBOOL);
+                assertFilterSvcSingle(env.statement("s0"), ".theString regexp ?", REBOOL);
             }
 
             epl = "@name('s1') select * from SupportBean(theString regexp '.*a.*')";

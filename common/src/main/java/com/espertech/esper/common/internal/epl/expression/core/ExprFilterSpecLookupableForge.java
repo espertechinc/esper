@@ -33,7 +33,12 @@ public class ExprFilterSpecLookupableForge {
     protected final DataInputOutputSerdeForge valueSerde;
 
     public ExprFilterSpecLookupableForge(String expression, ExprEventEvaluatorForge optionalEventEvalForge, ExprForge optionalExprForge, Class returnType, boolean isNonPropertyGetter, DataInputOutputSerdeForge valueSerde) {
-        this.expression = expression;
+        // prefixing the expression ensures the expression resolves to either the event-eval or the expr-eval
+        if (optionalExprForge != null) {
+            this.expression = "." + expression;
+        } else {
+            this.expression = expression;
+        }
         this.optionalEventEvalForge = optionalEventEvalForge;
         this.optionalExprForge = optionalExprForge;
         this.returnType = JavaClassHelper.getBoxedType(returnType); // For type consistency for recovery and serde define as boxed type
