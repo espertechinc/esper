@@ -33,6 +33,10 @@ public class MobileUserBean {
         this.preferredAgeRange = preferredAgeRange;
     }
 
+    public MobileUserBean copy() {
+        return new MobileUserBean(userId, locationX, locationY, myGender, myHairColor, myAgeRange, preferredGender, preferredHairColor, preferredAgeRange);
+    }
+
     public int getUserId() {
         return userId;
     }
@@ -45,9 +49,10 @@ public class MobileUserBean {
         return locationY;
     }
 
-    public void setLocation(double locationX, double locationY) {
+    public MobileUserBean setLocation(double locationX, double locationY) {
         this.locationX = locationX;
         this.locationY = locationY;
+        return this;
     }
 
     public void setLocationY(double locationY) {
