@@ -26,6 +26,7 @@
 		**/cycledetect/lib/*.jar,
 		**/antlr-*-complete.jar,
 		**/junit-*.jar, 
+		**/mockito-*.jar, 
 		**/junit.license,
 		**/hamcrest-*.jar,
 		**/mysql-connector-java-*.jar"/>
