@@ -89,6 +89,13 @@ public class EPStatementFormatter {
         writeDelimiter(writer);
     }
 
+    public void beginIntoTable(StringWriter writer, boolean topLevel) {
+        if (topLevel) {
+            writeDelimiter(writer, topLevel);
+        }
+        setDelimiter();
+    }
+
     public void beginSelect(StringWriter writer, boolean topLevel) {
         if (topLevel) {
             writeDelimiter(writer, topLevel);

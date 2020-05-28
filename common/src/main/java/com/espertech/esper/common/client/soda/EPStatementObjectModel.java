@@ -433,7 +433,7 @@ public class EPStatementObjectModel implements Serializable {
                 if (insertInto != null) {
                     insertInto.toEPL(writer, formatter, true);
                 }
-                selectClause.toEPL(writer, formatter, true, onSelect.isDeleteAndSelect());
+                selectClause.toEPL(writer, formatter, insertInto == null, onSelect.isDeleteAndSelect());
                 writer.write(" from ");
                 onSelect.toEPL(writer);
             } else if (onExpr instanceof OnSetClause) {
@@ -446,7 +446,7 @@ public class EPStatementObjectModel implements Serializable {
             } else {
                 OnInsertSplitStreamClause split = (OnInsertSplitStreamClause) onExpr;
                 insertInto.toEPL(writer, formatter, true);
-                selectClause.toEPL(writer, formatter, true, false);
+                selectClause.toEPL(writer, formatter, false, false);
                 if (whereClause != null) {
                     writer.write(" where ");
                     whereClause.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
@@ -456,7 +456,7 @@ public class EPStatementObjectModel implements Serializable {
             }
         } else {
             if (intoTableClause != null) {
-                intoTableClause.toEPL(writer);
+                intoTableClause.toEPL(writer, formatter);
             }
 
             if (selectClause == null) {
@@ -476,7 +476,7 @@ public class EPStatementObjectModel implements Serializable {
                 FireAndForgetInsert insert = (FireAndForgetInsert) fireAndForgetClause;
                 insertInto.toEPL(writer, formatter, true);
                 if (insert.isUseValuesKeyword()) {
-                    writer.append(" values (");
+                    writer.append("values (");
                     String delimiter = "";
                     for (SelectClauseElement element : selectClause.getSelectList()) {
                         writer.write(delimiter);
@@ -485,16 +485,16 @@ public class EPStatementObjectModel implements Serializable {
                     }
                     writer.append(")");
                 } else {
-                    selectClause.toEPL(writer, formatter, true, false);
+                    selectClause.toEPL(writer, formatter, false, false);
                 }
             } else if (fireAndForgetClause instanceof FireAndForgetDelete) {
                 writer.append("delete ");
                 fromClause.toEPLOptions(writer, formatter, true);
             } else {
                 if (insertInto != null) {
-                    insertInto.toEPL(writer, formatter, true);
+                    insertInto.toEPL(writer, formatter, intoTableClause == null);
                 }
-                selectClause.toEPL(writer, formatter, true, false);
+                selectClause.toEPL(writer, formatter, intoTableClause == null && insertInto == null, false);
                 fromClause.toEPLOptions(writer, formatter, true);
             }
         }

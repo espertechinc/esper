@@ -270,7 +270,7 @@ public class ExprClassStaticMethod {
                     "            return \"|\" + parameter + \"|\";\n" +
                     "        }\n" +
                     "    }\n" +
-                    "\"\"\"\n";
+                    "\"\"\"";
             env.compileDeploy(soda, eplClass, path);
             env.compileDeploy(soda, "@name('s0') select MyClass.doIt(theString) as c0 from SupportBean", path);
             env.addListener("s0");

@@ -194,7 +194,7 @@ public class EPLVariablesOnSet {
                 "@public create variable String[] stringarray = new String[] {'a', 'b', 'c'};\n";
             env.compileDeploy(eplCreate, path);
 
-            String epl = "on SupportBean set doublearray[intPrimitive] = 1, stringarray[intPrimitive] = 'x'";
+            String epl = "on SupportBean set (doublearray[intPrimitive])=1, (stringarray[intPrimitive])=\"x\"";
             env.compileDeploy(soda, epl, path);
 
             assertVariables(env, new double[3], "a,b,c".split(","));

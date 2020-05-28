@@ -60,7 +60,8 @@ public class IntoTableClause implements Serializable {
      *
      * @param writer to write to
      */
-    public void toEPL(StringWriter writer) {
+    public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
+        formatter.beginIntoTable(writer, true);
         writer.append("into table ");
         writer.append(tableName);
         writer.append(" ");

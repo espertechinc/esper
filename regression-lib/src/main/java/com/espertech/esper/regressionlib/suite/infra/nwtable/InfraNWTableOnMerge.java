@@ -126,10 +126,11 @@ public class InfraNWTableOnMerge {
         }
 
         public void run(RegressionEnvironment env) {
-            runAssertionSetWithIndex(env, namedWindow, soda, "thearray[cnt]=1, thearray[intPrimitive]=2", 0, 1, 2, 0);
-            runAssertionSetWithIndex(env, namedWindow, soda, "cnt=cnt+1,thearray[cnt]=1", 1, 0, 1, 0);
-            runAssertionSetWithIndex(env, namedWindow, soda, "cnt=cnt+1,thearray[cnt]=3,cnt=cnt+1,thearray[cnt]=4", 2, 0, 3, 4);
-            runAssertionSetWithIndex(env, namedWindow, soda, "cnt=cnt+1,thearray[initial.cnt]=3", 1, 3, 0, 0);
+            // parenthesis are not required by due to precedence the SODA may output them
+            runAssertionSetWithIndex(env, namedWindow, soda, "(thearray[cnt])=1, (thearray[intPrimitive])=2", 0, 1, 2, 0);
+            runAssertionSetWithIndex(env, namedWindow, soda, "cnt=cnt+1, (thearray[cnt])=1", 1, 0, 1, 0);
+            runAssertionSetWithIndex(env, namedWindow, soda, "cnt=cnt+1, (thearray[cnt])=3, cnt=cnt+1, (thearray[cnt])=4", 2, 0, 3, 4);
+            runAssertionSetWithIndex(env, namedWindow, soda, "cnt=cnt+1, (thearray[initial.cnt])=3", 1, 3, 0, 0);
         }
 
         private static void runAssertionSetWithIndex(RegressionEnvironment env, boolean namedWindow, boolean soda, String setter, int cntExpected, double... thearrayExpected) {

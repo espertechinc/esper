@@ -77,15 +77,15 @@ public class ExprCoreCast {
             env.compileDeployWBusPublicType(epl, path);
 
             String insert = "@name('s0') insert into MyArrayEvent select " +
-                "cast(arr_string, string[]) as c0, " +
-                "cast(arr_primitive, int[primitive]) as c1, " +
-                "cast(arr_boxed_one, int[]) as c2, " +
-                "cast(arr_boxed_two, java.lang.Integer[]) as c3, " +
-                "cast(arr_object, java.lang.Object[]) as c4," +
-                "cast(arr_2dim_primitive, int[primitive][]) as c5," +
-                "cast(arr_2dim_object, java.lang.Object[][]) as c6," +
-                "cast(arr_3dim_primitive, int[primitive][][]) as c7," +
-                "cast(arr_3dim_object, java.lang.Object[][][]) as c8 " +
+                "cast(arr_string,string[]) as c0, " +
+                "cast(arr_primitive,int[primitive]) as c1, " +
+                "cast(arr_boxed_one,int[]) as c2, " +
+                "cast(arr_boxed_two,java.lang.Integer[]) as c3, " +
+                "cast(arr_object,java.lang.Object[]) as c4, " +
+                "cast(arr_2dim_primitive,int[primitive][]) as c5, " +
+                "cast(arr_2dim_object,java.lang.Object[][]) as c6, " +
+                "cast(arr_3dim_primitive,int[primitive][][]) as c7, " +
+                "cast(arr_3dim_object,java.lang.Object[][][]) as c8 " +
                 "from MyEvent";
             env.compileDeploy(soda, insert, path);
 

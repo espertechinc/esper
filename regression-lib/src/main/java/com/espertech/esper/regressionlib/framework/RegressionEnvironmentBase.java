@@ -266,6 +266,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
             compileDeploy(epl, path);
         } else {
             EPStatementObjectModel model = eplToModel(epl);
+            Assert.assertEquals(epl, model.toEPL());
             compileDeploy(model, path);
         }
         return this;

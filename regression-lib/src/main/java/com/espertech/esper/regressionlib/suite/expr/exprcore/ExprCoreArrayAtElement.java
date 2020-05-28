@@ -156,7 +156,7 @@ public class ExprCoreArrayAtElement {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplVariableIntArray = "create variable int[primitive] var_intarr = new int[] {1, 2, 3}";
+            String eplVariableIntArray = "create variable int[primitive] var_intarr = new int[] {1,2,3}";
             env.compileDeploy(soda, eplVariableIntArray, path);
             String eplVariableSBArray = "create variable " + MyHolder.class.getName() + " var_ = null";
             env.compileDeploy(soda, eplVariableSBArray, path);

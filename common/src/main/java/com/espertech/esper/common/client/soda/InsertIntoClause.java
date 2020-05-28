@@ -195,5 +195,6 @@ public class InsertIntoClause implements Serializable {
             }
             writer.write(")");
         }
+        writer.write(" ");
     }
 }
