@@ -505,7 +505,7 @@ createContextChoice : START (ATCHAR i=IDENT | r1=createContextRangePoint) (END r
 createContextDistinct :	DISTINCT LPAREN expressionList? RPAREN;
 	
 createContextRangePoint : createContextFilter 
-                | patternInclusionExpression (ATCHAR i=IDENT)?
+                | patternInclusionExpression (ATCHAR i=IDENT)? (AS? keywordAllowedIdent)?
                 | crontabLimitParameterSetList
                 | AFTER timePeriod;
 		

@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.context.util.AgentInstance;
 import com.espertech.esper.common.internal.context.util.AgentInstanceTransferServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceUtil;
 import com.espertech.esper.common.internal.context.util.FilterFaultHandler;
+import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
@@ -149,7 +150,7 @@ public class ContextControllerKeyedImpl extends ContextControllerKeyed {
                     ContextControllerKeyedUtil.populatePriorMatch(optionalInitCondAsName, map, triggeringEvent);
                 }
 
-                public void populateEndConditionFromTrigger(MatchedEventMap map, Map<String, Object> triggeringPattern) {
+                public void populateEndConditionFromTrigger(MatchedEventMap map, Map<String, Object> triggeringPattern, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
                     // not required for keyed controller
                 }
             };

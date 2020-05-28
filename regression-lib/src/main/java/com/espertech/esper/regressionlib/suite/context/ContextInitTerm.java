@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.context;
 
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
@@ -33,10 +34,7 @@ import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelp
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
 import org.junit.Assert;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
@@ -75,7 +73,127 @@ public class ContextInitTerm {
         execs.add(new ContextInitTermPrevPrior());
         execs.add(new ContextStartEndPatternCorrelated());
         execs.add(new ContextInitTermPatternCorrelated());
+        execs.add(new ContextStartEndFilterWithPatternCorrelatedWithAsName(false));
+        execs.add(new ContextStartEndFilterWithPatternCorrelatedWithAsName(true));
+        execs.add(new ContextStartEndPatternWithPatternCorrelatedWithAsName());
+        execs.add(new ContextStartEndPatternWithFilterCorrelatedWithAsName());
         return execs;
+    }
+
+    private static class ContextStartEndPatternWithFilterCorrelatedWithAsName implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext as start pattern[s0=SupportBean_S0] as starter\n" +
+                "end SupportBean_S1(id=starter.s0.id) as ender;\n" +
+                "@name('s0') context MyContext select * from SupportBean";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean_S0(10));
+
+            env.sendEventBean(new SupportBean("E1", 0));
+            env.listener("s0").assertOneGetNewAndReset();
+
+            env.sendEventBean(new SupportBean_S1(10));
+            env.sendEventBean(new SupportBean("E2", 0));
+            assertFalse(env.listener("s0").getIsInvokedAndReset());
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ContextStartEndPatternWithPatternCorrelatedWithAsName implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext as start pattern[s0=SupportBean_S0] as starter\n" +
+                "end pattern [s1=SupportBean_S1(id=starter.s0.id)] as ender;\n" +
+                "@name('s0') context MyContext select context.starter as starter, context.starter.s0 as starterS0, context.starter.s0.id as starterS0id from SupportBean";
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportBean_S0 starter = new SupportBean_S0(10);
+            env.sendEventBean(starter);
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean("E1", 0));
+            EventBean event = env.listener("s0").assertOneGetNewAndReset();
+            Map<String, Object> starterMap = (Map<String, Object>) event.get("starter");
+            assertEquals(starter, ((EventBean) starterMap.get("s0")).getUnderlying());
+            assertEquals(1, starterMap.size());
+            assertEquals(starter, event.get("starterS0"));
+            assertEquals(10, event.get("starterS0id"));
+
+            env.sendEventBean(new SupportBean_S1(10));
+            env.sendEventBean(new SupportBean("E2", 0));
+            assertFalse(env.listener("s0").getIsInvokedAndReset());
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ContextStartEndFilterWithPatternCorrelatedWithAsName implements RegressionExecution {
+        private final boolean soda;
+
+        public ContextStartEndFilterWithPatternCorrelatedWithAsName(boolean soda) {
+            this.soda = soda;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.advanceTime(0);
+
+            String eplContext = "create context MyContext as start SupportBean_S0 as starter " +
+                "end pattern [s1=SupportBean_S1(id=starter.id) or timer:interval(30)] as ender";
+            env.compileDeploy(soda, eplContext, path);
+
+            String eplSelect = "@name('s0') context MyContext select context.starter as starter, context.ender as ender, context.ender.s1 as enderS1, context.ender.s1.id as enderS1id from SupportBean_S0 output when terminated";
+            env.compileDeploy(eplSelect, path).addListener("s0");
+
+            SupportBean_S0 starterOne = new SupportBean_S0(10);
+            env.sendEventBean(starterOne);
+
+            env.milestone(0);
+
+            SupportBean_S1 enderOne = new SupportBean_S1(10);
+            env.sendEventBean(enderOne);
+            EventBean eventOne = env.listener("s0").assertOneGetNewAndReset();
+            assertEquals(starterOne, eventOne.get("starter"));
+            Map<String, Object> enderMapOne = (Map<String, Object>) eventOne.get("ender");
+            assertEquals(enderOne, ((EventBean) enderMapOne.get("s1")).getUnderlying());
+            assertNull(enderMapOne.get("starter"));
+            assertEquals(enderOne, eventOne.get("enderS1"));
+            assertEquals(10, eventOne.get("enderS1id"));
+
+            env.advanceTime(10000);
+            SupportBean_S0 starterTwo = new SupportBean_S0(20);
+            env.sendEventBean(starterTwo);
+
+            env.milestone(1);
+
+            env.advanceTime(40000);
+
+            EventBean eventTwo = env.listener("s0").assertOneGetNewAndReset();
+            assertEquals(starterTwo, eventTwo.get("starter"));
+            Map<String, Object> enderMapTwo = (Map<String, Object>) eventTwo.get("ender");
+            assertNull(enderMapTwo.get("s1"));
+            assertNull(enderMapTwo.get("starter"));
+            assertNull(eventTwo.get("enderS1"));
+            assertNull(eventTwo.get("enderS1id"));
+
+            env.undeployAll();
+
+            SupportMessageAssertUtil.tryInvalidCompile(env, path, "context MyContext select context.ender.starter from SupportBean_S0",
+                "Failed to validate select-clause expression 'context.ender.starter': Context property 'ender.starter' is not a known property, known properties are [name, id, startTime, endTime, starter, ender]");
+
+            String eplInvalidTagProvidedByFilter = "create context MyContext as start SupportBean_S1(id=0) as starter " +
+                "end pattern [starter=SupportBean_S1(id=1) or timer:interval(30)] as ender";
+            SupportMessageAssertUtil.tryInvalidCompile(env, eplInvalidTagProvidedByFilter, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
+
+            String eplInvalidTagProvidedByPatternUnnamed = "create context MyContext as start pattern[starter=SupportBean_S1(id=0)] " +
+                "end pattern [starter=SupportBean_S1(id=1) or timer:interval(30)] as ender";
+            SupportMessageAssertUtil.tryInvalidCompile(env, eplInvalidTagProvidedByPatternUnnamed, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
+
+            String eplInvalidTagProvidedByPatternNamed = "create context MyContext as start pattern[s1=SupportBean_S1(id=0)] as starter " +
+                "end pattern [starter=SupportBean_S1(id=1) or timer:interval(30)] as ender";
+            SupportMessageAssertUtil.tryInvalidCompile(env, eplInvalidTagProvidedByPatternNamed, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
+        }
     }
 
     private static class ContextStartEndPatternCorrelated implements RegressionExecution {

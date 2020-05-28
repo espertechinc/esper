@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMapImpl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -61,7 +62,7 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
             endConditionMatchEventProvider.populateEndConditionFromTrigger(matchedEventMap, optionalTriggeringEvent);
         }
         if (optionalTriggeringPattern != null && endConditionMatchEventProvider != null) {
-            endConditionMatchEventProvider.populateEndConditionFromTrigger(matchedEventMap, optionalTriggeringPattern);
+            endConditionMatchEventProvider.populateEndConditionFromTrigger(matchedEventMap, optionalTriggeringPattern, agentInstanceContext.getEventBeanTypedEventFactory());
         }
 
         // capture any callbacks that may occur right after start
@@ -100,6 +101,22 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
                 matchEventInclusive = ordered;
             }
         }
+
+        if (pattern.getAsName() != null) {
+            // make sure the termination event does not contain the full match-event data which contains prior state
+            Map<String, Object> termEvent = new LinkedHashMap<>();
+            for (String tag : pattern.getPatternTags()) {
+                Object value = matchEvent.get(tag);
+                if (value != null) {
+                    termEvent.put(tag, value);
+                }
+            }
+            EventBean compositeEvent = controller.getRealization().getAgentInstanceContextCreate().getEventBeanTypedEventFactory().adapterForTypedMap(termEvent, pattern.getAsNameEventType());
+            HashMap<String, Object> data = new HashMap<>();
+            data.put(pattern.getAsName(), compositeEvent);
+            matchEvent = data;
+        }
+
         callback.rangeNotification(conditionPath, this, null, matchEvent, optionalTriggeringEvent, matchEventInclusive);
     }
 

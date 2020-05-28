@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptorPattern;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternContext;
+import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -27,14 +29,18 @@ public class ContextSpecConditionPattern implements ContextSpecCondition {
     private final EvalForgeNode patternRaw;
     private final boolean inclusive;
     private final boolean immediate;
+    private final String asName;
+    private String[] patternTags;
+    private EventType asNameEventType;
 
     private PatternStreamSpecCompiled patternCompiled;
     private PatternContext patternContext;
 
-    public ContextSpecConditionPattern(EvalForgeNode patternRaw, boolean inclusive, boolean immediate) {
+    public ContextSpecConditionPattern(EvalForgeNode patternRaw, boolean inclusive, boolean immediate, String asName) {
         this.patternRaw = patternRaw;
         this.inclusive = inclusive;
         this.immediate = immediate;
+        this.asName = asName;
     }
 
     public EvalForgeNode getPatternRaw() {
@@ -61,6 +67,22 @@ public class ContextSpecConditionPattern implements ContextSpecCondition {
         this.patternContext = patternContext;
     }
 
+    public void setAsNameEventType(EventType asNameEventType) {
+        this.asNameEventType = asNameEventType;
+    }
+
+    public void setPatternTags(String[] patternTags) {
+        this.patternTags = patternTags;
+    }
+
+    public String getAsName() {
+        return asName;
+    }
+
+    public EventType getAsNameEventType() {
+        return asNameEventType;
+    }
+
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(ContextConditionDescriptorPattern.class, this.getClass(), classScope);
         method.getBlock()
@@ -71,6 +93,9 @@ public class ContextSpecConditionPattern implements ContextSpecCondition {
                 .exprDotMethod(ref("condition"), "setArrayEvents", constant(CollectionUtil.toArray(patternCompiled.getArrayEventTypes().keySet())))
                 .exprDotMethod(ref("condition"), "setInclusive", constant(inclusive))
                 .exprDotMethod(ref("condition"), "setImmediate", constant(immediate))
+                .exprDotMethod(ref("condition"), "setAsName", constant(asName))
+                .exprDotMethod(ref("condition"), "setPatternTags", constant(patternTags))
+                .exprDotMethod(ref("condition"), "setAsNameEventType", asNameEventType == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(asNameEventType, symbols.getAddInitSvc(method)))
                 .methodReturn(ref("condition"));
         return localMethod(method);
     }

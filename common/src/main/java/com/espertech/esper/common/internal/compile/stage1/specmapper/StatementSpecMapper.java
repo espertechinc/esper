@@ -531,7 +531,7 @@ public class StatementSpecMapper {
         } else if (endpoint instanceof ContextSpecConditionPattern) {
             ContextSpecConditionPattern pattern = (ContextSpecConditionPattern) endpoint;
             PatternExpr patternExpr = unmapPatternEvalDeep(pattern.getPatternRaw(), unmapContext);
-            return new ContextDescriptorConditionPattern(patternExpr, pattern.isInclusive(), pattern.isImmediate());
+            return new ContextDescriptorConditionPattern(patternExpr, pattern.isInclusive(), pattern.isImmediate(), pattern.getAsName());
         } else if (endpoint instanceof ContextSpecConditionFilter) {
             ContextSpecConditionFilter filter = (ContextSpecConditionFilter) endpoint;
             Filter filterExpr = unmapFilter(filter.getFilterSpecRaw(), unmapContext);
@@ -1387,7 +1387,7 @@ public class StatementSpecMapper {
         if (condition instanceof ContextDescriptorConditionPattern) {
             ContextDescriptorConditionPattern pattern = (ContextDescriptorConditionPattern) condition;
             EvalForgeNode patternExpr = mapPatternEvalDeep(pattern.getPattern(), mapContext);
-            return new ContextSpecConditionPattern(patternExpr, pattern.isInclusive(), pattern.isNow());
+            return new ContextSpecConditionPattern(patternExpr, pattern.isInclusive(), pattern.isNow(), pattern.getAsName());
         }
         if (condition instanceof ContextDescriptorConditionTimePeriod) {
             ContextDescriptorConditionTimePeriod timePeriod = (ContextDescriptorConditionTimePeriod) condition;

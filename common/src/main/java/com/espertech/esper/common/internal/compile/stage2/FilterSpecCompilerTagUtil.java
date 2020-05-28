@@ -14,11 +14,12 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
 import com.espertech.esper.common.internal.epl.pattern.filter.EvalFilterForgeNode;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class FilterSpecCompilerTagUtil {
-    public static LinkedHashSet<String> getAllTagNamesOrdered(Set<String> priorAllTags, EvalForgeNode evalForgeNode) {
+    public static LinkedHashSet<String> assignEventAsTagNumber(Set<String> priorAllTags, EvalForgeNode evalForgeNode) {
         LinkedHashSet<String> allTagNamesOrdered = new LinkedHashSet<>();
         Set<EvalForgeNode> filterFactoryNodes = EvalNodeUtil.recursiveGetChildNodes(evalForgeNode, StreamSpecCompiler.FilterForFilterFactoryNodes.INSTANCE);
         if (priorAllTags != null) {
@@ -38,6 +39,18 @@ public class FilterSpecCompilerTagUtil {
             }
         }
         return allTagNamesOrdered;
+    }
+
+    public static Set<String> getTagNumbers(EvalForgeNode evalForgeNode) {
+        Set<String> tags = new HashSet<>();
+        Set<EvalForgeNode> filterFactoryNodes = EvalNodeUtil.recursiveGetChildNodes(evalForgeNode, StreamSpecCompiler.FilterForFilterFactoryNodes.INSTANCE);
+        for (EvalForgeNode filterNode : filterFactoryNodes) {
+            EvalFilterForgeNode forge = (EvalFilterForgeNode) filterNode;
+            if (forge.getEventAsName() != null) {
+                tags.add(forge.getEventAsName());
+            }
+        }
+        return tags;
     }
 
     public static int findTagNumber(String findTag, LinkedHashSet<String> allTagNamesOrdered) {

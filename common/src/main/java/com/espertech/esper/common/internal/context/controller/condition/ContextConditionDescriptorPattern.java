@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.condition;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.epl.pattern.and.EvalAndFactoryNode;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalFactoryNodeVisitor;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalRootFactoryNode;
@@ -34,6 +35,9 @@ public class ContextConditionDescriptorPattern implements ContextConditionDescri
     private boolean immediate;
     private String[] taggedEvents;
     private String[] arrayEvents;
+    private String asName;
+    private EventType asNameEventType;
+    private String[] patternTags;
 
     public EvalRootFactoryNode getPattern() {
         return pattern;
@@ -81,6 +85,30 @@ public class ContextConditionDescriptorPattern implements ContextConditionDescri
 
     public void setImmediate(boolean immediate) {
         this.immediate = immediate;
+    }
+
+    public String getAsName() {
+        return asName;
+    }
+
+    public void setAsName(String asName) {
+        this.asName = asName;
+    }
+
+    public EventType getAsNameEventType() {
+        return asNameEventType;
+    }
+
+    public void setAsNameEventType(EventType asNameEventType) {
+        this.asNameEventType = asNameEventType;
+    }
+
+    public String[] getPatternTags() {
+        return patternTags;
+    }
+
+    public void setPatternTags(String[] patternTags) {
+        this.patternTags = patternTags;
     }
 
     public void addFilterSpecActivatable(List<FilterSpecActivatable> activatables) {

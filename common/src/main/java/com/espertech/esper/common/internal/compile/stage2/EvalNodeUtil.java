@@ -16,17 +16,11 @@ import com.espertech.esper.common.internal.epl.pattern.filter.EvalFilterForgeNod
 import com.espertech.esper.common.internal.epl.pattern.guard.EvalGuardForgeNode;
 import com.espertech.esper.common.internal.epl.pattern.matchuntil.EvalMatchUntilForgeNode;
 import com.espertech.esper.common.internal.epl.pattern.observer.EvalObserverForgeNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class EvalNodeUtil {
-    private static final Logger log = LoggerFactory.getLogger(EvalNodeUtil.class);
-
-    public final static EvalFactoryNode[] EMPTY_FACTORY_ARRAY = new EvalFactoryNode[0];
-
     /**
      * Searched recursivly for pattern evaluation filter nodes.
      *
@@ -41,10 +35,10 @@ public class EvalNodeUtil {
 
     private static void recursiveAnalyzeChildNodes(EvalNodeAnalysisResult evalNodeAnalysisResult, EvalForgeNode currentNode) {
         if ((currentNode instanceof EvalFilterForgeNode) ||
-                (currentNode instanceof EvalGuardForgeNode) ||
-                (currentNode instanceof EvalObserverForgeNode) ||
-                (currentNode instanceof EvalMatchUntilForgeNode) ||
-                (currentNode instanceof EvalEveryDistinctForgeNode)) {
+            (currentNode instanceof EvalGuardForgeNode) ||
+            (currentNode instanceof EvalObserverForgeNode) ||
+            (currentNode instanceof EvalMatchUntilForgeNode) ||
+            (currentNode instanceof EvalEveryDistinctForgeNode)) {
             evalNodeAnalysisResult.addNode(currentNode);
         }
 

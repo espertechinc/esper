@@ -35,7 +35,6 @@ public class PatternStreamSpecCompiled extends StreamSpecBase implements StreamS
     private final LinkedHashSet<String> allTags;
     private final boolean suppressSameEventMatches;
     private final boolean discardPartialsOnMatch;
-    private static final long serialVersionUID = 1268004301792124753L;
 
     public PatternStreamSpecCompiled(EvalRootForgeNode root, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTags, ViewSpec[] viewSpecs, String optionalStreamName, StreamSpecOptions streamSpecOptions, boolean suppressSameEventMatches, boolean discardPartialsOnMatch) {
         super(optionalStreamName, viewSpecs, streamSpecOptions);

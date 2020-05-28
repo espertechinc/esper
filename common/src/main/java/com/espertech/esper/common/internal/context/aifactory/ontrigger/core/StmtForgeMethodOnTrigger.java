@@ -180,7 +180,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
 
     private OnTriggerActivatorDesc activatorPattern(PatternStreamSpecCompiled patternStreamSpec, StatementCompileTimeServices services) {
         String triggerEventTypeName = patternStreamSpec.getOptionalStreamName();
-        MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(base, 0, patternStreamSpec, services);
+        MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(base.getModuleName(), 0, null, patternStreamSpec, services);
         PatternContext patternContext = new PatternContext(0, patternStreamSpec.getMatchedEventMapMeta(), false, -1, false);
         ViewableActivatorPatternForge activator = new ViewableActivatorPatternForge(patternType, patternStreamSpec, patternContext, false);
         return new OnTriggerActivatorDesc(activator, triggerEventTypeName, patternType);

@@ -144,7 +144,7 @@ public class StmtForgeMethodSelectUtil {
                     forge.collectSelfFilterAndSchedule(filterSpecCompileds, scheduleHandleCallbackProviders);
                 }
 
-                MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(base, stream, patternStreamSpec, services);
+                MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(base.getModuleName(), stream, null, patternStreamSpec, services);
                 PatternContext patternContext = new PatternContext(0, patternStreamSpec.getMatchedEventMapMeta(), false, -1, false);
                 viewableActivatorForges[stream] = new ViewableActivatorPatternForge(patternType, patternStreamSpec, patternContext, isCanIterateUnbound);
                 streamEventTypes[stream] = patternType;

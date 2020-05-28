@@ -32,7 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class StatementRawCompiler {
     private final static Logger log = LoggerFactory.getLogger(StatementRawCompiler.class);
@@ -47,7 +49,6 @@ public class StatementRawCompiler {
                                                 StatementRawInfo statementRawInfo,
                                                 StatementCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
         List<StreamSpecCompiled> compiledStreams;
-        Set<String> eventTypeReferences = new HashSet<String>();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         if (!isOnDemandQuery && spec.getFireAndForgetSpec() != null) {
@@ -160,7 +161,7 @@ public class StatementRawCompiler {
             int streamNum = 0;
             for (StreamSpecRaw rawSpec : spec.getStreamSpecs()) {
                 streamNum++;
-                StreamSpecCompiledDesc desc = StreamSpecCompiler.compile(rawSpec, eventTypeReferences, spec.getInsertIntoDesc() != null, spec.getStreamSpecs().size() > 1, false, spec.getOnTriggerDesc() != null, rawSpec.getOptionalStreamName(), streamNum, statementRawInfo, compileTimeServices);
+                StreamSpecCompiledDesc desc = StreamSpecCompiler.compile(rawSpec, spec.getStreamSpecs().size() > 1, false, spec.getOnTriggerDesc() != null, rawSpec.getOptionalStreamName(), streamNum, statementRawInfo, compileTimeServices);
                 additionalForgeables.addAll(desc.getAdditionalForgeables());
                 compiledStreams.add(desc.getStreamSpecCompiled());
             }

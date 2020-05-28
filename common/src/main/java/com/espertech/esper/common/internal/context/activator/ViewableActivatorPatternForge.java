@@ -23,7 +23,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.PatternStreamSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -35,6 +34,7 @@ import com.espertech.esper.common.internal.event.map.MapEventType;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -72,14 +72,20 @@ public class ViewableActivatorPatternForge implements ViewableActivatorForge {
         return localMethod(method);
     }
 
-    public static MapEventType makeRegisterPatternType(StatementBaseInfo base, int stream, PatternStreamSpecCompiled patternStreamSpec, StatementCompileTimeServices services) {
+    public static MapEventType makeRegisterPatternType(String moduleName, int stream, Set<String> onlyIncludeTheseTags, PatternStreamSpecCompiled patternStreamSpec, StatementCompileTimeServices services) {
         String patternEventTypeName = services.getEventTypeNameGeneratorStatement().getPatternTypeName(stream);
-        EventTypeMetadata metadata = new EventTypeMetadata(patternEventTypeName, base.getModuleName(), EventTypeTypeClass.STREAM, EventTypeApplicationType.MAP, NameAccessModifier.PRIVATE, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
+        EventTypeMetadata metadata = new EventTypeMetadata(patternEventTypeName, moduleName, EventTypeTypeClass.STREAM, EventTypeApplicationType.MAP, NameAccessModifier.PRIVATE, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         Map<String, Object> propertyTypes = new LinkedHashMap<String, Object>();
         for (Map.Entry<String, Pair<EventType, String>> entry : patternStreamSpec.getTaggedEventTypes().entrySet()) {
+            if (onlyIncludeTheseTags != null && !onlyIncludeTheseTags.contains(entry.getKey())) {
+                continue;
+            }
             propertyTypes.put(entry.getKey(), entry.getValue().getFirst());
         }
         for (Map.Entry<String, Pair<EventType, String>> entry : patternStreamSpec.getArrayEventTypes().entrySet()) {
+            if (onlyIncludeTheseTags != null && !onlyIncludeTheseTags.contains(entry.getKey())) {
+                continue;
+            }
             propertyTypes.put(entry.getKey(), new EventType[]{entry.getValue().getFirst()});
         }
         MapEventType patternType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata, propertyTypes, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());

@@ -21,6 +21,7 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
     private PatternExpr pattern;
     private boolean inclusive;  // statements declaring the context are inclusive of the events matching the pattern
     private boolean now;        // statements declaring the context initiate now and matching the pattern
+    private String asName;
 
     /**
      * Ctor.
@@ -34,11 +35,13 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
      * @param pattern   pattern expression
      * @param inclusive if the events of the pattern should be included in the contextual statements
      * @param now       indicator whether "now"
+     * @param asName stream name, or null if not provided
      */
-    public ContextDescriptorConditionPattern(PatternExpr pattern, boolean inclusive, boolean now) {
+    public ContextDescriptorConditionPattern(PatternExpr pattern, boolean inclusive, boolean now, String asName) {
         this.pattern = pattern;
         this.inclusive = inclusive;
         this.now = now;
+        this.asName = asName;
     }
 
     /**
@@ -95,6 +98,26 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
         this.now = now;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    /**
+     * Returns the stream name assigned using the "as" keyword, or null if not provided
+     * @return as-name
+     */
+    public String getAsName() {
+        return asName;
+    }
+
+    /**
+     * Sets the stream name assigned using the "as" keyword, or null if not provided
+     * @param asName as-name
+     */
+    public void setAsName(String asName) {
+        this.asName = asName;
+    }
+
     public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
         if (now) {
             writer.write("@now and");
@@ -106,6 +129,10 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
         writer.write("]");
         if (inclusive) {
             writer.write("@Inclusive");
+        }
+        if (asName != null) {
+            writer.write(" as ");
+            writer.write(asName);
         }
     }
 }

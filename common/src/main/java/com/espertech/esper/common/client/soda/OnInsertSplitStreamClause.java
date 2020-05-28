@@ -70,7 +70,7 @@ public class OnInsertSplitStreamClause extends OnClause {
     public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
         for (OnInsertSplitStreamItem item : items) {
             item.getInsertInto().toEPL(writer, formatter, true);
-            item.getSelectClause().toEPL(writer, formatter, true, false);
+            item.getSelectClause().toEPL(writer, formatter, false, false);
             if (item.getPropertySelects() != null) {
                 writer.append(" from ");
                 ContainedEventSelect.toEPL(writer, formatter, item.getPropertySelects());

@@ -39,13 +39,28 @@ public class ContextPropertyEventType {
         }
         if (endpoint instanceof ContextSpecConditionPattern) {
             ContextSpecConditionPattern pattern = (ContextSpecConditionPattern) endpoint;
-            for (Map.Entry<String, Pair<EventType, String>> entry : pattern.getPatternCompiled().getTaggedEventTypes().entrySet()) {
-                if (properties.containsKey(entry.getKey()) && !properties.get(entry.getKey()).equals(entry.getValue().getFirst())) {
-                    throw new ExprValidationException("The stream or tag name '" + entry.getKey() + "' is already declared");
+            if (pattern.getAsName() == null) {
+                for (Map.Entry<String, Pair<EventType, String>> entry : pattern.getPatternCompiled().getTaggedEventTypes().entrySet()) {
+                    if (properties.containsKey(entry.getKey()) && !properties.get(entry.getKey()).equals(entry.getValue().getFirst())) {
+                        throw new ExprValidationException("The stream or tag name '" + entry.getKey() + "' is already declared");
+                    }
+                    allTags.add(entry.getKey());
+                    properties.put(entry.getKey(), entry.getValue().getFirst());
                 }
-                allTags.add(entry.getKey());
-                properties.put(entry.getKey(), entry.getValue().getFirst());
+            } else {
+                if (properties.containsKey(pattern.getAsName()) || allTags.contains(pattern.getAsName())) {
+                    throw new ExprValidationException("The stream or tag name '" + pattern.getAsName() + "' is already declared");
+                }
+                if (pattern.getAsNameEventType() == null) {
+                    throw new IllegalStateException("no event type assigned");
+                }
+                properties.put(pattern.getAsName(), pattern.getAsNameEventType());
+                allTags.add(pattern.getAsName());
             }
         }
+    }
+
+    public static int getStreamNumberForNestingLevel(int nestingLevel, boolean isStartCondition) {
+        return nestingLevel * 10 + (isStartCondition ? 0 : 1);
     }
 }

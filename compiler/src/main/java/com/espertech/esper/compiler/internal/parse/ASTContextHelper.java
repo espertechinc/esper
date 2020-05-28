@@ -185,7 +185,8 @@ public class ASTContextHelper {
                 }
                 inclusive = true;
             }
-            return new ContextSpecConditionPattern(evalNode, inclusive, immediate);
+            String streamName = ctx.keywordAllowedIdent() == null ? null : ctx.keywordAllowedIdent().getText();
+            return new ContextSpecConditionPattern(evalNode, inclusive, immediate, streamName);
         } else if (ctx.createContextFilter() != null) {
             if (immediate) {
                 throw ASTWalkException.from("Invalid use of 'now' with initiated-by stream, this combination is not supported");

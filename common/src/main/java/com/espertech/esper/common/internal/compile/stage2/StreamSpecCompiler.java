@@ -64,29 +64,27 @@ public class StreamSpecCompiler {
     private final static Logger log = LoggerFactory.getLogger(StreamSpecCompiler.class);
 
     public static StreamSpecCompiledDesc compile(StreamSpecRaw spec,
-                                             Set<String> eventTypeReferences,
-                                             boolean isInsertInto,
-                                             boolean isJoin,
-                                             boolean isContextDeclaration,
-                                             boolean isOnTrigger,
-                                             String optionalStreamName,
-                                             int streamNum,
-                                             StatementRawInfo statementRawInfo,
-                                             StatementCompileTimeServices services)
+                                                 boolean isJoin,
+                                                 boolean isContextDeclaration,
+                                                 boolean isOnTrigger,
+                                                 String optionalStreamName,
+                                                 int streamNum,
+                                                 StatementRawInfo statementRawInfo,
+                                                 StatementCompileTimeServices services)
             throws ExprValidationException {
         if (spec instanceof DBStatementStreamSpec) {
             return new StreamSpecCompiledDesc((DBStatementStreamSpec) spec, Collections.emptyList());
         } else if (spec instanceof FilterStreamSpecRaw) {
-            return compileFilter((FilterStreamSpecRaw) spec, isInsertInto, isJoin, isContextDeclaration, isOnTrigger, optionalStreamName, statementRawInfo, services);
+            return compileFilter((FilterStreamSpecRaw) spec, optionalStreamName, statementRawInfo, services);
         } else if (spec instanceof PatternStreamSpecRaw) {
-            return compilePattern((PatternStreamSpecRaw) spec, eventTypeReferences, isInsertInto, isJoin, isContextDeclaration, isOnTrigger, optionalStreamName, streamNum, statementRawInfo, services);
+            return compilePattern((PatternStreamSpecRaw) spec, isJoin, isContextDeclaration, isOnTrigger, streamNum, statementRawInfo, services);
         } else if (spec instanceof MethodStreamSpec) {
             return new StreamSpecCompiledDesc(compileMethod((MethodStreamSpec) spec), Collections.emptyList());
         }
         throw new IllegalStateException("Unrecognized stream spec " + spec);
     }
 
-    public static StreamSpecCompiledDesc compileFilter(FilterStreamSpecRaw streamSpec, boolean isInsertInto, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
+    public static StreamSpecCompiledDesc compileFilter(FilterStreamSpecRaw streamSpec, String optionalStreamName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
             throws ExprValidationException {
         // Determine the event type
         FilterSpecRaw rawFilterSpec = streamSpec.getRawFilterSpec();
@@ -135,49 +133,46 @@ public class StreamSpecCompiler {
     }
 
     public static StreamSpecCompiledDesc compilePattern(PatternStreamSpecRaw streamSpecRaw,
-                                                           Set<String> eventTypeReferences,
-                                                           boolean isInsertInto,
-                                                           boolean isJoin,
-                                                           boolean isContextDeclaration,
-                                                           boolean isOnTrigger,
-                                                           String optionalStreamName,
-                                                           int streamNum,
-                                                           StatementRawInfo statementRawInfo,
-                                                           StatementCompileTimeServices services)
+                                                        boolean isJoin,
+                                                        boolean isContextDeclaration,
+                                                        boolean isOnTrigger,
+                                                        int streamNum,
+                                                        StatementRawInfo statementRawInfo,
+                                                        StatementCompileTimeServices services)
             throws ExprValidationException {
-        return compilePatternWTags(streamSpecRaw, eventTypeReferences, isInsertInto, null, null, isJoin, isContextDeclaration, isOnTrigger, streamNum, statementRawInfo, services);
+        return compilePatternWTags(streamSpecRaw, null, null, isJoin, isContextDeclaration, isOnTrigger, streamNum, statementRawInfo, services);
     }
 
     public static StreamSpecCompiledDesc compilePatternWTags(PatternStreamSpecRaw streamSpecRaw,
-                                                                Set<String> eventTypeReferences,
-                                                                boolean isInsertInto,
-                                                                MatchEventSpec tags,
-                                                                Set<String> priorAllTags,
-                                                                boolean isJoin,
-                                                                boolean isContextDeclaration,
-                                                                boolean isOnTrigger,
-                                                                int streamNum,
-                                                                StatementRawInfo statementRawInfo,
-                                                                StatementCompileTimeServices services)
+                                                             MatchEventSpec tags,
+                                                             Set<String> priorAllTags,
+                                                             boolean isJoin,
+                                                             boolean isContextDeclaration,
+                                                             boolean isOnTrigger,
+                                                             int streamNum,
+                                                             StatementRawInfo statementRawInfo,
+                                                             StatementCompileTimeServices services)
             throws ExprValidationException {
         // validate
         if ((streamSpecRaw.isSuppressSameEventMatches() || streamSpecRaw.isDiscardPartialsOnMatch()) && (isJoin || isContextDeclaration || isOnTrigger)) {
             throw new ExprValidationException("Discard-partials and suppress-matches is not supported in a joins, context declaration and on-action");
         }
 
+        boolean allowDuplicateTags = false;
         if (tags == null) {
+            allowDuplicateTags = true; // pattern without prior state
             tags = new MatchEventSpec();
         }
         Stack<EvalForgeNode> nodeStack = new Stack<EvalForgeNode>();
 
         // detemine ordered tags
-        LinkedHashSet<String> allTagNamesOrdered = FilterSpecCompilerTagUtil.getAllTagNamesOrdered(priorAllTags, streamSpecRaw.getEvalForgeNode());
+        LinkedHashSet<String> allTagNamesOrdered = FilterSpecCompilerTagUtil.assignEventAsTagNumber(priorAllTags, streamSpecRaw.getEvalForgeNode());
 
         // construct root : assigns factory node ids
         EvalForgeNode top = streamSpecRaw.getEvalForgeNode();
         EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo.getAnnotations());
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
-        recursiveCompile(top, tags, nodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
+        recursiveCompile(top, tags, allowDuplicateTags, nodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
 
         PatternCompileHook hook = (PatternCompileHook) ClasspathImportUtil.getAnnotationHook(statementRawInfo.getAnnotations(), HookType.INTERNAL_PATTERNCOMPILE, PatternCompileHook.class, services.getClasspathImportServiceCompileTime());
         if (hook != null) {
@@ -188,10 +183,10 @@ public class StreamSpecCompiler {
         return new StreamSpecCompiledDesc(compiled, additionalForgeables);
     }
 
-    private static void recursiveCompile(EvalForgeNode evalNode, MatchEventSpec tags, Stack<EvalForgeNode> parentNodeStack, LinkedHashSet<String> allTagNamesOrdered, int streamNum, List<StmtClassForgeableFactory> additionalForgeables, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+    private static void recursiveCompile(EvalForgeNode evalNode, MatchEventSpec tags, boolean allowDuplicateTags, Stack<EvalForgeNode> parentNodeStack, LinkedHashSet<String> allTagNamesOrdered, int streamNum, List<StmtClassForgeableFactory> additionalForgeables, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         parentNodeStack.push(evalNode);
         for (EvalForgeNode child : evalNode.getChildNodes()) {
-            recursiveCompile(child, tags, parentNodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
+            recursiveCompile(child, tags, allowDuplicateTags, parentNodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
         }
         parentNodeStack.pop();
 
@@ -221,12 +216,20 @@ public class StreamSpecCompiler {
             // If a tag was supplied for the type, the tags must stay with this type, i.e. a=BeanA -> b=BeanA -> a=BeanB is a no
             if (optionalTag != null) {
                 Pair<EventType, String> pair = tags.getTaggedEventTypes().get(optionalTag);
+                if (!allowDuplicateTags && pair != null) {
+                    throw new ExprValidationException("Tag '" + optionalTag + "' for event '" + eventName +
+                        "' is already assigned");
+                }
                 EventType existingType = null;
                 if (pair != null) {
                     existingType = pair.getFirst();
                 }
                 if (existingType == null) {
                     pair = tags.getArrayEventTypes().get(optionalTag);
+                    if (!allowDuplicateTags && pair != null) {
+                        throw new ExprValidationException("Tag '" + optionalTag + "' for event '" + eventName +
+                            "' is already assigned");
+                    }
                     if (pair != null) {
                         throw new ExprValidationException("Tag '" + optionalTag + "' for event '" + eventName +
                                 "' used in the repeat-until operator cannot also appear in other filter expressions");

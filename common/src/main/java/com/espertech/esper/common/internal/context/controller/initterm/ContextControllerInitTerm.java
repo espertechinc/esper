@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.mgr.ContextControllerSelectorUtil;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.mgr.ContextPartitionVisitor;
+import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 import java.util.Map;
@@ -90,18 +91,28 @@ public abstract class ContextControllerInitTerm implements ContextController {
         map.add(tag, triggeringEvent);
     }
 
-    public void populateEndConditionFromTrigger(MatchedEventMap map, Map<String, Object> matchedEventMap) {
+    public void populateEndConditionFromTrigger(MatchedEventMap map, Map<String, Object> matchedEventMap, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
         // compute correlated termination
         ContextConditionDescriptor start = factory.getInitTermSpec().getStartCondition();
         if (!(start instanceof ContextConditionDescriptorPattern)) {
             return;
         }
         ContextConditionDescriptorPattern pattern = (ContextConditionDescriptorPattern) start;
-        for (String tagged : pattern.getTaggedEvents()) {
-            populatePattern(tagged, map, matchedEventMap);
-        }
-        for (String array : pattern.getArrayEvents()) {
-            populatePattern(array, map, matchedEventMap);
+        if (pattern.getAsName() == null) {
+            for (String tagged : pattern.getTaggedEvents()) {
+                populatePattern(tagged, map, matchedEventMap);
+            }
+            for (String array : pattern.getArrayEvents()) {
+                populatePattern(array, map, matchedEventMap);
+            }
+        } else {
+            for (Map.Entry<String, Object> entry : matchedEventMap.entrySet()) {
+                int tag = map.getMeta().getTagFor(entry.getKey());
+                if (tag == -1) {
+                    return;
+                }
+                map.add(tag, entry.getValue());
+            }
         }
     }
 

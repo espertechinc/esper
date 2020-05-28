@@ -63,7 +63,24 @@ public class ContextKeySegmented {
         execs.add(new ContextKeySegmentedMultikeyWArrayTwoField());
         execs.add(new ContextKeySegmentedWInitTermEndEvent());
         execs.add(new ContextKeySegmentedWPatternFireWhenAllocated());
+        execs.add(new ContextKeySegmentedWInitTermPatternAsName());
         return execs;
+    }
+
+    private static class ContextKeySegmentedWInitTermPatternAsName implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext partition by theString from SupportBean\n" +
+                "initiated by SupportBean(intPrimitive = 1) as startevent\n" +
+                "terminated by pattern[s=SupportBean(intPrimitive = 2)] as endpattern;\n" +
+                "@name('s0') context MyContext select context.startevent.intBoxed as c0, context.endpattern.s.intBoxed as c1 from SupportBean#firstevent output snapshot when terminated;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendSBEvent(env, "A", 10, 1);
+            sendSBEvent(env, "A", 20, 2);
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {10, 20});
+
+            env.undeployAll();
+        }
     }
 
     private static class ContextKeySegmentedWInitTermEndEvent implements RegressionExecution {
