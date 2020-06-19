@@ -307,10 +307,10 @@ public class JavaClassHelper {
             return Double.class;
         }
         if ((boxedOne == Float.class) && (!isFloatingPointClass(typeTwo))) {
-            return Double.class;
+            return Float.class;
         }
         if ((boxedTwo == Float.class) && (!isFloatingPointClass(typeOne))) {
-            return Double.class;
+            return Float.class;
         }
         if ((boxedOne == Long.class) || (boxedTwo == Long.class)) {
             return Long.class;

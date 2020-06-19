@@ -387,10 +387,11 @@ public class TestJavaClassHelper extends TestCase {
     public void testGetArithmaticCoercionType() {
         assertEquals(Double.class, JavaClassHelper.getArithmaticCoercionType(Double.class, int.class));
         assertEquals(Double.class, JavaClassHelper.getArithmaticCoercionType(byte.class, double.class));
+        assertEquals(Double.class, JavaClassHelper.getArithmaticCoercionType(float.class, double.class));
         assertEquals(Long.class, JavaClassHelper.getArithmaticCoercionType(byte.class, long.class));
         assertEquals(Long.class, JavaClassHelper.getArithmaticCoercionType(byte.class, long.class));
-        assertEquals(Double.class, JavaClassHelper.getArithmaticCoercionType(float.class, long.class));
-        assertEquals(Double.class, JavaClassHelper.getArithmaticCoercionType(byte.class, float.class));
+        assertEquals(Float.class, JavaClassHelper.getArithmaticCoercionType(float.class, long.class));
+        assertEquals(Float.class, JavaClassHelper.getArithmaticCoercionType(byte.class, float.class));
         assertEquals(Integer.class, JavaClassHelper.getArithmaticCoercionType(byte.class, int.class));
         assertEquals(Integer.class, JavaClassHelper.getArithmaticCoercionType(Integer.class, int.class));
         assertEquals(BigDecimal.class, JavaClassHelper.getArithmaticCoercionType(Integer.class, BigDecimal.class));
