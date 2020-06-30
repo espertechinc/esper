@@ -4,7 +4,7 @@
 # the classpath
 # you need to get an Esper distribution separately from the benchmark kit
 LCP=../../esper/target/classes:target/classes:../../esper/lib/slf4j-log4j12-1.7.28.jar:../../esper/lib/slf4j-api-1.7.28.jar:../../esper/lib/antlr4-runtime-4.7.2.jar:../../esper/lib/log4j-1.2.17.jar
-CP="etc:bin:$LCP:lib/esper-common-8.5.0.jar:lib/esper-compiler-8.5.0.jar:lib/esper-runtime-8.5.0.jar:lib/esper_examples_benchmark-8.5.0.jar:lib/slf4j-log4j12-1.7.28.jar:lib/slf4j-api-1.7.28.jar:lib/antlr4-runtime-4.7.2.jar:lib/log4j-1.2.17.jar"
+CP="etc:bin:$LCP:lib/esper-common-8.6.0.jar:lib/esper-compiler-8.6.0.jar:lib/esper-runtime-8.6.0.jar:lib/esper_examples_benchmark-8.6.0.jar:lib/slf4j-log4j12-1.7.28.jar:lib/slf4j-api-1.7.28.jar:lib/antlr4-runtime-4.7.2.jar:lib/log4j-1.2.17.jar"
 
 # JVM options
 OPT="-Xms1024m -Xmx1024m"
