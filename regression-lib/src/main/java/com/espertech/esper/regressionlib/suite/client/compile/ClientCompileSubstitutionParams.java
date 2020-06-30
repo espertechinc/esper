@@ -19,7 +19,11 @@ import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.module.ModuleItem;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.util.StatementProperty;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
@@ -27,9 +31,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
@@ -39,8 +40,7 @@ import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterO
 import org.junit.Assert;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
@@ -72,26 +72,69 @@ public class ClientCompileSubstitutionParams {
         execs.add(new ClientCompileSubstParamArray(false));
         execs.add(new ClientCompileSubstParamArray(true));
         execs.add(new ClientCompileSODAInvalidConstantUseSubsParamsInstead());
+        execs.add(new ClientCompileSubstParamGenericType(false));
+        execs.add(new ClientCompileSubstParamGenericType(true));
         return execs;
+    }
+
+    private static class ClientCompileSubstParamGenericType implements RegressionExecution {
+        private final boolean soda;
+
+        public ClientCompileSubstParamGenericType(boolean soda) {
+            this.soda = soda;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select " +
+                "?:a0:java.util.List<String> as c0, " +
+                "?:a1:java.util.Map<String,Integer> as c1 " +
+                "from SupportBean";
+            EPCompiled compiled = env.compile(soda, epl, new CompilerArguments(env.getConfiguration()));
+
+            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(new StatementSubstitutionParameterOption() {
+                public void setStatementParameters(StatementSubstitutionParameterContext env) {
+                    env.setObject("a0", new ArrayList<>(Arrays.asList("a")));
+                    env.setObject("a1", Collections.singletonMap("k1", 10));
+                }
+            });
+            try {
+                env.deployment().deploy(compiled, options);
+            } catch (EPDeployException e) {
+                throw new RuntimeException(e);
+            }
+            env.addListener("s0");
+
+            EventType eventType = env.statement("s0").getEventType();
+            assertEquals(EPTypeClassParameterized.from(List.class, String.class), eventType.getPropertyEPType("c0"));
+            assertEquals(EPTypeClassParameterized.from(Map.class, String.class, Integer.class), eventType.getPropertyEPType("c1"));
+
+            env.sendEventBean(new SupportBean());
+
+            EventBean event = env.listener("s0").assertOneGetNewAndReset();
+            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"a"}, ((List) event.get("c0")).toArray());
+            EPAssertionUtil.assertPropsMap((Map) event.get("c1"), "k1".split(","), 10);
+
+            env.undeployAll();
+        }
     }
 
     private static class ClientCompileSODAInvalidConstantUseSubsParamsInstead implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             Expression expression = Expressions.eq(
-                    Expressions.property("object"),
-                    Expressions.constant(new Object())
+                Expressions.property("object"),
+                Expressions.constant(new Object())
             );
 
             EPStatementObjectModel model = new EPStatementObjectModel()
-                    .selectClause(SelectClause.createWildcard())
-                    .fromClause(FromClause.create(FilterStream.create("SupportObjectCtor", expression)));
+                .selectClause(SelectClause.createWildcard())
+                .fromClause(FromClause.create(FilterStream.create("SupportObjectCtor", expression)));
             try {
                 Module module = new Module();
                 module.getItems().add(new ModuleItem(model));
                 env.getCompiler().compile(module, new CompilerArguments(env.getConfiguration()));
                 fail();
             } catch (EPCompileException ex) {
-                SupportMessageAssertUtil.assertMessage(ex, "Exception processing statement: Invalid constant of type 'java.lang.Object' encountered as the class has no compiler representation, please use substitution parameters instead");
+                SupportMessageAssertUtil.assertMessage(ex, "Exception processing statement: Invalid constant of type 'Object' encountered as the class has no compiler representation, please use substitution parameters instead");
             }
         }
     }
@@ -241,7 +284,7 @@ public class ClientCompileSubstitutionParams {
 
             // invalid type incompatible
             tryInvalidCompile(env, "select ?:p0:int as c0, ?:p0:long from SupportBean",
-                "Substitution parameter 'p0' incompatible type assignment between types 'java.lang.Integer' and 'java.lang.Long'");
+                "Substitution parameter 'p0' incompatible type assignment between types 'Integer' and 'Long'");
         }
     }
 

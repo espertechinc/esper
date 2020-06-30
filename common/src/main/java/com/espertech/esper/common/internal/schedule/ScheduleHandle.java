@@ -10,7 +10,12 @@
  */
 package com.espertech.esper.common.internal.schedule;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface ScheduleHandle {
+    EPTypeClass EPTYPE = new EPTypeClass(ScheduleHandle.class);
+    EPTypeClass EPTYPE_SCHEDULEOBJECTTYPE = new EPTypeClass(ScheduleObjectType.class);
+
     /**
      * Returns the statement id.
      *

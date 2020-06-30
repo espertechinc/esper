@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.avro.core;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.type.ObjectValueTypeWidenerFactory;
 import com.espertech.esper.common.client.hook.type.ObjectValueTypeWidenerFactoryContext;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.util.TypeWidenerCustomizer;
 import com.espertech.esper.common.internal.util.TypeWidenerException;
 import com.espertech.esper.common.internal.util.TypeWidenerSPI;
@@ -26,7 +27,7 @@ public class AvroTypeWidenerCustomizerWHook implements TypeWidenerCustomizer {
         this.eventType = eventType;
     }
 
-    public TypeWidenerSPI widenerFor(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, String statementName) throws TypeWidenerException {
+    public TypeWidenerSPI widenerFor(String columnName, EPType columnType, EPType writeablePropertyType, String writeablePropertyName, String statementName) throws TypeWidenerException {
 
         TypeWidenerSPI widener;
         try {

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.pattern.everydistinct;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -20,11 +22,13 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents an 'every-distinct' operator in the evaluation tree representing an event expression.
  */
 public class EvalEveryDistinctFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalEveryDistinctFactoryNode.class);
+
     private ExprEvaluator distinctExpression;
     private MatchedEventConvertor convertor;
     private TimePeriodCompute timePeriodCompute;
     protected EvalFactoryNode childNode;
-    private Class[] distinctTypes;
+    private EPType[] distinctTypes;
     private DataInputOutputSerde<Object> distinctSerde;
 
     public void setDistinctExpression(ExprEvaluator distinctExpression) {
@@ -43,7 +47,7 @@ public class EvalEveryDistinctFactoryNode extends EvalFactoryNodeBase {
         this.childNode = childNode;
     }
 
-    public void setDistinctTypes(Class[] distinctTypes) {
+    public void setDistinctTypes(EPType[] distinctTypes) {
         this.distinctTypes = distinctTypes;
     }
 
@@ -81,7 +85,7 @@ public class EvalEveryDistinctFactoryNode extends EvalFactoryNodeBase {
         return childNode;
     }
 
-    public Class[] getDistinctTypes() {
+    public EPType[] getDistinctTypes() {
         return distinctTypes;
     }
 

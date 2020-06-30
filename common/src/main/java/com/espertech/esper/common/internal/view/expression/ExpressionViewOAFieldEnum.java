@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.expression;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 
 import java.util.LinkedHashMap;
 
@@ -32,11 +33,11 @@ public enum ExpressionViewOAFieldEnum {
 
     public static LinkedHashMap<String, Object> asMapOfTypes(EventType eventType) {
         LinkedHashMap<String, Object> builtinTypeDef = new LinkedHashMap<String, Object>();
-        builtinTypeDef.put(ExpressionViewOAFieldEnum.CURRENT_COUNT.fieldName, Integer.class);
-        builtinTypeDef.put(ExpressionViewOAFieldEnum.OLDEST_TIMESTAMP.fieldName, Long.class);
-        builtinTypeDef.put(ExpressionViewOAFieldEnum.NEWEST_TIMESTAMP.fieldName, Long.class);
-        builtinTypeDef.put(ExpressionViewOAFieldEnum.EXPIRED_COUNT.fieldName, Integer.class);
-        builtinTypeDef.put(ExpressionViewOAFieldEnum.VIEW_REFERENCE.fieldName, Object.class);
+        builtinTypeDef.put(ExpressionViewOAFieldEnum.CURRENT_COUNT.fieldName, EPTypePremade.INTEGERBOXED.getEPType());
+        builtinTypeDef.put(ExpressionViewOAFieldEnum.OLDEST_TIMESTAMP.fieldName, EPTypePremade.LONGBOXED.getEPType());
+        builtinTypeDef.put(ExpressionViewOAFieldEnum.NEWEST_TIMESTAMP.fieldName, EPTypePremade.LONGBOXED.getEPType());
+        builtinTypeDef.put(ExpressionViewOAFieldEnum.EXPIRED_COUNT.fieldName, EPTypePremade.INTEGERBOXED.getEPType());
+        builtinTypeDef.put(ExpressionViewOAFieldEnum.VIEW_REFERENCE.fieldName, EPTypePremade.OBJECT.getEPType());
         builtinTypeDef.put(ExpressionViewOAFieldEnum.NEWEST_EVENT.fieldName, eventType);
         builtinTypeDef.put(ExpressionViewOAFieldEnum.OLDEST_EVENT.fieldName, eventType);
         return builtinTypeDef;

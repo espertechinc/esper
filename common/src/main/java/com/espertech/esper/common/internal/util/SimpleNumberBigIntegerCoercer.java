@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.math.BigInteger;
@@ -26,5 +27,5 @@ public interface SimpleNumberBigIntegerCoercer {
      */
     public BigInteger coerceBoxedBigInt(Number numToCoerce);
 
-    CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, Class type);
+    CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, EPTypeClass type);
 }

@@ -73,12 +73,12 @@ public class LookupInstructionQueryPlanNodeForge extends QueryPlanNodeForge {
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = makeInstructions(assemblyInstructionFactories, parent, symbols, classScope);
-        return newInstance(LookupInstructionQueryPlanNode.class,
+        return newInstance(LookupInstructionQueryPlanNode.EPTYPE,
                 constant(rootStream),
                 constant(rootStreamName),
                 constant(numStreams),
                 constant(requiredPerStream),
-                CodegenMakeableUtil.makeArray("lookupInstructions", LookupInstructionPlan.class, lookupInstructions.toArray(new LookupInstructionPlanForge[0]), this.getClass(), parent, symbols, classScope),
+                CodegenMakeableUtil.makeArray("lookupInstructions", LookupInstructionPlan.EPTYPE, lookupInstructions.toArray(new LookupInstructionPlanForge[0]), this.getClass(), parent, symbols, classScope),
                 localMethod(method));
     }
 
@@ -103,7 +103,7 @@ public class LookupInstructionQueryPlanNodeForge extends QueryPlanNodeForge {
     }
 
     private CodegenMethod makeInstructions(List<BaseAssemblyNodeFactory> factories, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(BaseAssemblyNodeFactory[].class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(BaseAssemblyNodeFactory.EPTYPEARRAY, this.getClass(), classScope);
 
         int[] parents = new int[factories.size()];
         int[][] children = new int[factories.size()][];
@@ -117,7 +117,7 @@ public class LookupInstructionQueryPlanNodeForge extends QueryPlanNodeForge {
         }
 
         method.getBlock()
-                .declareVar(BaseAssemblyNodeFactory[].class, "factories", CodegenMakeableUtil.makeArray("assemblyInstructions", BaseAssemblyNodeFactory.class, factories.toArray(new BaseAssemblyNodeFactory[0]), this.getClass(), parent, symbols, classScope))
+                .declareVar(BaseAssemblyNodeFactory.EPTYPEARRAY, "factories", CodegenMakeableUtil.makeArray("assemblyInstructions", BaseAssemblyNodeFactory.EPTYPE, factories.toArray(new BaseAssemblyNodeFactory[0]), this.getClass(), parent, symbols, classScope))
                 .staticMethod(LookupInstructionQueryPlanNodeForge.class, "assembleFactoriesIntoTree", ref("factories"), constant(parents), constant(children))
                 .methodReturn(ref("factories"));
 

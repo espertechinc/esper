@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.method.count;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -27,19 +29,19 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 public class AggregationForgeFactoryCountEver extends AggregationForgeFactoryBase {
     protected final ExprCountEverNode parent;
     protected final boolean ignoreNulls;
-    protected final Class childType;
+    protected final EPType childType;
     protected final DataInputOutputSerdeForge distinctSerde;
     private AggregatorCount aggregator;
 
-    public AggregationForgeFactoryCountEver(ExprCountEverNode parent, boolean ignoreNulls, Class childType, DataInputOutputSerdeForge distinctSerde) {
+    public AggregationForgeFactoryCountEver(ExprCountEverNode parent, boolean ignoreNulls, EPType childType, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
         this.ignoreNulls = ignoreNulls;
         this.childType = childType;
         this.distinctSerde = distinctSerde;
     }
 
-    public Class getResultType() {
-        return long.class;
+    public EPType getResultType() {
+        return EPTypePremade.LONGPRIMITIVE.getEPType();
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -47,7 +49,7 @@ public class AggregationForgeFactoryCountEver extends AggregationForgeFactoryBas
     }
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        Class distinctType = !parent.isDistinct() ? null : childType;
+        EPType distinctType = !parent.isDistinct() ? null : childType;
         aggregator = new AggregatorCount(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.getOptionalFilter() != null, parent.getOptionalFilter(), true);
     }
 
@@ -56,7 +58,7 @@ public class AggregationForgeFactoryCountEver extends AggregationForgeFactoryBas
     }
 
     public AggregationPortableValidation getAggregationPortableValidation() {
-        Class distinctType = !parent.isDistinct() ? null : parent.getChildNodes()[0].getForge().getEvaluationType();
+        EPType distinctType = !parent.isDistinct() ? null : parent.getChildNodes()[0].getForge().getEvaluationType();
         return new AggregationPortableValidationCount(parent.isDistinct(), parent.getOptionalFilter() != null, true, distinctType, ignoreNulls);
     }
 

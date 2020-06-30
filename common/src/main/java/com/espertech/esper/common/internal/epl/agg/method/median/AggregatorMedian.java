@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.median;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -35,26 +38,26 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 public class AggregatorMedian extends AggregatorMethodWDistinctWFilterWValueBase {
     protected CodegenExpressionMember vector;
 
-    public AggregatorMedian(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorMedian(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
-        vector = membersColumnized.addMember(col, SortedDoubleVector.class, "vector");
-        rowCtor.getBlock().assignRef(vector, newInstance(SortedDoubleVector.class));
+        vector = membersColumnized.addMember(col, SortedDoubleVector.EPTYPE, "vector");
+        rowCtor.getBlock().assignRef(vector, newInstance(SortedDoubleVector.EPTYPE));
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(vector, "add", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(value, valueType));
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(vector, "remove", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(value, valueType));
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(vector, "add", exprDotMethod(cast(Number.class, value), "doubleValue"));
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+        method.getBlock().exprDotMethod(vector, "add", exprDotMethod(cast(EPTypePremade.NUMBER.getEPType(), value), "doubleValue"));
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(vector, "remove", exprDotMethod(cast(Number.class, value), "doubleValue"));
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+        method.getBlock().exprDotMethod(vector, "remove", exprDotMethod(cast(EPTypePremade.NUMBER.getEPType(), value), "doubleValue"));
     }
 
     protected void clearWODistinct(CodegenMethod method, CodegenClassScope classScope) {

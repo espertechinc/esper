@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -92,7 +93,7 @@ public class DOMSimpleAttributeGetter implements EventPropertyGetterSPI, DOMProp
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

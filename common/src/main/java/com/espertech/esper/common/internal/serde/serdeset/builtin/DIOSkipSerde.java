@@ -12,12 +12,14 @@ package com.espertech.esper.common.internal.serde.serdeset.builtin;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 public class DIOSkipSerde implements DataInputOutputSerde {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOSkipSerde.class);
 
     public final static DIOSkipSerde INSTANCE = new DIOSkipSerde();
 

@@ -42,9 +42,9 @@ public class EPLSpatialPointRegionQuadTreeInvalid {
 
             // invalid column type
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((id, py) pointregionquadtree(0, 0, 100, 100))",
-                "Index of type 'pointregionquadtree' for column 0 that is providing x-values expecting type java.lang.Number but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for column 0 that is providing x-values expecting type Number but received type String");
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((px, id) pointregionquadtree(0, 0, 100, 100))",
-                "Index of type 'pointregionquadtree' for column 1 that is providing y-values expecting type java.lang.Number but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for column 1 that is providing y-values expecting type Number but received type String");
 
             // invalid expressions for column or parameter
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((dummy, dummy2) pointregionquadtree(0, 0, 100, 100))",
@@ -66,17 +66,17 @@ public class EPLSpatialPointRegionQuadTreeInvalid {
 
             // invalid parameter type
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((px, py) pointregionquadtree('a', 0, 100, 100))",
-                "Index of type 'pointregionquadtree' for parameter 0 that is providing xMin-values expecting type java.lang.Number but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for parameter 0 that is providing xMin-values expecting type Number but received type String");
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((px, py) pointregionquadtree(0, 'a', 100, 100))",
-                "Index of type 'pointregionquadtree' for parameter 1 that is providing yMin-values expecting type java.lang.Number but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for parameter 1 that is providing yMin-values expecting type Number but received type String");
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((px, py) pointregionquadtree(0, 0, 'a', 100))",
-                "Index of type 'pointregionquadtree' for parameter 2 that is providing width-values expecting type java.lang.Number but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for parameter 2 that is providing width-values expecting type Number but received type String");
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((px, py) pointregionquadtree(0, 0, 100, 'a'))",
-                "Index of type 'pointregionquadtree' for parameter 3 that is providing height-values expecting type java.lang.Number but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for parameter 3 that is providing height-values expecting type Number but received type String");
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((px, py) pointregionquadtree(0, 0, 100, 100, 'a'))",
-                "Index of type 'pointregionquadtree' for parameter 4 that is providing leafCapacity-values expecting type java.lang.Integer but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for parameter 4 that is providing leafCapacity-values expecting type Integer but received type String");
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow((px, py) pointregionquadtree(0, 0, 100, 100, 1, 'a'))",
-                "Index of type 'pointregionquadtree' for parameter 5 that is providing maxTreeHeight-values expecting type java.lang.Integer but received type java.lang.String");
+                "Index of type 'pointregionquadtree' for parameter 5 that is providing maxTreeHeight-values expecting type Integer but received type String");
 
             // invalid parameter value
             SupportMessageAssertUtil.tryInvalidDeploy(env, path, "create index MyIndex on MyWindow((px, py) pointregionquadtree(cast(null, double), 0, 0, 0))",
@@ -134,11 +134,11 @@ public class EPLSpatialPointRegionQuadTreeInvalid {
     private static class EPLSpatialInvalidMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point('a', 0).inside(rectangle(0, 0, 0, 0)))",
-                "Failed to validate filter expression 'point(\"a\",0).inside(rectangle(0,0,0,0))': Failed to validate left-hand-side function 'point', expected a number-type result for expression parameter 0 but received java.lang.String");
+                "Failed to validate filter expression 'point(\"a\",0).inside(rectangle(0,0,0,0))': Failed to validate left-hand-side function 'point', expected a number-type result for expression parameter 0 but received String");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0).inside(rectangle(0, 0, 0, 0)))",
                 "Failed to validate filter expression 'point(0).inside(rectangle(0,0,0,0))': Failed to validate left-hand-side method 'point', expected 2 parameters but received 1 parameters");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0,0).inside(rectangle('a', 0, 0, 0)))",
-                "Failed to validate filter expression 'point(0,0).inside(rectangle(\"a\",0,0,0))': Failed to validate right-hand-side function 'rectangle', expected a number-type result for expression parameter 0 but received java.lang.String");
+                "Failed to validate filter expression 'point(0,0).inside(rectangle(\"a\",0,0,0))': Failed to validate right-hand-side function 'rectangle', expected a number-type result for expression parameter 0 but received String");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0,0).inside(rectangle(0)))",
                 "Failed to validate filter expression 'point(0,0).inside(rectangle(0))': Failed to validate right-hand-side function 'rectangle', expected 4 parameters but received 1 parameters");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportEventRectangleWithOffset(point(0,0).inside(0))",

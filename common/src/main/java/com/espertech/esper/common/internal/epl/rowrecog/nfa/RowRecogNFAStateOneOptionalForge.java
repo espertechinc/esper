@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.nfa;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -46,8 +47,8 @@ public class RowRecogNFAStateOneOptionalForge extends RowRecogNFAStateForgeBase 
         return "OptionalFilterEvent-Filtered";
     }
 
-    protected Class getEvalClass() {
-        return expression == null ? RowRecogNFAStateOneOptionalEvalNoCond.class : RowRecogNFAStateOneOptionalEvalCond.class;
+    protected EPTypeClass getEvalClass() {
+        return expression == null ? RowRecogNFAStateOneOptionalEvalNoCond.EPTYPE : RowRecogNFAStateOneOptionalEvalCond.EPTYPE;
     }
 
     protected void assignInline(CodegenExpression eval, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

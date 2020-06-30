@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface ResultSetProcessorRowPerGroupRollup extends ResultSetProcessor, AggregationRowRemovedCallback {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorRowPerGroupRollup.class);
+
     AggregationService getAggregationService();
 
     ExprEvaluatorContext getAgentInstanceContext();

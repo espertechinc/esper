@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -27,14 +28,16 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
  * <p> Each filerting parameter has an attribute name and operator type.
  */
 public abstract class FilterSpecParam {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecParam.class);
+
     public final static CodegenExpressionRef REF_MATCHEDEVENTMAP = new CodegenExpressionRef("matchedEvents");
     public final static CodegenExpressionRef REF_STMTCTXFILTEREVALENV = new CodegenExpressionRef("stmtCtxFilterEnv");
     public final static CodegenExpressionRef REF_LOOKUPABLE = new CodegenExpressionRef("lkupable"); // see name below
     public final static CodegenExpressionRef REF_FILTEROPERATOR = new CodegenExpressionRef("filterOperator"); // see name below
     public final static List<CodegenNamedParam> GET_FILTER_VALUE_FP = CodegenNamedParam.from(
-            MatchedEventMap.class, REF_MATCHEDEVENTMAP.getRef(),
-            ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(),
-            StatementContextFilterEvalEnv.class, REF_STMTCTXFILTEREVALENV.getRef());
+            MatchedEventMap.EPTYPE, REF_MATCHEDEVENTMAP.getRef(),
+            ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef(),
+            StatementContextFilterEvalEnv.EPTYPE, REF_STMTCTXFILTEREVALENV.getRef());
     public final static CodegenExpression[] GET_FILTER_VALUE_REFS = new CodegenExpressionRef[]{REF_MATCHEDEVENTMAP, REF_EXPREVALCONTEXT, REF_STMTCTXFILTEREVALENV};
 
     public final static FilterSpecParam[] EMPTY_PARAM_ARRAY = new FilterSpecParam[0];

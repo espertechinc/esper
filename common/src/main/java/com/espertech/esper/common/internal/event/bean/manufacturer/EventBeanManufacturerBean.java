@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.instantiator.BeanInstantiator;
 import com.espertech.esper.common.internal.event.bean.instantiator.BeanInstantiatorFactory;
@@ -25,10 +26,13 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypePrimitive;
+
 /**
  * Factory for event beans created and populate anew from a set of values.
  */
 public class EventBeanManufacturerBean implements EventBeanManufacturer {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventBeanManufacturerBean.class);
     private final static Logger log = LoggerFactory.getLogger(EventBeanManufacturerBean.class);
 
     private final BeanInstantiator beanInstantiator;
@@ -63,7 +67,7 @@ public class EventBeanManufacturerBean implements EventBeanManufacturer {
         primitiveType = new boolean[properties.length];
         for (int i = 0; i < properties.length; i++) {
             writeMethodsReflection[i] = properties[i].getWriteMethod();
-            primitiveType[i] = properties[i].getType().isPrimitive();
+            primitiveType[i] = isTypePrimitive(properties[i].getType());
             primitiveTypeCheck |= primitiveType[i];
         }
         hasPrimitiveTypes = primitiveTypeCheck;

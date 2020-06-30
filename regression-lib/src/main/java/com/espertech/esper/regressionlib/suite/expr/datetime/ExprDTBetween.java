@@ -11,14 +11,15 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
 import com.espertech.esper.regressionlib.support.bean.SupportTimeStartEndA;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -85,7 +86,7 @@ public class ExprDTBetween {
                 "current_timestamp.between(zdtStart, zdtEnd) as val8 " +
                 "from SupportTimeStartEndA";
             env.compileDeploy(eplCurrentTS).addListener("s0");
-            LambdaAssertionUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsCurrentTs, Boolean.class);
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsCurrentTs, EPTypePremade.BOOLEANBOXED.getEPType());
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsCurrentTs, new Object[]{true, false, false, false, false, false, false, false, false});
@@ -117,7 +118,7 @@ public class ExprDTBetween {
                 "longdateStart.between(DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val5 " +
                 "from SupportTimeStartEndA";
             env.compileDeployAddListenerMile(eplConstants, "s0", 1);
-            LambdaAssertionUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsConstants, Boolean.class);
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsConstants, EPTypePremade.BOOLEANBOXED.getEPType());
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 0));
             EPAssertionUtil.assertPropsAllValuesSame(env.listener("s0").assertOneGetNewAndReset(), fieldsConstants, false);
@@ -175,7 +176,7 @@ public class ExprDTBetween {
             "current_timestamp.between(" + fields + ", VAR_FALSE, VAR_FALSE) as val7 " +
             "from SupportTimeStartEndA";
         env.compileDeploy(eplCurrentTS, path).addListener("s0");
-        LambdaAssertionUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsCurrentTs, Boolean.class);
+        SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsCurrentTs, EPTypePremade.BOOLEANBOXED.getEPType());
 
         env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 0));
         EPAssertionUtil.assertPropsAllValuesSame(env.listener("s0").assertOneGetNewAndReset(), fieldsCurrentTs, false);
@@ -202,7 +203,7 @@ public class ExprDTBetween {
             "longdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), false, false) as val3 " +
             "from SupportTimeStartEndA";
         env.compileDeploy(eplConstants).addListener("s0");
-        LambdaAssertionUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsConstants, Boolean.class);
+        SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsConstants, EPTypePremade.BOOLEANBOXED.getEPType());
 
         env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 0));
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsConstants, new Object[]{false, false, false, false});

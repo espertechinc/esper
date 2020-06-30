@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.view.previous;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface PreviousGetterStrategy {
+    EPTypeClass EPTYPE = new EPTypeClass(PreviousGetterStrategy.class);
+
     PreviousGetterStrategy[] EMPTY_ARRAY = new PreviousGetterStrategy[0];
 
     PreviousGetterStrategy getStrategy(ExprEvaluatorContext ctx);

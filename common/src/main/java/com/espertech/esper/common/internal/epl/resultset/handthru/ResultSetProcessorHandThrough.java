@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.handthru;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.collection.ArrayEventIterator;
@@ -38,9 +39,9 @@ public class ResultSetProcessorHandThrough {
         CodegenExpression newEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUJOIN, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT);
 
         method.getBlock()
-                .declareVar(EventBean[].class, "selectOldEvents", oldEvents)
-                .declareVar(EventBean[].class, "selectNewEvents", newEvents)
-                .methodReturn(newInstance(UniformPair.class, ref("selectNewEvents"), ref("selectOldEvents")));
+                .declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", oldEvents)
+                .declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", newEvents)
+                .methodReturn(newInstance(UniformPair.EPTYPE, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
     static void processViewResultCodegen(ResultSetProcessorHandThroughFactoryForge prototype, CodegenMethod method) {
@@ -51,18 +52,18 @@ public class ResultSetProcessorHandThrough {
         CodegenExpression newEvents = staticMethod(ResultSetProcessorHandThroughUtil.class, METHOD_GETSELECTEVENTSNOHAVINGHANDTHRUVIEW, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT);
 
         method.getBlock()
-                .declareVar(EventBean[].class, "selectOldEvents", oldEvents)
-                .declareVar(EventBean[].class, "selectNewEvents", newEvents)
-                .methodReturn(newInstance(UniformPair.class, ref("selectNewEvents"), ref("selectOldEvents")));
+                .declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", oldEvents)
+                .declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", newEvents)
+                .methodReturn(newInstance(UniformPair.EPTYPE, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
     static void getIteratorViewCodegen(CodegenMethod methodNode) {
-        methodNode.getBlock().methodReturn(newInstance(TransformEventIterator.class, exprDotMethod(REF_VIEWABLE, "iterator"), newInstance(ResultSetProcessorHandtruTransform.class, ref("this"))));
+        methodNode.getBlock().methodReturn(newInstance(TransformEventIterator.EPTYPE, exprDotMethod(REF_VIEWABLE, "iterator"), newInstance(ResultSetProcessorHandtruTransform.EPTYPE, ref("this"))));
     }
 
     static void getIteratorJoinCodegen(CodegenMethod method) {
         method.getBlock()
-                .declareVar(UniformPair.class, EventBean[].class, "result", exprDotMethod(ref("this"), "processJoinResult", REF_JOINSET, staticMethod(Collections.class, "emptySet"), constant(true)))
-                .methodReturn(newInstance(ArrayEventIterator.class, cast(EventBean[].class, exprDotMethod(ref("result"), "getFirst"))));
+                .declareVar(EPTypeClassParameterized.from(UniformPair.class, EventBean[].class), "result", exprDotMethod(ref("this"), "processJoinResult", REF_JOINSET, staticMethod(Collections.class, "emptySet"), constant(true)))
+                .methodReturn(newInstance(ArrayEventIterator.EPTYPE, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("result"), "getFirst"))));
     }
 }

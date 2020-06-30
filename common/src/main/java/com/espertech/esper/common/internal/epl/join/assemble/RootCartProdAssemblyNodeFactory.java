@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.assemble;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,6 +24,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Assembly factory node for an event stream that is a root with a two or more child nodes below it.
  */
 public class RootCartProdAssemblyNodeFactory extends BaseAssemblyNodeFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RootCartProdAssemblyNodeFactory.class);
+
     private final int[] childStreamIndex; // maintain mapping of stream number to index in array
     private boolean allSubStreamsOptional;
 
@@ -54,6 +57,6 @@ public class RootCartProdAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(RootCartProdAssemblyNodeFactory.class, constant(streamNum), constant(numStreams), constant(allSubStreamsOptional));
+        return newInstance(RootCartProdAssemblyNodeFactory.EPTYPE, constant(streamNum), constant(numStreams), constant(allSubStreamsOptional));
     }
 }

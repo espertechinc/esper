@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.sequenceequal;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParam;
@@ -23,14 +25,14 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.List;
 
 public class ExprDotForgeSequenceEqual extends ExprDotForgeEnumMethodBase {
 
-    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext) {
+    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, ExprValidationContext validationContext) {
         return new EnumForgeDescFactorySeqEqual();
     }
 
@@ -44,7 +46,7 @@ public class ExprDotForgeSequenceEqual extends ExprDotForgeEnumMethodBase {
 
         public EnumForgeDesc makeEnumForgeDesc(List<ExprDotEvalParam> bodiesAndParameters, int streamCountIncoming, StatementCompileTimeServices services) {
             ExprForge body = bodiesAndParameters.get(0).getBodyForge();
-            EPType type = EPTypeHelper.singleValue(Boolean.class);
+            EPChainableType type = EPChainableTypeHelper.singleValue(EPTypePremade.BOOLEANBOXED.getEPType());
             EnumForge forge = new EnumSequenceEqualForge(body, streamCountIncoming);
             return new EnumForgeDesc(type, forge);
         }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.property;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
@@ -48,9 +49,8 @@ public class TestIndexedProperty extends TestCase {
     }
 
     public void testGetPropertyType() {
-        Class[] expected = new Class[]{int.class, int.class, int.class, int.class};
         for (int i = 0; i < indexed.length; i++) {
-            assertEquals(expected[i], indexed[i].getPropertyType(eventType, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
+            assertEquals(EPTypePremade.INTEGERPRIMITIVE.getEPType(), indexed[i].getPropertyType(eventType, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
         }
 
         // try invalid case

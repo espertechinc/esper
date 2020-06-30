@@ -10,5 +10,8 @@
  */
 package com.espertech.esper.common.client.json.util;
 
+/**
+ * JSON field adapter.
+ */
 public interface JsonFieldAdapter {
 }

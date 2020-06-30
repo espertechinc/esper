@@ -43,10 +43,18 @@ public class CreateClassClause implements Serializable {
         this.classProvidedExpression = new ClassProvidedExpression(classtext);
     }
 
+    /**
+     * Returns class-provided that contains the class text.
+     * @return class-provided
+     */
     public ClassProvidedExpression getClassProvidedExpression() {
         return classProvidedExpression;
     }
 
+    /**
+     * Sets class-provided that contains the class text.
+     * @param classProvidedExpression class-provided
+     */
     public void setClassProvidedExpression(ClassProvidedExpression classProvidedExpression) {
         this.classProvidedExpression = classProvidedExpression;
     }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +29,7 @@ public class CodegenInstanceAux {
         return serviceCtor;
     }
 
-    public void addMember(String name, Class type) {
+    public void addMember(String name, EPTypeClass type) {
         if (members == null) {
             members = new ArrayList<>(2);
         }

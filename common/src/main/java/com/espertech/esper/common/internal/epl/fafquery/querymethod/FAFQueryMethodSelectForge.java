@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -28,7 +29,6 @@ import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetP
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyUtil;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,8 +66,8 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
     public void makeMethod(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpressionRef select = ref("select");
         method.getBlock()
-                .declareVar(FAFQueryMethodSelect.class, select.getRef(), newInstance(FAFQueryMethodSelect.class))
-                .exprDotMethod(select, "setAnnotations", localMethod(AnnotationUtil.makeAnnotations(Annotation[].class, desc.getAnnotations(), method, classScope)))
+                .declareVarNewInstance(FAFQueryMethodSelect.EPTYPE, select.getRef())
+                .exprDotMethod(select, "setAnnotations", localMethod(AnnotationUtil.makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), desc.getAnnotations(), method, classScope)))
                 .exprDotMethod(select, "setProcessors", FireAndForgetProcessorForge.makeArray(desc.getProcessors(), method, symbols, classScope))
                 .declareVar(classNameResultSetProcessor, "rsp", CodegenExpressionBuilder.newInstance(classNameResultSetProcessor, symbols.getAddInitSvc(method)))
                 .exprDotMethod(select, "setResultSetProcessorFactoryProvider", ref("rsp"))

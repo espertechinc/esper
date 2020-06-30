@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.count;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -23,15 +25,17 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
 public class AggregationPortableValidationCount extends AggregationPortableValidationBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationCount.class);
+
     boolean ever;
     boolean hasFilter;
-    Class countedValueType;
+    EPType countedValueType;
     boolean ignoreNulls;
 
     public AggregationPortableValidationCount() {
     }
 
-    public AggregationPortableValidationCount(boolean distinct, boolean ever, boolean hasFilter, Class countedValueType, boolean ignoreNulls) {
+    public AggregationPortableValidationCount(boolean distinct, boolean ever, boolean hasFilter, EPType countedValueType, boolean ignoreNulls) {
         super(distinct);
         this.ever = ever;
         this.hasFilter = hasFilter;
@@ -47,7 +51,7 @@ public class AggregationPortableValidationCount extends AggregationPortableValid
         this.hasFilter = hasFilter;
     }
 
-    public void setCountedValueType(Class countedValueType) {
+    public void setCountedValueType(EPType countedValueType) {
         this.countedValueType = countedValueType;
     }
 
@@ -63,22 +67,22 @@ public class AggregationPortableValidationCount extends AggregationPortableValid
         }
         if (ignoreNulls != that.ignoreNulls) {
             throw new ExprValidationException("The aggregation declares" +
-                    (ignoreNulls ? "" : " no") +
-                    " ignore nulls and provided is" +
-                    (that.ignoreNulls ? "" : " no") +
-                    " ignore nulls");
+                (ignoreNulls ? "" : " no") +
+                " ignore nulls and provided is" +
+                (that.ignoreNulls ? "" : " no") +
+                " ignore nulls");
         }
     }
 
-    protected Class typeOf() {
-        return AggregationPortableValidationCount.class;
+    protected EPTypeClass typeOf() {
+        return AggregationPortableValidationCount.EPTYPE;
     }
 
     protected void codegenInlineSet(CodegenExpressionRef ref, CodegenMethod method, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock()
-                .exprDotMethod(ref, "setEver", constant(ever))
-                .exprDotMethod(ref, "setHasFilter", constant(hasFilter))
-                .exprDotMethod(ref, "setCountedValueType", constant(countedValueType))
-                .exprDotMethod(ref, "setIgnoreNulls", constant(ignoreNulls));
+            .exprDotMethod(ref, "setEver", constant(ever))
+            .exprDotMethod(ref, "setHasFilter", constant(hasFilter))
+            .exprDotMethod(ref, "setCountedValueType", constant(countedValueType))
+            .exprDotMethod(ref, "setIgnoreNulls", constant(ignoreNulls));
     }
 }

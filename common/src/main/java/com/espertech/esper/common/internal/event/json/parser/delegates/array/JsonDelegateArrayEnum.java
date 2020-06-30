@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.json.parser.delegates.array;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateEventObjectArray;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
@@ -19,20 +20,21 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.
 import java.lang.reflect.Method;
 
 public class JsonDelegateArrayEnum extends JsonDelegateArrayBase {
-    private final Class enumType;
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArrayEnum.class);
+    private final EPTypeClass enumType;
     private final Method valueOf;
 
-    public JsonDelegateArrayEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, Class enumType) {
+    public JsonDelegateArrayEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, EPTypeClass enumType) {
         super(baseHandler, parent);
         this.enumType = enumType;
         try {
-            valueOf = enumType.getMethod("valueOf", new Class[]{String.class});
+            valueOf = enumType.getType().getMethod("valueOf", new Class[]{String.class});
         } catch (NoSuchMethodException e) {
             throw new EPException("Failed to find valueOf method for " + enumType);
         }
     }
 
-    public JsonDelegateArrayEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, Class enumType, Method valueOf) {
+    public JsonDelegateArrayEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, EPTypeClass enumType, Method valueOf) {
         super(baseHandler, parent);
         this.enumType = enumType;
         this.valueOf = valueOf;
@@ -43,6 +45,6 @@ public class JsonDelegateArrayEnum extends JsonDelegateArrayBase {
     }
 
     public Object getResult() {
-        return JsonDelegateEventObjectArray.collectionToTypedArray(collection, enumType);
+        return JsonDelegateEventObjectArray.collectionToTypedArray(collection, enumType.getType());
     }
 }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.lastevent;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.view.core.*;
 
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link LastEventView} instances.
  */
 public class LastEventViewFactory implements DataWindowViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(LastEventViewFactory.class);
+
     protected EventType eventType;
 
     public void setEventType(EventType eventType) {

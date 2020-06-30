@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.wrap;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -41,9 +42,9 @@ public class WrapperGetterIndexed implements EventPropertyGetterIndexedSPI {
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, WrapperGetterIndexed.class, codegenClassScope).addParam(EventBean.class, "event").addParam(int.class, "index").getBlock()
-                .declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, ref("event")))
-                .declareVar(EventBean.class, "wrapped", exprDotMethod(ref("wrapper"), "getUnderlyingEvent"))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), WrapperGetterIndexed.class, codegenClassScope).addParam(EventBean.EPTYPE, "event").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+                .declareVar(DecoratingEventBean.EPTYPE, "wrapper", cast(DecoratingEventBean.EPTYPE, ref("event")))
+                .declareVar(EventBean.EPTYPE, "wrapped", exprDotMethod(ref("wrapper"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrapped")
                 .methodReturn(undIndexed.eventBeanGetIndexedCodegen(codegenMethodScope, codegenClassScope, ref("wrapped"), ref("index")));
         return localMethodBuild(method).pass(beanExpression).pass(key).call();

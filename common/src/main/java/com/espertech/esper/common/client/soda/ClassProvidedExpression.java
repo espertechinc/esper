@@ -35,10 +35,18 @@ public class ClassProvidedExpression implements Serializable {
         this.classText = classText;
     }
 
+    /**
+     * Returns the class text
+     * @return class text
+     */
     public String getClassText() {
         return classText;
     }
 
+    /**
+     * Sets the class text
+     * @param classText class text
+     */
     public void setClassText(String classText) {
         this.classText = classText;
     }

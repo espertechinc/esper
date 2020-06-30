@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -24,12 +26,14 @@ import com.espertech.esper.common.internal.event.bean.instantiator.BeanInstantia
 import com.espertech.esper.common.internal.event.bean.instantiator.BeanInstantiatorForge;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.SimpleTypeCaster;
 import com.espertech.esper.common.internal.util.SimpleTypeCasterFactory;
 
 import java.lang.reflect.Method;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypePrimitive;
 
 /**
  * Factory for event beans created and populate anew from a set of values.
@@ -66,7 +70,7 @@ public class EventBeanManufacturerBeanForge implements EventBeanManufacturerForg
         primitiveType = new boolean[properties.length];
         for (int i = 0; i < properties.length; i++) {
             writeMethodsReflection[i] = properties[i].getWriteMethod();
-            primitiveType[i] = properties[i].getType().isPrimitive();
+            primitiveType[i] = isTypePrimitive(properties[i].getType());
         }
     }
 
@@ -78,36 +82,36 @@ public class EventBeanManufacturerBeanForge implements EventBeanManufacturerForg
         CodegenMethod init = codegenClassScope.getPackageScope().getInitMethod();
 
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField beanType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(beanEventType, EPStatementInitServices.REF));
+        CodegenExpressionField beanType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(beanEventType, EPStatementInitServices.REF));
 
-        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.class);
+        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.EPTYPE);
 
-        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("makeUnderlying", makeUndMethod);
         makeUnderlyingCodegen(makeUndMethod, codegenClassScope);
 
-        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("make", makeMethod);
         makeMethod.getBlock()
-                .declareVar(Object.class, "und", localMethod(makeUndMethod, ref("properties")))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "und", localMethod(makeUndMethod, ref("properties")))
                 .methodReturn(exprDotMethod(factory, "adapterForTypedBean", ref("und"), beanType));
 
-        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, manufacturer);
+        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, manufacturer);
     }
 
     private void makeUnderlyingCodegen(CodegenMethod method, CodegenClassScope codegenClassScope) {
         method.getBlock()
-                .declareVar(beanEventType.getUnderlyingType(), "und", cast(beanEventType.getUnderlyingType(), beanInstantiator.make(method, codegenClassScope)))
-                .declareVar(Object.class, "value", constantNull());
+                .declareVar(beanEventType.getUnderlyingEPType(), "und", cast(beanEventType.getUnderlyingEPType(), beanInstantiator.make(method, codegenClassScope)))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", constantNull());
 
         for (int i = 0; i < writeMethodsReflection.length; i++) {
             method.getBlock().assignRef("value", arrayAtIndex(ref("properties"), constant(i)));
 
-            Class targetType = writeMethodsReflection[i].getParameterTypes()[0];
+            EPTypeClass targetType = ClassHelperGenericType.getParameterType(writeMethodsReflection[i].getParameters()[0]);
             CodegenExpression value;
-            if (targetType.isPrimitive()) {
-                SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(Object.class, targetType);
-                value = caster.codegen(ref("value"), Object.class, method, codegenClassScope);
+            if (targetType.getType().isPrimitive()) {
+                SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(EPTypePremade.OBJECT.getEPType(), targetType);
+                value = caster.codegen(ref("value"), EPTypePremade.OBJECT.getEPType(), method, codegenClassScope);
             } else {
                 value = cast(targetType, ref("value"));
             }

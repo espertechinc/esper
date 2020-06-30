@@ -10,8 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.event.map;
 
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -23,12 +24,10 @@ import static org.junit.Assert.assertFalse;
 public class EventMapInheritanceInitTime implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("base", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("sub1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("suba", String.class, null, false, false, false, false, false),
-        }, env.runtime().getEventTypeService().getEventTypePreconfigured("SubAEvent").getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.runtime().getEventTypeService().getEventTypePreconfigured("SubAEvent").getPropertyDescriptors(),
+            new SupportEventPropDesc("base", String.class),
+            new SupportEventPropDesc("sub1", String.class),
+            new SupportEventPropDesc("suba", String.class));
 
         runAssertionMapInheritance(env, new RegressionPath());
     }

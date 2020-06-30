@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -41,8 +42,8 @@ public class ExpressionBatchViewForge extends ExpressionViewForgeBase implements
         }
     }
 
-    public Class typeOfFactory() {
-        return ExpressionBatchViewFactory.class;
+    public EPTypeClass typeOfFactory() {
+        return ExpressionBatchViewFactory.EPTYPE;
     }
 
     public String factoryMethod() {

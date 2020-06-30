@@ -29,6 +29,6 @@ public class TimePeriodComputeConstGivenDeltaForge implements TimePeriodComputeF
     }
 
     public CodegenExpression makeEvaluator(CodegenMethodScope parent, CodegenClassScope classScope) {
-        return newInstance(TimePeriodComputeConstGivenDeltaEval.class, constant(timeDelta));
+        return newInstance(TimePeriodComputeConstGivenDeltaEval.EPTYPE, constant(timeDelta));
     }
 }

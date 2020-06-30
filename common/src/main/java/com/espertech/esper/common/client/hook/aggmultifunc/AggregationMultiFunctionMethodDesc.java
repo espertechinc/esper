@@ -11,6 +11,7 @@
 package com.espertech.esper.common.client.hook.aggmultifunc;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
 
 /**
@@ -19,7 +20,7 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
 public class AggregationMultiFunctionMethodDesc {
     private final AggregationMethodForge reader;
     private final EventType eventTypeCollection;
-    private final Class componentTypeCollection;
+    private final EPTypeClass componentTypeCollection;
     private final EventType eventTypeSingle;
 
     /**
@@ -29,7 +30,7 @@ public class AggregationMultiFunctionMethodDesc {
      * @param componentTypeCollection when returning a collection of object values, the type of the values or null if not returning a collection of values
      * @param eventTypeSingle when returning a single event, the event type or null if not returning a single event
      */
-    public AggregationMultiFunctionMethodDesc(AggregationMethodForge forge, EventType eventTypeCollection, Class componentTypeCollection, EventType eventTypeSingle) {
+    public AggregationMultiFunctionMethodDesc(AggregationMethodForge forge, EventType eventTypeCollection, EPTypeClass componentTypeCollection, EventType eventTypeSingle) {
         this.reader = forge;
         this.eventTypeCollection = eventTypeCollection;
         this.componentTypeCollection = componentTypeCollection;
@@ -56,7 +57,7 @@ public class AggregationMultiFunctionMethodDesc {
      * Returns, when returning a collection of object values, the type of the values or null if not returning a collection of values
      * @return type
      */
-    public Class getComponentTypeCollection() {
+    public EPTypeClass getComponentTypeCollection() {
         return componentTypeCollection;
     }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.metrics.instrumentation;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.UniformPair;
@@ -44,6 +45,8 @@ import com.espertech.esper.common.internal.view.core.ViewFactory;
 import java.util.*;
 
 public interface InstrumentationCommon {
+    EPTypeClass EPTYPE = new EPTypeClass(InstrumentationCommon.class);
+
     String RUNTIME_PACKAGE_NAME = "com.espertech.esper.runtime.internal.metrics.instrumentation";
     String RUNTIME_DEFAULT_CLASS = RUNTIME_PACKAGE_NAME + ".InstrumentationDefault";
     String RUNTIME_HELPER_CLASS = RUNTIME_PACKAGE_NAME + ".InstrumentationHelper";

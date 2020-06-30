@@ -12,15 +12,15 @@ package com.espertech.esper.common.internal.epl.datetime.eval;
 
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public class ExprDotDTMethodDesc {
 
     private final ExprDotForge forge;
-    private final EPType returnType;
+    private final EPChainableType returnType;
     private final FilterExprAnalyzerAffector intervalFilterDesc;
 
-    public ExprDotDTMethodDesc(ExprDotForge forge, EPType returnType, FilterExprAnalyzerAffector intervalFilterDesc) {
+    public ExprDotDTMethodDesc(ExprDotForge forge, EPChainableType returnType, FilterExprAnalyzerAffector intervalFilterDesc) {
         this.forge = forge;
         this.returnType = returnType;
         this.intervalFilterDesc = intervalFilterDesc;
@@ -30,7 +30,7 @@ public class ExprDotDTMethodDesc {
         return forge;
     }
 
-    public EPType getReturnType() {
+    public EPChainableType getReturnType() {
         return returnType;
     }
 

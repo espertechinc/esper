@@ -32,9 +32,9 @@ public class StatementAgentInstanceFactoryUpdateForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryUpdate.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryUpdate.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryUpdate.class, "saiff", newInstance(StatementAgentInstanceFactoryUpdate.class))
+                .declareVarNewInstance(StatementAgentInstanceFactoryUpdate.EPTYPE, "saiff")
                 .exprDotMethod(ref("saiff"), "setDesc", forge.make(method, symbols, classScope))
                 .exprDotMethod(ref("saiff"), "setSubselects", SubSelectFactoryForge.codegenInitMap(subselects, this.getClass(), method, symbols, classScope))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add("addReadyCallback", ref("saiff")))

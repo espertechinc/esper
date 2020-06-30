@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.util;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -20,9 +22,9 @@ public class TestSerializerFactory extends TestCase {
 
     public void testTypes() throws IOException {
         Object[] expected = new Object[]{2, 3L, 4f, 5.0d, "abc", new byte[]{10, 20}, (byte) 20, (short) 21, true, new MyBean("E1")};
-        Class[] classes = new Class[expected.length];
+        EPType[] classes = new EPType[expected.length];
         for (int i = 0; i < expected.length; i++) {
-            classes[i] = expected.getClass();
+            classes[i] = ClassHelperGenericType.getClassEPType(expected.getClass());
         }
 
         Serializer[] serializers = SerializerFactory.getSerializers(classes);
@@ -32,7 +34,7 @@ public class TestSerializerFactory extends TestCase {
         EPAssertionUtil.assertEqualsExactOrder(expected, result);
 
         // null values are simply not serialized
-        bytes = SerializerFactory.serialize(new Serializer[]{SerializerFactory.getSerializer(Integer.class)}, new Object[]{null});
+        bytes = SerializerFactory.serialize(new Serializer[]{SerializerFactory.getSerializer(EPTypePremade.INTEGERBOXED.getEPType())}, new Object[]{null});
         assertEquals(0, bytes.length);
     }
 

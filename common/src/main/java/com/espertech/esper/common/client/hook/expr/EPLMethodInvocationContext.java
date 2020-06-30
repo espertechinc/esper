@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.hook.expr;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Invocation context for method invocations that invoke static methods or plug-in single-row functions.
  */
 public class EPLMethodInvocationContext {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EPLMethodInvocationContext.class);
+
     private final String statementName;
     private final int contextPartitionId;
     private final String runtimeURI;

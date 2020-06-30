@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -82,8 +84,8 @@ public class ReformatToMillisecForge implements ReformatForge, ReformatOp {
         return staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", inner);
     }
 
-    public Class getReturnType() {
-        return Long.class;
+    public EPTypeClass getReturnType() {
+        return EPTypePremade.LONGBOXED.getEPType();
     }
 
     public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {

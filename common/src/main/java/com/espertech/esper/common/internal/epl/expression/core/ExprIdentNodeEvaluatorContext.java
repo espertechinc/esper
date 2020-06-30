@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,11 +30,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
 
     private final int streamNum;
-    private final Class resultType;
+    private final EPType resultType;
     private final EventPropertyGetterSPI getter;
     private final EventTypeSPI eventType;
 
-    public ExprIdentNodeEvaluatorContext(int streamNum, Class resultType, EventPropertyGetterSPI getter, EventTypeSPI eventType) {
+    public ExprIdentNodeEvaluatorContext(int streamNum, EPType resultType, EventPropertyGetterSPI getter, EventTypeSPI eventType) {
         this.streamNum = streamNum;
         this.resultType = resultType;
         this.getter = getter;
@@ -53,8 +56,11 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
         return null;
     }
 
-    public CodegenExpression codegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(resultType, this.getClass(), codegenClassScope);
+    public CodegenExpression codegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        if (resultType == null || resultType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) resultType, this.getClass(), codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         methodNode.getBlock()
@@ -64,7 +70,7 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return resultType;
     }
 

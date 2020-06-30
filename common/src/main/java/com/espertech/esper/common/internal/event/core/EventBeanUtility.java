@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.*;
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -328,6 +329,18 @@ public class EventBeanUtility {
         return keys;
     }
 
+    public static Object coerce(Object target, EPTypeClass coercionType) {
+        if (coercionType == null) {
+            return target;
+        }
+        if (target != null && !target.getClass().equals(coercionType.getType())) {
+            if (target instanceof Number) {
+                return JavaClassHelper.coerceBoxed((Number) target, coercionType.getType());
+            }
+        }
+        return target;
+    }
+
     public static Object coerce(Object target, Class coercionType) {
         if (coercionType == null) {
             return target;
@@ -483,32 +496,40 @@ public class EventBeanUtility {
     /**
      * Create a fragment event type.
      *
-     * @param propertyType         property return type
-     * @param genericType          property generic type parameter, or null if none
+     * @param type          property type
      * @param beanEventTypeFactory for event types
      * @param publicFields indicator whether classes are public-field-property-accessible
      * @return fragment type
      */
-    public static FragmentEventType createNativeFragmentType(Class propertyType, Class genericType, BeanEventTypeFactory beanEventTypeFactory, boolean publicFields) {
+    public static FragmentEventType createNativeFragmentType(EPType type, BeanEventTypeFactory beanEventTypeFactory, boolean publicFields) {
+        if (!(type instanceof EPTypeClass)) {
+            return null;
+        }
         boolean isIndexed = false;
+        EPTypeClass typeClass = (EPTypeClass) type;
+        EPTypeClass fragmentableType;
 
-        if (propertyType.isArray()) {
+        if (typeClass.getType().isArray()) {
             isIndexed = true;
-            propertyType = propertyType.getComponentType();
-        } else if (JavaClassHelper.isImplementsInterface(propertyType, Iterable.class)) {
+            fragmentableType = JavaClassHelper.getArrayComponentType(typeClass);
+        } else if (JavaClassHelper.isImplementsInterface(typeClass, Iterable.class)) {
             isIndexed = true;
-            if (genericType == null) {
+            if (!(typeClass instanceof EPTypeClassParameterized)) {
                 return null;
             }
-            propertyType = genericType;
+            fragmentableType = ((EPTypeClassParameterized) typeClass).getParameters()[0];
+        } else if (type == EPTypeNull.INSTANCE) {
+            return null;
+        } else {
+            fragmentableType = (EPTypeClass) type;
         }
 
-        if (!JavaClassHelper.isFragmentableType(propertyType)) {
+        if (!JavaClassHelper.isFragmentableType(fragmentableType)) {
             return null;
         }
 
-        EventType type = beanEventTypeFactory.getCreateBeanType(propertyType, publicFields);
-        return new FragmentEventType(type, isIndexed, true);
+        EventType eventType = beanEventTypeFactory.getCreateBeanType(fragmentableType, publicFields);
+        return new FragmentEventType(eventType, isIndexed, true);
     }
 
     public static EventBean[] getDistinctByProp(ArrayDeque<EventBean> events, EventPropertyValueGetter getter) {

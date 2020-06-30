@@ -16,18 +16,18 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.CreateVariableClause;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.soda.Expressions;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.client.variable.VariableValueException;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
@@ -42,7 +42,32 @@ public class EPLVariablesCreate {
         execs.add(new EPLVariableDeclarationAndSelect());
         execs.add(new EPLVariableInvalid());
         execs.add(new EPLVariableDimensionAndPrimitive());
+        execs.add(new EPLVariableGenericType());
         return execs;
+    }
+
+    private static class EPLVariableGenericType implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('var') create variable List<String> mylist = Arrays.asList('a', 'b');\n" +
+                "@name('s0') select mylist as c0, mylist.where(v => v = 'a') as c1 from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "c0,c1".split(","), new EPTypeClass[] {
+                EPTypeClassParameterized.from(List.class, String.class), EPTypeClassParameterized.from(Collection.class, String.class)
+            });
+
+            env.milestone(0);
+
+            List<String> list = (List<String>) env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "mylist");
+            EPAssertionUtil.assertEqualsExactOrder("a,b".split(","), list.toArray());
+
+            env.sendEventBean(new SupportBean());
+            EventBean received = env.listener("s0").assertOneGetNewAndReset();
+            EPAssertionUtil.assertEqualsExactOrder("a,b".split(","), ((List) received.get("c0")).toArray());
+            EPAssertionUtil.assertEqualsExactOrder("a".split(","), ((Collection) received.get("c1")).toArray());
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLVariableDimensionAndPrimitive implements RegressionExecution {
@@ -287,7 +312,7 @@ public class EPLVariablesCreate {
             tryInvalidCompile(env, stmt, "Cannot create variable 'myvar', type 'somedummy' is not a recognized type [create variable somedummy myvar = 10]");
 
             stmt = "create variable string myvar = 5";
-            tryInvalidCompile(env, stmt, "Variable 'myvar' of declared type java.lang.String cannot be initialized by a value of type java.lang.Integer [create variable string myvar = 5]");
+            tryInvalidCompile(env, stmt, "Variable 'myvar' of declared type String cannot be initialized by a value of type Integer [create variable string myvar = 5]");
 
             stmt = "create variable string myvar = 'a'";
             RegressionPath path = new RegressionPath();
@@ -296,6 +321,9 @@ public class EPLVariablesCreate {
 
             tryInvalidCompile(env, "select * from SupportBean output every somevar events",
                 "Failed to validate the output rate limiting clause: Variable named 'somevar' has not been declared [");
+
+            tryInvalidCompile(env, "create variable SupportBean<Integer> sb",
+                "Cannot create variable 'sb', type 'SupportBean' cannot be declared as an array type and cannot receive type parameters as it is an event type");
 
             env.undeployAll();
         }

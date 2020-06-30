@@ -10,6 +10,7 @@
  */
 package com.espertech.esperio.amqp;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -25,7 +26,7 @@ public class AMQPSettingsSinkForge extends AMQPSettingsForgeBase {
     }
 
     CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(AMQPSettingsSinkFactory.class, this.getClass(), "amqpSink", parent, symbols, classScope);
+        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(new EPTypeClass(AMQPSettingsSinkFactory.class), this.getClass(), "amqpSink", parent, symbols, classScope);
         super.make(builder);
         builder.map("collector", collector);
         return builder.build();

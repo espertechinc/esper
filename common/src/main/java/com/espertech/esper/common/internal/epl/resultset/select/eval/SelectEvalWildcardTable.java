@@ -38,12 +38,12 @@ public class SelectEvalWildcardTable implements SelectExprProcessorForge {
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(table, codegenClassScope, this.getClass());
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(0)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(0)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(exprDotMethod(eventToPublic, "convert", ref("event"), refEPS, refIsNewData, refExprEvalCtx));
         return methodNode;

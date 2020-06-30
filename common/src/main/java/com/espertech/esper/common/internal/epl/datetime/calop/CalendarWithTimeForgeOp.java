@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.calop;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -52,7 +54,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenCalendar(CalendarWithTimeForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(void.class, CalendarWithTimeForgeOp.class, codegenClassScope).addParam(Calendar.class, "cal");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.VOID.getEPType(), CalendarWithTimeForgeOp.class, codegenClassScope).addParam(EPTypePremade.CALENDAR.getEPType(), "cal");
 
         CodegenBlock block = methodNode.getBlock();
         codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
@@ -69,7 +71,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenLDT(CalendarWithTimeForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithTimeForgeOp.class, codegenClassScope).addParam(LocalDateTime.class, "ldt");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.LOCALDATETIME.getEPType(), CalendarWithTimeForgeOp.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "ldt");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -87,7 +89,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenZDT(CalendarWithTimeForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithTimeForgeOp.class, codegenClassScope).addParam(ZonedDateTime.class, "zdt");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.ZONEDDATETIME.getEPType(), CalendarWithTimeForgeOp.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "zdt");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -173,13 +175,13 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     private static void codegenDeclareInts(CodegenBlock block, CalendarWithTimeForge forge, CodegenMethod methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class hourType = forge.hour.getEvaluationType();
-        Class minType = forge.min.getEvaluationType();
-        Class secType = forge.sec.getEvaluationType();
-        Class msecType = forge.msec.getEvaluationType();
-        block.declareVar(Integer.class, "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(hourType, methodNode, exprSymbol, codegenClassScope), hourType, methodNode, codegenClassScope))
-                .declareVar(Integer.class, "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(minType, methodNode, exprSymbol, codegenClassScope), minType, methodNode, codegenClassScope))
-                .declareVar(Integer.class, "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(secType, methodNode, exprSymbol, codegenClassScope), secType, methodNode, codegenClassScope))
-                .declareVar(Integer.class, "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(msecType, methodNode, exprSymbol, codegenClassScope), msecType, methodNode, codegenClassScope));
+        EPTypeClass hourType = (EPTypeClass) forge.hour.getEvaluationType();
+        EPTypeClass minType = (EPTypeClass) forge.min.getEvaluationType();
+        EPTypeClass secType = (EPTypeClass) forge.sec.getEvaluationType();
+        EPTypeClass msecType = (EPTypeClass) forge.msec.getEvaluationType();
+        block.declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(hourType, methodNode, exprSymbol, codegenClassScope), hourType, methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(minType, methodNode, exprSymbol, codegenClassScope), minType, methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(secType, methodNode, exprSymbol, codegenClassScope), secType, methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(msecType, methodNode, exprSymbol, codegenClassScope), msecType, methodNode, codegenClassScope));
     }
 }

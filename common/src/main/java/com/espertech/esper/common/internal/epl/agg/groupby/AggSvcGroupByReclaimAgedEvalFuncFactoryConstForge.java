@@ -24,7 +24,7 @@ public class AggSvcGroupByReclaimAgedEvalFuncFactoryConstForge implements AggSvc
     }
 
     public CodegenExpressionField make(CodegenClassScope classScope) {
-        return classScope.addFieldUnshared(true, AggSvcGroupByReclaimAgedEvalFuncFactoryConst.class,
-                newInstance(AggSvcGroupByReclaimAgedEvalFuncFactoryConst.class, constant(valueDouble)));
+        return classScope.addFieldUnshared(true, AggSvcGroupByReclaimAgedEvalFuncFactoryConst.EPTYPE,
+                newInstance(AggSvcGroupByReclaimAgedEvalFuncFactoryConst.EPTYPE, constant(valueDouble)));
     }
 }

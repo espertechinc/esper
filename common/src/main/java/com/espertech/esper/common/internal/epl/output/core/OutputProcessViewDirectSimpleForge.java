@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.output.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -51,7 +53,7 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
         if (postProcess != null) {
             CodegenExpression newOldIsNull = and(equalsNull(exprDotMethod(ref("newOldEvents"), "getFirst")), equalsNull(exprDotMethod(ref("newOldEvents"), "getSecond")));
             method.getBlock()
-                    .declareVar(boolean.class, "forceOutput", constant(false))
+                    .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "forceOutput", constant(false))
                     .ifCondition(and(equalsNull(REF_NEWDATA), equalsNull(REF_OLDDATA)))
                     .ifCondition(or(equalsNull(ref("newOldEvents")), newOldIsNull))
                     .assignRef("forceOutput", constantTrue());
@@ -108,9 +110,9 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
 
     private void generateRSPCall(String rspMethod, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .declareVar(boolean.class, "isGenerateSynthetic", exprDotMethod(member("o." + NAME_STATEMENTRESULTSVC), "isMakeSynthetic"))
-                .declareVar(boolean.class, "isGenerateNatural", exprDotMethod(member("o." + NAME_STATEMENTRESULTSVC), "isMakeNatural"))
-                .declareVar(UniformPair.class, EventBean[].class, "newOldEvents", exprDotMethod(ref(NAME_RESULTSETPROCESSOR), rspMethod, REF_NEWDATA, REF_OLDDATA, ref("isGenerateSynthetic")))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "isGenerateSynthetic", exprDotMethod(member("o." + NAME_STATEMENTRESULTSVC), "isMakeSynthetic"))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "isGenerateNatural", exprDotMethod(member("o." + NAME_STATEMENTRESULTSVC), "isMakeNatural"))
+                .declareVar(EPTypeClassParameterized.from(UniformPair.class, EventBean[].class), "newOldEvents", exprDotMethod(ref(NAME_RESULTSETPROCESSOR), rspMethod, REF_NEWDATA, REF_OLDDATA, ref("isGenerateSynthetic")))
                 .ifCondition(and(not(ref("isGenerateSynthetic")), not(ref("isGenerateNatural")))).blockReturnNoValue();
     }
 }

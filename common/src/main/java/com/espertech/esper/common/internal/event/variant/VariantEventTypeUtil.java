@@ -24,7 +24,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class VariantEventTypeUtil {
 
     public static CodegenExpressionField getField(VariantEventType variantEventType, CodegenClassScope codegenClassScope) {
-        return codegenClassScope.addFieldUnshared(true, VariantEventType.class, cast(VariantEventType.class, EventTypeUtility.resolveTypeCodegen(variantEventType, EPStatementInitServices.REF)));
+        return codegenClassScope.addFieldUnshared(true, VariantEventType.EPTYPE, cast(VariantEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(variantEventType, EPStatementInitServices.REF)));
     }
 
     public static void validateInsertedIntoEventType(EventType eventType, VariantEventType variantEventType) throws ExprValidationException {

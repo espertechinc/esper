@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Collection;
 
 public interface FilterSpecParamInAdder {
     void add(Collection<Object> constants, Object value);
     void valueToString(StringBuilder out);
+    EPTypeClass getEPType();
 }

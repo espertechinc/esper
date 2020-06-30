@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.common.internal.event.bean.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventPropertyType;
-import com.espertech.esper.common.internal.event.property.GenericPropertyDesc;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -94,33 +94,21 @@ public class PropertyStem {
      * Returns the type of the underlying method or field of the event property.
      *
      * @return return type
+     * @param underlyingEPType underlying type
      */
-    public Class getReturnType() {
+    public EPTypeClass getReturnType(EPTypeClass underlyingEPType) {
         if (readMethod != null) {
-            return readMethod.getReturnType();
+            return ClassHelperGenericType.getMethodReturnEPType(readMethod, underlyingEPType);
         } else {
-            return accessorField.getType();
-        }
-    }
-
-    /**
-     * Returns the type of the underlying method or field of the event property.
-     *
-     * @return return type
-     */
-    public GenericPropertyDesc getReturnTypeGeneric() {
-        if (readMethod != null) {
-            return new GenericPropertyDesc(readMethod.getReturnType(), JavaClassHelper.getGenericReturnType(readMethod, true));
-        } else {
-            return new GenericPropertyDesc(accessorField.getType(), JavaClassHelper.getGenericFieldType(accessorField, true));
+            return ClassHelperGenericType.getFieldEPType(accessorField, underlyingEPType);
         }
     }
 
     public String toString() {
         return "propertyName=" + propertyName +
-                " readMethod=" + readMethod +
-                " accessorField=" + accessorField +
-                " propertyType=" + propertyType;
+            " readMethod=" + readMethod +
+            " accessorField=" + accessorField +
+            " propertyType=" + propertyType;
     }
 
     public boolean equals(Object other) {
@@ -132,19 +120,19 @@ public class PropertyStem {
             return false;
         }
         if (((otherDesc.readMethod == null) && (readMethod != null)) ||
-                ((otherDesc.readMethod != null) && (readMethod == null))) {
+            ((otherDesc.readMethod != null) && (readMethod == null))) {
             return false;
         }
         if ((otherDesc.readMethod != null) && (readMethod != null) &&
-                (!otherDesc.readMethod.equals(readMethod))) {
+            (!otherDesc.readMethod.equals(readMethod))) {
             return false;
         }
         if (((otherDesc.accessorField == null) && (accessorField != null)) ||
-                ((otherDesc.accessorField != null) && (accessorField == null))) {
+            ((otherDesc.accessorField != null) && (accessorField == null))) {
             return false;
         }
         if ((otherDesc.accessorField != null) && (accessorField != null) &&
-                (!otherDesc.accessorField.equals(accessorField))) {
+            (!otherDesc.accessorField.equals(accessorField))) {
             return false;
         }
         if (otherDesc.propertyType != propertyType) {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.base;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -28,7 +29,7 @@ public abstract class TwoLambdaThreeFormEventPlain extends EnumForgeBasePlain {
 
     protected ExprForge secondExpression;
 
-    public abstract Class returnType();
+    public abstract EPTypeClass returnType();
 
     public abstract CodegenExpression returnIfEmptyOptional();
 
@@ -56,7 +57,7 @@ public abstract class TwoLambdaThreeFormEventPlain extends EnumForgeBasePlain {
 
         initBlock(methodNode.getBlock(), methodNode, scope, codegenClassScope);
 
-        CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+        CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.EPTYPE, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("next"));
         forEachBlock(forEach, methodNode, scope, codegenClassScope);
 

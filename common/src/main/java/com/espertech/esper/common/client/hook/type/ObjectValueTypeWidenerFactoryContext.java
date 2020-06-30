@@ -11,12 +11,13 @@
 package com.espertech.esper.common.client.hook.type;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
 
 /**
  * For Avro types for widening objects to Avro record values, see {@link ObjectValueTypeWidenerFactory}
  */
 public class ObjectValueTypeWidenerFactoryContext {
-    private final Class clazz;
+    private final EPType clazz;
     private final String propertyName;
     private final EventType eventType;
     private final String statementName;
@@ -29,7 +30,7 @@ public class ObjectValueTypeWidenerFactoryContext {
      * @param eventType     event type
      * @param statementName statement name
      */
-    public ObjectValueTypeWidenerFactoryContext(Class clazz, String propertyName, EventType eventType, String statementName) {
+    public ObjectValueTypeWidenerFactoryContext(EPType clazz, String propertyName, EventType eventType, String statementName) {
         this.clazz = clazz;
         this.propertyName = propertyName;
         this.eventType = eventType;
@@ -41,7 +42,7 @@ public class ObjectValueTypeWidenerFactoryContext {
      *
      * @return class
      */
-    public Class getClazz() {
+    public EPType getClazz() {
         return clazz;
     }
 

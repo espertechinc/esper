@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -24,9 +25,9 @@ public class PropertyDotNonLambdaIndexedForge implements ExprForge, ExprNodeRend
     private final int streamId;
     private final EventPropertyGetterIndexedSPI indexedGetter;
     private final ExprForge paramForge;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public PropertyDotNonLambdaIndexedForge(int streamId, EventPropertyGetterIndexedSPI indexedGetter, ExprForge paramForge, Class returnType) {
+    public PropertyDotNonLambdaIndexedForge(int streamId, EventPropertyGetterIndexedSPI indexedGetter, ExprForge paramForge, EPTypeClass returnType) {
         this.streamId = streamId;
         this.indexedGetter = indexedGetter;
         this.paramForge = paramForge;
@@ -41,11 +42,11 @@ public class PropertyDotNonLambdaIndexedForge implements ExprForge, ExprNodeRend
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return PropertyDotNonLambdaIndexedForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

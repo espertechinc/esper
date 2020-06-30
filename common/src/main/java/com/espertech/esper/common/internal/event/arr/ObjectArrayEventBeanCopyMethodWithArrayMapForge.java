@@ -55,8 +55,8 @@ public class ObjectArrayEventBeanCopyMethodWithArrayMapForge implements EventBea
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        return newInstance(ObjectArrayEventBeanCopyMethodWithArrayMap.class,
-                cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)),
+        return newInstance(ObjectArrayEventBeanCopyMethodWithArrayMap.EPTYPE,
+                cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)),
                 factory,
                 constant(mapIndexes), constant(arrayIndexes));
     }

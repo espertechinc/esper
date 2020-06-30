@@ -38,7 +38,7 @@ public class SelectEvalInsertNoWildcardVariant extends SelectEvalBaseMap {
 
     protected CodegenExpression processSpecificCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenExpression props, CodegenMethod methodNode, SelectExprProcessorCodegenSymbol selectEnv, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField variantType = VariantEventTypeUtil.getField(variantEventType, codegenClassScope);
-        CodegenExpressionField innerType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(innerEventType, EPStatementInitServices.REF));
+        CodegenExpressionField innerType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(innerEventType, EPStatementInitServices.REF));
         CodegenExpression inner = exprDotMethod(eventBeanFactory, "adapterForTypedMap", props, innerType);
         return exprDotMethod(variantType, "getValueAddEventBean", inner);
     }

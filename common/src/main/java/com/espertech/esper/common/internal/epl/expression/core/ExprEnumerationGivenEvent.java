@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Collection;
 
@@ -18,6 +19,8 @@ import java.util.Collection;
  * Interface for evaluating of an event re. enumeration.
  */
 public interface ExprEnumerationGivenEvent {
+    EPTypeClass EPTYPE = new EPTypeClass(ExprEnumerationGivenEvent.class);
+
     Collection<EventBean> evaluateEventGetROCollectionEvents(EventBean event, ExprEvaluatorContext context);
 
     Collection evaluateEventGetROCollectionScalar(EventBean event, ExprEvaluatorContext context);

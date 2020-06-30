@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.average;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,7 +27,6 @@ import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.type.MathContextCodegenField;
 
-import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Collection;
 
@@ -69,8 +70,8 @@ public class EnumAverageBigDecimalEventPlus extends ThreeFormEventPlus {
         };
     }
 
-    public Class returnType() {
-        return BigDecimal.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.BIGDECIMAL.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -79,13 +80,13 @@ public class EnumAverageBigDecimalEventPlus extends ThreeFormEventPlus {
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
         CodegenExpression math = codegenClassScope.addOrGetFieldSharable(new MathContextCodegenField(optionalMathContext));
-        block.declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, math));
+        block.declareVar(AggregatorAvgBigDecimal.EPTYPE, "agg", newInstance(AggregatorAvgBigDecimal.EPTYPE, math));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        Class innerType = innerExpression.getEvaluationType();
+        EPTypeClass innerType = (EPTypeClass) innerExpression.getEvaluationType();
         block.declareVar(innerType, "num", innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope));
-        if (!innerType.isPrimitive()) {
+        if (!innerType.getType().isPrimitive()) {
             block.ifRefNull("num").blockContinue();
         }
         block.expression(exprDotMethod(ref("agg"), "enter", ref("num")))

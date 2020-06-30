@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirements;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.context.util.UndeployPreconditionException;
 
 public interface StatementAgentInstanceFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactory.class);
+
     EventType getStatementEventType();
 
     StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient);

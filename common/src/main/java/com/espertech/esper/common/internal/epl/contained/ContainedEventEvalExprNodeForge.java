@@ -34,11 +34,11 @@ public class ContainedEventEvalExprNodeForge implements ContainedEventEvalForge 
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContainedEventEvalExprNode.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContainedEventEvalExprNode.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprEvaluator.class, "eval", ExprNodeUtilityCodegen.codegenEvaluator(evaluator, method, this.getClass(), classScope))
-                .declareVar(EventType.class, "type", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
-                .methodReturn(newInstance(ContainedEventEvalExprNode.class, ref("eval"), ref("type"), symbols.getAddInitSvc(method)));
+                .declareVar(ExprEvaluator.EPTYPE, "eval", ExprNodeUtilityCodegen.codegenEvaluator(evaluator, method, this.getClass(), classScope))
+                .declareVar(EventType.EPTYPE, "type", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
+                .methodReturn(newInstance(ContainedEventEvalExprNode.EPTYPE, ref("eval"), ref("type"), symbols.getAddInitSvc(method)));
         return localMethod(method);
     }
 }

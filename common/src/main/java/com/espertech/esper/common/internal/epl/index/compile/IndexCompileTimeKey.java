@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.index.compile;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -18,6 +19,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class IndexCompileTimeKey {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(IndexCompileTimeKey.class);
+
     private final String infraModuleName;
     private final String infraName;
     private final NameAccessModifier visibility;
@@ -59,7 +62,7 @@ public class IndexCompileTimeKey {
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
-        return newInstance(IndexCompileTimeKey.class, constant(infraModuleName), constant(infraName), constant(visibility), constant(namedWindow), constant(indexName), constant(indexModuleName));
+        return newInstance(IndexCompileTimeKey.EPTYPE, constant(infraModuleName), constant(infraName), constant(visibility), constant(namedWindow), constant(indexName), constant(indexModuleName));
     }
 
     public boolean equals(Object o) {

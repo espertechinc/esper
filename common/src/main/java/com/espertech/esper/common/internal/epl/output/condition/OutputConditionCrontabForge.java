@@ -47,8 +47,8 @@ public class OutputConditionCrontabForge implements OutputConditionFactoryForge,
         if (scheduleCallbackId == -1) {
             throw new IllegalStateException("Unassigned schedule");
         }
-        CodegenMethod method = parent.makeChild(OutputConditionFactory.class, this.getClass(), classScope);
-        method.getBlock().declareVar(ExprEvaluator[].class, "evals", newArrayByLength(ExprEvaluator.class, constant(scheduleSpecEvaluators.length)));
+        CodegenMethod method = parent.makeChild(OutputConditionFactory.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVar(ExprEvaluator.EPTYPEARRAY, "evals", newArrayByLength(ExprEvaluator.EPTYPE, constant(scheduleSpecEvaluators.length)));
         for (int i = 0; i < scheduleSpecEvaluators.length; i++) {
             method.getBlock().assignArrayElement("evals", constant(i), ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(scheduleSpecEvaluators[i], method, this.getClass(), classScope));
         }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -56,7 +57,7 @@ public class OutputStrategyPostProcessForge {
      * @return method
      */
     public CodegenMethod postProcessCodegenMayNullMayForce(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(void.class, OutputStrategyPostProcessForge.class, classScope).addParam(boolean.class, "forceUpdate").addParam(UniformPair.class, "result");
+        CodegenMethod method = parent.makeChild(EPTypePremade.VOID.getEPType(), OutputStrategyPostProcessForge.class, classScope).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "forceUpdate").addParam(UniformPair.EPTYPE, "result");
 
         CodegenBlock ifChild = method.getBlock().ifCondition(notEqualsNull(MEMBER_CHILD));
 
@@ -64,15 +65,15 @@ public class OutputStrategyPostProcessForge {
         CodegenBlock ifResultNotNull = ifChild.ifRefNotNull("result");
         if (isRouted) {
             if (insertIntoStreamSelector.isSelectsIStream()) {
-                ifResultNotNull.localMethod(routeCodegen(classScope, parent), cast(EventBean[].class, exprDotMethod(ref("result"), "getFirst")));
+                ifResultNotNull.localMethod(routeCodegen(classScope, parent), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("result"), "getFirst")));
             }
             if (insertIntoStreamSelector.isSelectsRStream()) {
-                ifResultNotNull.localMethod(routeCodegen(classScope, parent), cast(EventBean[].class, exprDotMethod(ref("result"), "getSecond")));
+                ifResultNotNull.localMethod(routeCodegen(classScope, parent), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("result"), "getSecond")));
             }
         }
         if (selectStreamSelector == SelectClauseStreamSelectorEnum.RSTREAM_ONLY) {
             ifResultNotNull.ifCondition(notEqualsNull(exprDotMethod(ref("result"), "getSecond")))
-                    .exprDotMethod(MEMBER_CHILD, "newResult", newInstance(UniformPair.class, exprDotMethod(ref("result"), "getSecond"), constantNull()))
+                    .exprDotMethod(MEMBER_CHILD, "newResult", newInstance(UniformPair.EPTYPE, exprDotMethod(ref("result"), "getSecond"), constantNull()))
                     .ifElseIf(ref("forceUpdate"))
                     .exprDotMethod(MEMBER_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
         } else if (selectStreamSelector == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH) {
@@ -82,7 +83,7 @@ public class OutputStrategyPostProcessForge {
                     .exprDotMethod(MEMBER_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
         } else {
             ifResultNotNull.ifCondition(notEqualsNull(exprDotMethod(ref("result"), "getFirst")))
-                    .exprDotMethod(MEMBER_CHILD, "newResult", newInstance(UniformPair.class, exprDotMethod(ref("result"), "getFirst"), constantNull()))
+                    .exprDotMethod(MEMBER_CHILD, "newResult", newInstance(UniformPair.EPTYPE, exprDotMethod(ref("result"), "getFirst"), constantNull()))
                     .ifElseIf(ref("forceUpdate"))
                     .exprDotMethod(MEMBER_CHILD, "newResult", publicConstValue(UniformPair.class, "EMPTY_PAIR"));
         }
@@ -96,10 +97,10 @@ public class OutputStrategyPostProcessForge {
     }
 
     private CodegenMethod routeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(void.class, OutputStrategyPostProcessForge.class, classScope).addParam(EventBean[].class, "events");
+        CodegenMethod method = parent.makeChild(EPTypePremade.VOID.getEPType(), OutputStrategyPostProcessForge.class, classScope).addParam(EventBean.EPTYPEARRAY, "events");
         CodegenBlock forEach = method.getBlock()
                 .ifRefNull("events").blockReturnNoValue()
-                .forEach(EventBean.class, "routed", ref("events"));
+                .forEach(EventBean.EPTYPE, "routed", ref("events"));
 
         if (audit) {
             forEach.expression(exprDotMethodChain(MEMBER_AGENTINSTANCECONTEXT).add("getAuditProvider").add("insert", ref("routed"), MEMBER_AGENTINSTANCECONTEXT));
@@ -111,7 +112,7 @@ public class OutputStrategyPostProcessForge {
 
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpression resolveTable = table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method));
-        return newInstance(OutputStrategyPostProcessFactory.class, constant(isRouted),
+        return newInstance(OutputStrategyPostProcessFactory.EPTYPE, constant(isRouted),
             insertIntoStreamSelector == null ? constantNull() : enumValue(SelectClauseStreamSelectorEnum.class, insertIntoStreamSelector.name()),
                 enumValue(SelectClauseStreamSelectorEnum.class, selectStreamSelector.name()),
                 constant(routeToFront), resolveTable);

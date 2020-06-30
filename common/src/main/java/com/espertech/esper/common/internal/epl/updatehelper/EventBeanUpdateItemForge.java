@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.updatehelper;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -71,7 +72,7 @@ public class EventBeanUpdateItemForge {
         return useTriggeringEvent;
     }
 
-    public EventBeanUpdateItemForgeWExpressions toExpression(Class type, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public EventBeanUpdateItemForgeWExpressions toExpression(EPTypeClass type, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         CodegenExpression rhs = expression.evaluateCodegen(type, parent, symbols, classScope);
         EventBeanUpdateItemArrayExpressions arrayExpressions = null;
         if (optionalArray != null) {

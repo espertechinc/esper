@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
@@ -19,7 +20,8 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumMostLeastFrequent {
 
@@ -28,6 +30,7 @@ public class ExprEnumMostLeastFrequent {
         execs.add(new ExprEnumMostLeastFreqEvents());
         execs.add(new ExprEnumMostLeastFreqScalarNoParam());
         execs.add(new ExprEnumMostLeastFreqScalar());
+        execs.add(new ExprEnumMostLeastFrequentInvalid());
         return execs;
     }
 
@@ -42,7 +45,7 @@ public class ExprEnumMostLeastFrequent {
             builder.expression(fields[4], "contained.mostFrequent( (x, i, s) => p00 + i*2 + s*4)");
             builder.expression(fields[5], "contained.leastFrequent( (x, i, s) => p00 + i*2 + s*4)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.INTEGERBOXED.getEPType()));
 
             SupportBean_ST0_Container bean = SupportBean_ST0_Container.make2Value("E1,12", "E2,11", "E2,2", "E3,12");
             builder.assertion(bean).expect(fields, 12, 11, 12, 12, 28, 28);
@@ -71,7 +74,7 @@ public class ExprEnumMostLeastFrequent {
             builder.expression(fields[0], "strvals.mostFrequent()");
             builder.expression(fields[1], "strvals.leastFrequent()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.STRING.getEPType()));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E2,E1,E3,E3,E4,E3")).expect(fields, "E3", "E4");
 
@@ -96,7 +99,7 @@ public class ExprEnumMostLeastFrequent {
             builder.expression(fields[4], "strvals.mostFrequent( (v, i, s) => extractNum(v) + i*10 + s*100)");
             builder.expression(fields[5], "strvals.leastFrequent( (v, i, s) => extractNum(v) + i*10 + s*100)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.INTEGERBOXED.getEPType()));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E2,E1,E3,E3,E4,E3")).expect(fields, 3, 4, 2, 2, 802, 802);
 
@@ -107,6 +110,15 @@ public class ExprEnumMostLeastFrequent {
             builder.assertion(SupportCollection.makeString("")).expect(fields, null, null, null, null, null, null);
 
             builder.run(env);
+        }
+    }
+
+    private static class ExprEnumMostLeastFrequentInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl;
+
+            epl = "select strvals.mostFrequent(v => null) from SupportCollection";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.mostFrequent()': Null-type is not allowed");
         }
     }
 }

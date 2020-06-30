@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -37,9 +40,9 @@ public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
 
     public static Object newInstance(String expressionToString, ExprForge forge) {
         return java.lang.reflect.Proxy.newProxyInstance(
-                forge.getClass().getClassLoader(),
-                JavaClassHelper.getSuperInterfaces(forge.getClass()),
-                new ExprForgeProxy(expressionToString, forge));
+            forge.getClass().getClassLoader(),
+            JavaClassHelper.getSuperInterfaces(forge.getClass()),
+            new ExprForgeProxy(expressionToString, forge));
     }
 
     public ExprForgeProxy(String expressionToString, ExprForge forge) {
@@ -48,28 +51,30 @@ public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
     }
 
     public Object invoke(Object proxy, Method m, Object[] args)
-            throws Throwable {
+        throws Throwable {
 
         try {
             if (m.equals(TARGET_EVALUATECODEGEN)) {
-                Class evaluationType = forge.getEvaluationType();
-                Class requiredType = (Class) args[args.length - 4];
+                EPType evaluationType = forge.getEvaluationType();
+                EPTypeClass requiredType = (EPTypeClass) args[args.length - 4];
                 CodegenMethodScope parent = (CodegenMethodScope) args[args.length - 3];
                 ExprForgeCodegenSymbol symbols = (ExprForgeCodegenSymbol) args[args.length - 2];
                 CodegenClassScope codegenClassScope = (CodegenClassScope) args[args.length - 1];
 
-                if (evaluationType == null) {
+                if (evaluationType == null || evaluationType == EPTypeNull.INSTANCE) {
                     return forge.evaluateCodegen(requiredType, parent, symbols, codegenClassScope);
                 }
-                CodegenMethod method = parent.makeChild(evaluationType, ExprForgeProxy.class, codegenClassScope);
-                if (evaluationType == void.class) {
+                EPTypeClass evaluationClass = (EPTypeClass) evaluationType;
+
+                CodegenMethod method = parent.makeChild(evaluationClass, ExprForgeProxy.class, codegenClassScope);
+                if (JavaClassHelper.isTypeVoid(evaluationClass)) {
                     method.getBlock().expression(forge.evaluateCodegen(requiredType, method, symbols, codegenClassScope))
-                            .expression(exprDotMethodChain(symbols.getAddExprEvalCtx(method)).add("getAuditProvider").add("expression", constant(expressionToString), constant("(void)"), symbols.getAddExprEvalCtx(method)))
-                            .methodEnd();
+                        .expression(exprDotMethodChain(symbols.getAddExprEvalCtx(method)).add("getAuditProvider").add("expression", constant(expressionToString), constant("(void)"), symbols.getAddExprEvalCtx(method)))
+                        .methodEnd();
                 } else {
-                    method.getBlock().declareVar(evaluationType, "result", forge.evaluateCodegen(evaluationType, method, symbols, codegenClassScope))
-                            .expression(exprDotMethodChain(symbols.getAddExprEvalCtx(method)).add("getAuditProvider").add("expression", constant(expressionToString), ref("result"), symbols.getAddExprEvalCtx(method)))
-                            .methodReturn(ref("result"));
+                    method.getBlock().declareVar(evaluationClass, "result", forge.evaluateCodegen(evaluationClass, method, symbols, codegenClassScope))
+                        .expression(exprDotMethodChain(symbols.getAddExprEvalCtx(method)).add("getAuditProvider").add("expression", constant(expressionToString), ref("result"), symbols.getAddExprEvalCtx(method)))
+                        .methodReturn(ref("result"));
                 }
                 return localMethod(method);
             }

@@ -10,11 +10,16 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
+import static com.espertech.esper.common.internal.util.ClassHelperGenericType.getClassEPType;
 
 public class TestRelationalOpEnum extends TestCase {
     boolean[][] expected = new boolean[][]{{false, false, true},  //GT
@@ -28,7 +33,7 @@ public class TestRelationalOpEnum extends TestCase {
 
         for (RelationalOpEnum op : RelationalOpEnum.values()) {
             for (int i = 0; i < parameters.length; i++) {
-                boolean result = op.getComputer(String.class, String.class, String.class).compare(parameters[i][0], parameters[i][1]);
+                boolean result = op.getComputer(STRING.getEPType(), STRING.getEPType(), STRING.getEPType()).compare(parameters[i][0], parameters[i][1]);
                 assertEquals("op=" + op.toString() + ",i=" + i, expected[op.ordinal()][i], result);
             }
         }
@@ -39,7 +44,7 @@ public class TestRelationalOpEnum extends TestCase {
 
         for (RelationalOpEnum op : RelationalOpEnum.values()) {
             for (int i = 0; i < parameters.length; i++) {
-                boolean result = op.getComputer(Long.class, Long.class, long.class).compare(parameters[i][0], parameters[i][1]);
+                boolean result = op.getComputer(LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGPRIMITIVE.getEPType()).compare(parameters[i][0], parameters[i][1]);
                 assertEquals("op=" + op.toString() + ",i=" + i, expected[op.ordinal()][i], result);
             }
         }
@@ -50,7 +55,7 @@ public class TestRelationalOpEnum extends TestCase {
 
         for (RelationalOpEnum op : RelationalOpEnum.values()) {
             for (int i = 0; i < parameters.length; i++) {
-                boolean result = op.getComputer(Double.class, double.class, Double.class).compare(parameters[i][0], parameters[i][1]);
+                boolean result = op.getComputer(DOUBLEBOXED.getEPType(), DOUBLEPRIMITIVE.getEPType(), DOUBLEBOXED.getEPType()).compare(parameters[i][0], parameters[i][1]);
                 assertEquals("op=" + op.toString() + ",i=" + i, expected[op.ordinal()][i], result);
             }
         }
@@ -93,9 +98,9 @@ public class TestRelationalOpEnum extends TestCase {
 
             RelationalOpEnum.Computer computer;
             if (isBigDec) {
-                computer = e.getComputer(BigDecimal.class, lhs.getClass(), rhs.getClass());
+                computer = e.getComputer(EPTypePremade.BIGDECIMAL.getEPType(), getClassEPType(lhs.getClass()), getClassEPType(rhs.getClass()));
             } else {
-                computer = e.getComputer(BigInteger.class, lhs.getClass(), rhs.getClass());
+                computer = e.getComputer(EPTypePremade.BIGINTEGER.getEPType(), getClassEPType(lhs.getClass()), getClassEPType(rhs.getClass()));
             }
 
             Object result = null;
@@ -118,7 +123,8 @@ public class TestRelationalOpEnum extends TestCase {
 
     private void tryInvalid(Class clazz) {
         try {
-            RelationalOpEnum.GE.getComputer(clazz, clazz, clazz);
+            EPTypeClass type = getClassEPType(clazz);
+            RelationalOpEnum.GE.getComputer(type, type, type);
             fail();
         } catch (IllegalArgumentException ex) {
             // Expected

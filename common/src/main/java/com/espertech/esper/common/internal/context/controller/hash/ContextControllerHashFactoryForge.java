@@ -43,9 +43,9 @@ public class ContextControllerHashFactoryForge extends ContextControllerForgeBas
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(ContextControllerHashFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerHashFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextControllerHashFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("hashFactory"))
+                .declareVar(ContextControllerHashFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("hashFactory"))
                 .exprDotMethod(ref("factory"), "setHashSpec", detail.makeCodegen(method, symbols, classScope))
                 .methodReturn(ref("factory"));
         return method;

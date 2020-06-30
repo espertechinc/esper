@@ -22,6 +22,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.events.SupportGenericColUtil;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.regressionlib.support.schedule.SupportDateTimeUtil;
 import com.espertech.esper.runtime.client.EPStatement;
@@ -48,20 +49,53 @@ public class ExprCoreCast {
         executions.add(new ExprCoreCastSimple());
         executions.add(new ExprCoreCastSimpleMoreTypes());
         executions.add(new ExprCoreCastAsParse());
-        executions.add(new ExprCoreDoubleAndNullOM());
+        executions.add(new ExprCoreCastDoubleAndNullOM());
         executions.add(new ExprCoreCastInterface());
-        executions.add(new ExprCastStringAndNullCompile());
+        executions.add(new ExprCoreCastStringAndNullCompile());
         executions.add(new ExprCoreCastBoolean());
-        executions.add(new ExprCastWStaticType());
-        executions.add(new ExprCastWArray(false));
-        executions.add(new ExprCastWArray(true));
+        executions.add(new ExprCoreCastWStaticType());
+        executions.add(new ExprCoreCastWArray(false));
+        executions.add(new ExprCoreCastWArray(true));
+        executions.add(new ExprCoreCastGeneric());
         return executions;
     }
 
-    private static class ExprCastWArray implements RegressionExecution {
+    private static class ExprCoreCastGeneric implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            StringBuilder schema = new StringBuilder();
+            schema.append("@public @buseventtype create schema MyEvent(");
+            String delimiter = "";
+            for (SupportGenericColUtil.PairOfNameAndType pair : SupportGenericColUtil.NAMESANDTYPES) {
+                schema.append(delimiter).append(pair.getName()).append(" java.lang.Object");
+                delimiter = ",";
+            }
+            schema.append(");\n");
+
+            delimiter = "";
+            StringBuilder cast = new StringBuilder();
+            cast.append("@name('s0') select ");
+            for (SupportGenericColUtil.PairOfNameAndType pair : SupportGenericColUtil.NAMESANDTYPES) {
+                cast.append(delimiter).append("cast(").append(pair.getName()).append(",").append(pair.getType()).append(") as ").append(pair.getName());
+                delimiter = ",";
+            }
+            cast.append(" from MyEvent;\n");
+
+            String epl = schema.toString() + cast.toString();
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportGenericColUtil.assertPropertyEPTypes(env.statement("s0").getEventType());
+
+            env.sendEventMap(SupportGenericColUtil.getSampleEvent(), "MyEvent");
+            SupportGenericColUtil.compare(env.listener("s0").assertOneGetNewAndReset());
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ExprCoreCastWArray implements RegressionExecution {
         private boolean soda;
 
-        public ExprCastWArray(boolean soda) {
+        public ExprCoreCastWArray(boolean soda) {
             this.soda = soda;
         }
 
@@ -131,7 +165,7 @@ public class ExprCoreCast {
         }
     }
 
-    private static class ExprCastWStaticType implements RegressionExecution {
+    private static class ExprCoreCastWStaticType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmt = "@name('s0') select " +
                 "cast(anInt, int) as intVal, " +
@@ -254,7 +288,7 @@ public class ExprCoreCast {
         }
     }
 
-    private static class ExprCoreDoubleAndNullOM implements RegressionExecution {
+    private static class ExprCoreCastDoubleAndNullOM implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "select cast(item?,double) as t0 from SupportBeanDynRoot";
 
@@ -382,7 +416,7 @@ public class ExprCoreCast {
         }
     }
 
-    private static class ExprCastStringAndNullCompile implements RegressionExecution {
+    private static class ExprCoreCastStringAndNullCompile implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select cast(item?,java.lang.String) as t0 from SupportBeanDynRoot";
 

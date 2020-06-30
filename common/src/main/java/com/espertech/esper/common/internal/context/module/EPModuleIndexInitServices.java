@@ -10,11 +10,13 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIndexesInitializeSymbol;
 import com.espertech.esper.common.internal.epl.index.compile.IndexCollector;
 
 public interface EPModuleIndexInitServices {
+    EPTypeClass EPTYPE = new EPTypeClass(EPModuleIndexInitServices.class);
     CodegenExpressionRef REF = ModuleIndexesInitializeSymbol.REF_INITSVC;
 
     String GETINDEXCOLLECTOR = "getIndexCollector";

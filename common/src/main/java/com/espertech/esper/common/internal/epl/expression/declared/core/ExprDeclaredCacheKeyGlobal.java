@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.expression.declared.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class ExprDeclaredCacheKeyGlobal {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExprDeclaredCacheKeyGlobal.class);
+
     private final String deploymentIdExpr;
     private final String expressionName;
 

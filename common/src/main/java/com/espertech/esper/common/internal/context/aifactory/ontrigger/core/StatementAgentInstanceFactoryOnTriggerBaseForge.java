@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,7 +27,6 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
 import java.util.Map;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public abstract class StatementAgentInstanceFactoryOnTriggerBaseForge {
@@ -43,18 +43,18 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBaseForge {
         this.tableAccesses = tableAccesses;
     }
 
-    public abstract Class typeOfSubclass();
+    public abstract EPTypeClass typeOfSubclass();
 
     public abstract void inlineInitializeOnTriggerBase(CodegenExpressionRef saiff, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
     public final CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(typeOfSubclass(), this.getClass(), classScope);
         method.getBlock()
-                .declareVar(typeOfSubclass(), "saiff", newInstance(typeOfSubclass()))
-                .exprDotMethod(ref("saiff"), "setActivator", activator.makeCodegen(method, symbols, classScope))
-                .exprDotMethod(ref("saiff"), "setResultEventType", EventTypeUtility.resolveTypeCodegen(resultEventType, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("saiff"), "setSubselects", SubSelectFactoryForge.codegenInitMap(subselects, this.getClass(), method, symbols, classScope))
-                .exprDotMethod(ref("saiff"), "setTableAccesses", ExprTableEvalStrategyUtil.codegenInitMap(tableAccesses, this.getClass(), method, symbols, classScope));
+            .declareVarNewInstance(typeOfSubclass(), "saiff")
+            .exprDotMethod(ref("saiff"), "setActivator", activator.makeCodegen(method, symbols, classScope))
+            .exprDotMethod(ref("saiff"), "setResultEventType", EventTypeUtility.resolveTypeCodegen(resultEventType, symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("saiff"), "setSubselects", SubSelectFactoryForge.codegenInitMap(subselects, this.getClass(), method, symbols, classScope))
+            .exprDotMethod(ref("saiff"), "setTableAccesses", ExprTableEvalStrategyUtil.codegenInitMap(tableAccesses, this.getClass(), method, symbols, classScope));
         inlineInitializeOnTriggerBase(ref("saiff"), method, symbols, classScope);
         method.getBlock().methodReturn(ref("saiff"));
         return method;

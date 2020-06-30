@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.map;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -59,10 +60,10 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenExpression getMapCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, MapEntryPropertyGetter.class, codegenClassScope).addParam(Map.class, "map").getBlock()
-                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
-                .ifInstanceOf("value", EventBean.class)
-                .blockReturn(exprDotUnderlying(cast(EventBean.class, ref("value"))))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), MapEntryPropertyGetter.class, codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "map").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
+                .ifInstanceOf("value", EventBean.EPTYPE)
+                .blockReturn(exprDotUnderlying(cast(EventBean.EPTYPE, ref("value"))))
                 .methodReturn(ref("value"));
         return localMethod(method, underlyingExpression);
     }
@@ -88,7 +89,7 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -99,7 +100,7 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
         if (eventType == null) {
             return constantNull();
         }
-        return underlyingFragmentCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -115,7 +116,7 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
             return constantNull();
         }
         CodegenExpressionField mSvc = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, BeanEventType.class, cast(BeanEventType.class, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)));
+        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, BeanEventType.EPTYPE, cast(BeanEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)));
         return staticMethod(BaseNestableEventUtil.class, "getBNFragmentPojo", underlyingGetCodegen(underlyingExpression, codegenMethodScope, codegenClassScope), mType, mSvc);
     }
 }

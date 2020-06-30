@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.createtable;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -60,14 +61,14 @@ public class StatementAgentInstanceFactoryCreateTableForge {
         List<CodegenInnerClass> inners = AggregationServiceFactoryCompiler.makeTable(AggregationCodegenRowLevelDesc.fromTopOnly(plan.getAggDesc()), this.getClass(), classScope, aggregationClassNames, className);
         classScope.addInnerClasses(inners);
 
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateTable.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateTable.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression primaryKeyGetter = MultiKeyCodegen.codegenGetterMayMultiKey(plan.getInternalEventType(), plan.getPrimaryKeyGetters(), plan.getPrimaryKeyTypes(), null, plan.getPrimaryKeyMultikeyClasses(), method, classScope);
         CodegenExpression fafTransform = MultiKeyCodegen.codegenMultiKeyFromArrayTransform(plan.getPrimaryKeyMultikeyClasses(), method, classScope);
         CodegenExpression intoTableTransform = MultiKeyCodegen.codegenMultiKeyFromMultiKeyTransform(plan.getPrimaryKeyMultikeyClasses(), method, classScope);
 
         method.getBlock()
-            .declareVar(StatementAgentInstanceFactoryCreateTable.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateTable.class))
+            .declareVarNewInstance(StatementAgentInstanceFactoryCreateTable.EPTYPE, "saiff")
             .exprDotMethod(ref("saiff"), "setTableName", constant(tableName))
             .exprDotMethod(ref("saiff"), "setPublicEventType", EventTypeUtility.resolveTypeCodegen(plan.getPublicEventType(), symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("saiff"), "setEventToPublic", makeEventToPublic(method, symbols, classScope))
@@ -84,28 +85,28 @@ public class StatementAgentInstanceFactoryCreateTableForge {
     }
 
     private CodegenExpression makeEventToPublic(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TableMetadataInternalEventToPublic.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TableMetadataInternalEventToPublic.EPTYPE, this.getClass(), classScope);
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(plan.getPublicEventType(), EPStatementInitServices.REF));
+        CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(plan.getPublicEventType(), EPStatementInitServices.REF));
 
-        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), TableMetadataInternalEventToPublic.class);
+        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), TableMetadataInternalEventToPublic.EPTYPE);
 
-        CodegenMethod convert = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), classScope).addParam(EventBean.class, "event").addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod convert = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), classScope).addParam(EventBean.EPTYPE, "event").addParam(ExprForgeCodegenNames.PARAMS);
         clazz.addMethod("convert", convert);
         convert.getBlock()
-            .declareVar(Object[].class, "data", exprDotMethod(ref("this"), "convertToUnd", ref("event"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "data", exprDotMethod(ref("this"), "convertToUnd", ref("event"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
             .methodReturn(exprDotMethod(factory, "adapterForTypedObjectArray", ref("data"), eventType));
 
-        CodegenMethod convertToUnd = CodegenMethod.makeParentNode(Object[].class, this.getClass(), classScope).addParam(EventBean.class, "event").addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod convertToUnd = CodegenMethod.makeParentNode(EPTypePremade.OBJECTARRAY.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "event").addParam(ExprForgeCodegenNames.PARAMS);
         clazz.addMethod("convertToUnd", convertToUnd);
         convertToUnd.getBlock()
-            .declareVar(Object[].class, "props", exprDotMethod(cast(ObjectArrayBackedEventBean.class, ref("event")), "getProperties"))
-            .declareVar(Object[].class, "data", newArrayByLength(Object.class, constant(plan.getPublicEventType().getPropertyNames().length)));
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", exprDotMethod(cast(ObjectArrayBackedEventBean.EPTYPE, ref("event")), "getProperties"))
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "data", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(plan.getPublicEventType().getPropertyNames().length)));
         for (TableMetadataColumnPairPlainCol plain : plan.getColsPlain()) {
             convertToUnd.getBlock().assignArrayElement(ref("data"), constant(plain.getDest()), arrayAtIndex(ref("props"), constant(plain.getSource())));
         }
         if (plan.getColsAggMethod().length > 0 || plan.getColsAccess().length > 0) {
-            convertToUnd.getBlock().declareVar(AggregationRow.class, "row", cast(AggregationRow.class, arrayAtIndex(ref("props"), constant(0))));
+            convertToUnd.getBlock().declareVar(AggregationRow.EPTYPE, "row", cast(AggregationRow.EPTYPE, arrayAtIndex(ref("props"), constant(0))));
             int count = 0;
 
             for (TableMetadataColumnPairAggMethod aggMethod : plan.getColsAggMethod()) {

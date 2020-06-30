@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -33,6 +34,8 @@ import static com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQu
  * Starts and provides the stop method for EPL statements.
  */
 public class FAFQueryMethodSelect implements FAFQueryMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodSelect.class);
+    
     private Annotation[] annotations;
     private String contextName;
     private ExprEvaluator whereClause;

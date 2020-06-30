@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -24,28 +26,28 @@ import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalVi
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprDotForgeUnpackBeanTable implements ExprDotForge, ExprDotEval {
 
-    private final EPType returnType;
+    private final EPChainableType returnType;
     private final TableMetaData tableMetadata;
 
     public ExprDotForgeUnpackBeanTable(EventType lambdaType, TableMetaData tableMetadata) {
         this.tableMetadata = tableMetadata;
-        this.returnType = EPTypeHelper.singleValue(tableMetadata.getPublicEventType().getUnderlyingType());
+        this.returnType = EPChainableTypeHelper.singleValue(tableMetadata.getPublicEventType().getUnderlyingEPType());
     }
 
     public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException("Table-row eval not available at compile time");
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         CodegenExpression eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tableMetadata, classScope, this.getClass());
-        CodegenMethod methodNode = parent.makeChild(Object[].class, ExprDotForgeUnpackBeanTable.class, classScope).addParam(EventBean.class, "target");
+        CodegenMethod methodNode = parent.makeChild(EPTypePremade.OBJECTARRAY.getEPType(), ExprDotForgeUnpackBeanTable.class, classScope).addParam(EventBean.EPTYPE, "target");
 
         CodegenExpressionRef refEPS = symbols.getAddEPS(methodNode);
         CodegenExpression refIsNewData = symbols.getAddIsNewData(methodNode);
@@ -57,7 +59,7 @@ public class ExprDotForgeUnpackBeanTable implements ExprDotForge, ExprDotEval {
         return localMethod(methodNode, inner);
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return returnType;
     }
 

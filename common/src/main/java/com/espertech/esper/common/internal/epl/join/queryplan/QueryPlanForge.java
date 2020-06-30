@@ -68,14 +68,14 @@ public class QueryPlanForge {
     }
 
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(QueryPlan.class, makeIndexes(method, symbols, classScope), makeStrategies(method, symbols, classScope));
+        return newInstance(QueryPlan.EPTYPE, makeIndexes(method, symbols, classScope), makeStrategies(method, symbols, classScope));
     }
 
     private CodegenExpression makeStrategies(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return CodegenMakeableUtil.makeArray("spec", QueryPlanNode.class, execNodeSpecs, this.getClass(), parent, symbols, classScope);
+        return CodegenMakeableUtil.makeArray("spec", QueryPlanNode.EPTYPE, execNodeSpecs, this.getClass(), parent, symbols, classScope);
     }
 
     private CodegenExpression makeIndexes(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return CodegenMakeableUtil.makeArray("indexes", QueryPlanIndex.class, indexSpecs, this.getClass(), parent, symbols, classScope);
+        return CodegenMakeableUtil.makeArray("indexes", QueryPlanIndex.EPTYPE, indexSpecs, this.getClass(), parent, symbols, classScope);
     }
 }

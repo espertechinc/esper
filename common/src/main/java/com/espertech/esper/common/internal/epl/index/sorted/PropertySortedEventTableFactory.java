@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.sorted;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
@@ -25,9 +26,9 @@ public class PropertySortedEventTableFactory implements EventTableFactory {
     protected final int streamNum;
     protected final String propertyName;
     protected final EventPropertyValueGetter propertyGetter;
-    protected final Class valueType;
+    protected final EPTypeClass valueType;
 
-    public PropertySortedEventTableFactory(int streamNum, String propertyName, EventPropertyValueGetter propertyGetter, Class valueType) {
+    public PropertySortedEventTableFactory(int streamNum, String propertyName, EventPropertyValueGetter propertyGetter, EPTypeClass valueType) {
         this.streamNum = streamNum;
         this.propertyName = propertyName;
         this.propertyGetter = propertyGetter;
@@ -56,7 +57,7 @@ public class PropertySortedEventTableFactory implements EventTableFactory {
         return propertyName;
     }
 
-    public Class getValueType() {
+    public EPTypeClass getValueType() {
         return valueType;
     }
 

@@ -55,11 +55,11 @@ public class EventAdvancedIndexProvisionCompileTime {
     }
 
     public CodegenExpression codegenMake(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(EventAdvancedIndexProvisionRuntime.class, EventAdvancedIndexProvisionCompileTime.class, classScope);
+        CodegenMethod method = parent.makeChild(EventAdvancedIndexProvisionRuntime.EPTYPE, EventAdvancedIndexProvisionCompileTime.class, classScope);
         String[] indexExpressions = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceAsArray(indexDesc.getIndexedExpressions());
         String[] indexProperties = getPropertiesPerExpressionExpectSingle(indexDesc.getIndexedExpressions());
         method.getBlock()
-                .declareVar(EventAdvancedIndexProvisionRuntime.class, "desc", newInstance(EventAdvancedIndexProvisionRuntime.class))
+                .declareVarNewInstance(EventAdvancedIndexProvisionRuntime.EPTYPE, "desc")
                 .exprDotMethod(ref("desc"), "setIndexExpressionTexts", constant(indexExpressions))
                 .exprDotMethod(ref("desc"), "setIndexProperties", constant(indexProperties))
                 .exprDotMethod(ref("desc"), "setIndexExpressionsAllProps", constant(ExprNodeUtilityQuery.isExpressionsAllPropsOnly(indexDesc.getIndexedExpressions())))

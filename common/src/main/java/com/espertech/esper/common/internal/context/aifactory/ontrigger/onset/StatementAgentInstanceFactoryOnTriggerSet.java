@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.onset;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryUtil;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StatementAgentInstanceFactoryOnTriggerBase;
@@ -25,6 +26,7 @@ import com.espertech.esper.common.internal.view.core.View;
 import java.util.List;
 
 public class StatementAgentInstanceFactoryOnTriggerSet extends StatementAgentInstanceFactoryOnTriggerBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryOnTriggerSet.class);
 
     private VariableReadWritePackage variableReadWrite;
     private ResultSetProcessorFactoryProvider resultSetProcessorFactoryProvider;

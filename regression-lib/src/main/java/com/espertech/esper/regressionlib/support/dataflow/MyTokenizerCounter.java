@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.support.dataflow;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.common.client.dataflow.annotations.OutputType;
 import com.espertech.esper.common.client.dataflow.annotations.OutputTypes;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -32,6 +33,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
     @OutputType(name = "charCount", type = int.class)
 })
 public class MyTokenizerCounter implements DataFlowOperatorForge, DataFlowOperatorFactory, DataFlowOperator {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MyTokenizerCounter.class);
     private static final Logger log = LoggerFactory.getLogger(MyTokenizerCounter.class);
 
     @DataFlowContext
@@ -42,7 +44,7 @@ public class MyTokenizerCounter implements DataFlowOperatorForge, DataFlowOperat
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(MyTokenizerCounter.class);
+        return newInstance(MyTokenizerCounter.EPTYPE);
     }
 
     public void initializeFactory(DataFlowOpFactoryInitializeContext context) {

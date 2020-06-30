@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -31,8 +33,8 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
     private final int propertyIndex;
     private final BeanEventPropertyGetter entryGetter;
 
-    public ObjectArrayPOJOEntryPropertyGetter(int propertyIndex, BeanEventPropertyGetter entryGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class returnType, Class nestedComponentType) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType, nestedComponentType);
+    public ObjectArrayPOJOEntryPropertyGetter(int propertyIndex, BeanEventPropertyGetter entryGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass eptype) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, eptype);
         this.propertyIndex = propertyIndex;
         this.entryGetter = entryGetter;
     }
@@ -53,12 +55,12 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
     }
 
     private CodegenMethod getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
-                .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
-                .ifRefNullReturnNull("value")
-                .ifInstanceOf("value", EventBean.class)
-                .blockReturn(entryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), codegenMethodScope, codegenClassScope))
-                .methodReturn(entryGetter.underlyingGetCodegen(cast(entryGetter.getTargetType(), ref("value")), codegenMethodScope, codegenClassScope));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "array").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
+            .ifRefNullReturnNull("value")
+            .ifInstanceOf("value", EventBean.EPTYPE)
+            .blockReturn(entryGetter.eventBeanGetCodegen(castRef(EventBean.EPTYPE, "value"), codegenMethodScope, codegenClassScope))
+            .methodReturn(entryGetter.underlyingGetCodegen(cast(entryGetter.getTargetType(), ref("value")), codegenMethodScope, codegenClassScope));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -90,20 +92,20 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
     }
 
     private CodegenMethod isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
-                .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
-                .ifRefNullReturnFalse("value")
-                .ifInstanceOf("value", EventBean.class)
-                .blockReturn(entryGetter.eventBeanExistsCodegen(castRef(EventBean.class, "value"), codegenMethodScope, codegenClassScope))
-                .methodReturn(entryGetter.underlyingExistsCodegen(cast(entryGetter.getTargetType(), ref("value")), codegenMethodScope, codegenClassScope));
+        return codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "array").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
+            .ifRefNullReturnFalse("value")
+            .ifInstanceOf("value", EventBean.EPTYPE)
+            .blockReturn(entryGetter.eventBeanExistsCodegen(castRef(EventBean.EPTYPE, "value"), codegenMethodScope, codegenClassScope))
+            .methodReturn(entryGetter.underlyingExistsCodegen(cast(entryGetter.getTargetType(), ref("value")), codegenMethodScope, codegenClassScope));
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -114,11 +116,12 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         return localMethod(isExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public Class getTargetType() {
-        return Object[].class;
+    public EPTypeClass getTargetType() {
+        return EPTypePremade.OBJECTARRAY.getEPType();
     }
 
-    public Class getBeanPropType() {
-        return Object.class;
+    @Override
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 }

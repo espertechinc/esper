@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.script.core.ScriptEvaluator;
 
 public class MethodTargetStrategyScript implements MethodTargetStrategy, MethodTargetStrategyFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MethodTargetStrategyScript.class);
 
     private ScriptEvaluator scriptEvaluator;
 

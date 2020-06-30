@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -28,10 +30,10 @@ public class ExprInNodeForge implements ExprForgeInstrumentable {
     private final ExprInNodeImpl parent;
     private final boolean mustCoerce;
     private final SimpleNumberCoercer coercer;
-    private final Class coercionType;
+    private final EPTypeClass coercionType;
     private final boolean hasCollectionOrArray;
 
-    public ExprInNodeForge(ExprInNodeImpl parent, boolean mustCoerce, SimpleNumberCoercer coercer, Class coercionType, boolean hasCollectionOrArray) {
+    public ExprInNodeForge(ExprInNodeImpl parent, boolean mustCoerce, SimpleNumberCoercer coercer, EPTypeClass coercionType, boolean hasCollectionOrArray) {
         this.parent = parent;
         this.mustCoerce = mustCoerce;
         this.coercer = coercer;
@@ -47,16 +49,16 @@ public class ExprInNodeForge implements ExprForgeInstrumentable {
         return new ExprInNodeForgeEvalNoColl(this, evaluators);
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprInNodeForgeEvalWColl.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprIn", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public Class getEvaluationType() {
-        return Boolean.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 
     public ExprInNodeImpl getForgeRenderable() {
@@ -71,7 +73,7 @@ public class ExprInNodeForge implements ExprForgeInstrumentable {
         return coercer;
     }
 
-    public Class getCoercionType() {
+    public EPTypeClass getCoercionType() {
         return coercionType;
     }
 

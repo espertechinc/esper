@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.activator;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.epl.table.core.TableStateViewableInternal;
 
 public class ViewableActivatorTable implements ViewableActivator {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ViewableActivatorTable.class);
 
     private Table table;
     private ExprEvaluator filterEval;

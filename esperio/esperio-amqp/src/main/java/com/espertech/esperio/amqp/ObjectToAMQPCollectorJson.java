@@ -12,6 +12,7 @@ package com.espertech.esperio.amqp;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 public class ObjectToAMQPCollectorJson implements ObjectToAMQPCollector {
@@ -23,7 +24,7 @@ public class ObjectToAMQPCollectorJson implements ObjectToAMQPCollector {
         }
 
         if (!(context.getObject() instanceof JsonEventObject)) {
-            throw new EPException("Expected JSON event object (JsonEventObject) or string but received " + JavaClassHelper.getClassNameFullyQualPretty(context.getObject().getClass()));
+            throw new EPException("Expected JSON event object (JsonEventObject) or string but received " + ClassHelperPrint.getClassNameFullyQualPretty(context.getObject().getClass()));
         }
         JsonEventObject jsonEventObject = (JsonEventObject) context.getObject();
         context.getEmitter().send(jsonEventObject.toString().getBytes());

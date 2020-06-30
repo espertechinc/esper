@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.endvalue;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -17,10 +18,10 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.cast;
 
 public class JsonEndValueForgeCast implements JsonEndValueForge {
-    private final Class target;
+    private final EPTypeClass target;
     private final String targetClassName;
 
-    public JsonEndValueForgeCast(Class target) {
+    public JsonEndValueForgeCast(EPTypeClass target) {
         this.target = target;
         this.targetClassName = null;
     }

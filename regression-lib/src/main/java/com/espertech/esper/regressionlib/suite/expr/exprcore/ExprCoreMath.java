@@ -85,15 +85,22 @@ public class ExprCoreMath {
 
     private static class ExprCoreMathIntWNull implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "c0".split(",");
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
-                .expressions(fields, "intPrimitive/intBoxed")
-                .statementConsumer(stmt -> assertEquals(Double.class, stmt.getEventType().getPropertyType("c0")));
+                .expression(fields[0], "intPrimitive/intBoxed")
+                .expression(fields[1], "intPrimitive*intBoxed")
+                .expression(fields[2], "intPrimitive+intBoxed")
+                .expression(fields[3], "intPrimitive-intBoxed")
+                .expression(fields[4], "intBoxed/intPrimitive")
+                .expression(fields[5], "intBoxed*intPrimitive")
+                .expression(fields[6], "intBoxed+intPrimitive")
+                .expression(fields[7], "intBoxed-intPrimitive")
+                .statementConsumer(stmt -> assertTypes(stmt, fields, Double.class, Integer.class, Integer.class, Integer.class, Double.class, Integer.class, Integer.class, Integer.class));
 
-            builder.assertion(makeEvent(100, 3)).expect(fields, 100 / 3d);
-            builder.assertion(makeEvent(100, null)).expect(fields, new Object[]{null});
-            builder.assertion(makeEvent(100, 0)).expect(fields, Double.POSITIVE_INFINITY);
-            builder.assertion(makeEvent(-5, 0)).expect(fields, Double.NEGATIVE_INFINITY);
+            builder.assertion(makeEvent(100, 3)).expect(fields, 100 / 3d, 300, 103, 97, 3 / 100d, 300, 103, -97);
+            builder.assertion(makeEvent(100, null)).expect(fields, null, null, null, null, null, null, null, null);
+            builder.assertion(makeEvent(100, 0)).expect(fields, Double.POSITIVE_INFINITY, 0, 100, 100, 0d, 0, 100, -100);
+            builder.assertion(makeEvent(-5, 0)).expect(fields, Double.NEGATIVE_INFINITY, 0, -5, -5, -0d, 0, -5, 5);
 
             builder.run(env);
             env.undeployAll();

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.time_accum;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.view.access.RandomAccessByIndexGetter
 import com.espertech.esper.common.internal.view.core.*;
 
 public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimeAccumViewFactory.class);
 
     protected TimePeriodCompute timePeriodCompute;
     protected int scheduleCallbackId;

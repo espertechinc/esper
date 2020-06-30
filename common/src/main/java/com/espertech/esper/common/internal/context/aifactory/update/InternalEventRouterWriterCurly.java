@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.update;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class InternalEventRouterWriterCurly extends InternalEventRouterWriter {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InternalEventRouterWriterCurly.class);
+
     private ExprEvaluator expression;
 
     public ExprEvaluator getExpression() {

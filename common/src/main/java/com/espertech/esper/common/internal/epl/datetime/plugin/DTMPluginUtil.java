@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.datetime.plugin;
 
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodMode;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodModeStaticMethod;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -20,6 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.MethodResolver;
 import com.espertech.esper.common.internal.util.MethodResolverNoSuchMethodException;
 
@@ -29,10 +32,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class DTMPluginUtil {
 
-    static void validateDTMStaticMethodAllowNull(Class inputType, DateTimeMethodMode mode, Class firstParameter, List<ExprNode> paramExpressions) throws ExprValidationException {
+    static void validateDTMStaticMethodAllowNull(EPTypeClass inputType, DateTimeMethodMode mode, EPTypeClass firstParameter, List<ExprNode> paramExpressions) throws ExprValidationException {
         if (mode == null) {
-            if (inputType == firstParameter) {
-                throw new ExprValidationException("Plugin datetime method does not provide a forge for input type " + inputType.getName());
+            if (inputType.getType() == firstParameter.getType()) {
+                throw new ExprValidationException("Plugin datetime method does not provide a forge for input type " + inputType.getTypeName());
             }
             return;
         }
@@ -40,7 +43,7 @@ public class DTMPluginUtil {
             throw new ExprValidationException("Unexpected plug-in datetime method mode implementation " + mode.getClass());
         }
         DateTimeMethodModeStaticMethod staticMethod = (DateTimeMethodModeStaticMethod) mode;
-        Class[] params = new Class[paramExpressions.size() + 1];
+        EPType[] params = new EPType[paramExpressions.size() + 1];
         params[0] = firstParameter;
         for (int i = 0; i < paramExpressions.size(); i++) {
             params[i + 1] = paramExpressions.get(i).getForge().getEvaluationType();
@@ -52,17 +55,18 @@ public class DTMPluginUtil {
         }
     }
 
-    static CodegenExpression codegenPluginDTM(DateTimeMethodMode mode, Class returnedClass, Class firstParameterClass, CodegenExpression firstParameterExpression, List<ExprNode> paramExpressions, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        DateTimeMethodModeStaticMethod staticMethod = (DateTimeMethodModeStaticMethod) mode;
+    static CodegenExpression codegenPluginDTM(DateTimeMethodMode mode, EPTypeClass returnedClass, EPTypeClass firstParameterClass, CodegenExpression firstParameterExpression, List<ExprNode> paramExpressions, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        DateTimeMethodModeStaticMethod dtStaticMethod = (DateTimeMethodModeStaticMethod) mode;
         CodegenMethod method = parent.makeChild(returnedClass, DTMPluginValueChangeForge.class, classScope).addParam(firstParameterClass, "dt");
         CodegenExpression[] params = new CodegenExpression[paramExpressions.size() + 1];
         params[0] = ref("dt");
         for (int i = 0; i < paramExpressions.size(); i++) {
             ExprForge forge = paramExpressions.get(i).getForge();
-            params[i + 1] = forge.evaluateCodegen(forge.getEvaluationType(), method, symbols, classScope);
+            EPTypeClass evalType = (EPTypeClass) forge.getEvaluationType();
+            params[i + 1] = forge.evaluateCodegen(evalType, method, symbols, classScope);
         }
-        CodegenExpression callStatic = staticMethod(staticMethod.getClazz(), staticMethod.getMethodName(), params);
-        if (returnedClass == void.class) {
+        CodegenExpression callStatic = staticMethod(dtStaticMethod.getClazz(), dtStaticMethod.getMethodName(), params);
+        if (JavaClassHelper.isTypeVoid(returnedClass)) {
             method.getBlock().expression(callStatic);
         } else {
             method.getBlock().methodReturn(callStatic);

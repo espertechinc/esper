@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,11 +23,11 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndMapped;
 import com.espertech.esper.common.internal.event.util.PropertyUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.util.CollectionUtil.getMapKeyExistsChecked;
@@ -39,7 +41,7 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
     private final Object key;
 
     public KeyedMapMethodPropertyGetter(Method method, Object key, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getGenericReturnTypeMap(method, false), null);
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getSecondParameterTypeOrObject(ClassHelperGenericType.getMethodReturnEPType(method)));
         this.key = key;
         this.method = method;
     }
@@ -82,18 +84,20 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         }
     }
 
-    static CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(beanPropType, KeyedMapMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(Object.class, "key").getBlock()
-                .declareVar(method.getReturnType(), "result", exprDotMethod(ref("object"), method.getName()))
-                .ifRefNotTypeReturnConst("result", Map.class, null)
-                .methodReturn(cast(beanPropType, exprDotMethod(cast(Map.class, ref("result")), "get", ref("key"))));
+    static CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, EPTypeClass beanPropType, EPTypeClass targetType, Method method, CodegenClassScope codegenClassScope) throws PropertyAccessException {
+        EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+        return codegenMethodScope.makeChild(beanPropType, KeyedMapMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(EPTypePremade.OBJECT.getEPType(), "key").getBlock()
+                .declareVar(returnType, "result", exprDotMethod(ref("object"), method.getName()))
+                .ifRefNotTypeReturnConst("result", EPTypePremade.MAP.getEPType(), null)
+                .methodReturn(cast(beanPropType, exprDotMethod(cast(EPTypePremade.MAP.getEPType(), ref("result")), "get", ref("key"))));
     }
 
-    static CodegenMethod getBeanPropExistsInternalCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(boolean.class, KeyedMapMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(Object.class, "key").getBlock()
-            .declareVar(method.getReturnType(), "result", exprDotMethod(ref("object"), method.getName()))
-            .ifRefNotTypeReturnConst("result", Map.class, false)
-            .methodReturn(exprDotMethod(cast(Map.class, ref("result")), "containsKey", ref("key")));
+    static CodegenMethod getBeanPropExistsInternalCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, EPTypeClass targetType, Method method, CodegenClassScope codegenClassScope) throws PropertyAccessException {
+        EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+        return codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), KeyedMapMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(EPTypePremade.OBJECT.getEPType(), "key").getBlock()
+            .declareVar(returnType, "result", exprDotMethod(ref("object"), method.getName()))
+            .ifRefNotTypeReturnConst("result", EPTypePremade.MAP.getEPType(), false)
+            .methodReturn(exprDotMethod(cast(EPTypePremade.MAP.getEPType(), ref("result")), "containsKey", ref("key")));
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -116,12 +120,8 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         return getBeanPropExistsInternal(underlying, key);
     }
 
-    public Class getBeanPropType() {
-        return JavaClassHelper.getGenericReturnTypeMap(method, false);
-    }
-
-    public Class getTargetType() {
-        return method.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(method.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -137,7 +137,7 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getBeanPropExistsInternalCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method, codegenClassScope), underlyingExpression, constant(key));
+        return localMethod(getBeanPropExistsInternalCodegen(codegenMethodScope, getBeanPropType().getType(), getTargetType(), method, codegenClassScope), underlyingExpression, constant(key));
     }
 
     public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {

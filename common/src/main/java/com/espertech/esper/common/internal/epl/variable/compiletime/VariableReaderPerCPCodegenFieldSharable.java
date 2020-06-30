@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.variable.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.variable.core.VariableDeployTimeResolver;
-
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
@@ -27,8 +27,8 @@ public class VariableReaderPerCPCodegenFieldSharable implements CodegenFieldShar
         this.metaWVisibility = metaWVisibility;
     }
 
-    public Class type() {
-        return Map.class;
+    public EPTypeClass type() {
+        return EPTypePremade.MAP.getEPType();
     }
 
     public CodegenExpression initCtorScoped() {

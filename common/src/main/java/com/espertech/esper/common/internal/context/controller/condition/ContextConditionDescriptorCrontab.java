@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.condition;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.controller.initterm.ContextControllerInitTermUtil;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntim
 import java.util.List;
 
 public class ContextConditionDescriptorCrontab implements ContextConditionDescriptor {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextConditionDescriptorCrontab.class);
+
     private ExprEvaluator[][] evaluatorsPerCrontab;
     private int scheduleCallbackId = -1;
     private boolean immediate;

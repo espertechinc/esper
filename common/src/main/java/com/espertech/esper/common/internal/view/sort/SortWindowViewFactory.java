@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.view.sort;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -26,8 +28,10 @@ import java.util.Comparator;
  * Factory for sort window views.
  */
 public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SortWindowViewFactory.class);
+
     protected ExprEvaluator[] sortCriteriaEvaluators;
-    protected Class[] sortCriteriaTypes;
+    protected EPType[] sortCriteriaTypes;
     protected DataInputOutputSerde<Object>[] sortSerdes;
     protected boolean[] isDescendingValues;
     protected ExprEvaluator size;
@@ -96,7 +100,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
         this.sortCriteriaEvaluators = sortCriteriaEvaluators;
     }
 
-    public void setSortCriteriaTypes(Class[] sortCriteriaTypes) {
+    public void setSortCriteriaTypes(EPType[] sortCriteriaTypes) {
         this.sortCriteriaTypes = sortCriteriaTypes;
     }
 

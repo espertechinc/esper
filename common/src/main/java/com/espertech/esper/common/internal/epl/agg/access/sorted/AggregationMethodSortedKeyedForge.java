@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,11 +27,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class AggregationMethodSortedKeyedForge implements AggregationMethodForge {
 
     private final ExprNode key;
-    private final Class underlyingClass;
+    private final EPTypeClass underlyingClass;
     private final AggregationMethodSortedEnum aggMethod;
-    private final Class resultType;
+    private final EPTypeClass resultType;
 
-    public AggregationMethodSortedKeyedForge(ExprNode key, Class underlyingClass, AggregationMethodSortedEnum aggMethod, Class resultType) {
+    public AggregationMethodSortedKeyedForge(ExprNode key, EPTypeClass underlyingClass, AggregationMethodSortedEnum aggMethod, EPTypeClass resultType) {
         this.key = key;
         this.underlyingClass = underlyingClass;
         this.aggMethod = aggMethod;
@@ -38,14 +39,14 @@ public class AggregationMethodSortedKeyedForge implements AggregationMethodForge
     }
 
     public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationMultiFunctionAggregationMethod.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationMultiFunctionAggregationMethod.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ExprEvaluator.class, "keyEval", ExprNodeUtilityCodegen.codegenEvaluator(key.getForge(), method, this.getClass(), classScope))
+            .declareVar(ExprEvaluator.EPTYPE, "keyEval", ExprNodeUtilityCodegen.codegenEvaluator(key.getForge(), method, this.getClass(), classScope))
             .methodReturn(staticMethod(AggregationMethodSortedKeyedFactory.class, "makeSortedAggregationWithKey", ref("keyEval"), enumValue(AggregationMethodSortedEnum.class, aggMethod.name()), constant(underlyingClass)));
         return localMethod(method);
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return resultType;
     }
 }

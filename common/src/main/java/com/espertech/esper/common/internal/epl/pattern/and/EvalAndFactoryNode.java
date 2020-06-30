@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.and;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
 
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents an 'and' operator in the evaluation tree representing an event expressions.
  */
 public class EvalAndFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalAndFactoryNode.class);
 
     protected EvalFactoryNode[] children;
 

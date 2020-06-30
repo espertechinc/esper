@@ -10,13 +10,15 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class TestSimpleTypeCasterFactory extends TestCase {
-    public void testGetCaster() throws Exception {
+    public void testGetCaster() {
         Object[][] tests = new Object[][]{
                 {long.class, 10, 10L},
                 {double.class, 1, 1d},
@@ -29,13 +31,13 @@ public class TestSimpleTypeCasterFactory extends TestCase {
         };
 
         for (int i = 0; i < tests.length; i++) {
-            SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(null, (Class) tests[i][0]);
+            SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(EPTypeNull.INSTANCE, ClassHelperGenericType.getClassEPType((Class) tests[i][0]));
             assertEquals("error in row:" + i, tests[i][2], caster.cast(tests[i][1]));
         }
 
-        assertEquals('A', SimpleTypeCasterFactory.getCaster(String.class, char.class).cast("ABC"));
-        assertEquals(BigInteger.valueOf(100), SimpleTypeCasterFactory.getCaster(Long.class, BigInteger.class).cast(100L));
-        assertEquals(new BigDecimal(100), SimpleTypeCasterFactory.getCaster(Long.class, BigDecimal.class).cast(100L));
-        assertEquals(new BigDecimal(100d), SimpleTypeCasterFactory.getCaster(Double.class, BigDecimal.class).cast(100d));
+        assertEquals('A', SimpleTypeCasterFactory.getCaster(String.class, EPTypePremade.CHARPRIMITIVE.getEPType()).cast("ABC"));
+        assertEquals(BigInteger.valueOf(100), SimpleTypeCasterFactory.getCaster(Long.class, EPTypePremade.BIGINTEGER.getEPType()).cast(100L));
+        assertEquals(new BigDecimal(100), SimpleTypeCasterFactory.getCaster(Long.class, EPTypePremade.BIGDECIMAL.getEPType()).cast(100L));
+        assertEquals(new BigDecimal(100d), SimpleTypeCasterFactory.getCaster(Double.class, EPTypePremade.BIGDECIMAL.getEPType()).cast(100d));
     }
 }

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.aifactory.createwindow;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.activator.ViewableActivationResult;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFilter;
@@ -43,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInstanceFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryCreateNW.class);
+
     private static final Logger log = LoggerFactory.getLogger(StatementAgentInstanceFactoryCreateNW.class);
 
     private ViewableActivatorFilter activator;

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.dataflow.util;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 
 public class GraphTypeDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(GraphTypeDesc.class);
+
     private boolean wildcard;
     private boolean underlying;
     private EventType eventType;
@@ -32,7 +35,7 @@ public class GraphTypeDesc {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(GraphTypeDesc.class, this.getClass(), "gtd", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(GraphTypeDesc.EPTYPE, this.getClass(), "gtd", parent, symbols, classScope)
                 .constant("wildcard", wildcard)
                 .constant("underlying", underlying)
                 .eventtype("eventType", eventType)

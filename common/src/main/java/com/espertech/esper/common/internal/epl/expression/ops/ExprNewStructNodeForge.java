@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -43,16 +45,16 @@ public class ExprNewStructNodeForge implements ExprTypableReturnForge, ExprForge
         return (ExprTypableReturnEval) getExprEvaluator();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprNew", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprNewStructNodeForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
-        return Map.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypeClassParameterized.from(Map.class, String.class, Object.class);
     }
 
     public boolean isAllConstants() {

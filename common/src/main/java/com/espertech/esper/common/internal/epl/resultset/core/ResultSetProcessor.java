@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -28,6 +29,9 @@ import java.util.Set;
  * as supplied. It must state what the event type of the result rows is.
  */
 public interface ResultSetProcessor extends StopCallback {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessor.class);
+    EPTypeClass EPTYPE_PROCESSORTYPE = new EPTypeClass(ResultSetProcessorType.class);
+
     /**
      * Returns the event type of processed results.
      *

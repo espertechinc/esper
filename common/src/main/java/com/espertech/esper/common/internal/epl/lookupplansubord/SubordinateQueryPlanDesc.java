@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategyFactory;
 
 public class SubordinateQueryPlanDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordinateQueryPlanDesc.class);
+
     private SubordTableLookupStrategyFactory lookupStrategyFactory;
     private SubordinateQueryIndexDesc[] indexDescs;
 

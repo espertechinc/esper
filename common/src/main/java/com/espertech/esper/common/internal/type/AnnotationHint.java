@@ -12,10 +12,13 @@ package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.Hint;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationHint implements Hint {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationHint.class);
+
     private final String value;
     private final AppliesTo applies;
     private final String model;

@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface FilterSpecParamFilterForEvalDouble extends FilterSpecParamFilterForEval {
+    EPTypeClass EPTYPE = new EPTypeClass(FilterSpecParamFilterForEvalDouble.class);
+
     Double getFilterValueDouble(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv);
 }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -54,9 +55,9 @@ public class ExprDotNodeForgePropertyExprEvalIndexed implements ExprEvaluator {
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamNum())))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(forge.getStreamNum())))
                 .ifRefNullReturnNull("event")
-                .declareVar(Integer.class, "index", forge.getExprForge().evaluateCodegen(Integer.class, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "index", forge.getExprForge().evaluateCodegen(EPTypePremade.INTEGERBOXED.getEPType(), methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("index")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(forge.getEvaluationType(), forge.getIndexedGetter().eventBeanGetIndexedCodegen(methodNode, codegenClassScope, ref("event"), ref("index"))));
         return localMethod(methodNode);

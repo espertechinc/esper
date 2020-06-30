@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
 public interface ExprContextPropertyNode extends ExprEnumerationForgeProvider {
@@ -17,5 +18,5 @@ public interface ExprContextPropertyNode extends ExprEnumerationForgeProvider {
 
     String getPropertyName();
 
-    Class getType();
+    EPType getValueType();
 }

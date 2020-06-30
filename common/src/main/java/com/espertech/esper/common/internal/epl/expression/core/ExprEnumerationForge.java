@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,7 +24,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
  */
 public interface ExprEnumerationForge {
 
-    Class getComponentTypeCollection() throws ExprValidationException;
+    EPTypeClass getComponentTypeCollection() throws ExprValidationException;
 
     EventType getEventTypeCollection(StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException;
 

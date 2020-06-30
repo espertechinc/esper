@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -36,7 +37,7 @@ public class DTLocalLongOpsReformatForge extends DTLocalForgeCalopReformatBase {
         return new DTLocalLongOpsReformatEval(getCalendarOps(calendarForges), reformatForge.getOp(), TimeZone.getDefault(), timeAbacus);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return DTLocalLongOpsReformatEval.codegen(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

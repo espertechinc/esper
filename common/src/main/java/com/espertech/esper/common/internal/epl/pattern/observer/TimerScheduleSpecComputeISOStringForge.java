@@ -30,8 +30,8 @@ public class TimerScheduleSpecComputeISOStringForge implements TimerScheduleSpec
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TimerScheduleSpecComputeISOString.class, this.getClass(), classScope);
-        method.getBlock().methodReturn(newInstance(TimerScheduleSpecComputeISOString.class, ExprNodeUtilityCodegen.codegenEvaluator(parameter.getForge(), method, this.getClass(), classScope)));
+        CodegenMethod method = parent.makeChild(TimerScheduleSpecComputeISOString.EPTYPE, this.getClass(), classScope);
+        method.getBlock().methodReturn(newInstance(TimerScheduleSpecComputeISOString.EPTYPE, ExprNodeUtilityCodegen.codegenEvaluator(parameter.getForge(), method, this.getClass(), classScope)));
         return localMethod(method);
     }
 

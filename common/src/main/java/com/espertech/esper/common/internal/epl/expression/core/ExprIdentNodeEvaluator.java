@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -27,9 +29,9 @@ public interface ExprIdentNodeEvaluator extends ExprEvaluator {
 
     public boolean isContextEvaluated();
 
-    public Class getEvaluationType();
+    public EPType getEvaluationType();
 
-    public CodegenExpression codegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
+    public CodegenExpression codegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public void setOptionalEvent(boolean optionalEvent);
 

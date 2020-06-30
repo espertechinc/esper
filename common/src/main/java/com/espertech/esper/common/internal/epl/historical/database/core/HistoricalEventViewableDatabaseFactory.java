@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.hook.type.SQLColumnTypeConversion;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowConversion;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
@@ -30,6 +31,7 @@ import java.util.Map;
  * some input parameters extracted from event streams to perform the polling.
  */
 public class HistoricalEventViewableDatabaseFactory extends HistoricalEventViewableFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(HistoricalEventViewableDatabaseFactory.class);
 
     protected String databaseName;
     protected String[] inputParameters;

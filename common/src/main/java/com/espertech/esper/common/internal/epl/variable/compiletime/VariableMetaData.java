@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.variable.compiletime;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -19,13 +20,15 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class VariableMetaData {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableMetaData.class);
+
     private final String variableName;
     private final String variableModuleName;
     private final NameAccessModifier variableVisibility;
     private final String optionalContextName;
     private final NameAccessModifier optionalContextVisibility;
     private final String optionalContextModule;
-    private final Class type;
+    private final EPTypeClass type;
     private final EventType eventType;
     private final boolean preconfigured;
     private final boolean constant;
@@ -33,7 +36,7 @@ public class VariableMetaData {
     private final Object valueWhenAvailable;
     private final boolean createdByCurrentModule;
 
-    public VariableMetaData(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, Class type, EventType eventType, boolean preconfigured, boolean constant, boolean compileTimeConstant, Object valueWhenAvailable, boolean createdByCurrentModule) {
+    public VariableMetaData(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EPTypeClass type, EventType eventType, boolean preconfigured, boolean constant, boolean compileTimeConstant, Object valueWhenAvailable, boolean createdByCurrentModule) {
         this.variableName = variableName;
         this.variableModuleName = variableModuleName;
         this.variableVisibility = variableVisibility;
@@ -61,7 +64,7 @@ public class VariableMetaData {
         return optionalContextName;
     }
 
-    public Class getType() {
+    public EPTypeClass getType() {
         return type;
     }
 
@@ -98,7 +101,7 @@ public class VariableMetaData {
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
-        return newInstance(VariableMetaData.class, constant(variableName), constant(variableModuleName), constant(variableVisibility),
+        return newInstance(VariableMetaData.EPTYPE, constant(variableName), constant(variableModuleName), constant(variableVisibility),
                 constant(optionalContextName), constant(optionalContextVisibility), constant(optionalContextModule), constant(type),
                 eventType == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc),
                 constant(preconfigured), constant(constant), constant(compileTimeConstant), constant(valueWhenAvailable), constant(false));

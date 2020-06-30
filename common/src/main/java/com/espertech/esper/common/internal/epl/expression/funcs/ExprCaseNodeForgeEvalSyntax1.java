@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,7 +28,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -64,21 +67,21 @@ public class ExprCaseNodeForgeEvalSyntax1 implements ExprEvaluator {
             return null;
         }
 
-        if ((caseResult.getClass() != forge.getEvaluationType()) && forge.isNumericResult()) {
-            caseResult = JavaClassHelper.coerceBoxed((Number) caseResult, forge.getEvaluationType());
+        if ((caseResult.getClass() != forge.getEvaluationType().getType()) && forge.isNumericResult()) {
+            caseResult = JavaClassHelper.coerceBoxed((Number) caseResult, forge.getEvaluationType().getType());
         }
 
         return caseResult;
     }
 
     public static CodegenExpression codegen(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class evaluationType = forge.getEvaluationType() == null ? Map.class : forge.getEvaluationType();
+        EPTypeClass evaluationType = forge.getEvaluationType() == null ? EPTypePremade.MAP.getEPType() : forge.getEvaluationType();
         CodegenMethod methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax1.class, codegenClassScope);
 
-        CodegenBlock block = methodNode.getBlock().declareVar(Boolean.class, "when", constantFalse());
+        CodegenBlock block = methodNode.getBlock().declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "when", constantFalse());
 
         for (UniformPair<ExprNode> pair : forge.getWhenThenNodeList()) {
-            block.assignRef("when", pair.getFirst().getForge().evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope));
+            block.assignRef("when", pair.getFirst().getForge().evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(and(notEqualsNull(ref("when")), ref("when")))
                     .blockReturn(codegenToType(forge, pair.getSecond(), methodNode, exprSymbol, codegenClassScope));
         }
@@ -91,13 +94,14 @@ public class ExprCaseNodeForgeEvalSyntax1 implements ExprEvaluator {
     }
 
     protected static CodegenExpression codegenToType(ExprCaseNodeForge forge, ExprNode node, CodegenMethod methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class nodeEvaluationType = node.getForge().getEvaluationType();
-        if (nodeEvaluationType == forge.getEvaluationType() || !forge.isNumericResult()) {
-            return node.getForge().evaluateCodegen(nodeEvaluationType, methodNode, exprSymbol, codegenClassScope);
-        }
-        if (nodeEvaluationType == null) {
+        EPType nodeType = node.getForge().getEvaluationType();
+        if (nodeType == null || nodeType == EPTypeNull.INSTANCE) {
             return constantNull();
         }
-        return JavaClassHelper.coerceNumberToBoxedCodegen(node.getForge().evaluateCodegen(nodeEvaluationType, methodNode, exprSymbol, codegenClassScope), nodeEvaluationType, forge.getEvaluationType());
+        EPTypeClass nodeClass = (EPTypeClass) nodeType;
+        if (nodeClass.getType() == forge.getEvaluationType().getType() || !forge.isNumericResult()) {
+            return node.getForge().evaluateCodegen(nodeClass, methodNode, exprSymbol, codegenClassScope);
+        }
+        return JavaClassHelper.coerceNumberToBoxedCodegen(node.getForge().evaluateCodegen(nodeClass, methodNode, exprSymbol, codegenClassScope), nodeClass, forge.getEvaluationType());
     }
 }

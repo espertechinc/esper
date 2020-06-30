@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggSvcGroupByReclaimAgedEvalFunc;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
 
 public class AggSvcGroupByReclaimAgedEvalFuncFactoryVariable implements AggSvcGroupByReclaimAgedEvalFuncFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggSvcGroupByReclaimAgedEvalFuncFactoryVariable.class);
+
     private final Variable variable;
 
     public AggSvcGroupByReclaimAgedEvalFuncFactoryVariable(Variable variable) {

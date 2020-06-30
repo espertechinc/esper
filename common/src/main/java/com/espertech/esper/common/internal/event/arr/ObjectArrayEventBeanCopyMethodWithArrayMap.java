@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
@@ -23,6 +24,8 @@ import java.util.Map;
  * Copy method for Map-underlying events.
  */
 public class ObjectArrayEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ObjectArrayEventBeanCopyMethodWithArrayMap.class);
+
     private final ObjectArrayEventType eventType;
     private final EventBeanTypedEventFactory eventAdapterService;
     private final int[] mapIndexesToCopy;

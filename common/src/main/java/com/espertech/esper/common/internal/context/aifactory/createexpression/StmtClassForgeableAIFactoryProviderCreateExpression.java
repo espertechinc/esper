@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.createexpression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -29,13 +30,13 @@ public class StmtClassForgeableAIFactoryProviderCreateExpression extends StmtCla
         this.forge = forge;
     }
 
-    protected Class typeOfFactory() {
-        return StatementAgentInstanceFactoryCreateExpression.class;
+    protected EPTypeClass typeOfFactory() {
+        return StatementAgentInstanceFactoryCreateExpression.EPTYPE;
     }
 
     protected CodegenMethod codegenConstructorInit(CodegenMethodScope parent, CodegenClassScope classScope) {
         SAIFFInitializeSymbol saiffInitializeSymbol = new SAIFFInitializeSymbol();
-        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
+        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
         method.getBlock()
                 .methodReturn(localMethod(forge.initializeCodegen(method, saiffInitializeSymbol, classScope)));
         return method;

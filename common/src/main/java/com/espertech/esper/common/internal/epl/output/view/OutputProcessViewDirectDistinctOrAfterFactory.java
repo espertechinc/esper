@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessView;
@@ -22,6 +23,8 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
  * hand over events to child views, but works with distinct and after-output policies
  */
 public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcessViewDirectFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputProcessViewDirectDistinctOrAfterFactory.class);
+
     private final boolean isDistinct;
     private final EventPropertyValueGetter distinctKeyGetter;
 

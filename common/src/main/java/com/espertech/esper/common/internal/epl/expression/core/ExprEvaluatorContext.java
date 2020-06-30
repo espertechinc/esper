@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
 import com.espertech.esper.common.internal.epl.script.core.AgentInstanceScriptContext;
@@ -25,6 +26,8 @@ import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
  * Returns the context for expression evaluation.
  */
 public interface ExprEvaluatorContext {
+    EPTypeClass EPTYPE = new EPTypeClass(ExprEvaluatorContext.class);
+
     String getStatementName();
 
     Object getUserObjectCompileTime();

@@ -35,11 +35,11 @@ public final class FilterSpecParamAdvancedIndexQuadTreeMXCIFForge extends Filter
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
-        CodegenMethod method = parent.makeChild(FilterSpecParamAdvancedIndexQuadTreeMXCIF.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParamAdvancedIndexQuadTreeMXCIF.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()))
-                .declareVar(FilterSpecParamAdvancedIndexQuadTreeMXCIF.class, "fpai", newInstance(FilterSpecParamAdvancedIndexQuadTreeMXCIF.class, ref("lookupable"), ref("op")))
+                .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+                .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()))
+                .declareVar(FilterSpecParamAdvancedIndexQuadTreeMXCIF.EPTYPE, "fpai", newInstance(FilterSpecParamAdvancedIndexQuadTreeMXCIF.EPTYPE, ref("lookupable"), ref("op")))
                 .exprDotMethod(ref("fpai"), "setxEval", makeAnonymous(xEval, this.getClass(), classScope, method))
                 .exprDotMethod(ref("fpai"), "setyEval", makeAnonymous(yEval, this.getClass(), classScope, method))
                 .exprDotMethod(ref("fpai"), "setWidthEval", makeAnonymous(widthEval, this.getClass(), classScope, method))

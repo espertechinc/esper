@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class FilterSpecPlanPath {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecPlanPath.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(FilterSpecPlanPath[].class);
+
     public final static FilterSpecPlanPath[] EMPTY_ARRAY = new FilterSpecPlanPath[0];
 
     private FilterSpecPlanPathTriplet[] triplets;

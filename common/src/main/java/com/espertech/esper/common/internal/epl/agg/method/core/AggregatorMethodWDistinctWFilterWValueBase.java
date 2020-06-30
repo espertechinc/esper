@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,15 +27,15 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public abstract class AggregatorMethodWDistinctWFilterWValueBase extends AggregatorMethodWDistinctWFilterBase {
-    protected abstract void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope);
+    protected abstract void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope);
 
-    protected abstract void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope);
+    protected abstract void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope);
 
-    protected abstract void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
+    protected abstract void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
 
-    protected abstract void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
+    protected abstract void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
 
-    public AggregatorMethodWDistinctWFilterWValueBase(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorMethodWDistinctWFilterWValueBase(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPType optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
     }
 
@@ -42,7 +44,7 @@ public abstract class AggregatorMethodWDistinctWFilterWValueBase extends Aggrega
         applyEvalEnterNonNull(ref("val"), forges[0].getEvaluationType(), method, symbols, forges, classScope);
     }
 
-    protected final void applyTableEnterFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected final void applyTableEnterFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         applyTableValuePrefix(true, value, method, classScope);
         applyTableEnterNonNull(value, evaluationTypes, method, classScope);
     }
@@ -52,16 +54,16 @@ public abstract class AggregatorMethodWDistinctWFilterWValueBase extends Aggrega
         applyEvalLeaveNonNull(ref("val"), forges[0].getEvaluationType(), method, symbols, forges, classScope);
     }
 
-    protected final void applyTableLeaveFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected final void applyTableLeaveFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         applyTableValuePrefix(false, value, method, classScope);
         applyTableLeaveNonNull(value, evaluationTypes, method, classScope);
     }
 
     private void applyEvalValuePrefix(boolean enter, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
-        Class type = forges[0].getEvaluationType();
+        EPTypeClass type = (EPTypeClass) forges[0].getEvaluationType();
         CodegenExpression expr = forges[0].evaluateCodegen(type, method, symbols, classScope);
         method.getBlock().declareVar(type, "val", expr);
-        if (!type.isPrimitive()) {
+        if (!type.getType().isPrimitive()) {
             method.getBlock().ifRefNull("val").blockReturnNoValue();
         }
         if (distinct != null) {

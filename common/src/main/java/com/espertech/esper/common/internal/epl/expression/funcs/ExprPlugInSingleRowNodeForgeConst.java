@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,6 +24,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstant
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeForgeStaticMethod;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Method;
 
@@ -45,8 +48,8 @@ public class ExprPlugInSingleRowNodeForgeConst extends ExprPlugInSingleRowNodeFo
         return this;
     }
 
-    public Class getEvaluationType() {
-        return inner.getStaticMethod().getReturnType();
+    public EPTypeClass getEvaluationType() {
+        return ClassHelperGenericType.getMethodReturnEPType(inner.getStaticMethod());
     }
 
     public ExprForgeConstantType getForgeConstantType() {
@@ -57,8 +60,8 @@ public class ExprPlugInSingleRowNodeForgeConst extends ExprPlugInSingleRowNodeFo
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        if (getEvaluationType() == void.class) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        if (JavaClassHelper.isTypeVoid(getEvaluationType())) {
             return noop();
         }
         CodegenMethod initMethod = codegenClassScope.getPackageScope().getInitMethod();
@@ -66,7 +69,7 @@ public class ExprPlugInSingleRowNodeForgeConst extends ExprPlugInSingleRowNodeFo
         return codegenClassScope.addFieldUnshared(true, getEvaluationType(), localMethod(evaluate, constantNull(), constantTrue(), constantNull()));
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprPlugInSingleRow", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).qparams(getMethodAsParams()).build();
     }
 

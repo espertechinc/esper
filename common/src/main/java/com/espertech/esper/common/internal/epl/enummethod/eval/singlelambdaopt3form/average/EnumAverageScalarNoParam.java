@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.average;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -56,10 +57,10 @@ public class EnumAverageScalarNoParam extends EnumForgeBasePlain implements Enum
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Double.class, EnumAverageScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
-                .declareVar(double.class, "sum", constant(0d))
-                .declareVar(int.class, "count", constant(0))
-                .forEach(Number.class, "num", EnumForgeCodegenNames.REF_ENUMCOLL)
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.DOUBLEBOXED.getEPType(), EnumAverageScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+                .declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "sum", constant(0d))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(0))
+                .forEach(EPTypePremade.NUMBER.getEPType(), "num", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifRefNull("num").blockContinue()
                 .incrementRef("count")
                 .assignRef("sum", op(ref("sum"), "+", exprDotMethod(ref("num"), "doubleValue")))

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 
@@ -23,6 +24,9 @@ import java.util.List;
  * Other implementations may use predetermined index properties to index the poll result for faster lookup.
  */
 public interface PollResultIndexingStrategy {
+    EPTypeClass EPTYPE = new EPTypeClass(PollResultIndexingStrategy.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(PollResultIndexingStrategy[].class);
+
     /**
      * Build and index of a poll result.
      *

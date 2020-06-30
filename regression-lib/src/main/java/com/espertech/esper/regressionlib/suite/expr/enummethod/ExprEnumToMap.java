@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
@@ -25,7 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumToMap {
 
@@ -51,7 +52,7 @@ public class ExprEnumToMap {
             builder.expression(fields[1], "contained.toMap((c, index) => id || '_' || Integer.toString(index), (d, index) => p00 + 10*index)");
             builder.expression(fields[2], "contained.toMap((c, index, size) => id || '_' || Integer.toString(index) || '_' || Integer.toString(size), (d, index, size) => p00 + 10*index + 100*size)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Map.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Map.class, String.class, Integer.class)));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E3,12", "E2,5"))
                 .verify("c0", val -> compareMap(val, "E1,E3,E2", 1, 12, 5))
@@ -86,7 +87,7 @@ public class ExprEnumToMap {
             builder.expression(fields[1], "strvals.toMap((k, i) => k || '_' || Integer.toString(i), (v, idx) => extractNum(v) + 10*idx)");
             builder.expression(fields[2], "strvals.toMap((k, i, s) => k || '_' || Integer.toString(i) || '_' || Integer.toString(s), (v, idx, sz) => extractNum(v) + 10*idx + 100*sz)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Map.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Map.class, String.class, Integer.class)));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E3"))
                 .verify("c0", val -> compareMap(val, "E1,E2,E3", 1, 2, 3))

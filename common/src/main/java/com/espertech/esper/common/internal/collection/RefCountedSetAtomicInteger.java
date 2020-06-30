@@ -10,11 +10,15 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RefCountedSetAtomicInteger<K> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RefCountedSetAtomicInteger.class);
+
     private Map<K, Object> refs;
 
     public RefCountedSetAtomicInteger() {

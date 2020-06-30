@@ -11,8 +11,12 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface HavingClauseEvaluator {
+    EPTypeClass EPTYPE = new EPTypeClass(HavingClauseEvaluator.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(HavingClauseEvaluator[].class);
+
     boolean evaluateHaving(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 }

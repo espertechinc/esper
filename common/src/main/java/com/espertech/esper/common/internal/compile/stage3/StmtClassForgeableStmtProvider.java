@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage3;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -48,8 +49,8 @@ public class StmtClassForgeableStmtProvider implements StmtClassForgeable {
 
         // members
         List<CodegenTypedParam> members = new ArrayList<>();
-        members.add(new CodegenTypedParam(StatementInformationalsRuntime.class, MEMBERNAME_INFORMATION));
-        members.add(new CodegenTypedParam(StatementAIFactoryProvider.class, MEMBERNAME_FACTORY_PROVIDER).setFinal(false));
+        members.add(new CodegenTypedParam(StatementInformationalsRuntime.EPTYPE, MEMBERNAME_INFORMATION));
+        members.add(new CodegenTypedParam(StatementAIFactoryProvider.EPTYPE, MEMBERNAME_FACTORY_PROVIDER).setFinal(false));
 
         // ctor
         CodegenCtor ctor = new CodegenCtor(this.getClass(), includeDebugSymbols, Collections.emptyList());
@@ -58,7 +59,7 @@ public class StmtClassForgeableStmtProvider implements StmtClassForgeable {
 
         CodegenMethod initializeMethod = makeInitialize(classScope);
         CodegenMethod getStatementAIFactoryProviderMethod = makeGetStatementAIFactoryProvider(classScope);
-        CodegenMethod getStatementInformationalsMethod = CodegenMethod.makeParentNode(StatementInformationalsRuntime.class, StmtClassForgeableStmtProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+        CodegenMethod getStatementInformationalsMethod = CodegenMethod.makeParentNode(StatementInformationalsRuntime.EPTYPE, StmtClassForgeableStmtProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .getBlock().methodReturn(ref(MEMBERNAME_INFORMATION));
 
         CodegenStackGenerator.recursiveBuildStack(getStatementInformationalsMethod, "getInformationals", methods);
@@ -66,7 +67,7 @@ public class StmtClassForgeableStmtProvider implements StmtClassForgeable {
         CodegenStackGenerator.recursiveBuildStack(getStatementAIFactoryProviderMethod, "getStatementAIFactoryProvider", methods);
         CodegenStackGenerator.recursiveBuildStack(ctor, "ctor", methods);
 
-        return new CodegenClass(CodegenClassType.STATEMENTPROVIDER, StatementProvider.class, statementProviderClassName, classScope, members, ctor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.STATEMENTPROVIDER, StatementProvider.EPTYPE, statementProviderClassName, classScope, members, ctor, methods, Collections.emptyList());
     }
 
     public String getClassName() {
@@ -78,13 +79,13 @@ public class StmtClassForgeableStmtProvider implements StmtClassForgeable {
     }
 
     private CodegenMethod makeInitialize(CodegenClassScope classScope) {
-        CodegenMethod method = CodegenMethod.makeParentNode(void.class, StmtClassForgeableStmtProvider.class, classScope).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtProvider.class, classScope).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
         method.getBlock().assignMember(MEMBERNAME_FACTORY_PROVIDER, newInstance(statementAIFactoryClassName, REF_STMTINITSVC));
         return method;
     }
 
     private static CodegenMethod makeGetStatementAIFactoryProvider(CodegenClassScope classScope) {
-        CodegenMethod method = CodegenMethod.makeParentNode(StatementAIFactoryProvider.class, StmtClassForgeableStmtProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod method = CodegenMethod.makeParentNode(StatementAIFactoryProvider.EPTYPE, StmtClassForgeableStmtProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         method.getBlock().methodReturn(ref(MEMBERNAME_FACTORY_PROVIDER));
         return method;
     }

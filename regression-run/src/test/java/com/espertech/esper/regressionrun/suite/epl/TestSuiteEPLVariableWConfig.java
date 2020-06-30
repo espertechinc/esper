@@ -60,13 +60,13 @@ public class TestSuiteEPLVariableWConfig extends TestCase {
 
     public void testInvalidConfig() {
         tryInvalidConfigurationCompiler(SupportConfigFactory.getConfiguration(), config -> config.getCommon().addVariable("invalidvar1", Integer.class, "abc"),
-            "Failed compiler startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type java.lang.Integer cannot be initialized by value 'abc': java.lang.NumberFormatException: For input string: \"abc\"");
+            "Failed compiler startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type Integer cannot be initialized by value 'abc': java.lang.NumberFormatException: For input string: \"abc\"");
         tryInvalidConfigurationRuntime(SupportConfigFactory.getConfiguration(), config -> config.getCommon().addVariable("invalidvar1", Integer.class, "abc"),
-            "Failed runtime startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type java.lang.Integer cannot be initialized by value 'abc': java.lang.NumberFormatException: For input string: \"abc\"");
+            "Failed runtime startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type Integer cannot be initialized by value 'abc': java.lang.NumberFormatException: For input string: \"abc\"");
 
         tryInvalidConfigurationCompiler(SupportConfigFactory.getConfiguration(), config -> config.getCommon().addVariable("invalidvar1", Integer.class, 1.1d),
-            "Failed compiler startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type java.lang.Integer cannot be initialized by a value of type java.lang.Double");
+            "Failed compiler startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type Integer cannot be initialized by a value of type Double");
         tryInvalidConfigurationRuntime(SupportConfigFactory.getConfiguration(), config -> config.getCommon().addVariable("invalidvar1", Integer.class, 1.1d),
-            "Failed runtime startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type java.lang.Integer cannot be initialized by a value of type java.lang.Double");
+            "Failed runtime startup: Error configuring variable 'invalidvar1': Variable 'invalidvar1' of declared type Integer cannot be initialized by a value of type Double");
     }
 }

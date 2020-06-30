@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -31,8 +32,8 @@ public class StatementAgentInstanceFactoryOnTriggerInfraDeleteForge extends Stat
         super(activator, resultEventType, subselects, tableAccesses, nonSelectRSPProviderClassName, namedWindow, table, queryPlanForge);
     }
 
-    public Class typeOfSubclass() {
-        return StatementAgentInstanceFactoryOnTriggerInfraDelete.class;
+    public EPTypeClass typeOfSubclass() {
+        return StatementAgentInstanceFactoryOnTriggerInfraDelete.EPTYPE;
     }
 
     protected void inlineInitializeOnTriggerSpecific(CodegenExpressionRef saiff, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

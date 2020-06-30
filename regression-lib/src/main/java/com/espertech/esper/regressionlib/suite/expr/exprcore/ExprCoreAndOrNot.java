@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 import static org.junit.Assert.assertEquals;
 
 public class ExprCoreAndOrNot {
@@ -30,7 +31,37 @@ public class ExprCoreAndOrNot {
         ArrayList<RegressionExecution> executions = new ArrayList<>();
         executions.add(new ExprCoreAndOrNotCombined());
         executions.add(new ExprCoreNotWithVariable());
+        executions.add(new ExprCoreAndOrNotNull());
         return executions;
+    }
+
+    private static class ExprCoreAndOrNotNull implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "cast(null, boolean) and cast(null, boolean)")
+                .expression(fields[1], "boolPrimitive and boolBoxed")
+                .expression(fields[2], "boolBoxed and boolPrimitive")
+                .expression(fields[3], "boolPrimitive or boolBoxed")
+                .expression(fields[4], "boolBoxed or boolPrimitive")
+                .expression(fields[5], "not boolBoxed");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType()));
+            builder.assertion(makeSB("E1", true, true)).expect(fields, null, true, true, true, true, false);
+            builder.assertion(makeSB("E2", false, false)).expect(fields, null, false, false, false, false, true);
+            builder.assertion(makeSB("E3", false, null)).expect(fields, null, false, false, null, null, null);
+            builder.assertion(makeSB("E4", true, null)).expect(fields, null, null, null, true, true, null);
+            builder.assertion(makeSB("E5", true, false)).expect(fields, null, false, false, true, true, true);
+            builder.assertion(makeSB("E6", false, true)).expect(fields, null, false, false, true, true, false);
+            builder.run(env);
+            env.undeployAll();
+        }
+
+        private SupportBean makeSB(String theString, boolean boolPrimitive, Boolean boolBoxed) {
+            SupportBean sb = new SupportBean(theString, 0);
+            sb.setBoolPrimitive(boolPrimitive);
+            sb.setBoolBoxed(boolBoxed);
+            return sb;
+        }
     }
 
     private static class ExprCoreNotWithVariable implements RegressionExecution {
@@ -66,13 +97,6 @@ public class ExprCoreAndOrNot {
             builder.run(env);
             env.undeployAll();
         }
-    }
-
-    private static void sendBeanAssert(RegressionEnvironment env, int intPrimitive, Object[] expected) {
-        SupportBean bean = new SupportBean("", intPrimitive);
-        env.sendEventBean(bean);
-        final String[] fields = "c0,c1,c2".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
     }
 
     private static void sendBeanAssert(RegressionEnvironment env, String theString, boolean expected) {

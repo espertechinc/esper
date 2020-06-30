@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.event.map;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.*;
@@ -27,6 +30,9 @@ import java.util.*;
  * Implementation of the {@link EventType} interface for handling plain Maps containing name value pairs.
  */
 public class MapEventType extends BaseNestableEventType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MapEventType.class);
+
+    private static final EPTypeClass MAPEPTYPE = EPTypeClassParameterized.from(Map.class, String.class, Object.class);
     private static final EventTypeNestableGetterFactory GETTER_FACTORY = new EventTypeNestableGetterFactoryMap();
 
     protected Map<String, Pair<EventPropertyDescriptor, MapEventBeanPropertyWriter>> propertyWriters;
@@ -45,6 +51,10 @@ public class MapEventType extends BaseNestableEventType {
 
     public final Class getUnderlyingType() {
         return Map.class;
+    }
+
+    public EPTypeClass getUnderlyingEPType() {
+        return MAPEPTYPE;
     }
 
     public EventBeanCopyMethodForge getCopyMethodForge(String[] properties) {
@@ -107,7 +117,7 @@ public class MapEventType extends BaseNestableEventType {
                 return null;
             }
             MappedProperty mapProp = (MappedProperty) property;
-            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), Object.class, null, false, true, false, true, false);
+            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), false, true, false, true, false);
         }
         if (property instanceof IndexedProperty) {
             EventPropertyWriter writer = getWriter(propertyName);
@@ -115,7 +125,7 @@ public class MapEventType extends BaseNestableEventType {
                 return null;
             }
             IndexedProperty indexedProp = (IndexedProperty) property;
-            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), Object.class, null, true, false, true, false, false);
+            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), true, false, true, false, false);
         }
         return null;
     }

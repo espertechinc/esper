@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.contained;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
  * but does not consider a select clause or N-level.
  */
 public class PropertyEvaluatorSimple implements PropertyEvaluator {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyEvaluatorSimple.class);
+
     private static final Logger log = LoggerFactory.getLogger(PropertyEvaluatorSimple.class);
     private ContainedEventEval containedEventEval;
     private ExprEvaluator filter;

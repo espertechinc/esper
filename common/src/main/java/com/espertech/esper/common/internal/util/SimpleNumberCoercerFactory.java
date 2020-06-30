@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -31,8 +35,8 @@ public class SimpleNumberCoercerFactory {
      * @param fromType to widen
      * @return widener
      */
-    public static SimpleNumberBigDecimalCoercer getCoercerBigDecimal(Class fromType) {
-        if (fromType == BigDecimal.class) {
+    public static SimpleNumberBigDecimalCoercer getCoercerBigDecimal(EPTypeClass fromType) {
+        if (fromType.getType() == BigDecimal.class) {
             return SimpleNumberCoercerBigDecNull.INSTANCE;
         }
         if (JavaClassHelper.isFloatingPointClass(fromType)) {
@@ -47,8 +51,8 @@ public class SimpleNumberCoercerFactory {
      * @param fromType to widen
      * @return widener
      */
-    public static SimpleNumberBigIntegerCoercer getCoercerBigInteger(Class fromType) {
-        if (fromType == BigInteger.class) {
+    public static SimpleNumberBigIntegerCoercer getCoercerBigInteger(EPTypeClass fromType) {
+        if (fromType.getType() == BigInteger.class) {
             return SimpleNumberCoercerBigIntNull.INSTANCE;
         }
         return SimpleNumberCoercerBigInt.INSTANCE;
@@ -58,13 +62,21 @@ public class SimpleNumberCoercerFactory {
      * Returns a coercer/widener/narrower to a result number type from a given type.
      *
      * @param fromType        to widen/narrow, can be null to indicate that no shortcut-coercer is used
-     * @param resultBoxedType type to widen/narrow to
+     * @param resultBoxed type to widen/narrow to
      * @return widener/narrower
      */
-    public static SimpleNumberCoercer getCoercer(Class fromType, Class resultBoxedType) {
-        if (fromType == resultBoxedType) {
-            return SimpleNumberCoercerNull.INSTANCE;
+    public static SimpleNumberCoercer getCoercer(EPType fromType, EPTypeClass resultBoxed) {
+        if (fromType != null) {
+            if (fromType.equals(resultBoxed)) {
+                return SimpleNumberCoercerNull.INSTANCE;
+            }
         }
+        if (fromType instanceof EPTypeClass) {
+            if (resultBoxed.getType() == ((EPTypeClass) fromType).getType()) {
+                return SimpleNumberCoercerNull.INSTANCE;
+            }
+        }
+        Class resultBoxedType = resultBoxed.getType();
         if (resultBoxedType == Double.class) {
             return SimpleNumberCoercerDouble.INSTANCE;
         }
@@ -108,15 +120,15 @@ public class SimpleNumberCoercerFactory {
             return numToCoerce;
         }
 
-        public Class getReturnType() {
-            return Number.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.NUMBER.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return value;
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return value;
         }
     }
@@ -131,27 +143,27 @@ public class SimpleNumberCoercerFactory {
             return numToCoerce.doubleValue();
         }
 
-        public Class getReturnType() {
-            return Double.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.DOUBLEBOXED.getEPType();
         }
 
-        public static CodegenExpression codegenDouble(CodegenExpression param, Class type) {
-            return codegenCoerceNonNull(double.class, Double.class, "doubleValue", param, type);
+        public static CodegenExpression codegenDouble(CodegenExpression param, EPType type) {
+            return codegenCoerceNonNull(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), EPTypePremade.DOUBLEBOXED.getEPType(), "doubleValue", param, type);
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenDouble(value, valueType);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", param, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerDouble.class, codegenClassScope);
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), EPTypePremade.DOUBLEBOXED.getEPType(), "doubleValue", param, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerDouble.class, codegenClassScope);
         }
 
-        public static CodegenExpression codegenDoubleMayNullBoxedIncludeBig(CodegenExpression value, Class valueType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (valueType == BigInteger.class || valueType == BigDecimal.class) {
+        public static CodegenExpression codegenDoubleMayNullBoxedIncludeBig(CodegenExpression value, EPTypeClass valueType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (valueType.getType() == BigInteger.class || valueType.getType() == BigDecimal.class) {
                 return exprDotMethod(value, "doubleValue");
             }
-            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", value, valueType, codegenMethodScope, SimpleNumberCoercerDouble.class, codegenClassScope);
+            return codegenCoerceMayNull(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), EPTypePremade.DOUBLEBOXED.getEPType(), "doubleValue", value, valueType, codegenMethodScope, SimpleNumberCoercerDouble.class, codegenClassScope);
         }
     }
 
@@ -165,23 +177,23 @@ public class SimpleNumberCoercerFactory {
             return numToCoerce.longValue();
         }
 
-        public Class getReturnType() {
-            return Long.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.LONGBOXED.getEPType();
         }
 
-        public static CodegenExpression codegenLong(CodegenExpression param, Class type) {
-            return codegenCoerceNonNull(long.class, Long.class, "longValue", param, type);
+        public static CodegenExpression codegenLong(CodegenExpression param, EPTypeClass type) {
+            return codegenCoerceNonNull(EPTypePremade.LONGPRIMITIVE.getEPType(), EPTypePremade.LONGBOXED.getEPType(), "longValue", param, type);
         }
 
-        public static CodegenExpression codegenLongMayNullBox(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(long.class, Long.class, "longValue", param, type, codegenMethodScope, SimpleNumberCoercerLong.class, codegenClassScope);
+        public static CodegenExpression codegenLongMayNullBox(CodegenExpression param, EPType type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(EPTypePremade.LONGPRIMITIVE.getEPType(), EPTypePremade.LONGBOXED.getEPType(), "longValue", param, type, codegenMethodScope, SimpleNumberCoercerLong.class, codegenClassScope);
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenLong(value, valueType);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return codegenLongMayNullBox(param, valueTypeMustNumeric, codegenMethodScope, codegenClassScope);
         }
     }
@@ -197,24 +209,24 @@ public class SimpleNumberCoercerFactory {
             return numToCoerce.intValue();
         }
 
-        public Class getReturnType() {
-            return Integer.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.INTEGERBOXED.getEPType();
         }
 
-        public static CodegenExpression codegenInt(CodegenExpression param, Class type) {
-            return codegenCoerceNonNull(int.class, Integer.class, "intValue", param, type);
+        public static CodegenExpression codegenInt(CodegenExpression param, EPTypeClass type) {
+            return codegenCoerceNonNull(EPTypePremade.INTEGERPRIMITIVE.getEPType(), EPTypePremade.INTEGERBOXED.getEPType(), "intValue", param, type);
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenInt(value, valueType);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerInt.class, codegenClassScope);
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(EPTypePremade.INTEGERPRIMITIVE.getEPType(), EPTypePremade.INTEGERBOXED.getEPType(), "intValue", param, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerInt.class, codegenClassScope);
         }
 
-        public static CodegenExpression coerceCodegenMayNull(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, type, codegenMethodScope, SimpleNumberCoercerInt.class, codegenClassScope);
+        public static CodegenExpression coerceCodegenMayNull(CodegenExpression param, EPTypeClass type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(EPTypePremade.INTEGERPRIMITIVE.getEPType(), EPTypePremade.INTEGERBOXED.getEPType(), "intValue", param, type, codegenMethodScope, SimpleNumberCoercerInt.class, codegenClassScope);
         }
     }
 
@@ -228,20 +240,20 @@ public class SimpleNumberCoercerFactory {
         private SimpleNumberCoercerFloat() {
         }
 
-        public Class getReturnType() {
-            return Float.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.FLOATBOXED.getEPType();
         }
 
-        public static CodegenExpression codegenFloat(CodegenExpression ref, Class type) {
-            return codegenCoerceNonNull(float.class, Float.class, "floatValue", ref, type);
+        public static CodegenExpression codegenFloat(CodegenExpression ref, EPTypeClass type) {
+            return codegenCoerceNonNull(EPTypePremade.FLOATPRIMITIVE.getEPType(), EPTypePremade.FLOATBOXED.getEPType(), "floatValue", ref, type);
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenFloat(value, valueType);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(float.class, Float.class, "floatValue", value, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerFloat.class, codegenClassScope);
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(EPTypePremade.FLOATPRIMITIVE.getEPType(), EPTypePremade.FLOATBOXED.getEPType(), "floatValue", value, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerFloat.class, codegenClassScope);
         }
     }
 
@@ -255,20 +267,20 @@ public class SimpleNumberCoercerFactory {
             return numToCoerce.shortValue();
         }
 
-        public Class getReturnType() {
-            return Short.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.SHORTBOXED.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenShort(value, valueType);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(short.class, Short.class, "shortValue", value, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerShort.class, codegenClassScope);
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(EPTypePremade.SHORTPRIMITIVE.getEPType(), EPTypePremade.SHORTBOXED.getEPType(), "shortValue", value, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerShort.class, codegenClassScope);
         }
 
-        public static CodegenExpression codegenShort(CodegenExpression input, Class inputType) {
-            return codegenCoerceNonNull(short.class, Short.class, "shortValue", input, inputType);
+        public static CodegenExpression codegenShort(CodegenExpression input, EPTypeClass inputType) {
+            return codegenCoerceNonNull(EPTypePremade.SHORTPRIMITIVE.getEPType(), EPTypePremade.SHORTBOXED.getEPType(), "shortValue", input, inputType);
         }
     }
 
@@ -282,20 +294,20 @@ public class SimpleNumberCoercerFactory {
             return numToCoerce.byteValue();
         }
 
-        public Class getReturnType() {
-            return Byte.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.BYTEBOXED.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenByte(value, valueType);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(byte.class, Byte.class, "bteValue", value, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerByte.class, codegenClassScope);
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(EPTypePremade.BYTEPRIMITIVE.getEPType(), EPTypePremade.BYTEBOXED.getEPType(), "bteValue", value, valueTypeMustNumeric, codegenMethodScope, SimpleNumberCoercerByte.class, codegenClassScope);
         }
 
-        public static CodegenExpression codegenByte(CodegenExpression input, Class inputType) {
-            return codegenCoerceNonNull(byte.class, Byte.class, "byteValue", input, inputType);
+        public static CodegenExpression codegenByte(CodegenExpression input, EPTypeClass inputType) {
+            return codegenCoerceNonNull(EPTypePremade.BYTEPRIMITIVE.getEPType(), EPTypePremade.BYTEBOXED.getEPType(), "byteValue", input, inputType);
         }
     }
 
@@ -313,43 +325,44 @@ public class SimpleNumberCoercerFactory {
             return BigInteger.valueOf(numToCoerce.longValue());
         }
 
-        public Class getReturnType() {
-            return Long.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.LONGBOXED.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenBigInt(value, valueType);
         }
 
-        public CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, Class type) {
+        public CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, EPTypeClass type) {
             return coerceCodegen(expr, type);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (valueTypeMustNumeric == null) {
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (valueTypeMustNumeric == null || valueTypeMustNumeric == EPTypeNull.INSTANCE) {
                 return value;
             }
-            if (valueTypeMustNumeric.isPrimitive()) {
-                return codegenBigInt(value, valueTypeMustNumeric);
+            EPTypeClass clazz = (EPTypeClass) valueTypeMustNumeric;
+            if (clazz.getType().isPrimitive()) {
+                return codegenBigInt(value, clazz);
             }
-            if (valueTypeMustNumeric == BigInteger.class) {
+            if (clazz.getType() == BigInteger.class) {
                 return value;
             }
-            CodegenMethod method = codegenMethodScope.makeChild(BigInteger.class, SimpleNumberCoercerBigInt.class, codegenClassScope).addParam(valueTypeMustNumeric, "value").getBlock()
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGINTEGER.getEPType(), SimpleNumberCoercerBigInt.class, codegenClassScope).addParam(clazz, "value").getBlock()
                     .ifRefNullReturnNull("value")
-                    .methodReturn(codegenBigInt(ref("value"), valueTypeMustNumeric));
+                    .methodReturn(codegenBigInt(ref("value"), clazz));
             return localMethod(method, value);
         }
 
-        public static CodegenExpression codegenBigInt(CodegenExpression value, Class valueType) {
-            if (valueType == BigInteger.class) {
+        public static CodegenExpression codegenBigInt(CodegenExpression value, EPTypeClass valueType) {
+            if (valueType.getType() == BigInteger.class) {
                 return value;
             }
-            if (valueType == long.class || valueType == Long.class) {
+            if (valueType.getType() == long.class || valueType.getType() == Long.class) {
                 return staticMethod(BigInteger.class, "valueOf", value);
             }
-            if (valueType.isPrimitive()) {
-                return staticMethod(BigInteger.class, "valueOf", cast(long.class, value));
+            if (valueType.getType().isPrimitive()) {
+                return staticMethod(BigInteger.class, "valueOf", cast(EPTypePremade.LONGPRIMITIVE.getEPType(), value));
             }
             return staticMethod(BigInteger.class, "valueOf", exprDotMethod(value, "longValue"));
         }
@@ -369,45 +382,46 @@ public class SimpleNumberCoercerFactory {
             return new BigDecimal(numToCoerce.longValue());
         }
 
-        public Class getReturnType() {
-            return Long.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.LONGBOXED.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenBigDec(value, valueType);
         }
 
-        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, Class type) {
+        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, EPTypeClass type) {
             return coerceCodegen(expr, type);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (valueTypeMustNumeric == null) {
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (valueTypeMustNumeric == null || valueTypeMustNumeric == EPTypeNull.INSTANCE) {
                 return value;
             }
-            if (valueTypeMustNumeric.isPrimitive()) {
-                return codegenBigDec(value, valueTypeMustNumeric);
+            EPTypeClass clazz = (EPTypeClass) valueTypeMustNumeric;
+            if (clazz.getType().isPrimitive()) {
+                return codegenBigDec(value, clazz);
             }
-            if (valueTypeMustNumeric == BigDecimal.class) {
+            if (clazz.getType() == BigDecimal.class) {
                 return value;
             }
-            CodegenMethod method = codegenMethodScope.makeChild(BigDecimal.class, SimpleNumberCoercerBigDecLong.class, codegenClassScope).addParam(valueTypeMustNumeric, "value").getBlock()
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), SimpleNumberCoercerBigDecLong.class, codegenClassScope).addParam(clazz, "value").getBlock()
                     .ifRefNullReturnNull("value")
-                    .methodReturn(codegenBigDec(ref("value"), valueTypeMustNumeric));
+                    .methodReturn(codegenBigDec(ref("value"), clazz));
             return localMethod(method, value);
         }
 
-        public static CodegenExpression codegenBigDec(CodegenExpression value, Class valueType) {
-            if (valueType == BigDecimal.class) {
+        public static CodegenExpression codegenBigDec(CodegenExpression value, EPTypeClass valueType) {
+            if (valueType.getType() == BigDecimal.class) {
                 return value;
             }
-            if (valueType == long.class || valueType == Long.class) {
-                return newInstance(BigDecimal.class, value);
+            if (valueType.getType() == long.class || valueType.getType() == Long.class) {
+                return newInstance(EPTypePremade.BIGDECIMAL.getEPType(), value);
             }
-            if (valueType.isPrimitive()) {
-                return newInstance(BigDecimal.class, cast(long.class, value));
+            if (valueType.getType().isPrimitive()) {
+                return newInstance(EPTypePremade.BIGDECIMAL.getEPType(), cast(EPTypePremade.LONGPRIMITIVE.getEPType(), value));
             }
-            return newInstance(BigDecimal.class, exprDotMethod(value, "longValue"));
+            return newInstance(EPTypePremade.BIGDECIMAL.getEPType(), exprDotMethod(value, "longValue"));
         }
     }
 
@@ -425,45 +439,46 @@ public class SimpleNumberCoercerFactory {
             return new BigDecimal(numToCoerce.doubleValue());
         }
 
-        public Class getReturnType() {
-            return Double.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.DOUBLEBOXED.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return codegenBigDec(value, valueType);
         }
 
-        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, Class type) {
+        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, EPTypeClass type) {
             return coerceCodegen(expr, type);
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (valueTypeMustNumeric == null) {
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (valueTypeMustNumeric == null || valueTypeMustNumeric == EPTypeNull.INSTANCE) {
                 return value;
             }
-            if (valueTypeMustNumeric.isPrimitive()) {
-                return codegenBigDec(value, valueTypeMustNumeric);
+            EPTypeClass clazz = (EPTypeClass) valueTypeMustNumeric;
+            if (clazz.getType().isPrimitive()) {
+                return codegenBigDec(value, clazz);
             }
-            if (valueTypeMustNumeric == BigDecimal.class) {
+            if (clazz.getType() == BigDecimal.class) {
                 return value;
             }
-            CodegenMethod method = codegenMethodScope.makeChild(BigDecimal.class, SimpleNumberCoercerBigDecDouble.class, codegenClassScope).addParam(valueTypeMustNumeric, "value").getBlock()
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), SimpleNumberCoercerBigDecDouble.class, codegenClassScope).addParam(clazz, "value").getBlock()
                     .ifRefNullReturnNull("value")
-                    .methodReturn(codegenBigDec(ref("value"), valueTypeMustNumeric));
+                    .methodReturn(codegenBigDec(ref("value"), clazz));
             return localMethod(method, value);
         }
 
-        public static CodegenExpression codegenBigDec(CodegenExpression value, Class valueType) {
-            if (valueType == BigDecimal.class) {
+        public static CodegenExpression codegenBigDec(CodegenExpression value, EPTypeClass valueType) {
+            if (valueType.getType() == BigDecimal.class) {
                 return value;
             }
-            if (valueType == double.class || valueType == Double.class) {
-                return newInstance(BigDecimal.class, value);
+            if (valueType.getType() == double.class || valueType.getType() == Double.class) {
+                return newInstance(EPTypePremade.BIGDECIMAL.getEPType(), value);
             }
-            if (valueType.isPrimitive()) {
-                return newInstance(BigDecimal.class, cast(double.class, value));
+            if (valueType.getType().isPrimitive()) {
+                return newInstance(EPTypePremade.BIGDECIMAL.getEPType(), cast(EPTypePremade.DOUBLEBOXED.getEPType(), value));
             }
-            return newInstance(BigDecimal.class, exprDotMethod(value, "doubleValue"));
+            return newInstance(EPTypePremade.BIGDECIMAL.getEPType(), exprDotMethod(value, "doubleValue"));
         }
     }
 
@@ -481,19 +496,19 @@ public class SimpleNumberCoercerFactory {
             return (BigInteger) numToCoerce;
         }
 
-        public Class getReturnType() {
-            return Number.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.NUMBER.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return value;
         }
 
-        public CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, Class type) {
+        public CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, EPTypeClass type) {
             return expr;
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return value;
         }
     }
@@ -512,44 +527,49 @@ public class SimpleNumberCoercerFactory {
             return (BigDecimal) numToCoerce;
         }
 
-        public Class getReturnType() {
-            return Number.class;
+        public EPTypeClass getReturnType() {
+            return EPTypePremade.NUMBER.getEPType();
         }
 
-        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+        public CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType) {
             return value;
         }
 
-        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, Class type) {
+        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, EPTypeClass type) {
             return expr;
         }
 
-        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return value;
         }
     }
 
-    private static CodegenExpression codegenCoerceNonNull(Class primitive, Class boxed, String numberValueMethodName, CodegenExpression param, Class type) {
-        if (type == primitive || type == boxed) {
+    private static CodegenExpression codegenCoerceNonNull(EPTypeClass primitive, EPTypeClass boxed, String numberValueMethodName, CodegenExpression param, EPType type) {
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass clazz = (EPTypeClass) type;
+        if (clazz.equals(primitive) || clazz.equals(boxed)) {
             return param;
         }
-        if (type.isPrimitive()) {
+        if (clazz.getType().isPrimitive()) {
             return cast(primitive, param);
         }
         return exprDotMethod(param, numberValueMethodName);
     }
 
-    private static CodegenExpression codegenCoerceMayNull(Class primitive, Class boxed, String numberValueMethodName, CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, Class generator, CodegenClassScope codegenClassScope) {
-        if (type == primitive || type == boxed) {
-            return param;
-        }
-        if (type == null) {
+    private static CodegenExpression codegenCoerceMayNull(EPTypeClass primitive, EPTypeClass boxed, String numberValueMethodName, CodegenExpression param, EPType type, CodegenMethodScope codegenMethodScope, Class generator, CodegenClassScope codegenClassScope) {
+        if (type == null || type == EPTypeNull.INSTANCE) {
             return constantNull();
         }
-        if (type.isPrimitive()) {
+        EPTypeClass clazz = (EPTypeClass) type;
+        if (clazz.equals(primitive) || clazz.equals(boxed)) {
+            return param;
+        }
+        if (clazz.getType().isPrimitive()) {
             return cast(primitive, param);
         }
-        CodegenMethod method = codegenMethodScope.makeChild(boxed, generator, codegenClassScope).addParam(type, "value").getBlock()
+        CodegenMethod method = codegenMethodScope.makeChild(boxed, generator, codegenClassScope).addParam(clazz, "value").getBlock()
                 .ifRefNullReturnNull("value")
                 .methodReturn(exprDotMethod(ref("value"), numberValueMethodName));
         return localMethod(method, param);

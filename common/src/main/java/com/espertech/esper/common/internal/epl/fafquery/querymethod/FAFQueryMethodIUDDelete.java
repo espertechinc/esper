@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetInstance;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
  * Starts and provides the stop method for EPL statements.
  */
 public class FAFQueryMethodIUDDelete extends FAFQueryMethodIUDBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodIUDDelete.class);
+
     private QueryGraph queryGraph;
     private ExprEvaluator optionalWhereClause;
 

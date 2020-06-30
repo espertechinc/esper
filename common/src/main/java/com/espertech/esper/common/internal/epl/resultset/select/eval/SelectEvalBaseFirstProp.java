@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,6 +24,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprForgeContext;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
 public abstract class SelectEvalBaseFirstProp implements SelectExprProcessorForge {
 
@@ -32,13 +37,17 @@ public abstract class SelectEvalBaseFirstProp implements SelectExprProcessorForg
         this.resultEventType = resultEventType;
     }
 
-    protected abstract CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    protected abstract CodegenExpression processFirstColCodegen(EPTypeClass evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         ExprForge first = selectExprForgeContext.getExprForges()[0];
-        Class evaluationType = first.getEvaluationType();
-        methodNode.getBlock().methodReturn(processFirstColCodegen(evaluationType, first.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), resultEventType, eventBeanFactory, methodNode, codegenClassScope));
+        EPType evaluationType = first.getEvaluationType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
+        if (evaluationType == EPTypeNull.INSTANCE) {
+            methodNode.getBlock().methodReturn(constantNull());
+        } else {
+            methodNode.getBlock().methodReturn(processFirstColCodegen((EPTypeClass) evaluationType, first.evaluateCodegen((EPTypeClass) evaluationType, methodNode, exprSymbol, codegenClassScope), resultEventType, eventBeanFactory, methodNode, codegenClassScope));
+        }
         return methodNode;
     }
 

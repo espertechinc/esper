@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -127,7 +128,7 @@ public class ExprInstanceofNode extends ExprNodeBase {
             }
 
             // Add primitive and boxed types, or type itself if not built-in
-            classList.add(JavaClassHelper.getPrimitiveType(clazz));
+            classList.add(JavaClassHelper.getPrimitiveType(ClassHelperGenericType.getClassEPType(clazz)).getType());
             classList.add(JavaClassHelper.getBoxedType(clazz));
         }
         return classList;

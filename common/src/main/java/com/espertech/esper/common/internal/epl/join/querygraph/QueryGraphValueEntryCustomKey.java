@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class QueryGraphValueEntryCustomKey implements QueryGraphValueEntry {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValueEntryCustomKey.class);
+
     private String operationName;
     private ExprEvaluator[] exprNodes;
     private String[] expressions;

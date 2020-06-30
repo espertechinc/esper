@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -31,6 +32,6 @@ public class ExprDotNodeForgeTransposeAsStreamEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprDotNodeForgeTransposeAsStream forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return forge.inner.evaluateCodegen(forge.inner.getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
+        return forge.inner.evaluateCodegen((EPTypeClass) forge.inner.getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

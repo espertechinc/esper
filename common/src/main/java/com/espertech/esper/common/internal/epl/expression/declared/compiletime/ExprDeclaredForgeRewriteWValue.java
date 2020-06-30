@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -63,15 +64,15 @@ public class ExprDeclaredForgeRewriteWValue extends ExprDeclaredForgeBase {
     }
 
     protected CodegenExpression codegenEventsPerStreamRewritten(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewriteWValue.class, codegenClassScope);
-        CodegenExpressionField valueType = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(valueEventType, EPStatementInitServices.REF)));
+        CodegenMethod method = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, ExprDeclaredForgeRewriteWValue.class, codegenClassScope);
+        CodegenExpressionField valueType = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(valueEventType, EPStatementInitServices.REF)));
 
         method.getBlock()
-            .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(valueExpressions.size())))
-            .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(eventEnumerationForges.length)))
-            .assignArrayElement("events", constant(0), newInstance(ObjectArrayEventBean.class, ref("props"), valueType));
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(valueExpressions.size())))
+            .declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, constant(eventEnumerationForges.length)))
+            .assignArrayElement("events", constant(0), newInstance(ObjectArrayEventBean.EPTYPE, ref("props"), valueType));
         for (int i = 0; i < valueExpressions.size(); i++) {
-            method.getBlock().assignArrayElement("props", constant(i), valueExpressions.get(i).getForge().evaluateCodegen(Object.class, method, exprSymbol, codegenClassScope));
+            method.getBlock().assignArrayElement("props", constant(i), valueExpressions.get(i).getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, exprSymbol, codegenClassScope));
         }
         for (int i = 1; i < eventEnumerationForges.length; i++) {
             method.getBlock().assignArrayElement("events", constant(i), eventEnumerationForges[i].evaluateGetEventBeanCodegen(method, exprSymbol, codegenClassScope));

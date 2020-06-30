@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -22,10 +24,10 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 
 public class ExprCoalesceNodeForge implements ExprForgeInstrumentable {
     private final ExprCoalesceNode parent;
-    private final Class resultType;
+    private final EPType resultType;
     private final boolean[] isNumericCoercion;
 
-    public ExprCoalesceNodeForge(ExprCoalesceNode parent, Class resultType, boolean[] isNumericCoercion) {
+    public ExprCoalesceNodeForge(ExprCoalesceNode parent, EPType resultType, boolean[] isNumericCoercion) {
         this.parent = parent;
         this.resultType = resultType;
         this.isNumericCoercion = isNumericCoercion;
@@ -43,7 +45,7 @@ public class ExprCoalesceNodeForge implements ExprForgeInstrumentable {
         return new ExprCoalesceNodeForgeEval(this, ExprNodeUtilityQuery.getEvaluatorsNoCompile(parent.getChildNodes()));
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return resultType;
     }
 
@@ -51,11 +53,11 @@ public class ExprCoalesceNodeForge implements ExprForgeInstrumentable {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprCoalesceNodeForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprCoalesce", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 }

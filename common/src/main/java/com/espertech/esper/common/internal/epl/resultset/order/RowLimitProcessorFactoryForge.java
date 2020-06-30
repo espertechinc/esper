@@ -102,9 +102,9 @@ public class RowLimitProcessorFactoryForge {
             offsetVariable = VariableDeployTimeResolver.makeVariableField(offsetVariableMetaData, classScope, this.getClass());
         }
 
-        CodegenMethod method = parent.makeChild(RowLimitProcessorFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(RowLimitProcessorFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(RowLimitProcessorFactory.class, "factory", newInstance(RowLimitProcessorFactory.class))
+                .declareVarNewInstance(RowLimitProcessorFactory.EPTYPE, "factory")
                 .exprDotMethod(ref("factory"), "setNumRowsVariable", numRowsVariable)
                 .exprDotMethod(ref("factory"), "setOffsetVariable", offsetVariable)
                 .exprDotMethod(ref("factory"), "setCurrentRowLimit", constant(currentRowLimit))

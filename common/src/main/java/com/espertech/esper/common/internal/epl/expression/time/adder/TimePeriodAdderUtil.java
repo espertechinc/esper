@@ -30,6 +30,6 @@ public class TimePeriodAdderUtil {
         for (int i = 0; i < adders.length; i++) {
             expressions[i] = publicConstValue(adders[i].getClass(), "INSTANCE");
         }
-        return newArrayWithInit(TimePeriodAdder.class, expressions);
+        return newArrayWithInit(TimePeriodAdder.EPTYPE, expressions);
     }
 }

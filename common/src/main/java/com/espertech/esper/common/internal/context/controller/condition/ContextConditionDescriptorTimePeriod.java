@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.condition;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import java.util.List;
 
 public class ContextConditionDescriptorTimePeriod implements ContextConditionDescriptor {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextConditionDescriptorTimePeriod.class);
+
     private TimePeriodCompute timePeriodCompute;
     private boolean immediate;
     private int scheduleCallbackId = -1;

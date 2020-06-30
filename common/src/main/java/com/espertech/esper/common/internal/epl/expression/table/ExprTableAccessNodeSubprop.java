@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.expression.table;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
@@ -22,8 +25,8 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataCo
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnPlain;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.io.StringWriter;
 import java.util.Collection;
@@ -34,8 +37,8 @@ import static com.espertech.esper.common.internal.epl.table.strategy.ExprTableEv
 public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval, ExprForge {
     private final String subpropName;
 
-    private Class bindingReturnType;
-    private transient EPType optionalEnumerationType;
+    private EPTypeClass bindingReturnType;
+    private transient EPChainableType optionalEnumerationType;
     private transient ExprEnumerationGivenEventForge optionalPropertyEnumEvaluator;
 
     public ExprTableAccessNodeSubprop(String tableName, String subpropName) {
@@ -47,7 +50,7 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return bindingReturnType;
     }
 
@@ -89,7 +92,8 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
             throws ExprValidationException {
         validateGroupKeys(tableMeta, validationContext);
         TableMetadataColumn column = validateSubpropertyGetCol(tableMeta, subpropName);
-        bindingReturnType = tableMeta.getPublicEventType().getPropertyType(subpropName);
+        EPType propType = tableMeta.getPublicEventType().getPropertyEPType(subpropName);
+        bindingReturnType = propType == null || propType == EPTypeNull.INSTANCE ? null : (EPTypeClass) propType;
         if (column instanceof TableMetadataColumnPlain) {
             ExprDotEnumerationSourceForgeForProps enumerationSource = ExprDotNodeUtility.getPropertyEnumerationSource(subpropName, 0, tableMeta.getInternalEventType(), true, true);
             optionalEnumerationType = enumerationSource.getReturnType();
@@ -109,15 +113,15 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
     }
 
     public EventType getEventTypeCollection(StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
-        return EPTypeHelper.optionalIsEventTypeColl(optionalEnumerationType);
+        return EPChainableTypeHelper.optionalIsEventTypeColl(optionalEnumerationType);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
-        return EPTypeHelper.optionalIsComponentTypeColl(optionalEnumerationType);
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
+        return EPChainableTypeHelper.getCollectionOrArrayComponentTypeOrNull(optionalEnumerationType);
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -125,7 +129,7 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
     }
 
     public EventType getEventTypeSingle(StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
-        return EPTypeHelper.optionalIsEventTypeSingle(optionalEnumerationType);
+        return EPChainableTypeHelper.optionalIsEventTypeSingle(optionalEnumerationType);
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

@@ -15,6 +15,10 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
@@ -47,18 +51,24 @@ import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeNameUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyDesc;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyUtility;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClass;
+import com.espertech.esper.common.internal.settings.ClasspathImportEPTypeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.IntArrayUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
+
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.compileMapTypeProperties;
 
 public class StmtForgeMethodCreateTable implements StmtForgeMethod {
     public final static String INTERNAL_RESERVED_PROPERTY = "internal-reserved";
@@ -88,7 +98,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         EPLValidationUtil.validateAlreadyExistsTableOrVariable(tableName, services.getVariableCompileTimeResolver(), services.getTableCompileTimeResolver(), services.getEventTypeCompileTimeResolver());
 
         // determine key types
-        validateKeyTypes(createDesc.getColumns(), services.getClasspathImportServiceCompileTime());
+        validateKeyTypes(createDesc.getColumns(), services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension());
 
         // check column naming, interpret annotations
         Pair<List<TableColumnDesc>, List<StmtClassForgeableFactory>> columnsValidated = validateExpressions(createDesc.getColumns(), services);
@@ -142,8 +152,8 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    private void validateKeyTypes(List<CreateTableColumn> columns, ClasspathImportServiceCompileTime classpathImportService)
-        throws ExprValidationException {
+    private void validateKeyTypes(List<CreateTableColumn> columns, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension)
+            throws ExprValidationException {
         for (CreateTableColumn col : columns) {
             if (col.getPrimaryKey() == null || !col.getPrimaryKey()) {
                 continue;
@@ -152,15 +162,15 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             if (col.getOptExpression() != null) {
                 throw new ExprValidationException(msg + ", an expression cannot become a primary key column");
             }
-            Object type = EventTypeUtility.buildType(new ColumnDesc(col.getColumnName(), col.getOptType().toEPL()), classpathImportService);
-            if (!(type instanceof Class)) {
+            Object type = EventTypeUtility.buildType(new ColumnDesc(col.getColumnName(), col.getOptType().toEPL()), classpathImportService, classpathExtension);
+            if (!(type instanceof EPTypeClass)) {
                 throw new ExprValidationException(msg + ", received unexpected event type '" + type + "'");
             }
         }
     }
 
     private Pair<List<TableColumnDesc>, List<StmtClassForgeableFactory>> validateExpressions(List<CreateTableColumn> columns, StatementCompileTimeServices services)
-        throws ExprValidationException {
+            throws ExprValidationException {
         Set<String> columnNames = new HashSet<>();
         List<TableColumnDesc> descriptors = new ArrayList<>();
 
@@ -186,7 +196,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
                 additionalForgeables.addAll(pair.getSecond());
             } else {
                 Object unresolvedType = EventTypeUtility.buildType(new ColumnDesc(column.getColumnName(), column.getOptType().toEPL()),
-                    services.getClasspathImportServiceCompileTime());
+                        services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension());
                 descriptor = new TableColumnDescTyped(positionInDeclaration, column.getColumnName(), unresolvedType, column.getPrimaryKey() == null ? false : column.getPrimaryKey());
             }
             descriptors.add(descriptor);
@@ -197,7 +207,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
     }
 
     private static EventType validateExpressionGetEventType(String msgprefix, List<AnnotationDesc> annotations, StatementCompileTimeServices services)
-        throws ExprValidationException {
+            throws ExprValidationException {
         Map<String, List<AnnotationDesc>> annos = AnnotationUtil.mapByNameLowerCase(annotations);
 
         // check annotations used
@@ -220,7 +230,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
     }
 
     private Pair<ExprAggregateNode, List<StmtClassForgeableFactory>> validateAggregationExpr(ExprNode columnExpressionType, EventType optionalProvidedType, StatementCompileTimeServices services)
-        throws ExprValidationException {
+            throws ExprValidationException {
         ClasspathImportServiceCompileTime classpathImportService = services.getClasspathImportServiceCompileTime();
 
         // determine validation context types and istream/irstream
@@ -245,16 +255,28 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             if (childNode instanceof ExprIdentNode) {
                 ExprIdentNode identNode = (ExprIdentNode) childNode;
                 String propname = identNode.getFullUnresolvedName().trim();
-                Class clazz = JavaClassHelper.getClassForSimpleName(propname, classpathImportService.getClassForNameProvider());
+
+                EPTypeClass clazz = null;
                 if (propname.toLowerCase(Locale.ENGLISH).trim().equals("object")) {
-                    clazz = Object.class;
+                    clazz = EPTypePremade.OBJECT.getEPType();
+                } else {
+                    Class resolvedClass = JavaClassHelper.getClassForSimpleName(propname, classpathImportService.getClassForNameProvider());
+                    if (resolvedClass != null) {
+                        clazz = ClassHelperGenericType.getClassEPType(resolvedClass);
+                    }
                 }
+
                 ClasspathImportException ex = null;
                 if (clazz == null) {
+                    ClassDescriptor descriptor = ClassDescriptor.parseTypeText(propname);
+                    Class resolvedClass = null;
                     try {
-                        clazz = classpathImportService.resolveClass(propname, false, services.getClassProvidedClasspathExtension());
+                        resolvedClass = classpathImportService.resolveClass(descriptor.getClassIdentifier(), false, services.getClassProvidedClasspathExtension());
                     } catch (ClasspathImportException e) {
                         ex = e;
+                    }
+                    if (resolvedClass != null) {
+                        clazz = ClasspathImportEPTypeUtil.parameterizeType(false, resolvedClass, descriptor, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension());
                     }
                 }
                 if (clazz != null) {
@@ -282,7 +304,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
     }
 
     private TableAccessAnalysisResult analyzePlanAggregations(String tableName, List<TableColumnDesc> columns, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
-        throws ExprValidationException {
+            throws ExprValidationException {
         // once upfront: obtains aggregation factories for each aggregation
         // we do this once as a factory may be a heavier object
         Map<TableColumnDesc, AggregationForgeFactory> aggregationFactories = new HashMap<>();
@@ -319,7 +341,10 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             } else {
                 methodAggColumns.add(agg);
             }
-            allColumnsPublicTypes.put(column.getColumnName(), agg.getAggregation().getEvaluationType());
+
+            EPType type = agg.getAggregation().getEvaluationType();
+            type = type == null ? EPTypeNull.INSTANCE : type;
+            allColumnsPublicTypes.put(column.getColumnName(), type);
         }
 
         // determine column metadata
@@ -327,28 +352,31 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         Map<String, TableMetadataColumn> columnMetadata = new LinkedHashMap<>();
 
         // handle typed columns
-        Map<String, Object> allColumnsInternalTypes = new LinkedHashMap<>();
-        allColumnsInternalTypes.put(INTERNAL_RESERVED_PROPERTY, Object.class);
+        Map<String, Object> allColumnPrivateTypes = new LinkedHashMap<>();
+        allColumnPrivateTypes.put(INTERNAL_RESERVED_PROPERTY, EPTypePremade.OBJECT.getEPType());
         int indexPlain = 1;
         TableMetadataColumnPairPlainCol[] assignPairsPlain = new TableMetadataColumnPairPlainCol[plainColumns.size()];
         for (TableColumnDescTyped typedColumn : plainColumns) {
-            allColumnsInternalTypes.put(typedColumn.getColumnName(), typedColumn.getUnresolvedType());
+            allColumnPrivateTypes.put(typedColumn.getColumnName(), typedColumn.getUnresolvedType());
             columnMetadata.put(typedColumn.getColumnName(), new TableMetadataColumnPlain(typedColumn.getColumnName(), typedColumn.isKey(), indexPlain));
             assignPairsPlain[indexPlain - 1] = new TableMetadataColumnPairPlainCol(typedColumn.getPositionInDeclaration(), indexPlain);
             indexPlain++;
         }
 
+        LinkedHashMap<String, Object> allColumnPrivateTypesCompiled = compileMapTypeProperties(allColumnPrivateTypes, services.getEventTypeCompileTimeResolver());
+        LinkedHashMap<String, Object> allColumnsPublicTypesCompiled = compileMapTypeProperties(allColumnsPublicTypes, services.getEventTypeCompileTimeResolver());
+
         // determine internally-used event type
         NameAccessModifier visibility = services.getModuleVisibilityRules().getAccessModifierTable(base, tableName);
         String internalName = EventTypeNameUtil.getTableInternalTypeName(tableName);
         EventTypeMetadata internalMetadata = new EventTypeMetadata(internalName, base.getModuleName(), EventTypeTypeClass.TABLE_INTERNAL, EventTypeApplicationType.OBJECTARR, visibility, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
-        ObjectArrayEventType internalEventType = BaseNestableEventUtil.makeOATypeCompileTime(internalMetadata, allColumnsInternalTypes, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
+        ObjectArrayEventType internalEventType = BaseNestableEventUtil.makeOATypeCompileTime(internalMetadata, allColumnPrivateTypesCompiled, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
         services.getEventTypeCompileTimeRegistry().newType(internalEventType);
 
         // for use by indexes and lookups
         String publicName = EventTypeNameUtil.getTablePublicTypeName(tableName);
         EventTypeMetadata publicMetadata = new EventTypeMetadata(publicName, base.getModuleName(), EventTypeTypeClass.TABLE_PUBLIC, EventTypeApplicationType.OBJECTARR, visibility, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
-        ObjectArrayEventType publicEventType = BaseNestableEventUtil.makeOATypeCompileTime(publicMetadata, allColumnsPublicTypes, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
+        ObjectArrayEventType publicEventType = BaseNestableEventUtil.makeOATypeCompileTime(publicMetadata, allColumnsPublicTypesCompiled, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
         services.getEventTypeCompileTimeRegistry().newType(publicEventType);
 
         // handle aggregation-methods single-func first.
@@ -357,7 +385,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         TableMetadataColumnPairAggMethod[] assignPairsMethod = new TableMetadataColumnPairAggMethod[methodAggColumns.size()];
         for (TableColumnDescAgg column : methodAggColumns) {
             AggregationForgeFactory factory = aggregationFactories.get(column);
-            EPType optionalEnumerationType = EPTypeHelper.optionalFromEnumerationExpr(statementRawInfo, services, column.getAggregation());
+            EPChainableType optionalEnumerationType = EPChainableTypeHelper.optionalFromEnumerationExpr(statementRawInfo, services, column.getAggregation());
             methodFactories[index] = factory;
             AggregationPortableValidation bindingInfo = factory.getAggregationPortableValidation();
             String expression = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(factory.getAggregationExpression());
@@ -379,7 +407,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             AggregationPortableValidation bindingInfo = factory.getAggregationPortableValidation();
             accessAccessorForges[accessNum] = new AggregationAccessorSlotPairForge(accessNum, accessor);
             String expression = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(factory.getAggregationExpression());
-            EPType optionalEnumerationType = EPTypeHelper.optionalFromEnumerationExpr(statementRawInfo, services, column.getAggregation());
+            EPChainableType optionalEnumerationType = EPChainableTypeHelper.optionalFromEnumerationExpr(statementRawInfo, services, column.getAggregation());
             columnMetadata.put(column.getColumnName(), new TableMetadataColumnAggregation(column.getColumnName(), false, index, bindingInfo, expression, false, optionalEnumerationType));
             assignPairsAccess[accessNum] = new TableMetadataColumnPairAggAccess(column.getPositionInDeclaration(), accessor);
             index++;
@@ -388,7 +416,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
 
         // determine primary key index information
         List<String> primaryKeyColumns = new ArrayList<>();
-        List<Class> primaryKeyTypes = new ArrayList<>();
+        List<EPTypeClass> primaryKeyTypes = new ArrayList<>();
         List<EventPropertyGetterSPI> primaryKeyGetters = new ArrayList<>();
         List<Integer> primaryKeyColNums = new ArrayList<>();
         int colNum = -1;
@@ -396,19 +424,23 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             colNum++;
             if (typedColumn.isKey()) {
                 primaryKeyColumns.add(typedColumn.getColumnName());
-                primaryKeyTypes.add(internalEventType.getPropertyType(typedColumn.getColumnName()));
+                EPType keyType = internalEventType.getPropertyEPType(typedColumn.getColumnName());
+                if (keyType == null || keyType == EPTypeNull.INSTANCE) {
+                    throw new ExprValidationException("Column '" + typedColumn.getColumnName() + "' is null-type and may not be used in a primary key");
+                }
+                primaryKeyTypes.add((EPTypeClass) keyType);
                 primaryKeyGetters.add(internalEventType.getGetterSPI(typedColumn.getColumnName()));
                 primaryKeyColNums.add(colNum + 1);
             }
         }
         String[] primaryKeyColumnArray = null;
-        Class[] primaryKeyTypeArray = null;
+        EPTypeClass[] primaryKeyTypeArray = null;
         EventPropertyGetterSPI[] primaryKeyGetterArray = null;
 
         int[] primaryKeyColNumsArray = null;
         if (!primaryKeyColumns.isEmpty()) {
             primaryKeyColumnArray = primaryKeyColumns.toArray(new String[primaryKeyColumns.size()]);
-            primaryKeyTypeArray = primaryKeyTypes.toArray(new Class[primaryKeyTypes.size()]);
+            primaryKeyTypeArray = primaryKeyTypes.toArray(new EPTypeClass[primaryKeyTypes.size()]);
             primaryKeyGetterArray = primaryKeyGetters.toArray(new EventPropertyGetterSPI[primaryKeyTypes.size()]);
             primaryKeyColNumsArray = IntArrayUtil.toArray(primaryKeyColNums);
         }

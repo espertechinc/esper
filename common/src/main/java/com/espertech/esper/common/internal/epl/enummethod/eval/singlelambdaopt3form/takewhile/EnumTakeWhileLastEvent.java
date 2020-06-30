@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.takewhile;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -79,8 +81,8 @@ public class EnumTakeWhileLastEvent extends ThreeFormEventPlain {
         };
     }
 
-    public Class returnType() {
-        return Collection.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.COLLECTION.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -88,17 +90,17 @@ public class EnumTakeWhileLastEvent extends ThreeFormEventPlain {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        innerValue = innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope);
+        innerValue = innerExpression.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, scope, codegenClassScope);
         CodegenBlock blockSingle = block.ifCondition(equalsIdentity(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), constant(1)))
-            .declareVar(EventBean.class, "item", cast(EventBean.class, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")))
+            .declareVar(EventBean.EPTYPE, "item", cast(EventBean.EPTYPE, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")))
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("item"));
         CodegenLegoBooleanExpression.codegenReturnValueIfNotNullAndNotPass(blockSingle, innerExpression.getEvaluationType(), innerValue, staticMethod(Collections.class, "emptyList"));
         blockSingle.blockReturn(staticMethod(Collections.class, "singletonList", ref("item")));
 
-        block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class))
-            .declareVar(EventBean[].class, "all", staticMethod(EnumTakeWhileHelper.class, "takeWhileLastEventBeanToArray", EnumForgeCodegenNames.REF_ENUMCOLL));
+        block.declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType()))
+            .declareVar(EventBean.EPTYPEARRAY, "all", staticMethod(EnumTakeWhileHelper.class, "takeWhileLastEventBeanToArray", EnumForgeCodegenNames.REF_ENUMCOLL));
 
-        CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrementRef("i"))
+        CodegenBlock forEach = block.forLoop(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrementRef("i"))
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), arrayAtIndex(ref("all"), ref("i")));
         CodegenLegoBooleanExpression.codegenBreakIfNotNullAndNotPass(forEach, innerExpression.getEvaluationType(), innerValue);
         forEach.expression(exprDotMethod(ref("result"), "addFirst", arrayAtIndex(ref("all"), ref("i"))));

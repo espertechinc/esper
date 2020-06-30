@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.lengthbatch;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
@@ -36,8 +37,8 @@ public class LengthBatchViewForge extends ViewFactoryForgeBase implements DataWi
         this.eventType = parentEventType;
     }
 
-    protected Class typeOfFactory() {
-        return LengthBatchViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return LengthBatchViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

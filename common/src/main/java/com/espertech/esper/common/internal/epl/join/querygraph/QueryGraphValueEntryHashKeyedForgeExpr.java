@@ -40,10 +40,10 @@ public class QueryGraphValueEntryHashKeyedForgeExpr extends QueryGraphValueEntry
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbol, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryGraphValueEntryHashKeyedExpr.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(QueryGraphValueEntryHashKeyedExpr.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprEvaluator.class, "expression", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(getKeyExpr().getForge(), method, this.getClass(), classScope))
-                .methodReturn(newInstance(QueryGraphValueEntryHashKeyedExpr.class,
+                .declareVar(ExprEvaluator.EPTYPE, "expression", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(getKeyExpr().getForge(), method, this.getClass(), classScope))
+                .methodReturn(newInstance(QueryGraphValueEntryHashKeyedExpr.EPTYPE,
                         ref("expression"), constant(requiresKey)));
         return localMethod(method);
     }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.hook.type;
 
+import com.espertech.esper.common.client.type.EPType;
+
 /**
  * Implement this interface when providing a callback for SQL input parameter and column result processing for a statement,
  * converting an input parameter or converting an output column value into any other value.
@@ -25,7 +27,7 @@ public interface SQLColumnTypeConversion {
      * @param context contains the database name, query fired, column name, column type and column number
      * @return type of column after conversion
      */
-    public Class getColumnType(SQLColumnTypeContext context);
+    public EPType getColumnType(SQLColumnTypeContext context);
 
     /**
      * Return the new value of the column. To leave the value unchanged, return {@link SQLColumnValueContext#getColumnValue}.

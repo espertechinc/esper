@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
 
 public class AggregationStateSortedWrappingCollection implements Collection {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationStateSortedWrappingCollection.class);
 
     private final TreeMap<Object, Object> sorted;
     private final int size;

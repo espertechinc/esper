@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalAssertionBuilder;
@@ -21,6 +24,7 @@ import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
 
 public class ExprEnumTakeAndTakeLast {
@@ -29,6 +33,7 @@ public class ExprEnumTakeAndTakeLast {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumTakeEvents());
         execs.add(new ExprEnumTakeScalar());
+        execs.add(new ExprEnumTakeInvalid());
         return execs;
     }
 
@@ -43,7 +48,7 @@ public class ExprEnumTakeAndTakeLast {
             builder.expression(fields[4], "contained.takeLast(2)");
             builder.expression(fields[5], "contained.takeLast(1)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2", "E3,3"))
                 .verify("c0", val -> assertST0Id(val, "E1,E2"))
@@ -92,7 +97,7 @@ public class ExprEnumTakeAndTakeLast {
             builder.expression(fields[2], "strvals.takeLast(2)");
             builder.expression(fields[3], "strvals.takeLast(1)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E1,E2,E3"))
                 .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2"))
@@ -109,6 +114,15 @@ public class ExprEnumTakeAndTakeLast {
             LambdaAssertionUtil.assertSingleAndEmptySupportColl(builder, fields);
 
             builder.run(env);
+        }
+    }
+
+    private static class ExprEnumTakeInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl;
+
+            epl = "select strvals.take(null) from SupportCollection";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.take(null)': Failed to validate enumeration method 'take', expected a non-null result for expression parameter 0 but received a null-typed expression");
         }
     }
 }

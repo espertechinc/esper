@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class VariableTriggerWriteCurly extends VariableTriggerWrite {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableTriggerWriteCurly.class);
+
     private String variableName;
     private ExprEvaluator expression;
 

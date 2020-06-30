@@ -10,33 +10,45 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.groupby;
 
-import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
+import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
+import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDesc;
 import com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.base.ExprDotForgeTwoLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.base.TwoLambdaThreeFormEventPlainFactory;
 import com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.base.TwoLambdaThreeFormEventPlusFactory;
 import com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.base.TwoLambdaThreeFormScalarFactory;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
 
+import java.util.Collection;
 import java.util.Map;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.getTypeClassOrObjectType;
 
 public class ExprDotForgeGroupByTwoParam extends ExprDotForgeTwoLambda {
 
-    protected EPType returnType(EventType inputEventType, Class collectionComponentType) {
-        return EPTypeHelper.singleValue(Map.class);
-    }
-
     protected TwoLambdaThreeFormEventPlainFactory.ForgeFunction twoParamEventPlain() {
-        return (first, second, streamCountIncoming, typeInfo, services) -> new EnumGroupByTwoParamEventPlain(first.getBodyForge(), streamCountIncoming, second.getBodyForge());
+        return (first, second, streamCountIncoming, services) -> buildDesc(first, second, new EnumGroupByTwoParamEventPlain(first.getBodyForge(), streamCountIncoming, second.getBodyForge()));
     }
 
     protected TwoLambdaThreeFormEventPlusFactory.ForgeFunction twoParamEventPlus() {
-        return (first, second, streamCountIncoming, firstType, secondType, numParameters, typeInfo, services) -> new EnumGroupByTwoParamEventPlus(first.getBodyForge(), streamCountIncoming, firstType,
-            second.getBodyForge(), numParameters);
+        return (first, second, streamCountIncoming, firstType, secondType, numParameters, services) -> buildDesc(first, second, new EnumGroupByTwoParamEventPlus(first.getBodyForge(), streamCountIncoming, firstType,
+            second.getBodyForge(), numParameters));
     }
 
     protected TwoLambdaThreeFormScalarFactory.ForgeFunction twoParamScalar() {
-        return (first, second, eventTypeFirst, eventTypeSecond, streamCountIncoming, numParams, typeInfo) ->
-            new EnumGroupByTwoParamScalar(first.getBodyForge(), streamCountIncoming, second.getBodyForge(), eventTypeFirst, numParams);
+        return (first, second, eventTypeFirst, eventTypeSecond, streamCountIncoming, numParams)
+            -> buildDesc(first, second, new EnumGroupByTwoParamScalar(first.getBodyForge(), streamCountIncoming, second.getBodyForge(), eventTypeFirst, numParams));
+    }
+
+    private EnumForgeDesc buildDesc(ExprDotEvalParamLambda first, ExprDotEvalParamLambda second, EnumForge forge) {
+        EPTypeClass key = getTypeClassOrObjectType(first.getBodyForge().getEvaluationType());
+        EPTypeClass component = getTypeClassOrObjectType(second.getBodyForge().getEvaluationType());
+        EPTypeClass collection = new EPTypeClassParameterized(Collection.class, new EPTypeClass[] {component});
+        EPTypeClass map = new EPTypeClassParameterized(Map.class, new EPTypeClass[] {key, collection});
+        EPChainableType type = new EPChainableTypeClass(map);
+        return new EnumForgeDesc(type, forge);
     }
 }

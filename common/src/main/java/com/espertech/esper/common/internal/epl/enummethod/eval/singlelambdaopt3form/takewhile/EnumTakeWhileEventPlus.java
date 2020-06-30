@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.takewhile;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -88,8 +90,8 @@ public class EnumTakeWhileEventPlus extends ThreeFormEventPlus {
         };
     }
 
-    public Class returnType() {
-        return Collection.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.COLLECTION.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -97,8 +99,8 @@ public class EnumTakeWhileEventPlus extends ThreeFormEventPlus {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        innerValue = innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope);
-        EnumTakeWhileHelper.initBlockSizeOneEventPlus(numParameters, block, innerValue, getStreamNumLambda(), innerExpression.getEvaluationType());
+        innerValue = innerExpression.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, scope, codegenClassScope);
+        EnumTakeWhileHelper.initBlockSizeOneEventPlus(numParameters, block, innerValue, getStreamNumLambda(), (EPTypeClass) innerExpression.getEvaluationType());
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {

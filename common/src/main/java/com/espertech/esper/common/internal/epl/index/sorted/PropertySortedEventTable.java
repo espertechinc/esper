@@ -190,6 +190,6 @@ public abstract class PropertySortedEventTable implements EventTable {
     }
 
     public Class getValueType() {
-        return factory.valueType;
+        return factory.valueType.getType();
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.every;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
 
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents an 'every' operator in the evaluation tree representing an event expression.
  */
 public class EvalEveryFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalEveryFactoryNode.class);
 
     private EvalFactoryNode childNode;
 

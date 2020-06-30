@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,10 +29,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprEvalUnderlyingEvaluatorTable implements ExprEvaluator, ExprForge {
     private final int streamNum;
-    private final Class resultType;
+    private final EPTypeClass resultType;
     private final TableMetaData tableMetadata;
 
-    public ExprEvalUnderlyingEvaluatorTable(int streamNum, Class resultType, TableMetaData tableMetadata) {
+    public ExprEvalUnderlyingEvaluatorTable(int streamNum, EPTypeClass resultType, TableMetaData tableMetadata) {
         this.streamNum = streamNum;
         this.resultType = resultType;
         this.tableMetadata = tableMetadata;
@@ -40,7 +42,7 @@ public class ExprEvalUnderlyingEvaluatorTable implements ExprEvaluator, ExprForg
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return resultType;
     }
 
@@ -56,11 +58,11 @@ public class ExprEvalUnderlyingEvaluatorTable implements ExprEvaluator, ExprForg
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tableMetadata, codegenClassScope, this.getClass());
-        CodegenMethod method = parent.makeChild(Object[].class, ExprEvalUnderlyingEvaluatorTable.class, codegenClassScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECTARRAY.getEPType(), ExprEvalUnderlyingEvaluatorTable.class, codegenClassScope);
         method.getBlock().ifNullReturnNull(exprSymbol.getAddEPS(method))
-                .declareVar(EventBean.class, "event", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(exprDotMethod(eventToPublic, "convertToUnd", ref("event"), exprSymbol.getAddEPS(method), exprSymbol.getAddIsNewData(method), exprSymbol.getAddExprEvalCtx(method)));
         return localMethod(method);

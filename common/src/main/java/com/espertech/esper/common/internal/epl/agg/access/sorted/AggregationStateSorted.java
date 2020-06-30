@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Collection;
 import java.util.Map;
@@ -19,6 +20,8 @@ import java.util.TreeMap;
 import static com.espertech.esper.common.internal.epl.agg.access.sorted.AggregatorAccessSortedImpl.checkedPayloadMayDeque;
 
 public class AggregationStateSorted {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationStateSorted.class);
+
     private TreeMap<Object, Object> sorted;
     private int size;
 

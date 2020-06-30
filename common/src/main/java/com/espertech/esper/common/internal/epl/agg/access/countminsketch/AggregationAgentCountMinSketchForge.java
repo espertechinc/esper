@@ -35,9 +35,9 @@ public class AggregationAgentCountMinSketchForge implements AggregationAgentForg
     }
 
     public CodegenExpression make(CodegenMethod parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationAgentCountMinSketch.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationAgentCountMinSketch.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AggregationAgentCountMinSketch.class, "cms", newInstance(AggregationAgentCountMinSketch.class))
+                .declareVarNewInstance(AggregationAgentCountMinSketch.EPTYPE, "cms")
                 .exprDotMethod(ref("cms"), "setStringEval", ExprNodeUtilityCodegen.codegenEvaluator(stringEvaluator, method, this.getClass(), classScope))
                 .exprDotMethod(ref("cms"), "setOptionalFilterEval", optionalFilterForge == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(optionalFilterForge, method, this.getClass(), classScope))
                 .methodReturn(ref("cms"));

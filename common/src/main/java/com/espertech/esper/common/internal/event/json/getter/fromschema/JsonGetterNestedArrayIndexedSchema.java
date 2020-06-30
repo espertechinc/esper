@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.json.getter.fromschema;
 
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.event.json.getter.core.JsonEventPropertyGetter;
 import com.espertech.esper.common.internal.event.json.getter.core.JsonGetterNestedArrayIndexedBase;
@@ -27,7 +28,7 @@ public final class JsonGetterNestedArrayIndexedSchema extends JsonGetterNestedAr
         return field.getFieldName();
     }
 
-    public Class getFieldType() {
+    public EPTypeClass getFieldType() {
         return field.getPropertyType();
     }
 

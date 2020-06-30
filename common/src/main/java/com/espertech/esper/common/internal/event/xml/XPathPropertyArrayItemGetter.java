@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -68,8 +69,8 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethod getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
-                .declareVar(Object.class, "value", getter.underlyingGetCodegen(ref("node"), codegenMethodScope, codegenClassScope))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.NODE.getEPType(), "node").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", getter.underlyingGetCodegen(ref("node"), codegenMethodScope, codegenClassScope))
                 .methodReturn(staticMethod(this.getClass(), "getXPathNodeListWCheck", ref("value"), constant(index)));
     }
 
@@ -85,9 +86,9 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField member = codegenClassScope.addFieldUnshared(true, FragmentFactory.class, fragmentFactory.make(codegenClassScope.getPackageScope().getInitMethod(), codegenClassScope));
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
-                .declareVar(Node.class, "result", cast(Node.class, underlyingGetCodegen(ref("node"), codegenMethodScope, codegenClassScope)))
+        CodegenExpressionField member = codegenClassScope.addFieldUnshared(true, FragmentFactory.EPTYPE, fragmentFactory.make(codegenClassScope.getPackageScope().getInitMethod(), codegenClassScope));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.NODE.getEPType(), "node").getBlock()
+                .declareVar(EPTypePremade.NODE.getEPType(), "result", cast(EPTypePremade.NODE.getEPType(), underlyingGetCodegen(ref("node"), codegenMethodScope, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(member, "getEvent", ref("result")));
     }
@@ -97,7 +98,7 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -108,7 +109,7 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
         if (fragmentFactory == null) {
             return constantNull();
         }
-        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

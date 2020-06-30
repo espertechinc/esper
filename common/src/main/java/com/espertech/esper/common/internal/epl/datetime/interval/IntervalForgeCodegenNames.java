@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.interval;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
@@ -25,10 +26,10 @@ public class IntervalForgeCodegenNames {
     final static CodegenExpressionRef REF_RIGHTSTART = ref("rightStart");
     final static CodegenExpressionRef REF_RIGHTEND = ref("rightEnd");
 
-    private final static CodegenNamedParam FP_LEFTSTART = new CodegenNamedParam(long.class, REF_LEFTSTART);
-    private final static CodegenNamedParam FP_LEFTEND = new CodegenNamedParam(long.class, REF_LEFTEND);
-    private final static CodegenNamedParam FP_RIGHTSTART = new CodegenNamedParam(long.class, REF_RIGHTSTART);
-    private final static CodegenNamedParam FP_RIGHTEND = new CodegenNamedParam(long.class, REF_RIGHTEND);
+    private final static CodegenNamedParam FP_LEFTSTART = new CodegenNamedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_LEFTSTART);
+    private final static CodegenNamedParam FP_LEFTEND = new CodegenNamedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_LEFTEND);
+    private final static CodegenNamedParam FP_RIGHTSTART = new CodegenNamedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_RIGHTSTART);
+    private final static CodegenNamedParam FP_RIGHTEND = new CodegenNamedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_RIGHTEND);
 
     final static List<CodegenNamedParam> PARAMS = Arrays.asList(FP_LEFTSTART, FP_LEFTEND, FP_RIGHTSTART, FP_RIGHTEND);
 }

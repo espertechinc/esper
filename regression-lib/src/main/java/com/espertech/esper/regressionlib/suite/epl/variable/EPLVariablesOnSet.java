@@ -143,7 +143,7 @@ public class EPLVariablesOnSet {
 
             // type incompatible cannot assign
             tryInvalidCompile(env, path, "on SupportBean set intarray[intPrimitive]='x'",
-                "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment of column '\"x\"' of type 'java.lang.String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
+                "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment of column '\"x\"' of type 'String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
 
             // not-an-array
             tryInvalidCompile(env, path, "on SupportBean set notAnArray[intPrimitive]=1",
@@ -675,13 +675,13 @@ public class EPLVariablesOnSet {
                 "Failed to validate assignment expression 'dummy=100': Variable by name 'dummy' has not been created or configured");
 
             tryInvalidCompile(env, "on SupportBean set var1IS = 1",
-                "Failed to validate assignment expression 'var1IS=1': Variable 'var1IS' of declared type java.lang.String cannot be assigned a value of type int");
+                "Failed to validate assignment expression 'var1IS=1': Variable 'var1IS' of declared type String cannot be assigned a value of type int");
 
             tryInvalidCompile(env, "on SupportBean set var3IS = 'abc'",
-                "Failed to validate assignment expression 'var3IS=\"abc\"': Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.String");
+                "Failed to validate assignment expression 'var3IS=\"abc\"': Variable 'var3IS' of declared type Integer cannot be assigned a value of type String");
 
             tryInvalidCompile(env, "on SupportBean set var3IS = doublePrimitive",
-                "Failed to validate assignment expression 'var3IS=doublePrimitive': Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.Double");
+                "Failed to validate assignment expression 'var3IS=doublePrimitive': Variable 'var3IS' of declared type Integer cannot be assigned a value of type Double");
 
             tryInvalidCompile(env, "on SupportBean set var2IS = 'false'", "skip");
             tryInvalidCompile(env, "on SupportBean set var3IS = 1.1", "skip");

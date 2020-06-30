@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateKey;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -32,7 +33,7 @@ public interface AggregationForgeFactory {
 
     AggregatorMethod getAggregator();
 
-    Class getResultType();
+    EPType getResultType();
 
     AggregationMultiFunctionStateKey getAggregationStateKey(boolean isMatchRecognize);
 

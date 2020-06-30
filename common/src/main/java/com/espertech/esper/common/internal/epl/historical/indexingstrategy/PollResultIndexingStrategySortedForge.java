@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,9 +28,9 @@ public class PollResultIndexingStrategySortedForge implements PollResultIndexing
     private final int streamNum;
     private final EventType eventType;
     private final String propertyName;
-    private final Class valueType;
+    private final EPTypeClass valueType;
 
-    public PollResultIndexingStrategySortedForge(int streamNum, EventType eventType, String propertyName, Class valueType) {
+    public PollResultIndexingStrategySortedForge(int streamNum, EventType eventType, String propertyName, EPTypeClass valueType) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.propertyName = propertyName;
@@ -41,14 +43,14 @@ public class PollResultIndexingStrategySortedForge implements PollResultIndexing
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
 
-        CodegenMethod method = parent.makeChild(PollResultIndexingStrategySorted.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PollResultIndexingStrategySorted.EPTYPE, this.getClass(), classScope);
 
         EventPropertyGetterSPI propertyGetter = ((EventTypeSPI) eventType).getGetterSPI(propertyName);
-        Class propertyType = eventType.getPropertyType(propertyName);
+        EPType propertyType = eventType.getPropertyEPType(propertyName);
         CodegenExpression valueGetter = EventTypeUtility.codegenGetterWCoerce(propertyGetter, propertyType, valueType, method, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(PollResultIndexingStrategySorted.class, "strat", newInstance(PollResultIndexingStrategySorted.class))
+                .declareVarNewInstance(PollResultIndexingStrategySorted.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setStreamNum", constant(streamNum))
                 .exprDotMethod(ref("strat"), "setPropertyName", constant(propertyName))
                 .exprDotMethod(ref("strat"), "setValueGetter", valueGetter)

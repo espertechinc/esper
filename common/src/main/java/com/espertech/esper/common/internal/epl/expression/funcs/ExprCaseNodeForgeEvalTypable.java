@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -51,11 +52,11 @@ public class ExprCaseNodeForgeEvalTypable implements ExprTypableReturnEval {
     }
 
     public static CodegenExpression codegenTypeableSingle(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Object[].class, ExprCaseNodeForgeEvalTypable.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.OBJECTARRAY.getEPType(), ExprCaseNodeForgeEvalTypable.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Map.class, "map", cast(Map.class, forge.evaluateCodegen(Map.class, methodNode, exprSymbol, codegenClassScope)))
-                .declareVar(Object[].class, "row", newArrayByLength(Object.class, exprDotMethod(ref("map"), "size")));
+                .declareVar(EPTypePremade.MAP.getEPType(), "map", cast(EPTypePremade.MAP.getEPType(), forge.evaluateCodegen(EPTypePremade.MAP.getEPType(), methodNode, exprSymbol, codegenClassScope)))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "row", newArrayByLength(EPTypePremade.OBJECT.getEPType(), exprDotMethod(ref("map"), "size")));
         int index = -1;
         for (Map.Entry<String, Object> entry : forge.mapResultType.entrySet()) {
             index++;

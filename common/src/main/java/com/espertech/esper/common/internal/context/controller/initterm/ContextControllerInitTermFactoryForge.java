@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.initterm;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -41,8 +42,8 @@ public class ContextControllerInitTermFactoryForge extends ContextControllerForg
 
     public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
 
-        props.put(ContextPropertyEventType.PROP_CTX_STARTTIME, Long.class);
-        props.put(ContextPropertyEventType.PROP_CTX_ENDTIME, Long.class);
+        props.put(ContextPropertyEventType.PROP_CTX_STARTTIME, EPTypePremade.LONGBOXED.getEPType());
+        props.put(ContextPropertyEventType.PROP_CTX_ENDTIME, EPTypePremade.LONGBOXED.getEPType());
 
         LinkedHashSet<String> allTags = new LinkedHashSet<String>();
         ContextPropertyEventType.addEndpointTypes(detail.getStartCondition(), props, allTags);
@@ -50,9 +51,9 @@ public class ContextControllerInitTermFactoryForge extends ContextControllerForg
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(ContextControllerInitTermFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerInitTermFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextControllerInitTermFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("initTermFactory"))
+                .declareVar(ContextControllerInitTermFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("initTermFactory"))
                 .exprDotMethod(ref("factory"), "setInitTermSpec", detail.makeCodegen(method, symbols, classScope))
                 .methodReturn(ref("factory"));
         return method;

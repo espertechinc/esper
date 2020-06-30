@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionForge;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionMode;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeCodeGenerated;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 
 public class SupportConcatWCodegenAggregationFunctionForge implements AggregationFunctionForge {
     public void setFunctionName(String functionName) {
@@ -24,8 +26,8 @@ public class SupportConcatWCodegenAggregationFunctionForge implements Aggregatio
 
     }
 
-    public Class getValueType() {
-        return int.class;
+    public EPTypeClass getValueType() {
+        return EPTypePremade.INTEGERPRIMITIVE.getEPType();
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {

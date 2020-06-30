@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.join.queryplanbuild;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
@@ -82,7 +83,7 @@ public class TestQueryPlanIndexBuilder extends TestCase {
         String[] props = propCSV.split(",");
         Map<String, Object> type = new HashMap<String, Object>();
         for (int i = 0; i < props.length; i++) {
-            type.put(props[i], String.class);
+            type.put(props[i], EPTypePremade.STRING.getEPType());
         }
         return type;
     }

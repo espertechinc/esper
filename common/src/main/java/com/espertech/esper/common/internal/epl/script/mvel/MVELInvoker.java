@@ -11,7 +11,9 @@
 package com.espertech.esper.common.internal.epl.script.mvel;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -111,11 +113,12 @@ public class MVELInvoker {
         }
     }
 
-    public static Class getExecutableStatementKnownReturnType(Object compiled) {
+    public static EPTypeClass getExecutableStatementKnownReturnType(Object compiled) {
         Method method;
         try {
             method = execStatementClass.getMethod("getKnownEgressType", null);
-            return (Class) method.invoke(compiled, null);
+            Class clazz = (Class) method.invoke(compiled, null);
+            return ClassHelperGenericType.getClassEPType(clazz);
         } catch (Exception e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }

@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.eval;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 public interface DatetimeLongCoercer {
     long coerce(Object date);
 
-    CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenClassScope codegenClassScope);
+    CodegenExpression codegen(CodegenExpression value, EPTypeClass valueType, CodegenClassScope codegenClassScope);
 }

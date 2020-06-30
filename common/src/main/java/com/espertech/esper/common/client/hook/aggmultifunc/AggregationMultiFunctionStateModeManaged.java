@@ -20,10 +20,17 @@ public class AggregationMultiFunctionStateModeManaged implements AggregationMult
     private boolean hasHA;
     private Class serde;
 
+    /**
+     * Ctor.
+     * @param injectionStrategyAggregationStateFactory strategy
+     */
     public AggregationMultiFunctionStateModeManaged(InjectionStrategy injectionStrategyAggregationStateFactory) {
         this.injectionStrategyAggregationStateFactory = injectionStrategyAggregationStateFactory;
     }
 
+    /**
+     * Ctor.
+     */
     public AggregationMultiFunctionStateModeManaged() {
     }
 

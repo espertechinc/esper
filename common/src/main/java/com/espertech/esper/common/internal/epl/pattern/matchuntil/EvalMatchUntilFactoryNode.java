@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.matchuntil;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents a match-until observer in the evaluation tree representing any event expressions.
  */
 public class EvalMatchUntilFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalMatchUntilFactoryNode.class);
+
     private ExprEvaluator lowerBounds;
     private ExprEvaluator upperBounds;
     private ExprEvaluator singleBound;

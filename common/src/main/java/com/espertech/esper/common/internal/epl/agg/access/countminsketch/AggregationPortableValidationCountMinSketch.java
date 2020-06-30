@@ -11,18 +11,20 @@
 package com.espertech.esper.common.internal.epl.agg.access.countminsketch;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionMethodDesc;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationValidationUtil;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggMethod;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggType;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
@@ -31,6 +33,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionCountMinSketchNode.MSG_NAME;
 
 public class AggregationPortableValidationCountMinSketch implements AggregationPortableValidation {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationCountMinSketch.class);
 
     private Class[] acceptableValueTypes;
 
@@ -52,7 +55,7 @@ public class AggregationPortableValidationCountMinSketch implements AggregationP
             AggregationForgeFactoryAccessCountMinSketchAdd add = (AggregationForgeFactoryAccessCountMinSketchAdd) factory;
             CountMinSketchAggType aggType = add.getParent().getAggType();
             if (aggType == CountMinSketchAggType.ADD) {
-                Class clazz = add.getAddOrFrequencyEvaluatorReturnType();
+                Class clazz = add.getAddOrFrequencyEvaluatorReturnType().getType();
                 boolean foundMatch = false;
                 for (Class allowed : acceptableValueTypes) {
                     if (JavaClassHelper.isSubclassOrImplementsInterface(clazz, allowed)) {
@@ -60,16 +63,16 @@ public class AggregationPortableValidationCountMinSketch implements AggregationP
                     }
                 }
                 if (!foundMatch) {
-                    throw new ExprValidationException("Mismatching parameter return type, expected any of " + Arrays.toString(acceptableValueTypes) + " but received " + JavaClassHelper.getClassNameFullyQualPretty(clazz));
+                    throw new ExprValidationException("Mismatching parameter return type, expected any of " + Arrays.toString(acceptableValueTypes) + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(clazz));
                 }
             }
         }
     }
 
     public CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationPortableValidationCountMinSketch.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationPortableValidationCountMinSketch.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AggregationPortableValidationCountMinSketch.class, "v", newInstance(AggregationPortableValidationCountMinSketch.class))
+                .declareVarNewInstance(AggregationPortableValidationCountMinSketch.EPTYPE, "v")
                 .exprDotMethod(ref("v"), "setAcceptableValueTypes", constant(acceptableValueTypes))
                 .methodReturn(ref("v"));
         return localMethod(method);
@@ -88,12 +91,12 @@ public class AggregationPortableValidationCountMinSketch implements AggregationP
             }
             ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, params, validationContext);
             ExprNode frequencyEval = params[0];
-            forge = new AgregationMethodCountMinSketchFreqForge(frequencyEval);
+            forge = new AggregationMethodCountMinSketchFreqForge(frequencyEval);
         } else {
             if (params.length != 0) {
                 throw new ExprValidationException(getMessagePrefix(aggMethod) + "requires a no parameter expressions");
             }
-            forge = new AgregationMethodCountMinSketchTopKForge();
+            forge = new AggregationMethodCountMinSketchTopKForge();
         }
         return new AggregationMultiFunctionMethodDesc(forge, null, null, null);
     }

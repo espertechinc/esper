@@ -10,11 +10,13 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.JsonEndValueForgeFloat;
 
 public class JsonDelegateArrayFloat extends JsonDelegateArrayBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArrayFloat.class);
     public JsonDelegateArrayFloat(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);
     }

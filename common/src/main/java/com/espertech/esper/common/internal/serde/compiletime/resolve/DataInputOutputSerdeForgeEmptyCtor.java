@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.serde.compiletime.resolve;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
@@ -24,7 +25,7 @@ public class DataInputOutputSerdeForgeEmptyCtor implements DataInputOutputSerdeF
     }
 
     public CodegenExpression codegen(CodegenMethod method, CodegenClassScope classScope, CodegenExpression optionalEventTypeResolver) {
-        return newInstance(serdeClass);
+        return newInstance(ClassHelperGenericType.getClassEPType(serdeClass));
     }
 
     public String forgeClassName() {

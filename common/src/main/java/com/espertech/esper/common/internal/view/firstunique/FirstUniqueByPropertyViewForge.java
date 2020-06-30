@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.firstunique;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -58,8 +59,8 @@ public class FirstUniqueByPropertyViewForge extends ViewFactoryForgeBase impleme
         return desc.getMultiKeyForgeables();
     }
 
-    protected Class typeOfFactory() {
-        return FirstUniqueByPropertyViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return FirstUniqueByPropertyViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

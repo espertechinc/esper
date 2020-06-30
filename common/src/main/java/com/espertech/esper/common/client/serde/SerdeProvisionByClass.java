@@ -11,6 +11,7 @@
 package com.espertech.esper.common.client.serde;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeEmptyCtor;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSingleton;
@@ -48,7 +49,7 @@ public class SerdeProvisionByClass extends SerdeProvision {
         }
 
         try {
-            MethodResolver.resolveCtor(serdeClass, new Class[0]);
+            MethodResolver.resolveCtor(serdeClass, new EPTypeClass[0]);
             return new DataInputOutputSerdeForgeEmptyCtor(serdeClass);
         } catch (MethodResolverNoSuchCtorException ex) {
         }

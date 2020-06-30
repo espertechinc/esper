@@ -12,12 +12,15 @@ package com.espertech.esper.common.internal.event.bean.introspect;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.util.PropertyResolutionStyle;
 import com.espertech.esper.common.internal.event.bean.core.PropertyStem;
 import com.espertech.esper.common.internal.event.bean.getter.ReflectionPropFieldGetterFactory;
 import com.espertech.esper.common.internal.event.bean.getter.ReflectionPropMethodGetterFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyType;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
@@ -42,11 +45,11 @@ public class BeanEventTypeStemBuilder {
                 propertyResolutionStyle.equals(PropertyResolutionStyle.DISTINCT_CASE_INSENSITIVE);
     }
 
-    public BeanEventTypeStem make(Class clazz) {
-        EventTypeUtility.validateEventBeanClassVisibility(clazz);
+    public BeanEventTypeStem make(EPTypeClass clazz) {
+        EventTypeUtility.validateEventBeanClassVisibility(clazz.getType());
 
         PropertyListBuilder propertyListBuilder = PropertyListBuilderFactory.createBuilder(optionalConfig);
-        List<PropertyStem> properties = propertyListBuilder.assessProperties(clazz);
+        List<PropertyStem> properties = propertyListBuilder.assessProperties(clazz.getType());
 
         EventPropertyDescriptor[] propertyDescriptors = new EventPropertyDescriptor[properties.size()];
         Map<String, EventPropertyDescriptor> propertyDescriptorMap = new HashMap<>();
@@ -67,8 +70,7 @@ public class BeanEventTypeStemBuilder {
         int count = 0;
         for (PropertyStem desc : properties) {
             String propertyName = desc.getPropertyName();
-            Class underlyingType;
-            Class componentType;
+            EPTypeClass underlyingType;
             boolean isRequiresIndex;
             boolean isRequiresMapkey;
             boolean isIndexed;
@@ -77,21 +79,19 @@ public class BeanEventTypeStemBuilder {
 
             if (desc.getPropertyType().equals(EventPropertyType.SIMPLE)) {
                 EventPropertyGetterSPIFactory getter;
-                Class type;
+                EPTypeClass type;
                 if (desc.getReadMethod() != null) {
                     getter = new ReflectionPropMethodGetterFactory(desc.getReadMethod());
-                    type = desc.getReadMethod().getReturnType();
-                } else {
-                    if (desc.getAccessorField() == null) {
-                        // Ignore property
-                        continue;
-                    }
+                    type = ClassHelperGenericType.getMethodReturnEPType(desc.getReadMethod(), clazz);
+                } else if (desc.getAccessorField() != null) {
                     getter = new ReflectionPropFieldGetterFactory(desc.getAccessorField());
-                    type = desc.getAccessorField().getType();
+                    type = ClassHelperGenericType.getFieldEPType(desc.getAccessorField(), clazz);
+                } else {
+                    // ignore property
+                    continue;
                 }
 
                 underlyingType = type;
-                componentType = null;
                 isRequiresIndex = false;
                 isRequiresMapkey = false;
                 isIndexed = false;
@@ -101,27 +101,18 @@ public class BeanEventTypeStemBuilder {
                     // We do not yet allow to fragment maps entries.
                     // Class genericType = JavaClassHelper.getGenericReturnTypeMap(desc.getReadMethod(), desc.getAccessorField());
                     isFragment = false;
-
-                    if (desc.getReadMethod() != null) {
-                        componentType = JavaClassHelper.getGenericReturnTypeMap(desc.getReadMethod(), false);
-                    } else if (desc.getAccessorField() != null) {
-                        componentType = JavaClassHelper.getGenericFieldTypeMap(desc.getAccessorField(), false);
-                    } else {
-                        componentType = Object.class;
-                    }
-                } else if (type.isArray()) {
+                } else if (type.getType().isArray()) {
                     isIndexed = true;
-                    isFragment = JavaClassHelper.isFragmentableType(type.getComponentType());
-                    componentType = type.getComponentType();
+                    isFragment = JavaClassHelper.isFragmentableType(type.getType().getComponentType());
                 } else if (JavaClassHelper.isImplementsInterface(type, Iterable.class)) {
                     isIndexed = true;
-                    Class genericType = JavaClassHelper.getGenericReturnType(desc.getReadMethod(), desc.getAccessorField(), true);
-                    isFragment = JavaClassHelper.isFragmentableType(genericType);
-                    if (genericType != null) {
-                        componentType = genericType;
+                    Class genericType;
+                    if (type instanceof EPTypeClassParameterized) {
+                        genericType = ((EPTypeClassParameterized) type).getParameters()[0].getType();
                     } else {
-                        componentType = Object.class;
+                        genericType = Object.class;
                     }
+                    isFragment = JavaClassHelper.isFragmentableType(genericType);
                 } else {
                     isMapped = false;
                     isFragment = JavaClassHelper.isFragmentableType(type);
@@ -145,8 +136,7 @@ public class BeanEventTypeStemBuilder {
             } else if (desc.getPropertyType().equals(EventPropertyType.MAPPED)) {
                 mappedPropertyDescriptors.put(propertyName, desc);
 
-                underlyingType = desc.getReturnType();
-                componentType = Object.class;
+                underlyingType = desc.getReturnType(clazz);
                 isRequiresIndex = false;
                 isRequiresMapkey = desc.getReadMethod().getParameterTypes().length > 0;
                 isIndexed = false;
@@ -164,19 +154,18 @@ public class BeanEventTypeStemBuilder {
                     }
 
                     // Enter the property into the smart property list
-                    PropertyInfo propertyInfo = new PropertyInfo(desc.getReturnType(), null, desc);
+                    PropertyInfo propertyInfo = new PropertyInfo(desc.getReturnType(clazz), null, desc);
                     propertyInfoList.add(propertyInfo);
                 }
             } else if (desc.getPropertyType().equals(EventPropertyType.INDEXED)) {
                 indexedPropertyDescriptors.put(propertyName, desc);
 
-                underlyingType = desc.getReturnType();
-                componentType = null;
+                underlyingType = desc.getReturnType(clazz);
                 isRequiresIndex = desc.getReadMethod().getParameterTypes().length > 0;
                 isRequiresMapkey = false;
                 isIndexed = true;
                 isMapped = false;
-                isFragment = JavaClassHelper.isFragmentableType(desc.getReturnType());
+                isFragment = JavaClassHelper.isFragmentableType(desc.getReturnType(clazz));
 
                 if (smartResolutionStyle) {
                     // Find the property in the smart property table
@@ -188,7 +177,7 @@ public class BeanEventTypeStemBuilder {
                     }
 
                     // Enter the property into the smart property list
-                    PropertyInfo propertyInfo = new PropertyInfo(desc.getReturnType(), null, desc);
+                    PropertyInfo propertyInfo = new PropertyInfo(desc.getReturnType(clazz), null, desc);
                     propertyInfoList.add(propertyInfo);
                 }
             } else {
@@ -197,21 +186,21 @@ public class BeanEventTypeStemBuilder {
 
             propertyNames[count] = desc.getPropertyName();
             EventPropertyDescriptor descriptor = new EventPropertyDescriptor(desc.getPropertyName(),
-                    underlyingType, componentType, isRequiresIndex, isRequiresMapkey, isIndexed, isMapped, isFragment);
+                    underlyingType, isRequiresIndex, isRequiresMapkey, isIndexed, isMapped, isFragment);
             propertyDescriptors[count++] = descriptor;
             propertyDescriptorMap.put(descriptor.getPropertyName(), descriptor);
         }
 
         // Determine event type super types
-        Class[] superTypes = getSuperTypes(clazz);
+        EPTypeClass[] superTypes = getSuperTypes(clazz.getType());
         if (superTypes != null && superTypes.length == 0) {
             superTypes = null;
         }
 
         // Determine deep supertypes
         // Get Java super types (superclasses and interfaces), deep get of all in the tree
-        Set<Class> deepSuperTypes = new HashSet<Class>();
-        getSuper(clazz, deepSuperTypes);
+        Set<EPTypeClass> deepSuperTypes = new HashSet<>();
+        getSuper(clazz.getType(), deepSuperTypes);
         removeJavaLibInterfaces(deepSuperTypes);    // Remove "java." super types
 
         return new BeanEventTypeStem(clazz, optionalConfig, propertyNames, simpleProperties, mappedPropertyDescriptors, indexedPropertyDescriptors,
@@ -220,29 +209,31 @@ public class BeanEventTypeStemBuilder {
                 propertyDescriptors, propertyDescriptorMap);
     }
 
-    private static Class[] getSuperTypes(Class clazz) {
-        List<Class> superclasses = new LinkedList<Class>();
+    private static EPTypeClass[] getSuperTypes(Class clazz) {
+        List<EPTypeClass> superclasses = new LinkedList<>();
 
         // add superclass
         Class superClass = clazz.getSuperclass();
         if (superClass != null) {
-            superclasses.add(superClass);
+            superclasses.add(ClassHelperGenericType.getClassEPType(superClass));
         }
 
         // add interfaces
         Class[] interfaces = clazz.getInterfaces();
-        superclasses.addAll(Arrays.asList(interfaces));
+        for (Class interfaceItem : interfaces) {
+            superclasses.add(ClassHelperGenericType.getClassEPType(interfaceItem));
+        }
 
         // Build super types, ignoring java language types
-        List<Class> superTypes = new LinkedList<>();
-        for (Class superclass : superclasses) {
-            String superclassName = superclass.getName();
+        List<EPTypeClass> superTypes = new LinkedList<>();
+        for (EPTypeClass superclass : superclasses) {
+            String superclassName = superclass.getType().getName();
             if (!superclassName.startsWith("java")) {
                 superTypes.add(superclass);
             }
         }
 
-        return superTypes.toArray(new Class[superTypes.size()]);
+        return superTypes.toArray(new EPTypeClass[superTypes.size()]);
     }
 
     /**
@@ -251,33 +242,34 @@ public class BeanEventTypeStemBuilder {
      * @param clazz  to introspect
      * @param result to add classes to
      */
-    protected static void getSuper(Class clazz, Set<Class> result) {
+    protected static void getSuper(Class clazz, Set<EPTypeClass> result) {
         getSuperInterfaces(clazz, result);
         getSuperClasses(clazz, result);
     }
 
-    private static void getSuperInterfaces(Class clazz, Set<Class> result) {
+    private static void getSuperInterfaces(Class clazz, Set<EPTypeClass> result) {
         Class[] interfaces = clazz.getInterfaces();
 
         for (int i = 0; i < interfaces.length; i++) {
-            result.add(interfaces[i]);
+            result.add(ClassHelperGenericType.getClassEPType(interfaces[i]));
             getSuperInterfaces(interfaces[i], result);
         }
     }
 
-    private static void getSuperClasses(Class clazz, Set<Class> result) {
+    private static void getSuperClasses(Class clazz, Set<EPTypeClass> result) {
         Class superClass = clazz.getSuperclass();
         if (superClass == null) {
             return;
         }
 
-        result.add(superClass);
+        result.add(ClassHelperGenericType.getClassEPType(superClass));
         getSuper(superClass, result);
     }
 
-    private static void removeJavaLibInterfaces(Set<Class> classes) {
-        for (Class clazz : classes.toArray(new Class[0])) {
-            if (clazz.getName().startsWith("java")) {
+    private static void removeJavaLibInterfaces(Set<EPTypeClass> classes) {
+        EPTypeClass[] types = classes.toArray(new EPTypeClass[0]);
+        for (EPTypeClass clazz : types) {
+            if (clazz.getType().getName().startsWith("java")) {
                 classes.remove(clazz);
             }
         }

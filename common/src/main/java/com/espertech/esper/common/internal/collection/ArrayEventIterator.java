@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -19,6 +20,8 @@ import java.util.NoSuchElementException;
  * Iterator for an array of events.
  */
 public class ArrayEventIterator implements Iterator<EventBean> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ArrayEventIterator.class);
+
     private final EventBean[] events;
     private int position;
 

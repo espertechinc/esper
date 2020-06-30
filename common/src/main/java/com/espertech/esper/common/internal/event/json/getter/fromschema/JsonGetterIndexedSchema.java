@@ -41,7 +41,7 @@ public final class JsonGetterIndexedSchema extends JsonGetterIndexedBase {
             return constantNull();
         }
         CodegenExpression factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpression eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(optionalInnerType, EPStatementInitServices.REF));
+        CodegenExpression eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(optionalInnerType, EPStatementInitServices.REF));
         return staticMethod(JsonFieldGetterHelperSchema.class, "handleJsonCreateFragmentIndexed", underlyingExpression, constant(field.getPropertyNumber()), constant(index), eventType, factory);
     }
 

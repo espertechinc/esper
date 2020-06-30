@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -34,7 +36,7 @@ public abstract class ThreeFormScalar extends EnumForgeBasePlain {
     protected final ObjectArrayEventType fieldEventType;
     protected final int numParameters;
 
-    public abstract Class returnType();
+    public abstract EPTypeClass returnTypeOfMethod();
 
     public abstract CodegenExpression returnIfEmptyOptional();
 
@@ -55,10 +57,10 @@ public abstract class ThreeFormScalar extends EnumForgeBasePlain {
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(fieldEventType, EPStatementInitServices.REF)));
+        CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fieldEventType, EPStatementInitServices.REF)));
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnTypeOfMethod(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
         CodegenBlock block = methodNode.getBlock();
         boolean hasIndex = numParameters >= 2;
         boolean hasSize = numParameters >= 3;
@@ -69,11 +71,11 @@ public abstract class ThreeFormScalar extends EnumForgeBasePlain {
                 .blockReturn(returnEmpty);
         }
 
-        block.declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(numParameters)), resultTypeMember))
+        block.declareVar(ObjectArrayEventBean.EPTYPE, "resultEvent", newInstance(ObjectArrayEventBean.EPTYPE, newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(numParameters)), resultTypeMember))
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("resultEvent"))
-            .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", exprDotMethod(ref("resultEvent"), "getProperties"));
         if (hasIndex) {
-            block.declareVar(int.class, "count", constant(-1));
+            block.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(-1));
         }
         if (hasSize) {
             block.assignArrayElement(ref("props"), constant(2), exprDotMethod(REF_ENUMCOLL, "size"));
@@ -81,7 +83,7 @@ public abstract class ThreeFormScalar extends EnumForgeBasePlain {
         initBlock(block, methodNode, scope, codegenClassScope);
 
         if (hasForEachLoop()) {
-            CodegenBlock forEach = block.forEach(Object.class, "next", REF_ENUMCOLL)
+            CodegenBlock forEach = block.forEach(EPTypePremade.OBJECT.getEPType(), "next", REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"));
             if (hasIndex) {
                 forEach.incrementRef("count").assignArrayElement("props", constant(1), ref("count"));

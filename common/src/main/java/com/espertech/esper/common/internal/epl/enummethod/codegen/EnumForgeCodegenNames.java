@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.codegen;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
@@ -27,7 +27,7 @@ public class EnumForgeCodegenNames {
     public final static CodegenExpressionRef REF_ENUMCOLL = ref("enumcoll");
     public final static CodegenExpressionRef REF_EPS = ref(ExprForgeCodegenNames.NAME_EPS);
 
-    private final static CodegenNamedParam FP_ENUMCOLL = new CodegenNamedParam(Collection.class, REF_ENUMCOLL);
+    private final static CodegenNamedParam FP_ENUMCOLL = new CodegenNamedParam(EPTypePremade.COLLECTION.getEPType(), REF_ENUMCOLL);
 
     public final static List<CodegenNamedParam> PARAMS = Arrays.asList(ExprForgeCodegenNames.FP_EPS, FP_ENUMCOLL, FP_ISNEWDATA, FP_EXPREVALCONTEXT);
 }

@@ -794,10 +794,18 @@ public class EPStatementObjectModel implements Serializable {
         this.scriptExpressions = scriptExpressions;
     }
 
+    /**
+     * Returns the inlined-classes provided as part of the EPL statement
+     * @return inlined-classes
+     */
     public List<ClassProvidedExpression> getClassProvidedExpressions() {
         return classProvidedExpressions;
     }
 
+    /**
+     * Sets the inlined-classes provided as part of the EPL statement
+     * @param classProvidedExpressions inlined-classes
+     */
     public void setClassProvidedExpressions(List<ClassProvidedExpression> classProvidedExpressions) {
         this.classProvidedExpressions = classProvidedExpressions;
     }
@@ -856,10 +864,18 @@ public class EPStatementObjectModel implements Serializable {
         this.createExpression = createExpression;
     }
 
+    /**
+     * Returns the create-class clause or null if not present.
+     * @return create-class clause
+     */
     public CreateClassClause getCreateClass() {
         return createClass;
     }
 
+    /**
+     * Sets the create-class clause or null if not present.
+     * @param createClass create-class clause
+     */
     public void setCreateClass(CreateClassClause createClass) {
         this.createClass = createClass;
     }

@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.epl.expression.dot.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionMethodDesc;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -27,7 +29,6 @@ import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAf
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
 
 import java.io.StringWriter;
-import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
@@ -39,9 +40,12 @@ public abstract class ExprDotNodeAggregationMethodForge extends ExprDotNodeForge
     protected final AggregationPortableValidation validation;
     protected AggregationMultiFunctionMethodDesc methodDesc;
 
-    protected abstract CodegenExpression evaluateCodegen(String readerMethodName, Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope);
+    protected abstract CodegenExpression evaluateCodegen(String readerMethodName, EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope);
+
     protected abstract void toEPL(StringWriter writer, ExprNodeRenderableFlags flags);
+
     protected abstract String getTableName();
+
     protected abstract String getTableColumnName();
 
     public ExprDotNodeAggregationMethodForge(ExprDotNodeImpl parent, String aggregationMethodName, ExprNode[] parameters, AggregationPortableValidation validation) {
@@ -51,11 +55,11 @@ public abstract class ExprDotNodeAggregationMethodForge extends ExprDotNodeForge
         this.validation = validation;
     }
 
-    public void validate(ExprValidationContext validationContext) throws ExprValidationException  {
+    public void validate(ExprValidationContext validationContext) throws ExprValidationException {
         methodDesc = validation.validateAggregationMethod(validationContext, aggregationMethodName, parameters);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return methodDesc.getReader().getResultType();
     }
 
@@ -75,7 +79,7 @@ public abstract class ExprDotNodeAggregationMethodForge extends ExprDotNodeForge
         return null;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return evaluateCodegen("getValue", requiredType, parent, symbols, classScope);
     }
 
@@ -99,28 +103,28 @@ public abstract class ExprDotNodeAggregationMethodForge extends ExprDotNodeForge
         return methodDesc.getEventTypeSingle();
     }
 
-    public Class getComponentTypeCollection() {
+    public EPTypeClass getComponentTypeCollection() {
         return methodDesc.getComponentTypeCollection();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprTableSubpropAccessor", requiredType, parent, symbols, classScope)
-            .qparam(constant(getTableName())) // table name
-            .qparam(constant(getTableColumnName())) // subprop name
-            .qparam(constant(aggregationMethodName)) // agg expression
-            .build();
+                .qparam(constant(getTableName())) // table name
+                .qparam(constant(getTableColumnName())) // subprop name
+                .qparam(constant(aggregationMethodName)) // agg expression
+                .build();
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return evaluateCodegen("getValueCollectionEvents", Collection.class, parent, symbols, classScope);
+        return evaluateCodegen("getValueCollectionEvents", EPTypePremade.COLLECTION.getEPType(), parent, symbols, classScope);
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return evaluateCodegen("getValueCollectionScalar", Collection.class, parent, symbols, classScope);
+        return evaluateCodegen("getValueCollectionScalar", EPTypePremade.COLLECTION.getEPType(), parent, symbols, classScope);
     }
 
     public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return evaluateCodegen("getValueEventBean", EventBean.class, parent, symbols, classScope);
+        return evaluateCodegen("getValueEventBean", EventBean.EPTYPE, parent, symbols, classScope);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {

@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.count;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
@@ -35,10 +39,10 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
     private final CodegenExpressionMember cnt;
     private final boolean isEver;
 
-    public AggregatorCount(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, boolean isEver) {
+    public AggregatorCount(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPType optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, boolean isEver) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.isEver = isEver;
-        this.cnt = membersColumnized.addMember(col, long.class, "cnt");
+        this.cnt = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");
     }
 
     protected void applyEvalEnterFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
@@ -50,10 +54,15 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
             return;
         }
 
-        Class evalType = forges[0].getEvaluationType();
-        method.getBlock().declareVar(evalType, "value", forges[0].evaluateCodegen(evalType, method, symbols, classScope));
-        if (!evalType.isPrimitive()) {
-            method.getBlock().ifRefNull("value").blockReturnNoValue();
+        EPType evalType = forges[0].getEvaluationType();
+        if (evalType == EPTypeNull.INSTANCE || evalType == null) {
+            method.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "value", constantNull());
+        } else {
+            EPTypeClass evalClass = (EPTypeClass) evalType;
+            method.getBlock().declareVar(evalClass, "value", forges[0].evaluateCodegen((EPTypeClass) evalType, method, symbols, classScope));
+            if (!evalClass.getType().isPrimitive()) {
+                method.getBlock().ifRefNull("value").blockReturnNoValue();
+            }
         }
         if (distinct != null) {
             method.getBlock().ifCondition(not(exprDotMethod(distinct, "add", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
@@ -61,7 +70,7 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
         method.getBlock().apply(increment);
     }
 
-    protected void applyTableEnterFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
             method.getBlock().ifCondition(not(exprDotMethod(distinct, "add", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
         }
@@ -84,10 +93,15 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
             return;
         }
 
-        Class evalType = forges[0].getEvaluationType();
-        method.getBlock().declareVar(evalType, "value", forges[0].evaluateCodegen(evalType, method, symbols, classScope));
-        if (!evalType.isPrimitive()) {
-            method.getBlock().ifRefNull("value").blockReturnNoValue();
+        EPType evalType = forges[0].getEvaluationType();
+        if (evalType == EPTypeNull.INSTANCE || evalType == null) {
+            method.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "value", constantNull());
+        } else {
+            EPTypeClass evalClass = (EPTypeClass) evalType;
+            method.getBlock().declareVar(evalClass, "value", forges[0].evaluateCodegen((EPTypeClass) evalType, method, symbols, classScope));
+            if (!evalClass.getType().isPrimitive()) {
+                method.getBlock().ifRefNull("value").blockReturnNoValue();
+            }
         }
         if (distinct != null) {
             method.getBlock().ifCondition(not(exprDotMethod(distinct, "remove", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
@@ -95,7 +109,7 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
         method.getBlock().apply(decrement);
     }
 
-    protected void applyTableLeaveFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
             method.getBlock().ifCondition(not(exprDotMethod(distinct, "remove", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
         }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,6 +22,8 @@ import java.util.Set;
  * Represents a list of values in a set of numeric parameters.
  */
 public class ListParameter implements NumberSetParameter {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ListParameter.class);
+
     private List<NumberSetParameter> parameters;
     private static final long serialVersionUID = 34502518196561940L;
 

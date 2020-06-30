@@ -67,12 +67,12 @@ public class ContextSpecInitiatedTerminated implements ContextSpec {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextControllerDetailInitiatedTerminated.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerDetailInitiatedTerminated.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression distinctEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(distinctExpressions, null, distinctMultiKey, method, classScope);
 
         method.getBlock()
-            .declareVar(ContextControllerDetailInitiatedTerminated.class, "detail", newInstance(ContextControllerDetailInitiatedTerminated.class))
+            .declareVarNewInstance(ContextControllerDetailInitiatedTerminated.EPTYPE, "detail")
             .exprDotMethod(ref("detail"), "setStartCondition", startCondition.make(method, symbols, classScope))
             .exprDotMethod(ref("detail"), "setEndCondition", endCondition.make(method, symbols, classScope))
             .exprDotMethod(ref("detail"), "setOverlapping", constant(overlapping))

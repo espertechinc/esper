@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.event.variant;
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariantStream;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.*;
@@ -21,12 +24,16 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
 
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
+
 /**
  * Event type for variant event streams.
  * <p>
  * Caches properties after having resolved a property via a resolution strategy.
  */
 public class VariantEventType implements EventTypeSPI {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariantEventType.class);
+
     private EventTypeMetadata metadata;
     private final EventType[] variants;
     private final boolean variantAny;
@@ -75,8 +82,8 @@ public class VariantEventType implements EventTypeSPI {
         propertyDescriptorMap = new HashMap<String, EventPropertyDescriptor>();
         int count = 0;
         for (Map.Entry<String, VariantPropertyDesc> desc : propertyDesc.entrySet()) {
-            Class type = desc.getValue().getPropertyType();
-            EventPropertyDescriptor descriptor = new EventPropertyDescriptor(desc.getKey(), type, null, false, false, false, false, JavaClassHelper.isFragmentableType(desc.getValue().getPropertyType()));
+            EPType type = desc.getValue().getPropertyType();
+            EventPropertyDescriptor descriptor = new EventPropertyDescriptor(desc.getKey(), type, false, false, false, false, JavaClassHelper.isFragmentableType(type));
             propertyDescriptors[count++] = descriptor;
             propertyDescriptorMap.put(desc.getKey(), descriptor);
         }
@@ -90,7 +97,11 @@ public class VariantEventType implements EventTypeSPI {
         return null;
     }
 
-    public Class getPropertyType(String property) {
+    public final Class getPropertyType(String propertyName) {
+        return getPropertyTypeAsClass(getPropertyEPType(propertyName));
+    }
+
+    public EPType getPropertyEPType(String property) {
         VariantPropertyDesc entry = propertyDesc.get(property);
         if (entry != null) {
             return entry.getPropertyType();
@@ -108,6 +119,10 @@ public class VariantEventType implements EventTypeSPI {
 
     public Class getUnderlyingType() {
         return Object.class;
+    }
+
+    public EPTypeClass getUnderlyingEPType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 
     public String getName() {

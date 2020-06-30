@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterMappedSPI;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.lang.reflect.Field;
@@ -33,7 +34,7 @@ public final class JsonGetterMapRuntimeKeyedProvided implements EventPropertyGet
     }
 
     public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return staticMethod(CollectionUtil.class, "getMapValueChecked", exprDotName(castUnderlying(field.getDeclaringClass(), beanExpression), field.getName()), key);
+        return staticMethod(CollectionUtil.class, "getMapValueChecked", exprDotName(castUnderlying(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), beanExpression), field.getName()), key);
     }
 
     public Object get(EventBean eventBean, String mapKey) throws PropertyAccessException {

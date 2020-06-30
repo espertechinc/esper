@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,8 +35,8 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
     private final int index;
     private final BeanEventPropertyGetter nestedGetter;
 
-    public ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter(int propertyIndex, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class returnType) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType, null);
+    public ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter(int propertyIndex, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass returnType) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType);
         this.propertyIndex = propertyIndex;
         this.index = index;
         this.nestedGetter = nestedGetter;
@@ -47,9 +49,9 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
     }
 
     private CodegenMethod getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "array");
         method.getBlock()
-                .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(codegenMethodScope, codegenClassScope, nestedGetter, index), ref("value")));
         return method;
     }
@@ -68,7 +70,7 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -83,11 +85,12 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
         return constantTrue();
     }
 
-    public Class getTargetType() {
-        return Object[].class;
+    public EPTypeClass getTargetType() {
+        return EPTypePremade.OBJECTARRAY.getEPType();
     }
 
-    public Class getBeanPropType() {
-        return Object.class;
+    @Override
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 }

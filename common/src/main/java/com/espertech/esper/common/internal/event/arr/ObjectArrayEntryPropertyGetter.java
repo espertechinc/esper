@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -72,7 +73,7 @@ public class ObjectArrayEntryPropertyGetter implements ObjectArrayEventPropertyG
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -83,7 +84,7 @@ public class ObjectArrayEntryPropertyGetter implements ObjectArrayEventPropertyG
         if (eventType == null) {
             return constantNull();
         }
-        return underlyingFragmentCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -99,7 +100,7 @@ public class ObjectArrayEntryPropertyGetter implements ObjectArrayEventPropertyG
             return constantNull();
         }
         CodegenExpressionField svc = codegenClassScope.getPackageScope().addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField type = codegenClassScope.getPackageScope().addFieldUnshared(true, BeanEventType.class, cast(BeanEventType.class, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)));
+        CodegenExpressionField type = codegenClassScope.getPackageScope().addFieldUnshared(true, BeanEventType.EPTYPE, cast(BeanEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)));
         return staticMethod(BaseNestableEventUtil.class, "getBNFragmentPojo", underlyingGetCodegen(underlyingExpression, codegenMethodScope, codegenClassScope), type, svc);
     }
 }

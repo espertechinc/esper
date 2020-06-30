@@ -53,7 +53,7 @@ public class OutputProcessViewDirectDistinctOrAfterFactoryForge implements Outpu
 
     public void provideCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock().methodReturn(
-                newInstance(OutputProcessViewDirectDistinctOrAfterFactory.class,
+                newInstance(OutputProcessViewDirectDistinctOrAfterFactory.EPTYPE,
                         outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope),
                         constant(isDistinct), MultiKeyCodegen.codegenGetterEventDistinct(isDistinct, resultEventType, distinctMultiKey, method, classScope),
                         afterTimePeriod == null ? constantNull() : afterTimePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope),

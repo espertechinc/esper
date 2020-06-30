@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.endvalue;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -19,15 +20,15 @@ import com.espertech.esper.common.internal.event.json.parser.forge.JsonDelegateR
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class JsonDelegateForgeByClass implements JsonDelegateForge {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final CodegenExpression[] parameters;
 
-    public JsonDelegateForgeByClass(Class clazz) {
+    public JsonDelegateForgeByClass(EPTypeClass clazz) {
         this.clazz = clazz;
         this.parameters = new CodegenExpression[0];
     }
 
-    public JsonDelegateForgeByClass(Class clazz, CodegenExpression... params) {
+    public JsonDelegateForgeByClass(EPTypeClass clazz, CodegenExpression... params) {
         this.clazz = clazz;
         this.parameters = params;
     }

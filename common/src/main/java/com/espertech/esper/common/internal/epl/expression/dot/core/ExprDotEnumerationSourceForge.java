@@ -11,14 +11,14 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationForge;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public class ExprDotEnumerationSourceForge {
-    private final EPType returnType;
+    private final EPChainableType returnType;
     private final Integer streamOfProviderIfApplicable;
     private final ExprEnumerationForge enumeration;
 
-    public ExprDotEnumerationSourceForge(EPType returnType, Integer streamOfProviderIfApplicable, ExprEnumerationForge enumeration) {
+    public ExprDotEnumerationSourceForge(EPChainableType returnType, Integer streamOfProviderIfApplicable, ExprEnumerationForge enumeration) {
         this.returnType = returnType;
         this.streamOfProviderIfApplicable = streamOfProviderIfApplicable;
         this.enumeration = enumeration;
@@ -28,7 +28,7 @@ public class ExprDotEnumerationSourceForge {
         return enumeration;
     }
 
-    public EPType getReturnType() {
+    public EPChainableType getReturnType() {
         return returnType;
     }
 

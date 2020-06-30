@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -41,7 +43,7 @@ public abstract class SubselectForgeStrategyRowBase implements SubselectForgeRow
             return constantNull(); // no select-clause
         }
 
-        CodegenMethod method = parent.makeChild(Object[].class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECTARRAY.getEPType(), this.getClass(), classScope);
         if (subselect.filterExpr == null) {
             method.getBlock()
                     .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols)
@@ -50,14 +52,14 @@ public abstract class SubselectForgeStrategyRowBase implements SubselectForgeRow
             CodegenExpression filter = ExprNodeUtilityCodegen.codegenEvaluator(subselect.filterExpr, method, this.getClass(), classScope);
             method.getBlock()
                     .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols)
-                    .declareVar(EventBean.class, "subselectResult", staticMethod(EventBeanUtility.class, "evaluateFilterExpectSingleMatch",
+                    .declareVar(EventBean.EPTYPE, "subselectResult", staticMethod(EventBeanUtility.class, "evaluateFilterExpectSingleMatch",
                             REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddMatchingEvents(method), symbols.getAddExprEvalCtx(method),
                             filter))
                     .ifRefNullReturnNull("subselectResult")
                     .assignArrayElement(REF_EVENTS_SHIFTED, constant(0), ref("subselectResult"));
         }
 
-        method.getBlock().declareVar(Object[].class, "results", newArrayByLength(Object.class, constant(subselect.selectClause.length)));
+        method.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "results", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(subselect.selectClause.length)));
         for (int i = 0; i < subselect.selectClause.length; i++) {
             CodegenMethod eval = CodegenLegoMethodExpression.codegenExpression(subselect.selectClause[i].getForge(), method, classScope);
             method.getBlock().assignArrayElement("results", constant(i), localMethod(eval, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)));
@@ -72,17 +74,17 @@ public abstract class SubselectForgeStrategyRowBase implements SubselectForgeRow
             return constantNull();
         }
         if (subselect.filterExpr == null) {
-            CodegenMethod method = parent.makeChild(Object[][].class, this.getClass(), classScope);
+            CodegenMethod method = parent.makeChild(EPTypePremade.OBJECTARRAYARRAY.getEPType(), this.getClass(), classScope);
             method.getBlock()
-                    .declareVar(Object[][].class, "rows", newArrayByLength(Object[].class, exprDotMethod(symbols.getAddMatchingEvents(method), "size")))
-                    .declareVar(int.class, "index", constant(-1))
+                    .declareVar(EPTypePremade.OBJECTARRAYARRAY.getEPType(), "rows", newArrayByLength(EPTypePremade.OBJECTARRAY.getEPType(), exprDotMethod(symbols.getAddMatchingEvents(method), "size")))
+                    .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", constant(-1))
                     .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols);
-            CodegenBlock foreachEvent = method.getBlock().forEach(EventBean.class, "event", symbols.getAddMatchingEvents(method));
+            CodegenBlock foreachEvent = method.getBlock().forEach(EventBean.EPTYPE, "event", symbols.getAddMatchingEvents(method));
             {
                 foreachEvent
                         .incrementRef("index")
                         .assignArrayElement(REF_EVENTS_SHIFTED, constant(0), ref("event"))
-                        .declareVar(Object[].class, "results", newArrayByLength(Object.class, constant(subselect.selectClause.length)))
+                        .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "results", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(subselect.selectClause.length)))
                         .assignArrayElement("rows", ref("index"), ref("results"));
                 for (int i = 0; i < subselect.selectClause.length; i++) {
                     CodegenMethod eval = CodegenLegoMethodExpression.codegenExpression(subselect.selectClause[i].getForge(), method, classScope);
@@ -92,19 +94,19 @@ public abstract class SubselectForgeStrategyRowBase implements SubselectForgeRow
             method.getBlock().methodReturn(ref("rows"));
             return localMethod(method);
         } else {
-            CodegenMethod method = parent.makeChild(Object[][].class, this.getClass(), classScope);
+            CodegenMethod method = parent.makeChild(EPTypePremade.OBJECTARRAYARRAY.getEPType(), this.getClass(), classScope);
             method.getBlock()
-                    .declareVar(ArrayDeque.class, Object[].class, "rows", newInstance(ArrayDeque.class))
+                    .declareVar(EPTypeClassParameterized.from(ArrayDeque.class, Object[].class), "rows", newInstance(EPTypePremade.ARRAYDEQUE.getEPType()))
                     .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols);
-            CodegenBlock foreachEvent = method.getBlock().forEach(EventBean.class, "event", symbols.getAddMatchingEvents(method));
+            CodegenBlock foreachEvent = method.getBlock().forEach(EventBean.EPTYPE, "event", symbols.getAddMatchingEvents(method));
             {
                 foreachEvent.assignArrayElement(REF_EVENTS_SHIFTED, constant(0), ref("event"));
 
                 CodegenMethod filter = CodegenLegoMethodExpression.codegenExpression(subselect.filterExpr, method, classScope);
-                CodegenLegoBooleanExpression.codegenContinueIfNullOrNotPass(foreachEvent, Boolean.class, localMethod(filter, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)));
+                CodegenLegoBooleanExpression.codegenContinueIfNullOrNotPass(foreachEvent, EPTypePremade.BOOLEANBOXED.getEPType(), localMethod(filter, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)));
 
                 foreachEvent
-                        .declareVar(Object[].class, "results", newArrayByLength(Object.class, constant(subselect.selectClause.length)))
+                        .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "results", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(subselect.selectClause.length)))
                         .exprDotMethod(ref("rows"), "add", ref("results"));
                 for (int i = 0; i < subselect.selectClause.length; i++) {
                     CodegenMethod eval = CodegenLegoMethodExpression.codegenExpression(subselect.selectClause[i].getForge(), method, classScope);
@@ -114,7 +116,7 @@ public abstract class SubselectForgeStrategyRowBase implements SubselectForgeRow
             method.getBlock()
                     .ifCondition(exprDotMethod(ref("rows"), "isEmpty"))
                     .blockReturn(enumValue(CollectionUtil.class, "OBJECTARRAYARRAY_EMPTY"))
-                    .methodReturn(cast(Object[][].class, exprDotMethod(ref("rows"), "toArray", newArrayByLength(Object[].class, constant(0)))));
+                    .methodReturn(cast(EPTypePremade.OBJECTARRAYARRAY.getEPType(), exprDotMethod(ref("rows"), "toArray", newArrayByLength(EPTypePremade.OBJECTARRAY.getEPType(), constant(0)))));
             return localMethod(method);
         }
     }

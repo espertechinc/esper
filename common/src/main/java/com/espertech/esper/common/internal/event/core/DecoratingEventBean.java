@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Map;
 
@@ -18,6 +19,8 @@ import java.util.Map;
  * Interface for event types that provide decorating event properties as a name-value map.
  */
 public interface DecoratingEventBean {
+    EPTypeClass EPTYPE = new EPTypeClass(DecoratingEventBean.class);
+
     /**
      * Returns decorating properties.
      *

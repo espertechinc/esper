@@ -10,27 +10,30 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.CollectionUtil;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
 
 public class ExprDotStaticMethodWrapArrayScalar implements ExprDotStaticMethodWrap {
 
     private final String methodName;
-    private final Class arrayType;
+    private final EPTypeClass arrayType;
 
-    public ExprDotStaticMethodWrapArrayScalar(String methodName, Class arrayType) {
+    public ExprDotStaticMethodWrapArrayScalar(String methodName, EPTypeClass arrayType) {
         this.methodName = methodName;
         this.arrayType = arrayType;
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.collectionOfSingleValue(arrayType.getComponentType());
+    public EPChainableType getTypeInfo() {
+        EPTypeClass component = JavaClassHelper.getArrayComponentType(arrayType);
+        return EPChainableTypeHelper.collectionOfSingleValue(component);
     }
 
     public Collection convertNonNull(Object result) {

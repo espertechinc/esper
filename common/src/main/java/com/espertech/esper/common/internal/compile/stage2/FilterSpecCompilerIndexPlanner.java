@@ -41,7 +41,7 @@ public class FilterSpecCompilerIndexPlanner {
     }
 
     private static FilterSpecPlanForge planFilterParametersInternal(List<ExprNode> validatedNodes, FilterSpecCompilerArgs args)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         if (validatedNodes.isEmpty()) {
             return FilterSpecPlanForge.EMPTY;
@@ -96,7 +96,7 @@ public class FilterSpecCompilerIndexPlanner {
     }
 
     private static FilterSpecPlanForge buildNoPlan(List<ExprNode> validatedNodes, FilterSpecCompilerArgs args)
-        throws ExprValidationException {
+            throws ExprValidationException {
         FilterSpecPlanPathTripletForge triplet = makeRemainingNode(validatedNodes, args);
         FilterSpecPlanPathTripletForge[] triplets = new FilterSpecPlanPathTripletForge[]{triplet};
         FilterSpecPlanPathForge path = new FilterSpecPlanPathForge(triplets, null);

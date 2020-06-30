@@ -39,7 +39,7 @@ public class SelectEvalInsertWildcardVariantWrapper extends SelectEvalBaseMap {
 
     protected CodegenExpression processSpecificCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenExpression props, CodegenMethod methodNode, SelectExprProcessorCodegenSymbol selectEnv, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField type = VariantEventTypeUtil.getField(variantEventType, codegenClassScope);
-        CodegenExpressionField innerType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(wrappingEventType, EPStatementInitServices.REF));
+        CodegenExpressionField innerType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(wrappingEventType, EPStatementInitServices.REF));
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression wrapped = exprDotMethod(eventBeanFactory, "adapterForTypedWrapper", arrayAtIndex(refEPS, constant(0)), ref("props"), innerType);
         return exprDotMethod(type, "getValueAddEventBean", wrapped);

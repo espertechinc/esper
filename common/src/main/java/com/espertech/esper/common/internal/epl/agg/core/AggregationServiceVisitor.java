@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface AggregationServiceVisitor {
-    public void visitAggregations(int numGroups, Object... state);
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationServiceVisitor.class);
+
+    void visitAggregations(int numGroups, Object... state);
 }

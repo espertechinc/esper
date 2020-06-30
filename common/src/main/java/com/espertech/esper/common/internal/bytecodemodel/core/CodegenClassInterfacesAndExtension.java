@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +29,7 @@ public class CodegenClassInterfacesAndExtension {
         return extended;
     }
 
-    public void addInterfaceImplemented(Class clazzImplemented) {
+    public void addInterfaceImplemented(EPTypeClass clazzImplemented) {
         implemented.add(new CodegenClassReference(clazzImplemented));
     }
 
@@ -39,7 +41,7 @@ public class CodegenClassInterfacesAndExtension {
         extended = new CodegenClassReference(classNameExtended);
     }
 
-    public void setClassExtended(Class clazzExtended) {
+    public void setClassExtended(EPTypeClass clazzExtended) {
         extended = new CodegenClassReference(clazzExtended);
     }
 

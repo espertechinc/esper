@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.firsttime;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodProvide;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link FirstTimeView}.
  */
 public class FirstTimeViewFactory implements ViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FirstTimeViewFactory.class);
+
     protected EventType eventType;
     protected TimePeriodCompute timePeriodCompute;
     protected int scheduleCallbackId;

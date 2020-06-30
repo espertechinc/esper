@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -24,45 +28,47 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprEqualsNodeForgeNCForgeIs {
     public static CodegenMethod codegen(ExprEqualsNodeForgeNC forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprForge lhs, ExprForge rhs) {
-        Class lhsType = lhs.getEvaluationType();
-        Class rhsType = rhs.getEvaluationType();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, ExprEqualsNodeForgeNCForgeIs.class, codegenClassScope);
+        EPType lhsType = lhs.getEvaluationType();
+        EPType rhsType = rhs.getEvaluationType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprEqualsNodeForgeNCForgeIs.class, codegenClassScope);
 
         CodegenExpression compare;
-        if (rhsType != null && lhsType != null) {
-            if (!lhsType.isArray()) {
+        if (rhsType != null && lhsType != null && rhsType != EPTypeNull.INSTANCE && lhsType != EPTypeNull.INSTANCE) {
+            EPTypeClass lhsClass = (EPTypeClass) lhsType;
+            EPTypeClass rhsClass = (EPTypeClass) rhsType;
+            if (!lhsClass.getType().isArray()) {
                 methodNode.getBlock()
-                    .declareVar(Object.class, "left", lhs.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(Object.class, "right", rhs.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "left", lhs.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "right", rhs.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope));
                 compare = exprDotMethod(ref("left"), "equals", ref("right"));
             } else {
                 methodNode.getBlock()
-                    .declareVar(lhsType, "left", lhs.evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(rhsType, "right", rhs.evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
-                if (!MultiKeyPlanner.requiresDeepEquals(lhsType.getComponentType())) {
+                    .declareVar(lhsClass, "left", lhs.evaluateCodegen(lhsClass, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(rhsClass, "right", rhs.evaluateCodegen(rhsClass, methodNode, exprSymbol, codegenClassScope));
+                if (!MultiKeyPlanner.requiresDeepEquals(lhsClass.getType().getComponentType())) {
                     compare = staticMethod(Arrays.class, "equals", ref("left"), ref("right"));
                 } else {
                     compare = staticMethod(Arrays.class, "deepEquals", ref("left"), ref("right"));
                 }
             }
 
-            methodNode.getBlock().declareVarNoInit(boolean.class, "result")
+            methodNode.getBlock().declareVarNoInit(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "result")
                 .ifRefNull("left")
                 .assignRef("result", equalsNull(ref("right")))
                 .ifElse()
                 .assignRef("result", and(notEqualsNull(ref("right")), compare))
                 .blockEnd();
         } else {
-            if (lhsType == null && rhsType == null) {
-                methodNode.getBlock().declareVar(boolean.class, "result", constantTrue());
-            } else if (lhsType == null) {
+            if ((lhsType == null || lhsType == EPTypeNull.INSTANCE) && (rhsType == null || rhsType == EPTypeNull.INSTANCE)) {
+                methodNode.getBlock().declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "result", constantTrue());
+            } else if (lhsType == null || lhsType == EPTypeNull.INSTANCE) {
                 methodNode.getBlock()
-                    .declareVar(Object.class, "right", rhs.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(boolean.class, "result", equalsNull(ref("right")));
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "right", rhs.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "result", equalsNull(ref("right")));
             } else {
                 methodNode.getBlock()
-                    .declareVar(Object.class, "left", lhs.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(boolean.class, "result", equalsNull(ref("left")));
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "left", lhs.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "result", equalsNull(ref("left")));
             }
         }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.firstlength;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link FirstLengthWindowView}.
  */
 public class FirstLengthWindowViewFactory implements DataWindowViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FirstLengthWindowViewFactory.class);
+
     protected ExprEvaluator size;
     protected EventType eventType;
 

@@ -38,9 +38,9 @@ public class InternalEventRouterWriterArrayElementForge extends InternalEventRou
     }
 
     public CodegenExpression codegen(InternalEventRouterWriterForge writer, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InternalEventRouterWriterArrayElement.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(InternalEventRouterWriterArrayElement.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(InternalEventRouterWriterArrayElement.class, "desc", newInstance(InternalEventRouterWriterArrayElement.class))
+            .declareVarNewInstance(InternalEventRouterWriterArrayElement.EPTYPE, "desc")
             .exprDotMethod(ref("desc"), "setIndexExpression",
                 ExprNodeUtilityCodegen.codegenEvaluator(indexExpression.getForge(), method, VariableTriggerWriteArrayElementForge.class, classScope))
             .exprDotMethod(ref("desc"), "setRhsExpression",

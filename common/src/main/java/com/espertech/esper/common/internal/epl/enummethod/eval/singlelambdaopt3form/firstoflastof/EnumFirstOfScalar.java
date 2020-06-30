@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.firstoflastof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,8 +26,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
@@ -34,9 +36,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EnumFirstOfScalar extends ThreeFormScalar {
 
-    public final EPType columnType;
+    public final EPChainableType columnType;
 
-    public EnumFirstOfScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, EPType columnType) {
+    public EnumFirstOfScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, EPChainableType columnType) {
         super(lambda, fieldEventType, numParameters);
         this.columnType = columnType;
     }
@@ -67,8 +69,8 @@ public class EnumFirstOfScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
-        return JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(columnType));
+    public EPTypeClass returnTypeOfMethod() {
+        return JavaClassHelper.getBoxedType(EPChainableTypeHelper.getCodegenReturnType(columnType));
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -79,8 +81,8 @@ public class EnumFirstOfScalar extends ThreeFormScalar {
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));
-        block.blockReturn(cast(returnType(), ref("next")));
+        CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, scope, codegenClassScope));
+        block.blockReturn(cast(returnTypeOfMethod(), ref("next")));
     }
 
     public void returnResult(CodegenBlock block) {

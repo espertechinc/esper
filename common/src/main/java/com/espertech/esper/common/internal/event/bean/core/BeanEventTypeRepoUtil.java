@@ -12,19 +12,21 @@ package com.espertech.esper.common.internal.event.bean.core;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.util.*;
 
 public class BeanEventTypeRepoUtil {
 
-    public static BeanEventTypeStemService makeBeanEventTypeStemService(Configuration configurationSnapshot, Map<String, Class> resolvedBeanEventTypes, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
-        Map<Class, List<String>> publicClassToTypeNames = Collections.emptyMap();
+    public static BeanEventTypeStemService makeBeanEventTypeStemService(Configuration configurationSnapshot, Map<String, EPTypeClass> resolvedBeanEventTypes, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+        Map<EPTypeClass, List<String>> publicClassToTypeNames = Collections.emptyMap();
         if (!resolvedBeanEventTypes.isEmpty()) {
             publicClassToTypeNames = new HashMap<>();
-            for (Map.Entry<String, Class> entry : resolvedBeanEventTypes.entrySet()) {
+            for (Map.Entry<String, EPTypeClass> entry : resolvedBeanEventTypes.entrySet()) {
                 List<String> names = publicClassToTypeNames.get(entry.getValue());
                 if (names == null) {
                     names = new ArrayList<>(1);
@@ -36,19 +38,20 @@ public class BeanEventTypeRepoUtil {
         return new BeanEventTypeStemService(publicClassToTypeNames, eventBeanTypedEventFactory, configurationSnapshot.getCommon().getEventMeta().getClassPropertyResolutionStyle(), configurationSnapshot.getCommon().getEventMeta().getDefaultAccessorStyle());
     }
 
-    public static Map<String, Class> resolveBeanEventTypes(Map<String, String> typeToClassName, ClasspathImportService classpathImportService) {
+    public static Map<String, EPTypeClass> resolveBeanEventTypes(Map<String, String> typeToClassName, ClasspathImportService classpathImportService) {
         if (typeToClassName.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String, Class> resolved = new LinkedHashMap<>();
+        Map<String, EPTypeClass> resolved = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : typeToClassName.entrySet()) {
-            Class clazz;
+            EPTypeClass type;
             try {
-                clazz = classpathImportService.resolveClassForBeanEventType(entry.getValue());
+                Class clazz = classpathImportService.resolveClassForBeanEventType(entry.getValue());
+                type = ClassHelperGenericType.getClassEPType(clazz);
             } catch (ClasspathImportException ex) {
                 throw new ConfigurationException("Class named '" + entry.getValue() + "' was not found", ex);
             }
-            resolved.put(entry.getKey(), clazz);
+            resolved.put(entry.getKey(), type);
         }
         return resolved;
     }

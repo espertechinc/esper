@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -26,7 +30,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.funcs.ExprCaseNodeForgeEvalSyntax1.codegenToType;
@@ -69,28 +72,29 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
             return null;
         }
 
-        if ((caseResult.getClass() != forge.getEvaluationType()) && forge.isNumericResult()) {
-            caseResult = JavaClassHelper.coerceBoxed((Number) caseResult, forge.getEvaluationType());
+        if ((caseResult.getClass() != forge.getEvaluationType().getType()) && forge.isNumericResult()) {
+            caseResult = JavaClassHelper.coerceBoxed((Number) caseResult, forge.getEvaluationType().getType());
         }
 
         return caseResult;
     }
 
     public static CodegenExpression codegen(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class evaluationType = forge.getEvaluationType() == null ? Map.class : forge.getEvaluationType();
-        Class compareType = forge.getOptionalCompareExprNode().getForge().getEvaluationType();
+        EPTypeClass evaluationType = forge.getEvaluationType() == null ? EPTypePremade.MAP.getEPType() : forge.getEvaluationType();
+        EPTypeClass compareType = (EPTypeClass) forge.getOptionalCompareExprNode().getForge().getEvaluationType();
         CodegenMethod methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax2.class, codegenClassScope);
 
-        Class checkResultType = compareType == null ? Object.class : compareType;
+        EPTypeClass checkResultType = compareType == null ? EPTypePremade.OBJECT.getEPType() : compareType;
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(checkResultType, "checkResult", forge.getOptionalCompareExprNode().getForge().evaluateCodegen(checkResultType, methodNode, exprSymbol, codegenClassScope));
         int num = 0;
         for (UniformPair<ExprNode> pair : forge.getWhenThenNodeList()) {
             String refname = "r" + num;
-            Class lhsType = pair.getFirst().getForge().getEvaluationType();
-            Class lhsDeclaredType = lhsType == null ? Object.class : lhsType;
+            EPType lhsType = pair.getFirst().getForge().getEvaluationType();
+            EPTypeClass lhsTypeClass = lhsType == null || lhsType == EPTypeNull.INSTANCE ? null : (EPTypeClass) lhsType;
+            EPTypeClass lhsDeclaredType = lhsTypeClass == null ? EPTypePremade.OBJECT.getEPType() : lhsTypeClass;
             block.declareVar(lhsDeclaredType, refname, pair.getFirst().getForge().evaluateCodegen(lhsDeclaredType, methodNode, exprSymbol, codegenClassScope));
-            CodegenExpression compareExpression = codegenCompare(ref("checkResult"), compareType, ref(refname), pair.getFirst().getForge().getEvaluationType(), forge, methodNode, codegenClassScope);
+            CodegenExpression compareExpression = codegenCompare(ref("checkResult"), compareType, ref(refname), lhsTypeClass, forge, methodNode, codegenClassScope);
             block.ifCondition(compareExpression)
                     .blockReturn(codegenToType(forge, pair.getSecond(), methodNode, exprSymbol, codegenClassScope));
             num++;
@@ -121,34 +125,36 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         }
     }
 
-    private static CodegenExpression codegenCompare(CodegenExpressionRef lhs, Class lhsType, CodegenExpressionRef rhs, Class rhsType, ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        if (lhsType == null) {
+    private static CodegenExpression codegenCompare(CodegenExpressionRef lhs, EPType lhsType, CodegenExpressionRef rhs, EPType rhsType, ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        if (lhsType == null || lhsType == EPTypeNull.INSTANCE) {
             return equalsNull(rhs);
         }
-        if (rhsType == null) {
+        if (rhsType == null || rhsType == EPTypeNull.INSTANCE) {
             return equalsNull(lhs);
         }
-        if (lhsType.isPrimitive() && rhsType.isPrimitive() && !forge.isMustCoerce()) {
-            return CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(lhs, lhsType, rhs, rhsType);
+        EPTypeClass lhsClass = (EPTypeClass) lhsType;
+        EPTypeClass rhsClass = (EPTypeClass) rhsType;
+        if (lhsClass.getType().isPrimitive() && rhsClass.getType().isPrimitive() && !forge.isMustCoerce()) {
+            return CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(lhs, lhsClass, rhs, rhsClass);
         }
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprCaseNodeForgeEvalSyntax2.class, codegenClassScope).addParam(lhsType, "leftResult").addParam(rhsType, "rightResult").getBlock();
-        if (!lhsType.isPrimitive()) {
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprCaseNodeForgeEvalSyntax2.class, codegenClassScope).addParam(lhsClass, "leftResult").addParam(rhsClass, "rightResult").getBlock();
+        if (!lhsClass.getType().isPrimitive()) {
             CodegenBlock ifBlock = block.ifCondition(equalsNull(ref("leftResult")));
-            if (rhsType.isPrimitive()) {
+            if (rhsClass.getType().isPrimitive()) {
                 ifBlock.blockReturn(constantFalse());
             } else {
                 ifBlock.blockReturn(equalsNull(ref("rightResult")));
             }
         }
-        if (!rhsType.isPrimitive()) {
+        if (!rhsClass.getType().isPrimitive()) {
             block.ifCondition(equalsNull(ref("rightResult"))).blockReturn(constantFalse());
         }
         CodegenMethod method;
         if (!forge.isMustCoerce()) {
-            method = block.methodReturn(CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(ref("leftResult"), lhsType, ref("rightResult"), rhsType));
+            method = block.methodReturn(CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(ref("leftResult"), lhsClass, ref("rightResult"), rhsClass));
         } else {
-            block.declareVar(Number.class, "left", forge.getCoercer().coerceCodegen(ref("leftResult"), lhsType));
-            block.declareVar(Number.class, "right", forge.getCoercer().coerceCodegen(ref("rightResult"), rhsType));
+            block.declareVar(EPTypePremade.NUMBER.getEPType(), "left", forge.getCoercer().coerceCodegen(ref("leftResult"), lhsClass));
+            block.declareVar(EPTypePremade.NUMBER.getEPType(), "right", forge.getCoercer().coerceCodegen(ref("rightResult"), rhsClass));
             method = block.methodReturn(exprDotMethod(ref("left"), "equals", ref("right")));
         }
         return localMethodBuild(method).pass(lhs).pass(rhs).call();

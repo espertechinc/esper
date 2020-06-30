@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -49,11 +50,11 @@ public class DTLocalLocalDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
 
     public static CodegenExpression codegen(DTLocalLocalDateTimeOpsIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalCalOpsIntervalEval.class, codegenClassScope).addParam(LocalDateTime.class, "target");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalCalOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "target");
 
         CodegenBlock block = methodNode.getBlock();
         evaluateCalOpsLDTCodegen(block, "target", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("target"), timeZoneField));
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("target"), timeZoneField));
         block.methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
@@ -70,16 +71,16 @@ public class DTLocalLocalDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
 
     public static CodegenExpression codegen(DTLocalLocalDateTimeOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalCalOpsIntervalEval.class, codegenClassScope).addParam(LocalDateTime.class, "start").addParam(LocalDateTime.class, "end");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalCalOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "start").addParam(EPTypePremade.LOCALDATETIME.getEPType(), "end");
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(long.class, "startMs", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("start"), timeZoneField))
-                .declareVar(long.class, "endMs", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("end"), timeZoneField))
-                .declareVar(long.class, "deltaMSec", op(ref("endMs"), "-", ref("startMs")))
-                .declareVar(LocalDateTime.class, "result", start);
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startMs", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("start"), timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endMs", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("end"), timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "deltaMSec", op(ref("endMs"), "-", ref("startMs")))
+                .declareVar(EPTypePremade.LOCALDATETIME.getEPType(), "result", start);
         evaluateCalOpsLDTCodegen(block, "result", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "startLong", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("result"), timeZoneField));
-        block.declareVar(long.class, "endTime", op(ref("startLong"), "+", ref("deltaMSec")));
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startLong", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("result"), timeZoneField));
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endTime", op(ref("startLong"), "+", ref("deltaMSec")));
         block.methodReturn(forge.intervalForge.codegen(ref("startLong"), ref("endTime"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);
     }

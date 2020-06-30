@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.TreeMap;
 
 /**
@@ -18,6 +20,8 @@ import java.util.TreeMap;
  * Each time a key is removed, the reference counter decreases.
  */
 public class SortedRefCountedSet<K> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SortedRefCountedSet.class);
+
     private TreeMap<K, Integer> refSet;
     private long countPoints;
 

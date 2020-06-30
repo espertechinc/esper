@@ -20,6 +20,8 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.compile.stage1.spec.DBStatementStreamSpec;
@@ -48,7 +50,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
     public static final String SAMPLE_WHERECLAUSE_PLACEHOLDER = "$ESPER-SAMPLE-WHERE";
 
     public static HistoricalEventViewableDatabaseForge createDBStatementView(int streamNum, DBStatementStreamSpec sqlStreamSpec, SQLColumnTypeConversion columnTypeConversionHook, SQLOutputRowConversion outputRowConversionHook, StatementBaseInfo base, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
 
         // Parse the SQL for placeholders and text fragments
         List<PlaceholderParser.Fragment> sqlFragments;
@@ -64,7 +66,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
         SQLParameterDesc parameterDesc = getParameters(sqlFragments);
         if (log.isDebugEnabled()) {
             log.debug(".createDBEventStream preparedStatementText=" + preparedStatementText +
-                    " parameterDesc=" + parameterDesc);
+                " parameterDesc=" + parameterDesc);
         }
 
         // Get a database connection
@@ -154,13 +156,13 @@ public class HistoricalEventViewableDatabaseForgeFactory {
 
         // Create event type
         // Construct an event type from SQL query result metadata
-        Map<String, Object> eventTypeFields = new HashMap<String, Object>();
+        Map<String, Object> eventTypeFields = new HashMap<>();
         int columnNum = 1;
         for (Map.Entry<String, DBOutputTypeDesc> entry : queryMetaData.getOutputParameters().entrySet()) {
             String name = entry.getKey();
             DBOutputTypeDesc dbOutputDesc = entry.getValue();
 
-            Class clazz;
+            EPType clazz;
             if (dbOutputDesc.getOptionalBinding() != null) {
                 clazz = dbOutputDesc.getOptionalBinding().getType();
             } else {
@@ -168,8 +170,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
             }
 
             if (columnTypeConversionHook != null) {
-
-                Class newValue = columnTypeConversionHook.getColumnType(new SQLColumnTypeContext(sqlStreamSpec.getDatabaseName(), sqlStreamSpec.getSqlWithSubsParams(), name, clazz, dbOutputDesc.getSqlType(), columnNum));
+                EPType newValue = columnTypeConversionHook.getColumnType(new SQLColumnTypeContext(sqlStreamSpec.getDatabaseName(), sqlStreamSpec.getSqlWithSubsParams(), name, clazz, dbOutputDesc.getSqlType(), columnNum));
                 if (newValue != null) {
                     clazz = newValue;
                 }
@@ -185,7 +186,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
         if (outputRowConversionHook == null) {
             eventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(EventTypeApplicationType.MAP), eventTypeFields, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
         } else {
-            Class carrierClass = outputRowConversionHook.getOutputRowType(new SQLOutputRowTypeContext(sqlStreamSpec.getDatabaseName(), sqlStreamSpec.getSqlWithSubsParams(), eventTypeFields));
+            EPTypeClass carrierClass = outputRowConversionHook.getOutputRowType(new SQLOutputRowTypeContext(sqlStreamSpec.getDatabaseName(), sqlStreamSpec.getSqlWithSubsParams(), eventTypeFields));
             if (carrierClass == null) {
                 throw new ExprValidationException("Output row conversion hook returned no type");
             }
@@ -195,12 +196,12 @@ public class HistoricalEventViewableDatabaseForgeFactory {
         services.getEventTypeCompileTimeRegistry().newType(eventType);
 
         return new HistoricalEventViewableDatabaseForge(streamNum, eventType, databaseName,
-                queryMetaData.getInputParameters().toArray(new String[queryMetaData.getInputParameters().size()]),
-                preparedStatementText, queryMetaData.getOutputParameters());
+            queryMetaData.getInputParameters().toArray(new String[queryMetaData.getInputParameters().size()]),
+            preparedStatementText, queryMetaData.getOutputParameters());
     }
 
     private static QueryMetaData getExampleQueryMetaData(Connection connection, String[] parameters, String sampleSQL, ColumnSettings metadataSetting, boolean isUsingMetadataSQL)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Simply add up all input parameters
         List<String> inputParameters = new LinkedList<String>();
         inputParameters.addAll(Arrays.asList(parameters));
@@ -276,7 +277,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
                                                          String[] parameters,
                                                          String preparedStatementText,
                                                          ColumnSettings metadataSetting)
-            throws ExprValidationException {
+        throws ExprValidationException {
         PreparedStatement prepared;
         try {
             if (log.isInfoEnabled()) {
@@ -321,7 +322,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
 
         if (log.isDebugEnabled()) {
             log.debug(".createDBEventStream in=" + inputParameters.toString() +
-                    " out=" + outputProperties.toString());
+                " out=" + outputProperties.toString());
         }
 
         // Close statement
@@ -385,7 +386,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
     private static Map<String, DBOutputTypeDesc> compileResultMetaData(ResultSetMetaData resultMetaData,
                                                                        ColumnSettings columnSettings
     )
-            throws SQLException {
+        throws SQLException {
         Map<String, DBOutputTypeDesc> outputProperties = new HashMap<String, DBOutputTypeDesc>();
         for (int i = 0; i < resultMetaData.getColumnCount(); i++) {
             String columnName = resultMetaData.getColumnLabel(i + 1);

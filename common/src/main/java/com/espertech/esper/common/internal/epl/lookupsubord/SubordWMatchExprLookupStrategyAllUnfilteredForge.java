@@ -22,7 +22,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class SubordWMatchExprLookupStrategyAllUnfilteredForge implements SubordWMatchExprLookupStrategyFactoryForge {
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(SubordWMatchExprLookupStrategyAllUnfilteredFactory.class);
+        return newInstance(SubordWMatchExprLookupStrategyAllUnfilteredFactory.EPTYPE);
     }
 
     public String toQueryPlan() {

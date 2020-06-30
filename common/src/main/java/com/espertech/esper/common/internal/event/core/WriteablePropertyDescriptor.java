@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.event.core;
 
+import com.espertech.esper.common.client.type.EPType;
+
 import java.lang.reflect.Method;
 
 /**
@@ -17,7 +19,7 @@ import java.lang.reflect.Method;
  */
 public class WriteablePropertyDescriptor {
     private final String propertyName;
-    private final Class type;
+    private final EPType type;
     private final Method writeMethod;
     private final boolean fragment;
 
@@ -28,7 +30,7 @@ public class WriteablePropertyDescriptor {
      * @param writeMethod  optional write methods
      * @param fragment whether the property is itself an event or array of events
      */
-    public WriteablePropertyDescriptor(String propertyName, Class type, Method writeMethod, boolean fragment) {
+    public WriteablePropertyDescriptor(String propertyName, EPType type, Method writeMethod, boolean fragment) {
         this.propertyName = propertyName;
         this.type = type;
         this.writeMethod = writeMethod;
@@ -49,7 +51,7 @@ public class WriteablePropertyDescriptor {
      *
      * @return property type
      */
-    public Class getType() {
+    public EPType getType() {
         return type;
     }
 

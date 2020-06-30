@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.context.aifactory.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,7 +28,6 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -42,14 +43,14 @@ public class SAIFFInitializeBuilder {
     private CodegenMethod method;
     private boolean closed;
 
-    public SAIFFInitializeBuilder(Class returnType, Class originator, String refName, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+    public SAIFFInitializeBuilder(EPTypeClass returnType, Class originator, String refName, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         this.originator = originator;
         this.refName = refName;
         this.symbols = symbols;
         this.classScope = classScope;
 
         method = parent.makeChild(returnType, originator, classScope);
-        method.getBlock().declareVar(returnType, refName, newInstance(returnType));
+        method.getBlock().declareVarNewInstance(returnType, refName);
     }
 
     public SAIFFInitializeBuilder(String returnType, Class originator, String refName, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -102,7 +103,7 @@ public class SAIFFInitializeBuilder {
         if (forge == null) {
             return setValue(name, constantNull());
         }
-        CodegenExpressionField manufacturer = classScope.addFieldUnshared(true, EventBeanManufacturer.class, forge.make(method, classScope));
+        CodegenExpressionField manufacturer = classScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, forge.make(method, classScope));
         return setValue(name, manufacturer);
     }
 
@@ -117,13 +118,13 @@ public class SAIFFInitializeBuilder {
         if (map.isEmpty()) {
             return staticMethod(Collections.class, "emptyMap");
         }
-        CodegenMethod child = method.makeChild(Map.class, originator, classScope);
+        CodegenMethod child = method.makeChild(EPTypePremade.MAP.getEPType(), originator, classScope);
         if (map.size() == 1) {
             Map.Entry<String, ?> single = map.entrySet().iterator().next();
             CodegenExpression value = buildMapValue(single.getValue(), child, classScope);
             child.getBlock().methodReturn(staticMethod(Collections.class, "singletonMap", CodegenExpressionBuilder.constant(single.getKey()), value));
         } else {
-            child.getBlock().declareVar(Map.class, "map", newInstance(LinkedHashMap.class, CodegenExpressionBuilder.constant(CollectionUtil.capacityHashMap(map.size()))));
+            child.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType(), CodegenExpressionBuilder.constant(CollectionUtil.capacityHashMap(map.size()))));
             for (Map.Entry<String, ?> entry : map.entrySet()) {
                 CodegenExpression value = buildMapValue(entry.getValue(), child, classScope);
                 child.getBlock().exprDotMethod(ref("map"), "put", CodegenExpressionBuilder.constant(entry.getKey()), value);

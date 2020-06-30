@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.indexlookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.sorted.PropertySortedEventTable;
 import com.espertech.esper.common.internal.epl.join.exec.base.JoinExecTableLookupStrategy;
@@ -23,6 +24,8 @@ import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupPlan;
  * Plan to perform an indexed table lookup.
  */
 public class SortedTableLookupPlanFactory extends TableLookupPlan {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SortedTableLookupPlanFactory.class);
+
     protected final QueryGraphValueEntryRange rangeKeyPair;
 
     public SortedTableLookupPlanFactory(int lookupStream, int indexedStream, TableLookupIndexReqKey[] indexNum, QueryGraphValueEntryRange rangeKeyPair) {

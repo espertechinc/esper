@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,9 +28,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprMathNodeForge implements ExprForgeInstrumentable {
     private final ExprMathNode parent;
     private final MathArithTypeEnum.Computer arithTypeEnumComputer;
-    private final Class resultType;
+    private final EPTypeClass resultType;
 
-    public ExprMathNodeForge(ExprMathNode parent, MathArithTypeEnum.Computer arithTypeEnumComputer, Class resultType) {
+    public ExprMathNodeForge(ExprMathNode parent, MathArithTypeEnum.Computer arithTypeEnumComputer, EPTypeClass resultType) {
         this.parent = parent;
         this.arithTypeEnumComputer = arithTypeEnumComputer;
         this.resultType = resultType;
@@ -39,16 +40,16 @@ public class ExprMathNodeForge implements ExprForgeInstrumentable {
         return new ExprMathNodeForgeEval(this, parent.getChildNodes()[0].getForge().getExprEvaluator(), parent.getChildNodes()[1].getForge().getExprEvaluator());
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return resultType;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = ExprMathNodeForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope, parent.getChildNodes()[0], parent.getChildNodes()[1]);
         return localMethod(methodNode);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprMath", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).qparam(constant(parent.getMathArithTypeEnum().getExpressionText())).build();
     }
 

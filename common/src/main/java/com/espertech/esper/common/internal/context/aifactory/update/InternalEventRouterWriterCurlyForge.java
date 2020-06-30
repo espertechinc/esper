@@ -30,9 +30,9 @@ public class InternalEventRouterWriterCurlyForge extends InternalEventRouterWrit
     }
 
     public CodegenExpression codegen(InternalEventRouterWriterForge writer, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InternalEventRouterWriterCurly.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(InternalEventRouterWriterCurly.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(InternalEventRouterWriterCurly.class, "desc", newInstance(InternalEventRouterWriterCurly.class))
+            .declareVarNewInstance(InternalEventRouterWriterCurly.EPTYPE, "desc")
             .exprDotMethod(ref("desc"), "setExpression",
                 ExprNodeUtilityCodegen.codegenEvaluator(expression.getForge(), method, VariableTriggerWriteArrayElementForge.class, classScope))
             .methodReturn(ref("desc"));

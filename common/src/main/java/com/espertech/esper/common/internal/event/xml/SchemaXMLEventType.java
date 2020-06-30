@@ -15,6 +15,9 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
@@ -80,15 +83,13 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         // Add a property for each complex child element
         for (SchemaElementComplex complex : schemaModelRoot.getChildren()) {
             String propertyName = complex.getName();
-            Class returnType = Node.class;
-            Class propertyComponentType = null;
+            EPType returnType = EPTypePremade.NODE.getEPType();
 
             if (complex.getOptionalSimpleType() != null) {
                 returnType = SchemaUtil.toReturnType(complex);
             }
             if (complex.isArray()) {
-                returnType = Node[].class;      // We use Node[] for arrays and NodeList for XPath-Expressions returning Nodeset
-                propertyComponentType = Node.class;
+                returnType = EPTypePremade.NODEARRAY.getEPType();      // We use Node[] for arrays and NodeList for XPath-Expressions returning Nodeset
             }
 
             boolean isFragment = false;
@@ -97,7 +98,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
             }
 
             EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
-            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, propertyComponentType, false, false, complex.isArray(), false, isFragment);
+            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, false, false, complex.isArray(), false, isFragment);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
             additionalSchemaProps.add(explicit);
         }
@@ -105,9 +106,9 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         // Add a property for each simple child element
         for (SchemaElementSimple simple : schemaModelRoot.getSimpleElements()) {
             String propertyName = simple.getName();
-            Class returnType = SchemaUtil.toReturnType(simple);
+            EPType returnType = SchemaUtil.toReturnType(simple);
             EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
-            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, null, false, false, simple.isArray(), false, false);
+            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, false, false, simple.isArray(), false, false);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
             additionalSchemaProps.add(explicit);
         }
@@ -115,9 +116,9 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         // Add a property for each attribute
         for (SchemaItemAttribute attribute : schemaModelRoot.getAttributes()) {
             String propertyName = attribute.getName();
-            Class returnType = SchemaUtil.toReturnType(attribute);
+            EPType returnType = SchemaUtil.toReturnType(attribute);
             EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
-            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, null, false, false, false, false, false);
+            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, false, false, false, false, false);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
             additionalSchemaProps.add(explicit);
         }
@@ -170,11 +171,11 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         return new FragmentEventType(newType, complex.isArray(), false);
     }
 
-    protected Class doResolvePropertyType(String propertyExpression) {
+    protected EPType doResolvePropertyType(String propertyExpression) {
         return doResolvePropertyType(propertyExpression, false);
     }
 
-    private Class doResolvePropertyType(String propertyExpression, boolean allowSimpleProperties) {
+    private EPType doResolvePropertyType(String propertyExpression, boolean allowSimpleProperties) {
 
         // see if this is an indexed property
         int index = StringValue.unescapedIndexOfDot(propertyExpression);
@@ -190,13 +191,13 @@ public class SchemaXMLEventType extends BaseXMLEventType {
                 if (descriptor == null) {
                     return null;
                 }
-                return descriptor.getPropertyType();
+                return descriptor.getPropertyEPType();
             }
         }
 
         Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
         if (prop.isDynamic()) {
-            return Node.class;
+            return EPTypePremade.NODE.getEPType();
         }
 
         SchemaItem item = prop.getPropertyTypeSchema(schemaModelRoot);
@@ -262,12 +263,12 @@ public class SchemaXMLEventType extends BaseXMLEventType {
                     return null;
                 }
 
-                Class returnType = SchemaUtil.toReturnType(item);
-                if ((returnType != Node.class) && (returnType != NodeList.class)) {
-                    if (!returnType.isArray()) {
-                        getter = new DOMConvertingGetter((DOMPropertyGetter) getter, returnType);
+                EPTypeClass returnType = SchemaUtil.toReturnType(item);
+                if ((returnType.getType() != Node.class) && (returnType.getType() != NodeList.class)) {
+                    if (!returnType.getType().isArray()) {
+                        getter = new DOMConvertingGetter((DOMPropertyGetter) getter, returnType.getType());
                     } else {
-                        getter = new DOMConvertingArrayGetter((DOMPropertyGetter) getter, returnType.getComponentType());
+                        getter = new DOMConvertingArrayGetter((DOMPropertyGetter) getter, returnType.getType().getComponentType());
                     }
                 }
             } else {

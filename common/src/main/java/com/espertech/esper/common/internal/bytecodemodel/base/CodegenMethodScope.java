@@ -10,14 +10,15 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 public interface CodegenMethodScope {
     CodegenMethod makeChild(String returnType, Class generator, CodegenScope codegenClassScope);
 
-    CodegenMethod makeChild(Class returnType, Class generator, CodegenScope codegenClassScope);
+    CodegenMethod makeChild(EPTypeClass returnType, Class generator, CodegenScope codegenClassScope);
 
-    CodegenMethod makeChildWithScope(Class returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenScope codegenClassScope);
+    CodegenMethod makeChildWithScope(EPTypeClass returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenScope codegenClassScope);
 
     CodegenMethodScope addSymbol(CodegenExpressionRef symbol);
 }

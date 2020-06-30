@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.schedule;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -22,8 +23,8 @@ public class TimeProviderField implements CodegenFieldSharable {
     private TimeProviderField() {
     }
 
-    public Class type() {
-        return TimeProvider.class;
+    public EPTypeClass type() {
+        return TimeProvider.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

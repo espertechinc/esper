@@ -11,13 +11,13 @@
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 
 /**
  * Descriptor for create-variable statements.
  */
 public class CreateVariableDesc {
-    private ClassIdentifierWArray variableType;
+    private ClassDescriptor variableType;
     private String variableName;
     private ExprNode assignment;
     private boolean constant;
@@ -30,7 +30,7 @@ public class CreateVariableDesc {
      * @param assignment   expression assigning the initial value, or null if none
      * @param constant     indicator for constant
      */
-    public CreateVariableDesc(ClassIdentifierWArray variableType, String variableName, ExprNode assignment, boolean constant) {
+    public CreateVariableDesc(ClassDescriptor variableType, String variableName, ExprNode assignment, boolean constant) {
         this.variableType = variableType;
         this.variableName = variableName;
         this.assignment = assignment;
@@ -42,7 +42,7 @@ public class CreateVariableDesc {
      *
      * @return type of variable
      */
-    public ClassIdentifierWArray getVariableType() {
+    public ClassDescriptor getVariableType() {
         return variableType;
     }
 

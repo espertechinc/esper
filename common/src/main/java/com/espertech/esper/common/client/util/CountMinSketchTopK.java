@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Value object for count-min-sketch top-k.
  */
 public class CountMinSketchTopK {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(CountMinSketchTopK[].class);
+
     private final long frequency;
     private final Object value;
 

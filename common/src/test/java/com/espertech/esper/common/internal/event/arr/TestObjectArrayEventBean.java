@@ -16,10 +16,12 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,7 @@ public class TestObjectArrayEventBean extends TestCase {
         testTypes = new Object[]{String.class, Integer.class, SupportBeanComplexProps.class};
         Map<String, Object> typeRep = new LinkedHashMap<String, Object>();
         for (int i = 0; i < testProps.length; i++) {
-            typeRep.put(testProps[i], testTypes[i]);
+            typeRep.put(testProps[i], ClassHelperGenericType.getClassEPType((Class) testTypes[i]));
         }
 
         testValues = new Object[]{"test", 10, supportBean};

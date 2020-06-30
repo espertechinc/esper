@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSkipEnum;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationResultFutureAssignable;
@@ -24,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class RowRecogDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowRecogDesc.class);
+
     private EventType parentEventType;
     private EventType rowEventType;
     private EventType compositeEventType;
@@ -31,7 +35,7 @@ public class RowRecogDesc {
     private int[] multimatchStreamNumToVariable;
     private int[] multimatchVariableToStreamNum;
     private ExprEvaluator partitionEvalMayNull;
-    private Class[] partitionEvalTypes;
+    private EPType[] partitionEvalTypes;
     private DataInputOutputSerde<Object> partitionEvalSerde;
     private LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
     private boolean hasInterval;
@@ -94,11 +98,11 @@ public class RowRecogDesc {
         this.partitionEvalMayNull = partitionEvalMayNull;
     }
 
-    public Class[] getPartitionEvalTypes() {
+    public EPType[] getPartitionEvalTypes() {
         return partitionEvalTypes;
     }
 
-    public void setPartitionEvalTypes(Class[] partitionEvalTypes) {
+    public void setPartitionEvalTypes(EPType[] partitionEvalTypes) {
         this.partitionEvalTypes = partitionEvalTypes;
     }
 

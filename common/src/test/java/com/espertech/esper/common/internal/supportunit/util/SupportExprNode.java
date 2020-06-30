@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.supportunit.util;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.io.StringWriter;
 
@@ -24,7 +27,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class SupportExprNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static int validateCount;
 
-    private Class type;
+    private EPTypeClass type;
     private Object value;
     private int validateCountSnapshot;
 
@@ -33,29 +36,29 @@ public class SupportExprNode extends ExprNodeBase implements ExprForge, ExprEval
     }
 
     public SupportExprNode(Class type) {
-        this.type = type;
+        this.type = type == null ? null : ClassHelperGenericType.getClassEPType(type);
         this.value = null;
     }
 
     public SupportExprNode(Object value) {
-        this.type = value.getClass();
+        this.type = value == null ? null : ClassHelperGenericType.getClassEPType(value.getClass());
         this.value = value;
     }
 
     public SupportExprNode(Object value, Class type) {
         this.value = value;
-        this.type = type;
+        this.type = ClassHelperGenericType.getClassEPType(type);
     }
 
     public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return type;
     }
 

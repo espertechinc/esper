@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -39,9 +40,9 @@ public class AggregatorCodegenUtil {
     }
 
     public static void prefixWithFilterCheck(ExprForge filterForge, CodegenMethod method, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        Class filterType = filterForge.getEvaluationType();
-        method.getBlock().declareVar(filterType, "pass", filterForge.evaluateCodegen(filterType, method, symbols, classScope));
-        if (!filterType.isPrimitive()) {
+        EPTypeClass filterType = (EPTypeClass) filterForge.getEvaluationType();
+        method.getBlock().declareVar(filterType, "pass", filterForge.evaluateCodegen((EPTypeClass) filterType, method, symbols, classScope));
+        if (!filterType.getType().isPrimitive()) {
             method.getBlock().ifRefNull("pass").blockReturnNoValue();
         }
         method.getBlock().ifCondition(not(ref("pass"))).blockReturnNoValue();

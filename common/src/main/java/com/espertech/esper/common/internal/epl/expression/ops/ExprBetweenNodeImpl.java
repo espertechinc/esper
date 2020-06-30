@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -104,41 +108,36 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
 
         // Must be either numeric or string
         ExprForge[] forges = ExprNodeUtilityQuery.getForges(this.getChildNodes());
-        Class typeOne = JavaClassHelper.getBoxedType(forges[0].getEvaluationType());
-        Class typeTwo = JavaClassHelper.getBoxedType(forges[1].getEvaluationType());
-        Class typeThree = JavaClassHelper.getBoxedType(forges[2].getEvaluationType());
-
-        if (typeOne == null) {
+        ExprForge evalForge = forges[0];
+        EPType evalType = evalForge.getEvaluationType();
+        if (evalType == null || evalType == EPTypeNull.INSTANCE) {
             throw new ExprValidationException("Null value not allowed in between-clause");
         }
 
-        Class compareType;
+        EPTypeClass evalTypeClass = JavaClassHelper.getBoxedType((EPTypeClass) evalType);
+        ExprForge startForge = forges[1];
+        EPType startType = startForge.getEvaluationType();
+        ExprForge endForge = forges[2];
+        EPType endType = endForge.getEvaluationType();
+
+        EPTypeClass compareType;
         boolean isAlwaysFalse = false;
         ExprBetweenComp computer = null;
-        if ((typeTwo == null) || (typeThree == null)) {
+        if (startType == null || startType == EPTypeNull.INSTANCE || endType == null || endType == EPTypeNull.INSTANCE) {
             isAlwaysFalse = true;
         } else {
-            if ((typeOne != String.class) || (typeTwo != String.class) || (typeThree != String.class)) {
-                if (!JavaClassHelper.isNumeric(typeOne)) {
-                    throw new ExprValidationException("Implicit conversion from datatype '" +
-                            typeOne.getSimpleName() +
-                            "' to numeric is not allowed");
-                }
-                if (!JavaClassHelper.isNumeric(typeTwo)) {
-                    throw new ExprValidationException("Implicit conversion from datatype '" +
-                            typeTwo.getSimpleName() +
-                            "' to numeric is not allowed");
-                }
-                if (!JavaClassHelper.isNumeric(typeThree)) {
-                    throw new ExprValidationException("Implicit conversion from datatype '" +
-                            typeThree.getSimpleName() +
-                            "' to numeric is not allowed");
-                }
+            EPTypeClass startTypeClass = (EPTypeClass) startType;
+            EPTypeClass endTypeClass = (EPTypeClass) endType;
+
+            if (evalTypeClass.getType() != String.class || startTypeClass.getType() != String.class || endTypeClass.getType() != String.class) {
+                ExprNodeUtilityValidate.validateReturnsNumeric(evalForge);
+                ExprNodeUtilityValidate.validateReturnsNumeric(startForge);
+                ExprNodeUtilityValidate.validateReturnsNumeric(endForge);
             }
 
-            Class intermedType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
-            compareType = JavaClassHelper.getCompareToCoercionType(intermedType, typeThree);
-            computer = makeComputer(compareType, typeOne, typeTwo, typeThree);
+            EPTypeClass intermedType = JavaClassHelper.getCompareToCoercionType(evalTypeClass, startTypeClass);
+            compareType = JavaClassHelper.getCompareToCoercionType(intermedType, endTypeClass);
+            computer = makeComputer(compareType, evalTypeClass, startTypeClass, endTypeClass);
         }
         forge = new ExprBetweenNodeForge(this, computer, isAlwaysFalse);
         return null;
@@ -189,16 +188,16 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         return ExprPrecedenceEnum.RELATIONAL_BETWEEN_IN;
     }
 
-    private ExprBetweenComp makeComputer(Class compareType, Class valueType, Class lowType, Class highType) {
+    private ExprBetweenComp makeComputer(EPTypeClass compareType, EPTypeClass valueType, EPTypeClass lowType, EPTypeClass highType) {
         ExprBetweenComp computer;
 
-        if (compareType == String.class) {
+        if (compareType.getType() == String.class) {
             computer = new ExprBetweenCompString(isLowEndpointIncluded, isHighEndpointIncluded);
-        } else if (compareType == BigDecimal.class) {
+        } else if (compareType.getType() == BigDecimal.class) {
             computer = new ExprBetweenCompBigDecimal(isLowEndpointIncluded, isHighEndpointIncluded, valueType, lowType, highType);
-        } else if (compareType == BigInteger.class) {
+        } else if (compareType.getType() == BigInteger.class) {
             computer = new ExprBetweenCompBigInteger(isLowEndpointIncluded, isHighEndpointIncluded, valueType, lowType, highType);
-        } else if (compareType == Long.class) {
+        } else if (compareType.getType() == Long.class) {
             computer = new ExprBetweenCompLong(isLowEndpointIncluded, isHighEndpointIncluded);
         } else {
             computer = new ExprBetweenCompDouble(isLowEndpointIncluded, isHighEndpointIncluded);
@@ -209,7 +208,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
     protected interface ExprBetweenComp {
         public boolean isBetween(Object value, Object lower, Object upper);
 
-        CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+        CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, EPTypeClass valueType, CodegenExpressionRef lower, EPTypeClass lowerType, CodegenExpressionRef higher, EPTypeClass higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
     }
 
     protected static class ExprBetweenCompString implements ExprBetweenComp {
@@ -258,10 +257,10 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
             return value.equals(endpoint);
         }
 
-        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompString.class, codegenClassScope).addParam(String.class, "value").addParam(String.class, "lower").addParam(String.class, "upper").getBlock()
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, EPTypeClass valueType, CodegenExpressionRef lower, EPTypeClass lowerType, CodegenExpressionRef higher, EPTypeClass higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprBetweenCompString.class, codegenClassScope).addParam(EPTypePremade.STRING.getEPType(), "value").addParam(EPTypePremade.STRING.getEPType(), "lower").addParam(EPTypePremade.STRING.getEPType(), "upper").getBlock()
                     .ifCondition(relational(exprDotMethod(ref("upper"), "compareTo", ref("lower")), LT, constant(0)))
-                    .declareVar(String.class, "temp", ref("upper"))
+                    .declareVar(EPTypePremade.STRING.getEPType(), "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
                     .assignRef("lower", ref("temp"))
                     .blockEnd()
@@ -318,10 +317,10 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
             return false;
         }
 
-        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompDouble.class, codegenClassScope).addParam(double.class, "value").addParam(double.class, "lower").addParam(double.class, "upper").getBlock()
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, EPTypeClass valueType, CodegenExpressionRef lower, EPTypeClass lowerType, CodegenExpressionRef higher, EPTypeClass higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprBetweenCompDouble.class, codegenClassScope).addParam(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "value").addParam(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "lower").addParam(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "upper").getBlock()
                     .ifCondition(relational(ref("lower"), GT, ref("upper")))
-                    .declareVar(double.class, "temp", ref("upper"))
+                    .declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
                     .assignRef("lower", ref("temp"))
                     .blockEnd();
@@ -382,10 +381,10 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
             return false;
         }
 
-        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompLong.class, codegenClassScope).addParam(long.class, "value").addParam(long.class, "lower").addParam(long.class, "upper").getBlock()
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, EPTypeClass valueType, CodegenExpressionRef lower, EPTypeClass lowerType, CodegenExpressionRef higher, EPTypeClass higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprBetweenCompLong.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "value").addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "lower").addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "upper").getBlock()
                     .ifCondition(relational(ref("lower"), GT, ref("upper")))
-                    .declareVar(long.class, "temp", ref("upper"))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
                     .assignRef("lower", ref("temp"))
                     .blockEnd();
@@ -415,7 +414,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         private SimpleNumberBigDecimalCoercer numberCoercerUpper;
         private SimpleNumberBigDecimalCoercer numberCoercerValue;
 
-        public ExprBetweenCompBigDecimal(boolean lowIncluded, boolean highIncluded, Class valueType, Class lowerType, Class upperType) {
+        public ExprBetweenCompBigDecimal(boolean lowIncluded, boolean highIncluded, EPTypeClass valueType, EPTypeClass lowerType, EPTypeClass upperType) {
             isLowIncluded = lowIncluded;
             isHighIncluded = highIncluded;
 
@@ -452,13 +451,13 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
             return false;
         }
 
-        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompBigDecimal.class, codegenClassScope).addParam(BigDecimal.class, "value").addParam(BigDecimal.class, "lower").addParam(BigDecimal.class, "upper").getBlock()
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, EPTypeClass valueType, CodegenExpressionRef lower, EPTypeClass lowerType, CodegenExpressionRef higher, EPTypeClass higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprBetweenCompBigDecimal.class, codegenClassScope).addParam(EPTypePremade.BIGDECIMAL.getEPType(), "value").addParam(EPTypePremade.BIGDECIMAL.getEPType(), "lower").addParam(EPTypePremade.BIGDECIMAL.getEPType(), "upper").getBlock()
                     .ifRefNullReturnFalse("value")
                     .ifRefNullReturnFalse("lower")
                     .ifRefNullReturnFalse("upper")
                     .ifCondition(relational(exprDotMethod(ref("lower"), "compareTo", ref("upper")), GT, constant(0)))
-                    .declareVar(BigDecimal.class, "temp", ref("upper"))
+                    .declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
                     .assignRef("lower", ref("temp"))
                     .blockEnd();
@@ -491,7 +490,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         private SimpleNumberBigIntegerCoercer numberCoercerUpper;
         private SimpleNumberBigIntegerCoercer numberCoercerValue;
 
-        public ExprBetweenCompBigInteger(boolean lowIncluded, boolean highIncluded, Class valueType, Class lowerType, Class upperType) {
+        public ExprBetweenCompBigInteger(boolean lowIncluded, boolean highIncluded, EPTypeClass valueType, EPTypeClass lowerType, EPTypeClass upperType) {
             isLowIncluded = lowIncluded;
             isHighIncluded = highIncluded;
 
@@ -529,13 +528,13 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
             return false;
         }
 
-        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompBigInteger.class, codegenClassScope).addParam(BigInteger.class, "value").addParam(BigInteger.class, "lower").addParam(BigInteger.class, "upper").getBlock()
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, EPTypeClass valueType, CodegenExpressionRef lower, EPTypeClass lowerType, CodegenExpressionRef higher, EPTypeClass higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprBetweenCompBigInteger.class, codegenClassScope).addParam(EPTypePremade.BIGINTEGER.getEPType(), "value").addParam(EPTypePremade.BIGINTEGER.getEPType(), "lower").addParam(EPTypePremade.BIGINTEGER.getEPType(), "upper").getBlock()
                     .ifRefNullReturnFalse("value")
                     .ifRefNullReturnFalse("lower")
                     .ifRefNullReturnFalse("upper")
                     .ifCondition(relational(exprDotMethod(ref("lower"), "compareTo", ref("upper")), GT, constant(0)))
-                    .declareVar(BigInteger.class, "temp", ref("upper"))
+                    .declareVar(EPTypePremade.BIGINTEGER.getEPType(), "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
                     .assignRef("lower", ref("temp"))
                     .blockEnd();

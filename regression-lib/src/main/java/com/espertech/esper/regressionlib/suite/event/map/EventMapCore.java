@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.event.map;
 
 import com.espertech.esper.common.client.EPException;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -76,12 +76,11 @@ public class EventMapCore {
             assertEquals(EventTypeApplicationType.MAP, type.getMetadata().getApplicationType());
             assertEquals("myMapEvent", type.getMetadata().getName());
 
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-                new EventPropertyDescriptor("myInt", Integer.class, null, false, false, false, false, false),
-                new EventPropertyDescriptor("myString", String.class, null, false, false, false, false, false),
-                new EventPropertyDescriptor("beanA", SupportBeanComplexProps.class, null, false, false, false, false, true),
-                new EventPropertyDescriptor("myStringArray", String[].class, String.class, false, false, true, false, false),
-            }, type.getPropertyDescriptors());
+            SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+                new SupportEventPropDesc("myInt", Integer.class),
+                new SupportEventPropDesc("myString", String.class),
+                new SupportEventPropDesc("beanA", SupportBeanComplexProps.class).fragment(),
+                new SupportEventPropDesc("myStringArray", String[].class).componentType(String.class).indexed());
         }
     }
 

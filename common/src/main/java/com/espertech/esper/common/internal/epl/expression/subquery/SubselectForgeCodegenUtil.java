@@ -25,7 +25,7 @@ public class SubselectForgeCodegenUtil {
     public final static CodegenExpressionRef REF_EVENTS_SHIFTED = ref(EVENTS_SHIFTED);
 
     final static TriConsumer<CodegenMethod, CodegenBlock, ExprSubselectEvalMatchSymbol> DECLARE_EVENTS_SHIFTED = (method, block, symbols) -> {
-        block.declareVar(EventBean[].class, EVENTS_SHIFTED, staticMethod(EventBeanUtility.class, "allocatePerStreamShift", symbols.getAddEPS(method)));
+        block.declareVar(EventBean.EPTYPEARRAY, EVENTS_SHIFTED, staticMethod(EventBeanUtility.class, "allocatePerStreamShift", symbols.getAddEPS(method)));
     };
 
     public static class ReturnIfNoMatch implements TriConsumer<CodegenMethod, CodegenBlock, ExprSubselectEvalMatchSymbol> {

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,7 +35,10 @@ public class SubselectForgeNRRelOpAllAnyAggregated extends SubselectForgeNRRelOp
     }
 
     protected CodegenExpression codegenEvaluateInternal(CodegenMethodScope parent, SubselectForgeNRSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Boolean.class, this.getClass(), classScope);
+        if (subselect.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), this.getClass(), classScope);
         CodegenExpression eps = symbols.getAddEPS(method);
         CodegenExpression evalCtx = symbols.getAddExprEvalCtx(method);
         CodegenExpressionRef left = symbols.getAddLeftResult(method);
@@ -43,7 +49,7 @@ public class SubselectForgeNRRelOpAllAnyAggregated extends SubselectForgeNRRelOp
         }
 
         CodegenExpression rhsSide = localMethod(CodegenLegoMethodExpression.codegenExpression(selectEval, method, classScope), eps, constantTrue(), evalCtx);
-        Class rhsType = JavaClassHelper.getBoxedType(selectEval.getEvaluationType());
+        EPTypeClass rhsType = JavaClassHelper.getBoxedType((EPTypeClass) selectEval.getEvaluationType());
         method.getBlock()
                 .declareVar(rhsType, "rhs", rhsSide)
                 .ifRefNullReturnNull("rhs")

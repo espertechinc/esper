@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.epl.dataflow;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -96,6 +97,7 @@ public class EPLDataflowTypes {
     }
 
     public static class MySupportBeanOutputOp implements DataFlowOperatorForge, DataFlowOperatorFactory, DataFlowOperator {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MySupportBeanOutputOp.class);
         private List<SupportBean> received = new ArrayList<SupportBean>();
 
         public DataFlowOpForgeInitializeResult initializeForge(DataFlowOpForgeInitializeContext context) throws ExprValidationException {
@@ -103,7 +105,7 @@ public class EPLDataflowTypes {
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return newInstance(MySupportBeanOutputOp.class);
+            return newInstance(MySupportBeanOutputOp.EPTYPE);
         }
 
         public void initializeFactory(DataFlowOpFactoryInitializeContext context) {
@@ -126,6 +128,7 @@ public class EPLDataflowTypes {
     }
 
     public static class MyMapOutputOp implements DataFlowOperatorForge, DataFlowOperatorFactory, DataFlowOperator {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyMapOutputOp.class);
         private List<Map<String, Object>> received = new ArrayList<Map<String, Object>>();
 
         public DataFlowOpForgeInitializeResult initializeForge(DataFlowOpForgeInitializeContext context) throws ExprValidationException {
@@ -133,7 +136,7 @@ public class EPLDataflowTypes {
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return newInstance(MyMapOutputOp.class);
+            return newInstance(MyMapOutputOp.EPTYPE);
         }
 
         public void initializeFactory(DataFlowOpFactoryInitializeContext context) {

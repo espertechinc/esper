@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.select.typable;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -51,14 +53,14 @@ public class SelectExprProcessorTypableSingleForge implements SelectExprProcesso
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, factory.make(codegenMethodScope, codegenClassScope));
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, factory.make(codegenMethodScope, codegenClassScope));
 
         if (singleRowOnly) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableSingleForge.class, codegenClassScope);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, SelectExprProcessorTypableSingleForge.class, codegenClassScope);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(Object[].class, "row", typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "row", typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("row");
             if (hasWideners) {
                 block.expression(SelectExprProcessorHelper.applyWidenersCodegen(ref("row"), wideners, methodNode, codegenClassScope));
@@ -67,32 +69,32 @@ public class SelectExprProcessorTypableSingleForge implements SelectExprProcesso
             return localMethod(methodNode);
         }
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorTypableSingleForge.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, SelectExprProcessorTypableSingleForge.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "row", typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "row", typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("row");
         if (hasWideners) {
             block.expression(SelectExprProcessorHelper.applyWidenersCodegen(ref("row"), wideners, methodNode, codegenClassScope));
         }
-        block.declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))
+        block.declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, constant(1)))
                 .assignArrayElement("events", constant(0), exprDotMethod(manufacturer, "make", ref("row")))
                 .methodReturn(ref("events"));
         return localMethod(methodNode);
     }
 
-    public Class getUnderlyingEvaluationType() {
+    public EPTypeClass getUnderlyingEvaluationType() {
         if (singleRowOnly) {
-            return targetType.getUnderlyingType();
+            return targetType.getUnderlyingEPType();
         }
-        return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
+        return JavaClassHelper.getArrayType(targetType.getUnderlyingEPType());
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         if (singleRowOnly) {
-            return EventBean.class;
+            return EventBean.EPTYPE;
         }
-        return EventBean[].class;
+        return EventBean.EPTYPEARRAY;
     }
 
     public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence, ExprNodeRenderableFlags flags) {

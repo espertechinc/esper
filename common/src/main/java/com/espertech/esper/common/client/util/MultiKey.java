@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Interface for use with multi-keys made up of multiple values and providing hashcode and equals semantics
  */
 public interface MultiKey {
+    /**
+     * Type information
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(MultiKey.class);
+
     /**
      * Returns the number of keys available
      * @return number of keys

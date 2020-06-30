@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.agggrouped;
 
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
@@ -22,6 +23,8 @@ import java.util.NoSuchElementException;
  * Iterator for group-by with aggregation.
  */
 public class ResultSetProcessorAggregateGroupedIterator implements Iterator<EventBean> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorAggregateGroupedIterator.class);
+
     private final Iterator<EventBean> sourceIterator;
     private final ResultSetProcessorAggregateGrouped resultSetProcessor;
     private final AggregationService aggregationService;

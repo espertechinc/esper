@@ -70,13 +70,13 @@ public class OnSplitItemForge {
         for (int i = 0; i < items.length; i++) {
             expressions[i] = items[i].make(parent, symbols, classScope);
         }
-        return newArrayWithInit(OnSplitItemEval.class, expressions);
+        return newArrayWithInit(OnSplitItemEval.EPTYPE, expressions);
     }
 
     private CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(OnSplitItemEval.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OnSplitItemEval.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(OnSplitItemEval.class, "eval", newInstance(OnSplitItemEval.class))
+                .declareVarNewInstance(OnSplitItemEval.EPTYPE, "eval")
                 .exprDotMethod(ref("eval"), "setWhereClause", whereClause == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(whereClause.getForge(), method, this.getClass(), classScope))
                 .exprDotMethod(ref("eval"), "setNamedWindowInsert", constant(isNamedWindowInsert))
                 .exprDotMethod(ref("eval"), "setInsertIntoTable", insertIntoTable == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(insertIntoTable, symbols.getAddInitSvc(method)))

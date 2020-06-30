@@ -38,8 +38,8 @@ public class AggregatorAccessCountMinSketch implements AggregatorAccess {
 
     public AggregatorAccessCountMinSketch(AggregationStateCountMinSketchForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         this.forge = forge;
-        state = membersColumnized.addMember(col, CountMinSketchAggState.class, "state");
-        spec = classScope.getPackageScope().addFieldUnshared(true, CountMinSketchSpec.class, forge.specification.codegenMake(classScope.getPackageScope().getInitMethod(), classScope));
+        state = membersColumnized.addMember(col, CountMinSketchAggState.EPTYPE, "state");
+        spec = classScope.getPackageScope().addFieldUnshared(true, CountMinSketchSpec.EPTYPE, forge.specification.codegenMake(classScope.getPackageScope().getInitMethod(), classScope));
         rowCtor.getBlock().assignRef(state, exprDotMethod(spec, "makeAggState"));
     }
 

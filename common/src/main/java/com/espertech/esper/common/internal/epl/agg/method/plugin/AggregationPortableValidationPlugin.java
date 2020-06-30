@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.plugin;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
 public class AggregationPortableValidationPlugin extends AggregationPortableValidationBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationPlugin.class);
 
     private String functionName;
 
@@ -33,8 +35,8 @@ public class AggregationPortableValidationPlugin extends AggregationPortableVali
     public AggregationPortableValidationPlugin() {
     }
 
-    protected Class typeOf() {
-        return AggregationPortableValidationPlugin.class;
+    protected EPTypeClass typeOf() {
+        return AggregationPortableValidationPlugin.EPTYPE;
     }
 
     protected void codegenInlineSet(CodegenExpressionRef ref, CodegenMethod method, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {

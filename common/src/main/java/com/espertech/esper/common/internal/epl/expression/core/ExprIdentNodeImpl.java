@@ -14,6 +14,9 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.client.annotation.AuditEnum;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -91,8 +94,9 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         if (propertyGetter == null) {
             throw new IllegalArgumentException("Ident-node constructor could not locate property " + propertyName);
         }
-        Class propertyType = eventType.getPropertyType(propertyName);
-        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(propertyType), this, (EventTypeSPI) eventType, true, false);
+        EPType propertyType = eventType.getPropertyEPType(propertyName);
+        EPTypeClass type = propertyType == null || propertyType == EPTypeNull.INSTANCE ? null : (EPTypeClass) propertyType;
+        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(type), this, (EventTypeSPI) eventType, true, false);
     }
 
     public ExprForge getForge() {
@@ -110,15 +114,15 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return evaluator.getEvaluationType();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return evaluator.codegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprIdent", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
@@ -172,13 +176,14 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
     }
 
     public boolean getFilterLookupEligible() {
-        return evaluator.getStreamNum() == 0 && !(evaluator.isContextEvaluated());
+        return evaluator.getStreamNum() == 0 && !evaluator.isContextEvaluated() && !(evaluator.getEvaluationType() == null || evaluator.getEvaluationType() == EPTypeNull.INSTANCE);
     }
 
     public ExprFilterSpecLookupableForge getFilterLookupable() {
-        DataInputOutputSerdeForge serde = compileTimeServices.getSerdeResolver().serdeForFilter(evaluator.getEvaluationType(), statementRawInfo);
+        EPTypeClass type = (EPTypeClass) evaluator.getEvaluationType();
+        DataInputOutputSerdeForge serde = compileTimeServices.getSerdeResolver().serdeForFilter(type, statementRawInfo);
         ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(evaluator.getGetter());
-        return new ExprFilterSpecLookupableForge(resolvedPropertyName, eval, null, evaluator.getEvaluationType(), false, serde);
+        return new ExprFilterSpecLookupableForge(resolvedPropertyName, eval, null, type, false, serde);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -197,7 +202,6 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         Pair<PropertyResolutionDescriptor, String> propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(validationContext.getStreamTypeService(), unescapedPropertyName, streamOrPropertyName, false, validationContext.getTableCompileTimeResolver());
         resolvedStreamName = propertyInfoPair.getSecond();
         int streamNum = propertyInfoPair.getFirst().getStreamNum();
-        Class propertyType = JavaClassHelper.getBoxedType(propertyInfoPair.getFirst().getPropertyType());
         resolvedPropertyName = propertyInfoPair.getFirst().getPropertyName();
         EventType eventType = propertyInfoPair.getFirst().getStreamEventType();
         EventPropertyGetterSPI propertyGetter;
@@ -212,6 +216,8 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         }
 
         boolean audit = AuditEnum.PROPERTY.getAudit(validationContext.getAnnotations()) != null;
+        EPType propertyTypeUnboxed = eventType.getPropertyEPType(propertyInfoPair.getFirst().getPropertyName());
+        EPType propertyType = JavaClassHelper.getBoxedType(propertyTypeUnboxed);
         evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this, (EventTypeSPI) eventType, validationContext.getStreamTypeService().isOptionalStreams(), audit);
 
         // if running in a context, take the property value from context
@@ -220,8 +226,8 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             String contextPropertyName = validationContext.getContextDescriptor().getContextPropertyRegistry().getPartitionContextPropertyName(fromType, resolvedPropertyName);
             if (contextPropertyName != null) {
                 EventTypeSPI contextType = (EventTypeSPI) validationContext.getContextDescriptor().getContextPropertyRegistry().getContextEventType();
-                Class type = JavaClassHelper.getBoxedType(contextType.getPropertyType(contextPropertyName));
-                evaluator = new ExprIdentNodeEvaluatorContext(streamNum, type, contextType.getGetterSPI(contextPropertyName), (EventTypeSPI) eventType);
+                EPType contextPropertyType = JavaClassHelper.getBoxedType(contextType.getPropertyEPType(contextPropertyName));
+                evaluator = new ExprIdentNodeEvaluatorContext(streamNum, contextPropertyType, contextType.getGetterSPI(contextPropertyName), (EventTypeSPI) eventType);
             }
         }
         return null;
@@ -249,13 +255,6 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
 
     public String getRootPropertyNameIfAny() {
         return getResolvedPropertyNameRoot();
-    }
-
-    public Class getType() {
-        if (evaluator == null) {
-            throw new IllegalStateException("Identifier expression has not been validated");
-        }
-        return evaluator.getEvaluationType();
     }
 
     /**

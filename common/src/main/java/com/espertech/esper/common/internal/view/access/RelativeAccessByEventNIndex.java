@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.access;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -19,6 +20,8 @@ import java.util.Iterator;
  * Provides access to prior events given an event from which to count back, and an index to look at.
  */
 public interface RelativeAccessByEventNIndex {
+    EPTypeClass EPTYPE = new EPTypeClass(RelativeAccessByEventNIndex.class);
+
     /**
      * Returns the prior event to the given event counting back the number of events as supplied by index.
      *

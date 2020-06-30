@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.client.hook.aggfunc.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.plugin.AggregationForgeFactoryPlugin;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionUtil;
@@ -46,7 +48,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprPlug
     }
 
     public AggregationForgeFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
-        Class[] parameterTypes = new Class[positionalParams.length];
+        EPType[] parameterTypes = new EPTypeClass[positionalParams.length];
         Object[] constant = new Object[positionalParams.length];
         boolean[] isConstant = new boolean[positionalParams.length];
         ExprNode[] expressions = new ExprNode[positionalParams.length];
@@ -67,7 +69,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprPlug
 
             if (child instanceof ExprWildcard && validationContext.getStreamTypeService().getEventTypes().length > 0) {
                 ExprAggMultiFunctionUtil.checkWildcardNotJoinOrSubquery(validationContext.getStreamTypeService(), functionName);
-                parameterTypes[count] = validationContext.getStreamTypeService().getEventTypes()[0].getUnderlyingType();
+                parameterTypes[count] = validationContext.getStreamTypeService().getEventTypes()[0].getUnderlyingEPType();
                 isConstant[count] = false;
                 constant[count] = null;
             }
@@ -108,7 +110,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprPlug
             throw new ExprValidationException("Aggregation function forge returned an unrecognized mode " + mode);
         }
 
-        Class aggregatedValueType = getPositionalParams().length == 0 ? null : getPositionalParams()[0].getForge().getEvaluationType();
+        EPType aggregatedValueType = getPositionalParams().length == 0 ? null : getPositionalParams()[0].getForge().getEvaluationType();
         DataInputOutputSerdeForge distinctForge = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(aggregatedValueType, validationContext.getStatementRawInfo()) : null;
         return new AggregationForgeFactoryPlugin(this, aggregationFunctionForge, mode, aggregatedValueType, distinctForge);
     }

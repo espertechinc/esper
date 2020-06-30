@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.declared.runtime;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -31,12 +32,12 @@ public class ExpressionDeployTimeResolver {
         }
 
         // global expressions need a cache key that derives from the deployment id of the expression and the expression name
-        CodegenMethod keyInit = classScope.getPackageScope().getInitMethod().makeChild(ExprDeclaredCacheKeyGlobal.class, generator, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
-        keyInit.getBlock().declareVar(String.class, "deploymentId", staticMethod(ExpressionDeployTimeResolver.class, "resolveDeploymentId",
+        CodegenMethod keyInit = classScope.getPackageScope().getInitMethod().makeChild(ExprDeclaredCacheKeyGlobal.EPTYPE, generator, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
+        keyInit.getBlock().declareVar(EPTypePremade.STRING.getEPType(), "deploymentId", staticMethod(ExpressionDeployTimeResolver.class, "resolveDeploymentId",
                 constant(expression.getName()), constant(expression.getVisibility()), constant(expression.getModuleName()),
                 EPStatementInitServices.REF))
-                .methodReturn(newInstance(ExprDeclaredCacheKeyGlobal.class, ref("deploymentId"), constant(expression.getName())));
-        return classScope.getPackageScope().addFieldUnshared(true, ExprDeclaredCacheKeyGlobal.class, localMethod(keyInit, EPStatementInitServices.REF));
+                .methodReturn(newInstance(ExprDeclaredCacheKeyGlobal.EPTYPE, ref("deploymentId"), constant(expression.getName())));
+        return classScope.getPackageScope().addFieldUnshared(true, ExprDeclaredCacheKeyGlobal.EPTYPE, localMethod(keyInit, EPStatementInitServices.REF));
     }
 
 

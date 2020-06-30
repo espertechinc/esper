@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.io.Serializable;
@@ -21,6 +22,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Hold parameters for timer:at.
  */
 public class CronParameter implements Serializable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CronParameter.class);
     private static final long serialVersionUID = -4006350378033980878L;
 
     private CronOperatorEnum operator;
@@ -44,7 +46,7 @@ public class CronParameter implements Serializable {
     }
 
     public CodegenExpression make() {
-        return newInstance(CronParameter.class, constant(operator), constant(day), constant(month));
+        return newInstance(CronParameter.EPTYPE, constant(operator), constant(day), constant(month));
     }
 
     /**

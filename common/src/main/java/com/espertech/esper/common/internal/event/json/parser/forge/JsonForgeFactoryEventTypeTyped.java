@@ -35,8 +35,8 @@ public class JsonForgeFactoryEventTypeTyped {
     }
 
     public static JsonForgeDesc forgeArray(String fieldName, JsonEventType other) {
-        JsonDelegateForge startArray = new JsonDelegateForgeWithDelegateFactoryArray(other.getDetail().getDelegateFactoryClassName(), other.getUnderlyingType());
-        JsonEndValueForge end = new JsonEndValueForgeCast(JavaClassHelper.getArrayType(other.getUnderlyingType()));
+        JsonDelegateForge startArray = new JsonDelegateForgeWithDelegateFactoryArray(other.getDetail().getDelegateFactoryClassName(), other.getUnderlyingEPType());
+        JsonEndValueForge end = new JsonEndValueForgeCast(JavaClassHelper.getArrayType(other.getUnderlyingEPType()));
         JsonWriteForge writeForge;
         if (other.getDetail().getOptionalUnderlyingProvided() == null) {
             writeForge = new JsonWriteForgeByMethod("writeNestedArray");

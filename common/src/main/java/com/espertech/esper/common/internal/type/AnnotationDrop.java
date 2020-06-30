@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.Drop;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationDrop implements Drop {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationDrop.class);
+
     public Class<? extends Annotation> annotationType() {
         return Drop.class;
     }
@@ -22,6 +25,4 @@ public class AnnotationDrop implements Drop {
     public String toString() {
         return "@Drop";
     }
-
-
 }

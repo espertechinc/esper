@@ -73,7 +73,7 @@ public class ExprCoreArrayAtElement {
                     "create schema Lvl0 (lvl1 Lvl1, indexNumber int);\n" +
                     "select lvl1.lvl2.lvl3.id[indexNumber] from Lvl0;\n";
             tryInvalidCompile(env, eplNoAnArrayIsString,
-                "Failed to validate select-clause expression 'lvl1.lvl2.lvl3.id[indexNumber]': Could not perform array operation on type class java.lang.String");
+                "Failed to validate select-clause expression 'lvl1.lvl2.lvl3.id[indexNumber]': Could not perform array operation on type String");
 
             String eplNoAnArrayIsType =
                 "create schema Lvl3 (id string);\n" +
@@ -220,9 +220,9 @@ public class ExprCoreArrayAtElement {
 
             // wrong index expression type
             tryInvalidCompile(env, path, "select lvl1.lvl2[lvl0id].id from Lvl0",
-                "Failed to validate select-clause expression 'lvl1.lvl2[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'java.lang.String' for operation on type collection of events of type 'Lvl2'");
+                "Failed to validate select-clause expression 'lvl1.lvl2[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'String' for operation on type collection of events of type 'Lvl2'");
             tryInvalidCompile(env, path, "select me.lvl1.lvl2[lvl0id].id from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1.lvl2[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'java.lang.String' for operation on type collection of events of type 'Lvl2'");
+                "Failed to validate select-clause expression 'me.lvl1.lvl2[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'String' for operation on type collection of events of type 'Lvl2'");
 
             env.undeployAll();
         }
@@ -270,21 +270,21 @@ public class ExprCoreArrayAtElement {
 
             // two index expressions
             tryInvalidCompile(env, path, "select lvl1.lvl2.intarr[indexNumber, indexNumber] from Lvl0",
-                "Failed to validate select-clause expression 'lvl1.lvl2.intarr[indexNumber,indexN...(41 chars)': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type array of Integer");
+                "Failed to validate select-clause expression 'lvl1.lvl2.intarr[indexNumber,indexN...(41 chars)': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type Integer[]");
             tryInvalidCompile(env, path, "select me.lvl1.lvl2.intarr[indexNumber, indexNumber] from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1.lvl2.intarr[indexNumber,ind...(44 chars)': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type array of Integer");
+                "Failed to validate select-clause expression 'me.lvl1.lvl2.intarr[indexNumber,ind...(44 chars)': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type Integer[]");
 
             // double-array
             tryInvalidCompile(env, path, "select lvl1.lvl2.intarr[indexNumber][indexNumber] from Lvl0",
-                "Failed to validate select-clause expression 'lvl1.lvl2.intarr[indexNumber][index...(42 chars)': Could not perform array operation on type class java.lang.Integer");
+                "Failed to validate select-clause expression 'lvl1.lvl2.intarr[indexNumber][index...(42 chars)': Could not perform array operation on type Integer");
             tryInvalidCompile(env, path, "select me.lvl1.lvl2.intarr[indexNumber][indexNumber] from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1.lvl2.intarr[indexNumber][in...(45 chars)': Could not perform array operation on type class java.lang.Integer");
+                "Failed to validate select-clause expression 'me.lvl1.lvl2.intarr[indexNumber][in...(45 chars)': Could not perform array operation on type Integer");
 
             // wrong index expression type
             tryInvalidCompile(env, path, "select lvl1.lvl2.intarr[id] from Lvl0",
-                "Failed to validate select-clause expression 'lvl1.lvl2.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'java.lang.String' for operation on type array of Integer");
+                "Failed to validate select-clause expression 'lvl1.lvl2.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'String' for operation on type Integer[]");
             tryInvalidCompile(env, path, "select me.lvl1.lvl2.intarr[id] from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1.lvl2.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'java.lang.String' for operation on type array of Integer");
+                "Failed to validate select-clause expression 'me.lvl1.lvl2.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'String' for operation on type Integer[]");
 
             env.undeployAll();
         }
@@ -337,9 +337,9 @@ public class ExprCoreArrayAtElement {
 
             // wrong index expression type
             tryInvalidCompile(env, path, "select lvl1[lvl0id].id from Lvl0",
-                "Failed to validate select-clause expression 'lvl1[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'java.lang.String' for property 'lvl1'");
+                "Failed to validate select-clause expression 'lvl1[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'String' for property 'lvl1'");
             tryInvalidCompile(env, path, "select me.lvl1[lvl0id].id from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'java.lang.String' for property 'lvl1'");
+                "Failed to validate select-clause expression 'me.lvl1[lvl0id].id': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'lvl0id' returns 'String' for property 'lvl1'");
 
             env.undeployAll();
         }
@@ -386,21 +386,21 @@ public class ExprCoreArrayAtElement {
 
             // two index expressions
             tryInvalidCompile(env, path, "select lvl1.intarr[indexNumber, indexNumber] from Lvl0",
-                "Failed to validate select-clause expression 'lvl1.intarr[indexNumber,indexNumber]': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type array of Integer");
+                "Failed to validate select-clause expression 'lvl1.intarr[indexNumber,indexNumber]': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type Integer[]");
             tryInvalidCompile(env, path, "select me.lvl1.intarr[indexNumber, indexNumber] from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1.intarr[indexNumber,indexNumber]': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type array of Integer");
+                "Failed to validate select-clause expression 'me.lvl1.intarr[indexNumber,indexNumber]': Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received 2 expressions for operation on type Integer[]");
 
             // double-array
             tryInvalidCompile(env, path, "select lvl1.intarr[indexNumber][indexNumber] from Lvl0",
-                "Failed to validate select-clause expression 'lvl1.intarr[indexNumber][indexNumber]': Could not perform array operation on type class java.lang.Integer");
+                "Failed to validate select-clause expression 'lvl1.intarr[indexNumber][indexNumber]': Could not perform array operation on type Integer");
             tryInvalidCompile(env, path, "select me.lvl1.intarr[indexNumber][indexNumber] from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1.intarr[indexNumber][indexNumber]': Could not perform array operation on type class java.lang.Integer");
+                "Failed to validate select-clause expression 'me.lvl1.intarr[indexNumber][indexNumber]': Could not perform array operation on type Integer");
 
             // wrong index expression type
             tryInvalidCompile(env, path, "select lvl1.intarr[id] from Lvl0",
-                "Failed to validate select-clause expression 'lvl1.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'java.lang.String' for operation on type array of Integer");
+                "Failed to validate select-clause expression 'lvl1.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'String' for operation on type Integer[]");
             tryInvalidCompile(env, path, "select me.lvl1.intarr[id] from Lvl0 as me",
-                "Failed to validate select-clause expression 'me.lvl1.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'java.lang.String' for operation on type array of Integer");
+                "Failed to validate select-clause expression 'me.lvl1.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'String' for operation on type Integer[]");
 
             env.undeployAll();
         }
@@ -439,15 +439,15 @@ public class ExprCoreArrayAtElement {
 
             // double-array
             tryInvalidCompile(env, "select intarr[indexNumber][indexNumber] from SupportBeanWithArray",
-                "Failed to validate select-clause expression 'intarr[indexNumber][indexNumber]': Could not perform array operation on type class java.lang.Integer");
+                "Failed to validate select-clause expression 'intarr[indexNumber][indexNumber]': Could not perform array operation on type Integer");
             tryInvalidCompile(env, "select me.intarr[indexNumber][indexNumber] from SupportBeanWithArray as me",
-                "Failed to validate select-clause expression 'me.intarr[indexNumber][indexNumber]': Could not perform array operation on type class java.lang.Integer");
+                "Failed to validate select-clause expression 'me.intarr[indexNumber][indexNumber]': Could not perform array operation on type Integer");
 
             // wrong index expression type
             tryInvalidCompile(env, "select intarr[id] from SupportBeanWithArray",
-                "Failed to validate select-clause expression 'intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'java.lang.String' for property 'intarr'");
+                "Failed to validate select-clause expression 'intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'String' for property 'intarr'");
             tryInvalidCompile(env, "select me.intarr[id] from SupportBeanWithArray as me",
-                "Failed to validate select-clause expression 'me.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'java.lang.String' for property 'intarr'");
+                "Failed to validate select-clause expression 'me.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'String' for property 'intarr'");
 
             // not an array
             tryInvalidCompile(env, "select indexNumber[indexNumber] from SupportBeanWithArray",

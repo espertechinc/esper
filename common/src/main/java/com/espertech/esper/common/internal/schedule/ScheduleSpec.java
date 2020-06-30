@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.schedule;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -30,6 +32,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * There is optionally an element in the specification for the unit seconds.
  */
 public final class ScheduleSpec {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ScheduleSpec.class);
+
     // Per unit hold the set of valid integer values, or null if wildcarded.
     // The seconds unit is optional.
     private final EnumMap<ScheduleUnit, SortedSet<Integer>> unitValues;
@@ -50,9 +54,9 @@ public final class ScheduleSpec {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ScheduleSpec.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ScheduleSpec.EPTYPE, this.getClass(), classScope);
         CodegenExpressionRef spec = ref("spec");
-        method.getBlock().declareVar(ScheduleSpec.class, spec.getRef(), newInstance(ScheduleSpec.class));
+        method.getBlock().declareVarNewInstance(ScheduleSpec.EPTYPE, spec.getRef());
         if (optionalTimeZone != null) {
             method.getBlock().exprDotMethod(spec, "setOptionalTimeZone", constant(optionalTimeZone));
         }
@@ -60,7 +64,7 @@ public final class ScheduleSpec {
             SortedSet<Integer> values = unitValues.get(unit);
             CodegenExpression valuesExpr = constantNull();
             if (values != null) {
-                valuesExpr = newInstance(TreeSet.class, staticMethod(Arrays.class, "asList", constant(IntArrayUtil.toBoxedArray(values))));
+                valuesExpr = newInstance(EPTypePremade.TREESET.getEPType(), staticMethod(Arrays.class, "asList", constant(IntArrayUtil.toBoxedArray(values))));
             }
             method.getBlock().expression(exprDotMethodChain(spec).add("getUnitValues").add("put", constant(unit), valuesExpr));
         }

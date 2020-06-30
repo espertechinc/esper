@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -30,12 +33,14 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
 import com.espertech.esper.common.internal.serde.serdeset.additional.DIOSerdeTreeMapEventsMayDeque;
-import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -58,15 +63,15 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     public AggregatorAccessSortedImpl(boolean join, AggregationStateSortedForge forge, int col, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
         super(optionalFilter);
         this.forge = forge;
-        sorted = membersColumnized.addMember(col, TreeMap.class, "sorted");
-        size = membersColumnized.addMember(col, int.class, "size");
-        Class[] types = ExprNodeUtilityQuery.getExprResultTypes(forge.getSpec().getCriteria());
+        sorted = membersColumnized.addMember(col, EPTypePremade.TREEMAP.getEPType(), "sorted");
+        size = membersColumnized.addMember(col, EPTypePremade.INTEGERPRIMITIVE.getEPType(), "size");
+        EPType[] types = ExprNodeUtilityQuery.getExprResultTypes(forge.getSpec().getCriteria());
         comparator = classScope.addOrGetFieldSharable(new CodegenFieldSharableComparator(COMPARATORHASHABLEMULTIKEYS, types, forge.getSpec().isSortUsingCollator(), forge.getSpec().getSortDescending()));
-        ctor.getBlock().assignRef(sorted, newInstance(TreeMap.class, comparator));
+        ctor.getBlock().assignRef(sorted, newInstance(EPTypePremade.TREEMAP.getEPType(), comparator));
 
         sortedSerde = classScope.addOrGetFieldSharable(new CodegenFieldSharable() {
-            public Class type() {
-                return DIOSerdeTreeMapEventsMayDeque.class;
+            public EPTypeClass type() {
+                return DIOSerdeTreeMapEventsMayDeque.EPTYPE;
             }
 
             public CodegenExpression initCtorScoped() {
@@ -77,8 +82,8 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
         });
 
         if (join) {
-            joinRefs = membersColumnized.addMember(col, RefCountedSetAtomicInteger.class, "refs");
-            ctor.getBlock().assignRef(joinRefs, newInstance(RefCountedSetAtomicInteger.class));
+            joinRefs = membersColumnized.addMember(col, RefCountedSetAtomicInteger.EPTYPE, "refs");
+            ctor.getBlock().assignRef(joinRefs, newInstance(RefCountedSetAtomicInteger.EPTYPE));
             joinRefsSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeEventTyped(REFCOUNTEDSETATOMICINTEGER, forge.getSpec().getStreamEventType()));
         } else {
             joinRefs = null;
@@ -90,7 +95,7 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
         CodegenExpressionRef eps = symbols.getAddEPS(method);
         CodegenExpressionRef ctx = symbols.getAddExprEvalCtx(method);
         CodegenMethod referenceAddToColl = referenceAddToCollCodegen(method, namedMethods, classScope);
-        method.getBlock().declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
+        method.getBlock().declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
             .ifRefNull("theEvent").blockReturnNoValue();
 
         if (joinRefs == null) {
@@ -105,7 +110,7 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
         CodegenExpressionRef eps = symbols.getAddEPS(method);
         CodegenExpressionRef ctx = symbols.getAddExprEvalCtx(method);
         CodegenMethod dereferenceRemove = dereferenceRemoveFromCollCodegen(method, namedMethods, classScope);
-        method.getBlock().declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
+        method.getBlock().declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
             .ifRefNull("theEvent").blockReturnNoValue();
 
         if (joinRefs == null) {
@@ -125,33 +130,33 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     }
 
     public CodegenExpression getFirstValueCodegen(CodegenClassScope classScope, CodegenMethod parent) {
-        CodegenMethod method = parent.makeChildWithScope(EventBean.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod method = parent.makeChildWithScope(EventBean.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         method.getBlock().ifCondition(exprDotMethod(sorted, "isEmpty"))
             .blockReturn(constantNull())
-            .declareVar(Map.Entry.class, "max", exprDotMethod(sorted, "firstEntry"))
+            .declareVar(EPTypePremade.MAPENTRY.getEPType(), "max", exprDotMethod(sorted, "firstEntry"))
             .methodReturn(staticMethod(AggregatorAccessSortedImpl.class, "checkedPayloadMayDeque", exprDotMethod(ref("max"), "getValue")));
         return localMethod(method);
     }
 
     public CodegenExpression getLastValueCodegen(CodegenClassScope classScope, CodegenMethod parent) {
-        CodegenMethod method = parent.makeChildWithScope(EventBean.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod method = parent.makeChildWithScope(EventBean.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         method.getBlock().ifCondition(exprDotMethod(sorted, "isEmpty"))
             .blockReturn(constantNull())
-            .declareVar(Map.Entry.class, "min", exprDotMethod(sorted, "lastEntry"))
+            .declareVar(EPTypePremade.MAPENTRY.getEPType(), "min", exprDotMethod(sorted, "lastEntry"))
             .methodReturn(staticMethod(AggregatorAccessSortedImpl.class, "checkedPayloadMayDeque", exprDotMethod(ref("min"), "getValue")));
         return localMethod(method);
     }
 
     public CodegenExpression iteratorCodegen() {
-        return newInstance(AggregationStateSortedIterator.class, sorted, constantFalse());
+        return newInstance(AggregationStateSortedIterator.EPTYPE, sorted, constantFalse());
     }
 
     public CodegenExpression getReverseIteratorCodegen() {
-        return newInstance(AggregationStateSortedIterator.class, sorted, constantTrue());
+        return newInstance(AggregationStateSortedIterator.EPTYPE, sorted, constantTrue());
     }
 
     public CodegenExpression collectionReadOnlyCodegen() {
-        return newInstance(AggregationStateSortedWrappingCollection.class, sorted, size);
+        return newInstance(AggregationStateSortedWrappingCollection.EPTYPE, sorted, size);
     }
 
     public CodegenExpression sizeCodegen() {
@@ -170,10 +175,10 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock()
             .apply(readInt(row, size, input))
-            .assignRef(rowDotMember(row, sorted), newInstance(TreeMap.class, comparator))
+            .assignRef(rowDotMember(row, sorted), newInstance(EPTypePremade.TREEMAP.getEPType(), comparator))
             .exprDotMethod(sortedSerde, "read", rowDotMember(row, sorted), input, unitKey);
         if (joinRefs != null) {
-            method.getBlock().assignRef(rowDotMember(row, joinRefs), cast(RefCountedSetAtomicInteger.class, exprDotMethod(joinRefsSerde, "read", input, unitKey)));
+            method.getBlock().assignRef(rowDotMember(row, joinRefs), cast(RefCountedSetAtomicInteger.EPTYPE, exprDotMethod(joinRefsSerde, "read", input, unitKey)));
         }
     }
 
@@ -186,35 +191,35 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
                 ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
                 CodegenExpression[] expressions = new CodegenExpression[criteria.length];
                 for (int i = 0; i < criteria.length; i++) {
-                    expressions[i] = criteria[i].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
+                    expressions[i] = criteria[i].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, exprSymbol, classScope);
                 }
                 exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
 
-                method.getBlock().declareVar(Object[].class, "result", newArrayByLength(Object.class, constant(criteria.length)));
+                method.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "result", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(criteria.length)));
                 for (int i = 0; i < criteria.length; i++) {
                     method.getBlock().assignArrayElement(ref("result"), constant(i), expressions[i]);
                 }
-                method.getBlock().methodReturn(newInstance(HashableMultiKey.class, ref("result")));
+                method.getBlock().methodReturn(newInstance(HashableMultiKey.EPTYPE, ref("result")));
             }
         };
-        return namedMethods.addMethod(Object.class, methodName, CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), AggregatorAccessSortedImpl.class, classScope, code);
+        return namedMethods.addMethod(EPTypePremade.OBJECT.getEPType(), methodName, CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT), AggregatorAccessSortedImpl.class, classScope, code);
     }
 
     private CodegenMethod referenceAddToCollCodegen(CodegenMethod parent, CodegenNamedMethods namedMethods, CodegenClassScope classScope) {
         CodegenMethod getComparable = getComparableWMultiKeyCodegen(forge.getSpec().getCriteria(), sorted, namedMethods, classScope);
 
-        CodegenMethod method = parent.makeChildWithScope(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.class, "theEvent").addParam(EventBean[].class, NAME_EPS).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
-        method.getBlock().declareVar(Object.class, "comparable", localMethod(getComparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
-            .declareVar(Object.class, "existing", exprDotMethod(sorted, "get", ref("comparable")))
+        CodegenMethod method = parent.makeChildWithScope(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.EPTYPE, "theEvent").addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
+        method.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "comparable", localMethod(getComparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "existing", exprDotMethod(sorted, "get", ref("comparable")))
             .ifRefNull("existing")
             .exprDotMethod(sorted, "put", ref("comparable"), ref("theEvent"))
-            .ifElseIf(instanceOf(ref("existing"), EventBean.class))
-            .declareVar(ArrayDeque.class, "coll", newInstance(ArrayDeque.class, constant(2)))
+            .ifElseIf(instanceOf(ref("existing"), EventBean.EPTYPE))
+            .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "coll", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), constant(2)))
             .exprDotMethod(ref("coll"), "add", ref("existing"))
             .exprDotMethod(ref("coll"), "add", ref("theEvent"))
             .exprDotMethod(sorted, "put", ref("comparable"), ref("coll"))
             .ifElse()
-            .declareVar(ArrayDeque.class, "q", cast(ArrayDeque.class, ref("existing")))
+            .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "q", cast(EPTypePremade.ARRAYDEQUE.getEPType(), ref("existing")))
             .exprDotMethod(ref("q"), "add", ref("theEvent"))
             .blockEnd()
             .increment(size);
@@ -225,15 +230,15 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     private CodegenMethod dereferenceRemoveFromCollCodegen(CodegenMethod parent, CodegenNamedMethods namedMethods, CodegenClassScope classScope) {
         CodegenMethod getComparable = getComparableWMultiKeyCodegen(forge.getSpec().getCriteria(), sorted, namedMethods, classScope);
 
-        CodegenMethod method = parent.makeChildWithScope(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.class, "theEvent").addParam(EventBean[].class, NAME_EPS).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
-        method.getBlock().declareVar(Object.class, "comparable", localMethod(getComparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
-            .declareVar(Object.class, "existing", exprDotMethod(sorted, "get", ref("comparable")))
+        CodegenMethod method = parent.makeChildWithScope(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.EPTYPE, "theEvent").addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
+        method.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "comparable", localMethod(getComparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "existing", exprDotMethod(sorted, "get", ref("comparable")))
             .ifRefNull("existing").blockReturnNoValue()
             .ifCondition(exprDotMethod(ref("existing"), "equals", ref("theEvent")))
             .exprDotMethod(sorted, "remove", ref("comparable"))
             .decrement(size)
-            .ifElseIf(instanceOf(ref("existing"), ArrayDeque.class))
-            .declareVar(ArrayDeque.class, "q", cast(ArrayDeque.class, ref("existing")))
+            .ifElseIf(instanceOf(ref("existing"), EPTypePremade.ARRAYDEQUE.getEPType()))
+            .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "q", cast(EPTypePremade.ARRAYDEQUE.getEPType(), ref("existing")))
             .exprDotMethod(ref("q"), "remove", ref("theEvent"))
             .ifCondition(exprDotMethod(ref("q"), "isEmpty"))
             .exprDotMethod(sorted, "remove", ref("comparable"))
@@ -244,9 +249,9 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     }
 
     public static CodegenExpression codegenGetAccessTableState(int column, CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationStateSorted.class, AggregatorAccessSortedImpl.class, classScope);
+        CodegenMethod method = parent.makeChild(AggregationStateSorted.EPTYPE, AggregatorAccessSortedImpl.class, classScope);
         method.getBlock()
-            .declareVar(AggregationStateSorted.class, "state", newInstance(AggregationStateSorted.class))
+            .declareVarNewInstance(AggregationStateSorted.EPTYPE, "state")
             .exprDotMethod(ref("state"), "setSize", memberCol("size", column))
             .exprDotMethod(ref("state"), "setSorted", memberCol("sorted", column))
             .methodReturn(ref("state"));
@@ -262,14 +267,14 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
         events.addAll(q);
     }
 
-    public static Object checkedPayloadGetUnderlyingArray(Object value, Class underlyingClass) {
+    public static Object checkedPayloadGetUnderlyingArray(Object value, EPTypeClass underlyingClass) {
         if (value instanceof EventBean) {
-            Object array = Array.newInstance(underlyingClass, 1);
+            Object array = Array.newInstance(underlyingClass.getType(), 1);
             Array.set(array, 0, ((EventBean) value).getUnderlying());
             return array;
         }
         ArrayDeque<EventBean> q = (ArrayDeque<EventBean>) value;
-        Object array = Array.newInstance(underlyingClass, q.size());
+        Object array = Array.newInstance(underlyingClass.getType(), q.size());
         int index = 0;
         for (EventBean event : q) {
             Array.set(array, index++, event.getUnderlying());

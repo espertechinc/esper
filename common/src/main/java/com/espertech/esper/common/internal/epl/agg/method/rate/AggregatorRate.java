@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.rate;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -38,26 +41,26 @@ public class AggregatorRate extends AggregatorMethodWDistinctWFilterBase {
     protected CodegenExpressionMember oldest;
     protected CodegenExpressionMember isSet;
 
-    public AggregatorRate(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorRate(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
-        accumulator = membersColumnized.addMember(col, double.class, "accumulator");
-        latest = membersColumnized.addMember(col, long.class, "latest");
-        oldest = membersColumnized.addMember(col, long.class, "oldest");
-        isSet = membersColumnized.addMember(col, boolean.class, "isSet");
+        accumulator = membersColumnized.addMember(col, EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "accumulator");
+        latest = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "latest");
+        oldest = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "oldest");
+        isSet = membersColumnized.addMember(col, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "isSet");
     }
 
     protected void applyEvalEnterFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
-        Class firstType = forges[0].getEvaluationType();
-        CodegenExpression firstExpr = forges[0].evaluateCodegen(long.class, method, symbols, classScope);
+        EPTypeClass firstType = (EPTypeClass) forges[0].getEvaluationType();
+        CodegenExpression firstExpr = forges[0].evaluateCodegen(EPTypePremade.LONGPRIMITIVE.getEPType(), method, symbols, classScope);
         method.getBlock().assignRef(latest, SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(firstExpr, firstType));
 
         int numFilters = factory.getParent().getOptionalFilter() != null ? 1 : 0;
         if (forges.length == numFilters + 1) {
             method.getBlock().increment(accumulator);
         } else {
-            Class secondType = forges[1].getEvaluationType();
-            CodegenExpression secondExpr = forges[1].evaluateCodegen(double.class, method, symbols, classScope);
+            EPTypeClass secondType = (EPTypeClass) forges[1].getEvaluationType();
+            CodegenExpression secondExpr = forges[1].evaluateCodegen(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), method, symbols, classScope);
             method.getBlock().assignCompound(accumulator, "+", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(secondExpr, secondType));
         }
     }
@@ -65,25 +68,25 @@ public class AggregatorRate extends AggregatorMethodWDistinctWFilterBase {
     protected void applyEvalLeaveFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         int numFilters = factory.getParent().getOptionalFilter() != null ? 1 : 0;
 
-        Class firstType = forges[0].getEvaluationType();
-        CodegenExpression firstExpr = forges[0].evaluateCodegen(long.class, method, symbols, classScope);
+        EPTypeClass firstType = (EPTypeClass) forges[0].getEvaluationType();
+        CodegenExpression firstExpr = forges[0].evaluateCodegen(EPTypePremade.LONGPRIMITIVE.getEPType(), method, symbols, classScope);
 
         method.getBlock().assignRef(oldest, SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(firstExpr, firstType))
                 .ifCondition(not(isSet)).assignRef(isSet, constantTrue());
         if (forges.length == numFilters + 1) {
             method.getBlock().decrement(accumulator);
         } else {
-            Class secondType = forges[1].getEvaluationType();
-            CodegenExpression secondExpr = forges[1].evaluateCodegen(double.class, method, symbols, classScope);
+            EPTypeClass secondType = (EPTypeClass) forges[1].getEvaluationType();
+            CodegenExpression secondExpr = forges[1].evaluateCodegen(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), method, symbols, classScope);
             method.getBlock().assignCompound(accumulator, "-", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(secondExpr, secondType));
         }
     }
 
-    protected void applyTableEnterFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         throw new UnsupportedOperationException("Not available with tables");
     }
 
-    protected void applyTableLeaveFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         throw new UnsupportedOperationException("Not available with tables");
     }
 

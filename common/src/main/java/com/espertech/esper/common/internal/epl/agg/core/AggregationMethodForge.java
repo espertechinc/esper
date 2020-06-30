@@ -10,13 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 
 public interface AggregationMethodForge {
-    Class getResultType();
+    EPTypeClass getResultType();
 
     CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 }

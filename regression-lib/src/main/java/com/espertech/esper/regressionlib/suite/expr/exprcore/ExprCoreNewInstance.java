@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
@@ -33,6 +34,8 @@ public class ExprCoreNewInstance {
         executions.add(new ExecCoreNewInstanceKeyword(true));
         executions.add(new ExecCoreNewInstanceKeyword(false));
         executions.add(new ExecCoreNewInstanceStreamAlias());
+        executions.add(new ExecCoreNewInstanceGeneric(false));
+        executions.add(new ExecCoreNewInstanceGeneric(true));
         executions.add(new ExecCoreNewInstanceInvalid());
         executions.add(new ExecCoreNewInstanceArraySized(false));
         executions.add(new ExecCoreNewInstanceArraySized(true));
@@ -149,6 +152,58 @@ public class ExprCoreNewInstance {
         }
     }
 
+    private static class ExecCoreNewInstanceGeneric implements RegressionExecution {
+        boolean soda;
+
+        public ExecCoreNewInstanceGeneric(boolean soda) {
+            this.soda = soda;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expression(fields[0], "new ArrayList<String>()")
+                .expression(fields[1], "new HashMap<String,Integer>()")
+                .expression(fields[2], "new ArrayList<String>(20)")
+                .expression(fields[3], "new ArrayList<String>[5]")
+                .expression(fields[4], "new ArrayList<String>[] {new ArrayList<String>(),new ArrayList<String>()}")
+                .expression(fields[5], "new ArrayList<String[][]>[2][]");
+
+            builder.statementConsumer(stmt -> {
+                EventType out = stmt.getEventType();
+                assertEquals(EPTypeClassParameterized.from(ArrayList.class, String.class), out.getPropertyEPType("c0"));
+                assertEquals(EPTypeClassParameterized.from(HashMap.class, String.class, Integer.class), out.getPropertyEPType("c1"));
+                assertEquals(EPTypeClassParameterized.from(ArrayList.class, String.class), out.getPropertyEPType("c2"));
+                assertEquals(EPTypeClassParameterized.from(ArrayList[].class, String.class), out.getPropertyEPType("c3"));
+                assertEquals(EPTypeClassParameterized.from(ArrayList[].class, String.class), out.getPropertyEPType("c4"));
+                assertEquals(EPTypeClassParameterized.from(ArrayList[][].class, String[][].class), out.getPropertyEPType("c5"));
+            });
+
+            builder.assertion(new SupportBean("E1", 2))
+                .verify("c0", value -> assertTrue(value instanceof ArrayList))
+                .verify("c1", value -> assertTrue(value instanceof HashMap))
+                .verify("c2", value -> assertTrue(value instanceof ArrayList))
+                .verify("c3", value -> {
+                    ArrayList[] array = (ArrayList[]) value;
+                    assertEquals(5, array.length);
+                })
+                .verify("c4", value -> {
+                    ArrayList[] array = (ArrayList[]) value;
+                    assertEquals(2, array.length);
+                    for (int i = 0; i < 2; i++) {
+                        assertTrue(array[i] instanceof ArrayList);
+                    }
+                })
+                .verify("c5", value -> {
+                    ArrayList[][] array = (ArrayList[][]) value;
+                    assertEquals(2, array.length);
+                });
+
+            builder.run(env, soda);
+            env.undeployAll();
+        }
+    }
+
     private static class ExecCoreNewInstanceArraySized implements RegressionExecution {
         boolean soda;
 
@@ -192,7 +247,7 @@ public class ExprCoreNewInstance {
                 "Incorrect syntax near ',' expecting a right angle bracket ']'");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new double['a'] from SupportBean",
-                "Failed to validate select-clause expression 'new double[\"a\"]': New-keyword with an array-type result requires an Integer-typed dimension but received type 'java.lang.String'");
+                "Failed to validate select-clause expression 'new double[\"a\"]': New-keyword with an array-type result requires an Integer-typed dimension but received type 'String'");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[1]['a'] from SupportBean", "skip");
 
             // Initializers-provided
@@ -201,19 +256,19 @@ public class ExprCoreNewInstance {
                 "Failed to validate select-clause expression 'new double[] {null}': Array element type mismatch: Expecting type double but received null");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {1} from SupportBean",
-                "Failed to validate select-clause expression 'new String[] {1}': Array element type mismatch: Expecting type java.lang.String but received type int");
+                "Failed to validate select-clause expression 'new String[] {1}': Array element type mismatch: Expecting type String but received type int");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {intPrimitive} from SupportBean",
-                "Failed to validate select-clause expression 'new String[] {intPrimitive}': Array element type mismatch: Expecting type java.lang.String but received type java.lang.Integer");
+                "Failed to validate select-clause expression 'new String[] {intPrimitive}': Array element type mismatch: Expecting type String but received type Integer");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[][] {intPrimitive} from SupportBean",
                 "Failed to validate select-clause expression 'new String[] {intPrimitive}': Two-dimensional array element does not allow element expression 'intPrimitive'");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[][] {{intPrimitive}} from SupportBean",
-                "Failed to validate select-clause expression 'new String[] {{intPrimitive}}': Array element type mismatch: Expecting type java.lang.String but received type java.lang.Integer");
+                "Failed to validate select-clause expression 'new String[] {{intPrimitive}}': Array element type mismatch: Expecting type String but received type Integer");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {{'x'}} from SupportBean",
-                "Failed to validate select-clause expression 'new String[] {{\"x\"}}': Array element type mismatch: Expecting type java.lang.String but received type java.lang.String(Array)");
+                "Failed to validate select-clause expression 'new String[] {{\"x\"}}': Array element type mismatch: Expecting type String but received type String[]");
 
             // Runtime null handling
             //
@@ -248,7 +303,7 @@ public class ExprCoreNewInstance {
 
             // try shallow invalid cases
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new Dummy() from SupportBean",
-                "Failed to validate select-clause expression 'new Dummy()': Failed to resolve new-operator class name 'Dummy'");
+                "Failed to validate select-clause expression 'new Dummy()': Failed to resolve type parameter 'Dummy'");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select new SupportPrivateCtor() from SupportBean",
                 "Failed to validate select-clause expression 'new SupportPrivateCtor()': Failed to find a suitable constructor for class ");

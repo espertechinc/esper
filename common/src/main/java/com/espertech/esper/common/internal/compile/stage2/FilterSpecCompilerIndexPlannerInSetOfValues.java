@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -31,7 +34,7 @@ import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompi
 public class FilterSpecCompilerIndexPlannerInSetOfValues {
 
     protected static FilterSpecParamForge handleInSetNode(ExprInNode constituent, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, StatementRawInfo raw, StatementCompileTimeServices services)
-        throws ExprValidationException {
+                throws ExprValidationException {
         ExprNode left = constituent.getChildNodes()[0];
         ExprFilterSpecLookupableForge lookupable = null;
 
@@ -79,22 +82,25 @@ public class FilterSpecCompilerIndexPlannerInSetOfValues {
                 }
             } else if (subNode instanceof ExprContextPropertyNode) {
                 ExprContextPropertyNode contextPropertyNode = (ExprContextPropertyNode) subNode;
-                Class returnType = contextPropertyNode.getType();
+                if (contextPropertyNode.getValueType() == EPTypeNull.INSTANCE) {
+                    return null;
+                }
+                EPTypeClass returnType = (EPTypeClass) contextPropertyNode.getValueType();
                 SimpleNumberCoercer coercer;
                 if (JavaClassHelper.isCollectionMapOrArray(returnType)) {
-                    checkArrayCoercion(returnType, lookupable.getReturnType(), lookupable.getExpression());
+                    checkArrayCoercion(returnType, lookupable.getReturnType().getType(), lookupable.getExpression());
                     coercer = null;
                 } else {
-                    coercer = getNumberCoercer(left.getForge().getEvaluationType(), contextPropertyNode.getType(), lookupable.getExpression());
+                    coercer = getNumberCoercer(left.getForge().getEvaluationType(), contextPropertyNode.getValueType(), lookupable.getExpression());
                 }
-                Class finalReturnType = coercer != null ? coercer.getReturnType() : returnType;
+                EPTypeClass finalReturnType = coercer != null ? coercer.getReturnType() : returnType;
                 listofValues.add(new FilterForEvalContextPropForge(contextPropertyNode.getPropertyName(), contextPropertyNode.getGetter(), coercer, finalReturnType));
             } else if (subNode.getForge().getForgeConstantType().isDeployTimeTimeConstant() && subNode instanceof ExprNodeDeployTimeConst) {
                 ExprNodeDeployTimeConst deployTimeConst = (ExprNodeDeployTimeConst) subNode;
-                Class returnType = subNode.getForge().getEvaluationType();
+                EPType returnType = subNode.getForge().getEvaluationType();
                 SimpleNumberCoercer coercer;
                 if (JavaClassHelper.isCollectionMapOrArray(returnType)) {
-                    checkArrayCoercion(returnType, lookupable.getReturnType(), lookupable.getExpression());
+                    checkArrayCoercion(returnType, lookupable.getReturnType().getType(), lookupable.getExpression());
                     coercer = null;
                 } else {
                     coercer = getNumberCoercer(left.getForge().getEvaluationType(), returnType, lookupable.getExpression());
@@ -107,17 +113,18 @@ public class FilterSpecCompilerIndexPlannerInSetOfValues {
                 }
 
                 boolean isMustCoerce = false;
-                Class coerceToType = JavaClassHelper.getBoxedType(lookupable.getReturnType());
-                Class identReturnType = identNodeInner.getForge().getEvaluationType();
+                EPTypeClass coerceToType = JavaClassHelper.getBoxedType(lookupable.getReturnType());
+                EPType identReturnType = identNodeInner.getForge().getEvaluationType();
 
                 if (JavaClassHelper.isCollectionMapOrArray(identReturnType)) {
-                    checkArrayCoercion(identReturnType, lookupable.getReturnType(), lookupable.getExpression());
-                    coerceToType = identReturnType;
+                    checkArrayCoercion(identReturnType, lookupable.getReturnType().getType(), lookupable.getExpression());
+                    coerceToType = (EPTypeClass) identReturnType;
                     // no action
-                } else if (identReturnType != lookupable.getReturnType()) {
+                } else if (identReturnType instanceof EPTypeClass && ((EPTypeClass) identReturnType).getType() != lookupable.getReturnType().getType()) {
+                    EPTypeClass identTypeClass = (EPTypeClass) identReturnType;
                     if (JavaClassHelper.isNumeric(lookupable.getReturnType())) {
-                        if (!JavaClassHelper.canCoerce(identReturnType, lookupable.getReturnType())) {
-                            throwConversionError(identReturnType, lookupable.getReturnType(), lookupable.getExpression());
+                        if (!JavaClassHelper.canCoerce(identTypeClass.getType(), lookupable.getReturnType().getType())) {
+                            throwConversionError(identTypeClass.getType(), lookupable.getReturnType().getType(), lookupable.getExpression());
                         }
                         isMustCoerce = true;
                     } else {
@@ -139,8 +146,8 @@ public class FilterSpecCompilerIndexPlannerInSetOfValues {
                 listofValues.add(inValue);
             } else if (FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.VALUECOMPOSITE, raw, services) && isLimitedValueExpression(subNode)) {
                 MatchedEventConvertorForge convertor = getMatchEventConvertor(subNode, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
-                Class valueType = subNode.getForge().getEvaluationType();
-                Class lookupableType = lookupable.getReturnType();
+                EPType valueType = subNode.getForge().getEvaluationType();
+                EPTypeClass lookupableType = lookupable.getReturnType();
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupableType, valueType, lookupable.getExpression());
                 FilterForEvalLimitedExprForge forge = new FilterForEvalLimitedExprForge(subNode, convertor, numberCoercer);
                 listofValues.add(forge);
@@ -154,12 +161,16 @@ public class FilterSpecCompilerIndexPlannerInSetOfValues {
         return null;
     }
 
-    private static void checkArrayCoercion(Class returnTypeValue, Class returnTypeLookupable, String propertyName) throws ExprValidationException {
-        if (returnTypeValue == null || !returnTypeValue.isArray()) {
+    private static void checkArrayCoercion(EPType returnTypeValue, Class returnTypeLookupable, String propertyName) throws ExprValidationException {
+        if (returnTypeValue == null || returnTypeValue == EPTypeNull.INSTANCE) {
             return;
         }
-        if (!JavaClassHelper.isArrayTypeCompatible(returnTypeLookupable, returnTypeValue.getComponentType())) {
-            throwConversionError(returnTypeValue.getComponentType(), returnTypeLookupable, propertyName);
+        EPTypeClass returnTypeClass = (EPTypeClass) returnTypeValue;
+        if (!returnTypeClass.getType().isArray()) {
+            return;
+        }
+        if (!JavaClassHelper.isArrayTypeCompatible(returnTypeLookupable, returnTypeClass.getType().getComponentType())) {
+            throwConversionError(returnTypeClass.getType().getComponentType(), returnTypeLookupable, propertyName);
         }
     }
 }

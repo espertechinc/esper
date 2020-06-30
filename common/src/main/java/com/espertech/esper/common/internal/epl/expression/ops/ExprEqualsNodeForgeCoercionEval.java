@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -40,8 +42,7 @@ public class ExprEqualsNodeForgeCoercionEval implements ExprEvaluator {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Boolean result = evaluateInternal(eventsPerStream, isNewData, context);
-        return result;
+        return evaluateInternal(eventsPerStream, isNewData, context);
     }
 
     private Boolean evaluateInternal(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -68,32 +69,32 @@ public class ExprEqualsNodeForgeCoercionEval implements ExprEvaluator {
     }
 
     public static CodegenMethod codegen(ExprEqualsNodeForgeCoercion forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
-        Class lhsType = lhs.getForge().getEvaluationType();
-        Class rhsType = rhs.getForge().getEvaluationType();
+        EPTypeClass lhsType = forge.getLhsTypeClass();
+        EPTypeClass rhsType = forge.getRhsTypeClass();
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsNodeForgeNCForgeEquals.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprEqualsNodeForgeCoercionEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(lhsType, "l", lhs.getForge().evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope))
                 .declareVar(rhsType, "r", rhs.getForge().evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
 
         if (!forge.getForgeRenderable().isIs()) {
-            if (!lhsType.isPrimitive()) {
+            if (!lhsType.getType().isPrimitive()) {
                 block.ifRefNullReturnNull("l");
             }
-            if (!rhsType.isPrimitive()) {
+            if (!rhsType.getType().isPrimitive()) {
                 block.ifRefNullReturnNull("r");
             }
         } else {
-            if (!lhsType.isPrimitive() && !rhsType.isPrimitive()) {
+            if (!lhsType.getType().isPrimitive() && !rhsType.getType().isPrimitive()) {
                 block.ifRefNull("l").blockReturn(equalsNull(ref("r")));
             }
-            if (!rhsType.isPrimitive()) {
+            if (!rhsType.getType().isPrimitive()) {
                 block.ifRefNull("r").blockReturn(constantFalse());
             }
         }
 
-        block.declareVar(Number.class, "left", forge.getNumberCoercerLHS().coerceCodegen(ref("l"), lhs.getForge().getEvaluationType()));
-        block.declareVar(Number.class, "right", forge.getNumberCoercerRHS().coerceCodegen(ref("r"), rhs.getForge().getEvaluationType()));
+        block.declareVar(EPTypePremade.NUMBER.getEPType(), "left", forge.getNumberCoercerLHS().coerceCodegen(ref("l"), lhsType));
+        block.declareVar(EPTypePremade.NUMBER.getEPType(), "right", forge.getNumberCoercerRHS().coerceCodegen(ref("r"), rhsType));
         CodegenExpression compare = exprDotMethod(ref("left"), "equals", ref("right"));
         if (!forge.getForgeRenderable().isNotEquals()) {
             block.methodReturn(compare);

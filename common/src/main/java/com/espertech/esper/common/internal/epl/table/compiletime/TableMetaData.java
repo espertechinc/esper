@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.table.compiletime;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -32,6 +33,8 @@ import java.util.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class TableMetaData implements Copyable<TableMetaData> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TableMetaData.class);
+
     private String tableName;
     private String tableModuleName;
     private NameAccessModifier tableVisibility;
@@ -41,7 +44,7 @@ public class TableMetaData implements Copyable<TableMetaData> {
     private EventType internalEventType;
     private EventType publicEventType;
     private String[] keyColumns;
-    private Class[] keyTypes;
+    private EPTypeClass[] keyTypes;
     private int[] keyColNums;
     private Map<String, TableMetadataColumn> columns;
     private int numMethodAggs;
@@ -51,7 +54,7 @@ public class TableMetaData implements Copyable<TableMetaData> {
     public TableMetaData() {
     }
 
-    public TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, Class[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs) {
+    public TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, EPTypeClass[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs) {
         this.tableName = tableName;
         this.tableModuleName = tableModuleName;
         this.tableVisibility = tableVisibility;
@@ -68,7 +71,7 @@ public class TableMetaData implements Copyable<TableMetaData> {
         init();
     }
 
-    private TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, Class[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs, IndexMultiKey keyIndexMultiKey, EventTableIndexMetadata indexMetadata) {
+    private TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, EPTypeClass[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs, IndexMultiKey keyIndexMultiKey, EventTableIndexMetadata indexMetadata) {
         this.tableName = tableName;
         this.tableModuleName = tableModuleName;
         this.tableVisibility = tableVisibility;
@@ -109,9 +112,9 @@ public class TableMetaData implements Copyable<TableMetaData> {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TableMetaData.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TableMetaData.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(TableMetaData.class, "meta", newInstance(TableMetaData.class))
+            .declareVarNewInstance(TableMetaData.EPTYPE, "meta")
             .exprDotMethod(ref("meta"), "setTableName", constant(tableName))
             .exprDotMethod(ref("meta"), "setTableModuleName", constant(tableModuleName))
             .exprDotMethod(ref("meta"), "setTableVisibility", constant(tableVisibility))
@@ -131,7 +134,7 @@ public class TableMetaData implements Copyable<TableMetaData> {
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
-        return newInstance(TableMetaData.class, constant(tableName),
+        return newInstance(TableMetaData.EPTYPE, constant(tableName),
             constant(optionalContextName), constant(optionalContextVisibility), constant(optionalContextModule),
             EventTypeUtility.resolveTypeCodegen(internalEventType, addInitSvc),
             EventTypeUtility.resolveTypeCodegen(publicEventType, addInitSvc));
@@ -161,7 +164,7 @@ public class TableMetaData implements Copyable<TableMetaData> {
         return optionalContextModule;
     }
 
-    public Class[] getKeyTypes() {
+    public EPTypeClass[] getKeyTypes() {
         return keyTypes;
     }
 
@@ -193,7 +196,7 @@ public class TableMetaData implements Copyable<TableMetaData> {
         this.publicEventType = publicEventType;
     }
 
-    public void setKeyTypes(Class[] keyTypes) {
+    public void setKeyTypes(EPTypeClass[] keyTypes) {
         this.keyTypes = keyTypes;
     }
 

@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
@@ -31,8 +32,8 @@ public class EPRuntimeBeanAnonymousTypeService {
     private final BeanEventTypeStemService stemSvc = new BeanEventTypeStemService(Collections.emptyMap(), null, PropertyResolutionStyle.CASE_SENSITIVE, AccessorStyle.JAVABEAN);
     private final BeanEventTypeFactoryPrivate factoryPrivate = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(null), EventTypeFactoryImpl.INSTANCE, stemSvc);
 
-    public BeanEventType makeBeanEventTypeAnonymous(Class beanType) {
-        EventTypeMetadata metadata = new EventTypeMetadata(beanType.getName(), null, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
+    public BeanEventType makeBeanEventTypeAnonymous(EPTypeClass beanType) {
+        EventTypeMetadata metadata = new EventTypeMetadata(beanType.getTypeName(), null, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         BeanEventTypeStem stem = stemSvc.getCreateStem(beanType, null);
         return new BeanEventType(stem, metadata, factoryPrivate, null, null, null, null);
     }

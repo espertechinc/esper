@@ -12,9 +12,10 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.*;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 public class SupportReferenceCountedMapRCLFunctionHandler implements AggregationMultiFunctionHandler {
     private final ExprNode eval;
@@ -23,8 +24,8 @@ public class SupportReferenceCountedMapRCLFunctionHandler implements Aggregation
         this.eval = eval;
     }
 
-    public EPType getReturnType() {
-        return EPTypeHelper.singleValue(Integer.class);
+    public EPChainableType getReturnType() {
+        return EPChainableTypeHelper.singleValue(EPTypePremade.INTEGERBOXED.getEPType());
     }
 
     public AggregationMultiFunctionStateKey getAggregationStateUniqueKey() {
@@ -45,7 +46,7 @@ public class SupportReferenceCountedMapRCLFunctionHandler implements Aggregation
 
     public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {
         return new AggregationMultiFunctionAggregationMethodModeManaged().setInjectionStrategyAggregationMethodFactory(
-            new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAggregationMethodFactory.class)
+            new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAggregationMethodFactory.EPTYPE)
                 .addExpression("eval", eval));
     }
 }

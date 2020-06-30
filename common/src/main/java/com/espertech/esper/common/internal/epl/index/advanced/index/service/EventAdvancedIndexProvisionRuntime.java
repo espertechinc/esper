@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.advanced.index.service;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.epl.lookup.EventAdvancedIndexFactory;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 
 public class EventAdvancedIndexProvisionRuntime {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventAdvancedIndexProvisionRuntime.class);
+
     private String[] indexExpressionTexts;
     private String[] indexProperties;
     private ExprNode[] indexExpressionsOpt;

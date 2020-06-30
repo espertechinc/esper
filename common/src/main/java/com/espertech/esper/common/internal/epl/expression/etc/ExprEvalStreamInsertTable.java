@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -31,9 +32,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprEvalStreamInsertTable implements ExprForgeInstrumentable, ExprEvaluator, ExprNodeRenderable {
     private final int streamNum;
     private final TableMetaData tableMetadata;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public ExprEvalStreamInsertTable(int streamNum, TableMetaData tableMetadata, Class returnType) {
+    public ExprEvalStreamInsertTable(int streamNum, TableMetaData tableMetadata, EPTypeClass returnType) {
         this.streamNum = streamNum;
         this.tableMetadata = tableMetadata;
         this.returnType = returnType;
@@ -43,7 +44,7 @@ public class ExprEvalStreamInsertTable implements ExprForgeInstrumentable, ExprE
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
@@ -51,7 +52,7 @@ public class ExprEvalStreamInsertTable implements ExprForgeInstrumentable, ExprE
         return staticMethod(ExprEvalStreamInsertTable.class, "convertToTableEvent", constant(streamNum), eventToPublic, refEPS, refIsNewData, refExprEvalCtx);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprStreamUndSelectClause", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
@@ -81,7 +82,7 @@ public class ExprEvalStreamInsertTable implements ExprForgeInstrumentable, ExprE
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

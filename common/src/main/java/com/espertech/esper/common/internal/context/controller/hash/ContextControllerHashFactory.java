@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.controller.hash;
 
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifierHash;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.context.aifactory.createwindow.StatementAgentInstanceFactoryCreateNW;
 import com.espertech.esper.common.internal.context.airegistry.*;
@@ -26,6 +27,8 @@ import com.espertech.esper.common.internal.filterspec.*;
 import java.util.Map;
 
 public class ContextControllerHashFactory extends ContextControllerFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerHashFactory.class);
+
     protected ContextControllerDetailHash hashSpec;
 
     public ContextControllerDetailHash getHashSpec() {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.client.serde;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataOutput;
 import java.io.IOException;
@@ -19,6 +20,8 @@ import java.io.IOException;
  * Collated writer for events, intented for passing along as a parameter and not intended to be implemented by an application
  */
 public interface EventBeanCollatedWriter {
+    EPTypeClass EPTYPE = new EPTypeClass(EventBeanCollatedWriter.class);
+
     /**
      * Write event collated.
      *

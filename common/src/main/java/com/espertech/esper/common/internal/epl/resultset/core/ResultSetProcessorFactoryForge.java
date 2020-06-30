@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -19,7 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import java.util.List;
 
 public interface ResultSetProcessorFactoryForge {
-    Class getInterfaceClass();
+    EPTypeClass getInterfaceClass();
 
     void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers);
 

@@ -52,18 +52,18 @@ public class SelectEvalJoinWildcardProcessorTableRows implements SelectExprProce
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
-        methodNode.getBlock().declareVar(EventBean[].class, "eventsPerStreamWTableRows", newArrayByLength(EventBean.class, constant(types.length)));
+        methodNode.getBlock().declareVar(EventBean.EPTYPEARRAY, "eventsPerStreamWTableRows", newArrayByLength(EventBean.EPTYPE, constant(types.length)));
         for (int i = 0; i < types.length; i++) {
             if (tables[i] == null) {
                 methodNode.getBlock().assignArrayElement("eventsPerStreamWTableRows", constant(i), arrayAtIndex(refEPS, constant(i)));
             } else {
                 CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tables[i], codegenClassScope, this.getClass());
                 String refname = "e" + i;
-                methodNode.getBlock().declareVar(EventBean.class, refname, arrayAtIndex(refEPS, constant(i)))
+                methodNode.getBlock().declareVar(EventBean.EPTYPE, refname, arrayAtIndex(refEPS, constant(i)))
                         .ifRefNotNull(refname)
                         .assignArrayElement("eventsPerStreamWTableRows", constant(i), exprDotMethod(eventToPublic, "convert", ref(refname), refEPS, refIsNewData, refExprEvalCtx))
                         .blockEnd();

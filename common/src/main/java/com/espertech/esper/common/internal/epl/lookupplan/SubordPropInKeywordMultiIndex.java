@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 /**
@@ -17,10 +18,10 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
  */
 public class SubordPropInKeywordMultiIndex {
     private String[] indexedProp;
-    private Class coercionType;
+    private EPTypeClass coercionType;
     private ExprNode expression;
 
-    public SubordPropInKeywordMultiIndex(String[] indexedProp, Class coercionType, ExprNode expression) {
+    public SubordPropInKeywordMultiIndex(String[] indexedProp, EPTypeClass coercionType, ExprNode expression) {
         this.indexedProp = indexedProp;
         this.coercionType = coercionType;
         this.expression = expression;
@@ -30,7 +31,7 @@ public class SubordPropInKeywordMultiIndex {
         return indexedProp;
     }
 
-    public Class getCoercionType() {
+    public EPTypeClass getCoercionType() {
         return coercionType;
     }
 

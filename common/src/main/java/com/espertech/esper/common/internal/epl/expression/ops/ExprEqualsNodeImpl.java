@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.CoercionException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -58,43 +61,48 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
         // Must be the same boxed type returned by expressions under this
         ExprNode lhs = getChildNodes()[0];
         ExprNode rhs = getChildNodes()[1];
-        Class typeOne = JavaClassHelper.getBoxedType(lhs.getForge().getEvaluationType());
-        Class typeTwo = JavaClassHelper.getBoxedType(rhs.getForge().getEvaluationType());
+        EPType lhsType = lhs.getForge().getEvaluationType();
+        EPType rhsType = rhs.getForge().getEvaluationType();
 
         // Null constants can be compared for any type
-        if (typeOne == null || typeTwo == null) {
+        if (lhsType == null || lhsType == EPTypeNull.INSTANCE || rhsType == null || rhsType == EPTypeNull.INSTANCE) {
             forge = new ExprEqualsNodeForgeNC(this);
             return null;
         }
 
-        if (typeOne.equals(typeTwo) || typeOne.isAssignableFrom(typeTwo)) {
+        EPTypeClass lhsClass = (EPTypeClass) lhsType;
+        EPTypeClass rhsClass = (EPTypeClass) rhsType;
+        lhsClass = JavaClassHelper.getBoxedType(lhsClass);
+        rhsClass = JavaClassHelper.getBoxedType(rhsClass);
+
+        if (lhsClass.equals(rhsClass) || lhsClass.getType().isAssignableFrom(rhsClass.getType())) {
             forge = new ExprEqualsNodeForgeNC(this);
             return null;
         }
 
         // Get the common type such as Bool, String or Double and Long
-        Class coercionType;
+        EPTypeClass coercionType;
         try {
-            coercionType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
+            coercionType = JavaClassHelper.getCompareToCoercionType(lhsClass, rhsClass);
         } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion from datatype '" +
-                    typeTwo.getSimpleName() +
-                    "' to '" +
-                    typeOne.getSimpleName() +
-                    "' is not allowed");
+                rhsClass +
+                "' to '" +
+                lhsClass +
+                "' is not allowed");
         }
 
         // Check if we need to coerce
-        if ((coercionType == JavaClassHelper.getBoxedType(typeOne)) &&
-                (coercionType == JavaClassHelper.getBoxedType(typeTwo))) {
+        if ((coercionType == JavaClassHelper.getBoxedType(lhsClass)) &&
+            (coercionType == JavaClassHelper.getBoxedType(rhsClass))) {
             forge = new ExprEqualsNodeForgeNC(this);
         } else {
             if (!JavaClassHelper.isNumeric(coercionType)) {
-                throw new ExprValidationException("Cannot convert datatype '" + coercionType.getName() + "' to a value that fits both type '" + typeOne.getName() + "' and type '" + typeTwo.getName() + "'");
+                throw new ExprValidationException("Cannot convert datatype '" + coercionType.getTypeName() + "' to a value that fits both type '" + lhsClass.getTypeName() + "' and type '" + rhsClass.getTypeName() + "'");
             }
-            SimpleNumberCoercer numberCoercerLHS = SimpleNumberCoercerFactory.getCoercer(typeOne, coercionType);
-            SimpleNumberCoercer numberCoercerRHS = SimpleNumberCoercerFactory.getCoercer(typeTwo, coercionType);
-            forge = new ExprEqualsNodeForgeCoercion(this, numberCoercerLHS, numberCoercerRHS);
+            SimpleNumberCoercer numberCoercerLHS = SimpleNumberCoercerFactory.getCoercer(lhsClass, coercionType);
+            SimpleNumberCoercer numberCoercerRHS = SimpleNumberCoercerFactory.getCoercer(rhsClass, coercionType);
+            forge = new ExprEqualsNodeForgeCoercion(this, numberCoercerLHS, numberCoercerRHS, lhsClass, rhsClass);
         }
         return null;
     }

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
@@ -19,7 +22,12 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 public class FilterSpecCompilerIndexPlannerPlugInSingleRow {
     protected static FilterSpecParamForge handlePlugInSingleRow(ExprPlugInSingleRowNode constituent) {
-        if (JavaClassHelper.getBoxedType(constituent.getForge().getEvaluationType()) != Boolean.class) {
+        EPType typeBoxed = JavaClassHelper.getBoxedType(constituent.getForge().getEvaluationType());
+        if (typeBoxed == null || typeBoxed == EPTypeNull.INSTANCE) {
+            return null;
+        }
+        EPTypeClass typeClass = (EPTypeClass) typeBoxed;
+        if (typeClass.getType() != Boolean.class) {
             return null;
         }
         if (!constituent.getFilterLookupEligible()) {

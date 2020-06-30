@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.Serializable;
 
 public class SupportBean_ST0 implements Serializable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportBean_ST0.class);
 
     private String id;
     private String key0;

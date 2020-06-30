@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
@@ -31,10 +32,10 @@ public class SAIFFInitializeSymbolWEventType extends SAIFFInitializeSymbol {
         return optionalEventTypeRef;
     }
 
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
         super.provide(symbols);
         if (optionalEventTypeRef != null) {
-            symbols.put(optionalEventTypeRef.getRef(), EventType.class);
+            symbols.put(optionalEventTypeRef.getRef(), EventType.EPTYPE);
         }
     }
 }

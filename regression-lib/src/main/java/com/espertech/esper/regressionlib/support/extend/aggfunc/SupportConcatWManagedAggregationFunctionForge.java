@@ -15,22 +15,28 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionMode;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeManaged;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.support.SupportBean;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isType;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
 
 public class SupportConcatWManagedAggregationFunctionForge implements AggregationFunctionForge {
     public void setFunctionName(String functionName) {
     }
 
     public void validate(AggregationFunctionValidationContext validationContext) throws ExprValidationException {
-        Class paramType = validationContext.getParameterTypes()[0];
-        if (paramType != String.class && paramType != SupportBean.class) {
-            throw new ExprValidationException("Invalid parameter type '" + paramType.getSimpleName() + "'");
+        EPType paramType = validationContext.getParameterTypes()[0];
+        if (!isTypeString(paramType) && !isType(paramType, SupportBean.class)) {
+            throw new ExprValidationException("Invalid parameter type '" + paramType + "'");
         }
     }
 
-    public Class getValueType() {
-        return String.class;
+    public EPTypeClass getValueType() {
+        return EPTypePremade.STRING.getEPType();
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {

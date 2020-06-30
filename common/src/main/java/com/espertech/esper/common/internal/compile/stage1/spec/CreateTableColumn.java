@@ -11,18 +11,18 @@
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 
 import java.util.List;
 
 public class CreateTableColumn {
     private final String columnName;
     private final ExprNode optExpression;
-    private final ClassIdentifierWArray optType;
+    private final ClassDescriptor optType;
     private final List<AnnotationDesc> annotations;
     private final Boolean primaryKey;
 
-    public CreateTableColumn(String columnName, ExprNode optExpression, ClassIdentifierWArray optType, List<AnnotationDesc> annotations, Boolean primaryKey) {
+    public CreateTableColumn(String columnName, ExprNode optExpression, ClassDescriptor optType, List<AnnotationDesc> annotations, Boolean primaryKey) {
         this.columnName = columnName;
         this.optExpression = optExpression;
         this.optType = optType;
@@ -38,7 +38,7 @@ public class CreateTableColumn {
         return optExpression;
     }
 
-    public ClassIdentifierWArray getOptType() {
+    public ClassDescriptor getOptType() {
         return optType;
     }
 

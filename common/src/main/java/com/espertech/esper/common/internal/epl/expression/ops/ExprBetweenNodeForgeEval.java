@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -59,30 +61,29 @@ public class ExprBetweenNodeForgeEval implements ExprEvaluator {
         ExprForge higher = nodes[2].getForge();
         boolean isNot = forge.getForgeRenderable().isNotBetween();
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprBetweenNodeForgeEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprBetweenNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock();
 
-        Class valueType = value.getEvaluationType();
+        EPTypeClass valueType = (EPTypeClass) value.getEvaluationType();
         block.declareVar(valueType, "value", value.evaluateCodegen(valueType, methodNode, exprSymbol, codegenClassScope));
-        if (!valueType.isPrimitive()) {
+        if (!valueType.getType().isPrimitive()) {
             block.ifRefNullReturnFalse("value");
         }
 
-        Class lowerType = lower.getEvaluationType();
+        EPTypeClass lowerType = (EPTypeClass) lower.getEvaluationType();
         block.declareVar(lowerType, "lower", lower.evaluateCodegen(lowerType, methodNode, exprSymbol, codegenClassScope));
-        if (!lowerType.isPrimitive()) {
+        if (!lowerType.getType().isPrimitive()) {
             block.ifRefNull("lower").blockReturn(constant(isNot));
         }
 
-        Class higherType = higher.getEvaluationType();
+        EPTypeClass higherType = (EPTypeClass) higher.getEvaluationType();
         block.declareVar(higherType, "higher", higher.evaluateCodegen(higherType, methodNode, exprSymbol, codegenClassScope));
-        if (!higher.getEvaluationType().isPrimitive()) {
+        if (!higherType.getType().isPrimitive()) {
             block.ifRefNull("higher").blockReturn(constant(isNot));
         }
 
-        block.declareVar(boolean.class, "result", forge.getComputer().codegenNoNullCheck(ref("value"), value.getEvaluationType(), ref("lower"), lower.getEvaluationType(), ref("higher"), higher.getEvaluationType(), methodNode, codegenClassScope));
+        block.declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "result", forge.getComputer().codegenNoNullCheck(ref("value"), valueType, ref("lower"), lowerType, ref("higher"), higherType, methodNode, codegenClassScope));
         block.methodReturn(notOptional(forge.getForgeRenderable().isNotBetween(), ref("result")));
         return localMethod(methodNode);
     }
-
 }

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -53,10 +55,10 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Calendar.class, ReformatToCalendarForge.class, codegenClassScope).addParam(long.class, "ts");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.CALENDAR.getEPType(), ReformatToCalendarForge.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "ts");
 
         methodNode.getBlock()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
                 .expression(timeAbacus.calendarSetCodegen(ref("ts"), ref("cal"), methodNode, codegenClassScope))
                 .methodReturn(ref("cal"));
         return localMethod(methodNode, inner);
@@ -70,8 +72,8 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod method = codegenMethodScope.makeChild(Calendar.class, ReformatToCalendarForge.class, codegenClassScope).addParam(Date.class, "d").getBlock()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.CALENDAR.getEPType(), ReformatToCalendarForge.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "d").getBlock()
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
                 .exprDotMethod(ref("cal"), "setTimeInMillis", exprDotMethod(ref("d"), "getTime"))
                 .methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).call();
@@ -93,8 +95,8 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod method = codegenMethodScope.makeChild(Calendar.class, ReformatToCalendarForge.class, codegenClassScope).addParam(LocalDateTime.class, "ldt").getBlock()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.CALENDAR.getEPType(), ReformatToCalendarForge.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "ldt").getBlock()
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
                 .exprDotMethod(ref("cal"), "setTimeInMillis", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("ldt"), timeZoneField))
                 .methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).call();
@@ -108,15 +110,15 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenZDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod method = codegenMethodScope.makeChild(Calendar.class, ReformatToCalendarForge.class, codegenClassScope).addParam(ZonedDateTime.class, "zdt").getBlock()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.CALENDAR.getEPType(), ReformatToCalendarForge.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "zdt").getBlock()
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
                 .exprDotMethod(ref("cal"), "setTimeInMillis", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("zdt")))
                 .methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).call();
     }
 
-    public Class getReturnType() {
-        return Calendar.class;
+    public EPTypeClass getReturnType() {
+        return EPTypePremade.CALENDAR.getEPType();
     }
 
     public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {

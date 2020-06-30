@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalAssertionBuilder;
@@ -20,6 +23,7 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
 
 public class ExprEnumTakeWhileAndWhileLast {
@@ -28,6 +32,7 @@ public class ExprEnumTakeWhileAndWhileLast {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumTakeWhileEvents());
         execs.add(new ExprEnumTakeWhileScalar());
+        execs.add(new ExprEnumTakeWhileInvalid());
         return execs;
     }
 
@@ -42,7 +47,7 @@ public class ExprEnumTakeWhileAndWhileLast {
             builder.expression(fields[4], "contained.takeWhile( (x, i, s) => x.p00 > 0 and i<s-2)");
             builder.expression(fields[5], "contained.takeWhileLast( (x, i,s) => x.p00 > 0 and i<s-2)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2", "E3,3"))
                 .verify("c0", val -> assertST0Id(val, "E1,E2,E3"))
@@ -109,7 +114,7 @@ public class ExprEnumTakeWhileAndWhileLast {
             builder.expression(fields[4], "strvals.takeWhile( (x, i, s) => x != 'E1' and i<s-2)");
             builder.expression(fields[5], "strvals.takeWhileLast( (x, i, s) => x != 'E1' and i<s-2)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E1,E2,E3,E4"))
                 .verify("c0", val -> assertValuesArrayScalar(val))
@@ -136,6 +141,15 @@ public class ExprEnumTakeWhileAndWhileLast {
                 .verify("c5", val -> assertValuesArrayScalar(val, "E4", "E5"));
 
             builder.run(env);
+        }
+    }
+
+    private static class ExprEnumTakeWhileInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl;
+
+            epl = "select strvals.takeWhile(x => null) from SupportCollection";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.takeWhile()': Failed to validate enumeration method 'takeWhile', expected a non-null result for expression parameter 0 but received a null-typed expression");
         }
     }
 }

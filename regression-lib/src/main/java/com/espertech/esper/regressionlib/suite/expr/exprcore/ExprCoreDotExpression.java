@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.UuidGenerator;
@@ -23,10 +24,7 @@ import com.espertech.esper.regressionlib.support.events.SampleEnumInEventsPackag
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.junit.Assert;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -108,16 +106,24 @@ public class ExprCoreDotExpression {
 
     private static class ExprCoreDotExpressionEnumValue implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "c0,c1,c2,c3,c4".split(",");
+            String[] fields = "c0,c1,c2,c3,c4,c5,c6".split(",");
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean", "sb")
                 .expression(fields[0], "intPrimitive = SupportEnumTwo.ENUM_VALUE_1.getAssociatedValue()")
                 .expression(fields[1], "SupportEnumTwo.ENUM_VALUE_2.checkAssociatedValue(intPrimitive)")
                 .expression(fields[2], "SupportEnumTwo.ENUM_VALUE_3.getNested().getValue()")
                 .expression(fields[3], "SupportEnumTwo.ENUM_VALUE_2.checkEventBeanPropInt(sb, 'intPrimitive')")
-                .expression(fields[4], "SupportEnumTwo.ENUM_VALUE_2.checkEventBeanPropInt(*, 'intPrimitive')");
+                .expression(fields[4], "SupportEnumTwo.ENUM_VALUE_2.checkEventBeanPropInt(*, 'intPrimitive')")
+                .expression(fields[5], "SupportEnumTwo.ENUM_VALUE_2.getMyStringsAsList()")
+                .expression(fields[6], "SupportEnumTwo.ENUM_VALUE_2.getNested().getMyStringsNestedAsList()");
 
-            builder.assertion(new SupportBean("E1", 100)).expect(fields, true, false, 300, false, false);
-            builder.assertion(new SupportBean("E1", 200)).expect(fields, false, true, 300, true, true);
+            builder.statementConsumer(stmt -> {
+                assertEquals(EPTypeClassParameterized.from(List.class, String.class), stmt.getEventType().getPropertyEPType("c5"));
+                assertEquals(EPTypeClassParameterized.from(List.class, String.class), stmt.getEventType().getPropertyEPType("c6"));
+            });
+
+            List<String> strings = Arrays.asList("2", "0", "0");
+            builder.assertion(new SupportBean("E1", 100)).expect(fields, true, false, 300, false, false, strings, strings);
+            builder.assertion(new SupportBean("E1", 200)).expect(fields, false, true, 300, true, true, strings, strings);
 
             builder.run(env);
             env.undeployAll();

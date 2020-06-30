@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * Writer for a single property value to an event.
  */
 public interface EventPropertyWriter {
+    EPTypeClass EPTYPE = new EPTypeClass(EventPropertyWriter.class);
+
     /**
      * Value to write to a property.
      *

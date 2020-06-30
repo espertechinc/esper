@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
@@ -23,15 +24,15 @@ public class SubselectForgeNRSymbol extends ExprSubselectEvalMatchSymbol {
 
     public final static CodegenExpressionRef REF_LEFTRESULT = ref(NAME_LEFTRESULT);
 
-    private final Class leftResultType;
+    private final EPTypeClass leftResultType;
     private CodegenExpressionRef optionalLeftResult;
 
-    public SubselectForgeNRSymbol(Class leftResultType) {
+    public SubselectForgeNRSymbol(EPTypeClass leftResultType) {
         super();
         this.leftResultType = leftResultType;
     }
 
-    public Class getLeftResultType() {
+    public EPTypeClass getLeftResultType() {
         return leftResultType;
     }
 
@@ -44,7 +45,7 @@ public class SubselectForgeNRSymbol extends ExprSubselectEvalMatchSymbol {
     }
 
     @Override
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
         if (optionalLeftResult != null) {
             symbols.put(optionalLeftResult.getRef(), leftResultType);
         }

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.agg.access.plugin;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethodFactory;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethodModeManaged;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -24,21 +25,21 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class AggregationMethodForgePlugIn implements AggregationMethodForge {
-    private final Class resultType;
+    private final EPTypeClass resultType;
     private final AggregationMultiFunctionAggregationMethodModeManaged mode;
 
-    public AggregationMethodForgePlugIn(Class resultType, AggregationMultiFunctionAggregationMethodModeManaged mode) {
+    public AggregationMethodForgePlugIn(EPTypeClass resultType, AggregationMultiFunctionAggregationMethodModeManaged mode) {
         this.resultType = resultType;
         this.mode = mode;
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return resultType;
     }
 
     public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationMethodFactory();
-        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationMultiFunctionAggregationMethodFactory.class, injectionStrategy.getInitializationExpression(classScope));
+        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationMultiFunctionAggregationMethodFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
         return exprDotMethod(factoryField, "newMethod", constantNull());
     }
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,18 +41,18 @@ public class PollResultIndexingStrategyInKeywordMultiForge implements PollResult
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
 
-        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyInKeywordMulti.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyInKeywordMulti.EPTYPE, this.getClass(), classScope);
 
-        method.getBlock().declareVar(EventPropertyValueGetter[].class, "getters", newArrayByLength(EventPropertyValueGetter.class, constant(propertyNames.length)));
+        method.getBlock().declareVar(EventPropertyValueGetter.EPTYPEARRAY, "getters", newArrayByLength(EventPropertyValueGetter.EPTYPE, constant(propertyNames.length)));
         for (int i = 0; i < propertyNames.length; i++) {
             EventPropertyGetterSPI getter = ((EventTypeSPI) eventType).getGetterSPI(propertyNames[i]);
-            Class getterType = eventType.getPropertyType(propertyNames[i]);
+            EPType getterType = eventType.getPropertyEPType(propertyNames[i]);
             CodegenExpression eval = EventTypeUtility.codegenGetterWCoerce(getter, getterType, getterType, method, this.getClass(), classScope);
             method.getBlock().assignArrayElement(ref("getters"), constant(i), eval);
         }
 
         method.getBlock()
-                .declareVar(PollResultIndexingStrategyInKeywordMulti.class, "strat", newInstance(PollResultIndexingStrategyInKeywordMulti.class))
+                .declareVarNewInstance(PollResultIndexingStrategyInKeywordMulti.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setStreamNum", constant(streamNum))
                 .exprDotMethod(ref("strat"), "setPropertyNames", constant(propertyNames))
                 .exprDotMethod(ref("strat"), "setValueGetters", ref("getters"))

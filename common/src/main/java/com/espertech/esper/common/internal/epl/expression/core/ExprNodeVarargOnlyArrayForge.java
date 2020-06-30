@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -26,10 +27,10 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
 
 class ExprNodeVarargOnlyArrayForge implements ExprForge, ExprNodeRenderable {
     private final ExprForge[] forges;
-    protected final Class varargClass;
+    protected final EPTypeClass varargClass;
     protected final SimpleNumberCoercer[] optionalCoercers;
 
-    public ExprNodeVarargOnlyArrayForge(ExprForge[] forges, Class varargClass, SimpleNumberCoercer[] optionalCoercers) {
+    public ExprNodeVarargOnlyArrayForge(ExprForge[] forges, EPTypeClass varargClass, SimpleNumberCoercer[] optionalCoercers) {
         this.forges = forges;
         this.varargClass = varargClass;
         this.optionalCoercers = optionalCoercers;
@@ -42,8 +43,8 @@ class ExprNodeVarargOnlyArrayForge implements ExprForge, ExprNodeRenderable {
         return new ExprNodeVarargOnlyArrayForgeWithCoerce(this, getEvaluatorsNoCompile(forges));
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class arrayType = JavaClassHelper.getArrayType(varargClass);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPTypeClass arrayType = JavaClassHelper.getArrayType(varargClass);
         CodegenMethod methodNode = codegenMethodScope.makeChild(arrayType, ExprNodeVarargOnlyArrayForge.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
@@ -54,8 +55,8 @@ class ExprNodeVarargOnlyArrayForge implements ExprForge, ExprNodeRenderable {
             if (optionalCoercers == null || optionalCoercers[i] == null) {
                 assignment = expression;
             } else {
-                Class evalType = forges[i].getEvaluationType();
-                if (evalType.isPrimitive()) {
+                EPTypeClass evalType = (EPTypeClass) forges[i].getEvaluationType();
+                if (evalType.getType().isPrimitive()) {
                     assignment = optionalCoercers[i].coerceCodegen(expression, evalType);
                 } else {
                     assignment = optionalCoercers[i].coerceCodegenMayNullBoxed(expression, evalType, methodNode, codegenClassScope);
@@ -67,7 +68,7 @@ class ExprNodeVarargOnlyArrayForge implements ExprForge, ExprNodeRenderable {
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return JavaClassHelper.getArrayType(varargClass);
     }
 

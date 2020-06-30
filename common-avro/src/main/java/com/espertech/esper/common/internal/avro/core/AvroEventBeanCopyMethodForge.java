@@ -31,8 +31,8 @@ public class AvroEventBeanCopyMethodForge implements EventBeanCopyMethodForge {
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        return newInstance(AvroEventBeanCopyMethod.class,
-                cast(AvroEventType.class, EventTypeUtility.resolveTypeCodegen(avroEventType, EPStatementInitServices.REF)),
+        return newInstance(AvroEventBeanCopyMethod.EPTYPE,
+                cast(AvroEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(avroEventType, EPStatementInitServices.REF)),
                 factory);
     }
 

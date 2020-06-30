@@ -37,9 +37,9 @@ public class SelectEvalInsertCoercionMap implements SelectExprProcessorForge {
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        CodegenExpression bean = exprDotMethod(cast(MappedEventBean.class, arrayAtIndex(refEPS, constant(0))), "getProperties");
+        CodegenExpression bean = exprDotMethod(cast(MappedEventBean.EPTYPE, arrayAtIndex(refEPS, constant(0))), "getProperties");
         methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedMap", bean, resultEventType));
         return methodNode;
     }

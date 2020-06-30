@@ -369,7 +369,7 @@ public class ResultSetOutputLimitCrontabWhen {
                 "The when-trigger expression in the OUTPUT WHEN clause must return a boolean-type value [select * from SupportMarketDataBean output when myvardummy]");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when true then set myvardummy = 'b'",
-                "Failed to validate the output rate limiting clause: Failed to validate assignment expression 'myvardummy=\"b\"': Variable 'myvardummy' of declared type java.lang.Integer cannot be assigned a value of type java.lang.String [select * from SupportMarketDataBean output when true then set myvardummy = 'b']");
+                "Failed to validate the output rate limiting clause: Failed to validate assignment expression 'myvardummy=\"b\"': Variable 'myvardummy' of declared type Integer cannot be assigned a value of type String [select * from SupportMarketDataBean output when true then set myvardummy = 'b']");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when true then set myvardummy = sum(myvardummy)",
                 "Aggregation functions may not be used within update-set [select * from SupportMarketDataBean output when true then set myvardummy = sum(myvardummy)]");

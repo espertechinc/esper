@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -44,8 +47,8 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
         return this;
     }
 
-    public Class getEvaluationType() {
-        return ListParameter.class;
+    public EPTypeClass getEvaluationType() {
+        return ListParameter.EPTYPE;
     }
 
     public ExprForge getForge() {
@@ -93,8 +96,8 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
         // all nodes must either be int, frequency or range
         evaluators = ExprNodeUtilityQuery.getEvaluatorsNoCompile(this.getChildNodes());
         for (int i = 0; i < this.getChildNodes().length; i++) {
-            Class type = this.getChildNodes()[i].getForge().getEvaluationType();
-            if ((type == FrequencyParameter.class) || (type == RangeParameter.class)) {
+            EPType type = this.getChildNodes()[i].getForge().getEvaluationType();
+            if (FrequencyParameter.EPTYPE.equals(type) || RangeParameter.EPTYPE.equals(type)) {
                 continue;
             }
             if (!(JavaClassHelper.isNumericNonFP(type))) {
@@ -114,21 +117,21 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
         return new ListParameter(parameters);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(ListParameter.class, ExprNumberSetList.class, codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(ListParameter.EPTYPE, ExprNumberSetList.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(List.class, "parameters", newInstance(ArrayList.class));
+                .declareVar(EPTypePremade.LIST.getEPType(), "parameters", newInstance(EPTypePremade.ARRAYLIST.getEPType()));
         int count = -1;
         for (ExprNode node : getChildNodes()) {
             count++;
             ExprForge forge = node.getForge();
-            Class evaluationType = forge.getEvaluationType();
+            EPTypeClass evaluationType = (EPTypeClass) forge.getEvaluationType();
             String refname = "value" + count;
             block.declareVar(evaluationType, refname, forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                     .staticMethod(ExprNumberSetList.class, METHOD_HANDLEEXPRNUMBERSETLISTADD, ref(refname), ref("parameters"));
         }
         block.staticMethod(ExprNumberSetList.class, METHOD_HANDLEEXPRNUMBERSETLISTEMPTY, ref("parameters"))
-                .methodReturn(newInstance(ListParameter.class, ref("parameters")));
+                .methodReturn(newInstance(ListParameter.EPTYPE, ref("parameters")));
         return localMethod(methodNode);
     }
 

@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.AvroSchemaField;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AvroSchemaFieldHook implements AvroSchemaField {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AvroSchemaFieldHook.class);
+
     private final String name;
     private final String schema;
 

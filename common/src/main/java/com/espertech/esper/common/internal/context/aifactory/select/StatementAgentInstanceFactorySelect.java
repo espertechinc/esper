@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.select;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.activator.ViewableActivationResult;
 import com.espertech.esper.common.internal.context.activator.ViewableActivator;
@@ -54,6 +55,7 @@ import com.espertech.esper.common.internal.view.util.BufferView;
 import java.util.*;
 
 public class StatementAgentInstanceFactorySelect implements StatementAgentInstanceFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactorySelect.class);
 
     private String[] streamNames;
     private ViewableActivator[] viewableActivators;

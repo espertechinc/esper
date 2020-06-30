@@ -14,13 +14,14 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPStatement;
 import org.slf4j.Logger;
@@ -31,6 +32,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
 
 public class EPRuntimeStatementSelectionSPI {
     private static final Logger log = LoggerFactory.getLogger(EPRuntimeStatementSelectionSPI.class);
@@ -48,7 +51,7 @@ public class EPRuntimeStatementSelectionSPI {
 
     public EPRuntimeStatementSelectionSPI(EPRuntimeSPI runtimeSPI) {
         this.runtimeSPI = runtimeSPI;
-        statementRowType = new EPRuntimeBeanAnonymousTypeService().makeBeanEventTypeAnonymous(StatementRow.class);
+        statementRowType = new EPRuntimeBeanAnonymousTypeService().makeBeanEventTypeAnonymous(StatementRow.EPTYPE);
     }
 
     public ExprNode compileFilterExpression(String filterExpression) {
@@ -138,10 +141,10 @@ public class EPRuntimeStatementSelectionSPI {
             return true;
         }
 
-        Class returnType = expression.getForge().getEvaluationType();
-        if (JavaClassHelper.getBoxedType(returnType) != Boolean.class) {
+        EPType returnType = expression.getForge().getEvaluationType();
+        if (!isTypeBoolean(returnType)) {
             throw new EPException("Invalid expression, expected a boolean return type for expression and received '" +
-                JavaClassHelper.getClassNameFullyQualPretty(returnType) +
+                returnType.getTypeName() +
                 "' for expression '" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(expression) + "'");
         }
         ExprEvaluator evaluator = expression.getForge().getExprEvaluator();
@@ -159,6 +162,8 @@ public class EPRuntimeStatementSelectionSPI {
     }
 
     public static class StatementRow {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(StatementRow.class);
+
         private String deploymentId;
         private String name;
         private String epl;

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.minmax;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -38,27 +40,27 @@ public class AggregatorMinMax extends AggregatorMethodWDistinctWFilterWValueBase
     private final CodegenExpressionMember refSet;
     private final CodegenExpressionField serde;
 
-    public AggregatorMinMax(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorMinMax(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
-        this.refSet = membersColumnized.addMember(col, SortedRefCountedSet.class, "refSet");
+        this.refSet = membersColumnized.addMember(col, SortedRefCountedSet.EPTYPE, "refSet");
         this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(SORTEDREFCOUNTEDSET, factory.type, factory.serde, classScope));
-        rowCtor.getBlock().assignRef(refSet, newInstance(SortedRefCountedSet.class));
+        rowCtor.getBlock().assignRef(refSet, newInstance(SortedRefCountedSet.EPTYPE));
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(refSet, "add", value);
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(refSet, "add", value);
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(refSet, "remove", value);
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(refSet, "remove", value);
     }
 
@@ -75,6 +77,6 @@ public class AggregatorMinMax extends AggregatorMethodWDistinctWFilterWValueBase
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotMember(row, refSet), cast(SortedRefCountedSet.class, exprDotMethod(serde, "read", input, unitKey)));
+        method.getBlock().assignRef(rowDotMember(row, refSet), cast(SortedRefCountedSet.EPTYPE, exprDotMethod(serde, "read", input, unitKey)));
     }
 }

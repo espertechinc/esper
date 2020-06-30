@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigge
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindow;
@@ -21,6 +22,8 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.table.core.Table;
 
 public class StatementAgentInstanceFactoryOnTriggerInfraSelect extends StatementAgentInstanceFactoryOnTriggerInfraBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryOnTriggerInfraSelect.class);
+
     private ResultSetProcessorFactoryProvider resultSetProcessorFactoryProvider;
     private boolean insertInto;
     private boolean addToFront;

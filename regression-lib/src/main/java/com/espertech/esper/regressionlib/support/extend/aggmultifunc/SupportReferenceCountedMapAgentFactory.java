@@ -13,9 +13,12 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAgent;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAgentFactory;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAgentFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class SupportReferenceCountedMapAgentFactory implements AggregationMultiFunctionAgentFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportReferenceCountedMapAgentFactory.class);
+
     private ExprEvaluator eval;
 
     public AggregationMultiFunctionAgent newAgent(AggregationMultiFunctionAgentFactoryContext ctx) {

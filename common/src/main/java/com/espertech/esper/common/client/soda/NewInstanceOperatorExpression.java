@@ -113,6 +113,9 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
                     expression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
                     writer.write("]");
                 }
+                if (numArrayDimensions > this.getChildren().size()) {
+                    writer.write("[]");
+                }
             }
         }
     }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.minmax;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -32,12 +33,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class EnumMinMaxEvent extends ThreeFormEventPlain {
 
     protected final boolean max;
-    protected final Class innerTypeBoxed;
+    protected final EPTypeClass innerTypeBoxed;
 
     public EnumMinMaxEvent(ExprDotEvalParamLambda lambda, boolean max) {
         super(lambda);
         this.max = max;
-        this.innerTypeBoxed = JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
+        this.innerTypeBoxed = (EPTypeClass) JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
     }
 
     public EnumEval getEnumEvaluator() {
@@ -75,7 +76,7 @@ public class EnumMinMaxEvent extends ThreeFormEventPlain {
         };
     }
 
-    public Class returnType() {
+    public EPTypeClass returnTypeOfMethod() {
         return innerTypeBoxed;
     }
 
@@ -89,7 +90,7 @@ public class EnumMinMaxEvent extends ThreeFormEventPlain {
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
         block.declareVar(innerTypeBoxed, "value", innerExpression.evaluateCodegen(innerTypeBoxed, methodNode, scope, codegenClassScope));
-        if (!innerExpression.getEvaluationType().isPrimitive()) {
+        if (!((EPTypeClass) innerExpression.getEvaluationType()).getType().isPrimitive()) {
             block.ifRefNull("value").blockContinue();
         }
         block.ifCondition(equalsNull(ref("minKey")))

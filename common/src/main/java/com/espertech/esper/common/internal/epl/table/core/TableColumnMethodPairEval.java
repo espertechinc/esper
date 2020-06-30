@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.table.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class TableColumnMethodPairEval {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TableColumnMethodPairEval.class);
+
     private final ExprEvaluator evaluator;
     private final int column;
 

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.xml;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -29,6 +30,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Factory for fragments for DOM getters.
  */
 public class FragmentFactoryDOMGetter implements FragmentFactorySPI {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FragmentFactoryDOMGetter.class);
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final BaseXMLEventType xmlEventType;
     private final String propertyExpression;
@@ -61,7 +63,7 @@ public class FragmentFactoryDOMGetter implements FragmentFactorySPI {
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpression xmlType = cast(BaseXMLEventType.class, EventTypeUtility.resolveTypeCodegen(xmlEventType, EPStatementInitServices.REF));
-        return newInstance(FragmentFactoryDOMGetter.class, factory, xmlType, constant(propertyExpression));
+        CodegenExpression xmlType = cast(BaseXMLEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(xmlEventType, EPStatementInitServices.REF));
+        return newInstance(FragmentFactoryDOMGetter.EPTYPE, factory, xmlType, constant(propertyExpression));
     }
 }

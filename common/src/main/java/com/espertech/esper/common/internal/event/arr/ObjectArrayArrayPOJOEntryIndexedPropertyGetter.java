@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -36,8 +38,8 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
         return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
     }
 
-    public ObjectArrayArrayPOJOEntryIndexedPropertyGetter(int propertyIndex, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class returnType) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType, null);
+    public ObjectArrayArrayPOJOEntryIndexedPropertyGetter(int propertyIndex, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass returnType) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType);
         this.propertyIndex = propertyIndex;
         this.index = index;
     }
@@ -66,11 +68,11 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -82,14 +84,15 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return staticMethod(this.getClass(), "getArrayValue", castUnderlying(Object[].class, beanExpression), constant(propertyIndex), key);
+        return staticMethod(this.getClass(), "getArrayValue", castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), constant(propertyIndex), key);
     }
 
-    public Class getTargetType() {
-        return Object[].class;
+    public EPTypeClass getTargetType() {
+        return EPTypePremade.OBJECTARRAY.getEPType();
     }
 
-    public Class getBeanPropType() {
-        return Object.class;
+    @Override
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 }

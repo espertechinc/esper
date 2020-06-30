@@ -11,9 +11,13 @@
 package com.espertech.esper.common.internal.epl.fafquery.processor;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 
 public abstract class FireAndForgetProcessor {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FireAndForgetProcessor.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(FireAndForgetProcessor[].class);
+
     public abstract EventType getEventTypeResultSetProcessor();
 
     public abstract String getContextName();

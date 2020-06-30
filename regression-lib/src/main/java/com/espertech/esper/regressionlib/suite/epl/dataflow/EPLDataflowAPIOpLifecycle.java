@@ -18,6 +18,7 @@ import com.espertech.esper.common.client.dataflow.annotations.DataFlowOpParamete
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
 import com.espertech.esper.common.client.dataflow.util.EPDataFlowSignalFinalMarker;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -167,7 +168,7 @@ public class EPLDataflowAPIOpLifecycle {
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return new SAIFFInitializeBuilder(SupportGraphSourceFactory.class, this.getClass(), "s", parent, symbols, classScope)
+            return new SAIFFInitializeBuilder(SupportGraphSourceFactory.EPTYPE, this.getClass(), "s", parent, symbols, classScope)
                 .constant("propOne", propOne)
                 .build();
         }
@@ -189,6 +190,7 @@ public class EPLDataflowAPIOpLifecycle {
     }
 
     public static class SupportGraphSourceFactory implements DataFlowOperatorFactory {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(SupportGraphSourceFactory.class);
 
         private String propOne;
         private static List<Object> lifecycle = new ArrayList<Object>();
@@ -310,11 +312,12 @@ public class EPLDataflowAPIOpLifecycle {
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return newInstance(SupportOperatorFactory.class);
+            return newInstance(SupportOperatorFactory.EPTYPE);
         }
     }
 
     public static class SupportOperatorFactory implements DataFlowOperatorFactory {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(SupportOperatorFactory.class);
 
         public void initializeFactory(DataFlowOpFactoryInitializeContext context) {
 

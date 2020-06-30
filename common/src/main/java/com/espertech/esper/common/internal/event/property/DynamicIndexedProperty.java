@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.event.property;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayIndexedPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -62,16 +65,12 @@ public class DynamicIndexedProperty extends PropertyBase implements DynamicPrope
         return new DynamicIndexedPropertyGetterByField(propertyNameAtomic, index, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
-    public Class getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
-        return Object.class;
+    public EPTypeClass getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
+        return EPTypePremade.OBJECT.getEPType();
     }
 
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType beanEventType, BeanEventTypeFactory beanEventTypeFactory) {
-        return GenericPropertyDesc.getObjectGeneric();
-    }
-
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
-        return Object.class;
+    public EPType getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
+        return EPTypePremade.OBJECT.getEPType();
     }
 
     public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {

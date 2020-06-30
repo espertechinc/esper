@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.arr;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
@@ -48,14 +49,14 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return new ObjectArrayEntryPropertyGetter(index, nativeFragmentType, eventBeanTypedEventFactory);
     }
 
-    public EventPropertyGetterSPI getGetterEventBean(String name, Class underlyingType) {
+    public EventPropertyGetterSPI getGetterEventBean(String name, EPTypeClass underlyingType) {
         int index = getAssertIndex(name);
         return new ObjectArrayEventBeanPropertyGetter(index, underlyingType);
     }
 
     public EventPropertyGetterSPI getGetterEventBeanArray(String name, EventType eventType) {
         int index = getAssertIndex(name);
-        return new ObjectArrayEventBeanArrayPropertyGetter(index, eventType.getUnderlyingType());
+        return new ObjectArrayEventBeanArrayPropertyGetter(index, eventType.getUnderlyingEPType());
     }
 
     public EventPropertyGetterSPI getGetterBeanNestedArray(String name, EventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
@@ -73,7 +74,7 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return new ObjectArrayArrayPropertyGetter(propertyIndex, index, eventBeanTypedEventFactory, innerType);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedClassArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, Class componentType, BeanEventTypeFactory beanEventTypeFactory) {
+    public EventPropertyGetterSPI getGetterIndexedClassArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, EPTypeClass componentType, BeanEventTypeFactory beanEventTypeFactory) {
         int propertyIndex = getAssertIndex(propertyNameAtomic);
         return new ObjectArrayArrayPOJOEntryIndexedPropertyGetter(propertyIndex, index, eventBeanTypedEventFactory, beanEventTypeFactory, componentType);
     }
@@ -88,7 +89,7 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return new ObjectArrayEventBeanArrayIndexedElementPropertyGetter(propertyIndex, index, nestedGetter);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class propertyTypeGetter) {
+    public EventPropertyGetterSPI getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass propertyTypeGetter) {
         int propertyIndex = getAssertIndex(propertyNameAtomic);
         return new ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter(propertyIndex, index, nestedGetter, eventBeanTypedEventFactory, beanEventTypeFactory, propertyTypeGetter);
     }
@@ -98,9 +99,9 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return new ObjectArrayMapPropertyGetter(index, getterNested);
     }
 
-    public EventPropertyGetterSPI getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class nestedReturnType, Class nestedComponentType) {
+    public EventPropertyGetterSPI getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass eptype) {
         int index = getAssertIndex(propertyName);
-        return new ObjectArrayPOJOEntryPropertyGetter(index, nestedGetter, eventBeanTypedEventFactory, beanEventTypeFactory, nestedReturnType, nestedComponentType);
+        return new ObjectArrayPOJOEntryPropertyGetter(index, nestedGetter, eventBeanTypedEventFactory, beanEventTypeFactory, eptype);
     }
 
     public EventPropertyGetterSPI getGetterNestedEventBean(String propertyName, EventPropertyGetterSPI nestedGetter) {

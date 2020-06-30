@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class QueryGraphValueEntryCustomOperation implements QueryGraphValueEntry {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValueEntryCustomOperation.class);
+
     private Map<Integer, ExprEvaluator> positionalExpressions = new HashMap<>();
 
     public void setPositionalExpressions(Map<Integer, ExprEvaluator> positionalExpressions) {

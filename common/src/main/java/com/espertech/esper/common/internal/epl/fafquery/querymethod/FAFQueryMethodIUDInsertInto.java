@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetInstance;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
 
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprP
  * Starts and provides the stop method for EPL statements.
  */
 public class FAFQueryMethodIUDInsertInto extends FAFQueryMethodIUDBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodIUDInsertInto.class);
 
     private SelectExprProcessor insertHelper;
 

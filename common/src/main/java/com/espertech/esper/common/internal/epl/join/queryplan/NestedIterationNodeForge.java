@@ -80,9 +80,9 @@ public class NestedIterationNodeForge extends QueryPlanNodeForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenExpression childNodeArray = CodegenMakeableUtil.makeArray("childNodes", QueryPlanNode.class, childNodes.toArray(new QueryPlanNodeForge[childNodes.size()]),
+        CodegenExpression childNodeArray = CodegenMakeableUtil.makeArray("childNodes", QueryPlanNode.EPTYPE, childNodes.toArray(new QueryPlanNodeForge[childNodes.size()]),
                 this.getClass(), parent, symbols, classScope);
-        return newInstance(NestedIterationNode.class, childNodeArray, constant(nestingOrder));
+        return newInstance(NestedIterationNode.EPTYPE, childNodeArray, constant(nestingOrder));
     }
 
     public void accept(QueryPlanNodeForgeVisitor visitor) {

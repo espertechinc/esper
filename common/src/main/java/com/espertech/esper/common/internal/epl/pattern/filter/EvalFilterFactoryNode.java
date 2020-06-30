@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.filter;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalFactoryNodeBase;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalFactoryNodeVisitor;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalNode;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
  * This class represents a filter of events in the evaluation tree representing any event expressions.
  */
 public class EvalFilterFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalFilterFactoryNode.class);
+
     private FilterSpecActivatable filterSpec;
     private String eventAsName;
     private Integer consumptionLevel;

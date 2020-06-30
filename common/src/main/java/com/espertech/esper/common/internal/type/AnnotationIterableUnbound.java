@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.IterableUnbound;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationIterableUnbound implements IterableUnbound {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationIterableUnbound.class);
+
     public Class<? extends Annotation> annotationType() {
         return IterableUnbound.class;
     }

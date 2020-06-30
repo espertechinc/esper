@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.aifactory.createcontext;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.context.ContextStateEventContextCreated;
 import com.espertech.esper.common.client.context.ContextStateListener;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
@@ -28,6 +29,8 @@ import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class StatementAgentInstanceFactoryCreateContext implements StatementAgentInstanceFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryCreateContext.class);
+
     private String contextName;
     private EventType statementEventType;
 

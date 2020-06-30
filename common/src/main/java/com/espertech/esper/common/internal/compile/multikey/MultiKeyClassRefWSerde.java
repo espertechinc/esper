@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.multikey;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -17,9 +18,9 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 
 public class MultiKeyClassRefWSerde implements MultiKeyClassRef {
     private final DataInputOutputSerdeForge forge;
-    private final Class[] types;
+    private final EPType[] types;
 
-    public MultiKeyClassRefWSerde(DataInputOutputSerdeForge forge, Class[] types) {
+    public MultiKeyClassRefWSerde(DataInputOutputSerdeForge forge, EPType[] types) {
         this.forge = forge;
         this.types = types;
     }
@@ -28,7 +29,7 @@ public class MultiKeyClassRefWSerde implements MultiKeyClassRef {
         return null;
     }
 
-    public Class[] getMKTypes() {
+    public EPType[] getMKTypes() {
         return types;
     }
 

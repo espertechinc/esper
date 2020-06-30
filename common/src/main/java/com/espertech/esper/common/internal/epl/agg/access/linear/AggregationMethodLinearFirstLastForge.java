@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,24 +23,24 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCo
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class AggregationMethodLinearFirstLastForge implements AggregationMethodForge {
-    private final Class underlyingType;
+    private final EPTypeClass underlyingType;
     private final AggregationAccessorLinearType accessType;
     private final ExprNode optionalEvaluator;
 
-    public AggregationMethodLinearFirstLastForge(Class underlyingType, AggregationAccessorLinearType accessType, ExprNode optionalEvaluator) {
+    public AggregationMethodLinearFirstLastForge(EPTypeClass underlyingType, AggregationAccessorLinearType accessType, ExprNode optionalEvaluator) {
         this.underlyingType = underlyingType;
         this.accessType = accessType;
         this.optionalEvaluator = optionalEvaluator;
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return underlyingType;
     }
 
     public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationMethodLinearFirstLast.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationMethodLinearFirstLast.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AggregationMethodLinearFirstLast.class, "strat", newInstance(AggregationMethodLinearFirstLast.class))
+                .declareVarNewInstance(AggregationMethodLinearFirstLast.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setAccessType", constant(accessType))
                 .exprDotMethod(ref("strat"), "setOptionalEvaluator", optionalEvaluator == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(optionalEvaluator.getForge(), method, this.getClass(), classScope))
                 .methodReturn(ref("strat"));

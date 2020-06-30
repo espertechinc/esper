@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.support.SupportExprValidationContextFactory;
 import com.espertech.esper.common.internal.supportunit.util.SupportExprNode;
@@ -43,10 +45,10 @@ public class TestExprArrayNode extends TestCase {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(Object[].class, arrayNodes[0].getForge().getEvaluationType());
-        assertEquals(Integer[].class, arrayNodes[1].getForge().getEvaluationType());
-        assertEquals(Double[].class, arrayNodes[2].getForge().getEvaluationType());
-        assertEquals(Object[].class, arrayNodes[3].getForge().getEvaluationType());
+        assertEquals(new EPTypeClass(Object[].class), arrayNodes[0].getForge().getEvaluationType());
+        assertEquals(new EPTypeClass(Integer[].class), arrayNodes[1].getForge().getEvaluationType());
+        assertEquals(new EPTypeClass(Double[].class), arrayNodes[2].getForge().getEvaluationType());
+        assertEquals(new EPTypeClass(Object[].class), arrayNodes[3].getForge().getEvaluationType());
     }
 
     public void testEvaluate() throws Exception {

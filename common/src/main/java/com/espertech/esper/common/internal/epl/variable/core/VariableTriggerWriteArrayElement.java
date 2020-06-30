@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.util.TypeWidener;
 
 public class VariableTriggerWriteArrayElement extends VariableTriggerWrite {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableTriggerWriteArrayElement.class);
+
     private String variableName;
     private ExprEvaluator indexExpression;
     private TypeWidener typeWidener;

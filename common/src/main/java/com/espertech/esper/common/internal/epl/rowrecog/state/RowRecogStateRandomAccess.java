@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.epl.rowrecog.state;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * Interface for random access to a previous event.
  */
 public interface RowRecogStateRandomAccess {
+    EPTypeClass EPTYPE = new EPTypeClass(RowRecogStateRandomAccess.class);
+
     /**
      * Returns an new data event given an index.
      *

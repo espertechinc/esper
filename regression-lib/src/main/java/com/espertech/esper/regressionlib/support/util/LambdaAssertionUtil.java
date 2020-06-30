@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.support.util;
 
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
@@ -76,24 +75,6 @@ public class LambdaAssertionUtil {
             return new SupportBean_ST0[0];
         }
         return it.toArray(new SupportBean_ST0[it.size()]);
-    }
-
-    public static void assertTypes(EventType type, String[] fields, Class[] classes) {
-        int count = 0;
-        for (String field : fields) {
-            Assert.assertEquals("position " + count, classes[count++], type.getPropertyType(field));
-        }
-    }
-
-    public static void assertTypes(EventType type, String field, Class clazz) {
-        assertTypes(type, new String[]{field}, new Class[]{clazz});
-    }
-
-    public static void assertTypesAllSame(EventType type, String[] fields, Class clazz) {
-        int count = 0;
-        for (String field : fields) {
-            Assert.assertEquals("position " + count, clazz, type.getPropertyType(field));
-        }
     }
 
     public static void assertSingleAndEmptySupportColl(SupportEvalBuilder builder, String[] fields) {

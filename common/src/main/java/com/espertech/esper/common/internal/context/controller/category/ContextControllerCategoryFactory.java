@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.controller.category;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifierCategory;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryFactoryMultiPerm;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirements;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryUtil;
@@ -31,6 +32,8 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.context.util.ContextPropertyEventType.PROP_CTX_LABEL;
 
 public class ContextControllerCategoryFactory extends ContextControllerFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerCategoryFactory.class);
+
     private String contextName;
     private ContextControllerDetailCategory categorySpec;
 

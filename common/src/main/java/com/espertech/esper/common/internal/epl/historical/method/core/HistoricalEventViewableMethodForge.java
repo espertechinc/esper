@@ -11,12 +11,14 @@
 package com.espertech.esper.common.internal.epl.historical.method.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.MethodStreamSpec;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
@@ -28,7 +30,8 @@ import com.espertech.esper.common.internal.epl.historical.common.HistoricalEvent
 import com.espertech.esper.common.internal.epl.historical.method.poll.MethodConversionStrategyForge;
 import com.espertech.esper.common.internal.epl.historical.method.poll.MethodTargetStrategyForge;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -77,13 +80,13 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
                     if (methodStreamSpec.getExpressions().size() == 0) {
                         return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting no parameters in method: " + e.getMessage());
                     }
-                    Class[] resultTypes = ExprNodeUtilityQuery.getExprResultTypes(validatedInputParameters);
+                    EPType[] resultTypes = ExprNodeUtilityQuery.getExprResultTypes(validatedInputParameters);
                     return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting a method where parameters are typed '" +
-                            JavaClassHelper.getParameterAsString(resultTypes) + "': " + e.getMessage());
+                            ClassHelperPrint.getParameterAsString(resultTypes) + "': " + e.getMessage());
                 }
             };
             ExprNodeUtilMethodDesc desc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(
-                    metadata.getMethodProviderClass().getName(), metadata.isStaticMethod() ? null : metadata.getMethodProviderClass(),
+                    metadata.getMethodProviderClass().getName(), metadata.isStaticMethod() ? null : ClassHelperGenericType.getClassEPType(metadata.getMethodProviderClass()),
                     methodStreamSpec.getMethodName(), validatedInputParameters, false, null, handler, methodStreamSpec.getMethodName(),
                     base.getStatementRawInfo(), services);
             this.inputParamEvaluators = desc.getChildForges();
@@ -104,8 +107,8 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
         return multiKeyPlan.getMultiKeyForgeables();
     }
 
-    public Class typeOfImplementation() {
-        return HistoricalEventViewableMethodFactory.class;
+    public EPTypeClass typeOfImplementation() {
+        return HistoricalEventViewableMethodFactory.EPTYPE;
     }
 
     public void codegenSetter(CodegenExpressionRef ref, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

@@ -17,6 +17,10 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -39,7 +43,10 @@ import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -59,14 +66,14 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
         super(statementSpec);
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         if (selectClause == null) {   // wildcards allowed
-            return rawEventType.getUnderlyingType();
+            return rawEventType.getUnderlyingEPType();
         }
         if (selectClause.length == 1) {
             return JavaClassHelper.getBoxedType(selectClause[0].getForge().getEvaluationType());
         }
-        return Map.class;
+        return EPTypePremade.MAP.getEPType();
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
@@ -163,14 +170,18 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
         return maptype;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         if (selectClause == null) {   // wildcards allowed
             return null;
         }
         if (selectClause.length > 1) {
             return null;
         }
-        return selectClause[0].getForge().getEvaluationType();
+        EPType type = selectClause[0].getForge().getEvaluationType();
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Null-type value is not allowed");
+        }
+        return (EPTypeClass) type;
     }
 
     public boolean isAllowMultiColumnSelect() {
@@ -178,7 +189,10 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
     }
 
     protected CodegenExpression evalMatchesPlainCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(getEvaluationType(), this.getClass(), classScope);
+        if (getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod method = parent.makeChild((EPTypeClass) getEvaluationType(), this.getClass(), classScope);
         method.getBlock()
                 .applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantNull(), constantNull()), method, symbols)
                 .methodReturn(evalStrategy.evaluateCodegen(method, symbols, classScope));
@@ -186,7 +200,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
     }
 
     protected CodegenExpression evalMatchesGetCollEventsCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Collection.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.COLLECTION.getEPType(), this.getClass(), classScope);
         method.getBlock()
                 .applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantNull(), CollectionUtil.EMPTY_LIST_EXPRESSION), method, symbols)
                 .methodReturn(evalStrategy.evaluateGetCollEventsCodegen(method, symbols, classScope));
@@ -194,7 +208,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
     }
 
     protected CodegenExpression evalMatchesGetCollScalarCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Collection.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.COLLECTION.getEPType(), this.getClass(), classScope);
         method.getBlock()
                 .applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantNull(), CollectionUtil.EMPTY_LIST_EXPRESSION), method, symbols)
                 .methodReturn(evalStrategy.evaluateGetCollScalarCodegen(method, symbols, classScope));
@@ -202,7 +216,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
     }
 
     protected CodegenExpression evalMatchesGetEventBeanCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(EventBean.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EventBean.EPTYPE, this.getClass(), classScope);
         method.getBlock()
                 .applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantNull(), constantNull()), method, symbols)
                 .methodReturn(evalStrategy.evaluateGetBeanCodegen(method, symbols, classScope));
@@ -229,16 +243,16 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
 
     public CodegenMethod evaluateRowCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {
         ExprForgeCodegenSymbol symbols = new ExprForgeCodegenSymbol(true, true);
-        CodegenMethod method = parent.makeChildWithScope(Map.class, CodegenLegoMethodExpression.class, symbols, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod method = parent.makeChildWithScope(EPTypePremade.MAP.getEPType(), CodegenLegoMethodExpression.class, symbols, classScope).addParam(ExprForgeCodegenNames.PARAMS);
 
         CodegenExpression[] expressions = new CodegenExpression[selectClause.length];
         for (int i = 0; i < selectClause.length; i++) {
-            expressions[i] = selectClause[i].getForge().evaluateCodegen(Object.class, method, symbols, classScope);
+            expressions[i] = selectClause[i].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, symbols, classScope);
         }
 
         symbols.derivedSymbolsCodegen(method, method.getBlock(), classScope);
 
-        method.getBlock().declareVar(Map.class, "map", newInstance(HashMap.class));
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.HASHMAP.getEPType()));
         for (int i = 0; i < selectClause.length; i++) {
             method.getBlock().exprDotMethod(ref("map"), "put", constant(selectAsNames[i]), expressions[i]);
         }
@@ -247,7 +261,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
     }
 
     protected CodegenExpression evalMatchesTypableSingleCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Object[].class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECTARRAY.getEPType(), this.getClass(), classScope);
         method.getBlock()
                 .applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantNull(), publicConstValue(CollectionUtil.class, "OBJECTARRAYARRAY_EMPTY")), method, symbols)
                 .methodReturn(evalStrategy.evaluateTypableSinglerowCodegen(method, symbols, classScope));
@@ -255,7 +269,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
     }
 
     protected CodegenExpression evalMatchesTypableMultiCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Object[][].class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECTARRAYARRAY.getEPType(), this.getClass(), classScope);
         method.getBlock()
                 .applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantNull(), publicConstValue(CollectionUtil.class, "OBJECTARRAYARRAY_EMPTY")), method, symbols)
                 .methodReturn(evalStrategy.evaluateTypableMultirowCodegen(method, symbols, classScope));

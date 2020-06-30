@@ -49,9 +49,9 @@ public class PropertyEvaluatorNestedForge implements PropertyEvaluatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PropertyEvaluatorNested.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PropertyEvaluatorNested.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(PropertyEvaluatorNested.class, "pe", newInstance(PropertyEvaluatorNested.class))
+                .declareVarNewInstance(PropertyEvaluatorNested.EPTYPE, "pe")
                 .exprDotMethod(ref("pe"), "setResultEventType", EventTypeUtility.resolveTypeCodegen(fragmentEventTypes[fragmentEventTypes.length - 1].getFragmentType(), symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("pe"), "setExpressionTexts", constant(expressionTexts))
                 .exprDotMethod(ref("pe"), "setWhereClauses", PropertyEvaluatorAccumulativeForge.makeWhere(whereClauses, method, symbols, classScope))

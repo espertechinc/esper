@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.avro.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -37,9 +39,9 @@ public class AvroEventBeanGetterIndexedRuntimeKeyed implements EventPropertyGett
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, AvroEventBeanGetterIndexedRuntimeKeyed.class, codegenClassScope).addParam(EventBean.class, "event").addParam(int.class, "index").getBlock()
-                .declareVar(GenericData.Record.class, "record", castUnderlying(GenericData.Record.class, ref("event")))
-                .declareVar(Collection.class, "values", cast(Collection.class, exprDotMethod(ref("record"), "get", constant(pos))))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), AvroEventBeanGetterIndexedRuntimeKeyed.class, codegenClassScope).addParam(EventBean.EPTYPE, "event").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+                .declareVar(AvroConstant.EPTYPE_RECORD, "record", castUnderlying(AvroConstant.EPTYPE_RECORD, ref("event")))
+                .declareVar(EPTypePremade.COLLECTION.getEPType(), "values", cast(EPTypePremade.COLLECTION.getEPType(), exprDotMethod(ref("record"), "get", constant(pos))))
                 .methodReturn(staticMethod(AvroEventBeanGetterIndexed.class, "getAvroIndexedValue", ref("values"), ref("index")));
         return localMethodBuild(method).pass(beanExpression).pass(key).call();
     }

@@ -11,6 +11,8 @@
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
@@ -23,7 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumSelectFrom {
 
@@ -44,7 +47,7 @@ public class ExprEnumSelectFrom {
             builder.expression(fields[0], "strvals.selectFrom( (v, i) => v || '_' || Integer.toString(i))");
             builder.expression(fields[1], "strvals.selectFrom( (v, i, s) => v || '_' || Integer.toString(i) || '_' || Integer.toString(s))");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E1,E2,E3"))
                 .verify(fields[0], value -> LambdaAssertionUtil.assertValuesArrayScalar(value, "E1_0", "E2_1", "E3_2"))
@@ -73,7 +76,7 @@ public class ExprEnumSelectFrom {
             builder.expression(fields[0], "contained.selectFrom( (v, i) => new {v0=v.id,v1=i})");
             builder.expression(fields[1], "contained.selectFrom( (v, i, s) => new {v0=v.id,v1=i + 100*s})");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, EPTypeClassParameterized.from(Map.class, String.class, Object.class))));
 
             builder.assertion(SupportBean_ST0_Container.make3Value("E1,12,0", "E2,11,0", "E3,2,0"))
                 .verify(fields[0], value -> assertRows(value, new Object[][]{{"E1", 0}, {"E2", 1}, {"E3", 2}}))
@@ -105,7 +108,7 @@ public class ExprEnumSelectFrom {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
             builder.expression(field, "contained.selectFrom(x => new {c0 = id||'x', c1 = key0||'y'})");
 
-            builder.statementConsumer(stmt -> LambdaAssertionUtil.assertTypes(stmt.getEventType(), field, Collection.class));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), field, EPTypeClassParameterized.from(Collection.class, EPTypeClassParameterized.from(Map.class, String.class, Object.class))));
 
             builder.assertion(SupportBean_ST0_Container.make3Value("E1,12,0", "E2,11,0", "E3,2,0"))
                 .verify(field, value -> assertRows(value, new Object[][]{{"E1x", "12y"}, {"E2x", "11y"}, {"E3x", "2y"}}));
@@ -129,20 +132,26 @@ public class ExprEnumSelectFrom {
 
     private static class ExprEnumSelectFromEventsPlain implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String field = "c0";
+            String[] fields = "c0,c1".split(",");
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
-            builder.expression(field, "contained.selectFrom(x => id)");
+            builder.expression(fields[0], "contained.selectFrom(x => id)");
+            builder.expression(fields[1], "contained.selectFrom(x => null)");
 
-            builder.statementConsumer(stmt -> LambdaAssertionUtil.assertTypes(stmt.getEventType(), "c0", Collection.class));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new EPTypeClass[] {
+                EPTypeClassParameterized.from(Collection.class, String.class), EPTypeClassParameterized.from(Collection.class, Object.class)
+            }));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,12", "E2,11", "E3,2"))
-                .verify(field, value -> LambdaAssertionUtil.assertValuesArrayScalar(value, "E1", "E2", "E3"));
+                .verify(fields[0], value -> LambdaAssertionUtil.assertValuesArrayScalar(value, "E1", "E2", "E3"))
+                .verify(fields[1], value -> LambdaAssertionUtil.assertValuesArrayScalar(value));
 
             builder.assertion(SupportBean_ST0_Container.make2ValueNull())
-                .verify(field, Assert::assertNull);
+                .verify(fields[0], Assert::assertNull)
+                .verify(fields[1], Assert::assertNull);
 
             builder.assertion(SupportBean_ST0_Container.make2Value())
-                .verify(field, value -> LambdaAssertionUtil.assertValuesArrayScalar(value));
+                .verify(fields[0], value -> LambdaAssertionUtil.assertValuesArrayScalar(value))
+                .verify(fields[1], value -> LambdaAssertionUtil.assertValuesArrayScalar(value));
 
             builder.run(env);
         }
@@ -155,7 +164,7 @@ public class ExprEnumSelectFrom {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
             builder.expression(field, "strvals.selectFrom(v => extractNum(v))");
 
-            builder.statementConsumer(stmt -> LambdaAssertionUtil.assertTypes(stmt.getEventType(), field, Collection.class));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), field, EPTypeClassParameterized.from(Collection.class, Integer.class)));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
                 .verify(field, value -> LambdaAssertionUtil.assertValuesArrayScalar(value, 2, 1, 5, 4));

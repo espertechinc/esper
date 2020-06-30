@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -133,9 +135,9 @@ public class SelectEvalStreamWUndRecastMapFactory {
         }
 
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-            CodegenExpression value = exprDotMethod(cast(MappedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))), "getProperties");
+            CodegenExpression value = exprDotMethod(cast(MappedEventBean.EPTYPE, arrayAtIndex(refEPS, constant(underlyingStreamNumber))), "getProperties");
             methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedMap", value, resultEventType));
             return methodNode;
         }
@@ -159,22 +161,22 @@ public class SelectEvalStreamWUndRecastMapFactory {
         }
 
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenExpressionField manufacturerField = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, manufacturer.make(codegenMethodScope, codegenClassScope));
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+            CodegenExpressionField manufacturerField = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, manufacturer.make(codegenMethodScope, codegenClassScope));
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(MappedEventBean.class, "theEvent", cast(MappedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
-                    .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(items.length)));
+                    .declareVar(MappedEventBean.EPTYPE, "theEvent", cast(MappedEventBean.EPTYPE, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
+                    .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(items.length)));
             for (Item item : items) {
                 CodegenExpression value;
                 if (item.getOptionalPropertyName() != null) {
                     value = exprDotMethodChain(ref("theEvent")).add("getProperties").add("get", constant(item.getOptionalPropertyName()));
                 } else {
                     if (item.getOptionalWidener() != null) {
-                        value = item.forge.evaluateCodegen(item.forge.getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
+                        value = item.forge.evaluateCodegen((EPTypeClass) item.forge.getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
                         value = item.getOptionalWidener().widenCodegen(value, methodNode, codegenClassScope);
                     } else {
-                        value = item.forge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope);
+                        value = item.forge.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope);
                     }
                 }
                 block.assignArrayElement("props", constant(item.getToIndex()), value);

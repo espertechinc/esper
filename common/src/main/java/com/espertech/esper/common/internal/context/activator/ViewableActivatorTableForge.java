@@ -32,9 +32,9 @@ public class ViewableActivatorTableForge implements ViewableActivatorForge {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ViewableActivatorTable.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ViewableActivatorTable.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ViewableActivatorTable.class, "va", newInstance(ViewableActivatorTable.class))
+                .declareVarNewInstance(ViewableActivatorTable.EPTYPE, "va")
                 .exprDotMethod(ref("va"), "setTable", TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("va"), "setFilterEval", optionalFilterExpression == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(optionalFilterExpression.getForge(), method, this.getClass(), classScope))
                 .methodReturn(ref("va"));

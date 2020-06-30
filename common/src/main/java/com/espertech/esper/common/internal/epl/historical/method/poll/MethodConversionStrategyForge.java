@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,9 +23,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class MethodConversionStrategyForge {
     private final EventType eventType;
-    private final Class implementation;
+    private final EPTypeClass implementation;
 
-    public MethodConversionStrategyForge(EventType eventType, Class implementation) {
+    public MethodConversionStrategyForge(EventType eventType, EPTypeClass implementation) {
         this.eventType = eventType;
         this.implementation = implementation;
     }
@@ -32,7 +33,7 @@ public class MethodConversionStrategyForge {
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(implementation, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(implementation, "conv", newInstance(implementation))
+                .declareVarNewInstance(implementation, "conv")
                 .exprDotMethod(ref("conv"), "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
                 .methodReturn(ref("conv"));
         return localMethod(method);

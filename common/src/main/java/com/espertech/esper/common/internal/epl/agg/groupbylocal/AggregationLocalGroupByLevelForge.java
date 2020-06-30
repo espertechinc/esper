@@ -66,7 +66,7 @@ public class AggregationLocalGroupByLevelForge {
     }
 
     public CodegenExpression toExpression(String rowFactory, String rowSerde, CodegenExpression groupKeyEval, CodegenMethod method, CodegenClassScope classScope) {
-        return newInstance(AggregationLocalGroupByLevel.class,
+        return newInstance(AggregationLocalGroupByLevel.EPTYPE,
                 CodegenExpressionBuilder.newInstance(rowFactory, ref("this")),
                 CodegenExpressionBuilder.newInstance(rowSerde, ref("this")),
                 constant(ExprNodeUtilityQuery.getExprResultTypes(partitionForges)),

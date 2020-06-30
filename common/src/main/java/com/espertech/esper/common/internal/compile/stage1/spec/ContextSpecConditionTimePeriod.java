@@ -57,10 +57,10 @@ public class ContextSpecConditionTimePeriod implements ContextSpecCondition, Sch
             throw new IllegalStateException("Unassigned schedule callback id");
         }
 
-        CodegenMethod method = parent.makeChild(ContextConditionDescriptorTimePeriod.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextConditionDescriptorTimePeriod.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextConditionDescriptorTimePeriod.class, "condition", newInstance(ContextConditionDescriptorTimePeriod.class))
-                .declareVar(TimePeriodCompute.class, "eval", timePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope))
+                .declareVarNewInstance(ContextConditionDescriptorTimePeriod.EPTYPE, "condition")
+                .declareVar(TimePeriodCompute.EPTYPE, "eval", timePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope))
                 .exprDotMethod(ref("condition"), "setTimePeriodCompute", ref("eval"))
                 .exprDotMethod(ref("condition"), "setScheduleCallbackId", constant(scheduleCallbackId))
                 .exprDotMethod(ref("condition"), "setImmediate", constant(immediate))

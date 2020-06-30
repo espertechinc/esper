@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.table;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderableFlags;
@@ -44,8 +46,8 @@ public class ExprTableAccessNodeKeys extends ExprTableAccessNode {
         return true;
     }
 
-    public Class getEvaluationType() {
-        return Object[].class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.OBJECTARRAY.getEPType();
     }
 
     public ExprForge getForge() {

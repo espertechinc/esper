@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.hook.aggmultifunc;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Factory for aggregation multi-function aggregation method
  */
 public interface AggregationMultiFunctionAggregationMethodFactory {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationMultiFunctionAggregationMethodFactory.class);
+
     /**
      * Returns a new table reader
      *

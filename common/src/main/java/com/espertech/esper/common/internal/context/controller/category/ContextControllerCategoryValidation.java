@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.category;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
@@ -27,6 +28,8 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class ContextControllerCategoryValidation implements ContextControllerPortableInfo {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerCategoryValidation.class);
+
     private final EventType categoryEventType;
 
     public ContextControllerCategoryValidation(EventType categoryEventType) {
@@ -38,7 +41,7 @@ public class ContextControllerCategoryValidation implements ContextControllerPor
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
-        return newInstance(ContextControllerCategoryValidation.class, EventTypeUtility.resolveTypeCodegen(categoryEventType, addInitSvc));
+        return newInstance(ContextControllerCategoryValidation.EPTYPE, EventTypeUtility.resolveTypeCodegen(categoryEventType, addInitSvc));
     }
 
     public void validateStatement(String contextName, StatementSpecCompiled spec, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {

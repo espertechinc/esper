@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.epl.dataflow;
 
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowOpParameter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -85,7 +86,7 @@ public class EPLDataflowInvalidGraph {
 
             // inject properties: property invalid type
             tryInvalidCompile(env, "create dataflow MyGraph MyTestOp {theString: 1}",
-                "Property 'theString' of class " + MyTestOp.class.getName() + " expects an java.lang.String but receives a value of type java.lang.Integer");
+                "Property 'theString' of class " + MyTestOp.class.getName() + " expects an String but receives a value of type Integer");
 
             // two incompatible input streams: different types
             epl = "create dataflow MyGraph " +
@@ -181,13 +182,14 @@ public class EPLDataflowInvalidGraph {
     }
 
     public static class MySBInputOp implements DataFlowOperatorForge, DataFlowOperatorFactory, DataFlowOperator {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MySBInputOp.class);
 
         public DataFlowOpForgeInitializeResult initializeForge(DataFlowOpForgeInitializeContext context) throws ExprValidationException {
             return null;
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return newInstance(MySBInputOp.class);
+            return newInstance(MySBInputOp.EPTYPE);
         }
 
         public void initializeFactory(DataFlowOpFactoryInitializeContext context) {

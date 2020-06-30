@@ -54,9 +54,9 @@ public class QueryGraphValueEntryCustomKeyForge implements QueryGraphValueEntryF
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryGraphValueEntryCustomKey.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(QueryGraphValueEntryCustomKey.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(QueryGraphValueEntryCustomKey.class, "key", newInstance(QueryGraphValueEntryCustomKey.class))
+                .declareVarNewInstance(QueryGraphValueEntryCustomKey.EPTYPE, "key")
                 .exprDotMethod(ref("key"), "setOperationName", constant(operationName))
                 .exprDotMethod(ref("key"), "setExprNodes", ExprNodeUtilityCodegen.codegenEvaluators(exprNodes, method, this.getClass(), classScope))
                 .exprDotMethod(ref("key"), "setExpressions", constant(ExprNodeUtilityPrint.toExpressionStringsMinPrecedence(exprNodes)))

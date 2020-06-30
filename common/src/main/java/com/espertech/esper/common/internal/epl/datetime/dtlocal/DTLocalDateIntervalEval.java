@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -34,10 +35,10 @@ class DTLocalDateIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalDateIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateIntervalEval.class, codegenClassScope).addParam(Date.class, "target");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalDateIntervalEval.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "target");
 
         methodNode.getBlock()
-                .declareVar(long.class, "time", exprDotMethod(ref("target"), "getTime"))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "time", exprDotMethod(ref("target"), "getTime"))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
@@ -49,7 +50,7 @@ class DTLocalDateIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalDateIntervalForge forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateIntervalEval.class, codegenClassScope).addParam(Date.class, "start").addParam(Date.class, "end");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalDateIntervalEval.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "start").addParam(EPTypePremade.DATE.getEPType(), "end");
 
         methodNode.getBlock().methodReturn(forge.intervalForge.codegen(exprDotMethod(ref("start"), "getTime"), exprDotMethod(ref("end"), "getTime"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);

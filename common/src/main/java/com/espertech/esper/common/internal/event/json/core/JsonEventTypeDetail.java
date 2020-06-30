@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.event.json.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -17,12 +19,13 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class JsonEventTypeDetail {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonEventTypeDetail.class);
+
     private String underlyingClassName;
     private Class optionalUnderlyingProvided;
     private String delegateClassName;
@@ -107,25 +110,25 @@ public class JsonEventTypeDetail {
     }
 
     public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(JsonEventTypeDetail.class, JsonEventTypeDetail.class, classScope);
+        CodegenMethod method = parent.makeChild(JsonEventTypeDetail.EPTYPE, JsonEventTypeDetail.class, classScope);
         method.getBlock()
-            .declareVar(JsonEventTypeDetail.class, "detail", newInstance(JsonEventTypeDetail.class))
-            .exprDotMethod(ref("detail"), "setUnderlyingClassName", constant(underlyingClassName))
-            .exprDotMethod(ref("detail"), "setOptionalUnderlyingProvided", constant(optionalUnderlyingProvided))
-            .exprDotMethod(ref("detail"), "setDelegateClassName", constant(delegateClassName))
-            .exprDotMethod(ref("detail"), "setDelegateFactoryClassName", constant(delegateFactoryClassName))
-            .exprDotMethod(ref("detail"), "setSerdeClassName", constant(serdeClassName))
-            .exprDotMethod(ref("detail"), "setFieldDescriptors", localMethod(makeFieldDescCodegen(method, classScope)))
-            .exprDotMethod(ref("detail"), "setDynamic", constant(dynamic))
-            .exprDotMethod(ref("detail"), "setNumFieldsSupertype", constant(numFieldsSupertype))
-            .methodReturn(ref("detail"));
+                .declareVarNewInstance(JsonEventTypeDetail.EPTYPE, "detail")
+                .exprDotMethod(ref("detail"), "setUnderlyingClassName", constant(underlyingClassName))
+                .exprDotMethod(ref("detail"), "setOptionalUnderlyingProvided", constant(optionalUnderlyingProvided))
+                .exprDotMethod(ref("detail"), "setDelegateClassName", constant(delegateClassName))
+                .exprDotMethod(ref("detail"), "setDelegateFactoryClassName", constant(delegateFactoryClassName))
+                .exprDotMethod(ref("detail"), "setSerdeClassName", constant(serdeClassName))
+                .exprDotMethod(ref("detail"), "setFieldDescriptors", localMethod(makeFieldDescCodegen(method, classScope)))
+                .exprDotMethod(ref("detail"), "setDynamic", constant(dynamic))
+                .exprDotMethod(ref("detail"), "setNumFieldsSupertype", constant(numFieldsSupertype))
+                .methodReturn(ref("detail"));
         return localMethod(method);
     }
 
     private CodegenMethod makeFieldDescCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, JsonEventTypeDetail.class, classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), JsonEventTypeDetail.class, classScope);
 
-        method.getBlock().declareVar(Map.class, "fields", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(fieldDescriptors.size()))));
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "fields", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(fieldDescriptors.size()))));
         for (Map.Entry<String, JsonUnderlyingField> entry : fieldDescriptors.entrySet()) {
             method.getBlock().exprDotMethod(ref("fields"), "put", constant(entry.getKey()), entry.getValue().toExpression());
         }

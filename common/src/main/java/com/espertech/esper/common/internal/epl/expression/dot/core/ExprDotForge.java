@@ -10,18 +10,19 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public interface ExprDotForge {
-    EPType getTypeInfo();
+    EPChainableType getTypeInfo();
 
     void visit(ExprDotEvalVisitor visitor);
 
     ExprDotEval getDotEvaluator();
 
-    CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope);
+    CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope);
 }

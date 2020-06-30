@@ -11,12 +11,15 @@
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategyFactory;
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
 
 public interface SubordWMatchExprLookupStrategyFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(SubordWMatchExprLookupStrategyFactory.class);
+
     public SubordWMatchExprLookupStrategy realize(EventTable[] indexes, AgentInstanceContext agentInstanceContext, Iterable<EventBean> scanIterable, VirtualDWView virtualDataWindow);
 
     public String toQueryPlan();

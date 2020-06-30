@@ -43,9 +43,9 @@ public class TimePeriodComputeConstGivenCalAddForge implements TimePeriodCompute
     }
 
     public CodegenExpression makeEvaluator(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TimePeriodComputeConstGivenCalAddEval.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TimePeriodComputeConstGivenCalAddEval.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(TimePeriodComputeConstGivenCalAddEval.class, "eval", newInstance(TimePeriodComputeConstGivenCalAddEval.class))
+                .declareVarNewInstance(TimePeriodComputeConstGivenCalAddEval.EPTYPE, "eval")
                 .exprDotMethod(ref("eval"), "setAdders", TimePeriodAdderUtil.makeArray(adders, parent, classScope))
                 .exprDotMethod(ref("eval"), "setAdded", constant(added))
                 .exprDotMethod(ref("eval"), "setTimeAbacus", classScope.addOrGetFieldSharable(TimeAbacusField.INSTANCE))

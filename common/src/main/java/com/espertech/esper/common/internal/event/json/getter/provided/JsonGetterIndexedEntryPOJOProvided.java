@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.json.getter.provided;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,6 +24,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.json.getter.core.JsonEventPropertyGetter;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.lang.reflect.Field;
 
@@ -37,23 +40,19 @@ public class JsonGetterIndexedEntryPOJOProvided extends BaseNativePropertyGetter
     private final int index;
     private final BeanEventPropertyGetter nestedGetter;
 
-    public JsonGetterIndexedEntryPOJOProvided(Field field, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class returnType) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType, null);
+    public JsonGetterIndexedEntryPOJOProvided(Field field, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass returnType) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType);
         this.field = field;
         this.index = index;
         this.nestedGetter = nestedGetter;
     }
 
-    public Class getTargetType() {
-        return field.getDeclaringClass();
-    }
-
-    public Class getBeanPropType() {
-        return Object.class;
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(field.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(field.getDeclaringClass(), beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -61,7 +60,7 @@ public class JsonGetterIndexedEntryPOJOProvided extends BaseNativePropertyGetter
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(field.getDeclaringClass(), beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -101,14 +100,19 @@ public class JsonGetterIndexedEntryPOJOProvided extends BaseNativePropertyGetter
     }
 
     private CodegenMethod getFieldCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(field.getDeclaringClass(), "und").getBlock()
-            .declareVar(Object.class, "value", exprDotName(ref("und"), field.getName()))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), "und").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotName(ref("und"), field.getName()))
             .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(codegenMethodScope, codegenClassScope, nestedGetter, index), ref("value")));
     }
 
     private CodegenMethod getFieldExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(field.getDeclaringClass(), "und").getBlock()
-            .declareVar(Object.class, "value", exprDotName(ref("und"), field.getName()))
+        return codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), "und").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotName(ref("und"), field.getName()))
             .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueExistsCodegen(codegenMethodScope, codegenClassScope, nestedGetter, index), ref("value")));
+    }
+
+    @Override
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 }

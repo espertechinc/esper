@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -25,7 +27,7 @@ public class CodegenExpressionConstant implements CodegenExpression {
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        renderConstant(builder, constant, imports);
+        renderConstant(builder, constant, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {
@@ -36,6 +38,8 @@ public class CodegenExpressionConstant implements CodegenExpression {
             classes.add(constant.getClass().getComponentType());
         } else if (constant.getClass().isEnum()) {
             classes.add(constant.getClass());
+        } else if (constant instanceof EPTypeClass) {
+            ((EPTypeClass) constant).traverseClasses(classes::add);
         }
     }
 

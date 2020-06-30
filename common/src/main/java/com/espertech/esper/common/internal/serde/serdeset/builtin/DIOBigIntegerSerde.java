@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.serde.serdeset.builtin;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -22,6 +23,8 @@ import java.math.BigInteger;
  * Binding for nullable boolean values.
  */
 public class DIOBigIntegerSerde implements DataInputOutputSerde<BigInteger> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOBigIntegerSerde.class);
+
     public final static DIOBigIntegerSerde INSTANCE = new DIOBigIntegerSerde();
 
     private DIOBigIntegerSerde() {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.tomap;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -78,12 +79,12 @@ public class EnumToMapEventPlus extends TwoLambdaThreeFormEventPlus {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Map.class, "map", newInstance(HashMap.class));
+        block.declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.HASHMAP.getEPType()));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Object.class, "key", innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
-            .declareVar(Object.class, "value", secondExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+        block.declareVar(EPTypePremade.OBJECT.getEPType(), "key", innerExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", secondExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
             .expression(exprDotMethod(ref("map"), "put", ref("key"), ref("value")));
     }
 

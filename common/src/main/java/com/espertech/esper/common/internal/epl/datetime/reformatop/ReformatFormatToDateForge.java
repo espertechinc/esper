@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -77,7 +79,7 @@ public class ReformatFormatToDateForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        return newInstance(Date.class, staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, timeZoneField));
+        return newInstance(EPTypePremade.DATE.getEPType(), staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, timeZoneField));
     }
 
     public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -85,11 +87,11 @@ public class ReformatFormatToDateForge implements ReformatForge, ReformatOp {
     }
 
     public CodegenExpression codegenZDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return newInstance(Date.class, staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", inner));
+        return newInstance(EPTypePremade.DATE.getEPType(), staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", inner));
     }
 
-    public Class getReturnType() {
-        return Date.class;
+    public EPTypeClass getReturnType() {
+        return EPTypePremade.DATE.getEPType();
     }
 
     public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {

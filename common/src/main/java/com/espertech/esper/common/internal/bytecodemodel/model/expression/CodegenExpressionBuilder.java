@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenField;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -117,11 +118,11 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionField(field);
     }
 
-    public static CodegenExpressionNewAnonymousClass newAnonymousClass(CodegenBlock parentBlock, Class interfaceOrSuperClass, List<CodegenExpression> ctorParams) {
+    public static CodegenExpressionNewAnonymousClass newAnonymousClass(CodegenBlock parentBlock, EPTypeClass interfaceOrSuperClass, List<CodegenExpression> ctorParams) {
         return new CodegenExpressionNewAnonymousClass(parentBlock, interfaceOrSuperClass, ctorParams);
     }
 
-    public static CodegenExpressionNewAnonymousClass newAnonymousClass(CodegenBlock parentBlock, Class interfaceOrSuperClass) {
+    public static CodegenExpressionNewAnonymousClass newAnonymousClass(CodegenBlock parentBlock, EPTypeClass interfaceOrSuperClass) {
         return new CodegenExpressionNewAnonymousClass(parentBlock, interfaceOrSuperClass, Collections.emptyList());
     }
 
@@ -129,7 +130,7 @@ public class CodegenExpressionBuilder {
         return CodegenExpressionNoOp.INSTANCE;
     }
 
-    public static CodegenExpression castUnderlying(Class clazz, CodegenExpression expression) {
+    public static CodegenExpression castUnderlying(EPTypeClass clazz, CodegenExpression expression) {
         return new CodegenExpressionCastUnderlying(clazz, expression);
     }
 
@@ -137,15 +138,15 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionCastUnderlying(clazz, expression);
     }
 
-    public static CodegenExpression instanceOf(CodegenExpression lhs, Class clazz) {
+    public static CodegenExpression instanceOf(CodegenExpression lhs, EPTypeClass clazz) {
         return new CodegenExpressionInstanceOf(lhs, clazz, false);
     }
 
-    public static CodegenExpression notInstanceOf(CodegenExpression lhs, Class clazz) {
+    public static CodegenExpression notInstanceOf(CodegenExpression lhs, EPTypeClass clazz) {
         return new CodegenExpressionInstanceOf(lhs, clazz, true);
     }
 
-    public static CodegenExpression castRef(Class clazz, String ref) {
+    public static CodegenExpression castRef(EPTypeClass clazz, String ref) {
         return new CodegenExpressionCastRef(clazz, ref);
     }
 
@@ -177,7 +178,7 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionNot(isNot, expression);
     }
 
-    public static CodegenExpression cast(Class clazz, CodegenExpression expression) {
+    public static CodegenExpression cast(EPTypeClass clazz, CodegenExpression expression) {
         return new CodegenExpressionCastExpression(clazz, expression);
     }
 
@@ -205,10 +206,6 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionStaticMethod(clazz, method, params);
     }
 
-    public static CodegenExpression classMethod(String method, CodegenExpression... params) {
-        return new CodegenExpressionClassMethod(method, params);
-    }
-
     public static CodegenExpression clazz(Class clazz) {
         return new CodegenExpressionClass(clazz);
     }
@@ -225,7 +222,7 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionArrayLength(expression);
     }
 
-    public static CodegenExpression newInstance(Class clazz, CodegenExpression... params) {
+    public static CodegenExpression newInstance(EPTypeClass clazz, CodegenExpression... params) {
         return new CodegenExpressionNewInstance(clazz, params);
     }
 
@@ -237,11 +234,11 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionRelational(lhs, op, rhs);
     }
 
-    public static CodegenExpression newArrayByLength(Class component, CodegenExpression expression) {
+    public static CodegenExpression newArrayByLength(EPTypeClass component, CodegenExpression expression) {
         return new CodegenExpressionNewArrayByLength(component, expression);
     }
 
-    public static CodegenExpression newArrayWithInit(Class component, CodegenExpression... expressions) {
+    public static CodegenExpression newArrayWithInit(EPTypeClass component, CodegenExpression... expressions) {
         return new CodegenExpressionNewArrayWithInit(component, expressions);
     }
 

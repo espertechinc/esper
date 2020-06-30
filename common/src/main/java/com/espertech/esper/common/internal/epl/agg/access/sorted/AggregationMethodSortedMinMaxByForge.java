@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -20,22 +21,22 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class AggregationMethodSortedMinMaxByForge implements AggregationMethodForge {
-    private final Class resultType;
+    private final EPTypeClass resultType;
     private final boolean max;
 
-    public AggregationMethodSortedMinMaxByForge(Class resultType, boolean max) {
+    public AggregationMethodSortedMinMaxByForge(EPTypeClass resultType, boolean max) {
         this.resultType = resultType;
         this.max = max;
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return resultType;
     }
 
     public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationMethodSortedMinMaxBy.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationMethodSortedMinMaxBy.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationMethodSortedMinMaxBy.class, "strat", newInstance(AggregationMethodSortedMinMaxBy.class))
+            .declareVarNewInstance(AggregationMethodSortedMinMaxBy.EPTYPE, "strat")
             .exprDotMethod(ref("strat"), "setMax", constant(max))
             .methodReturn(ref("strat"));
         return localMethod(method);

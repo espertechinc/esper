@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.variable.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -26,8 +27,8 @@ public class VariableReaderCodegenFieldSharable implements CodegenFieldSharable 
         this.metaWVisibility = metaWVisibility;
     }
 
-    public Class type() {
-        return VariableReader.class;
+    public EPTypeClass type() {
+        return VariableReader.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

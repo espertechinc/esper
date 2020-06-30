@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * Factory for creating an event bean instance by writing property values to an underlying object.
  */
 public interface EventBeanManufacturer {
+    EPTypeClass EPTYPE = new EPTypeClass(EventBeanManufacturer.class);
+
     /**
      * Make an event object populating property values.
      *

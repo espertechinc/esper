@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.avg;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
@@ -22,8 +26,8 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOBigDecimalBigIntegerUtil;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOBigDecimalBigIntegerUtil;
 import com.espertech.esper.common.internal.type.MathContextCodegenField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,56 +52,66 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
     private final CodegenExpressionMember sum;
     private final CodegenExpressionMember cnt;
 
-    public AggregatorAvgBig(AggregationForgeFactoryAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorAvgBig(AggregationForgeFactoryAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
-        sum = membersColumnized.addMember(col, BigDecimal.class, "sum");
-        cnt = membersColumnized.addMember(col, long.class, "cnt");
-        rowCtor.getBlock().assignRef(sum, newInstance(BigDecimal.class, constant(0d)));
+        sum = membersColumnized.addMember(col, EPTypePremade.BIGDECIMAL.getEPType(), "sum");
+        cnt = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");
+        rowCtor.getBlock().assignRef(sum, newInstance(EPTypePremade.BIGDECIMAL.getEPType(), constant(0d)));
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
-        if (valueType == BigInteger.class) {
-            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", newInstance(BigDecimal.class, value)));
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+        EPTypeClass valueClass = (EPTypeClass) valueType;
+        if (valueClass.getType() == BigInteger.class) {
+            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", newInstance(EPTypePremade.BIGDECIMAL.getEPType(), value)));
         } else {
-            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", valueType == BigDecimal.class ? value : cast(BigDecimal.class, value)));
+            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", valueClass.getType() == BigDecimal.class ? value : cast(EPTypePremade.BIGDECIMAL.getEPType(), value)));
         }
         method.getBlock().increment(cnt);
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+        EPTypeClass valueClass = (EPTypeClass) valueType;
         method.getBlock().ifCondition(relational(cnt, LE, constant(1)))
                 .apply(clearCode())
                 .ifElse()
                 .decrement(cnt)
                 .apply(block -> {
-                    if (valueType == BigInteger.class) {
-                        block.assignRef(sum, exprDotMethod(sum, "subtract", newInstance(BigDecimal.class, value)));
+                    if (valueClass.getType() == BigInteger.class) {
+                        block.assignRef(sum, exprDotMethod(sum, "subtract", newInstance(EPTypePremade.BIGDECIMAL.getEPType(), value)));
                     } else {
-                        block.assignRef(sum, exprDotMethod(sum, "subtract", valueType == BigDecimal.class ? value : cast(BigDecimal.class, value)));
+                        block.assignRef(sum, exprDotMethod(sum, "subtract", valueClass.getType() == BigDecimal.class ? value : cast(EPTypePremade.BIGDECIMAL.getEPType(), value)));
                     }
                 });
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
-        if (evaluationTypes[0] == BigInteger.class) {
-            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", newInstance(BigDecimal.class, cast(BigInteger.class, value))));
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+        if (evaluationTypes[0] == EPTypeNull.INSTANCE) {
+            return;
+        }
+        EPTypeClass valueClass = (EPTypeClass) evaluationTypes[0];
+        if (valueClass.getType() == BigInteger.class) {
+            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", newInstance(EPTypePremade.BIGDECIMAL.getEPType(), cast(EPTypePremade.BIGINTEGER.getEPType(), value))));
         } else {
-            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", cast(BigDecimal.class, value)));
+            method.getBlock().assignRef(sum, exprDotMethod(sum, "add", cast(EPTypePremade.BIGDECIMAL.getEPType(), value)));
         }
         method.getBlock().increment(cnt);
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+        if (evaluationTypes[0] == EPTypeNull.INSTANCE) {
+            return;
+        }
+        EPTypeClass valueClass = (EPTypeClass) evaluationTypes[0];
         method.getBlock().ifCondition(relational(cnt, LE, constant(1)))
                 .apply(clearCode())
                 .ifElse()
                 .decrement(cnt)
                 .apply(block -> {
-                    if (evaluationTypes[0] == BigInteger.class) {
-                        block.assignRef(sum, exprDotMethod(sum, "subtract", newInstance(BigDecimal.class, cast(BigInteger.class, value))));
+                    if (valueClass.getType() == BigInteger.class) {
+                        block.assignRef(sum, exprDotMethod(sum, "subtract", newInstance(EPTypePremade.BIGDECIMAL.getEPType(), cast(EPTypePremade.BIGINTEGER.getEPType(), value))));
                     } else {
-                        block.assignRef(sum, exprDotMethod(sum, "subtract", cast(BigDecimal.class, value)));
+                        block.assignRef(sum, exprDotMethod(sum, "subtract", cast(EPTypePremade.BIGDECIMAL.getEPType(), value)));
                     }
                 });
     }
@@ -148,7 +162,7 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
 
     private Consumer<CodegenBlock> clearCode() {
         return block ->
-                block.assignRef(sum, newInstance(BigDecimal.class, constant(0d)))
+                block.assignRef(sum, newInstance(EPTypePremade.BIGDECIMAL.getEPType(), constant(0d)))
                         .assignRef(cnt, constant(0));
     }
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndIndexed;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndMapped;
 import com.espertech.esper.common.internal.event.util.PropertyUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,7 +38,7 @@ public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implemen
     private final Object key;
 
     public KeyedMethodPropertyGetter(Method method, Object key, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, method.getReturnType(), null);
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, ClassHelperGenericType.getMethodReturnEPType(method));
         this.key = key;
         this.method = method;
     }
@@ -67,8 +69,10 @@ public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implemen
         }
     }
 
-    protected static CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, Class targetType, Method method, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(method.getReturnType(), KeyedMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(method.getParameterTypes()[0], "key").getBlock()
+    protected static CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, EPTypeClass targetType, Method method, CodegenClassScope codegenClassScope) {
+        EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+        EPTypeClass parameterType = ClassHelperGenericType.getParameterType(method.getParameters()[0]);
+        return codegenMethodScope.makeChild(returnType, KeyedMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(parameterType, "key").getBlock()
                 .methodReturn(exprDotMethod(ref("object"), method.getName(), ref("key")));
     }
 
@@ -91,12 +95,8 @@ public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implemen
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Class getBeanPropType() {
-        return method.getReturnType();
-    }
-
-    public Class getTargetType() {
-        return method.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(method.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

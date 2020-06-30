@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForgeGetCodegenContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -22,7 +23,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class AggregationAccessorWindowWEvalForge implements AggregationAccessorForge {
     private final int streamNum;
     private final ExprForge childNode;
-    private final Class componentType;
+    private final EPTypeClass componentType;
 
     /**
      * Ctor.
@@ -31,7 +32,7 @@ public class AggregationAccessorWindowWEvalForge implements AggregationAccessorF
      * @param childNode     expression
      * @param componentType type
      */
-    public AggregationAccessorWindowWEvalForge(int streamNum, ExprForge childNode, Class componentType) {
+    public AggregationAccessorWindowWEvalForge(int streamNum, ExprForge childNode, EPTypeClass componentType) {
         this.streamNum = streamNum;
         this.childNode = childNode;
         this.componentType = componentType;
@@ -61,7 +62,7 @@ public class AggregationAccessorWindowWEvalForge implements AggregationAccessorF
         return childNode;
     }
 
-    public Class getComponentType() {
+    public EPTypeClass getComponentType() {
         return componentType;
     }
 }

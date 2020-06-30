@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.agg.method.sum;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -30,21 +33,23 @@ import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
+
 public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
     protected final ExprSumNode parent;
-    protected final Class resultType;
-    protected final Class inputValueType;
+    protected final EPTypeClass resultType;
+    protected final EPTypeClass inputValueType;
     protected final DataInputOutputSerdeForge distinctSerde;
     protected AggregatorMethod aggregator;
 
-    public AggregationForgeFactorySum(ExprSumNode parent, Class inputValueType, DataInputOutputSerdeForge distinctSerde) {
+    public AggregationForgeFactorySum(ExprSumNode parent, EPTypeClass inputValueType, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
         this.inputValueType = inputValueType;
         this.distinctSerde = distinctSerde;
         this.resultType = getSumAggregatorType(inputValueType);
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return resultType;
     }
 
@@ -53,8 +58,8 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
     }
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        Class distinctValueType = !parent.isDistinct() ? null : inputValueType;
-        if (resultType == BigInteger.class || resultType == BigDecimal.class) {
+        EPTypeClass distinctValueType = !parent.isDistinct() ? null : inputValueType;
+        if (resultType.getType() == BigInteger.class || resultType.getType() == BigDecimal.class) {
             aggregator = new AggregatorSumBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
         } else {
             aggregator = new AggregatorSumNonBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
@@ -73,12 +78,12 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
         return new AggregationPortableValidationSum(parent.isDistinct(), parent.isHasFilter(), inputValueType);
     }
 
-    private Class getSumAggregatorType(Class type) {
-        if (type == BigInteger.class) {
-            return BigInteger.class;
+    private EPTypeClass getSumAggregatorType(EPTypeClass type) {
+        if (type.getType() == BigInteger.class) {
+            return EPTypePremade.BIGINTEGER.getEPType();
         }
-        if (type == BigDecimal.class) {
-            return BigDecimal.class;
+        if (type.getType() == BigDecimal.class) {
+            return EPTypePremade.BIGDECIMAL.getEPType();
         }
         return JavaClassHelper.getBoxedType(getMemberType(type));
     }
@@ -87,7 +92,7 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
         SimpleNumberCoercer coercer;
         if (inputValueType == Long.class || inputValueType == long.class) {
             coercer = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.INSTANCE;
-        } else if (inputValueType == Integer.class || inputValueType == int.class) {
+        } else if (isTypeInteger(inputValueType)) {
             coercer = SimpleNumberCoercerFactory.SimpleNumberCoercerInt.INSTANCE;
         } else if (inputValueType == Double.class || inputValueType == double.class) {
             coercer = SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.INSTANCE;
@@ -99,17 +104,18 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
         return coercer;
     }
 
-    protected static Class getMemberType(Class inputValueType) {
+    protected static EPTypeClass getMemberType(EPTypeClass type) {
+        Class inputValueType = type.getType();
         if (inputValueType == Long.class || inputValueType == long.class) {
-            return long.class;
-        } else if (inputValueType == Integer.class || inputValueType == int.class) {
-            return int.class;
+            return EPTypePremade.LONGPRIMITIVE.getEPType();
+        } else if (isTypeInteger(inputValueType)) {
+            return EPTypePremade.INTEGERPRIMITIVE.getEPType();
         } else if (inputValueType == Double.class || inputValueType == double.class) {
-            return double.class;
+            return EPTypePremade.DOUBLEPRIMITIVE.getEPType();
         } else if (inputValueType == Float.class || inputValueType == float.class) {
-            return float.class;
+            return EPTypePremade.FLOATPRIMITIVE.getEPType();
         } else {
-            return int.class;
+            return EPTypePremade.INTEGERPRIMITIVE.getEPType();
         }
     }
 }

@@ -10,24 +10,25 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 public class ExprDotForgeGetArray implements ExprDotForge {
-    private final EPType typeInfo;
+    private final EPChainableType typeInfo;
     private final ExprForge indexExpression;
 
-    public ExprDotForgeGetArray(ExprForge index, Class componentType) {
+    public ExprDotForgeGetArray(ExprForge index, EPTypeClass componentType) {
         this.indexExpression = index;
-        this.typeInfo = EPTypeHelper.singleValue(componentType);
+        this.typeInfo = EPChainableTypeHelper.singleValue(componentType);
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return typeInfo;
     }
 
@@ -39,7 +40,7 @@ public class ExprDotForgeGetArray implements ExprDotForge {
         return new ExprDotForgeGetArrayEval(this, indexExpression.getExprEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return ExprDotForgeGetArrayEval.codegen(this, inner, innerType, parent, symbols, classScope);
     }
 

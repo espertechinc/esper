@@ -11,18 +11,18 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 import static org.junit.Assert.assertNull;
 
 public class ExprDTToDateCalMSec {
@@ -76,9 +76,9 @@ public class ExprDTToDateCalMSec {
                 "zoneddate.toMillisec() as val17" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Date.class, Date.class, Date.class, Date.class, Date.class, Date.class,
-                Calendar.class, Calendar.class, Calendar.class, Calendar.class, Calendar.class, Calendar.class,
-                Long.class, Long.class, Long.class, Long.class, Long.class, Long.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(),
+                CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(),
+                LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType()});
 
             env.sendEventBean(SupportDateTime.make(startTime));
             Object[] expectedUtil = SupportDateTime.getArrayCoerced(startTime, "util", "util", "util", "util", "util", "util");

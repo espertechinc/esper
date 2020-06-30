@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -25,10 +27,10 @@ public class ExprEqualsAllAnyNodeForge implements ExprForgeInstrumentable {
     private final ExprEqualsAllAnyNode parent;
     private final boolean mustCoerce;
     private final SimpleNumberCoercer coercer;
-    private final Class coercionTypeBoxed;
+    private final EPTypeClass coercionTypeBoxed;
     private final boolean hasCollectionOrArray;
 
-    public ExprEqualsAllAnyNodeForge(ExprEqualsAllAnyNode parent, boolean mustCoerce, SimpleNumberCoercer coercer, Class coercionTypeBoxed, boolean hasCollectionOrArray) {
+    public ExprEqualsAllAnyNodeForge(ExprEqualsAllAnyNode parent, boolean mustCoerce, SimpleNumberCoercer coercer, EPTypeClass coercionTypeBoxed, boolean hasCollectionOrArray) {
         this.parent = parent;
         this.mustCoerce = mustCoerce;
         this.coercer = coercer;
@@ -54,19 +56,19 @@ public class ExprEqualsAllAnyNodeForge implements ExprForgeInstrumentable {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprEqualsAnyOrAll", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (parent.isAll()) {
             return ExprEqualsAllAnyNodeForgeEvalAllWColl.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
         return ExprEqualsAllAnyNodeForgeEvalAnyWColl.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
-        return Boolean.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 
     public ExprEqualsAllAnyNode getForgeRenderable() {
@@ -81,7 +83,7 @@ public class ExprEqualsAllAnyNodeForge implements ExprForgeInstrumentable {
         return coercer;
     }
 
-    public Class getCoercionTypeBoxed() {
+    public EPTypeClass getCoercionTypeBoxed() {
         return coercionTypeBoxed;
     }
 }

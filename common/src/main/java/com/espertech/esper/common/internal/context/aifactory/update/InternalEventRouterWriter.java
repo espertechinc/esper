@@ -10,5 +10,8 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.update;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public abstract class InternalEventRouterWriter {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InternalEventRouterWriter.class);
 }

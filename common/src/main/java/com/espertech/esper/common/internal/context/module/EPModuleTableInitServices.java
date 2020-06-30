@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.table.core.TableCollector;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public interface EPModuleTableInitServices {
+    EPTypeClass EPTYPE = new EPTypeClass(EPModuleTableInitServices.class);
     CodegenExpressionRef REF = ref("epModuleTableInitServices");
 
     String GETTABLECOLLECTOR = "getTableCollector";

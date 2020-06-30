@@ -38,8 +38,8 @@ public class WrapperEventBeanUndCopyMethodForge implements EventBeanCopyMethodFo
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        return newInstance(WrapperEventBeanUndCopyMethod.class,
-                cast(WrapperEventType.class, EventTypeUtility.resolveTypeCodegen(wrapperEventType, EPStatementInitServices.REF)),
+        return newInstance(WrapperEventBeanUndCopyMethod.EPTYPE,
+                cast(WrapperEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(wrapperEventType, EPStatementInitServices.REF)),
                 factory,
                 underlyingCopyMethod.makeCopyMethodClassScoped(classScope));
     }

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
@@ -18,8 +20,6 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
-
-import java.util.Iterator;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
@@ -29,10 +29,10 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
  */
 public class AggregationAccessorSortedTable implements AggregationAccessorForge {
     private final boolean max;
-    private final Class componentType;
+    private final EPTypeClass componentType;
     private final TableMetaData table;
 
-    public AggregationAccessorSortedTable(boolean max, Class componentType, TableMetaData table) {
+    public AggregationAccessorSortedTable(boolean max, EPTypeClass componentType, TableMetaData table) {
         this.max = max;
         this.componentType = componentType;
         this.table = table;
@@ -44,12 +44,13 @@ public class AggregationAccessorSortedTable implements AggregationAccessorForge 
         CodegenExpression size = sorted.sizeCodegen();
         CodegenExpression iterator = max ? sorted.getReverseIteratorCodegen() : sorted.iteratorCodegen();
 
+        EPTypeClass arrayType = JavaClassHelper.getArrayType(componentType);
         context.getMethod().getBlock().ifCondition(equalsIdentity(size, constant(0))).blockReturn(constantNull())
-            .declareVar(JavaClassHelper.getArrayType(componentType), "array", newArrayByLength(componentType, size))
-            .declareVar(int.class, "count", constant(0))
-            .declareVar(Iterator.class, "it", iterator)
+            .declareVar(arrayType, "array", newArrayByLength(componentType, size))
+            .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(0))
+            .declareVar(EPTypePremade.ITERATOR.getEPType(), "it", iterator)
             .whileLoop(exprDotMethod(ref("it"), "hasNext"))
-            .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
+            .declareVar(EventBean.EPTYPE, "bean", cast(EventBean.EPTYPE, exprDotMethod(ref("it"), "next")))
             .assignArrayElement(ref("array"), ref("count"), exprDotMethod(eventToPublic, "convertToUnd", ref("bean"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
             .incrementRef("count")
             .blockEnd()

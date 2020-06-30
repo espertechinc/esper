@@ -12,9 +12,7 @@ package com.espertech.esper.common.internal.event.bean.core;
 
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
-import com.espertech.esper.common.internal.support.SupportBeanSimple;
-import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.common.internal.supportunit.bean.SupportBeanCombinedProps;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
@@ -22,6 +20,8 @@ import junit.framework.TestCase;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static com.espertech.esper.common.client.type.EPTypeClassParameterized.from;
 
 public class TestBeanEventType extends TestCase {
     private BeanEventType eventTypeSimple;
@@ -73,23 +73,21 @@ public class TestBeanEventType extends TestCase {
         assertTrue(properties.length == 2);
         assertTrue(properties[0].equals("myInt"));
         assertTrue(properties[1].equals("myString"));
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-                new EventPropertyDescriptor("myInt", int.class, null, false, false, false, false, false),
-                new EventPropertyDescriptor("myString", String.class, null, false, false, false, false, false)
-        }, eventTypeSimple.getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(eventTypeSimple.getPropertyDescriptors(),
+                new SupportEventPropDesc("myInt", int.class),
+                new SupportEventPropDesc("myString", String.class));
 
         properties = eventTypeComplex.getPropertyNames();
         EPAssertionUtil.assertEqualsAnyOrder(SupportBeanComplexProps.PROPERTIES, properties);
 
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-                new EventPropertyDescriptor("simpleProperty", String.class, null, false, false, false, false, false),
-                new EventPropertyDescriptor("mapProperty", Map.class, String.class, false, false, false, true, false),
-                new EventPropertyDescriptor("mapped", String.class, Object.class, false, true, false, true, false),
-                new EventPropertyDescriptor("indexed", int.class, null, true, false, true, false, false),
-                new EventPropertyDescriptor("nested", SupportBeanComplexProps.SupportBeanSpecialGetterNested.class, null, false, false, false, false, true),
-                new EventPropertyDescriptor("arrayProperty", int[].class, int.class, false, false, true, false, false),
-                new EventPropertyDescriptor("objectArray", Object[].class, Object.class, false, false, true, false, false),
-        }, eventTypeComplex.getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(eventTypeComplex.getPropertyDescriptors(),
+                new SupportEventPropDesc("simpleProperty", String.class),
+                new SupportEventPropDesc("mapProperty", from(Map.class, String.class, String.class)).componentType(String.class).mapped(),
+                new SupportEventPropDesc("mapped", String.class).mappedRequiresKey(),
+                new SupportEventPropDesc("indexed", int.class).indexedRequiresIndex(),
+                new SupportEventPropDesc("nested", SupportBeanComplexProps.SupportBeanSpecialGetterNested.class).fragment(),
+                new SupportEventPropDesc("arrayProperty", int[].class).componentType(int.class).indexed(),
+                new SupportEventPropDesc("objectArray", Object[].class).componentType(Object.class).indexed());
 
         properties = eventTypeNested.getPropertyNames();
         EPAssertionUtil.assertEqualsAnyOrder(SupportBeanCombinedProps.PROPERTIES, properties);

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
@@ -17,6 +18,8 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 public interface ContextControllerPortableInfo {
+    EPTypeClass EPTYPE = new EPTypeClass(ContextControllerPortableInfo.class);
+
     CodegenExpression make(CodegenExpressionRef addInitSvc);
 
     void validateStatement(String contextName, StatementSpecCompiled spec, StatementCompileTimeServices compileTimeServices) throws ExprValidationException;

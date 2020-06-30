@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.NoLock;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationNoLock implements NoLock {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationNoLock.class);
+
     public Class<? extends Annotation> annotationType() {
         return NoLock.class;
     }

@@ -28,7 +28,7 @@ import com.espertech.esper.common.internal.epl.pattern.matchuntil.EvalMatchUntil
 import com.espertech.esper.common.internal.epl.pattern.or.EvalOrForgeNode;
 import com.espertech.esper.common.internal.epl.rowrecog.expr.RowRecogExprNodePrecedenceEnum;
 import com.espertech.esper.common.internal.support.*;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.common.internal.type.OuterJoinType;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
@@ -139,7 +139,7 @@ public class TestEPLTreeWalker extends TestCase {
     }
 
     private void assertSchema(ColumnDesc element, String name, String type, boolean isArray) {
-        ClassIdentifierWArray clazz = ClassIdentifierWArray.parseSODA(element.getType());
+        ClassDescriptor clazz = ClassDescriptor.parseTypeText(element.getType());
         assertEquals(name, element.getName());
         assertEquals(type, clazz.getClassIdentifier());
         assertEquals(isArray, clazz.getArrayDimensions() > 0);

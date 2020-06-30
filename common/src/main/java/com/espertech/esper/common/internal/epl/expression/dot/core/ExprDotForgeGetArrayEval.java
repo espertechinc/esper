@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -20,8 +24,8 @@ import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCas
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.lang.reflect.Array;
 
@@ -57,7 +61,7 @@ public class ExprDotForgeGetArrayEval implements ExprDotEval {
         return Array.get(target, indexNum);
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return forge.getTypeInfo();
     }
 
@@ -65,15 +69,19 @@ public class ExprDotForgeGetArrayEval implements ExprDotEval {
         return forge;
     }
 
-    public static CodegenExpression codegen(ExprDotForgeGetArray forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypeHelper.getNormalizedClass(forge.getTypeInfo()), ExprDotForgeGetArrayEval.class, codegenClassScope).addParam(innerType, "target");
+    public static CodegenExpression codegen(ExprDotForgeGetArray forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPType returnType = EPChainableTypeHelper.getNormalizedEPType(forge.getTypeInfo());
+        if (returnType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) returnType, ExprDotForgeGetArrayEval.class, codegenClassScope).addParam(innerType, "target");
 
         CodegenBlock block = methodNode.getBlock();
-        if (!innerType.isPrimitive()) {
+        if (!innerType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
-        Class targetType = EPTypeHelper.getCodegenReturnType(forge.getTypeInfo());
-        block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(int.class, methodNode, exprSymbol, codegenClassScope))
+        EPTypeClass targetType = EPChainableTypeHelper.getCodegenReturnType(forge.getTypeInfo());
+        block.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", forge.getIndexExpression().evaluateCodegen(EPTypePremade.INTEGERPRIMITIVE.getEPType(), methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(relational(arrayLength(ref("target")), LE, ref("index")))
                 .blockReturn(constantNull())
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(targetType, arrayAtIndex(ref("target"), ref("index"))));

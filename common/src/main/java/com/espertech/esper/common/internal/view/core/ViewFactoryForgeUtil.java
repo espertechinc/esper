@@ -328,8 +328,8 @@ public class ViewFactoryForgeUtil {
     }
 
     public static CodegenMethod makeViewFactories(List<ViewFactoryForge> forges, Class generator, CodegenMethodScope parent, CodegenClassScope classScope, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(ViewFactory[].class, generator, classScope);
-        method.getBlock().declareVar(ViewFactory[].class, "groupeds", newArrayByLength(ViewFactory.class, constant(forges.size())));
+        CodegenMethod method = parent.makeChild(ViewFactory.EPTYPEARRAY, generator, classScope);
+        method.getBlock().declareVar(ViewFactory.EPTYPEARRAY, "groupeds", newArrayByLength(ViewFactory.EPTYPE, constant(forges.size())));
         for (int i = 0; i < forges.size(); i++) {
             method.getBlock().assignArrayElement("groupeds", constant(i), forges.get(i).make(method, symbols, classScope));
         }
@@ -339,18 +339,18 @@ public class ViewFactoryForgeUtil {
 
     public static CodegenExpression codegenForgesWInit(List<ViewFactoryForge> forges, int streamNum, Integer subqueryNum,
                                                        CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ViewFactory[].class, ViewFactoryForgeUtil.class, classScope);
+        CodegenMethod method = parent.makeChild(ViewFactory.EPTYPEARRAY, ViewFactoryForgeUtil.class, classScope);
         method.getBlock()
-                .declareVar(ViewFactory[].class, "factories", newArrayByLength(ViewFactory.class, constant(forges.size())));
+                .declareVar(ViewFactory.EPTYPEARRAY, "factories", newArrayByLength(ViewFactory.EPTYPE, constant(forges.size())));
 
         boolean grouped = !forges.isEmpty() && forges.get(0) instanceof GroupByViewFactoryForge;
-        method.getBlock().declareVar(ViewFactoryContext.class, "ctx", newInstance(ViewFactoryContext.class))
+        method.getBlock().declareVarNewInstance(ViewFactoryContext.EPTYPE, "ctx")
                 .exprDotMethod(ref("ctx"), "setStreamNum", constant(streamNum))
                 .exprDotMethod(ref("ctx"), "setSubqueryNumber", constant(subqueryNum))
                 .exprDotMethod(ref("ctx"), "setGrouped", constant(grouped));
         for (int i = 0; i < forges.size(); i++) {
             String ref = "factory_" + i;
-            method.getBlock().declareVar(ViewFactory.class, ref, forges.get(i).make(method, symbols, classScope))
+            method.getBlock().declareVar(ViewFactory.EPTYPE, ref, forges.get(i).make(method, symbols, classScope))
                     .exprDotMethod(ref(ref), "init", ref("ctx"), symbols.getAddInitSvc(method))
                     .assignArrayElement(ref("factories"), constant(i), ref(ref));
         }

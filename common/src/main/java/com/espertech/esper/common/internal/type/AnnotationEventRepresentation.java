@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.EventRepresentation;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationEventRepresentation implements EventRepresentation {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationEventRepresentation.class);
+
     private final EventUnderlyingType value;
 
     public AnnotationEventRepresentation(EventUnderlyingType value) {

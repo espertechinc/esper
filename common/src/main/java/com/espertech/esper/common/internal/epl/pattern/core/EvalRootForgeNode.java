@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.pattern.core;
 
 import com.espertech.esper.common.client.annotation.AuditEnum;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
@@ -37,8 +38,8 @@ public class EvalRootForgeNode extends EvalForgeNodeBase {
         assignFactoryNodeIds(audit);
     }
 
-    protected Class typeOfFactory() {
-        return EvalRootFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalRootFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {

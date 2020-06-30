@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -61,30 +63,30 @@ public enum MathArithTypeEnum {
 
     static {
         computers = new HashMap<>();
-        computers.put(new MathArithDesc(Double.class, ADD), new AddDouble());
-        computers.put(new MathArithDesc(Float.class, ADD), new AddFloat());
-        computers.put(new MathArithDesc(Long.class, ADD), new AddLong());
-        computers.put(new MathArithDesc(Integer.class, ADD), new AddInt());
-        computers.put(new MathArithDesc(BigDecimal.class, ADD), new AddBigDec());
-        computers.put(new MathArithDesc(BigInteger.class, ADD), new AddBigInt());
-        computers.put(new MathArithDesc(Double.class, SUBTRACT), new SubtractDouble());
-        computers.put(new MathArithDesc(Float.class, SUBTRACT), new SubtractFloat());
-        computers.put(new MathArithDesc(Long.class, SUBTRACT), new SubtractLong());
-        computers.put(new MathArithDesc(Integer.class, SUBTRACT), new SubtractInt());
-        computers.put(new MathArithDesc(BigDecimal.class, SUBTRACT), new SubtractBigDec());
-        computers.put(new MathArithDesc(BigInteger.class, SUBTRACT), new SubtractBigInt());
-        computers.put(new MathArithDesc(Double.class, MULTIPLY), new MultiplyDouble());
-        computers.put(new MathArithDesc(Float.class, MULTIPLY), new MultiplyFloat());
-        computers.put(new MathArithDesc(Long.class, MULTIPLY), new MultiplyLong());
-        computers.put(new MathArithDesc(Integer.class, MULTIPLY), new MultiplyInt());
-        computers.put(new MathArithDesc(BigDecimal.class, MULTIPLY), new MultiplyBigDec());
-        computers.put(new MathArithDesc(BigInteger.class, MULTIPLY), new MultiplyBigInt());
-        computers.put(new MathArithDesc(Double.class, MODULO), new ModuloDouble());
-        computers.put(new MathArithDesc(Float.class, MODULO), new ModuloFloat());
-        computers.put(new MathArithDesc(Long.class, MODULO), new ModuloLong());
-        computers.put(new MathArithDesc(Integer.class, MODULO), new ModuloInt());
-        computers.put(new MathArithDesc(BigDecimal.class, MODULO), new ModuloDouble());
-        computers.put(new MathArithDesc(BigInteger.class, MODULO), new ModuloLong());
+        computers.put(new MathArithDesc(EPTypePremade.DOUBLEBOXED.getEPType(), ADD), new AddDouble());
+        computers.put(new MathArithDesc(EPTypePremade.FLOATBOXED.getEPType(), ADD), new AddFloat());
+        computers.put(new MathArithDesc(EPTypePremade.LONGBOXED.getEPType(), ADD), new AddLong());
+        computers.put(new MathArithDesc(EPTypePremade.INTEGERBOXED.getEPType(), ADD), new AddInt());
+        computers.put(new MathArithDesc(EPTypePremade.BIGDECIMAL.getEPType(), ADD), new AddBigDec());
+        computers.put(new MathArithDesc(EPTypePremade.BIGINTEGER.getEPType(), ADD), new AddBigInt());
+        computers.put(new MathArithDesc(EPTypePremade.DOUBLEBOXED.getEPType(), SUBTRACT), new SubtractDouble());
+        computers.put(new MathArithDesc(EPTypePremade.FLOATBOXED.getEPType(), SUBTRACT), new SubtractFloat());
+        computers.put(new MathArithDesc(EPTypePremade.LONGBOXED.getEPType(), SUBTRACT), new SubtractLong());
+        computers.put(new MathArithDesc(EPTypePremade.INTEGERBOXED.getEPType(), SUBTRACT), new SubtractInt());
+        computers.put(new MathArithDesc(EPTypePremade.BIGDECIMAL.getEPType(), SUBTRACT), new SubtractBigDec());
+        computers.put(new MathArithDesc(EPTypePremade.BIGINTEGER.getEPType(), SUBTRACT), new SubtractBigInt());
+        computers.put(new MathArithDesc(EPTypePremade.DOUBLEBOXED.getEPType(), MULTIPLY), new MultiplyDouble());
+        computers.put(new MathArithDesc(EPTypePremade.FLOATBOXED.getEPType(), MULTIPLY), new MultiplyFloat());
+        computers.put(new MathArithDesc(EPTypePremade.LONGBOXED.getEPType(), MULTIPLY), new MultiplyLong());
+        computers.put(new MathArithDesc(EPTypePremade.INTEGERBOXED.getEPType(), MULTIPLY), new MultiplyInt());
+        computers.put(new MathArithDesc(EPTypePremade.BIGDECIMAL.getEPType(), MULTIPLY), new MultiplyBigDec());
+        computers.put(new MathArithDesc(EPTypePremade.BIGINTEGER.getEPType(), MULTIPLY), new MultiplyBigInt());
+        computers.put(new MathArithDesc(EPTypePremade.DOUBLEBOXED.getEPType(), MODULO), new ModuloDouble());
+        computers.put(new MathArithDesc(EPTypePremade.FLOATBOXED.getEPType(), MODULO), new ModuloFloat());
+        computers.put(new MathArithDesc(EPTypePremade.LONGBOXED.getEPType(), MODULO), new ModuloLong());
+        computers.put(new MathArithDesc(EPTypePremade.INTEGERBOXED.getEPType(), MODULO), new ModuloInt());
+        computers.put(new MathArithDesc(EPTypePremade.BIGDECIMAL.getEPType(), MODULO), new ModuloDouble());
+        computers.put(new MathArithDesc(EPTypePremade.BIGINTEGER.getEPType(), MODULO), new ModuloLong());
     }
 
     /**
@@ -100,7 +102,7 @@ public enum MathArithTypeEnum {
          */
         Number compute(Number d1, Number d2);
 
-        CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype);
+        CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype);
     }
 
     private String expressionText;
@@ -112,7 +114,7 @@ public enum MathArithTypeEnum {
     /**
      * Returns number cruncher for the target coercion type.
      *
-     * @param coercedType                 - target type
+     * @param coercedTypeClass            - target type
      * @param typeOne                     - the LHS type
      * @param typeTwo                     - the RHS type
      * @param isIntegerDivision           - false for division returns double, true for using Java-standard integer division
@@ -120,7 +122,8 @@ public enum MathArithTypeEnum {
      * @param optionalMathContext         - math context or null
      * @return number cruncher
      */
-    public Computer getComputer(Class coercedType, Class typeOne, Class typeTwo, boolean isIntegerDivision, boolean isDivisionByZeroReturnsNull, MathContext optionalMathContext) {
+    public Computer getComputer(EPTypeClass coercedTypeClass, EPTypeClass typeOne, EPTypeClass typeTwo, boolean isIntegerDivision, boolean isDivisionByZeroReturnsNull, MathContext optionalMathContext) {
+        Class coercedType = coercedTypeClass.getType();
         if ((coercedType != Double.class) &&
             (coercedType != Float.class) &&
             (coercedType != Long.class) &&
@@ -140,7 +143,7 @@ public enum MathArithTypeEnum {
         }
 
         if (this != DIVIDE) {
-            MathArithDesc key = new MathArithDesc(coercedType, this);
+            MathArithDesc key = new MathArithDesc(coercedTypeClass, this);
             Computer computer = computers.get(key);
             if (computer == null) {
                 throw new IllegalArgumentException("Could not determine process or type " + this + " type " + coercedType);
@@ -160,15 +163,15 @@ public enum MathArithTypeEnum {
         throw new IllegalArgumentException("Could not determine process or type " + this + " type " + coercedType);
     }
 
-    private Computer makeBigDecimalComputer(Class typeOne, Class typeTwo, boolean divisionByZeroReturnsNull, MathContext optionalMathContext) {
-        if ((typeOne == BigDecimal.class) && (typeTwo == BigDecimal.class)) {
+    private Computer makeBigDecimalComputer(EPTypeClass typeOne, EPTypeClass typeTwo, boolean divisionByZeroReturnsNull, MathContext optionalMathContext) {
+        if ((typeOne.getType() == BigDecimal.class) && (typeTwo.getType() == BigDecimal.class)) {
             if (this == DIVIDE) {
                 if (optionalMathContext != null) {
                     return new DivideBigDecWMathContext(divisionByZeroReturnsNull, optionalMathContext);
                 }
                 return new DivideBigDec(divisionByZeroReturnsNull);
             }
-            return computers.get(new MathArithDesc(BigDecimal.class, this));
+            return computers.get(new MathArithDesc(EPTypePremade.BIGDECIMAL.getEPType(), this));
         }
         SimpleNumberBigDecimalCoercer convertorOne = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeOne);
         SimpleNumberBigDecimalCoercer convertorTwo = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeTwo);
@@ -190,12 +193,12 @@ public enum MathArithTypeEnum {
         return new ModuloDouble();
     }
 
-    private Computer makeBigIntegerComputer(Class typeOne, Class typeTwo) {
-        if ((typeOne == BigDecimal.class) && (typeTwo == BigDecimal.class)) {
-            return computers.get(new MathArithDesc(BigDecimal.class, this));
+    private Computer makeBigIntegerComputer(EPTypeClass typeOne, EPTypeClass typeTwo) {
+        if ((typeOne.getType() == BigDecimal.class) && (typeTwo.getType() == BigDecimal.class)) {
+            return computers.get(new MathArithDesc(EPTypePremade.BIGDECIMAL.getEPType(), this));
         }
-        if ((typeOne == BigInteger.class) && (typeTwo == BigInteger.class)) {
-            Computer computer = computers.get(new MathArithDesc(BigInteger.class, this));
+        if ((typeOne.getType() == BigInteger.class) && (typeTwo.getType() == BigInteger.class)) {
+            Computer computer = computers.get(new MathArithDesc(EPTypePremade.BIGINTEGER.getEPType(), this));
             if (computer != null) {
                 return computer;
             }
@@ -225,7 +228,7 @@ public enum MathArithTypeEnum {
             return d1.doubleValue() + d2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsDouble(left, ltype), "+", codegenAsDouble(right, rtype));
         }
     }
@@ -238,7 +241,7 @@ public enum MathArithTypeEnum {
             return d1.floatValue() + d2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsFloat(left, ltype), "+", codegenAsFloat(right, rtype));
         }
     }
@@ -251,7 +254,7 @@ public enum MathArithTypeEnum {
             return d1.longValue() + d2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsLong(left, ltype), "+", codegenAsLong(right, rtype));
         }
     }
@@ -264,7 +267,7 @@ public enum MathArithTypeEnum {
             return d1.intValue() + d2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsInt(left, ltype), "+", codegenAsInt(right, rtype));
         }
     }
@@ -279,7 +282,7 @@ public enum MathArithTypeEnum {
             return b1.add(b2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return exprDotMethod(left, "add", right);
         }
     }
@@ -294,7 +297,7 @@ public enum MathArithTypeEnum {
             return b1.add(b2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return exprDotMethod(left, "add", right);
         }
     }
@@ -307,7 +310,7 @@ public enum MathArithTypeEnum {
             return d1.doubleValue() - d2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsDouble(left, ltype), "-", codegenAsDouble(right, rtype));
         }
     }
@@ -320,7 +323,7 @@ public enum MathArithTypeEnum {
             return d1.floatValue() - d2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsFloat(left, ltype), "-", codegenAsFloat(right, rtype));
         }
     }
@@ -333,7 +336,7 @@ public enum MathArithTypeEnum {
             return d1.longValue() - d2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsLong(left, ltype), "-", codegenAsLong(right, rtype));
         }
     }
@@ -346,7 +349,7 @@ public enum MathArithTypeEnum {
             return d1.intValue() - d2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsInt(left, ltype), "-", codegenAsInt(right, rtype));
         }
     }
@@ -361,7 +364,7 @@ public enum MathArithTypeEnum {
             return b1.subtract(b2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return exprDotMethod(left, "subtract", right);
         }
     }
@@ -376,7 +379,7 @@ public enum MathArithTypeEnum {
             return b1.subtract(b2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return exprDotMethod(left, "subtract", right);
         }
     }
@@ -404,12 +407,12 @@ public enum MathArithTypeEnum {
             return d1.doubleValue() / d2Double;
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             if (!divisionByZeroReturnsNull) {
                 return op(codegenAsDouble(left, ltype), "/", codegenAsDouble(right, rtype));
             }
-            CodegenMethod method = codegenMethodScope.makeChild(Double.class, DivideDouble.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                .declareVar(double.class, "d2Double", codegenAsDouble(ref("d2"), rtype))
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.DOUBLEBOXED.getEPType(), DivideDouble.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
+                .declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "d2Double", codegenAsDouble(ref("d2"), rtype))
                 .ifCondition(equalsIdentity(ref("d2Double"), constant(0)))
                 .blockReturn(constantNull())
                 .methodReturn(op(codegenAsDouble(ref("d1"), ltype), "/", ref("d2Double")));
@@ -429,7 +432,7 @@ public enum MathArithTypeEnum {
             return d1.floatValue() / d2Float;
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsFloat(left, ltype), "/", codegenAsFloat(right, rtype));
         }
     }
@@ -446,7 +449,7 @@ public enum MathArithTypeEnum {
             return d1.longValue() / d2Long;
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsLong(left, ltype), "/", codegenAsLong(right, rtype));
         }
     }
@@ -463,8 +466,8 @@ public enum MathArithTypeEnum {
             return i1.intValue() / i2int;
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            CodegenMethod method = codegenMethodScope.makeChild(Integer.class, DivideInt.class, codegenClassScope).addParam(int.class, "i1").addParam(int.class, "i2").getBlock()
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.INTEGERBOXED.getEPType(), DivideInt.class, codegenClassScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "i1").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "i2").getBlock()
                 .ifCondition(equalsIdentity(ref("i2"), constant(0)))
                 .blockReturn(constantNull())
                 .methodReturn(op(ref("i1"), "/", ref("i2")));
@@ -501,13 +504,13 @@ public enum MathArithTypeEnum {
             return b1.divide(b2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            CodegenBlock block = codegenMethodScope.makeChild(BigDecimal.class, DivideBigDec.class, codegenClassScope).addParam(BigDecimal.class, "b1").addParam(BigDecimal.class, "b2").getBlock();
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), DivideBigDec.class, codegenClassScope).addParam(EPTypePremade.BIGDECIMAL.getEPType(), "b1").addParam(EPTypePremade.BIGDECIMAL.getEPType(), "b2").getBlock();
             CodegenBlock ifBlock = block.ifCondition(equalsIdentity(exprDotMethod(ref("b1"), "doubleValue"), constant(0d)));
             if (divisionByZeroReturnsNull) {
                 ifBlock.blockReturn(constantNull());
             } else {
-                ifBlock.blockReturn(newInstance(BigDecimal.class, op(exprDotMethod(ref("b1"), "doubleValue"), "/", constant(0d))));
+                ifBlock.blockReturn(newInstance(EPTypePremade.BIGDECIMAL.getEPType(), op(exprDotMethod(ref("b1"), "doubleValue"), "/", constant(0d))));
             }
             CodegenMethod method = block.methodReturn(exprDotMethod(ref("b1"), "divide", ref("b2")));
             return localMethod(method, left, right);
@@ -546,15 +549,15 @@ public enum MathArithTypeEnum {
             return b1.divide(b2, mathContext);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             CodegenExpression math = codegenClassScope.addOrGetFieldSharable(new MathContextCodegenField(mathContext));
-            CodegenBlock block = codegenMethodScope.makeChild(BigDecimal.class, DivideBigDecWMathContext.class, codegenClassScope).addParam(BigDecimal.class, "b1").addParam(BigDecimal.class, "b2").getBlock();
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), DivideBigDecWMathContext.class, codegenClassScope).addParam(EPTypePremade.BIGDECIMAL.getEPType(), "b1").addParam(EPTypePremade.BIGDECIMAL.getEPType(), "b2").getBlock();
             CodegenBlock ifZero = block.ifCondition(equalsIdentity(exprDotMethod(ref("b2"), "doubleValue"), constant(0)));
             {
                 if (divisionByZeroReturnsNull) {
                     ifZero.blockReturn(constantNull());
                 } else {
-                    ifZero.blockReturn(newInstance(BigDecimal.class, op(exprDotMethod(ref("b1"), "doubleValue"), "/", constant(0))));
+                    ifZero.blockReturn(newInstance(EPTypePremade.BIGDECIMAL.getEPType(), op(exprDotMethod(ref("b1"), "doubleValue"), "/", constant(0))));
                 }
             }
             CodegenMethod method = block.methodReturn(exprDotMethod(ref("b1"), "divide", ref("b2"), math));
@@ -570,7 +573,7 @@ public enum MathArithTypeEnum {
             return d1.doubleValue() * d2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsDouble(left, ltype), "*", codegenAsDouble(right, rtype));
         }
     }
@@ -583,7 +586,7 @@ public enum MathArithTypeEnum {
             return d1.floatValue() * d2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsFloat(left, ltype), "*", codegenAsFloat(right, rtype));
         }
     }
@@ -596,7 +599,7 @@ public enum MathArithTypeEnum {
             return d1.longValue() * d2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsLong(left, ltype), "*", codegenAsLong(right, rtype));
         }
     }
@@ -609,7 +612,7 @@ public enum MathArithTypeEnum {
             return d1.intValue() * d2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsInt(left, ltype), "*", codegenAsInt(right, rtype));
         }
     }
@@ -624,7 +627,7 @@ public enum MathArithTypeEnum {
             return b1.multiply(b2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return exprDotMethod(left, "multiply", right);
         }
     }
@@ -639,7 +642,7 @@ public enum MathArithTypeEnum {
             return b1.multiply(b2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return exprDotMethod(left, "multiply", right);
         }
     }
@@ -652,7 +655,7 @@ public enum MathArithTypeEnum {
             return d1.doubleValue() % d2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsDouble(left, ltype), "%", codegenAsDouble(right, rtype));
         }
     }
@@ -665,7 +668,7 @@ public enum MathArithTypeEnum {
             return d1.floatValue() % d2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsFloat(left, ltype), "%", codegenAsFloat(right, rtype));
         }
     }
@@ -678,7 +681,7 @@ public enum MathArithTypeEnum {
             return d1.longValue() % d2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsLong(left, ltype), "%", codegenAsLong(right, rtype));
         }
     }
@@ -691,7 +694,7 @@ public enum MathArithTypeEnum {
             return d1.intValue() % d2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             return op(codegenAsInt(left, ltype), "%", codegenAsInt(right, rtype));
         }
     }
@@ -720,7 +723,7 @@ public enum MathArithTypeEnum {
             return s1.add(s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             CodegenExpression leftAsBig = convOne.coerceBoxedBigDecCodegen(left, ltype);
             CodegenExpression rightAsBig = convTwo.coerceBoxedBigDecCodegen(right, rtype);
             return exprDotMethod(leftAsBig, "add", rightAsBig);
@@ -751,10 +754,10 @@ public enum MathArithTypeEnum {
             return s1.subtract(s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            CodegenMethod method = codegenMethodScope.makeChild(BigDecimal.class, SubtractBigDecConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
-                .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), SubtractBigDecConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
+                .declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
+                .declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
                 .methodReturn(exprDotMethod(ref("s1"), "subtract", ref("s2")));
             return localMethodBuild(method).pass(left).pass(right).call();
         }
@@ -784,10 +787,10 @@ public enum MathArithTypeEnum {
             return s1.multiply(s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            CodegenMethod method = codegenMethodScope.makeChild(BigDecimal.class, MultiplyBigDecConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
-                .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), MultiplyBigDecConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
+                .declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
+                .declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
                 .methodReturn(exprDotMethod(ref("s1"), "multiply", ref("s2")));
             return localMethodBuild(method).pass(left).pass(right).call();
         }
@@ -832,16 +835,16 @@ public enum MathArithTypeEnum {
             return doDivide(s1, s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            CodegenBlock block = codegenMethodScope.makeChild(BigDecimal.class, DivideBigDecConvComputerBase.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
-                .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype));
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
+            CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), DivideBigDecConvComputerBase.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
+                .declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
+                .declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype));
             CodegenBlock ifZeroDivisor = block.ifCondition(equalsIdentity(exprDotMethod(ref("s2"), "doubleValue"), constant(0)));
             if (divisionByZeroReturnsNull) {
                 ifZeroDivisor.blockReturn(constantNull());
             } else {
-                ifZeroDivisor.declareVar(double.class, "result", op(exprDotMethod(ref("s1"), "doubleValue"), "/", constant(0)))
-                    .blockReturn(newInstance(BigDecimal.class, ref("result")));
+                ifZeroDivisor.declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "result", op(exprDotMethod(ref("s1"), "doubleValue"), "/", constant(0)))
+                    .blockReturn(newInstance(EPTypePremade.BIGDECIMAL.getEPType(), ref("result")));
             }
             CodegenMethod method = block.methodReturn(doDivideCodegen(ref("s1"), ref("s2"), codegenClassScope));
             return localMethodBuild(method).pass(left).pass(right).call();
@@ -904,7 +907,7 @@ public enum MathArithTypeEnum {
             return s1.add(s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             CodegenExpression leftAsBig = convOne.coerceBoxedBigIntCodegen(left, ltype);
             CodegenExpression rightAsBig = convTwo.coerceBoxedBigIntCodegen(right, rtype);
             return exprDotMethod(leftAsBig, "add", rightAsBig);
@@ -935,7 +938,7 @@ public enum MathArithTypeEnum {
             return s1.subtract(s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             CodegenExpression leftAsBig = convOne.coerceBoxedBigIntCodegen(left, ltype);
             CodegenExpression rightAsBig = convTwo.coerceBoxedBigIntCodegen(right, rtype);
             return exprDotMethod(leftAsBig, "subtract", rightAsBig);
@@ -966,7 +969,7 @@ public enum MathArithTypeEnum {
             return s1.multiply(s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
             CodegenExpression leftAsBig = convOne.coerceBoxedBigIntCodegen(left, ltype);
             CodegenExpression rightAsBig = convTwo.coerceBoxedBigIntCodegen(right, rtype);
             return exprDotMethod(leftAsBig, "multiply", rightAsBig);
@@ -1000,10 +1003,10 @@ public enum MathArithTypeEnum {
             return s1.divide(s2);
         }
 
-        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            CodegenMethod method = codegenMethodScope.makeChild(BigInteger.class, DivideBigIntConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                .declareVar(BigInteger.class, "s1", convOne.coerceBoxedBigIntCodegen(ref("d1"), ltype))
-                .declareVar(BigInteger.class, "s2", convTwo.coerceBoxedBigIntCodegen(ref("d2"), rtype))
+        public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, EPTypeClass ltype, EPTypeClass rtype) {
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGINTEGER.getEPType(), DivideBigIntConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
+                .declareVar(EPTypePremade.BIGINTEGER.getEPType(), "s1", convOne.coerceBoxedBigIntCodegen(ref("d1"), ltype))
+                .declareVar(EPTypePremade.BIGINTEGER.getEPType(), "s2", convTwo.coerceBoxedBigIntCodegen(ref("d2"), rtype))
                 .ifCondition(equalsIdentity(exprDotMethod(ref("s2"), "doubleValue"), constant(0)))
                 .blockReturn(constantNull())
                 .methodReturn(exprDotMethod(ref("s1"), "divide", ref("s2")));
@@ -1036,27 +1039,27 @@ public enum MathArithTypeEnum {
         throw new IllegalArgumentException("Unknown operator '" + operator + "'");
     }
 
-    public static CodegenExpression codegenAsLong(CodegenExpression ref, Class type) {
+    public static CodegenExpression codegenAsLong(CodegenExpression ref, EPTypeClass type) {
         return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(ref, type);
     }
 
-    public static CodegenExpression codegenAsDouble(CodegenExpression ref, Class type) {
+    public static CodegenExpression codegenAsDouble(CodegenExpression ref, EPTypeClass type) {
         return SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(ref, type);
     }
 
-    public static CodegenExpression codegenAsInt(CodegenExpression ref, Class type) {
+    public static CodegenExpression codegenAsInt(CodegenExpression ref, EPTypeClass type) {
         return SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref, type);
     }
 
-    public static CodegenExpression codegenAsFloat(CodegenExpression ref, Class type) {
+    public static CodegenExpression codegenAsFloat(CodegenExpression ref, EPTypeClass type) {
         return SimpleNumberCoercerFactory.SimpleNumberCoercerFloat.codegenFloat(ref, type);
     }
 
     public static class MathArithDesc {
-        private final Class type;
+        private final EPTypeClass type;
         private final MathArithTypeEnum arith;
 
-        public MathArithDesc(Class type, MathArithTypeEnum arith) {
+        public MathArithDesc(EPTypeClass type, MathArithTypeEnum arith) {
             this.type = type;
             this.arith = arith;
         }

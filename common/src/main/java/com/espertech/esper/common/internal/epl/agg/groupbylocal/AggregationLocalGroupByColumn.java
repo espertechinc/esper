@@ -10,7 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class AggregationLocalGroupByColumn {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationLocalGroupByColumn.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(AggregationLocalGroupByColumn[].class);
+
     private final boolean defaultGroupLevel;
     private final int fieldNum;
     private final int levelNum;

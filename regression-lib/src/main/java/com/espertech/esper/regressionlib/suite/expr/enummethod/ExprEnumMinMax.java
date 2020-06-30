@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
@@ -22,9 +23,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.INTEGERBOXED;
+import static com.espertech.esper.common.client.type.EPTypePremade.STRING;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypes;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumMinMax {
 
@@ -67,8 +70,8 @@ public class ExprEnumMinMax {
             builder.expression(fields[6], "strvals.min( (v, i, s) => extractNum(v) + i*10 + s*100)");
             builder.expression(fields[7], "strvals.max( (v, i, s) => extractNum(v) + i*10 + s*100)");
 
-            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, Integer.class, String.class, String.class,
-                Integer.class, Integer.class, Integer.class, Integer.class}));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), STRING.getEPType(), STRING.getEPType(),
+                INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()}));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, 1, 5, "E1", "E5", 2, 34, 402, 434);
 
@@ -93,7 +96,7 @@ public class ExprEnumMinMax {
             builder.expression(fields[4], "contained.min( (x, i, s) => p00 + i*10 + s*100)");
             builder.expression(fields[5], "contained.max( (x, i, s) => p00 + i*10 + s*100)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, INTEGERBOXED.getEPType()));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,12", "E2,11", "E2,2")).expect(fields, 2, 12, 12, 22, 312, 322);
 
@@ -114,7 +117,7 @@ public class ExprEnumMinMax {
             builder.expression(fields[0], "strvals.min()");
             builder.expression(fields[1], "strvals.max()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, STRING.getEPType()));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, "E1", "E5");
 
@@ -134,6 +137,9 @@ public class ExprEnumMinMax {
 
             epl = "select contained.min() from SupportBean_ST0_Container";
             tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.min()': Invalid input for built-in enumeration method 'min' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean_ST0.class.getName() + "'");
+
+            epl = "select contained.min(x => null) from SupportBean_ST0_Container";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.min()': Null-type is not allowed");
         }
     }
 
@@ -144,6 +150,14 @@ public class ExprEnumMinMax {
 
         public static BigDecimal extractBigDecimal(String arg) {
             return new BigDecimal(arg.substring(1));
+        }
+    }
+
+    public static class MyEvent {
+        private MyEvent myevent;
+
+        public MyEvent getMyevent() {
+            return myevent;
         }
     }
 }

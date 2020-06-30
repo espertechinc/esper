@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Arrays;
 
 public final class MultiKeyArrayByte implements MultiKeyArrayWrap {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MultiKeyArrayByte.class);
     private final byte[] keys;
 
     public MultiKeyArrayByte(byte[] keys) {

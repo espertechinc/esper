@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -50,28 +52,28 @@ public class ExprEvalEnumerationAtBeanCollTable implements ExprForge, SelectExpr
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(table, codegenClassScope, this.getClass());
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean[].class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, this.getClass(), codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         methodNode.getBlock()
-                .declareVar(Object.class, "result", enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(ExprEvalEnumerationAtBeanCollTable.class, "convertToTableType", ref("result"), eventToPublic, refEPS, refIsNewData, refExprEvalCtx));
         return localMethod(methodNode);
 
     }
 
-    public Class getUnderlyingEvaluationType() {
-        return JavaClassHelper.getArrayType(table.getPublicEventType().getUnderlyingType());
+    public EPTypeClass getUnderlyingEvaluationType() {
+        return JavaClassHelper.getArrayType(table.getPublicEventType().getUnderlyingEPType());
     }
 
-    public Class getEvaluationType() {
-        return EventBean[].class;
+    public EPTypeClass getEvaluationType() {
+        return EventBean.EPTYPEARRAY;
     }
 
     public ExprNodeRenderable getForgeRenderable() {

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.fafquery.processor;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.CombinationEnumeration;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -220,12 +221,15 @@ public class FireAndForgetQueryExec {
         return fafTableLookup(virtualDataWindow, tablePair.getFirst(), tablePair.getSecond().getEventTable(), keyValues, rangeValues, annotations, agentInstanceContext);
     }
 
-    private static Object mayCoerceNonNull(Object value, Class coercionType) {
-        if (value.getClass() == coercionType) {
+    private static Object mayCoerceNonNull(Object value, EPTypeClass coercionType) {
+        if (coercionType == null) {
+            return value;
+        }
+        if (value.getClass() == coercionType.getType()) {
             return value;
         }
         if (value instanceof Number) {
-            return JavaClassHelper.coerceBoxed((Number) value, coercionType);
+            return JavaClassHelper.coerceBoxed((Number) value, coercionType.getType());
         }
         return value;
     }
@@ -245,7 +249,7 @@ public class FireAndForgetQueryExec {
             result = table.lookupConstants(rangeValues[0]);
         } else {
             PropertyCompositeEventTable table = (PropertyCompositeEventTable) eventTable;
-            Class[] rangeCoercion = table.getOptRangeCoercedTypes();
+            EPTypeClass[] rangeCoercion = table.getOptRangeCoercedTypes();
             CompositeIndexLookup lookup = CompositeIndexLookupFactory.make(keyValues, table.getMultiKeyTransform(), rangeValues, rangeCoercion);
             result = new HashSet<>();
             lookup.lookup(table.getIndex(), result, table.getPostProcessor());

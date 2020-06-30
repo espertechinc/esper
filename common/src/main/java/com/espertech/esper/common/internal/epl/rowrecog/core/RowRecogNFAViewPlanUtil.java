@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -584,7 +585,7 @@ public class RowRecogNFAViewPlanUtil {
                     if (visibles.contains(identifier)) {
                         multievent.put(identifier, new EventType[]{parentViewType});
                     } else {
-                        multievent.put("esper_matchrecog_internal", null);
+                        multievent.put("esper_matchrecog_internal", EPTypeNull.INSTANCE);
                     }
                 }
             }

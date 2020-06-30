@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.context.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class AgentInstanceStopServices {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AgentInstanceStopServices.class);
+
     private final AgentInstanceContext agentInstanceContext;
 
     public AgentInstanceStopServices(AgentInstanceContext agentInstanceContext) {

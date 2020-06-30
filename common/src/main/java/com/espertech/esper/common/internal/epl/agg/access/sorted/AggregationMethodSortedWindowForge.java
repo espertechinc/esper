@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -20,20 +21,20 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class AggregationMethodSortedWindowForge implements AggregationMethodForge {
-    private final Class arrayType;
+    private final EPTypeClass arrayType;
 
-    public AggregationMethodSortedWindowForge(Class arrayType) {
+    public AggregationMethodSortedWindowForge(EPTypeClass arrayType) {
         this.arrayType = arrayType;
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return arrayType;
     }
 
     public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationMethodSortedWindow.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationMethodSortedWindow.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationMethodSortedWindow.class, "strat", newInstance(AggregationMethodSortedWindow.class))
+            .declareVarNewInstance(AggregationMethodSortedWindow.EPTYPE, "strat")
             .methodReturn(ref("strat"));
         return localMethod(method);
     }

@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,42 +37,62 @@ public class SimpleTypeCasterFactory {
      * @param targetType to cast to
      * @return caster for casting objects to the required type
      */
-    public static SimpleTypeCaster getCaster(Class fromType, Class targetType) {
-        if (fromType == targetType) {
-            return new NullCaster();
+    public static SimpleTypeCaster getCaster(EPType fromType, EPTypeClass targetType) {
+        return getCaster(fromType == null || fromType == EPTypeNull.INSTANCE ? null : ((EPTypeClass) fromType).getType(), targetType);
+    }
+
+    /**
+     * Returns a caster that casts to a target type.
+     *
+     * @param fromType   can be null, if not known
+     * @param targetType to cast to
+     * @return caster for casting objects to the required type
+     */
+    public static SimpleTypeCaster getCaster(Class fromType, EPTypeClass targetType) {
+        if (fromType == targetType.getType()) {
+            return NullCaster.INSTANCE;
         }
 
         targetType = JavaClassHelper.getBoxedType(targetType);
-        if (targetType == Integer.class) {
-            return new IntCaster();
-        } else if (targetType == Long.class) {
-            return new LongCaster();
-        } else if (targetType == Double.class) {
-            return new DoubleCaster();
-        } else if (targetType == Float.class) {
-            return new FloatCaster();
-        } else if (targetType == Short.class) {
-            return new ShortCaster();
-        } else if (targetType == Byte.class) {
-            return new ByteCaster();
-        } else if ((targetType == Character.class) && (fromType == String.class)) {
-            return new CharacterCaster();
-        } else if (targetType == BigInteger.class) {
-            return new BigIntCaster();
-        } else if (targetType == BigDecimal.class) {
+        if (targetType.getType() == Integer.class) {
+            return IntCaster.INSTANCE;
+        } else if (targetType.getType() == Long.class) {
+            return LongCaster.INSTANCE;
+        } else if (targetType.getType() == Double.class) {
+            return DoubleCaster.INSTANCE;
+        } else if (targetType.getType() == Float.class) {
+            return FloatCaster.INSTANCE;
+        } else if (targetType.getType() == Short.class) {
+            return ShortCaster.INSTANCE;
+        } else if (targetType.getType() == Byte.class) {
+            return ByteCaster.INSTANCE;
+        } else if ((targetType.getType() == Character.class) && (fromType == String.class)) {
+            return CharacterCaster.INSTANCE;
+        } else if (targetType.getType() == BigInteger.class) {
+            return BigIntCaster.INSTANCE;
+        } else if (targetType.getType() == BigDecimal.class) {
             if (JavaClassHelper.isFloatingPointClass(fromType)) {
-                return new BigDecDoubleCaster();
+                return BigDecDoubleCaster.INSTANCE;
             }
-            return new BigDecLongCaster();
+            return BigDecLongCaster.INSTANCE;
         } else {
             return new SimpleTypeCasterAnyType(targetType);
         }
+    }
+
+    private static boolean isPrimitiveOrImplementsNumber(EPTypeClass typeClass) {
+        return typeClass.getType().isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(typeClass, EPTypePremade.NUMBER.getEPType());
     }
 
     /**
      * Cast implementation for numeric values.
      */
     private static class DoubleCaster implements SimpleTypeCaster {
+        public final static DoubleCaster INSTANCE = new DoubleCaster();
+
+        private DoubleCaster() {
+        }
+
         public Object cast(Object object) {
             return ((Number) object).doubleValue();
         }
@@ -77,11 +101,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(input, inputType);
             }
-            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "doubleValue");
+            return exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "doubleValue");
         }
     }
 
@@ -89,6 +113,11 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class FloatCaster implements SimpleTypeCaster {
+        public final static FloatCaster INSTANCE = new FloatCaster();
+
+        private FloatCaster() {
+        }
+
         public Object cast(Object object) {
             return ((Number) object).floatValue();
         }
@@ -97,11 +126,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerFloat.codegenFloat(input, inputType);
             }
-            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "floatValue");
+            return exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "floatValue");
         }
     }
 
@@ -109,6 +138,10 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class LongCaster implements SimpleTypeCaster {
+        public final static LongCaster INSTANCE = new LongCaster();
+
+        private LongCaster() {        }
+
         public Object cast(Object object) {
             return ((Number) object).longValue();
         }
@@ -117,11 +150,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(input, inputType);
             }
-            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "longValue");
+            return exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "longValue");
         }
     }
 
@@ -129,6 +162,10 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class IntCaster implements SimpleTypeCaster {
+        public final static IntCaster INSTANCE = new IntCaster();
+
+        private IntCaster() {        }
+
         public Object cast(Object object) {
             return ((Number) object).intValue();
         }
@@ -137,11 +174,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(input, inputType);
             }
-            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "intValue");
+            return exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "intValue");
         }
     }
 
@@ -149,6 +186,10 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class ShortCaster implements SimpleTypeCaster {
+        public final static ShortCaster INSTANCE = new ShortCaster();
+
+        private ShortCaster() {        }
+
         public Object cast(Object object) {
             return ((Number) object).shortValue();
         }
@@ -157,11 +198,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerShort.codegenShort(input, inputType);
             }
-            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "shortValue");
+            return exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "shortValue");
         }
     }
 
@@ -169,6 +210,11 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class ByteCaster implements SimpleTypeCaster {
+        public final static ByteCaster INSTANCE = new ByteCaster();
+
+        private ByteCaster() {
+        }
+
         public Object cast(Object object) {
             return ((Number) object).byteValue();
         }
@@ -177,11 +223,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerByte.codegenByte(input, inputType);
             }
-            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "byteValue");
+            return exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "byteValue");
         }
     }
 
@@ -189,6 +235,11 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for char values.
      */
     public static class CharacterCaster implements SimpleTypeCaster, TypeWidenerSPI {
+        public final static CharacterCaster INSTANCE = new CharacterCaster();
+
+        private CharacterCaster() {
+        }
+
         public Object cast(Object object) {
             String value = object.toString();
             if (value.length() == 0) {
@@ -206,15 +257,15 @@ public class SimpleTypeCasterFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegen(expression, Object.class, codegenMethodScope, codegenClassScope);
+            return codegen(expression, EPTypePremade.OBJECT.getEPType(), codegenMethodScope, codegenClassScope);
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenMethod method = codegenMethodScope.makeChild(Character.class, CharacterCaster.class, codegenClassScope).addParam(Object.class, "object").getBlock()
-                    .declareVar(String.class, "value", exprDotMethod(ref("object"), "toString"))
-                    .ifCondition(equalsIdentity(exprDotMethod(ref("value"), "length"), constant(0)))
-                    .blockReturn(constantNull())
-                    .methodReturn(exprDotMethod(ref("value"), "charAt", constant(0)));
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.CHARBOXED.getEPType(), CharacterCaster.class, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "object").getBlock()
+                .declareVar(EPTypePremade.STRING.getEPType(), "value", exprDotMethod(ref("object"), "toString"))
+                .ifCondition(equalsIdentity(exprDotMethod(ref("value"), "length"), constant(0)))
+                .blockReturn(constantNull())
+                .methodReturn(exprDotMethod(ref("value"), "charAt", constant(0)));
             return localMethodBuild(method).pass(input).call();
         }
     }
@@ -223,6 +274,11 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class BigIntCaster implements SimpleTypeCaster {
+        public final static BigIntCaster INSTANCE = new BigIntCaster();
+
+        private BigIntCaster() {
+        }
+
         public Object cast(Object object) {
             long value = ((Number) object).longValue();
             return BigInteger.valueOf(value);
@@ -232,11 +288,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerBigInt.codegenBigInt(input, inputType);
             }
-            return staticMethod(BigInteger.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "longValue"));
+            return staticMethod(BigInteger.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "longValue"));
         }
     }
 
@@ -244,6 +300,11 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class BigDecLongCaster implements SimpleTypeCaster {
+        public final static BigDecLongCaster INSTANCE = new BigDecLongCaster();
+
+        private BigDecLongCaster() {
+        }
+
         public Object cast(Object object) {
             long value = ((Number) object).longValue();
             return new BigDecimal(value);
@@ -253,11 +314,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerBigDecLong.codegenBigDec(input, inputType);
             }
-            return staticMethod(BigDecimal.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "longValue"));
+            return staticMethod(BigDecimal.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "longValue"));
         }
     }
 
@@ -265,6 +326,11 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class BigDecDoubleCaster implements SimpleTypeCaster {
+        public final static BigDecDoubleCaster INSTANCE = new BigDecDoubleCaster();
+
+        private BigDecDoubleCaster() {
+        }
+
         public Object cast(Object object) {
             double value = ((Number) object).doubleValue();
             return new BigDecimal(value);
@@ -274,11 +340,11 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            if (isPrimitiveOrImplementsNumber(inputType)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerBigDecDouble.codegenBigDec(input, inputType);
             }
-            return staticMethod(BigDecimal.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "doubleValue"));
+            return staticMethod(BigDecimal.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "doubleValue"));
         }
     }
 
@@ -286,6 +352,11 @@ public class SimpleTypeCasterFactory {
      * Cast implementation for numeric values.
      */
     private static class NullCaster implements SimpleTypeCaster {
+        public final static NullCaster INSTANCE = new NullCaster();
+
+        private NullCaster() {
+        }
+
         public Object cast(Object object) {
             return object;
         }
@@ -294,7 +365,7 @@ public class SimpleTypeCasterFactory {
             return false;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return input;
         }
     }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -22,7 +23,7 @@ public class SortedAggregationStateDesc {
     private final boolean max;
     private final ClasspathImportServiceCompileTime classpathImportService;
     private final ExprNode[] criteria;
-    private final Class[] criteriaTypes;
+    private final EPType[] criteriaTypes;
     private final DataInputOutputSerdeForge[] criteriaSerdes;
     private final boolean[] sortDescending;
     private final boolean ever;
@@ -31,7 +32,7 @@ public class SortedAggregationStateDesc {
     private final ExprForge optionalFilter;
     private final EventType streamEventType;
 
-    public SortedAggregationStateDesc(boolean max, ClasspathImportServiceCompileTime classpathImportService, ExprNode[] criteria, Class[] criteriaTypes, DataInputOutputSerdeForge[] criteriaSerdes, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprForge optionalFilter, EventType streamEventType) {
+    public SortedAggregationStateDesc(boolean max, ClasspathImportServiceCompileTime classpathImportService, ExprNode[] criteria, EPType[] criteriaTypes, DataInputOutputSerdeForge[] criteriaSerdes, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprForge optionalFilter, EventType streamEventType) {
         this.max = max;
         this.classpathImportService = classpathImportService;
         this.criteria = criteria;
@@ -85,7 +86,7 @@ public class SortedAggregationStateDesc {
         return max;
     }
 
-    public Class[] getCriteriaTypes() {
+    public EPType[] getCriteriaTypes() {
         return criteriaTypes;
     }
 

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -28,13 +30,13 @@ public class SimpleTypeParserCodegenFieldSharable implements CodegenFieldSharabl
         this.classScope = classScope;
     }
 
-    public Class type() {
-        return SimpleTypeParser.class;
+    public EPTypeClass type() {
+        return SimpleTypeParser.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {
-        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(classScope.getPackageScope().getInitMethod().getBlock(), SimpleTypeParser.class);
-        CodegenMethod parse = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(String.class, "text");
+        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(classScope.getPackageScope().getInitMethod().getBlock(), SimpleTypeParser.EPTYPE);
+        CodegenMethod parse = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EPTypePremade.STRING.getEPType(), "text");
         anonymousClass.addMethod("parse", parse);
         parse.getBlock().methodReturn(parser.codegen(ref("text")));
         return anonymousClass;

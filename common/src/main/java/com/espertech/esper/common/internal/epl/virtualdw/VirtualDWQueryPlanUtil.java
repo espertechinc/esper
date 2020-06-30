@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.epl.virtualdw;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowLookupFieldDesc;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowLookupOp;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
@@ -48,7 +51,7 @@ public class VirtualDWQueryPlanUtil {
         int count = 0;
         if (queryPlanIndexItem.getHashProps() != null) {
             for (String indexProp : queryPlanIndexItem.getHashProps()) {
-                Class coercionType = queryPlanIndexItem.getHashPropTypes() == null ? null : queryPlanIndexItem.getHashPropTypes()[count];
+                EPTypeClass coercionType = queryPlanIndexItem.getHashPropTypes() == null ? null : queryPlanIndexItem.getHashPropTypes()[count];
                 hashFields.add(new VirtualDataWindowLookupFieldDesc(indexProp, VirtualDataWindowLookupOp.EQUALS, coercionType));
                 count++;
             }
@@ -58,7 +61,7 @@ public class VirtualDWQueryPlanUtil {
         count = 0;
         if (queryPlanIndexItem.getRangeProps() != null) {
             for (String btreeprop : queryPlanIndexItem.getRangeProps()) {
-                Class coercionType = queryPlanIndexItem.getRangePropTypes() == null ? null : queryPlanIndexItem.getRangePropTypes()[count];
+                EPTypeClass coercionType = queryPlanIndexItem.getRangePropTypes() == null ? null : queryPlanIndexItem.getRangePropTypes()[count];
                 btreeFields.add(new VirtualDataWindowLookupFieldDesc(btreeprop, null, coercionType));
                 count++;
             }
@@ -72,14 +75,16 @@ public class VirtualDWQueryPlanUtil {
         List<IndexedPropDesc> hashIndexedFields = new ArrayList<IndexedPropDesc>();
         for (String hashprop : keysAvailable) {
             hashFields.add(new VirtualDataWindowLookupFieldDesc(hashprop, VirtualDataWindowLookupOp.EQUALS, null));
-            hashIndexedFields.add(new IndexedPropDesc(hashprop, eventType.getPropertyType(hashprop)));
+            EPType type = eventType.getPropertyEPType(hashprop);
+            hashIndexedFields.add(new IndexedPropDesc(hashprop, type == null || type == EPTypeNull.INSTANCE ? null : (EPTypeClass) type));
         }
 
         List<VirtualDataWindowLookupFieldDesc> btreeFields = new ArrayList<VirtualDataWindowLookupFieldDesc>();
         List<IndexedPropDesc> btreeIndexedFields = new ArrayList<IndexedPropDesc>();
         for (String btreeprop : rangesAvailable) {
             btreeFields.add(new VirtualDataWindowLookupFieldDesc(btreeprop, null, null));
-            btreeIndexedFields.add(new IndexedPropDesc(btreeprop, eventType.getPropertyType(btreeprop)));
+            EPType type = eventType.getPropertyEPType(btreeprop);
+            btreeIndexedFields.add(new IndexedPropDesc(btreeprop, type == null || type == EPTypeNull.INSTANCE ? null : (EPTypeClass) type));
         }
 
         VirtualDWEventTable noopTable = new VirtualDWEventTable(false, hashFields, btreeFields, TABLE_ORGANIZATION);

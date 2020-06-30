@@ -50,9 +50,9 @@ public class StatementAgentInstanceFactoryCreateNWForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateNW.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateNW.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateNW.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateNW.class));
+                .declareVarNewInstance(StatementAgentInstanceFactoryCreateNW.EPTYPE, "saiff");
 
         method.getBlock()
                 .exprDotMethod(ref("saiff"), "setActivator", activator.makeCodegen(method, symbols, classScope))

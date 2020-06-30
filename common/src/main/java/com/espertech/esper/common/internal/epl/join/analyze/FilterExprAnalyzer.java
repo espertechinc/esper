@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.analyze;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerOrToInRewrite;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -82,7 +83,6 @@ public class FilterExprAnalyzer {
     }
 
     private static void analyzeInNodeMultiIndex(ExprInNode inNode, QueryGraphForge queryGraph) {
-
         ExprNode[] setExpressions = getInNodeSetExpressions(inNode);
         if (setExpressions.length == 0) {
             return;
@@ -101,15 +101,15 @@ public class FilterExprAnalyzer {
         }
 
         ExprNode testExpr = inNode.getChildNodes()[0];
-        Class testExprType = JavaClassHelper.getBoxedType(testExpr.getForge().getEvaluationType());
+        EPType testExprType = JavaClassHelper.getBoxedType(testExpr.getForge().getEvaluationType());
         if (perStreamExprs.size() > 1) {
             return;
         }
         Map.Entry<Integer, List<ExprNode>> entry = perStreamExprs.entrySet().iterator().next();
         ExprNode[] exprNodes = ExprNodeUtilityQuery.toArray(entry.getValue());
         for (ExprNode node : exprNodes) {
-            Class exprType = node.getForge().getEvaluationType();
-            if (JavaClassHelper.getBoxedType(exprType) != testExprType) {
+            EPType exprType = node.getForge().getEvaluationType();
+            if (!JavaClassHelper.getBoxedType(exprType).equals(testExprType)) {
                 return;
             }
         }
@@ -145,7 +145,7 @@ public class FilterExprAnalyzer {
             return;
         }
         ExprIdentNode testIdent = (ExprIdentNode) inNode.getChildNodes()[0];
-        Class testIdentClass = JavaClassHelper.getBoxedType(testIdent.getForge().getEvaluationType());
+        EPType testIdentType = JavaClassHelper.getBoxedType(testIdent.getForge().getEvaluationType());
         int indexedStream = testIdent.getStreamId();
 
         ExprNode[] setExpressions = getInNodeSetExpressions(inNode);
@@ -156,7 +156,7 @@ public class FilterExprAnalyzer {
         Map<Integer, List<ExprNode>> perStreamExprs = new LinkedHashMap<Integer, List<ExprNode>>();
 
         for (ExprNode exprNodeSet : setExpressions) {
-            if (JavaClassHelper.getBoxedType(exprNodeSet.getForge().getEvaluationType()) != testIdentClass) {
+            if (!JavaClassHelper.getBoxedType(exprNodeSet.getForge().getEvaluationType()).equals(testIdentType)) {
                 continue;
             }
             if (exprNodeSet instanceof ExprIdentNode) {

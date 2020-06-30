@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.json.getter.provided;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,6 +22,7 @@ import com.espertech.esper.common.internal.context.module.EPStatementInitService
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCodegenField;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.lang.reflect.Field;
 
@@ -36,7 +38,7 @@ public class JsonGetterSimpleProvidedWFragmentArray extends JsonGetterSimpleProv
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(field.getDeclaringClass(), beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -56,9 +58,9 @@ public class JsonGetterSimpleProvidedWFragmentArray extends JsonGetterSimpleProv
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(fragmentType, EPStatementInitServices.REF));
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(field.getDeclaringClass(), "record").getBlock()
-            .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
+        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fragmentType, EPStatementInitServices.REF));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), "record").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
             .methodReturn(staticMethod(JsonFieldGetterHelperProvided.class, "handleJsonProvidedCreateFragmentArray", ref("value"), eventType, factory));
     }
 }

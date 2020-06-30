@@ -92,7 +92,7 @@ public class EventJsonProvidedUnderlyingClass {
             String prefix = "@JsonSchema(className='" + MyLocalJsonProvidedStringInt.class.getName() + "') ";
             String epl = prefix + "create json schema MySchema(c0 int)";
             tryInvalidSchema(env, epl, MyLocalJsonProvidedStringInt.class,
-                "Public field 'c0' of class '%CLASS%' declared as type 'java.lang.String' cannot receive a value of type 'java.lang.Integer'");
+                "Public field 'c0' of class '%CLASS%' declared as type 'String' cannot receive a value of type 'Integer'");
         }
     }
 
@@ -102,9 +102,9 @@ public class EventJsonProvidedUnderlyingClass {
             tryInvalidSchema(env, prefix + "select 0 as dummy from SupportBean", MyLocalJsonProvidedStringInt.class,
                 "Failed to find public field 'dummy' on class '%CLASS%'");
             tryInvalidSchema(env, prefix + "select 0 as c0 from SupportBean", MyLocalJsonProvidedStringInt.class,
-                "Public field 'c0' of class '%CLASS%' declared as type 'java.lang.String' cannot receive a value of type 'java.lang.Integer'");
+                "Public field 'c0' of class '%CLASS%' declared as type 'String' cannot receive a value of type 'Integer'");
             tryInvalidSchema(env, prefix + "select new {a=0} as c0 from SupportBean", MyLocalJsonProvidedStringInt.class,
-                "Public field 'c0' of class '%CLASS%' declared as type 'java.lang.String' cannot receive a value of type 'java.util.Map'");
+                "Public field 'c0' of class '%CLASS%' declared as type 'String' cannot receive a value of type 'java.util.Map'");
         }
     }
 

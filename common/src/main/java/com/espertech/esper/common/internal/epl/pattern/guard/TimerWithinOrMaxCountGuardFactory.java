@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.pattern.guard;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertor;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
@@ -20,6 +21,7 @@ import com.espertech.esper.common.internal.epl.pattern.core.PatternExpressionUti
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 public class TimerWithinOrMaxCountGuardFactory implements GuardFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimerWithinOrMaxCountGuardFactory.class);
 
     private PatternDeltaCompute deltaCompute;
     private ExprEvaluator countEval;

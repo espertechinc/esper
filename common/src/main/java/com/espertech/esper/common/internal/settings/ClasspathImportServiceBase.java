@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.client.annotation.*;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.util.*;
@@ -54,7 +55,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         validateImportAndAdd(importName, annotationImports);
     }
 
-    public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtensionClass classpathExtension)
+    public Method resolveMethodOverloadChecked(String className, String methodName, EPType[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtensionClass classpathExtension)
             throws ClasspathImportException {
         Class clazz;
         try {
@@ -81,20 +82,20 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         return clazz;
     }
 
-    public Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
-            throws ClasspathImportException {
-        try {
-            return MethodResolver.resolveMethod(clazz, methodName, paramTypes, true, allowEventBeanType, allowEventBeanCollType);
-        } catch (MethodResolverNoSuchMethodException e) {
-            throw convert(clazz, methodName, paramTypes, e, true);
-        }
-    }
-
-    public Constructor resolveCtor(Class clazz, Class[] paramTypes) throws ClasspathImportException {
+    public Constructor resolveCtor(Class clazz, EPType[] paramTypes) throws ClasspathImportException {
         try {
             return MethodResolver.resolveCtor(clazz, paramTypes);
         } catch (MethodResolverNoSuchCtorException e) {
             throw convert(clazz, paramTypes, e);
+        }
+    }
+
+    public Method resolveMethod(Class clazz, String methodName, EPType[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
+        throws ClasspathImportException {
+        try {
+            return MethodResolver.resolveMethod(clazz, methodName, paramTypes, true, allowEventBeanType, allowEventBeanCollType);
+        } catch (MethodResolverNoSuchMethodException e) {
+            throw convert(clazz, methodName, paramTypes, e, true);
         }
     }
 
@@ -275,13 +276,13 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         return new ClasspathImportException("Could not load class by name '" + className + "', please check imports", e);
     }
 
-    protected ClasspathImportException convert(Class clazz, Class[] paramTypes, MethodResolverNoSuchCtorException e) {
-        String expected = JavaClassHelper.getParameterAsString(paramTypes);
+    protected ClasspathImportException convert(Class clazz, EPType[] paramTypes, MethodResolverNoSuchCtorException e) {
+        String expected = ClassHelperPrint.getParameterAsString(paramTypes);
         String message = "Could not find constructor ";
         if (paramTypes.length > 0) {
-            message += "in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' with matching parameter number and expected parameter type(s) '" + expected + "'";
+            message += "in class '" + ClassHelperPrint.getClassNameFullyQualPretty(clazz) + "' with matching parameter number and expected parameter type(s) '" + expected + "'";
         } else {
-            message += "in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' taking no parameters";
+            message += "in class '" + ClassHelperPrint.getClassNameFullyQualPretty(clazz) + "' taking no parameters";
         }
 
         if (e.getNearestMissCtor() != null) {
@@ -289,15 +290,15 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
             if (e.getNearestMissCtor().getParameterTypes().length == 0) {
                 message += "taking no parameters";
             } else {
-                message += "taking type(s) '" + JavaClassHelper.getParameterAsString(e.getNearestMissCtor().getParameterTypes()) + "'";
+                message += "taking type(s) '" + ClassHelperPrint.getParameterAsString(e.getNearestMissCtor().getParameterTypes()) + "'";
             }
             message += ")";
         }
         return new ClasspathImportException(message, e);
     }
 
-    protected ClasspathImportException convert(Class clazz, String methodName, Class[] paramTypes, MethodResolverNoSuchMethodException e, boolean isInstance) {
-        String expected = JavaClassHelper.getParameterAsString(paramTypes);
+    protected ClasspathImportException convert(Class clazz, String methodName, EPType[] paramTypes, MethodResolverNoSuchMethodException e, boolean isInstance) {
+        String expected = ClassHelperPrint.getParameterAsString(paramTypes);
         String message = "Could not find ";
         if (!isInstance) {
             message += "static method ";
@@ -306,9 +307,9 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
         }
 
         if (paramTypes.length > 0) {
-            message += "named '" + methodName + "' in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' with matching parameter number and expected parameter type(s) '" + expected + "'";
+            message += "named '" + methodName + "' in class '" + ClassHelperPrint.getClassNameFullyQualPretty(clazz) + "' with matching parameter number and expected parameter type(s) '" + expected + "'";
         } else {
-            message += "named '" + methodName + "' in class '" + JavaClassHelper.getClassNameFullyQualPretty(clazz) + "' taking no parameters";
+            message += "named '" + methodName + "' in class '" + ClassHelperPrint.getClassNameFullyQualPretty(clazz) + "' taking no parameters";
         }
 
         if (e.getNearestMissMethod() != null) {
@@ -316,7 +317,7 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
             if (e.getNearestMissMethod().getParameterTypes().length == 0) {
                 message += "' taking no parameters";
             } else {
-                message += "' taking type(s) '" + JavaClassHelper.getParameterAsString(e.getNearestMissMethod().getParameterTypes()) + "'";
+                message += "' taking type(s) '" + ClassHelperPrint.getParameterAsString(e.getNearestMissMethod().getParameterTypes()) + "'";
             }
             message += ")";
         }

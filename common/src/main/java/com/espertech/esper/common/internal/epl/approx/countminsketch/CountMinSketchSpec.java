@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.approx.countminsketch;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.CountMinSketchAgent;
 
 public class CountMinSketchSpec {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CountMinSketchSpec.class);
+
     private CountMinSketchSpecHashes hashesSpec;
     private Integer topkSpec;
     private CountMinSketchAgent agent;

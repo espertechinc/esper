@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.variant;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -26,12 +27,12 @@ public class VariantPropertyGetterCacheCodegenField implements CodegenFieldShara
         this.variantEventType = variantEventType;
     }
 
-    public Class type() {
-        return VariantPropertyGetterCache.class;
+    public EPTypeClass type() {
+        return VariantPropertyGetterCache.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {
-        CodegenExpression type = cast(VariantEventType.class, EventTypeUtility.resolveTypeCodegen(variantEventType, EPStatementInitServices.REF));
+        CodegenExpression type = cast(VariantEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(variantEventType, EPStatementInitServices.REF));
         return exprDotMethod(type, "getVariantPropertyGetterCache");
     }
 

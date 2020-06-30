@@ -10,10 +10,16 @@
  */
 package com.espertech.esper.common.client.hook.aggmultifunc;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Factory for aggregation multi-function agents
  */
 public interface AggregationMultiFunctionAgentFactory {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationMultiFunctionAgentFactory.class);
 
     /**
      * Returns a new agent

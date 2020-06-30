@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -116,7 +117,7 @@ public class BeaconSourceForge implements DataFlowOperatorForge {
 
             }
             if (widener != null) {
-                evaluatorForges[index] = new ExprEvalWithTypeWidener(widener, validated, writable.getType());
+                evaluatorForges[index] = new ExprEvalWithTypeWidener(widener, validated, (EPTypeClass) writable.getType());
             } else {
                 evaluatorForges[index] = validated.getForge();
             }

@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.expression.chain;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitorWithParent;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery.acceptParams;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 public class ChainableArray extends Chainable {
     private List<ExprNode> indexes;
@@ -83,12 +84,12 @@ public class ChainableArray extends Chainable {
             throw new ExprValidationException("Incorrect number of index expressions for array operation, expected a single expression returning an integer value but received " + indexes.size() + " expressions for " + supplier.get());
         }
         ExprNode node = indexes.get(0);
-        Class evaluationType = node.getForge().getEvaluationType();
-        if (JavaClassHelper.getBoxedType(evaluationType) != Integer.class) {
+        EPType evaluationType = node.getForge().getEvaluationType();
+        if (!isTypeInteger(evaluationType)) {
             throw new ExprValidationException("Incorrect index expression for array operation, expected an expression returning an integer value but the expression '" +
                 ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(node) +
                 "' returns '" +
-                JavaClassHelper.getClassNameFullyQualPretty(evaluationType) + "' for " + supplier.get());
+                (evaluationType == null ? "null" : evaluationType.getTypeName()) + "' for " + supplier.get());
         }
         return node;
     }

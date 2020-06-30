@@ -10,15 +10,21 @@
  */
 package com.espertech.esper.common.internal.epl.expression.codegen;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeForgeStaticMethodEval;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeForgeStaticMethodEval.METHOD_STATICMETHODEVALHANDLEINVOCATIONEXCEPTION;
@@ -28,12 +34,15 @@ public class StaticMethodCallHelper {
         StaticMethodCodegenArgDesc[] args = new StaticMethodCodegenArgDesc[forges.length];
         for (int i = 0; i < forges.length; i++) {
             ExprForge child = forges[i];
-            Class childType = child.getEvaluationType();
+            EPType childType = child.getEvaluationType();
             String name = "r" + i;
-            if (childType == null) {
-                args[i] = new StaticMethodCodegenArgDesc(name, method.getParameterTypes()[i], constantNull());
+            if (childType == null || childType == EPTypeNull.INSTANCE) {
+                Parameter parameter = method.getParameters()[i];
+                EPTypeClass parameterType = ClassHelperGenericType.getParameterType(parameter);
+                args[i] = new StaticMethodCodegenArgDesc(name, parameterType, constantNull());
             } else {
-                args[i] = new StaticMethodCodegenArgDesc(name, childType, child.evaluateCodegen(childType, codegenMethodScope, exprSymbol, codegenClassScope));
+                EPTypeClass childTypeClass = (EPTypeClass) childType;
+                args[i] = new StaticMethodCodegenArgDesc(name, childTypeClass, child.evaluateCodegen(childTypeClass, codegenMethodScope, exprSymbol, codegenClassScope));
             }
         }
         return args;
@@ -46,8 +55,8 @@ public class StaticMethodCallHelper {
     }
 
     public static void appendCatch(CodegenBlock tryBlock, Method reflectionMethod, String statementName, String classOrPropertyName, boolean rethrow, StaticMethodCodegenArgDesc[] args) {
-        CodegenBlock catchBlock = tryBlock.tryEnd().addCatch(Throwable.class, "t")
-                .declareVar(Object[].class, "argArray", newArrayByLength(Object.class, constant(args.length)));
+        CodegenBlock catchBlock = tryBlock.tryEnd().addCatch(EPTypePremade.THROWABLE.getEPType(), "t")
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "argArray", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(args.length)));
         for (int i = 0; i < args.length; i++) {
             catchBlock.assignArrayElement("argArray", constant(i), ref(args[i].getBlockRefName()));
         }

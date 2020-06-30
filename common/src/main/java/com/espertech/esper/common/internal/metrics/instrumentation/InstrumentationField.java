@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.common.internal.metrics.instrumentation;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-
-import java.lang.instrument.Instrumentation;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
 
@@ -23,8 +23,8 @@ public class InstrumentationField implements CodegenFieldSharable {
     private InstrumentationField() {
     }
 
-    public Class type() {
-        return Instrumentation.class;
+    public EPTypeClass type() {
+        return EPTypePremade.INSTRUMENTATION.getEPType();
     }
 
     public CodegenExpression initCtorScoped() {

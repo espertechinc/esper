@@ -11,8 +11,11 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class AggregationGroupByRollupDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationGroupByRollupDesc.class);
+
     private final AggregationGroupByRollupLevel[] levels;
     private final int numLevelsAggregation;
 

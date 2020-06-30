@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.hash;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
@@ -22,6 +23,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class ContextControllerHashValidation implements ContextControllerPortableInfo {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerHashValidation.class);
+
     private final ContextControllerHashValidationItem[] items;
 
     public ContextControllerHashValidation(ContextControllerHashValidationItem[] items) {
@@ -37,7 +40,7 @@ public class ContextControllerHashValidation implements ContextControllerPortabl
         for (int i = 0; i < init.length; i++) {
             init[i] = items[i].make(addInitSvc);
         }
-        return newInstance(ContextControllerHashValidation.class, newArrayWithInit(ContextControllerHashValidationItem.class, init));
+        return newInstance(ContextControllerHashValidation.EPTYPE, newArrayWithInit(ContextControllerHashValidationItem.EPTYPE, init));
     }
 
     public void validateStatement(String contextName, StatementSpecCompiled spec, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {

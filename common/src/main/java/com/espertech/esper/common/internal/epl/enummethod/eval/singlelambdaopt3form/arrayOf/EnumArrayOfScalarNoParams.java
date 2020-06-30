@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.arrayOf;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -31,20 +33,20 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EnumArrayOfScalarNoParams implements EnumForge {
 
-    private final Class arrayComponentType;
+    private final EPTypeClass arrayComponentType;
 
-    public EnumArrayOfScalarNoParams(Class arrayComponentType) {
+    public EnumArrayOfScalarNoParams(EPTypeClass arrayComponentType) {
         this.arrayComponentType = arrayComponentType;
     }
 
-    public Class getArrayComponentType() {
+    public EPTypeClass getArrayComponentType() {
         return arrayComponentType;
     }
 
     public EnumEval getEnumEvaluator() {
         return new EnumEval() {
             public Object evaluateEnumMethod(EventBean[] eventsLambda, Collection enumcoll, boolean isNewData, ExprEvaluatorContext context) {
-                Object array = Array.newInstance(arrayComponentType, enumcoll.size());
+                Object array = Array.newInstance(arrayComponentType.getType(), enumcoll.size());
                 if (enumcoll.isEmpty()) {
                     return array;
                 }
@@ -59,7 +61,7 @@ public class EnumArrayOfScalarNoParams implements EnumForge {
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        Class arrayType = JavaClassHelper.getArrayType(arrayComponentType);
+        EPTypeClass arrayType = JavaClassHelper.getArrayType(arrayComponentType);
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(arrayType, EnumArrayOfScalarNoParams.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
@@ -67,8 +69,8 @@ public class EnumArrayOfScalarNoParams implements EnumForge {
             .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
             .blockReturn(newArrayByLength(arrayComponentType, constant(0)))
             .declareVar(arrayType, "result", newArrayByLength(arrayComponentType, exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size")))
-            .declareVar(int.class, "count", constant(0));
-        block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+            .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(0));
+        block.forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL)
             .assignArrayElement(ref("result"), ref("count"), cast(arrayComponentType, ref("next")))
             .incrementRef("count");
         block.methodReturn(ref("result"));

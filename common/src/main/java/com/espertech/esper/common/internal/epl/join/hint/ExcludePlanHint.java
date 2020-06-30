@@ -53,7 +53,7 @@ public class ExcludePlanHint {
                 continue;
             }
             ExprForge forge = ExcludePlanHintExprUtil.toExpression(hint, rawInfo, services);
-            if (JavaClassHelper.getBoxedType(forge.getEvaluationType()) != Boolean.class) {
+            if (!JavaClassHelper.isTypeBoolean(forge.getEvaluationType())) {
                 throw new ExprValidationException("Expression provided for hint " + HintEnum.EXCLUDE_PLAN.getValue() + " must return a boolean value");
             }
             filters.add(forge.getExprEvaluator());

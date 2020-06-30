@@ -11,8 +11,8 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -55,9 +55,8 @@ public class EventXMLSchemaEventTransposeNodeArray {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
         // try array property insert
         env.compileDeploy("@name('s0') select nested3.nested4 as narr from " + eventTypeName + "#lastevent", path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("narr", Node[].class, Node.class, false, false, true, false, true),
-        }, env.statement("s0").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("narr", Node[].class).indexed().fragment());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
 
         SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);
@@ -75,9 +74,8 @@ public class EventXMLSchemaEventTransposeNodeArray {
 
         // try array index property insert
         env.compileDeploy("@name('ii') select nested3.nested4[1] as narr from " + eventTypeName + "#lastevent", path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("narr", Node.class, null, false, false, false, false, true),
-        }, env.statement("ii").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("ii").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("narr", Node.class).fragment());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("ii").getEventType());
 
         SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.assemble;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenMakeable;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.util.IndentWriter;
@@ -22,6 +23,9 @@ import java.util.*;
  * The tree of factory nodes is double-linked, child nodes know each parent and parent know all child nodes.
  */
 public abstract class BaseAssemblyNodeFactory implements CodegenMakeable<SAIFFInitializeSymbol> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(BaseAssemblyNodeFactory.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(BaseAssemblyNodeFactory[].class);
+
     /**
      * Parent node.
      */

@@ -47,15 +47,15 @@ public class ContextSpecHash implements ContextSpec {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextControllerDetailHash.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerDetailHash.EPTYPE, this.getClass(), classScope);
 
-        method.getBlock().declareVar(ContextControllerDetailHashItem[].class, "items", newArrayByLength(ContextControllerDetailHashItem.class, constant(items.size())));
+        method.getBlock().declareVar(ContextControllerDetailHashItem.EPTYPEARRAY, "items", newArrayByLength(ContextControllerDetailHashItem.EPTYPE, constant(items.size())));
         for (int i = 0; i < items.size(); i++) {
             method.getBlock().assignArrayElement("items", constant(i), items.get(i).makeCodegen(method, symbols, classScope));
         }
 
         method.getBlock()
-                .declareVar(ContextControllerDetailHash.class, "detail", newInstance(ContextControllerDetailHash.class))
+                .declareVarNewInstance(ContextControllerDetailHash.EPTYPE, "detail")
                 .exprDotMethod(ref("detail"), "setItems", ref("items"))
                 .exprDotMethod(ref("detail"), "setGranularity", constant(granularity))
                 .exprDotMethod(ref("detail"), "setPreallocate", constant(preallocate))

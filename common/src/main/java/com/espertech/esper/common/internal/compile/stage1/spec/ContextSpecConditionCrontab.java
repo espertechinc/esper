@@ -61,9 +61,9 @@ public class ContextSpecConditionCrontab implements ContextSpecCondition, Schedu
             throw new IllegalStateException("Unassigned schedule callback id");
         }
 
-        CodegenMethod method = parent.makeChild(ContextConditionDescriptorCrontab.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextConditionDescriptorCrontab.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextConditionDescriptorCrontab.class, "condition", newInstance(ContextConditionDescriptorCrontab.class))
+                .declareVarNewInstance(ContextConditionDescriptorCrontab.EPTYPE, "condition")
                 .exprDotMethod(ref("condition"), "setEvaluatorsPerCrontab", ExprNodeUtilityCodegen.codegenEvaluators(forgesPerCrontab, method, this.getClass(), classScope))
                 .exprDotMethod(ref("condition"), "setScheduleCallbackId", constant(scheduleCallbackId))
                 .exprDotMethod(ref("condition"), "setImmediate", constant(immediate))

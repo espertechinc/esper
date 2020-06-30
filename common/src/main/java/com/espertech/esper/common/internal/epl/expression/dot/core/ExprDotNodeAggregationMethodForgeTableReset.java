@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -36,12 +38,12 @@ public class ExprDotNodeAggregationMethodForgeTableReset extends ExprDotNodeAggr
         this.column = column;
     }
 
-    public CodegenExpression evaluateCodegen(String readerMethodName, Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(void.class, this.getClass(), classScope);
+    public CodegenExpression evaluateCodegen(String readerMethodName, EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod method = parent.makeChild(EPTypePremade.VOID.getEPType(), this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationRow.class, "row", staticMethod(ExprTableIdentNode.class, "tableColumnRow", constant(identNode.getStreamNum()), symbols.getAddEPS(method)))
-            .ifRefNotNull("row")
-            .exprDotMethod(ref("row"), "reset", constant(column.getColumn()));
+                .declareVar(AggregationRow.EPTYPE, "row", staticMethod(ExprTableIdentNode.class, "tableColumnRow", constant(identNode.getStreamNum()), symbols.getAddEPS(method)))
+                .ifRefNotNull("row")
+                .exprDotMethod(ref("row"), "reset", constant(column.getColumn()));
         return localMethod(method);
     }
 

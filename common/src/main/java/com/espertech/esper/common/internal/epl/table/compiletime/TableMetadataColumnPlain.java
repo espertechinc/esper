@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.table.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableIni
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class TableMetadataColumnPlain extends TableMetadataColumn {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TableMetadataColumnPlain.class);
 
     private int indexPlain;
 
@@ -31,8 +33,8 @@ public class TableMetadataColumnPlain extends TableMetadataColumn {
     }
 
     protected CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TableMetadataColumnPlain.class, this.getClass(), classScope);
-        method.getBlock().declareVar(TableMetadataColumnPlain.class, "col", newInstance(TableMetadataColumnPlain.class));
+        CodegenMethod method = parent.makeChild(TableMetadataColumnPlain.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVarNewInstance(TableMetadataColumnPlain.EPTYPE, "col");
         super.makeSettersInline(ref("col"), method.getBlock());
         method.getBlock()
                 .exprDotMethod(ref("col"), "setIndexPlain", constant(indexPlain))

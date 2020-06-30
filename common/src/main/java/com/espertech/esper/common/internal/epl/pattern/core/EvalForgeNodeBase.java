@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -29,7 +30,7 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
     protected boolean audit;
     private boolean attachPatternText;
 
-    protected abstract Class typeOfFactory();
+    protected abstract EPTypeClass typeOfFactory();
 
     protected abstract String nameOfFactory();
 

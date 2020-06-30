@@ -11,12 +11,15 @@
 package com.espertech.esper.common.internal.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import org.w3c.dom.Node;
 
 /**
  * Factory for event fragments for use with DOM getters.
  */
 public interface FragmentFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(FragmentFactory.class);
+
     /**
      * Returns a fragment for the node.
      *

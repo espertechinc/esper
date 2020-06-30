@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -29,11 +30,11 @@ public class AggregationMethodSortedSubmapForge implements AggregationMethodForg
     private final ExprNode fromInclusive;
     private final ExprNode toKey;
     private final ExprNode toInclusive;
-    private final Class underlyingClass;
+    private final EPTypeClass underlyingClass;
     private final AggregationMethodSortedEnum aggMethod;
-    private final Class resultType;
+    private final EPTypeClass resultType;
 
-    public AggregationMethodSortedSubmapForge(ExprNode fromKey, ExprNode fromInclusive, ExprNode toKey, ExprNode toInclusive, Class underlyingClass, AggregationMethodSortedEnum aggMethod, Class resultType) {
+    public AggregationMethodSortedSubmapForge(ExprNode fromKey, ExprNode fromInclusive, ExprNode toKey, ExprNode toInclusive, EPTypeClass underlyingClass, AggregationMethodSortedEnum aggMethod, EPTypeClass resultType) {
         this.fromKey = fromKey;
         this.fromInclusive = fromInclusive;
         this.toKey = toKey;
@@ -44,19 +45,19 @@ public class AggregationMethodSortedSubmapForge implements AggregationMethodForg
     }
 
     public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationMultiFunctionAggregationMethod.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationMultiFunctionAggregationMethod.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ExprEvaluator.class, "fromKeyEval", ExprNodeUtilityCodegen.codegenEvaluator(fromKey.getForge(), method, this.getClass(), classScope))
-            .declareVar(ExprEvaluator.class, "fromInclusiveEval", ExprNodeUtilityCodegen.codegenEvaluator(fromInclusive.getForge(), method, this.getClass(), classScope))
-            .declareVar(ExprEvaluator.class, "toKeyEval", ExprNodeUtilityCodegen.codegenEvaluator(toKey.getForge(), method, this.getClass(), classScope))
-            .declareVar(ExprEvaluator.class, "toInclusiveEval", ExprNodeUtilityCodegen.codegenEvaluator(toInclusive.getForge(), method, this.getClass(), classScope))
+            .declareVar(ExprEvaluator.EPTYPE, "fromKeyEval", ExprNodeUtilityCodegen.codegenEvaluator(fromKey.getForge(), method, this.getClass(), classScope))
+            .declareVar(ExprEvaluator.EPTYPE, "fromInclusiveEval", ExprNodeUtilityCodegen.codegenEvaluator(fromInclusive.getForge(), method, this.getClass(), classScope))
+            .declareVar(ExprEvaluator.EPTYPE, "toKeyEval", ExprNodeUtilityCodegen.codegenEvaluator(toKey.getForge(), method, this.getClass(), classScope))
+            .declareVar(ExprEvaluator.EPTYPE, "toInclusiveEval", ExprNodeUtilityCodegen.codegenEvaluator(toInclusive.getForge(), method, this.getClass(), classScope))
             .methodReturn(staticMethod(AggregationMethodSortedSubmapFactory.class, "makeSortedAggregationSubmap",
                 ref("fromKeyEval"), ref("fromInclusiveEval"), ref("toKeyEval"), ref("toInclusiveEval"),
                 enumValue(AggregationMethodSortedEnum.class, aggMethod.name()), constant(underlyingClass)));
         return localMethod(method);
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return resultType;
     }
 }

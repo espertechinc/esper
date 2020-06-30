@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.JsonEndValueForgeBoolean;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.
 import java.util.Iterator;
 
 public class JsonDelegateArrayBooleanPrimitive extends JsonDelegateArrayBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArrayBooleanPrimitive.class);
     public JsonDelegateArrayBooleanPrimitive(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);
     }

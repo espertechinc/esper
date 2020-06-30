@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.OnDemandSunReflectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class BeanInstantiatorForgeByCtor implements BeanInstantiatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField ctor = codegenClassScope.addFieldUnshared(true, Constructor.class, staticMethod(BeanInstantiatorForgeByCtor.class, "getSunJVMCtor", constant(underlyingType)));
+        CodegenExpressionField ctor = codegenClassScope.addFieldUnshared(true, ClassHelperGenericType.getClassEPType(Constructor.class), staticMethod(BeanInstantiatorForgeByCtor.class, "getSunJVMCtor", constant(underlyingType)));
         return staticMethod(BeanInstantiatorForgeByCtor.class, "instantiateSunJVMCtor", ctor);
     }
 

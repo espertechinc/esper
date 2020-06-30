@@ -10,11 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.type.EPType;
+
 /**
  * Represents a constant in an expressiun tree.
  */
 public interface ExprConstantNode extends ExprNode {
-    Class getConstantType();
+    EPType getConstantType();
 
     Object getConstantValue();
 

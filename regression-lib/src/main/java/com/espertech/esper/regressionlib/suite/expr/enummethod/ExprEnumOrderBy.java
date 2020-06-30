@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
@@ -32,7 +34,7 @@ public class ExprEnumOrderBy {
         execs.add(new ExprEnumOrderByEventsPlus());
         execs.add(new ExprEnumOrderByScalar());
         execs.add(new ExprEnumOrderByScalarWithParam());
-        execs.add(new ExprEnumInvalid());
+        execs.add(new ExprEnumOrderByInvalid());
         return execs;
     }
 
@@ -45,7 +47,7 @@ public class ExprEnumOrderBy {
             builder.expression(fields[2], "contained.orderBy( (x, i, s) => case when s <= 2 then p00 else i-10 end)");
             builder.expression(fields[3], "contained.orderByDesc( (x, i, s) => case when s <= 2 then p00 else i-10 end)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2"))
                 .verify("c0", val -> assertST0Id(val, "E1,E2"))
@@ -82,7 +84,7 @@ public class ExprEnumOrderBy {
             builder.expression(fields[4], "contained.orderByDesc(x => 10 - p00)");
             builder.expression(fields[5], "contained.orderByDesc(x => 0)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2"))
                 .verify("c0", val -> assertST0Id(val, "E1,E2"))
@@ -121,7 +123,7 @@ public class ExprEnumOrderBy {
             builder.expression(fields[0], "strvals.orderBy()");
             builder.expression(fields[1], "strvals.orderByDesc()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
                 .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2", "E4", "E5"))
@@ -143,7 +145,7 @@ public class ExprEnumOrderBy {
             builder.expression(fields[4], "strvals.orderBy( (v, i, s) => case when s <= 2 then extractNum(v) else i-10 end)");
             builder.expression(fields[5], "strvals.orderByDesc( (v, i, s) => case when s <= 2 then extractNum(v) else i-10 end)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
                 .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2", "E4", "E5"))
@@ -167,12 +169,15 @@ public class ExprEnumOrderBy {
         }
     }
 
-    private static class ExprEnumInvalid implements RegressionExecution {
+    private static class ExprEnumOrderByInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl;
 
             epl = "select contained.orderBy() from SupportBean_ST0_Container";
             tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.orderBy()': Invalid input for built-in enumeration method 'orderBy' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean_ST0.class.getName() + "'");
+
+            epl = "select strvals.orderBy(v => null) from SupportCollection";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.orderBy()': Null-type is not allowed");
         }
     }
 }

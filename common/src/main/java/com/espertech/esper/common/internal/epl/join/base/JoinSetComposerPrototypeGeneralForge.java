@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -42,8 +43,8 @@ public class JoinSetComposerPrototypeGeneralForge extends JoinSetComposerPrototy
         return queryPlan;
     }
 
-    protected Class implementation() {
-        return JoinSetComposerPrototypeGeneral.class;
+    protected EPTypeClass implementation() {
+        return JoinSetComposerPrototypeGeneral.EPTYPE;
     }
 
     protected void populateInline(CodegenExpression impl, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

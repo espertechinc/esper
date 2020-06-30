@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.client.hook.enummethod;
 
+import com.espertech.esper.common.client.type.EPType;
+
 /**
  * A lambda parameter that assumes a value of the given type and that originates from the state object
  * by calling the provided getter-method.
  */
 public class EnumMethodLambdaParameterTypeStateGetter implements EnumMethodLambdaParameterType {
-    private final Class type;
+    private final EPType type;
     private final String getterMethodName;
 
     /**
@@ -23,7 +25,7 @@ public class EnumMethodLambdaParameterTypeStateGetter implements EnumMethodLambd
      * @param type lambda parameter-assumed value type
      * @param getterMethodName getter method name
      */
-    public EnumMethodLambdaParameterTypeStateGetter(Class type, String getterMethodName) {
+    public EnumMethodLambdaParameterTypeStateGetter(EPType type, String getterMethodName) {
         this.type = type;
         this.getterMethodName = getterMethodName;
     }
@@ -32,7 +34,7 @@ public class EnumMethodLambdaParameterTypeStateGetter implements EnumMethodLambd
      * Returns the type of the value the lambda parameter assumes
      * @return types
      */
-    public Class getType() {
+    public EPType getType() {
         return type;
     }
 

@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergroup;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -66,7 +69,7 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
     private final ResultSetProcessorOutputConditionType outputConditionType;
     private final EventType[] eventTypes;
     private final OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory;
-    private final Class[] groupKeyTypes;
+    private final EPType[] groupKeyTypes;
     private final MultiKeyClassRef multiKeyClassRef;
 
     private CodegenMethod generateGroupKeySingle;
@@ -160,8 +163,8 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         return eventTypes;
     }
 
-    public Class getInterfaceClass() {
-        return ResultSetProcessorRowPerGroup.class;
+    public EPTypeClass getInterfaceClass() {
+        return ResultSetProcessorRowPerGroup.EPTYPE;
     }
 
     public MultiKeyClassRef getMultiKeyClassRef() {
@@ -169,11 +172,11 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
     }
 
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
-        instance.getMethods().addMethod(SelectExprProcessor.class, "getSelectExprProcessor", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_SELECTEXPRPROCESSOR));
-        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGGREGATIONSVC));
-        instance.getMethods().addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGENTINSTANCECONTEXT));
-        instance.getMethods().addMethod(boolean.class, "hasHavingClause", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(constant(optionalHavingNode != null)));
-        instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
+        instance.getMethods().addMethod(SelectExprProcessor.EPTYPE, "getSelectExprProcessor", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_SELECTEXPRPROCESSOR));
+        instance.getMethods().addMethod(AggregationService.EPTYPE, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGGREGATIONSVC));
+        instance.getMethods().addMethod(AgentInstanceContext.EPTYPE, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGENTINSTANCECONTEXT));
+        instance.getMethods().addMethod(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "hasHavingClause", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(constant(optionalHavingNode != null)));
+        instance.getMethods().addMethod(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
         ResultSetProcessorUtil.evaluateHavingClauseCodegen(optionalHavingNode, classScope, instance);
         generateGroupKeySingle = ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(getGroupKeyNodeExpressions(), multiKeyClassRef, classScope, instance);
         generateGroupKeyArrayView = generateGroupKeyArrayViewCodegen(generateGroupKeySingle, classScope, instance);
@@ -184,9 +187,9 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
 
         if (unboundedProcessor) {
             CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
-            instance.addMember(NAME_GROUPREPS, ResultSetProcessorRowPerGroupUnboundHelper.class);
+            instance.addMember(NAME_GROUPREPS, ResultSetProcessorRowPerGroupUnboundHelper.EPTYPE);
             CodegenExpression groupKeySerde = getMultiKeyClassRef().getExprMKSerde(classScope.getPackageScope().getInitMethod(), classScope);
-            CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(typesPerStream[0], EPStatementInitServices.REF));
+            CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(typesPerStream[0], EPStatementInitServices.REF));
             instance.getServiceCtor().getBlock().assignRef(NAME_GROUPREPS, exprDotMethod(factory, "makeRSRowPerGroupUnboundGroupRep",
                 constant(groupKeyTypes), groupKeySerde, eventType, MEMBER_AGENTINSTANCECONTEXT))
                 .exprDotMethod(MEMBER_AGGREGATIONSVC, "setRemovedCallback", member(NAME_GROUPREPS));
@@ -271,7 +274,7 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         ResultSetProcessorRowPerGroupImpl.clearMethodCodegen(method);
     }
 
-    public Class[] getGroupKeyTypes() {
+    public EPType[] getGroupKeyTypes() {
         return groupKeyTypes;
     }
 

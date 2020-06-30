@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.table;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -43,8 +46,8 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         validateGroupKeys(tableMeta, validationContext);
         eventType = new LinkedHashMap<>();
         for (Map.Entry<String, TableMetadataColumn> entry : tableMeta.getColumns().entrySet()) {
-            Class classResult = tableMeta.getPublicEventType().getPropertyType(entry.getKey());
-            eventType.put(entry.getKey(), classResult);
+            EPType type = tableMeta.getPublicEventType().getPropertyEPType(entry.getKey());
+            eventType.put(entry.getKey(), type);
         }
     }
 
@@ -54,8 +57,8 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         return forge;
     }
 
-    public Class getEvaluationType() {
-        return Map.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.MAP.getEPType();
     }
 
     public ExprForge getForge() {
@@ -79,7 +82,7 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
     }
 
     public CodegenExpression evaluateTypableSingleCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(EVALTYPABLESINGLE, this, Object[].class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(EVALTYPABLESINGLE, this, EPTypePremade.OBJECTARRAY.getEPType(), parent, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateTypableMultiCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

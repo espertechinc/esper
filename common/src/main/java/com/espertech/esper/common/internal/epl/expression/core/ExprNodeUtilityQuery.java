@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
@@ -80,18 +82,19 @@ public class ExprNodeUtilityQuery {
         return propertyNames;
     }
 
-    public static Class[] getExprResultTypes(ExprNode[] nodes) {
-        Class[] types = new Class[nodes.length];
+    public static EPType[] getExprResultTypes(ExprNode[] nodes) {
+        EPType[] types = new EPType[nodes.length];
         for (int i = 0; i < types.length; i++) {
             types[i] = nodes[i].getForge().getEvaluationType();
         }
         return types;
     }
 
-    public static Class[] getExprResultTypes(ExprForge[] nodes) {
-        Class[] types = new Class[nodes.length];
+    public static EPType[] getExprResultTypes(ExprForge[] nodes) {
+        EPType[] types = new EPType[nodes.length];
         for (int i = 0; i < types.length; i++) {
-            types[i] = nodes[i].getEvaluationType();
+            EPType type = nodes[i].getEvaluationType();
+            types[i] = type == null ? EPTypeNull.INSTANCE : type;
         }
         return types;
     }
@@ -153,8 +156,8 @@ public class ExprNodeUtilityQuery {
         return eval;
     }
 
-    public static Class[] getExprResultTypes(List<ExprNode> expressions) {
-        Class[] returnTypes = new Class[expressions.size()];
+    public static EPType[] getExprResultTypes(List<ExprNode> expressions) {
+        EPType[] returnTypes = new EPType[expressions.size()];
         for (int i = 0; i < expressions.size(); i++) {
             returnTypes[i] = expressions.get(i).getForge().getEvaluationType();
         }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -39,11 +40,11 @@ public class DTLocalBeanCalOpsEval implements DTLocalEvaluator {
         return inner.evaluate(timestamp, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalBeanCalOpsForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.innerReturnType, DTLocalBeanCalOpsEval.class, codegenClassScope).addParam(EventBean.class, "target");
+    public static CodegenExpression codegen(DTLocalBeanCalOpsForge forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.innerReturnType, DTLocalBeanCalOpsEval.class, codegenClassScope).addParam(EventBean.EPTYPE, "target");
 
         methodNode.getBlock().declareVar(forge.getterReturnType, "timestamp", CodegenLegoCast.castSafeFromObjectType(forge.getterReturnType, forge.getter.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)));
-        if (!forge.getterReturnType.isPrimitive()) {
+        if (!forge.getterReturnType.getType().isPrimitive()) {
             methodNode.getBlock().ifRefNullReturnNull("timestamp");
         }
         methodNode.getBlock().methodReturn(forge.inner.codegen(ref("timestamp"), forge.getterReturnType, methodNode, exprSymbol, codegenClassScope));

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.exec.composite;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.join.exec.util.RangeIndexLookupValue;
 import com.espertech.esper.common.internal.epl.join.exec.util.RangeIndexLookupValueEquals;
 import com.espertech.esper.common.internal.epl.join.exec.util.RangeIndexLookupValueRange;
@@ -26,10 +27,10 @@ import java.util.TreeMap;
 public class CompositeIndexLookupRange implements CompositeIndexLookup {
 
     private final RangeIndexLookupValue lookupValue;
-    private final Class coercionType;
+    private final EPTypeClass coercionType;
     private CompositeIndexLookup next;
 
-    public CompositeIndexLookupRange(RangeIndexLookupValue lookupValue, Class coercionType) {
+    public CompositeIndexLookupRange(RangeIndexLookupValue lookupValue, EPTypeClass coercionType) {
         this.lookupValue = lookupValue;
         this.coercionType = coercionType;
     }

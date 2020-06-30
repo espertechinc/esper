@@ -10,10 +10,16 @@
  */
 package com.espertech.esper.common.client;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * This exception is thrown to indicate a problem in administration and runtime.
  */
 public class EPException extends RuntimeException {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EPException.class);
     private static final long serialVersionUID = 359488863761406599L;
 
     /**

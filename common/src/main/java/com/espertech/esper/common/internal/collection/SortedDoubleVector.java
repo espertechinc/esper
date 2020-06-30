@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.ArrayList;
 
 /**
  * Sorted, reference-counting set based on an ArrayList implementation that it being kept sorted.
  */
 public class SortedDoubleVector {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SortedDoubleVector.class);
     private ArrayList<Double> values;
 
     /**

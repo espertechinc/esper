@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -65,13 +66,13 @@ public class ResultSetProcessorUtil {
             } else {
                 method.getBlock()
                         .apply(instblock(classScope, "qHavingClause", REF_EPS))
-                        .declareVar(boolean.class, "passed", CodegenLegoMethodExpression.codegenBooleanExpressionReturnTrueFalse(optionalHavingClause, classScope, method, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
+                        .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "passed", CodegenLegoMethodExpression.codegenBooleanExpressionReturnTrueFalse(optionalHavingClause, classScope, method, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
                         .apply(instblock(classScope, "aHavingClause", ref("passed")))
                         .methodReturn(ref("passed"));
             }
         };
-        instance.getMethods().addMethod(boolean.class, "evaluateHavingClause",
-                CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), ResultSetProcessorUtil.class, classScope, code);
+        instance.getMethods().addMethod(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "evaluateHavingClause",
+                CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT), ResultSetProcessorUtil.class, classScope, code);
     }
 
     /**
@@ -233,34 +234,34 @@ public class ResultSetProcessorUtil {
     public static CodegenMethod getSelectEventsHavingWithOrderByCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = methodNode -> {
             methodNode.getBlock().ifRefNullReturnNull("events")
-                    .declareVar(ArrayDeque.class, "result", constantNull())
-                    .declareVar(ArrayDeque.class, "eventGenerators", constantNull())
-                    .declareVar(EventBean[].class, NAME_EPS, newArrayByLength(EventBean.class, constant(1)));
+                    .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", constantNull())
+                    .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "eventGenerators", constantNull())
+                    .declareVar(EventBean.EPTYPEARRAY, NAME_EPS, newArrayByLength(EventBean.EPTYPE, constant(1)));
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.EPTYPE, "theEvent", ref("events"));
                 forEach.assignArrayElement(NAME_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
-                        .assignRef("result", newInstance(ArrayDeque.class, arrayLength(ref("events"))))
-                        .assignRef("eventGenerators", newInstance(ArrayDeque.class, arrayLength(ref("events"))))
+                        .assignRef("result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), arrayLength(ref("events"))))
+                        .assignRef("eventGenerators", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), arrayLength(ref("events"))))
                         .blockEnd()
                         .exprDotMethod(ref("result"), "add", ref("generated"))
-                        .declareVar(EventBean[].class, "tmp", newArrayByLength(EventBean.class, constant(0)))
+                        .declareVar(EventBean.EPTYPEARRAY, "tmp", newArrayByLength(EventBean.EPTYPE, constant(0)))
                         .assignArrayElement("tmp", constant(0), ref("theEvent"))
                         .exprDotMethod(ref("eventGenerators"), "add", ref("tmp"))
                         .blockEnd();
             }
 
             methodNode.getBlock().ifRefNullReturnNull("result")
-                    .declareVar(EventBean[].class, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
-                    .declareVar(EventBean[][].class, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
+                    .declareVar(EventBean.EPTYPEARRAY, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
+                    .declareVar(EventBean.EPTYPEARRAYARRAY, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
                     .methodReturn(exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC));
         };
 
-        return instance.getMethods().addMethod(EventBean[].class, "getSelectEventsHavingWithOrderBy",
-                CodegenNamedParam.from(AggregationService.class, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "getSelectEventsHavingWithOrderBy",
+                CodegenNamedParam.from(AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EventBean.EPTYPEARRAY, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -317,24 +318,24 @@ public class ResultSetProcessorUtil {
         Consumer<CodegenMethod> code = methodNode -> {
             methodNode.getBlock()
                     .ifRefNullReturnNull("events")
-                    .declareVar(ArrayDeque.class, "result", constantNull())
-                    .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)));
+                    .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", constantNull())
+                    .declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)));
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.EPTYPE, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
-                        .assignRef("result", newInstance(ArrayDeque.class, arrayLength(ref("events")))).blockEnd()
+                        .assignRef("result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), arrayLength(ref("events")))).blockEnd()
                         .exprDotMethod(ref("result"), "add", ref("generated")).blockEnd();
             }
             methodNode.getBlock().methodReturn(staticMethod(CollectionUtil.class, METHOD_TOARRAYMAYNULL, ref("result")));
         };
 
-        return instance.getMethods().addMethod(EventBean[].class, "getSelectEventsHaving",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "getSelectEventsHaving",
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EventBean.EPTYPEARRAY, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -446,22 +447,22 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock()
                     .ifCondition(or(equalsNull(ref("events")), exprDotMethod(ref("events"), "isEmpty"))).blockReturn(constantNull())
                     .ifRefNullReturnNull("events")
-                    .declareVar(ArrayDeque.class, "result", constantNull());
+                    .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", constantNull());
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
-                forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.EPTYPE, "key", ref("events"));
+                forEach.declareVar(EventBean.EPTYPEARRAY, NAME_EPS, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "generated", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
-                        .assignRef("result", newInstance(ArrayDeque.class, exprDotMethod(ref("events"), "size"))).blockEnd()
+                        .assignRef("result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), exprDotMethod(ref("events"), "size"))).blockEnd()
                         .exprDotMethod(ref("result"), "add", ref("generated")).blockEnd();
             }
             methodNode.getBlock().methodReturn(staticMethod(CollectionUtil.class, METHOD_TOARRAYMAYNULL, ref("result")));
         };
 
-        return instance.getMethods().addMethod(EventBean[].class, "getSelectJoinEventsHaving",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "getSelectJoinEventsHaving",
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -519,30 +520,30 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock()
                     .ifCondition(or(equalsNull(ref("events")), exprDotMethod(ref("events"), "isEmpty"))).blockReturn(constantNull())
                     .ifRefNullReturnNull("events")
-                    .declareVar(ArrayDeque.class, "result", constantNull())
-                    .declareVar(ArrayDeque.class, "eventGenerators", constantNull());
+                    .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", constantNull())
+                    .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "eventGenerators", constantNull());
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
-                forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.EPTYPE, "key", ref("events"));
+                forEach.declareVar(EventBean.EPTYPEARRAY, NAME_EPS, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .ifCondition(equalsNull(ref("result")))
-                        .assignRef("result", newInstance(ArrayDeque.class, exprDotMethod(ref("events"), "size")))
-                        .assignRef("eventGenerators", newInstance(ArrayDeque.class, exprDotMethod(ref("events"), "size")))
+                        .assignRef("result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), exprDotMethod(ref("events"), "size")))
+                        .assignRef("eventGenerators", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), exprDotMethod(ref("events"), "size")))
                         .blockEnd()
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"))
                         .exprDotMethod(ref("eventGenerators"), "add", ref("eventsPerStream"))
                         .blockEnd();
             }
             methodNode.getBlock().ifRefNullReturnNull("result")
-                    .declareVar(EventBean[].class, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
-                    .declareVar(EventBean[][].class, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
+                    .declareVar(EventBean.EPTYPEARRAY, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
+                    .declareVar(EventBean.EPTYPEARRAYARRAY, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
                     .methodReturn(exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC));
         };
 
-        return instance.getMethods().addMethod(EventBean[].class, "getSelectJoinEventsHavingWithOrderBy",
-                CodegenNamedParam.from(AggregationService.class, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "getSelectJoinEventsHavingWithOrderBy",
+                CodegenNamedParam.from(AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -604,20 +605,20 @@ public class ResultSetProcessorUtil {
         Consumer<CodegenMethod> code = methodNode -> {
             methodNode.getBlock()
                     .ifRefNull("events").blockReturnNoValue()
-                    .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)));
+                    .declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)));
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.EPTYPE, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"));
             }
         };
 
-        return instance.getMethods().addMethod(void.class, "populateSelectEventsHaving",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "populateSelectEventsHaving",
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EventBean.EPTYPEARRAY, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -647,21 +648,21 @@ public class ResultSetProcessorUtil {
         Consumer<CodegenMethod> code = methodNode -> {
             methodNode.getBlock()
                     .ifRefNull("events").blockReturnNoValue()
-                    .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)));
+                    .declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)));
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.EPTYPE, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"))
                         .exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
         };
 
-        return instance.getMethods().addMethod(void.class, "populateSelectEventsHavingWithOrderBy",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", List.class, "optSortKeys", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "populateSelectEventsHavingWithOrderBy",
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EventBean.EPTYPEARRAY, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", EPTypePremade.LIST.getEPType(), "optSortKeys", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -690,17 +691,17 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNull("events").blockReturnNoValue();
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
-                forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.EPTYPE, "key", ref("events"));
+                forEach.declareVar(EventBean.EPTYPEARRAY, NAME_EPS, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"));
             }
         };
 
-        return instance.getMethods().addMethod(void.class, "populateSelectJoinEventsHavingCodegen",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "populateSelectJoinEventsHavingCodegen",
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -730,18 +731,18 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNull("events").blockReturnNoValue();
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
-                forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.EPTYPE, "key", ref("events"));
+                forEach.declareVar(EventBean.EPTYPEARRAY, NAME_EPS, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
-                forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
+                forEach.declareVar(EventBean.EPTYPE, "resultEvent", exprDotMethod(MEMBER_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"))
                         .exprDotMethod(ref("sortKeys"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
         };
 
-        return instance.getMethods().addMethod(void.class, "populateSelectJoinEventsHavingWithOrderBy",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", List.class, "sortKeys", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+        return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "populateSelectJoinEventsHavingWithOrderBy",
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", EPTypePremade.LIST.getEPType(), "sortKeys", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -853,7 +854,7 @@ public class ResultSetProcessorUtil {
         if (outputNullIfBothNull) {
             method.getBlock().ifCondition(and(equalsNull(ref("selectNewEvents")), equalsNull(ref("selectOldEvents")))).blockReturn(constantNull());
         }
-        method.getBlock().methodReturn(newInstance(UniformPair.class, ref("selectNewEvents"), ref("selectOldEvents")));
+        method.getBlock().methodReturn(newInstance(UniformPair.EPTYPE, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
     public static void processJoinResultCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenInstanceAux instance, boolean hasHaving, boolean selectRStream, boolean hasOrderBy, boolean outputNullIfBothNull) {
@@ -894,7 +895,7 @@ public class ResultSetProcessorUtil {
         if (outputNullIfBothNull) {
             method.getBlock().ifCondition(and(equalsNull(ref("selectNewEvents")), equalsNull(ref("selectOldEvents")))).blockReturn(constantNull());
         }
-        method.getBlock().methodReturn(newInstance(UniformPair.class, ref("selectNewEvents"), ref("selectOldEvents")));
+        method.getBlock().methodReturn(newInstance(UniformPair.EPTYPE, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
     /**
@@ -997,14 +998,14 @@ public class ResultSetProcessorUtil {
     }
 
     public static void finalizeOutputMaySortMayRStreamCodegen(CodegenBlock block, CodegenExpressionRef newEvents, CodegenExpressionRef newEventsSortKey, CodegenExpressionRef oldEvents, CodegenExpressionRef oldEventsSortKey, boolean selectRStream, boolean hasOrderBy) {
-        block.declareVar(EventBean[].class, "newEventsArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYEVENTS, newEvents))
-                .declareVar(EventBean[].class, "oldEventsArr", selectRStream ? staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYEVENTS, oldEvents) : constantNull());
+        block.declareVar(EventBean.EPTYPEARRAY, "newEventsArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYEVENTS, newEvents))
+                .declareVar(EventBean.EPTYPEARRAY, "oldEventsArr", selectRStream ? staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYEVENTS, oldEvents) : constantNull());
 
         if (hasOrderBy) {
-            block.declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, newEventsSortKey))
+            block.declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, newEventsSortKey))
                     .assignRef("newEventsArr", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), MEMBER_AGENTINSTANCECONTEXT));
             if (selectRStream) {
-                block.declareVar(Object[].class, "sortKeysOld", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, oldEventsSortKey))
+                block.declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "sortKeysOld", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, oldEventsSortKey))
                         .assignRef("oldEventsArr", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("sortKeysOld"), MEMBER_AGENTINSTANCECONTEXT));
             }
         }
@@ -1013,14 +1014,14 @@ public class ResultSetProcessorUtil {
     }
 
     public static void prefixCodegenNewOldEvents(CodegenBlock block, boolean sorting, boolean selectRStream) {
-        block.declareVar(List.class, "newEvents", newInstance(ArrayList.class))
-                .declareVar(List.class, "oldEvents", selectRStream ? newInstance(ArrayList.class) : constantNull());
+        block.declareVar(EPTypePremade.LIST.getEPType(), "newEvents", newInstance(EPTypePremade.ARRAYLIST.getEPType()))
+                .declareVar(EPTypePremade.LIST.getEPType(), "oldEvents", selectRStream ? newInstance(EPTypePremade.ARRAYLIST.getEPType()) : constantNull());
 
-        block.declareVar(List.class, "newEventsSortKey", constantNull())
-                .declareVar(List.class, "oldEventsSortKey", constantNull());
+        block.declareVar(EPTypePremade.LIST.getEPType(), "newEventsSortKey", constantNull())
+                .declareVar(EPTypePremade.LIST.getEPType(), "oldEventsSortKey", constantNull());
         if (sorting) {
-            block.assignRef("newEventsSortKey", newInstance(ArrayList.class))
-                    .assignRef("oldEventsSortKey", selectRStream ? newInstance(ArrayList.class) : constantNull());
+            block.assignRef("newEventsSortKey", newInstance(EPTypePremade.ARRAYLIST.getEPType()))
+                    .assignRef("oldEventsSortKey", selectRStream ? newInstance(EPTypePremade.ARRAYLIST.getEPType()) : constantNull());
         }
     }
 

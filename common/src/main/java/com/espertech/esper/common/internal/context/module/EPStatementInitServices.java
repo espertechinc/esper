@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.module;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.PathRegistry;
@@ -55,6 +56,7 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public interface EPStatementInitServices {
+    EPTypeClass EPTYPE = new EPTypeClass(EPStatementInitServices.class);
     CodegenExpressionRef REF = ref("stmtInitSvc");
     String GETAGGREGATIONSERVICEFACTORYSERVICE = "getAggregationServiceFactoryService";
     String GETCONTEXTSERVICEFACTORY = "getContextServiceFactory";

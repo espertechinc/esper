@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.Serializable;
 
 /**
@@ -18,6 +20,8 @@ import java.io.Serializable;
  * and the f pair s object equals the s pair s object.
  */
 public class Pair<F, S> implements Serializable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(Pair.class);
+
     private F f;
     private S s;
     private static final long serialVersionUID = -4168417618011472714L;

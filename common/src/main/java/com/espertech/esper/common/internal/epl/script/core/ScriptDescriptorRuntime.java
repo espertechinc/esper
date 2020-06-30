@@ -10,17 +10,21 @@
  */
 package com.espertech.esper.common.internal.epl.script.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
 public class ScriptDescriptorRuntime {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ScriptDescriptorRuntime.class);
+
     private String optionalDialect;
     private String scriptName;
     private String expression;
     private String[] parameterNames;
     private ExprEvaluator[] parameters;
-    private Class[] evaluationTypes;
+    private EPType[] evaluationTypes;
     private SimpleNumberCoercer coercer;
 
     private String defaultDialect;
@@ -42,7 +46,7 @@ public class ScriptDescriptorRuntime {
         this.parameterNames = parameterNames;
     }
 
-    public void setEvaluationTypes(Class[] evaluationTypes) {
+    public void setEvaluationTypes(EPType[] evaluationTypes) {
         this.evaluationTypes = evaluationTypes;
     }
 
@@ -62,7 +66,7 @@ public class ScriptDescriptorRuntime {
         return parameterNames;
     }
 
-    public Class[] getEvaluationTypes() {
+    public EPType[] getEvaluationTypes() {
         return evaluationTypes;
     }
 

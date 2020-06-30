@@ -11,10 +11,14 @@
 package com.espertech.esper.common.internal.epl.datetime.calop;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.datetime.reformatop.ReformatFormatForgeDesc;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.rettype.ClassEPType;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.text.DateFormat;
@@ -47,8 +51,8 @@ public class CalendarOpUtil {
         return fieldNum;
     }
 
-    public static ReformatFormatForgeDesc validateGetFormatterType(EPType inputType, String methodName, ExprNode exprNode) throws ExprValidationException {
-        if (!(inputType instanceof ClassEPType)) {
+    public static ReformatFormatForgeDesc validateGetFormatterType(EPChainableType inputType, String methodName, ExprNode exprNode) throws ExprValidationException {
+        if (!(inputType instanceof EPChainableTypeClass)) {
             throw new ExprValidationException(getMessage(methodName) + " requires a datetime input value but received " + inputType);
         }
 
@@ -57,10 +61,11 @@ public class CalendarOpUtil {
         }
 
         ExprForge formatForge = exprNode.getForge();
-        Class formatType = formatForge.getEvaluationType();
-        if (formatType == null) {
+        EPType formatType = formatForge.getEvaluationType();
+        if (formatType == null || formatType == EPTypeNull.INSTANCE) {
             throw new ExprValidationException(getMessage(methodName) + " invalid null format object");
         }
+        EPTypeClass formatClass = (EPTypeClass) formatType;
 
         Object format = null;
         if (formatForge.getForgeConstantType().isCompileTimeConstant()) {
@@ -71,15 +76,16 @@ public class CalendarOpUtil {
         }
 
         // handle legacy date
-        ClassEPType input = (ClassEPType) inputType;
-        if (JavaClassHelper.getBoxedType(input.getType()) == Long.class ||
-                JavaClassHelper.isSubclassOrImplementsInterface(input.getType(), Date.class) ||
-                JavaClassHelper.isSubclassOrImplementsInterface(input.getType(), Calendar.class)) {
+        EPChainableTypeClass input = (EPChainableTypeClass) inputType;
+        Class inputTypeClass = input.getType().getType();
+        if (JavaClassHelper.getBoxedType(input.getType().getType()) == Long.class ||
+            JavaClassHelper.isSubclassOrImplementsInterface(inputTypeClass, Date.class) ||
+            JavaClassHelper.isSubclassOrImplementsInterface(inputTypeClass, Calendar.class)) {
 
-            if (JavaClassHelper.isSubclassOrImplementsInterface(formatType, DateFormat.class)) {
+            if (JavaClassHelper.isSubclassOrImplementsInterface(formatClass, DateFormat.class)) {
                 return new ReformatFormatForgeDesc(false, DateFormat.class);
             }
-            if (JavaClassHelper.isSubclassOrImplementsInterface(formatType, String.class)) {
+            if (JavaClassHelper.isSubclassOrImplementsInterface(formatClass, String.class)) {
                 if (format != null) {
                     try {
                         new SimpleDateFormat((String) format);
@@ -89,14 +95,14 @@ public class CalendarOpUtil {
                 }
                 return new ReformatFormatForgeDesc(false, String.class);
             }
-            throw getFailedExpected(methodName, DateFormat.class, formatType);
+            throw getFailedExpected(methodName, DateFormat.class, formatClass.getType());
         }
 
         // handle jdk8 date
-        if (JavaClassHelper.isSubclassOrImplementsInterface(formatType, DateTimeFormatter.class)) {
+        if (JavaClassHelper.isSubclassOrImplementsInterface(formatClass, DateTimeFormatter.class)) {
             return new ReformatFormatForgeDesc(true, DateTimeFormatter.class);
         }
-        if (JavaClassHelper.isSubclassOrImplementsInterface(formatType, String.class)) {
+        if (JavaClassHelper.isSubclassOrImplementsInterface(formatClass, String.class)) {
             if (format != null) {
                 try {
                     DateTimeFormatter.ofPattern((String) format);
@@ -106,11 +112,11 @@ public class CalendarOpUtil {
             }
             return new ReformatFormatForgeDesc(true, String.class);
         }
-        throw getFailedExpected(methodName, DateTimeFormatter.class, formatType);
+        throw getFailedExpected(methodName, DateTimeFormatter.class, formatClass.getType());
     }
 
     private static ExprValidationException getFailedExpected(String methodName, Class expected, Class received) {
-        return new ExprValidationException(getMessage(methodName) + " invalid format, expected string-format or " + expected.getSimpleName() + " but received " + JavaClassHelper.getClassNameFullyQualPretty(received));
+        return new ExprValidationException(getMessage(methodName) + " invalid format, expected string-format or " + expected.getSimpleName() + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(received));
     }
 
     private static String validateConstant(String methodName, ExprNode exprNode) {

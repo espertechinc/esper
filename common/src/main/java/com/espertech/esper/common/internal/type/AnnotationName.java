@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.Name;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationName implements Name {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationName.class);
+
     private final String name;
 
     public AnnotationName(String name) {

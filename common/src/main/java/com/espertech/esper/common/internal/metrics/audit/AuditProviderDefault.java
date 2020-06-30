@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.metrics.audit;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowState;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalFactoryNode;
@@ -21,6 +22,7 @@ import com.espertech.esper.common.internal.schedule.ScheduleObjectType;
 import com.espertech.esper.common.internal.view.core.ViewFactory;
 
 public class AuditProviderDefault implements AuditProvider {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AuditProviderDefault.class);
 
     public final static AuditProviderDefault INSTANCE = new AuditProviderDefault();
 

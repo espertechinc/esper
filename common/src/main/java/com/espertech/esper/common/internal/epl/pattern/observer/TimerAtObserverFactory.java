@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.pattern.observer;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertor;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * Factory for 'crontab' observers that indicate truth when a time point was reached.
  */
 public class TimerAtObserverFactory implements ObserverFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimerAtObserverFactory.class);
 
     private final static Logger log = LoggerFactory.getLogger(TimerAtObserverFactory.class);
 

@@ -10,12 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.grouped;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPolled;
 import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPolledFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputHelper;
 
 public interface ResultSetProcessorGroupedOutputFirstHelper extends ResultSetProcessorOutputHelper {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorGroupedOutputFirstHelper.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(ResultSetProcessorGroupedOutputFirstHelper[].class);
+
     OutputConditionPolled getOrAllocate(Object mk, AgentInstanceContext agentInstanceContext, OutputConditionPolledFactory optionalOutputFirstConditionFactory);
 
     void remove(Object key);

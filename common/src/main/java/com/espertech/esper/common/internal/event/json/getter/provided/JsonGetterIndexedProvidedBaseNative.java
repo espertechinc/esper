@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.json.getter.provided;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -19,6 +21,7 @@ import com.espertech.esper.common.internal.event.bean.getter.BaseNativePropertyG
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.json.getter.core.JsonEventPropertyGetter;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.lang.reflect.Field;
@@ -32,14 +35,14 @@ public final class JsonGetterIndexedProvidedBaseNative extends BaseNativePropert
     private final Field field;
     private final int index;
 
-    public JsonGetterIndexedProvidedBaseNative(EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class returnType, Field field, int index) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType, null);
+    public JsonGetterIndexedProvidedBaseNative(EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass returnType, Field field, int index) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType);
         this.field = field;
         this.index = index;
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(field.getDeclaringClass(), beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -47,7 +50,7 @@ public final class JsonGetterIndexedProvidedBaseNative extends BaseNativePropert
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(field.getDeclaringClass(), beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -82,11 +85,12 @@ public final class JsonGetterIndexedProvidedBaseNative extends BaseNativePropert
         return getFragmentFromValue(value);
     }
 
-    public Class getTargetType() {
-        return field.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(field.getDeclaringClass());
     }
 
-    public Class getBeanPropType() {
-        return Object.class;
+    @Override
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 }

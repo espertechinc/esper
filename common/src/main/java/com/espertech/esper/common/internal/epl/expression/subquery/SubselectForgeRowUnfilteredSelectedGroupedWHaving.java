@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -28,10 +31,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCo
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCodegenField;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Map;
-
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.subquery.SubselectForgeCodegenUtil.DECLARE_EVENTS_SHIFTED;
 import static com.espertech.esper.common.internal.epl.expression.subquery.SubselectForgeCodegenUtil.REF_EVENTS_SHIFTED;
@@ -46,27 +45,30 @@ public class SubselectForgeRowUnfilteredSelectedGroupedWHaving extends Subselect
     }
 
     public CodegenExpression evaluateCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenExpression aggService = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryAgg(subselect.getSubselectNumber()), AggregationResultFuture.class);
+        if (subselect.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenExpression aggService = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryAgg(subselect.getSubselectNumber()), AggregationResultFuture.EPTYPE);
 
-        CodegenMethod method = parent.makeChild(subselect.getEvaluationType(), this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild((EPTypeClass) subselect.getEvaluationType(), this.getClass(), classScope);
         CodegenExpressionRef evalCtx = symbols.getAddExprEvalCtx(method);
 
         method.getBlock()
-                .declareVar(int.class, "cpid", exprDotMethod(evalCtx, "getAgentInstanceId"))
-                .declareVar(AggregationService.class, "aggregationService", exprDotMethod(aggService, "getContextPartitionAggregationService", ref("cpid")))
-                .declareVar(Collection.class, "groupKeys", exprDotMethod(ref("aggregationService"), "getGroupKeys", evalCtx))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "cpid", exprDotMethod(evalCtx, "getAgentInstanceId"))
+                .declareVar(AggregationService.EPTYPE, "aggregationService", exprDotMethod(aggService, "getContextPartitionAggregationService", ref("cpid")))
+                .declareVar(EPTypePremade.COLLECTION.getEPType(), "groupKeys", exprDotMethod(ref("aggregationService"), "getGroupKeys", evalCtx))
                 .ifCondition(exprDotMethod(ref("groupKeys"), "isEmpty")).blockReturn(constantNull())
                 .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols)
-                .declareVar(boolean.class, "haveResult", constantFalse())
-                .declareVar(Object.class, "groupKeyMatch", constantNull());
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "haveResult", constantFalse())
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "groupKeyMatch", constantNull());
 
-        CodegenBlock forEach = method.getBlock().forEach(Object.class, "groupKey", ref("groupKeys"));
+        CodegenBlock forEach = method.getBlock().forEach(EPTypePremade.OBJECT.getEPType(), "groupKey", ref("groupKeys"));
         {
             CodegenMethod havingExpr = CodegenLegoMethodExpression.codegenExpression(subselect.havingExpr, method, classScope);
             CodegenExpression havingCall = localMethod(havingExpr, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), evalCtx);
 
             forEach.exprDotMethod(ref("aggregationService"), "setCurrentAccess", ref("groupKey"), ref("cpid"), constantNull())
-                    .declareVar(Boolean.class, "pass", cast(Boolean.class, havingCall))
+                    .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "pass", cast(EPTypePremade.BOOLEANBOXED.getEPType(), havingCall))
                     .ifCondition(and(notEqualsNull(ref("pass")), ref("pass")))
                     .ifCondition(ref("haveResult")).blockReturn(constantNull())
                     .assignRef("groupKeyMatch", ref("groupKey"))
@@ -88,31 +90,31 @@ public class SubselectForgeRowUnfilteredSelectedGroupedWHaving extends Subselect
     }
 
     public CodegenExpression evaluateGetCollEventsCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenExpression aggService = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryAgg(subselect.getSubselectNumber()), AggregationResultFuture.class);
+        CodegenExpression aggService = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryAgg(subselect.getSubselectNumber()), AggregationResultFuture.EPTYPE);
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField subselectMultirowType = classScope.addFieldUnshared(false, EventType.class, EventTypeUtility.resolveTypeCodegen(subselect.subselectMultirowType, EPStatementInitServices.REF));
+        CodegenExpressionField subselectMultirowType = classScope.addFieldUnshared(false, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(subselect.subselectMultirowType, EPStatementInitServices.REF));
 
-        CodegenMethod method = parent.makeChild(Collection.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.COLLECTION.getEPType(), this.getClass(), classScope);
         CodegenExpressionRef evalCtx = symbols.getAddExprEvalCtx(method);
 
         method.getBlock()
-                .declareVar(int.class, "cpid", exprDotMethod(evalCtx, "getAgentInstanceId"))
-                .declareVar(AggregationService.class, "aggregationService", exprDotMethod(aggService, "getContextPartitionAggregationService", ref("cpid")))
-                .declareVar(Collection.class, "groupKeys", exprDotMethod(ref("aggregationService"), "getGroupKeys", evalCtx))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "cpid", exprDotMethod(evalCtx, "getAgentInstanceId"))
+                .declareVar(AggregationService.EPTYPE, "aggregationService", exprDotMethod(aggService, "getContextPartitionAggregationService", ref("cpid")))
+                .declareVar(EPTypePremade.COLLECTION.getEPType(), "groupKeys", exprDotMethod(ref("aggregationService"), "getGroupKeys", evalCtx))
                 .ifCondition(exprDotMethod(ref("groupKeys"), "isEmpty")).blockReturn(constantNull())
                 .applyTri(DECLARE_EVENTS_SHIFTED, method, symbols)
-                .declareVar(Collection.class, "result", newInstance(ArrayDeque.class, exprDotMethod(ref("groupKeys"), "size")));
+                .declareVar(EPTypePremade.COLLECTION.getEPType(), "result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), exprDotMethod(ref("groupKeys"), "size")));
 
-        CodegenBlock forEach = method.getBlock().forEach(Object.class, "groupKey", ref("groupKeys"));
+        CodegenBlock forEach = method.getBlock().forEach(EPTypePremade.OBJECT.getEPType(), "groupKey", ref("groupKeys"));
         {
             CodegenMethod havingExpr = CodegenLegoMethodExpression.codegenExpression(subselect.havingExpr, method, classScope);
             CodegenExpression havingCall = localMethod(havingExpr, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), evalCtx);
 
             forEach.exprDotMethod(ref("aggregationService"), "setCurrentAccess", ref("groupKey"), ref("cpid"), constantNull())
-                    .declareVar(Boolean.class, "pass", cast(Boolean.class, havingCall))
+                    .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "pass", cast(EPTypePremade.BOOLEANBOXED.getEPType(), havingCall))
                     .ifCondition(and(notEqualsNull(ref("pass")), ref("pass")))
-                    .declareVar(Map.class, "row", localMethod(subselect.evaluateRowCodegen(method, classScope), REF_EVENTS_SHIFTED, constantTrue(), symbols.getAddExprEvalCtx(method)))
-                    .declareVar(EventBean.class, "event", exprDotMethod(factory, "adapterForTypedMap", ref("row"), subselectMultirowType))
+                    .declareVar(EPTypePremade.MAP.getEPType(), "row", localMethod(subselect.evaluateRowCodegen(method, classScope), REF_EVENTS_SHIFTED, constantTrue(), symbols.getAddExprEvalCtx(method)))
+                    .declareVar(EventBean.EPTYPE, "event", exprDotMethod(factory, "adapterForTypedMap", ref("row"), subselectMultirowType))
                     .exprDotMethod(ref("result"), "add", ref("event"));
         }
         method.getBlock().methodReturn(ref("result"));

@@ -40,7 +40,7 @@ public class InfraTableInvalid {
         public void run(RegressionEnvironment env) {
             // sum
             tryInvalidAggMatch(env, "var1", "sum(double)", false, "sum(intPrimitive)",
-                "Incompatible aggregation function for table 'var1' column 'value', expecting 'sum(double)' and received 'sum(intPrimitive)': The required parameter type is java.lang.Double and provided is java.lang.Integer [");
+                "Incompatible aggregation function for table 'var1' column 'value', expecting 'sum(double)' and received 'sum(intPrimitive)': The required parameter type is Double and provided is Integer [");
             tryInvalidAggMatch(env, "var1", "sum(double)", false, "count(*)",
                 "Incompatible aggregation function for table 'var1' column 'value', expecting 'sum(double)' and received 'count(*)': The table declares 'sum(double)' and provided is 'count(*)'");
             tryInvalidAggMatch(env, "var1", "sum(double)", false, "sum(doublePrimitive, theString='a')",
@@ -238,7 +238,7 @@ public class InfraTableInvalid {
                 "Invalid into-table clause: Failed to find table by name 'xxx' [");
             // group-by key type and count of group-by expressions
             tryInvalidCompile(env, path, "into table aggvar_grouped_string select count(*) as total from SupportBean group by intPrimitive",
-                "Incompatible type returned by a group-by expression for use with table 'aggvar_grouped_string', the group-by expression 'intPrimitive' returns 'java.lang.Integer' but the table expects 'java.lang.String' [");
+                "Incompatible type returned by a group-by expression for use with table 'aggvar_grouped_string', the group-by expression 'intPrimitive' returns 'Integer' but the table expects 'String' [");
             tryInvalidCompile(env, path, "into table aggvar_grouped_string select count(*) as total from SupportBean group by theString, intPrimitive",
                 "Incompatible number of group-by expressions for use with table 'aggvar_grouped_string', the table expects 1 group-by expressions and provided are 2 group-by expressions [");
             tryInvalidCompile(env, path, "into table aggvar_ungrouped select count(*) as total from SupportBean group by theString",
@@ -267,7 +267,7 @@ public class InfraTableInvalid {
             tryInvalidCompile(env, path, "select aggvar_grouped_string.total from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_grouped_string.total': Failed to resolve property 'aggvar_grouped_string.total' to a stream or nested property in a stream");
             tryInvalidCompile(env, path, "select aggvar_grouped_string[5].total from SupportBean",
-                "Failed to validate select-clause expression 'aggvar_grouped_string[5].total': Incompatible type returned by a key expression for use with table 'aggvar_grouped_string', the key expression '5' returns 'java.lang.Integer' but the table expects 'java.lang.String' [select aggvar_grouped_string[5].total from SupportBean]");
+                "Failed to validate select-clause expression 'aggvar_grouped_string[5].total': Incompatible type returned by a key expression for use with table 'aggvar_grouped_string', the key expression '5' returns 'Integer' but the table expects 'String' [select aggvar_grouped_string[5].total from SupportBean]");
 
             // top-level variable use without "keys" function
             tryInvalidCompile(env, path, "select aggvar_grouped_string.something() from SupportBean",
@@ -300,7 +300,7 @@ public class InfraTableInvalid {
                 "Contained-event expressions are not supported with tables");
             // join invalid
             tryInvalidCompile(env, path, "select aggvar_grouped_int[1].total.countMinSketchFrequency(theString) from SupportBean",
-                "Failed to validate select-clause expression 'aggvar_grouped_int[1].total.countMi...(62 chars)': Failed to resolve method 'countMinSketchFrequency': Could not find enumeration method, date-time method, instance method or property named 'countMinSketchFrequency' in class 'java.lang.Long' with matching parameter number and expected parameter type(s) 'String' ");
+                "Failed to validate select-clause expression 'aggvar_grouped_int[1].total.countMi...(62 chars)': Failed to resolve method 'countMinSketchFrequency': Could not find enumeration method, date-time method, instance method or property named 'countMinSketchFrequency' in class 'Long' with matching parameter number and expected parameter type(s) 'String' ");
             tryInvalidCompile(env, path, "select total.countMinSketchFrequency(theString) from aggvar_grouped_int, SupportBean unidirectional",
                 "Failed to validate select-clause expression 'total.countMinSketchFrequency(theString)': Failed to resolve method 'countMinSketchFrequency': Could not find");
             // cannot be marked undirectional
@@ -328,6 +328,9 @@ public class InfraTableInvalid {
             // schema by the same name
             tryInvalidCompile(env, path, "create schema aggvar_ungrouped as SupportBean",
                 "A table by name 'aggvar_ungrouped' already exists [");
+            // cannot use null-type key
+            tryInvalidCompile(env, path, "create table MyTable(somefield null primary key, id string)",
+                "Incorrect syntax near 'null' (a reserved keyword)");
 
             env.undeployAll();
         }

@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.context.controller.hash;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerDetail;
 
 public class ContextControllerDetailHash implements ContextControllerDetail {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerDetailHash.class);
+
     private ContextControllerDetailHashItem[] items;
     private int granularity;
     private boolean preallocate;

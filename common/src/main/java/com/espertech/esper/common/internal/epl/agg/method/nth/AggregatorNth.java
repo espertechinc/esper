@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.nth;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
@@ -46,28 +49,28 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
     private final CodegenExpressionMember numDataPoints;
     private final CodegenExpressionField serdeValue;
 
-    public AggregatorNth(AggregationForgeFactoryNth factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorNth(AggregationForgeFactoryNth factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
-        this.circularBuffer = membersColumnized.addMember(col, Object[].class, "buf");
-        this.currentBufferElementPointer = membersColumnized.addMember(col, int.class, "cbep");
-        this.numDataPoints = membersColumnized.addMember(col, long.class, "cnt");
+        this.circularBuffer = membersColumnized.addMember(col, EPTypePremade.OBJECTARRAY.getEPType(), "buf");
+        this.currentBufferElementPointer = membersColumnized.addMember(col, EPTypePremade.INTEGERPRIMITIVE.getEPType(), "cbep");
+        this.numDataPoints = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");
         this.serdeValue = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(VALUE_NULLABLE, factory.childType, factory.serde, classScope));
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         applyEvalEnterNonNull(value, method);
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         applyEvalLeaveNonNull(method);
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         applyEvalEnterNonNull(value, method);
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         applyEvalLeaveNonNull(method);
     }
 
@@ -82,7 +85,7 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         CodegenExpressionMember state = memberCol("state", col);
         method.getBlock()
-                .declareVar(AggregationNthState.class, state.getRef(), staticMethod(this.getClass(), "read", input, unitKey, serdeValue, constant(factory.getSizeOfBuf())))
+                .declareVar(AggregationNthState.EPTYPE, state.getRef(), staticMethod(this.getClass(), "read", input, unitKey, serdeValue, constant(factory.getSizeOfBuf())))
                 .assignRef(rowDotMember(row, circularBuffer), exprDotMethod(state, "getCircularBuffer"))
                 .assignRef(rowDotMember(row, currentBufferElementPointer), exprDotMethod(state, "getCurrentBufferElementPointer"))
                 .assignRef(rowDotMember(row, numDataPoints), exprDotMethod(state, "getNumDataPoints"));
@@ -91,7 +94,7 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope) {
         CodegenExpression sizeBuf = constant(factory.getSizeOfBuf());
         method.getBlock().ifNullReturnNull(circularBuffer)
-                .declareVar(int.class, "index", op(op(currentBufferElementPointer, "+", sizeBuf), "%", sizeBuf))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", op(op(currentBufferElementPointer, "+", sizeBuf), "%", sizeBuf))
                 .methodReturn(arrayAtIndex(circularBuffer, ref("index")));
     }
 
@@ -147,7 +150,7 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
 
     private Consumer<CodegenBlock> clearCode() {
         return block -> {
-            block.assignRef(circularBuffer, newArrayByLength(Object.class, constant(factory.getSizeOfBuf())))
+            block.assignRef(circularBuffer, newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(factory.getSizeOfBuf())))
                     .assignRef(numDataPoints, constant(0))
                     .assignRef(currentBufferElementPointer, constant(0));
         };
@@ -164,14 +167,16 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
 
     protected void applyEvalLeaveNonNull(CodegenMethod method) {
         method.getBlock().ifCondition(relational(constant(factory.getSizeOfBuf()), GT, numDataPoints))
-                .declareVar(int.class, "diff", op(constant(factory.getSizeOfBuf()), "-", cast(int.class, numDataPoints)))
-                .declareVar(int.class, "index", op(op(op(currentBufferElementPointer, "+", ref("diff")), "-", constant(1)), "%", constant(factory.getSizeOfBuf())))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "diff", op(constant(factory.getSizeOfBuf()), "-", cast(EPTypePremade.INTEGERPRIMITIVE.getEPType(), numDataPoints)))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", op(op(op(currentBufferElementPointer, "+", ref("diff")), "-", constant(1)), "%", constant(factory.getSizeOfBuf())))
                 .assignArrayElement(circularBuffer, ref("index"), constantNull())
                 .blockEnd()
                 .decrement(numDataPoints);
     }
 
     public static class AggregationNthState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationNthState.class);
+
         private Object[] circularBuffer;
         private int currentBufferElementPointer;
         private long numDataPoints;

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -27,9 +29,9 @@ public interface SimpleNumberCoercer {
      */
     Number coerceBoxed(Number numToCoerce);
 
-    Class getReturnType();
+    EPTypeClass getReturnType();
 
-    CodegenExpression coerceCodegen(CodegenExpression value, Class valueType);
+    CodegenExpression coerceCodegen(CodegenExpression value, EPTypeClass valueType);
 
-    CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, EPType valueTypeMustNumeric, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

@@ -10,11 +10,11 @@
  */
 package com.espertech.esper.common.internal.settings;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
-
-import java.util.TimeZone;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethodChain;
 
@@ -24,8 +24,8 @@ public class RuntimeSettingsTimeZoneField implements CodegenFieldSharable {
     private RuntimeSettingsTimeZoneField() {
     }
 
-    public Class type() {
-        return TimeZone.class;
+    public EPTypeClass type() {
+        return EPTypePremade.TIMEZONE.getEPType();
     }
 
     public CodegenExpression initCtorScoped() {

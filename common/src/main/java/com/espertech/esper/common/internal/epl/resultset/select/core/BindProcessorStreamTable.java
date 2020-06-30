@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -29,10 +30,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class BindProcessorStreamTable implements ExprForge, ExprEvaluator, ExprNodeRenderable {
     private final int streamNum;
-    private final Class returnType;
+    private final EPTypeClass returnType;
     private final TableMetaData tableMetadata;
 
-    public BindProcessorStreamTable(int streamNum, Class returnType, TableMetaData tableMetadata) {
+    public BindProcessorStreamTable(int streamNum, EPTypeClass returnType, TableMetaData tableMetadata) {
         this.streamNum = streamNum;
         this.returnType = returnType;
         this.tableMetadata = tableMetadata;
@@ -42,7 +43,7 @@ public class BindProcessorStreamTable implements ExprForge, ExprEvaluator, ExprN
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tableMetadata, codegenClassScope, this.getClass());
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
@@ -76,7 +77,7 @@ public class BindProcessorStreamTable implements ExprForge, ExprEvaluator, ExprN
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

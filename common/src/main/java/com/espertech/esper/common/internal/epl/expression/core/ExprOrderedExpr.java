@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -50,7 +52,7 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprForge, ExprEval
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return getChildNodes()[0].getForge().getEvaluationType();
     }
 
@@ -84,7 +86,7 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprForge, ExprEval
         return evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return getChildNodes()[0].getForge().evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

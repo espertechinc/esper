@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.type.MathArithTypeEnum;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -56,27 +58,22 @@ public class ExprMathNode extends ExprNodeBase {
         }
 
         for (ExprNode child : this.getChildNodes()) {
-            Class childType = child.getForge().getEvaluationType();
-            if (!JavaClassHelper.isNumeric(childType)) {
-                throw new ExprValidationException("Implicit conversion from datatype '" +
-                        childType.getSimpleName() +
-                        "' to numeric is not allowed");
-            }
+            ExprNodeUtilityValidate.validateReturnsNumeric(child.getForge());
         }
 
         // Determine result type, set up compute function
         ExprNode lhs = this.getChildNodes()[0];
         ExprNode rhs = this.getChildNodes()[1];
-        Class lhsType = lhs.getForge().getEvaluationType();
-        Class rhsType = rhs.getForge().getEvaluationType();
+        EPTypeClass lhsType = (EPTypeClass) lhs.getForge().getEvaluationType();
+        EPTypeClass rhsType = (EPTypeClass) rhs.getForge().getEvaluationType();
 
-        Class resultType;
-        if ((lhsType == short.class || lhsType == Short.class) &&
-                (rhsType == short.class || rhsType == Short.class)) {
-            resultType = Integer.class;
-        } else if ((lhsType == byte.class || lhsType == Byte.class) &&
-                (rhsType == byte.class || rhsType == Byte.class)) {
-            resultType = Integer.class;
+        EPTypeClass resultType;
+        if ((lhsType.getType() == short.class || lhsType.getType() == Short.class) &&
+            (rhsType.getType() == short.class || rhsType.getType() == Short.class)) {
+            resultType = EPTypePremade.INTEGERBOXED.getEPType();
+        } else if ((lhsType.getType() == byte.class || lhsType.getType() == Byte.class) &&
+            (rhsType.getType() == byte.class || rhsType.getType() == Byte.class)) {
+            resultType = EPTypePremade.INTEGERBOXED.getEPType();
         } else if (lhsType.equals(rhsType)) {
             resultType = JavaClassHelper.getBoxedType(rhsType);
         } else {
@@ -84,8 +81,8 @@ public class ExprMathNode extends ExprNodeBase {
         }
 
         if ((mathArithTypeEnum == MathArithTypeEnum.DIVIDE) && (!isIntegerDivision)) {
-            if (resultType != BigDecimal.class) {
-                resultType = Double.class;
+            if (resultType.getType() != BigDecimal.class) {
+                resultType = EPTypePremade.DOUBLEBOXED.getEPType();
             }
         }
 
@@ -106,8 +103,8 @@ public class ExprMathNode extends ExprNodeBase {
 
     public ExprPrecedenceEnum getPrecedence() {
         if (mathArithTypeEnum == MathArithTypeEnum.MULTIPLY ||
-                mathArithTypeEnum == MathArithTypeEnum.DIVIDE ||
-                mathArithTypeEnum == MathArithTypeEnum.MODULO) {
+            mathArithTypeEnum == MathArithTypeEnum.DIVIDE ||
+            mathArithTypeEnum == MathArithTypeEnum.MODULO) {
             return ExprPrecedenceEnum.MULTIPLY;
         } else {
             return ExprPrecedenceEnum.ADDITIVE;

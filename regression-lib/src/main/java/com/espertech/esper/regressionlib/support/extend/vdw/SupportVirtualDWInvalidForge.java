@@ -24,7 +24,7 @@ public class SupportVirtualDWInvalidForge implements VirtualDataWindowForge {
     }
 
     public VirtualDataWindowFactoryMode getFactoryMode() {
-        return new VirtualDataWindowFactoryModeManaged().setInjectionStrategyFactoryFactory(new InjectionStrategyClassNewInstance(SupportVirtualDWInvalidFactoryFactory.class));
+        return new VirtualDataWindowFactoryModeManaged().setInjectionStrategyFactoryFactory(new InjectionStrategyClassNewInstance(SupportVirtualDWInvalidFactoryFactory.EPTYPE));
     }
 
     public Set<String> getUniqueKeyPropertyNames() {

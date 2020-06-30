@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.inner;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,8 +19,8 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalRootChildInnerEval;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalRootChildInnerForge;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
@@ -55,7 +56,7 @@ public class InnerDotScalarUnpackEventForge implements ExprDotEvalRootChildInner
         return null;
     }
 
-    public Class getComponentTypeCollection() {
+    public EPTypeClass getComponentTypeCollection() {
         return null;
     }
 
@@ -63,8 +64,8 @@ public class InnerDotScalarUnpackEventForge implements ExprDotEvalRootChildInner
         return null;
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.singleValue(rootForge.getEvaluationType());
+    public EPChainableType getTypeInfo() {
+        return EPChainableTypeHelper.singleValue(rootForge.getEvaluationType());
     }
 
     public ExprForge getRootForge() {

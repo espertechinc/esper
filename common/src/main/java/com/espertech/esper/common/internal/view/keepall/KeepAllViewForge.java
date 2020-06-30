@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.keepall;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -30,8 +31,8 @@ public class KeepAllViewForge extends ViewFactoryForgeBase implements DataWindow
         this.eventType = parentEventType;
     }
 
-    protected Class typeOfFactory() {
-        return ViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return ViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

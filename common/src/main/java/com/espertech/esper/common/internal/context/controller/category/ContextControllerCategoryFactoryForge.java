@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.category;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -41,13 +42,13 @@ public class ContextControllerCategoryFactoryForge extends ContextControllerForg
         if (detail.getItems().isEmpty()) {
             throw new ExprValidationException("Empty list of partition items");
         }
-        props.put(ContextPropertyEventType.PROP_CTX_LABEL, String.class);
+        props.put(ContextPropertyEventType.PROP_CTX_LABEL, EPTypePremade.STRING.getEPType());
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(ContextControllerCategoryFactory.class, ContextControllerCategoryFactoryForge.class, classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerCategoryFactory.EPTYPE, ContextControllerCategoryFactoryForge.class, classScope);
         method.getBlock()
-                .declareVar(ContextControllerCategoryFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("categoryFactory"))
+                .declareVar(ContextControllerCategoryFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("categoryFactory"))
                 .exprDotMethod(ref("factory"), "setContextName", constant(ctx.getContextName()))
                 .exprDotMethod(ref("factory"), "setCategorySpec", detail.makeCodegen(method, symbols, classScope))
                 .methodReturn(ref("factory"));

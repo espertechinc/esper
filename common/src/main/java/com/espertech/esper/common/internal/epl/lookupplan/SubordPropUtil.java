@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForgeProp;
 
 import java.util.Collection;
@@ -87,8 +88,8 @@ public class SubordPropUtil {
      * @param descList a list of descriptors
      * @return key coercion types
      */
-    public static Class[] getCoercionTypes(Collection<SubordPropHashKeyForge> descList) {
-        Class[] result = new Class[descList.size()];
+    public static EPTypeClass[] getCoercionTypes(Collection<SubordPropHashKeyForge> descList) {
+        EPTypeClass[] result = new EPTypeClass[descList.size()];
         int count = 0;
         for (SubordPropHashKeyForge desc : descList) {
             result[count++] = desc.getCoercionType();
@@ -102,8 +103,8 @@ public class SubordPropUtil {
      * @param descList a list of descriptors
      * @return key coercion types
      */
-    public static Class[] getCoercionTypes(SubordPropHashKeyForge[] descList) {
-        Class[] result = new Class[descList.length];
+    public static EPTypeClass[] getCoercionTypes(SubordPropHashKeyForge[] descList) {
+        EPTypeClass[] result = new EPTypeClass[descList.length];
         int count = 0;
         for (SubordPropHashKeyForge desc : descList) {
             result[count++] = desc.getCoercionType();

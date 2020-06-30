@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,7 +33,7 @@ public class SubselectForgeNRExistsDefault implements SubselectForgeNR {
     }
 
     public CodegenExpression evaluateMatchesCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(boolean.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), classScope);
         method.getBlock().applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantFalse(), constantFalse()), method, symbols);
 
         if (filterEval == null && havingEval == null) {
@@ -47,9 +48,9 @@ public class SubselectForgeNRExistsDefault implements SubselectForgeNR {
 
         CodegenMethod filter = CodegenLegoMethodExpression.codegenExpression(filterEval, method, classScope);
         method.getBlock()
-                .forEach(EventBean.class, "subselectEvent", symbols.getAddMatchingEvents(method))
+                .forEach(EventBean.EPTYPE, "subselectEvent", symbols.getAddMatchingEvents(method))
                 .assignArrayElement(REF_EVENTS_SHIFTED, constant(0), ref("subselectEvent"))
-                .declareVar(Boolean.class, "pass", localMethod(filter, REF_EVENTS_SHIFTED, constantTrue(), symbols.getAddExprEvalCtx(method)))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "pass", localMethod(filter, REF_EVENTS_SHIFTED, constantTrue(), symbols.getAddExprEvalCtx(method)))
                 .ifCondition(and(notEqualsNull(ref("pass")), ref("pass")))
                 .blockReturn(constantTrue())
                 .blockEnd()

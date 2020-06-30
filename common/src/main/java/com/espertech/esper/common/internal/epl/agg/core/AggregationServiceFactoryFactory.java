@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.Hint;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.annotation.HookType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.IntoTableSpec;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
@@ -148,8 +150,8 @@ public class AggregationServiceFactoryFactory {
             EPLValidationUtil.validateContextName(true, intoTableSpec.getName(), metadata.getOptionalContextName(), optionalContextName, false);
 
             // validate group keys
-            Class[] groupByTypes = ExprNodeUtilityQuery.getExprResultTypes(groupByNodes);
-            Class[] keyTypes = metadata.isKeyed() ? metadata.getKeyTypes() : new Class[0];
+            EPType[] groupByTypes = ExprNodeUtilityQuery.getExprResultTypes(groupByNodes);
+            EPTypeClass[] keyTypes = metadata.isKeyed() ? metadata.getKeyTypes() : new EPTypeClass[0];
             ExprTableNodeUtil.validateExpressions(intoTableSpec.getName(), groupByTypes, "group-by", groupByNodes, keyTypes, "group-by");
 
             // determine how this binds to existing aggregations, assign column numbers

@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -25,6 +26,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
@@ -51,10 +53,10 @@ public class OHLCBarPlugInViewForge implements ViewFactoryForge {
         timestampExpression = validatedNodes[0];
         valueExpression = validatedNodes[1];
 
-        if ((timestampExpression.getForge().getEvaluationType() != long.class) && (timestampExpression.getForge().getEvaluationType() != Long.class)) {
+        if (!JavaClassHelper.isTypeLong(timestampExpression.getForge().getEvaluationType())) {
             throw new ViewParameterException("View requires long-typed timestamp values in parameter 1");
         }
-        if ((valueExpression.getForge().getEvaluationType() != double.class) && (valueExpression.getForge().getEvaluationType() != Double.class)) {
+        if (!JavaClassHelper.isTypeDouble(valueExpression.getForge().getEvaluationType())) {
             throw new ViewParameterException("View requires double-typed values for in parameter 2");
         }
 
@@ -68,7 +70,7 @@ public class OHLCBarPlugInViewForge implements ViewFactoryForge {
         EventTypeMetadata metadata = new EventTypeMetadata(outputEventTypeName, env.getModuleName(), EventTypeTypeClass.VIEWDERIVED, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
 
         // for Bean event types, make a stem
-        BeanEventTypeStem stem = env.getStatementCompileTimeServices().getBeanEventTypeStemService().getCreateStem(OHLCBarValue.class, null);
+        BeanEventTypeStem stem = env.getStatementCompileTimeServices().getBeanEventTypeStemService().getCreateStem(new EPTypeClass(OHLCBarValue.class), null);
 
         // make bean event type
         eventType = new BeanEventType(stem, metadata, env.getBeanEventTypeFactoryProtected(), null, null, null, null);
@@ -86,7 +88,7 @@ public class OHLCBarPlugInViewForge implements ViewFactoryForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(OHLCBarPlugInViewFactory.class, this.getClass(), "factory", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(new EPTypeClass(OHLCBarPlugInViewFactory.class), this.getClass(), "factory", parent, symbols, classScope)
             .exprnode("timestampExpression", timestampExpression)
             .exprnode("valueExpression", valueExpression)
             .build();

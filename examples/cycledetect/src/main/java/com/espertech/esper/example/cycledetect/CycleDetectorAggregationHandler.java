@@ -12,10 +12,13 @@ package com.espertech.esper.example.cycledetect;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.*;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.util.Locale;
+
+import static com.espertech.esper.common.internal.rettype.EPChainableTypeHelper.collectionOfSingleValue;
+import static com.espertech.esper.common.internal.rettype.EPChainableTypeHelper.singleValue;
 
 public class CycleDetectorAggregationHandler implements AggregationMultiFunctionHandler {
 
@@ -56,11 +59,11 @@ public class CycleDetectorAggregationHandler implements AggregationMultiFunction
         return managed;
     }
 
-    public EPType getReturnType() {
+    public EPChainableType getReturnType() {
         if (validationContext.getFunctionName().toLowerCase(Locale.ENGLISH).equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
-            return EPTypeHelper.collectionOfSingleValue(forge.getFromExpression().getForge().getEvaluationType());
+            return collectionOfSingleValue((EPTypeClass) forge.getFromExpression().getForge().getEvaluationType());
         }
-        return EPTypeHelper.singleValue(Boolean.class);
+        return singleValue(Boolean.class);
     }
 
     public AggregationMultiFunctionAgentMode getAgentMode() {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.time.abacus;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -51,8 +52,8 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
     }
 
     public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(long.class, TimeAbacusMicroseconds.class, codegenClassScope).addParam(long.class, "fromTime").addParam(Calendar.class, "cal").getBlock()
-                .declareVar(long.class, "millis", op(ref("fromTime"), "/", constant(1000)))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.LONGBOXED.getEPType(), TimeAbacusMicroseconds.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "fromTime").addParam(EPTypePremade.CALENDAR.getEPType(), "cal").getBlock()
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "millis", op(ref("fromTime"), "/", constant(1000)))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("millis")))
                 .methodReturn(op(ref("fromTime"), "-", op(ref("millis"), "*", constant(1000))));
         return localMethodBuild(method).pass(startLong).pass(cal).call();
@@ -75,6 +76,6 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
     }
 
     public CodegenExpression toDateCodegen(CodegenExpression ts) {
-        return newInstance(Date.class, op(ts, "/", constant(1000)));
+        return newInstance(EPTypePremade.DATE.getEPType(), op(ts, "/", constant(1000)));
     }
 }

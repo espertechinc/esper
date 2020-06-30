@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.index.advanced.index.quadtree;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.lookup.AdvancedIndexConfigContextPartition;
 
@@ -19,6 +20,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class AdvancedIndexConfigContextPartitionQuadTree implements AdvancedIndexConfigContextPartition {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AdvancedIndexConfigContextPartitionQuadTree.class);
 
     private final double x;
     private final double y;
@@ -37,7 +39,7 @@ public class AdvancedIndexConfigContextPartitionQuadTree implements AdvancedInde
     }
 
     public CodegenExpression make() {
-        return newInstance(AdvancedIndexConfigContextPartitionQuadTree.class,
+        return newInstance(AdvancedIndexConfigContextPartitionQuadTree.EPTYPE,
                 constant(x), constant(y), constant(width), constant(height), constant(leafCapacity), constant(maxTreeHeight));
     }
 

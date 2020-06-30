@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.epl.script;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
@@ -53,6 +54,7 @@ public class EPLScriptExpression {
         if (TEST_MVEL) {
             execs.add(new EPLScriptMVELMultiUseWithDeclaredExpr());
         }
+        execs.add(new EPLScriptGenericResultType());
         return execs;
     }
 
@@ -89,6 +91,23 @@ public class EPLScriptExpression {
             Map event = new HashMap();
             event.put("host", "test.domain.com");
             env.sendEventMap(event, "Event");
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLScriptGenericResultType implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') expression java.util.List<String> js:myJSFunc(stringvalue) [\n" +
+                "  doSomething(stringvalue);\n" +
+                "  function doSomething(stringvalue) {\n" +
+                "    return null;\n" +
+                "  }\n" +
+                "]\n" +
+                "select myJSFunc('test') as c0 from SupportBean_S0";
+            env.compileDeploy(epl).addListener("s0");
+
+            assertEquals(EPTypeClassParameterized.from(List.class, String.class), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             env.undeployAll();
         }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.variant;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -44,10 +45,10 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
 
     private CodegenMethod getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
         CodegenExpressionField cache = codegenClassScope.addOrGetFieldSharable(new VariantPropertyGetterCacheCodegenField(variantEventType));
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "eventBean");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EventBean.EPTYPE, "eventBean");
         method.getBlock()
-                .declareVar(Object.class, "value", staticMethod(VariantEventPropertyGetterAny.class, "variantGet", ref("eventBean"), cache, constant(propertyName)))
-                .methodReturn(caster.codegen(ref("value"), Object.class, method, codegenClassScope));
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", staticMethod(VariantEventPropertyGetterAny.class, "variantGet", ref("eventBean"), cache, constant(propertyName)))
+                .methodReturn(caster.codegen(ref("value"), EPTypePremade.OBJECT.getEPType(), method, codegenClassScope));
         return method;
     }
 

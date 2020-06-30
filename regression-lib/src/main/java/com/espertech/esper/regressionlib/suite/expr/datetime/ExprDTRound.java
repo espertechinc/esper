@@ -11,17 +11,16 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
+
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 
 public class ExprDTRound {
 
@@ -46,7 +45,7 @@ public class ExprDTRound {
                 "zoneddate.roundCeiling('hour') as val4" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             String startTime = "2002-05-30T09:01:02.003";
             String expectedTime = "2002-5-30T10:00:00.000";
@@ -71,7 +70,7 @@ public class ExprDTRound {
                 "utildate.roundCeiling('year') as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Date.class, Date.class, Date.class, Date.class, Date.class, Date.class, Date.class});
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T09:01:02.003",
@@ -104,7 +103,7 @@ public class ExprDTRound {
                 "utildate.roundFloor('year') as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Date.class, Date.class, Date.class, Date.class, Date.class, Date.class, Date.class});
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T09:01:02.003",
@@ -137,7 +136,7 @@ public class ExprDTRound {
                 "utildate.roundHalf('year') as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Date.class, Date.class, Date.class, Date.class, Date.class, Date.class, Date.class});
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T15:30:02.550",

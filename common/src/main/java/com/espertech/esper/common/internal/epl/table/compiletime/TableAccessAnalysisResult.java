@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.table.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowStateForgeDesc;
@@ -31,12 +32,12 @@ public class TableAccessAnalysisResult {
     private final AggregationRowStateForgeDesc aggDesc;
     private final String[] primaryKeyColumns;
     private final EventPropertyGetterSPI[] primaryKeyGetters;
-    private final Class[] primaryKeyTypes;
+    private final EPTypeClass[] primaryKeyTypes;
     private final int[] primaryKeyColNums;
     private final MultiKeyClassRef primaryKeyMultikeyClasses;
     private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public TableAccessAnalysisResult(Map<String, TableMetadataColumn> tableColumns, ObjectArrayEventType internalEventType, DataInputOutputSerdeForge[] internalEventTypePropertySerdes, ObjectArrayEventType publicEventType, TableMetadataColumnPairPlainCol[] colsPlain, TableMetadataColumnPairAggMethod[] colsAggMethod, TableMetadataColumnPairAggAccess[] colsAccess, AggregationRowStateForgeDesc aggDesc, String[] primaryKeyColumns, EventPropertyGetterSPI[] primaryKeyGetters, Class[] primaryKeyTypes, int[] primaryKeyColNums, MultiKeyClassRef primaryKeyMultikeyClasses, List<StmtClassForgeableFactory> additionalForgeables) {
+    public TableAccessAnalysisResult(Map<String, TableMetadataColumn> tableColumns, ObjectArrayEventType internalEventType, DataInputOutputSerdeForge[] internalEventTypePropertySerdes, ObjectArrayEventType publicEventType, TableMetadataColumnPairPlainCol[] colsPlain, TableMetadataColumnPairAggMethod[] colsAggMethod, TableMetadataColumnPairAggAccess[] colsAccess, AggregationRowStateForgeDesc aggDesc, String[] primaryKeyColumns, EventPropertyGetterSPI[] primaryKeyGetters, EPTypeClass[] primaryKeyTypes, int[] primaryKeyColNums, MultiKeyClassRef primaryKeyMultikeyClasses, List<StmtClassForgeableFactory> additionalForgeables) {
         this.tableColumns = tableColumns;
         this.internalEventType = internalEventType;
         this.internalEventTypePropertySerdes = internalEventTypePropertySerdes;
@@ -85,7 +86,7 @@ public class TableAccessAnalysisResult {
         return primaryKeyGetters;
     }
 
-    public Class[] getPrimaryKeyTypes() {
+    public EPTypeClass[] getPrimaryKeyTypes() {
         return primaryKeyTypes;
     }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,8 +21,8 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCodegenField;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -39,8 +40,8 @@ public class ExprDotStaticMethodWrapIterableEvents implements ExprDotStaticMetho
         this.type = type;
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.collectionOfEvents(type);
+    public EPChainableType getTypeInfo() {
+        return EPChainableTypeHelper.collectionOfEvents(type);
     }
 
     public Collection convertNonNull(Object result) {
@@ -51,11 +52,13 @@ public class ExprDotStaticMethodWrapIterableEvents implements ExprDotStaticMetho
 
     public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenMethodScope codegenMethodScope, CodegenClassScope classScope) {
         CodegenExpressionField eventSvcMember = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField typeMember = classScope.addFieldUnshared(true, BeanEventType.class, cast(BeanEventType.class, EventTypeUtility.resolveTypeCodegen(type, EPStatementInitServices.REF)));
-        return newInstance(WrappingCollection.class, eventSvcMember, typeMember, exprDotMethod(result, "iterator"));
+        CodegenExpressionField typeMember = classScope.addFieldUnshared(true, BeanEventType.EPTYPE, cast(BeanEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(type, EPStatementInitServices.REF)));
+        return newInstance(WrappingCollection.EPTYPE, eventSvcMember, typeMember, exprDotMethod(result, "iterator"));
     }
 
     public static class WrappingCollection implements Collection<EventBean> {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(WrappingCollection.class);
+
         private EventBeanTypedEventFactory eventBeanTypedEventFactory;
         private BeanEventType type;
         private Iterator inner;

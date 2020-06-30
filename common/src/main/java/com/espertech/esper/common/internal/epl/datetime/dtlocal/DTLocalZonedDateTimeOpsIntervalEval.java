@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -44,12 +45,12 @@ public class DTLocalZonedDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
     }
 
     public static CodegenExpression codegen(DTLocalZonedDateTimeOpsIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZonedDateTimeOpsIntervalEval.class, codegenClassScope).addParam(ZonedDateTime.class, "target");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalZonedDateTimeOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "target");
 
 
         CodegenBlock block = methodNode.getBlock();
         evaluateCalOpsZDTCodegen(block, "target", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")));
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")));
         block.methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
@@ -65,17 +66,17 @@ public class DTLocalZonedDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
     }
 
     public static CodegenExpression codegen(DTLocalZonedDateTimeOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZonedDateTimeOpsIntervalEval.class, codegenClassScope).addParam(ZonedDateTime.class, "start").addParam(ZonedDateTime.class, "end");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalZonedDateTimeOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "start").addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "end");
 
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(long.class, "startMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("start")))
-                .declareVar(long.class, "endMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("end")))
-                .declareVar(long.class, "deltaMSec", op(ref("endMs"), "-", ref("startMs")))
-                .declareVar(ZonedDateTime.class, "result", start);
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("start")))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("end")))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "deltaMSec", op(ref("endMs"), "-", ref("startMs")))
+                .declareVar(EPTypePremade.ZONEDDATETIME.getEPType(), "result", start);
         evaluateCalOpsZDTCodegen(block, "result", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "startLong", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("result")));
-        block.declareVar(long.class, "endTime", op(ref("startLong"), "+", ref("deltaMSec")));
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startLong", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("result")));
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endTime", op(ref("startLong"), "+", ref("deltaMSec")));
         block.methodReturn(forge.intervalForge.codegen(ref("startLong"), ref("endTime"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);
     }

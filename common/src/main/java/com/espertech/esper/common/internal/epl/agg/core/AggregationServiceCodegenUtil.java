@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
@@ -35,7 +36,7 @@ public class AggregationServiceCodegenUtil {
         Consumer<CodegenMethod> code = method -> {
 
             if (optionalMultiKey == null || optionalMultiKey.getClassNameMK() == null) {
-                CodegenExpression expression = partitionForges[0].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
+                CodegenExpression expression = partitionForges[0].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, exprSymbol, classScope);
                 exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
                 method.getBlock().methodReturn(expression);
                 return;
@@ -43,13 +44,13 @@ public class AggregationServiceCodegenUtil {
 
             CodegenExpression[] expressions = new CodegenExpression[partitionForges.length];
             for (int i = 0; i < partitionForges.length; i++) {
-                expressions[i] = partitionForges[i].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
+                expressions[i] = partitionForges[i].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, exprSymbol, classScope);
             }
             exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
             method.getBlock().methodReturn(newInstance(optionalMultiKey.getClassNameMK(), expressions));
         };
 
-        return namedMethods.addMethodWithSymbols(Object.class, "computeKeyArrayCodegen_" + idNumber, CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), AggregationServiceCodegenUtil.class, classScope, code, exprSymbol);
+        return namedMethods.addMethodWithSymbols(EPTypePremade.OBJECT.getEPType(), "computeKeyArrayCodegen_" + idNumber, CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT), AggregationServiceCodegenUtil.class, classScope, code, exprSymbol);
     }
 
     public static void generateIncidentals(boolean hasRefcount, boolean hasLastUpdTime, AggregationRowCtorDesc rowCtorDesc) {
@@ -58,23 +59,23 @@ public class AggregationServiceCodegenUtil {
         List<CodegenTypedParam> rowMembers = rowCtorDesc.getRowMembers();
 
         if (hasRefcount) {
-            rowMembers.add(new CodegenTypedParam(int.class, "refcount").setFinal(false));
+            rowMembers.add(new CodegenTypedParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "refcount").setFinal(false));
         }
-        namedMethods.addMethod(void.class, "increaseRefcount", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
+        namedMethods.addMethod(EPTypePremade.VOID.getEPType(), "increaseRefcount", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
             hasRefcount ? method -> method.getBlock().increment(ref("refcount")) : method -> {
             });
-        namedMethods.addMethod(void.class, "decreaseRefcount", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
+        namedMethods.addMethod(EPTypePremade.VOID.getEPType(), "decreaseRefcount", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
             hasRefcount ? method -> method.getBlock().decrement(ref("refcount")) : method -> {
             });
-        namedMethods.addMethod(long.class, "getRefcount", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
+        namedMethods.addMethod(EPTypePremade.LONGPRIMITIVE.getEPType(), "getRefcount", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
             hasRefcount ? method -> method.getBlock().methodReturn(ref("refcount")) : method -> method.getBlock().methodReturn(constant(1)));
 
         if (hasLastUpdTime) {
-            rowMembers.add(new CodegenTypedParam(long.class, "lastUpd").setFinal(false));
+            rowMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "lastUpd").setFinal(false));
         }
-        namedMethods.addMethod(void.class, "setLastUpdateTime", CodegenNamedParam.from(long.class, "time"), AggregationServiceCodegenUtil.class, classScope,
+        namedMethods.addMethod(EPTypePremade.VOID.getEPType(), "setLastUpdateTime", CodegenNamedParam.from(EPTypePremade.LONGPRIMITIVE.getEPType(), "time"), AggregationServiceCodegenUtil.class, classScope,
                 hasLastUpdTime ? method -> method.getBlock().assignRef("lastUpd", ref("time")) : method -> method.getBlock().methodThrowUnsupported());
-        namedMethods.addMethod(long.class, "getLastUpdateTime", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
+        namedMethods.addMethod(EPTypePremade.LONGPRIMITIVE.getEPType(), "getLastUpdateTime", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
                 hasLastUpdTime ? method -> method.getBlock().methodReturn(ref("lastUpd")) : method -> method.getBlock().methodThrowUnsupported());
     }
 }

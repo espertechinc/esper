@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -35,13 +36,13 @@ public class ExprDotNodeAggregationMethodForgeLocal extends ExprDotNodeAggregati
         this.agg = agg;
     }
 
-    protected CodegenExpression evaluateCodegen(String readerMethodName, Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    protected CodegenExpression evaluateCodegen(String readerMethodName, EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         CodegenExpression future = agg.getAggFuture(classScope);
         CodegenMethod method = parent.makeChild(requiredType, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationRow.class, "row", exprDotMethod(future, "getAggregationRow", exprDotMethod(symbols.getAddExprEvalCtx(parent), "getAgentInstanceId"), symbols.getAddEPS(parent), symbols.getAddIsNewData(parent), symbols.getAddExprEvalCtx(parent)))
-            .ifRefNullReturnNull("row")
-            .methodReturn(CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(getReader(classScope), readerMethodName, constant(agg.getColumn()), ref("row"), symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method))));
+                .declareVar(AggregationRow.EPTYPE, "row", exprDotMethod(future, "getAggregationRow", exprDotMethod(symbols.getAddExprEvalCtx(parent), "getAgentInstanceId"), symbols.getAddEPS(parent), symbols.getAddIsNewData(parent), symbols.getAddExprEvalCtx(parent)))
+                .ifRefNullReturnNull("row")
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(getReader(classScope), readerMethodName, constant(agg.getColumn()), ref("row"), symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method))));
         return localMethod(method);
     }
 

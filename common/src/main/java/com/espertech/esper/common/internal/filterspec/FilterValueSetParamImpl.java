@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 
@@ -23,6 +24,8 @@ import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.REF
  * Filter parameter value defining the event property to filter, the filter operator, and the filter value.
  */
 public class FilterValueSetParamImpl implements FilterValueSetParam {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterValueSetParamImpl.class);
+
     private final ExprFilterSpecLookupable lookupable;
     private final FilterOperator filterOperator;
     private final Object filterValue;
@@ -41,7 +44,7 @@ public class FilterValueSetParamImpl implements FilterValueSetParam {
     }
 
     public static CodegenExpression codegenNew(CodegenExpression filterForValue) {
-        return newInstance(FilterValueSetParamImpl.class, REF_LOOKUPABLE, REF_FILTEROPERATOR, filterForValue);
+        return newInstance(FilterValueSetParamImpl.EPTYPE, REF_LOOKUPABLE, REF_FILTEROPERATOR, filterForValue);
     }
 
     public ExprFilterSpecLookupable getLookupable() {

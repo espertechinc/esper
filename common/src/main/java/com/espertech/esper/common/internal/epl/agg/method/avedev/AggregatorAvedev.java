@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.avedev;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -39,26 +42,26 @@ public class AggregatorAvedev extends AggregatorMethodWDistinctWFilterWValueBase
     private CodegenExpressionMember valueSet;
     private CodegenExpressionMember sum;
 
-    public AggregatorAvedev(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorAvedev(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
-        valueSet = membersColumnized.addMember(col, RefCountedSet.class, "valueSet");
-        sum = membersColumnized.addMember(col, double.class, "sum");
-        rowCtor.getBlock().assignRef(valueSet, newInstance(RefCountedSet.class));
+        valueSet = membersColumnized.addMember(col, RefCountedSet.EPTYPE, "valueSet");
+        sum = membersColumnized.addMember(col, EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "sum");
+        rowCtor.getBlock().assignRef(valueSet, newInstance(RefCountedSet.EPTYPE));
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         applyCodegen(true, value, valueType, method);
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         applyCodegen(false, value, valueType, method);
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         applyTableCodegen(true, value, method);
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         applyTableCodegen(false, value, method);
     }
 
@@ -145,16 +148,17 @@ public class AggregatorAvedev extends AggregatorMethodWDistinctWFilterWValueBase
         return total / datapoints;
     }
 
-    private void applyCodegen(boolean enter, CodegenExpression value, Class valueType, CodegenMethod method) {
+    private void applyCodegen(boolean enter, CodegenExpression value, EPType valueType, CodegenMethod method) {
+
         method.getBlock()
-                .declareVar(double.class, "d", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(value, valueType))
+                .declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "d", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(value, valueType))
                 .exprDotMethod(valueSet, enter ? "add" : "remove", ref("d"))
                 .assignCompound(sum, enter ? "+" : "-", ref("d"));
     }
 
     private void applyTableCodegen(boolean enter, CodegenExpression value, CodegenMethod method) {
         method.getBlock()
-                .declareVar(double.class, "d", exprDotMethod(cast(Number.class, value), "doubleValue"))
+                .declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "d", exprDotMethod(cast(EPTypePremade.NUMBER.getEPType(), value), "doubleValue"))
                 .exprDotMethod(valueSet, enter ? "add" : "remove", ref("d"))
                 .assignCompound(sum, enter ? "+" : "-", ref("d"));
     }

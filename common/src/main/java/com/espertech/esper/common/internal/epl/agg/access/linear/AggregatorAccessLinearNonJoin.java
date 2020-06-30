@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,9 +26,6 @@ import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GE;
@@ -45,14 +43,14 @@ public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase i
     public AggregatorAccessLinearNonJoin(AggregationStateLinearForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
         super(optionalFilter);
         this.forge = forge;
-        events = membersColumnized.addMember(col, List.class, "events");
-        rowCtor.getBlock().assignRef(events, newInstance(ArrayList.class));
+        events = membersColumnized.addMember(col, EPTypePremade.LIST.getEPType(), "events");
+        rowCtor.getBlock().assignRef(events, newInstance(EPTypePremade.ARRAYLIST.getEPType()));
     }
 
     protected void applyEnterFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenExpressionRef eps = symbols.getAddEPS(method);
         method.getBlock()
-                .declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getStreamNum())))
+                .declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(eps, constant(forge.getStreamNum())))
                 .ifRefNull("theEvent").blockReturnNoValue()
                 .exprDotMethod(events, "add", ref("theEvent"));
     }
@@ -60,7 +58,7 @@ public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase i
     protected void applyLeaveFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenExpressionRef eps = symbols.getAddEPS(method);
         method.getBlock()
-                .declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getStreamNum())))
+                .declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(eps, constant(forge.getStreamNum())))
                 .ifRefNull("theEvent").blockReturnNoValue()
                 .exprDotMethod(events, "remove", ref("theEvent"));
     }
@@ -70,32 +68,32 @@ public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase i
     }
 
     public CodegenExpression getFirstNthValueCodegen(CodegenExpressionRef index, CodegenMethod parentMethod, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.class, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "index");
+        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.EPTYPE, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index");
         method.getBlock().ifCondition(relational(ref("index"), LT, constant(0))).blockReturn(constantNull())
                 .ifCondition(relational(ref("index"), GE, exprDotMethod(events, "size"))).blockReturn(constantNull())
-                .methodReturn(cast(EventBean.class, exprDotMethod(events, "get", ref("index"))));
+                .methodReturn(cast(EventBean.EPTYPE, exprDotMethod(events, "get", ref("index"))));
         return localMethod(method, index);
     }
 
     public CodegenExpression getLastNthValueCodegen(CodegenExpressionRef index, CodegenMethod parentMethod, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.class, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "index");
+        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.EPTYPE, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index");
         method.getBlock().ifCondition(relational(ref("index"), LT, constant(0))).blockReturn(constantNull())
                 .ifCondition(relational(ref("index"), GE, exprDotMethod(events, "size"))).blockReturn(constantNull())
-                .methodReturn(cast(EventBean.class, exprDotMethod(events, "get", op(op(exprDotMethod(events, "size"), "-", ref("index")), "-", constant(1)))));
+                .methodReturn(cast(EventBean.EPTYPE, exprDotMethod(events, "get", op(op(exprDotMethod(events, "size"), "-", ref("index")), "-", constant(1)))));
         return localMethod(method, index);
     }
 
     public CodegenExpression getFirstValueCodegen(CodegenClassScope classScope, CodegenMethod parentMethod) {
-        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.class, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.EPTYPE, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         method.getBlock().ifCondition(exprDotMethod(events, "isEmpty")).blockReturn(constantNull())
-                .methodReturn(cast(EventBean.class, exprDotMethod(events, "get", constant(0))));
+                .methodReturn(cast(EventBean.EPTYPE, exprDotMethod(events, "get", constant(0))));
         return localMethod(method);
     }
 
     public CodegenExpression getLastValueCodegen(CodegenClassScope classScope, CodegenMethod parentMethod, CodegenNamedMethods namedMethods) {
-        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.class, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod method = parentMethod.makeChildWithScope(EventBean.EPTYPE, AggregatorAccessLinearNonJoin.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         method.getBlock().ifCondition(exprDotMethod(events, "isEmpty")).blockReturn(constantNull())
-                .methodReturn(cast(EventBean.class, exprDotMethod(events, "get", op(exprDotMethod(events, "size"), "-", constant(1)))));
+                .methodReturn(cast(EventBean.EPTYPE, exprDotMethod(events, "get", op(exprDotMethod(events, "size"), "-", constant(1)))));
         return localMethod(method);
     }
 
@@ -116,7 +114,7 @@ public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase i
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotMember(row, events), cast(List.class, exprDotMethod(getSerde(classScope), "read", input, unitKey)));
+        method.getBlock().assignRef(rowDotMember(row, events), cast(EPTypePremade.LIST.getEPType(), exprDotMethod(getSerde(classScope), "read", input, unitKey)));
     }
 
     private CodegenExpressionField getSerde(CodegenClassScope classScope) {

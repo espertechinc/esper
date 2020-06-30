@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.pattern.observer;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
@@ -24,6 +25,8 @@ import java.util.TimeZone;
 import static com.espertech.esper.common.internal.epl.pattern.observer.TimerScheduleObserverForge.NAME_OBSERVER;
 
 public class TimerScheduleSpecComputeISOString implements TimerScheduleSpecCompute {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimerScheduleSpecComputeISOString.class);
+
     private final ExprEvaluator parameter;
 
     public TimerScheduleSpecComputeISOString(ExprEvaluator parameter) {

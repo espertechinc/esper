@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionMode;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeManaged;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 public class SupportSimpleWordCSVForge implements AggregationFunctionForge {
@@ -25,11 +27,11 @@ public class SupportSimpleWordCSVForge implements AggregationFunctionForge {
     public void validate(AggregationFunctionValidationContext validationContext) throws ExprValidationException {
     }
 
-    public Class getValueType() {
-        return String.class;
+    public EPTypeClass getValueType() {
+        return EPTypePremade.STRING.getEPType();
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {
-        return new AggregationFunctionModeManaged().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportSimpleWordCSVFactory.class));
+        return new AggregationFunctionModeManaged().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportSimpleWordCSVFactory.EPTYPE));
     }
 }

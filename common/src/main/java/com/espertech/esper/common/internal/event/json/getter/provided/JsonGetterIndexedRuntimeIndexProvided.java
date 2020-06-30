@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterIndexedSPI;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.lang.reflect.Field;
@@ -33,7 +34,7 @@ public final class JsonGetterIndexedRuntimeIndexProvided implements EventPropert
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return staticMethod(CollectionUtil.class, "arrayValueAtIndex", exprDotName(castUnderlying(field.getDeclaringClass(), beanExpression), field.getName()), key);
+        return staticMethod(CollectionUtil.class, "arrayValueAtIndex", exprDotName(castUnderlying(ClassHelperGenericType.getClassEPType(field.getDeclaringClass()), beanExpression), field.getName()), key);
     }
 
     public Object get(EventBean eventBean, int index) throws PropertyAccessException {

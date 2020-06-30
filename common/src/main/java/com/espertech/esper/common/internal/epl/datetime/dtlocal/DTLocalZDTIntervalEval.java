@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -35,11 +37,11 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
         return intervalOp.evaluate(time, time, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class, codegenClassScope).addParam(ZonedDateTime.class, "target");
+    public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalZDTIntervalEval.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "target");
 
         methodNode.getBlock()
-                .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
@@ -51,11 +53,11 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class, codegenClassScope).addParam(ZonedDateTime.class, "startTimestamp").addParam(ZonedDateTime.class, "endTimestamp");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalZDTIntervalEval.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "startTimestamp").addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "endTimestamp");
 
         methodNode.getBlock()
-                .declareVar(long.class, "start", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("startTimestamp")))
-                .declareVar(long.class, "end", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("endTimestamp")))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "start", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("startTimestamp")))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "end", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("endTimestamp")))
                 .methodReturn(forge.intervalForge.codegen(ref("start"), ref("end"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);
     }

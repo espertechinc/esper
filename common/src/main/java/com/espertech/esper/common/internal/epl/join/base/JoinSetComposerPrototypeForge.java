@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,7 +29,7 @@ public abstract class JoinSetComposerPrototypeForge {
     private final ExprNode postJoinEvaluator;
     private final boolean outerJoins;
 
-    protected abstract Class implementation();
+    protected abstract EPTypeClass implementation();
 
     protected abstract void populateInline(CodegenExpression impl, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -44,7 +45,7 @@ public abstract class JoinSetComposerPrototypeForge {
         CodegenMethod method = parent.makeChild(implementation(), this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(implementation(), "impl", newInstance(implementation()))
+                .declareVarNewInstance(implementation(), "impl")
                 .exprDotMethod(ref("impl"), "setStreamTypes", EventTypeUtility.resolveTypeArrayCodegen(streamTypes, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("impl"), "setOuterJoins", constant(outerJoins));
 

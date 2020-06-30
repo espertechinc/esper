@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -45,7 +48,7 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
             if (value != null) {
                 // Check if we need to coerce
                 if (forge.getIsNumericCoercion()[i]) {
-                    value = JavaClassHelper.coerceBoxed((Number) value, forge.getEvaluationType());
+                    value = JavaClassHelper.coerceBoxed((Number) value, ((EPTypeClass) forge.getEvaluationType()).getType());
                 }
                 return value;
             }
@@ -55,28 +58,30 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprCoalesceNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        if (forge.getEvaluationType() == null) {
+        if (forge.getEvaluationType() == null || forge.getEvaluationType() == EPTypeNull.INSTANCE) {
             return constantNull();
         }
-        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCoalesceNodeForgeEval.class, codegenClassScope);
+        EPTypeClass evaluationClass = (EPTypeClass) forge.getEvaluationType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) forge.getEvaluationType(), ExprCoalesceNodeForgeEval.class, codegenClassScope);
 
 
         CodegenBlock block = methodNode.getBlock();
         int num = 0;
         boolean doneWithReturn = false;
         for (ExprNode node : forge.getForgeRenderable().getChildNodes()) {
-            Class reftype = node.getForge().getEvaluationType();
-            if (reftype != null) {
+            EPType evaltype = node.getForge().getEvaluationType();
+            if (evaltype != null && evaltype != EPTypeNull.INSTANCE) {
+                EPTypeClass classtype = (EPTypeClass) evaltype;
                 String refname = "r" + num;
-                block.declareVar(reftype, refname, node.getForge().evaluateCodegen(reftype, methodNode, exprSymbol, codegenClassScope));
+                block.declareVar(classtype, refname, node.getForge().evaluateCodegen(classtype, methodNode, exprSymbol, codegenClassScope));
 
-                if (reftype.isPrimitive()) {
+                if (classtype.getType().isPrimitive()) {
                     if (!forge.getIsNumericCoercion()[num]) {
                         block.methodReturn(ref(refname));
                         doneWithReturn = true;
                     } else {
-                        SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(reftype, forge.getEvaluationType());
-                        block.methodReturn(coercer.coerceCodegen(ref(refname), reftype));
+                        SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(classtype, evaluationClass);
+                        block.methodReturn(coercer.coerceCodegen(ref(refname), classtype));
                         doneWithReturn = true;
                     }
                     break;
@@ -86,7 +91,7 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
                 if (!forge.getIsNumericCoercion()[num]) {
                     blockIf.blockReturn(ref(refname));
                 } else {
-                    blockIf.blockReturn(JavaClassHelper.coerceNumberBoxedToBoxedCodegen(ref(refname), reftype, forge.getEvaluationType()));
+                    blockIf.blockReturn(JavaClassHelper.coerceNumberBoxedToBoxedCodegen(ref(refname), classtype, (EPTypeClass) forge.getEvaluationType()));
                 }
             }
             num++;

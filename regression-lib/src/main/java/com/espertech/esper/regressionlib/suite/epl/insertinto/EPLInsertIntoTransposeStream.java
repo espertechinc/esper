@@ -223,7 +223,7 @@ public class EPLInsertIntoTransposeStream {
 
             // invalid insert of object-array into undefined stream
             tryInvalidCompile(env, "insert into SomeOther select transpose(generateOA('a', 1)) from SupportBean",
-                "Invalid expression return type '[Ljava.lang.Object;' for transpose function [insert into SomeOther select transpose(generateOA('a', 1)) from SupportBean]");
+                "Invalid expression return type 'Object[]' for transpose function [insert into SomeOther select transpose(generateOA('a', 1)) from SupportBean]");
 
             env.undeployAll();
         }
@@ -302,6 +302,9 @@ public class EPLInsertIntoTransposeStream {
                     "from E1#length(20) as e1, E2#length(1) as e2 " +
                     "where e1.id = e2.id ",
                 "The 'e2.* as event' syntax is not allowed when inserting into an existing bean event type, use the 'e2 as event' syntax instead");
+
+            tryInvalidCompile(env, "select transpose(null) from SupportBean",
+                "Invalid expression return type 'null' for transpose function");
 
             env.undeployAll();
         }

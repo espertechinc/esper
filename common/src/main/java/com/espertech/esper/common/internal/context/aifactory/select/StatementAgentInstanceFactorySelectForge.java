@@ -72,22 +72,22 @@ public class StatementAgentInstanceFactorySelectForge implements StatementAgentI
     }
 
     public CodegenMethod initializeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactorySelect.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactorySelect.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactorySelect.class, "saiff", newInstance(StatementAgentInstanceFactorySelect.class));
+                .declareVarNewInstance(StatementAgentInstanceFactorySelect.EPTYPE, "saiff");
 
         // stream names
         method.getBlock().exprDotMethod(ref("saiff"), "setStreamNames", constant(streamNames));
 
         // activators
-        method.getBlock().declareVar(ViewableActivator[].class, "activators", newArrayByLength(ViewableActivator.class, constant(viewableActivatorForges.length)));
+        method.getBlock().declareVar(ViewableActivator.EPTYPEARRAY, "activators", newArrayByLength(ViewableActivator.EPTYPE, constant(viewableActivatorForges.length)));
         for (int i = 0; i < viewableActivatorForges.length; i++) {
             method.getBlock().assignArrayElement("activators", constant(i), viewableActivatorForges[i].makeCodegen(method, symbols, classScope));
         }
         method.getBlock().exprDotMethod(ref("saiff"), "setViewableActivators", ref("activators"));
 
         // views
-        method.getBlock().declareVar(ViewFactory[][].class, "viewFactories", newArrayByLength(ViewFactory[].class, constant(views.length)));
+        method.getBlock().declareVar(ViewFactory.EPTYPEARRAYARRAY, "viewFactories", newArrayByLength(ViewFactory.EPTYPEARRAY, constant(views.length)));
         for (int i = 0; i < views.length; i++) {
             if (views[i] != null) {
                 CodegenExpression array = ViewFactoryForgeUtil.codegenForgesWInit(views[i], i, null, method, symbols, classScope);
@@ -97,7 +97,7 @@ public class StatementAgentInstanceFactorySelectForge implements StatementAgentI
         method.getBlock().exprDotMethod(ref("saiff"), "setViewFactories", ref("viewFactories"));
 
         // view delegate information ('prior' and 'prev')
-        method.getBlock().declareVar(ViewResourceDelegateDesc[].class, "viewResourceDelegates", newArrayByLength(ViewResourceDelegateDesc.class, constant(viewResourceDelegates.length)));
+        method.getBlock().declareVar(ViewResourceDelegateDesc.EPTYPEARRAY, "viewResourceDelegates", newArrayByLength(ViewResourceDelegateDesc.EPTYPE, constant(viewResourceDelegates.length)));
         for (int i = 0; i < viewResourceDelegates.length; i++) {
             method.getBlock().assignArrayElement("viewResourceDelegates", constant(i), viewResourceDelegates[i].toExpression());
         }

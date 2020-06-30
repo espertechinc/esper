@@ -10,17 +10,19 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.PermutationEnumeration;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.rowrecog.expr.*;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 public class RowRecogPatternExpandUtil {
 
@@ -234,7 +236,8 @@ public class RowRecogPatternExpandUtil {
         if (!(repeat instanceof ExprConstantNode)) {
             throw new ExprValidationException(getPatternQuantifierExpressionText(repeat) + " must return a constant value");
         }
-        if (JavaClassHelper.getBoxedType(repeat.getForge().getEvaluationType()) != Integer.class) {
+        EPType evalType = repeat.getForge().getEvaluationType();
+        if (!isTypeInteger(evalType)) {
             throw new ExprValidationException(getPatternQuantifierExpressionText(repeat) + " must return an integer-type value");
         }
     }

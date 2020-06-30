@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionMethodDesc;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,7 +34,7 @@ public abstract class AggregationPortableValidationBase implements AggregationPo
 
     protected boolean distinct;
 
-    protected abstract Class typeOf();
+    protected abstract EPTypeClass typeOf();
 
     protected abstract void codegenInlineSet(CodegenExpressionRef ref, CodegenMethod method, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -79,8 +81,8 @@ public abstract class AggregationPortableValidationBase implements AggregationPo
                 throw new ExprValidationException(INVALID_TABLE_AGG_RESET_PARAMS);
             }
             AggregationMethodForge reader = new AggregationMethodForge() {
-                public Class getResultType() {
-                    return void.class;
+                public EPTypeClass getResultType() {
+                    return EPTypePremade.VOID.getEPType();
                 }
 
                 public CodegenExpression codegenCreateReader(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

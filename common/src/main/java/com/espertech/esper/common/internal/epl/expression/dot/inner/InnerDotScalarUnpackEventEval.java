@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.dot.inner;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,13 +46,17 @@ public class InnerDotScalarUnpackEventEval implements ExprDotEvalRootChildInnerE
     }
 
     public static CodegenExpression codegenEvaluate(InnerDotScalarUnpackEventForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getRootForge().getEvaluationType(), InnerDotScalarUnpackEventEval.class, codegenClassScope);
-
+        EPType type = forge.getRootForge().getEvaluationType();
+        if (type == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        CodegenMethod methodNode = codegenMethodScope.makeChild(typeClass, InnerDotScalarUnpackEventEval.class, codegenClassScope);
         methodNode.getBlock()
-                .declareVar(Object.class, "target", forge.getRootForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
-                .ifInstanceOf("target", EventBean.class)
-                .blockReturn(CodegenLegoCast.castSafeFromObjectType(forge.getRootForge().getEvaluationType(), exprDotMethod(cast(EventBean.class, ref("target")), "getUnderlying")))
-                .methodReturn(CodegenLegoCast.castSafeFromObjectType(forge.getRootForge().getEvaluationType(), ref("target")));
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "target", forge.getRootForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
+            .ifInstanceOf("target", EventBean.EPTYPE)
+            .blockReturn(CodegenLegoCast.castSafeFromObjectType(typeClass, exprDotMethod(cast(EventBean.EPTYPE, ref("target")), "getUnderlying")))
+            .methodReturn(CodegenLegoCast.castSafeFromObjectType(typeClass, ref("target")));
         return localMethod(methodNode);
     }
 

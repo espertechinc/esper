@@ -16,12 +16,14 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
 import com.espertech.esper.common.internal.support.SupportBean_A;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +41,11 @@ public class TestMapEventBean extends TestCase {
     private SupportBeanComplexProps supportBean = SupportBeanComplexProps.makeDefaultBean();
 
     public void setUp() {
-        testTypesMap = new HashMap<String, Object>();
-        testTypesMap.put("aString", String.class);
-        testTypesMap.put("anInt", Integer.class);
-        testTypesMap.put("myComplexBean", SupportBeanComplexProps.class);
+        testTypesMap = new HashMap<>();
+        testTypesMap.put("aString", EPTypePremade.STRING.getEPType());
+        testTypesMap.put("anInt", EPTypePremade.INTEGERBOXED.getEPType());
+        testTypesMap.put("myComplexBean", ClassHelperGenericType.getClassEPType(SupportBeanComplexProps.class));
+        testTypesMap.put("myComplexBean", ClassHelperGenericType.getClassEPType(SupportBeanComplexProps.class));
 
         testValuesMap = new HashMap<String, Object>();
         testValuesMap.put("aString", "test");
@@ -79,8 +82,8 @@ public class TestMapEventBean extends TestCase {
 
         // Set up event type
         testTypesMap.clear();
-        testTypesMap.put("a", SupportBean.class);
-        testTypesMap.put("b", SupportBean_A.class);
+        testTypesMap.put("a", ClassHelperGenericType.getClassEPType(SupportBean.class));
+        testTypesMap.put("b", ClassHelperGenericType.getClassEPType(SupportBean_A.class));
         EventTypeMetadata metadata = new EventTypeMetadata("MyType", null, EventTypeTypeClass.STREAM, EventTypeApplicationType.MAP, NameAccessModifier.PROTECTED, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         EventType eventType = new MapEventType(metadata, testTypesMap, null, null, null, null, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY);
 

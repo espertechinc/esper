@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,14 +22,14 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class AggregationMethodLinearNoParamForge implements AggregationMethodForge {
 
     private final Class provider;
-    private final Class resultType;
+    private final EPTypeClass resultType;
 
-    public AggregationMethodLinearNoParamForge(Class provider, Class resultType) {
+    public AggregationMethodLinearNoParamForge(Class provider, EPTypeClass resultType) {
         this.provider = provider;
         this.resultType = resultType;
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return resultType;
     }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.union;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.intersect.IntersectViewFactory;
@@ -22,6 +23,8 @@ import java.util.List;
  * Factory for union-views.
  */
 public class UnionViewFactory implements ViewFactory, DataWindowViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(UnionViewFactory.class);
+
     protected EventType eventType;
     protected ViewFactory[] unioned;
     protected boolean hasAsymetric;

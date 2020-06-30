@@ -22,6 +22,7 @@ import com.espertech.esper.regressionlib.suite.epl.other.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.regressionlib.support.events.SupportGenericColUtil;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
@@ -237,10 +238,16 @@ public class TestSuiteEPLOther extends TestCase {
         testXMLNoSchemaType.setRootElementName("myevent");
         configuration.getCommon().addEventType("TestXMLNoSchemaType", testXMLNoSchemaType);
 
-        Map<String, Object> myConfiguredMape = new HashMap<>();
-        myConfiguredMape.put("bean", "SupportBean");
-        myConfiguredMape.put("beanarray", "SupportBean_S0[]");
-        configuration.getCommon().addEventType("MyConfiguredMap", myConfiguredMape);
+        Map<String, Object> myConfiguredMap = new HashMap<>();
+        myConfiguredMap.put("bean", "SupportBean");
+        myConfiguredMap.put("beanarray", "SupportBean_S0[]");
+        configuration.getCommon().addEventType("MyConfiguredMap", myConfiguredMap);
+
+        Map<String, Object> myParameterizedTypes = new HashMap<>();
+        for (SupportGenericColUtil.PairOfNameAndType pair : SupportGenericColUtil.NAMESANDTYPES) {
+            myParameterizedTypes.put(pair.getName(), pair.getTypeClass());
+        }
+        configuration.getCommon().addEventType("MyPreconfiguredParameterizeTypeMap", myParameterizedTypes);
 
         configuration.getCommon().getLogging().setEnableQueryPlan(true);
         configuration.getRuntime().getExecution().setPrioritized(true);

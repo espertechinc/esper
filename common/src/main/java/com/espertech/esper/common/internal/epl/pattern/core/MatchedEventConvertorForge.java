@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.pattern.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -46,7 +47,7 @@ public class MatchedEventConvertorForge {
 
     public CodegenMethod make(CodegenMethodScope parent, CodegenClassScope classScope) {
         int size = filterTypes.size() + arrayEventTypes.size();
-        CodegenMethod method = parent.makeChild(EventBean[].class, this.getClass(), classScope).addParam(MatchedEventMap.class, "mem");
+        CodegenMethod method = parent.makeChild(EventBean.EPTYPEARRAY, this.getClass(), classScope).addParam(MatchedEventMap.EPTYPE, "mem");
         if (size == 0 || (streamsUsedCanNull != null && streamsUsedCanNull.isEmpty())) {
             method.getBlock().methodReturn(publicConstValue(CollectionUtil.class, "EVENTBEANARRAY_EMPTY"));
             return method;
@@ -54,15 +55,15 @@ public class MatchedEventConvertorForge {
 
         int sizeArray = baseStreamIndexOne ? size + 1 : size;
         method.getBlock()
-                .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(sizeArray)))
-                .declareVar(Object[].class, "buf", exprDotMethod(ref("mem"), "getMatchingEvents"));
+                .declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, constant(sizeArray)))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "buf", exprDotMethod(ref("mem"), "getMatchingEvents"));
 
         int count = 0;
         for (Map.Entry<String, Pair<EventType, String>> entry : filterTypes.entrySet()) {
             int indexTag = findTag(allTags, entry.getKey());
             int indexStream = baseStreamIndexOne ? count + 1 : count;
             if (streamsUsedCanNull == null || streamsUsedCanNull.contains(indexStream)) {
-                method.getBlock().assignArrayElement(ref("events"), constant(indexStream), cast(EventBean.class, arrayAtIndex(ref("buf"), constant(indexTag))));
+                method.getBlock().assignArrayElement(ref("events"), constant(indexStream), cast(EventBean.EPTYPE, arrayAtIndex(ref("buf"), constant(indexTag))));
             }
             count++;
         }
@@ -72,9 +73,9 @@ public class MatchedEventConvertorForge {
             int indexStream = baseStreamIndexOne ? count + 1 : count;
             if (streamsUsedCanNull == null || streamsUsedCanNull.contains(indexStream)) {
                 method.getBlock()
-                    .declareVar(EventBean[].class, "arr" + count, cast(EventBean[].class, arrayAtIndex(ref("buf"), constant(indexTag))))
-                    .declareVar(Map.class, "map" + count, staticMethod(Collections.class, "singletonMap", constant(entry.getKey()), ref("arr" + count)))
-                    .assignArrayElement(ref("events"), constant(indexStream), newInstance(MapEventBean.class, ref("map" + count), constantNull()));
+                    .declareVar(EventBean.EPTYPEARRAY, "arr" + count, cast(EventBean.EPTYPEARRAY, arrayAtIndex(ref("buf"), constant(indexTag))))
+                    .declareVar(EPTypePremade.MAP.getEPType(), "map" + count, staticMethod(Collections.class, "singletonMap", constant(entry.getKey()), ref("arr" + count)))
+                    .assignArrayElement(ref("events"), constant(indexStream), newInstance(MapEventBean.EPTYPE, ref("map" + count), constantNull()));
             }
             count++;
         }
@@ -95,8 +96,8 @@ public class MatchedEventConvertorForge {
     }
 
     public CodegenExpression makeAnonymous(CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), MatchedEventConvertor.class);
-        CodegenMethod convert = CodegenMethod.makeParentNode(EventBean[].class, this.getClass(), classScope).addParam(MatchedEventMap.class, "events");
+        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), MatchedEventConvertor.EPTYPE);
+        CodegenMethod convert = CodegenMethod.makeParentNode(EventBean.EPTYPEARRAY, this.getClass(), classScope).addParam(MatchedEventMap.EPTYPE, "events");
         clazz.addMethod("convert", convert);
         convert.getBlock().methodReturn(localMethod(make(convert, classScope), ref("events")));
         return clazz;

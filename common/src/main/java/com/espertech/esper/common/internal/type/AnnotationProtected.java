@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.Protected;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationProtected implements Protected {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationProtected.class);
+
     public Class<? extends Annotation> annotationType() {
         return Protected.class;
     }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.client.configuration.compiler;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.io.Serializable;
@@ -21,6 +22,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Configuration information for plugging in a custom aggregation multi-function.
  */
 public class ConfigurationCompilerPlugInAggregationMultiFunction implements Serializable {
+    /**
+     * Type information.
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ConfigurationCompilerPlugInAggregationMultiFunction.class);
+
     private static final long serialVersionUID = -1126332072916978240L;
     private String[] functionNames;
     private String multiFunctionForgeClassName;
@@ -98,7 +104,7 @@ public class ConfigurationCompilerPlugInAggregationMultiFunction implements Seri
     }
 
     public CodegenExpression toExpression() {
-        return newInstance(ConfigurationCompilerPlugInAggregationMultiFunction.class,
+        return newInstance(ConfigurationCompilerPlugInAggregationMultiFunction.EPTYPE,
                 constant(functionNames), constant(multiFunctionForgeClassName),
                 mapOfConstant(additionalConfiguredProperties));
     }

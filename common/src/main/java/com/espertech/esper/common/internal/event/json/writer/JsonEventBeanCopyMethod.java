@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.json.writer;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.event.json.core.JsonEventType;
  * Copy method for Json-underlying events.
  */
 public class JsonEventBeanCopyMethod implements EventBeanCopyMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonEventBeanCopyMethod.class);
     private final JsonEventType eventType;
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
 

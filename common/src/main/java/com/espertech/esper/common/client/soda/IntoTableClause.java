@@ -57,7 +57,7 @@ public class IntoTableClause implements Serializable {
 
     /**
      * Renders the clause.
-     *
+     * @param formatter formatter
      * @param writer to write to
      */
     public void toEPL(StringWriter writer, EPStatementFormatter formatter) {

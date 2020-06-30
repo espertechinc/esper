@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -48,15 +50,15 @@ class DTLocalDateOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBase {
         return intervalOp.evaluate(time, time, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenPointInTime(DTLocalDateOpsIntervalForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateOpsIntervalEval.class, codegenClassScope).addParam(Date.class, "target");
+    public static CodegenExpression codegenPointInTime(DTLocalDateOpsIntervalForge forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalDateOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "target");
 
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", exprDotMethod(ref("target"), "getTime")));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "time", exprDotMethod(ref("cal"), "getTimeInMillis"))
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "time", exprDotMethod(ref("cal"), "getTimeInMillis"))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
@@ -73,17 +75,17 @@ class DTLocalDateOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBase {
     }
 
     public static CodegenExpression codegenStartEnd(DTLocalDateOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateOpsIntervalEval.class, codegenClassScope).addParam(Date.class, "startTimestamp").addParam(Date.class, "endTimestamp");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalDateOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "startTimestamp").addParam(EPTypePremade.DATE.getEPType(), "endTimestamp");
 
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(long.class, "startLong", exprDotMethod(ref("startTimestamp"), "getTime"))
-                .declareVar(long.class, "endLong", exprDotMethod(ref("endTimestamp"), "getTime"))
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startLong", exprDotMethod(ref("startTimestamp"), "getTime"))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endLong", exprDotMethod(ref("endTimestamp"), "getTime"))
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("startLong")));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "startTime", exprDotMethod(ref("cal"), "getTimeInMillis"))
-                .declareVar(long.class, "endTime", op(ref("startTime"), "+", op(ref("endLong"), "-", ref("startLong"))))
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startTime", exprDotMethod(ref("cal"), "getTimeInMillis"))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endTime", op(ref("startTime"), "+", op(ref("endLong"), "-", ref("startLong"))))
                 .methodReturn(forge.intervalForge.codegen(ref("startTime"), ref("endTime"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);
     }

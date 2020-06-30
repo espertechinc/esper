@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.method.rate;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -38,8 +40,8 @@ public class AggregationForgeFactoryRate extends AggregationForgeFactoryBase {
         this.timeAbacus = timeAbacus;
     }
 
-    public Class getResultType() {
-        return Double.class;
+    public EPType getResultType() {
+        return EPTypePremade.DOUBLEBOXED.getEPType();
     }
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
@@ -79,6 +81,6 @@ public class AggregationForgeFactoryRate extends AggregationForgeFactoryBase {
     }
 
     public AggregationPortableValidation getAggregationPortableValidation() {
-        return new AggregationPortableValidationRate(parent.isDistinct(), parent.getOptionalFilter() != null, int.class, intervalTime);
+        return new AggregationPortableValidationRate(parent.isDistinct(), parent.getOptionalFilter() != null, EPTypePremade.INTEGERPRIMITIVE.getEPType(), intervalTime);
     }
 }

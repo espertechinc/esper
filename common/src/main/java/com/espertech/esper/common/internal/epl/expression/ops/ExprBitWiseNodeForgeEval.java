@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -46,21 +47,21 @@ public class ExprBitWiseNodeForgeEval implements ExprEvaluator {
         return forge.getComputer().compute(left, right);
     }
 
-    public static CodegenExpression codegen(ExprBitWiseNodeForge forge, Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
+    public static CodegenExpression codegen(ExprBitWiseNodeForge forge, EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprBitWiseNodeForgeEval.class, codegenClassScope);
 
-        Class leftType = lhs.getForge().getEvaluationType();
-        Class rightType = rhs.getForge().getEvaluationType();
+        EPTypeClass leftType = (EPTypeClass) lhs.getForge().getEvaluationType();
+        EPTypeClass rightType = (EPTypeClass) rhs.getForge().getEvaluationType();
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(leftType, "left", lhs.getForge().evaluateCodegen(leftType, methodNode, exprSymbol, codegenClassScope))
                 .declareVar(rightType, "right", rhs.getForge().evaluateCodegen(rightType, methodNode, exprSymbol, codegenClassScope));
-        if (!leftType.isPrimitive()) {
+        if (!leftType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
-        if (!rhs.getForge().getEvaluationType().isPrimitive()) {
+        if (!rightType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }
-        Class primitive = JavaClassHelper.getPrimitiveType(forge.getEvaluationType());
+        EPTypeClass primitive = JavaClassHelper.getPrimitiveType(forge.getEvaluationType());
         block.declareVar(primitive, "l", ref("left"))
                 .declareVar(primitive, "r", ref("right"));
 

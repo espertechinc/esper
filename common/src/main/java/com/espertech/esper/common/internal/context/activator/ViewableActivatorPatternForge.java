@@ -52,15 +52,15 @@ public class ViewableActivatorPatternForge implements ViewableActivatorForge {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ViewableActivator.class, ViewableActivatorPatternForge.class, classScope);
+        CodegenMethod method = parent.makeChild(ViewableActivator.EPTYPE, ViewableActivatorPatternForge.class, classScope);
 
         CodegenMethod childCode = spec.getRoot().makeCodegen(method, symbols, classScope);
         method.getBlock()
-                .declareVar(EvalRootFactoryNode.class, "root", localMethod(childCode))
-                .declareVar(ViewableActivatorPattern.class, "activator", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createPattern"))
+                .declareVar(EvalRootFactoryNode.EPTYPE, "root", localMethod(childCode))
+                .declareVar(ViewableActivatorPattern.EPTYPE, "activator", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createPattern"))
                 .exprDotMethod(ref("activator"), "setRootFactoryNode", ref("root"))
                 .exprDotMethod(ref("activator"), "setEventBeanTypedEventFactory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETEVENTBEANTYPEDEVENTFACTORY))
-                .declareVar(EventType.class, "eventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
+                .declareVar(EventType.EPTYPE, "eventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("activator"), "setEventType", ref("eventType"))
                 .exprDotMethod(ref("activator"), "setPatternContext", patternContext.make(method, symbols, classScope))
                 .exprDotMethod(ref("activator"), "setHasConsumingFilter", constant(spec.isConsumingFilters()))

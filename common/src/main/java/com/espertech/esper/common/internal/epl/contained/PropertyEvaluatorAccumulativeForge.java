@@ -50,9 +50,9 @@ public class PropertyEvaluatorAccumulativeForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PropertyEvaluatorAccumulative.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PropertyEvaluatorAccumulative.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(PropertyEvaluatorAccumulative.class, "pe", newInstance(PropertyEvaluatorAccumulative.class))
+                .declareVarNewInstance(PropertyEvaluatorAccumulative.EPTYPE, "pe")
                 .exprDotMethod(ref("pe"), "setContainedEventEvals", makeContained(containedEventEvals, method, symbols, classScope))
                 .exprDotMethod(ref("pe"), "setWhereClauses", makeWhere(whereClauses, method, symbols, classScope))
                 .exprDotMethod(ref("pe"), "setPropertyNames", constant(propertyNames.toArray(new String[propertyNames.size()])))
@@ -66,7 +66,7 @@ public class PropertyEvaluatorAccumulativeForge {
         for (int i = 0; i < whereClauses.length; i++) {
             expressions[i] = whereClauses[i] == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(whereClauses[i], method, PropertyEvaluatorAccumulativeForge.class, classScope);
         }
-        return newArrayWithInit(ExprEvaluator.class, expressions);
+        return newArrayWithInit(ExprEvaluator.EPTYPE, expressions);
     }
 
     protected static CodegenExpression makeContained(ContainedEventEvalForge[] evals, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -74,6 +74,6 @@ public class PropertyEvaluatorAccumulativeForge {
         for (int i = 0; i < evals.length; i++) {
             expressions[i] = evals[i].make(parent, symbols, classScope);
         }
-        return newArrayWithInit(ContainedEventEval.class, expressions);
+        return newArrayWithInit(ContainedEventEval.EPTYPE, expressions);
     }
 }

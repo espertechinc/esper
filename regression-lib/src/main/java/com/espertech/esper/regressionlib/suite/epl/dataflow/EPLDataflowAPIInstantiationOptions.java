@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.epl.dataflow;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.common.client.dataflow.core.*;
 import com.espertech.esper.common.client.dataflow.util.DataFlowParameterResolution;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -111,7 +112,7 @@ public class EPLDataflowAPIInstantiationOptions {
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return new SAIFFInitializeBuilder(MyOpFactory.class, this.getClass(), "myop", parent, symbols, classScope)
+            return new SAIFFInitializeBuilder(MyOpFactory.EPTYPE, this.getClass(), "myop", parent, symbols, classScope)
                 .exprnode("propOne", propOne)
                 .exprnode("propTwo", propTwo)
                 .exprnode("propThree", propThree)
@@ -120,6 +121,7 @@ public class EPLDataflowAPIInstantiationOptions {
     }
 
     public static class MyOpFactory implements DataFlowOperatorFactory {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyOpFactory.class);
         private ExprEvaluator propOne;
         private ExprEvaluator propTwo;
         private ExprEvaluator propThree;

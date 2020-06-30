@@ -15,8 +15,11 @@ import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
-import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -24,11 +27,9 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.json.SupportJsonEventTypeUtil;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.w3c.dom.Node;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertPropEquals;
 import static com.espertech.esper.common.internal.util.CollectionUtil.twoEntryMap;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotNull;
@@ -52,11 +54,11 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
 
-        runAssertion(env, true, BEAN_TYPENAME, FBEAN, InfraNestedIndexedPropLvl1.class, InfraNestedIndexedPropLvl1.class.getName(), path);
-        runAssertion(env, true, MAP_TYPENAME, FMAP, Map.class, MAP_TYPENAME + "_1", path);
-        runAssertion(env, true, OA_TYPENAME, FOA, Object[].class, OA_TYPENAME + "_1", path);
-        runAssertion(env, true, XML_TYPENAME, FXML, Node.class, XML_TYPENAME + ".l1", path);
-        runAssertion(env, true, AVRO_TYPENAME, FAVRO, GenericData.Record.class, AVRO_TYPENAME + "_1", path);
+        runAssertion(env, true, BEAN_TYPENAME, FBEAN, new EPTypeClass(InfraNestedIndexedPropLvl1[].class), InfraNestedIndexedPropLvl1.class.getName(), path);
+        runAssertion(env, true, MAP_TYPENAME, FMAP, new EPTypeClassParameterized(Map[].class, new EPTypeClass[] {EPTypePremade.STRING.getEPType(), EPTypePremade.OBJECT.getEPType()}), MAP_TYPENAME + "_1", path);
+        runAssertion(env, true, OA_TYPENAME, FOA, EPTypePremade.OBJECTARRAY.getEPType(), OA_TYPENAME + "_1", path);
+        runAssertion(env, true, XML_TYPENAME, FXML, EPTypePremade.NODEARRAY.getEPType(), XML_TYPENAME + ".l1", path);
+        runAssertion(env, true, AVRO_TYPENAME, FAVRO, new EPTypeClassParameterized(Collection.class, new EPTypeClass[] {new EPTypeClass(GenericData.Record.class)}), AVRO_TYPENAME + "_1", path);
 
         // Json
         String eplJson = "create json schema " + JSON_TYPENAME + "_4(lvl4 int);\n" +
@@ -65,7 +67,7 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
             "create json schema " + JSON_TYPENAME + "_1(lvl1 int, l2 " + JSON_TYPENAME + "_2[]);\n" +
             "@name('types') @public @buseventtype create json schema " + JSON_TYPENAME + "(l1 " + JSON_TYPENAME + "_1[]);\n";
         env.compileDeploy(eplJson, path);
-        runAssertion(env, false, JSON_TYPENAME, FJSON, Object.class, JSON_TYPENAME + "_1", path);
+        runAssertion(env, false, JSON_TYPENAME, FJSON, EPTypePremade.OBJECTARRAY.getEPType(), JSON_TYPENAME + "_1", path);
         env.undeployModuleContaining("types");
 
         // Json-Class-Provided
@@ -76,12 +78,12 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
             "@JsonSchema(className='" + MyLocalJSONProvidedLvl1.class.getName() + "') create json schema " + JSONPROVIDED_TYPENAME + "_1(lvl1 int, l2 " + JSONPROVIDED_TYPENAME + "_2[]);\n" +
             "@JsonSchema(className='" + MyLocalJSONProvidedTop.class.getName() + "') @name('types') @public @buseventtype create json schema " + JSONPROVIDED_TYPENAME + "(l1 " + JSONPROVIDED_TYPENAME + "_1[]);\n";
         env.compileDeploy(eplJsonProvided, path);
-        runAssertion(env, false, JSONPROVIDED_TYPENAME, FJSON, MyLocalJSONProvidedLvl1.class, "EventInfraPropertyNestedIndexedJsonProvided_1", path);
+        runAssertion(env, false, JSONPROVIDED_TYPENAME, FJSON, new EPTypeClass(MyLocalJSONProvidedLvl1[].class), "EventInfraPropertyNestedIndexedJsonProvided_1", path);
 
         env.undeployAll();
     }
 
-    private void runAssertion(RegressionEnvironment env, boolean preconfigured, String typename, FunctionSendEvent4IntWArrayNested send, Class nestedClass, String fragmentTypeName, RegressionPath path) {
+    private void runAssertion(RegressionEnvironment env, boolean preconfigured, String typename, FunctionSendEvent4IntWArrayNested send, EPTypeClass nestedClass, String fragmentTypeName, RegressionPath path) {
         runAssertionSelectNested(env, typename, send, path);
         runAssertionBeanNav(env, typename, send, path);
         runAssertionTypeValidProp(env, preconfigured, typename, send, nestedClass, fragmentTypeName);
@@ -143,14 +145,12 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         }
     }
 
-    private void runAssertionTypeValidProp(RegressionEnvironment env, boolean preconfigured, String typeName, FunctionSendEvent4IntWArrayNested send, Class nestedClass, String fragmentTypeName) {
+    private void runAssertionTypeValidProp(RegressionEnvironment env, boolean preconfigured, String typeName, FunctionSendEvent4IntWArrayNested send, EPTypeClass nestedClass, String fragmentTypeName) {
         EventType eventType = preconfigured ?
             env.runtime().getEventTypeService().getEventTypePreconfigured(typeName) :
             env.runtime().getEventTypeService().getEventType(env.deploymentId("types"), typeName);
 
-        Class arrayType = nestedClass == Object[].class ? nestedClass : JavaClassHelper.getArrayType(nestedClass);
-        arrayType = arrayType == GenericData.Record[].class ? Collection.class : arrayType;
-        Object[][] expectedType = new Object[][]{{"l1", arrayType, fragmentTypeName, true}};
+        Object[][] expectedType = new Object[][]{{"l1", nestedClass.getType(), fragmentTypeName, true}};
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, eventType, SupportEventTypeAssertionEnum.getSetWithFragment());
 
         EPAssertionUtil.assertEqualsAnyOrder(new String[]{"l1"}, eventType.getPropertyNames());
@@ -160,7 +160,7 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
             assertTrue(eventType.isProperty(prop));
         }
 
-        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventType.getPropertyType("l1"), arrayType));
+        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventType.getPropertyType("l1"), nestedClass.getType()));
         for (String prop : Arrays.asList("l1[0].lvl1", "l1[0].l2[0].lvl2", "l1[0].l2[0].l3[0].lvl3")) {
             assertEquals(Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType(prop)));
         }
@@ -175,11 +175,17 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         assertTrue(lvl2Fragment.isIndexed());
         assertEquals(isNative, lvl2Fragment.isNative());
 
-        if (typeName.equals(JSON_TYPENAME)) {
-            arrayType = JavaClassHelper.getArrayType(SupportJsonEventTypeUtil.getNestedUnderlyingType((JsonEventType) eventType, "l1"));
-            nestedClass = arrayType.getComponentType();
+        EventPropertyDescriptor received = eventType.getPropertyDescriptor("l1");
+
+        Class componentType = typeName.equals(AVRO_TYPENAME) ? GenericData.Record.class : null;
+        if (nestedClass.getType().isArray()) {
+            componentType = nestedClass.getType().getComponentType();
         }
-        assertEquals(new EventPropertyDescriptor("l1", arrayType, nestedClass, false, false, true, false, true), eventType.getPropertyDescriptor("l1"));
+        if (typeName.equals(JSON_TYPENAME)) {
+            nestedClass = (EPTypeClass) received.getPropertyEPType();
+            componentType = received.getPropertyComponentType();
+        }
+        assertPropEquals(new SupportEventPropDesc("l1", nestedClass).componentType(componentType).indexed().fragment(), received);
     }
 
     private void runAssertionTypeInvalidProp(RegressionEnvironment env, String typeName) {

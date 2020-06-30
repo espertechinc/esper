@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.XMLSchemaNamespacePrefix;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilder;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import java.lang.annotation.Annotation;
 
 public class AnnotationXMLSchemaNamespacePrefix implements XMLSchemaNamespacePrefix {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationXMLSchemaNamespacePrefix.class);
+
     private String prefix;
     private String namespace;
 
@@ -38,7 +41,7 @@ public class AnnotationXMLSchemaNamespacePrefix implements XMLSchemaNamespacePre
     }
 
     public static CodegenExpression toExpression(XMLSchemaNamespacePrefix prefix, CodegenMethod parent, CodegenClassScope scope) {
-        return new CodegenSetterBuilder(AnnotationXMLSchemaNamespacePrefix.class, AnnotationXMLSchemaNamespacePrefix.class,
+        return new CodegenSetterBuilder(AnnotationXMLSchemaNamespacePrefix.EPTYPE, AnnotationXMLSchemaNamespacePrefix.class,
             "nsprefix", parent, scope)
             .constant("prefix", prefix.prefix())
             .constant("namespace", prefix.namespace())

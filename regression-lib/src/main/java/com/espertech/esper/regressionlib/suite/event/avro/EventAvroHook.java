@@ -15,19 +15,21 @@ import com.espertech.esper.common.client.hook.type.ObjectValueTypeWidenerFactory
 import com.espertech.esper.common.client.hook.type.ObjectValueTypeWidenerFactoryContext;
 import com.espertech.esper.common.client.hook.type.TypeRepresentationMapper;
 import com.espertech.esper.common.client.hook.type.TypeRepresentationMapperContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.TypeWidenerSPI;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithLocalDateTime;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -145,10 +147,14 @@ public class EventAvroHook {
 
         public TypeWidenerSPI make(ObjectValueTypeWidenerFactoryContext context) {
             this.context = context;
-            if (context.getClazz() == LocalDateTime.class) {
+            if (!(context.getClazz() instanceof EPTypeClass)) {
+                return null;
+            }
+            EPTypeClass classInfo = (EPTypeClass) context.getClazz();
+            if (classInfo.getType() == LocalDateTime.class) {
                 return MyLDTTypeWidener.INSTANCE;
             }
-            if (context.getClazz() == SupportBean.class) {
+            if (classInfo.getType() == SupportBean.class) {
                 return new MySupportBeanWidener();
             }
             return null;
@@ -172,7 +178,7 @@ public class EventAvroHook {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return exprDotMethod(enumValue(DateTimeFormatter.class, "ISO_DATE_TIME"), "format", cast(LocalDateTime.class, expression));
+            return exprDotMethod(enumValue(DateTimeFormatter.class, "ISO_DATE_TIME"), "format", cast(EPTypePremade.LOCALDATETIME.getEPType(), expression));
         }
     }
 

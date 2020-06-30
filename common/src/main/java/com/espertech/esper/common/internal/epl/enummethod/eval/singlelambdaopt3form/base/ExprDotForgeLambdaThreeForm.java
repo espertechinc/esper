@@ -11,33 +11,43 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.enummethod.dot.*;
+import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
+import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotForgeEnumMethodBase;
+import com.espertech.esper.common.internal.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDescFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeUtility;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public abstract class ExprDotForgeLambdaThreeForm extends ExprDotForgeEnumMethodBase {
-    protected abstract EPType initAndNoParamsReturnType(EventType inputEventType, Class collectionComponentType);
-    protected abstract ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPType type, StatementCompileTimeServices services);
+    protected abstract EPChainableType initAndNoParamsReturnType(EventType inputEventType, EPTypeClass collectionComponentType);
 
-    protected abstract Function<ExprDotEvalParamLambda, EPType> initAndSingleParamReturnType(EventType inputEventType, Class collectionComponentType);
+    protected abstract ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPChainableType type, StatementCompileTimeServices services);
+
+    protected abstract ThreeFormInitFunction initAndSingleParamReturnType(EventType inputEventType, EPTypeClass collectionComponentType);
+
     protected abstract ThreeFormEventPlainFactory.ForgeFunction singleParamEventPlain(EnumMethodEnum enumMethod);
+
     protected abstract ThreeFormEventPlusFactory.ForgeFunction singleParamEventPlus(EnumMethodEnum enumMethod);
+
     protected abstract ThreeFormScalarFactory.ForgeFunction singleParamScalar(EnumMethodEnum enumMethod);
 
-    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext) {
+    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, ExprValidationContext validationContext) {
         if (parameters.isEmpty()) {
-            EPType type = initAndNoParamsReturnType(inputEventType, collectionComponentType);
+            EPChainableType type = initAndNoParamsReturnType(inputEventType, collectionComponentType);
             return new ThreeFormNoParamFactory(type, noParamsForge(enumMethod, type, validationContext.getStatementCompileTimeService()));
         }
 
@@ -51,9 +61,9 @@ public abstract class ExprDotForgeLambdaThreeForm extends ExprDotForgeEnumMethod
             }
 
             Map<String, Object> fields = new LinkedHashMap<>();
-            fields.put(goesToNames.get(1), Integer.class);
+            fields.put(goesToNames.get(1), EPTypePremade.INTEGERBOXED.getEPType());
             if (goesToNames.size() > 2) {
-                fields.put(goesToNames.get(2), Integer.class);
+                fields.put(goesToNames.get(2), EPTypePremade.INTEGERBOXED.getEPType());
             }
             ObjectArrayEventType fieldType = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, fields, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
             return new ThreeFormEventPlusFactory(initAndSingleParamReturnType(inputEventType, collectionComponentType), inputEventType, streamName, fieldType, goesToNames.size(), singleParamEventPlus(enumMethod));
@@ -62,12 +72,19 @@ public abstract class ExprDotForgeLambdaThreeForm extends ExprDotForgeEnumMethod
         Map<String, Object> fields = new LinkedHashMap<>();
         fields.put(goesToNames.get(0), collectionComponentType);
         if (goesToNames.size() > 1) {
-            fields.put(goesToNames.get(1), Integer.class);
+            fields.put(goesToNames.get(1), EPTypePremade.INTEGERBOXED.getEPType());
         }
         if (goesToNames.size() > 2) {
-            fields.put(goesToNames.get(2), Integer.class);
+            fields.put(goesToNames.get(2), EPTypePremade.INTEGERBOXED.getEPType());
         }
         ObjectArrayEventType type = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, fields, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
         return new ThreeFormScalarFactory(initAndSingleParamReturnType(inputEventType, collectionComponentType), type, goesToNames.size(), singleParamScalar(enumMethod));
+    }
+
+    public EPTypeClass validateNonNull(EPType type) throws ExprValidationException {
+        if (type == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Null-type is not allowed");
+        }
+        return (EPTypeClass) type;
     }
 }

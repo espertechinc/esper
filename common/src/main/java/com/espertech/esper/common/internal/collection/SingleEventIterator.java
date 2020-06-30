@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -19,6 +20,8 @@ import java.util.NoSuchElementException;
  * A utility class for an iterator that has one element.
  */
 public class SingleEventIterator implements Iterator<EventBean> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SingleEventIterator.class);
+
     private EventBean eventBean;
     private boolean hasMore;
 

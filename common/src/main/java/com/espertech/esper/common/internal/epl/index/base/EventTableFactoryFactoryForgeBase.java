@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.index.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,7 +27,7 @@ public abstract class EventTableFactoryFactoryForgeBase implements EventTableFac
     protected final Integer subqueryNum;
     protected final boolean isFireAndForget;
 
-    protected abstract Class typeOf();
+    protected abstract EPTypeClass typeOf();
 
     protected abstract List<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -37,7 +38,7 @@ public abstract class EventTableFactoryFactoryForgeBase implements EventTableFac
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(EventTableFactoryFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EventTableFactoryFactory.EPTYPE, this.getClass(), classScope);
         List<CodegenExpression> params = new ArrayList<>();
         params.add(constant(indexedStreamNum));
         params.add(constant(subqueryNum));

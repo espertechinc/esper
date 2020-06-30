@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.common.client.dataflow.annotations.OutputType;
 import com.espertech.esper.common.client.dataflow.annotations.OutputTypes;
 import com.espertech.esper.common.client.dataflow.util.EPDataFlowSignal;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -29,6 +30,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
     @OutputType(name = "stats", type = MyWordCountStats.class)
 })
 public class MyWordCountAggregator implements DataFlowOperatorForge, DataFlowOperatorFactory, DataFlowOperator {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MyWordCountAggregator.class);
+
     private static final Logger log = LoggerFactory.getLogger(MyWordCountAggregator.class);
 
     @DataFlowContext
@@ -41,7 +44,7 @@ public class MyWordCountAggregator implements DataFlowOperatorForge, DataFlowOpe
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(MyWordCountAggregator.class);
+        return newInstance(MyWordCountAggregator.EPTYPE);
     }
 
     public void initializeFactory(DataFlowOpFactoryInitializeContext context) {

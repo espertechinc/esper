@@ -49,9 +49,9 @@ public class PropertyEvaluatorSimpleForge implements PropertyEvaluatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PropertyEvaluatorSimple.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PropertyEvaluatorSimple.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(PropertyEvaluatorSimple.class, "pe", newInstance(PropertyEvaluatorSimple.class))
+                .declareVarNewInstance(PropertyEvaluatorSimple.EPTYPE, "pe")
                 .exprDotMethod(ref("pe"), "setFilter", filter == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(filter, method, this.getClass(), classScope))
                 .exprDotMethod(ref("pe"), "setContainedEventEval", containedEventEval.make(method, symbols, classScope))
                 .exprDotMethod(ref("pe"), "setFragmentIsIndexed", constant(fragmentEventType.isIndexed()))

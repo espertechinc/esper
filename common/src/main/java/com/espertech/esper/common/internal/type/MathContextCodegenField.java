@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
@@ -29,15 +31,15 @@ public class MathContextCodegenField implements CodegenFieldSharable {
         this.mathContext = mathContext;
     }
 
-    public Class type() {
-        return MathContext.class;
+    public EPTypeClass type() {
+        return EPTypePremade.MATHCONTEXT.getEPType();
     }
 
     public CodegenExpression initCtorScoped() {
         if (mathContext == null) {
             return constantNull();
         }
-        return newInstance(MathContext.class, constant(mathContext.getPrecision()),
+        return newInstance(EPTypePremade.MATHCONTEXT.getEPType(), constant(mathContext.getPrecision()),
                 enumValue(RoundingMode.class, mathContext.getRoundingMode().name()));
     }
 

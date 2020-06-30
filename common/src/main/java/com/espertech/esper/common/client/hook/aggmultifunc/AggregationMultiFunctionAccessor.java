@@ -11,6 +11,7 @@
 package com.espertech.esper.common.client.hook.aggmultifunc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
@@ -19,6 +20,11 @@ import java.util.Collection;
  * Accessor for access aggregation functions.
  */
 public interface AggregationMultiFunctionAccessor {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationMultiFunctionAccessor.class);
+
     /**
      * Return the aggregation state value either as a scalar value or any other object.
      * <p>

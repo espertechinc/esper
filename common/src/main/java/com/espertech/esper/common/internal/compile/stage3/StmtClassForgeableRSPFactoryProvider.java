@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.compile.stage3;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
@@ -85,13 +87,13 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
 
             // build ctor
             List<CodegenTypedParam> ctorParms = new ArrayList<>();
-            ctorParms.add(new CodegenTypedParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef(), false));
+            ctorParms.add(new CodegenTypedParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef(), false));
             CodegenCtor providerCtor = new CodegenCtor(StmtClassForgeableRSPFactoryProvider.class, includeDebugSymbols, ctorParms);
             CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
             List<CodegenTypedParam> providerExplicitMembers = new ArrayList<>(2);
 
             // add event type
-            providerExplicitMembers.add(new CodegenTypedParam(EventType.class, MEMBERNAME_RESULTEVENTTYPE));
+            providerExplicitMembers.add(new CodegenTypedParam(EventType.EPTYPE, MEMBERNAME_RESULTEVENTTYPE));
             providerCtor.getBlock().assignMember(MEMBERNAME_RESULTEVENTTYPE, EventTypeUtility.resolveTypeCodegen(spec.getResultEventType(), EPStatementInitServices.REF));
 
             makeResultSetProcessorFactory(classScope, innerClasses, providerExplicitMembers, providerCtor, className);
@@ -100,7 +102,7 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
 
             OrderByProcessorCompiler.makeOrderByProcessors(spec.getOrderByProcessorFactoryForge(), classScope, innerClasses, providerExplicitMembers, providerCtor, className, MEMBERNAME_ORDERBYFACTORY);
 
-            providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.class, MEMBERNAME_AGGREGATIONSVCFACTORY));
+            providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.EPTYPE, MEMBERNAME_AGGREGATIONSVCFACTORY));
             AggregationClassNames aggregationClassNames = new AggregationClassNames();
             AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(spec.isJoin(), spec.getAggregationServiceForgeDesc().getAggregationServiceFactoryForge(), providerCtor, classScope, className, aggregationClassNames);
             providerCtor.getBlock().assignMember(MEMBERNAME_AGGREGATIONSVCFACTORY, localMethod(aggResult.getInitMethod(), EPStatementInitServices.REF));
@@ -109,19 +111,19 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             makeSelectExprProcessors(classScope, innerClasses, providerExplicitMembers, providerCtor, className, spec.isRollup(), spec.getSelectExprProcessorForges());
 
             // make provider methods
-            CodegenMethod getResultSetProcessorFactoryMethod = CodegenMethod.makeParentNode(ResultSetProcessorFactory.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getResultSetProcessorFactoryMethod = CodegenMethod.makeParentNode(ResultSetProcessorFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getResultSetProcessorFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_RESULTSETPROCESSORFACTORY));
 
-            CodegenMethod getAggregationServiceFactoryMethod = CodegenMethod.makeParentNode(AggregationServiceFactory.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getAggregationServiceFactoryMethod = CodegenMethod.makeParentNode(AggregationServiceFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getAggregationServiceFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_AGGREGATIONSVCFACTORY));
 
-            CodegenMethod getOrderByProcessorFactoryMethod = CodegenMethod.makeParentNode(OrderByProcessorFactory.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getOrderByProcessorFactoryMethod = CodegenMethod.makeParentNode(OrderByProcessorFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getOrderByProcessorFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_ORDERBYFACTORY));
 
-            CodegenMethod getResultSetProcessorTypeMethod = CodegenMethod.makeParentNode(ResultSetProcessorType.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getResultSetProcessorTypeMethod = CodegenMethod.makeParentNode(ResultSetProcessor.EPTYPE_PROCESSORTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getResultSetProcessorTypeMethod.getBlock().methodReturn(enumValue(ResultSetProcessorType.class, spec.getResultSetProcessorType().name()));
 
-            CodegenMethod getResultEventTypeMethod = CodegenMethod.makeParentNode(EventType.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getResultEventTypeMethod = CodegenMethod.makeParentNode(EventType.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getResultEventTypeMethod.getBlock().methodReturn(ref(MEMBERNAME_RESULTEVENTTYPE));
 
             CodegenClassMethods methods = new CodegenClassMethods();
@@ -133,17 +135,17 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             CodegenStackGenerator.recursiveBuildStack(getResultEventTypeMethod, "getResultEventType", methods);
 
             // render and compile
-            return new CodegenClass(CodegenClassType.RESULTSETPROCESSORFACTORYPROVIDER, ResultSetProcessorFactoryProvider.class, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            return new CodegenClass(CodegenClassType.RESULTSETPROCESSORFACTORYPROVIDER, ResultSetProcessorFactoryProvider.EPTYPE, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
         } catch (Throwable t) {
             throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " : " + t.getMessage(), t);
         }
     }
 
     private static void makeResultSetProcessorFactory(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> providerExplicitMembers, CodegenCtor providerCtor, String providerClassName) {
-        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(ResultSetProcessor.class, StmtClassForgeableRSPFactoryProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(OrderByProcessor.class, NAME_ORDERBYPROCESSOR)
-                .addParam(AggregationService.class, NAME_AGGREGATIONSVC)
-                .addParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT);
+        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(ResultSetProcessor.EPTYPE, StmtClassForgeableRSPFactoryProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR)
+                .addParam(AggregationService.EPTYPE, NAME_AGGREGATIONSVC)
+                .addParam(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT);
         instantiateMethod.getBlock().methodReturn(CodegenExpressionBuilder.newInstance(CLASSNAME_RESULTSETPROCESSOR, ref("o"), MEMBER_ORDERBYPROCESSOR, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT));
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(instantiateMethod, "instantiate", methods);
@@ -151,10 +153,10 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(providerClassName, "o"));
         CodegenCtor ctor = new CodegenCtor(StmtClassForgeableRSPFactoryProvider.class, classScope, ctorParams);
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_RESULTSETPROCESSORFACTORY, ResultSetProcessorFactory.class, ctor, Collections.emptyList(), methods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_RESULTSETPROCESSORFACTORY, ResultSetProcessorFactory.EPTYPE, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
 
-        providerExplicitMembers.add(new CodegenTypedParam(ResultSetProcessorFactory.class, "rspFactory"));
+        providerExplicitMembers.add(new CodegenTypedParam(ResultSetProcessorFactory.EPTYPE, "rspFactory"));
         providerCtor.getBlock().assignMember(MEMBERNAME_RESULTSETPROCESSORFACTORY, CodegenExpressionBuilder.newInstance(CLASSNAME_RESULTSETPROCESSORFACTORY, ref("this")));
     }
 
@@ -162,16 +164,16 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
 
         List<CodegenTypedParam> ctorParams = new ArrayList<>();
         ctorParams.add(new CodegenTypedParam(classNameParent, "o"));
-        ctorParams.add(new CodegenTypedParam(OrderByProcessor.class, "orderByProcessor"));
-        ctorParams.add(new CodegenTypedParam(AggregationService.class, "aggregationService"));
-        ctorParams.add(new CodegenTypedParam(AgentInstanceContext.class, "agentInstanceContext"));
+        ctorParams.add(new CodegenTypedParam(OrderByProcessor.EPTYPE, "orderByProcessor"));
+        ctorParams.add(new CodegenTypedParam(AggregationService.EPTYPE, "aggregationService"));
+        ctorParams.add(new CodegenTypedParam(AgentInstanceContext.EPTYPE, "agentInstanceContext"));
 
         // make ctor code
         CodegenCtor serviceCtor = new CodegenCtor(StmtClassForgeableRSPFactoryProvider.class, classScope, ctorParams);
 
         // Get-Result-Type Method
         ResultSetProcessorFactoryForge forge = spec.getResultSetProcessorFactoryForge();
-        CodegenMethod getResultEventTypeMethod = CodegenMethod.makeParentNode(EventType.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getResultEventTypeMethod = CodegenMethod.makeParentNode(EventType.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getResultEventTypeMethod.getBlock().methodReturn(member("o." + MEMBERNAME_RESULTEVENTTYPE));
 
         // Instance members and methods
@@ -179,8 +181,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         forge.instanceCodegen(instance, classScope, factoryCtor, factoryExplicitMembers);
 
         // Process-View-Result Method
-        CodegenMethod processViewResultMethod = CodegenMethod.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(EventBean[].class, NAME_NEWDATA).addParam(EventBean[].class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod processViewResultMethod = CodegenMethod.makeParentNode(UniformPair.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EventBean.EPTYPEARRAY, NAME_NEWDATA).addParam(EventBean.EPTYPEARRAY, NAME_OLDDATA).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin()) {
             generateInstrumentedProcessView(forge, classScope, processViewResultMethod, instance);
         } else {
@@ -188,8 +190,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Process-Join-Result Method
-        CodegenMethod processJoinResultMethod = CodegenMethod.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(Set.class, NAME_NEWDATA).addParam(Set.class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod processJoinResultMethod = CodegenMethod.makeParentNode(UniformPair.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.SET.getEPType(), NAME_NEWDATA).addParam(EPTypePremade.SET.getEPType(), NAME_OLDDATA).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin()) {
             processJoinResultMethod.getBlock().methodThrowUnsupported();
         } else {
@@ -197,12 +199,12 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Clear-Method
-        CodegenMethod clearMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod clearMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         forge.clearMethodCodegen(classScope, clearMethod);
 
         // Get-Iterator-View
-        CodegenMethod getIteratorMethodView = CodegenMethod.makeParentNode(Iterator.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(Viewable.class, NAME_VIEWABLE);
+        CodegenMethod getIteratorMethodView = CodegenMethod.makeParentNode(EPTypePremade.ITERATOR.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(Viewable.EPTYPE, NAME_VIEWABLE);
         if (!spec.isJoin()) {
             forge.getIteratorViewCodegen(classScope, getIteratorMethodView, instance);
         } else {
@@ -210,8 +212,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Get-Iterator-Join
-        CodegenMethod getIteratorMethodJoin = CodegenMethod.makeParentNode(Iterator.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(Set.class, NAME_JOINSET);
+        CodegenMethod getIteratorMethodJoin = CodegenMethod.makeParentNode(EPTypePremade.ITERATOR.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.SET.getEPType(), NAME_JOINSET);
         if (!spec.isJoin()) {
             getIteratorMethodJoin.getBlock().methodThrowUnsupported();
         } else {
@@ -219,8 +221,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Process-output-rate-buffered-view
-        CodegenMethod processOutputLimitedViewMethod = CodegenMethod.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(List.class, NAME_VIEWEVENTSLIST).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod processOutputLimitedViewMethod = CodegenMethod.makeParentNode(UniformPair.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.LIST.getEPType(), NAME_VIEWEVENTSLIST).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin() && spec.isHasOutputLimit() && !spec.isHasOutputLimitSnapshot()) {
             forge.processOutputLimitedViewCodegen(classScope, processOutputLimitedViewMethod, instance);
         } else {
@@ -228,8 +230,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Process-output-rate-buffered-join
-        CodegenMethod processOutputLimitedJoinMethod = CodegenMethod.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(List.class, NAME_JOINEVENTSSET).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod processOutputLimitedJoinMethod = CodegenMethod.makeParentNode(UniformPair.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.LIST.getEPType(), NAME_JOINEVENTSSET).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin() || !spec.isHasOutputLimit() || spec.isHasOutputLimitSnapshot()) {
             processOutputLimitedJoinMethod.getBlock().methodThrowUnsupported();
         } else {
@@ -237,13 +239,13 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Set-Agent-Instance is supported for fire-and-forget queries only
-        CodegenMethod setAgentInstanceContextMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(AgentInstanceContext.class, "context");
+        CodegenMethod setAgentInstanceContextMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(AgentInstanceContext.EPTYPE, "context");
         setAgentInstanceContextMethod.getBlock().assignRef(NAME_AGENTINSTANCECONTEXT, ref("context"));
 
         // Apply-view
-        CodegenMethod applyViewResultMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(EventBean[].class, NAME_NEWDATA).addParam(EventBean[].class, NAME_OLDDATA);
+        CodegenMethod applyViewResultMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EventBean.EPTYPEARRAY, NAME_NEWDATA).addParam(EventBean.EPTYPEARRAY, NAME_OLDDATA);
         if (!spec.isJoin() && spec.isHasOutputLimit() && spec.isHasOutputLimitSnapshot()) {
             forge.applyViewResultCodegen(classScope, applyViewResultMethod, instance);
         } else {
@@ -251,8 +253,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Apply-join
-        CodegenMethod applyJoinResultMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(Set.class, NAME_NEWDATA).addParam(Set.class, NAME_OLDDATA);
+        CodegenMethod applyJoinResultMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.SET.getEPType(), NAME_NEWDATA).addParam(EPTypePremade.SET.getEPType(), NAME_OLDDATA);
         if (!spec.isJoin() || !spec.isHasOutputLimit() || !spec.isHasOutputLimitSnapshot()) {
             applyJoinResultMethod.getBlock().methodThrowUnsupported();
         } else {
@@ -260,8 +262,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Process-output-unbuffered-view
-        CodegenMethod processOutputLimitedLastAllNonBufferedViewMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(EventBean[].class, NAME_NEWDATA).addParam(EventBean[].class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod processOutputLimitedLastAllNonBufferedViewMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EventBean.EPTYPEARRAY, NAME_NEWDATA).addParam(EventBean.EPTYPEARRAY, NAME_OLDDATA).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin() && spec.isHasOutputLimit() && spec.getOutputConditionType() == POLICY_LASTALL_UNORDERED) {
             forge.processOutputLimitedLastAllNonBufferedViewCodegen(classScope, processOutputLimitedLastAllNonBufferedViewMethod, instance);
         } else {
@@ -269,8 +271,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Process-output-unbuffered-join
-        CodegenMethod processOutputLimitedLastAllNonBufferedJoinMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(Set.class, NAME_NEWDATA).addParam(Set.class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod processOutputLimitedLastAllNonBufferedJoinMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.SET.getEPType(), NAME_NEWDATA).addParam(EPTypePremade.SET.getEPType(), NAME_OLDDATA).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin() || !spec.isHasOutputLimit() || spec.getOutputConditionType() != POLICY_LASTALL_UNORDERED) {
             processOutputLimitedLastAllNonBufferedJoinMethod.getBlock().methodThrowUnsupported();
         } else {
@@ -278,8 +280,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Continue-output-unbuffered-view
-        CodegenMethod continueOutputLimitedLastAllNonBufferedViewMethod = CodegenMethod.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod continueOutputLimitedLastAllNonBufferedViewMethod = CodegenMethod.makeParentNode(UniformPair.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin() && spec.isHasOutputLimit() && spec.getOutputConditionType() == POLICY_LASTALL_UNORDERED) {
             forge.continueOutputLimitedLastAllNonBufferedViewCodegen(classScope, continueOutputLimitedLastAllNonBufferedViewMethod, instance);
         } else {
@@ -287,8 +289,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Continue-output-unbuffered-join
-        CodegenMethod continueOutputLimitedLastAllNonBufferedJoinMethod = CodegenMethod.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod continueOutputLimitedLastAllNonBufferedJoinMethod = CodegenMethod.makeParentNode(UniformPair.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         if (!spec.isJoin() || !spec.isHasOutputLimit() || spec.getOutputConditionType() != POLICY_LASTALL_UNORDERED) {
             continueOutputLimitedLastAllNonBufferedJoinMethod.getBlock().methodThrowUnsupported();
         } else {
@@ -296,12 +298,12 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         }
 
         // Accept-Helper-Visitor
-        CodegenMethod acceptHelperVisitorMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(ResultSetProcessorOutputHelperVisitor.class, NAME_RESULTSETVISITOR);
+        CodegenMethod acceptHelperVisitorMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(ResultSetProcessorOutputHelperVisitor.EPTYPE, NAME_RESULTSETVISITOR);
         forge.acceptHelperVisitorCodegen(classScope, acceptHelperVisitorMethod, instance);
 
         // Stop-Method (generates last as other methods may allocate members)
-        CodegenMethod stopMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod stopMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         forge.stopMethodCodegen(classScope, stopMethod, instance);
 
         CodegenClassMethods innerMethods = new CodegenClassMethods();
@@ -336,13 +338,13 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             return;
         }
 
-        CodegenMethod instrumented = method.makeChild(UniformPair.class, forge.getClass(), classScope)
-                .addParam(Set.class, NAME_NEWDATA).addParam(Set.class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod instrumented = method.makeChild(UniformPair.EPTYPE, forge.getClass(), classScope)
+                .addParam(EPTypePremade.SET.getEPType(), NAME_NEWDATA).addParam(EPTypePremade.SET.getEPType(), NAME_OLDDATA).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         forge.processJoinResultCodegen(classScope, instrumented, instance);
 
         method.getBlock()
                 .apply(InstrumentationCode.instblock(classScope, "q" + forge.getInstrumentedQName()))
-                .declareVar(UniformPair.class, "pair", localMethod(instrumented, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE))
+                .declareVar(UniformPair.EPTYPE, "pair", localMethod(instrumented, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE))
                 .apply(InstrumentationCode.instblock(classScope, "a" + forge.getInstrumentedQName(), ref("pair")))
                 .methodReturn(ref("pair"));
     }
@@ -353,13 +355,13 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             return;
         }
 
-        CodegenMethod instrumented = method.makeChild(UniformPair.class, forge.getClass(), classScope)
-                .addParam(EventBean[].class, NAME_NEWDATA).addParam(EventBean[].class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
+        CodegenMethod instrumented = method.makeChild(UniformPair.EPTYPE, forge.getClass(), classScope)
+                .addParam(EventBean.EPTYPEARRAY, NAME_NEWDATA).addParam(EventBean.EPTYPEARRAY, NAME_OLDDATA).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE);
         forge.processViewResultCodegen(classScope, instrumented, instance);
 
         method.getBlock()
                 .apply(InstrumentationCode.instblock(classScope, "q" + forge.getInstrumentedQName()))
-                .declareVar(UniformPair.class, "pair", localMethod(instrumented, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE))
+                .declareVar(UniformPair.EPTYPE, "pair", localMethod(instrumented, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE))
                 .apply(InstrumentationCode.instblock(classScope, "a" + forge.getInstrumentedQName(), ref("pair")))
                 .methodReturn(ref("pair"));
     }
@@ -368,7 +370,7 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         // handle single-select
         if (!rollup) {
             String name = "SelectExprProcessorImpl";
-            explicitMembers.add(new CodegenTypedParam(SelectExprProcessor.class, "selectExprProcessor"));
+            explicitMembers.add(new CodegenTypedParam(SelectExprProcessor.EPTYPE, "selectExprProcessor"));
             outerClassCtor.getBlock().assignRef("selectExprProcessor", CodegenExpressionBuilder.newInstance(name, ref("this"), EPStatementInitServices.REF));
             CodegenInnerClass innerClass = makeSelectExprProcessor(name, classNameParent, classScope, forges[0]);
             innerClasses.add(innerClass);
@@ -382,8 +384,8 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             CodegenInnerClass innerClass = makeSelectExprProcessor(name, classNameParent, classScope, forge);
             innerClasses.add(innerClass);
         }
-        explicitMembers.add(new CodegenTypedParam(SelectExprProcessor[].class, "selectExprProcessorArray"));
-        outerClassCtor.getBlock().assignRef("selectExprProcessorArray", newArrayByLength(SelectExprProcessor.class, constant(forges.length)));
+        explicitMembers.add(new CodegenTypedParam(SelectExprProcessor.EPTYPEARRAY, "selectExprProcessorArray"));
+        outerClassCtor.getBlock().assignRef("selectExprProcessorArray", newArrayByLength(SelectExprProcessor.EPTYPE, constant(forges.length)));
         for (int i = 0; i < forges.length; i++) {
             outerClassCtor.getBlock().assignArrayElement("selectExprProcessorArray", constant(i), CodegenExpressionBuilder.newInstance("SelectExprProcessorImpl" + i, ref("this"), EPStatementInitServices.REF));
         }
@@ -393,39 +395,39 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
         SelectExprProcessorCodegenSymbol selectEnv = new SelectExprProcessorCodegenSymbol();
         CodegenSymbolProvider symbolProvider = new CodegenSymbolProvider() {
-            public void provide(Map<String, Class> symbols) {
+            public void provide(Map<String, EPTypeClass> symbols) {
                 exprSymbol.provide(symbols);
                 selectEnv.provide(symbols);
             }
         };
 
         List<CodegenTypedParam> members = new ArrayList<>(2);
-        members.add(new CodegenTypedParam(EventBeanTypedEventFactory.class, MEMBER_EVENTBEANFACTORY.getRef()));
+        members.add(new CodegenTypedParam(EventBeanTypedEventFactory.EPTYPE, MEMBER_EVENTBEANFACTORY.getRef()));
 
         List<CodegenTypedParam> ctorParams = new ArrayList<>(2);
         ctorParams.add(new CodegenTypedParam(classNameParent, "o"));
-        ctorParams.add(new CodegenTypedParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef(), false));
+        ctorParams.add(new CodegenTypedParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef(), false));
 
         CodegenCtor ctor = new CodegenCtor(StmtClassForgeableRSPFactoryProvider.class, classScope, ctorParams);
         ctor.getBlock().assignRef(MEMBER_EVENTBEANFACTORY, exprDotMethod(EPStatementInitServices.REF, "getEventBeanTypedEventFactory"));
 
-        CodegenMethod processMethod = CodegenMethod.makeParentNode(EventBean.class, StmtClassForgeableRSPFactoryProvider.class, symbolProvider, classScope)
-                .addParam(EventBean[].class, ExprForgeCodegenNames.NAME_EPS)
-                .addParam(boolean.class, ExprForgeCodegenNames.NAME_ISNEWDATA)
-                .addParam(boolean.class, SelectExprProcessorCodegenSymbol.NAME_ISSYNTHESIZE)
-                .addParam(ExprEvaluatorContext.class, ExprForgeCodegenNames.NAME_EXPREVALCONTEXT);
+        CodegenMethod processMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, StmtClassForgeableRSPFactoryProvider.class, symbolProvider, classScope)
+                .addParam(EventBean.EPTYPEARRAY, ExprForgeCodegenNames.NAME_EPS)
+                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA)
+                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), SelectExprProcessorCodegenSymbol.NAME_ISSYNTHESIZE)
+                .addParam(ExprEvaluatorContext.EPTYPE, ExprForgeCodegenNames.NAME_EXPREVALCONTEXT);
         processMethod.getBlock().apply(InstrumentationCode.instblock(classScope, "qSelectClause", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT));
         CodegenMethod performMethod = forge.processCodegen(member("o." + MEMBERNAME_RESULTEVENTTYPE), MEMBER_EVENTBEANFACTORY, processMethod, selectEnv, exprSymbol, classScope);
         exprSymbol.derivedSymbolsCodegen(processMethod, processMethod.getBlock(), classScope);
         processMethod.getBlock()
-                .declareVar(EventBean.class, "out", localMethod(performMethod))
+                .declareVar(EventBean.EPTYPE, "out", localMethod(performMethod))
                 .apply(InstrumentationCode.instblock(classScope, "aSelectClause", REF_ISNEWDATA, ref("out"), constantNull()))
                 .methodReturn(ref("out"));
 
         CodegenClassMethods allMethods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(processMethod, "process", allMethods);
 
-        return new CodegenInnerClass(className, SelectExprProcessor.class, ctor, members, allMethods);
+        return new CodegenInnerClass(className, SelectExprProcessor.EPTYPE, ctor, members, allMethods);
     }
 
     public String getClassName() {

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -32,16 +33,16 @@ public class ExprEvalEnumerationAtBeanSingleForge implements ExprForge, SelectEx
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return enumerationForge.evaluateGetEventBeanCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
-        return EventBean.class;
+    public EPTypeClass getEvaluationType() {
+        return EventBean.EPTYPE;
     }
 
-    public Class getUnderlyingEvaluationType() {
-        return eventTypeSingle.getUnderlyingType();
+    public EPTypeClass getUnderlyingEvaluationType() {
+        return eventTypeSingle.getUnderlyingEPType();
     }
 
     public ExprNodeRenderable getForgeRenderable() {

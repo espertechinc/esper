@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -61,19 +63,19 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotEventCollectionForge.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(codegenEvaluateInternal(ref("event"), method -> exprSymbol.getAddExprEvalCtx(method), methodNode, codegenClassScope));
         return localMethod(methodNode);
     }
 
     public CodegenExpression evaluateEventGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprEnumerationGivenEventSymbol symbols, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotEventCollectionForge.class, codegenClassScope);
         methodNode.getBlock()
                 .ifNullReturnNull(symbols.getAddEvent(methodNode))
                 .methodReturn(codegenEvaluateInternal(symbols.getAddEvent(methodNode), method -> symbols.getAddExprEvalCtx(method), methodNode, codegenClassScope));
@@ -103,7 +105,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
         return constantNull();
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return null;
     }
 
@@ -138,24 +140,24 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
 
     private CodegenExpression codegenEvaluateInternal(CodegenExpressionRef event, Function<CodegenMethod, CodegenExpressionRef> refExprEvalCtxFunc, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         if (disablePropertyExpressionEventCollCache) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope).addParam(EventBean.class, "event");
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotEventCollectionForge.class, codegenClassScope).addParam(EventBean.EPTYPE, "event");
 
             methodNode.getBlock()
-                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)))
+                    .declareVar(EventBean.EPTYPEARRAY, "events", cast(EventBean.EPTYPEARRAY, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)))
                     .ifRefNullReturnNull("events")
                     .methodReturn(staticMethod(Arrays.class, "asList", ref("events")));
             return localMethod(methodNode, event);
         }
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope).addParam(EventBean.class, "event");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotEventCollectionForge.class, codegenClassScope).addParam(EventBean.EPTYPE, "event");
         CodegenExpressionRef refExprEvalCtx = refExprEvalCtxFunc.apply(methodNode);
 
         methodNode.getBlock()
-                .declareVar(ExpressionResultCacheForPropUnwrap.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateUnwrapProp"))
-                .declareVar(ExpressionResultCacheEntryBeanAndCollBean.class, "cacheEntry", exprDotMethod(ref("cache"), "getPropertyColl", constant(propertyNameCache), ref("event")))
+                .declareVar(ExpressionResultCacheForPropUnwrap.EPTYPE, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateUnwrapProp"))
+                .declareVar(ExpressionResultCacheEntryBeanAndCollBean.EPTYPE, "cacheEntry", exprDotMethod(ref("cache"), "getPropertyColl", constant(propertyNameCache), ref("event")))
                 .ifCondition(notEqualsNull(ref("cacheEntry")))
                 .blockReturn(exprDotMethod(ref("cacheEntry"), "getResult"))
-                .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)))
-                .declareVarNoInit(Collection.class, "coll")
+                .declareVar(EventBean.EPTYPEARRAY, "events", cast(EventBean.EPTYPEARRAY, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)))
+                .declareVarNoInit(EPTypePremade.COLLECTION.getEPType(), "coll")
                 .ifRefNull("events")
                 .assignRef("coll", constantNull())
                 .ifElse()

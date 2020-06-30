@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.take;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -49,11 +51,11 @@ public class EnumTakeForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumTakeForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.COLLECTION.getEPType(), EnumTakeForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
-        Class sizeType = forge.sizeEval.getEvaluationType();
+        EPTypeClass sizeType = (EPTypeClass) forge.sizeEval.getEvaluationType();
         CodegenBlock block = methodNode.getBlock().declareVar(sizeType, "size", forge.sizeEval.evaluateCodegen(sizeType, methodNode, scope, codegenClassScope));
-        if (!sizeType.isPrimitive()) {
+        if (!sizeType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("size");
         }
         block.methodReturn(staticMethod(EnumTakeForgeEval.class, "evaluateEnumTakeMethod", EnumForgeCodegenNames.REF_ENUMCOLL, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("size"), sizeType)));

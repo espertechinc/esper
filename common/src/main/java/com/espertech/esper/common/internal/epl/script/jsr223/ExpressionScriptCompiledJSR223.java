@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.script.jsr223;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.script.core.ExpressionScriptCompiled;
 
 import javax.script.CompiledScript;
@@ -25,7 +26,7 @@ public class ExpressionScriptCompiledJSR223 implements ExpressionScriptCompiled 
         return compiled;
     }
 
-    public Class getKnownReturnType() {
+    public EPTypeClass getKnownReturnType() {
         return null;
     }
 }

@@ -11,16 +11,17 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
 import com.espertech.esper.regressionlib.support.bean.SupportTimeStartEndA;
 import com.espertech.esper.regressionlib.support.bean.SupportTimeStartEndB;
 import com.espertech.esper.regressionlib.support.schedule.SupportDateTimeFieldType;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -162,7 +163,7 @@ public class ExprDTIntervalOps {
         public void run(RegressionEnvironment env) {
             // wrong 1st parameter - string
             tryInvalidCompile(env, "select a.before('x') from SupportTimeStartEndA as a",
-                "Failed to validate select-clause expression 'a.before('x')': Failed to resolve enumeration method, date-time method or mapped property 'a.before('x')': For date-time method 'before' the first parameter expression returns 'class java.lang.String', however requires a Date, Calendar, Long-type return value or event (with timestamp)");
+                "Failed to validate select-clause expression 'a.before('x')': Failed to resolve enumeration method, date-time method or mapped property 'a.before('x')': For date-time method 'before' the first parameter expression returns 'String', however requires a Date, Calendar, Long-type return value or event (with timestamp)");
 
             // wrong 1st parameter - event not defined with timestamp expression
             tryInvalidCompile(env, "select a.before(b) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
@@ -178,17 +179,17 @@ public class ExprDTIntervalOps {
 
             // wrong target
             tryInvalidCompile(env, "select theString.before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
-                "Failed to validate select-clause expression 'theString.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received java.lang.String");
+                "Failed to validate select-clause expression 'theString.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received String");
             tryInvalidCompile(env, "select b.before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
                 "Failed to validate select-clause expression 'b.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property");
             tryInvalidCompile(env, "select a.get('month').before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
-                "Failed to validate select-clause expression 'a.get(\"month\").before(a)': Invalid input for date-time method 'before' ");
+                "Failed to validate select-clause expression 'a.get(\"month\").before(a)': Failed to resolve method 'get': Could not find enumeration method, date-time method, instance method or property named 'get'");
 
             // test before/after
             tryInvalidCompile(env, "select a.before(b, 'abc') from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
-                "Failed to validate select-clause expression 'a.before(b,\"abc\")': Failed to validate date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 1 but received java.lang.String ");
+                "Failed to validate select-clause expression 'a.before(b,\"abc\")': Failed to validate date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 1 but received String ");
             tryInvalidCompile(env, "select a.before(b, 1, 'def') from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
-                "Failed to validate select-clause expression 'a.before(b,1,\"def\")': Failed to validate date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 2 but received java.lang.String ");
+                "Failed to validate select-clause expression 'a.before(b,1,\"def\")': Failed to validate date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 2 but received String ");
             tryInvalidCompile(env, "select a.before(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.before(b,1,2,3)': Parameters mismatch for date-time method 'before', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing interval start value, or an expression providing timestamp or timestamped-event and an expression providing interval start value and an expression providing interval finishes value, but receives 4 expressions ");
 
@@ -242,7 +243,7 @@ public class ExprDTIntervalOps {
                 " from SupportTimeStartEndA#lastevent as a, " +
                 "      SupportTimeStartEndB#lastevent as b";
             env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, Boolean.class);
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType());
 
             env.sendEventBean(SupportTimeStartEndB.make("B1", "2002-05-30T09:00:00.000", 0));
 

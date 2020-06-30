@@ -49,7 +49,7 @@ public class TableColumnMethodPairForge {
         for (int i = 0; i < inits.length; i++) {
             inits[i] = methodPairs[i].make(method, symbols, classScope);
         }
-        return newArrayWithInit(TableColumnMethodPairEval.class, inits);
+        return newArrayWithInit(TableColumnMethodPairEval.EPTYPE, inits);
     }
 
     private CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -61,6 +61,6 @@ public class TableColumnMethodPairForge {
         } else {
             eval = ExprNodeUtilityCodegen.codegenEvaluatorObjectArray(forges, method, this.getClass(), classScope);
         }
-        return newInstance(TableColumnMethodPairEval.class, eval, constant(column));
+        return newInstance(TableColumnMethodPairEval.EPTYPE, eval, constant(column));
     }
 }

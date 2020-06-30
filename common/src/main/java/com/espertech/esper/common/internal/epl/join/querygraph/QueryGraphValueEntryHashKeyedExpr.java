@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class QueryGraphValueEntryHashKeyedExpr extends QueryGraphValueEntryHashKeyed {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValueEntryHashKeyedExpr.class);
+
     private final boolean requiresKey;
 
     public QueryGraphValueEntryHashKeyedExpr(ExprEvaluator keyExpr, boolean requiresKey) {

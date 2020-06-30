@@ -216,7 +216,7 @@ public final class FilterSpecCompiled {
     }
 
     public CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FilterSpecActivatable.class, FilterSpecCompiled.class, classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecActivatable.EPTYPE, FilterSpecCompiled.class, classScope);
 
         if (filterCallbackId == -1) {
             throw new IllegalStateException("Unassigned filter callback id");
@@ -224,9 +224,9 @@ public final class FilterSpecCompiled {
 
         CodegenExpression propertyEval = optionalPropertyEvaluator == null ? constantNull() : optionalPropertyEvaluator.make(method, symbols, classScope);
         method.getBlock()
-                .declareVar(EventType.class, "eventType", EventTypeUtility.resolveTypeCodegen(filterForEventType, EPStatementInitServices.REF))
-                .declareVar(FilterSpecPlan.class, "plan", localMethod(parameters.codegenWithEventType(method, classScope), ref("eventType"), symbols.getAddInitSvc(method)))
-                .declareVar(FilterSpecActivatable.class, "activatable", newInstance(FilterSpecActivatable.class, SAIFFInitializeSymbolWEventType.REF_EVENTTYPE,
+                .declareVar(EventType.EPTYPE, "eventType", EventTypeUtility.resolveTypeCodegen(filterForEventType, EPStatementInitServices.REF))
+                .declareVar(FilterSpecPlan.EPTYPE, "plan", localMethod(parameters.codegenWithEventType(method, classScope), ref("eventType"), symbols.getAddInitSvc(method)))
+                .declareVar(FilterSpecActivatable.EPTYPE, "activatable", newInstance(FilterSpecActivatable.EPTYPE, SAIFFInitializeSymbolWEventType.REF_EVENTTYPE,
                         constant(filterForEventType.getName()), ref("plan"), propertyEval, constant(filterCallbackId)))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSPECACTIVATABLEREGISTRY).add("register", ref("activatable")))
                 .methodReturn(ref("activatable"));

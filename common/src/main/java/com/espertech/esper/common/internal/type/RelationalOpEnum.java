@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational;
@@ -87,45 +89,46 @@ public enum RelationalOpEnum {
 
     static {
         computers = new HashMap<>();
-        computers.put(new RelationalOpDesc(String.class, GT), new GTStringComputer());
-        computers.put(new RelationalOpDesc(String.class, GE), new GEStringComputer());
-        computers.put(new RelationalOpDesc(String.class, LT), new LTStringComputer());
-        computers.put(new RelationalOpDesc(String.class, LE), new LEStringComputer());
-        computers.put(new RelationalOpDesc(Integer.class, GT), new GTIntegerComputer());
-        computers.put(new RelationalOpDesc(Integer.class, GE), new GEIntegerComputer());
-        computers.put(new RelationalOpDesc(Integer.class, LT), new LTIntegerComputer());
-        computers.put(new RelationalOpDesc(Integer.class, LE), new LEIntegerComputer());
-        computers.put(new RelationalOpDesc(Long.class, GT), new GTLongComputer());
-        computers.put(new RelationalOpDesc(Long.class, GE), new GELongComputer());
-        computers.put(new RelationalOpDesc(Long.class, LT), new LTLongComputer());
-        computers.put(new RelationalOpDesc(Long.class, LE), new LELongComputer());
-        computers.put(new RelationalOpDesc(Double.class, GT), new GTDoubleComputer());
-        computers.put(new RelationalOpDesc(Double.class, GE), new GEDoubleComputer());
-        computers.put(new RelationalOpDesc(Double.class, LT), new LTDoubleComputer());
-        computers.put(new RelationalOpDesc(Double.class, LE), new LEDoubleComputer());
-        computers.put(new RelationalOpDesc(Float.class, GT), new GTFloatComputer());
-        computers.put(new RelationalOpDesc(Float.class, GE), new GEFloatComputer());
-        computers.put(new RelationalOpDesc(Float.class, LT), new LTFloatComputer());
-        computers.put(new RelationalOpDesc(Float.class, LE), new LEFloatComputer());
-        computers.put(new RelationalOpDesc(BigDecimal.class, GT), new GTBigDecComputer());
-        computers.put(new RelationalOpDesc(BigDecimal.class, GE), new GEBigDecComputer());
-        computers.put(new RelationalOpDesc(BigDecimal.class, LT), new LTBigDecComputer());
-        computers.put(new RelationalOpDesc(BigDecimal.class, LE), new LEBigDecComputer());
-        computers.put(new RelationalOpDesc(BigInteger.class, GT), new GTBigIntComputer());
-        computers.put(new RelationalOpDesc(BigInteger.class, GE), new GEBigIntComputer());
-        computers.put(new RelationalOpDesc(BigInteger.class, LT), new LTBigIntComputer());
-        computers.put(new RelationalOpDesc(BigInteger.class, LE), new LEBigIntComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.STRING.getEPType(), GT), new GTStringComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.STRING.getEPType(), GE), new GEStringComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.STRING.getEPType(), LT), new LTStringComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.STRING.getEPType(), LE), new LEStringComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.INTEGERBOXED.getEPType(), GT), new GTIntegerComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.INTEGERBOXED.getEPType(), GE), new GEIntegerComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.INTEGERBOXED.getEPType(), LT), new LTIntegerComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.INTEGERBOXED.getEPType(), LE), new LEIntegerComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.LONGBOXED.getEPType(), GT), new GTLongComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.LONGBOXED.getEPType(), GE), new GELongComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.LONGBOXED.getEPType(), LT), new LTLongComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.LONGBOXED.getEPType(), LE), new LELongComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.DOUBLEBOXED.getEPType(), GT), new GTDoubleComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.DOUBLEBOXED.getEPType(), GE), new GEDoubleComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.DOUBLEBOXED.getEPType(), LT), new LTDoubleComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.DOUBLEBOXED.getEPType(), LE), new LEDoubleComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.FLOATBOXED.getEPType(), GT), new GTFloatComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.FLOATBOXED.getEPType(), GE), new GEFloatComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.FLOATBOXED.getEPType(), LT), new LTFloatComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.FLOATBOXED.getEPType(), LE), new LEFloatComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGDECIMAL.getEPType(), GT), new GTBigDecComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGDECIMAL.getEPType(), GE), new GEBigDecComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGDECIMAL.getEPType(), LT), new LTBigDecComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGDECIMAL.getEPType(), LE), new LEBigDecComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGINTEGER.getEPType(), GT), new GTBigIntComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGINTEGER.getEPType(), GE), new GEBigIntComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGINTEGER.getEPType(), LT), new LTBigIntComputer());
+        computers.put(new RelationalOpDesc(EPTypePremade.BIGINTEGER.getEPType(), LE), new LEBigIntComputer());
     }
 
     /**
      * Returns the computer to use for the relational operation based on the coercion type.
      *
-     * @param coercedType is the object type
+     * @param coercedTypeClass is the object type
      * @param typeOne     the compare-to type on the LHS
      * @param typeTwo     the compare-to type on the RHS
      * @return computer for performing the relational op
      */
-    public RelationalOpEnum.Computer getComputer(Class coercedType, Class typeOne, Class typeTwo) {
+    public RelationalOpEnum.Computer getComputer(EPTypeClass coercedTypeClass, EPTypeClass typeOne, EPTypeClass typeTwo) {
+        Class coercedType = coercedTypeClass.getType();
         if ((coercedType != Double.class) &&
             (coercedType != Float.class) &&
             (coercedType != Integer.class) &&
@@ -143,13 +146,13 @@ public enum RelationalOpEnum {
             return makeBigIntegerComputer(typeOne, typeTwo);
         }
 
-        RelationalOpDesc key = new RelationalOpDesc(coercedType, this);
+        RelationalOpDesc key = new RelationalOpDesc(coercedTypeClass, this);
         return computers.get(key);
     }
 
-    private Computer makeBigDecimalComputer(Class typeOne, Class typeTwo) {
-        if ((typeOne == BigDecimal.class) && (typeTwo == BigDecimal.class)) {
-            return computers.get(new RelationalOpDesc(BigDecimal.class, this));
+    private Computer makeBigDecimalComputer(EPTypeClass typeOne, EPTypeClass typeTwo) {
+        if ((typeOne.getType() == BigDecimal.class) && (typeTwo.getType() == BigDecimal.class)) {
+            return computers.get(new RelationalOpDesc(EPTypePremade.BIGDECIMAL.getEPType(), this));
         }
         SimpleNumberBigDecimalCoercer convertorOne = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeOne);
         SimpleNumberBigDecimalCoercer convertorTwo = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeTwo);
@@ -165,9 +168,9 @@ public enum RelationalOpEnum {
         return new LEBigDecConvComputer(convertorOne, convertorTwo);
     }
 
-    private Computer makeBigIntegerComputer(Class typeOne, Class typeTwo) {
-        if ((typeOne == BigInteger.class) && (typeTwo == BigInteger.class)) {
-            return computers.get(new RelationalOpDesc(BigInteger.class, this));
+    private Computer makeBigIntegerComputer(EPTypeClass typeOne, EPTypeClass typeTwo) {
+        if ((typeOne.getType() == BigInteger.class) && (typeTwo.getType() == BigInteger.class)) {
+            return computers.get(new RelationalOpDesc(EPTypePremade.BIGINTEGER.getEPType(), this));
         }
         SimpleNumberBigIntegerCoercer convertorOne = SimpleNumberCoercerFactory.getCoercerBigInteger(typeOne);
         SimpleNumberBigIntegerCoercer convertorTwo = SimpleNumberCoercerFactory.getCoercerBigInteger(typeTwo);
@@ -196,7 +199,7 @@ public enum RelationalOpEnum {
          */
         public boolean compare(Object objOne, Object objTwo);
 
-        CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType);
+        CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType);
     }
 
     /**
@@ -210,7 +213,7 @@ public enum RelationalOpEnum {
             return result > 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.GT);
         }
     }
@@ -225,7 +228,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) >= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
@@ -240,7 +243,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) <= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.LE);
         }
     }
@@ -255,7 +258,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) < 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
@@ -270,7 +273,7 @@ public enum RelationalOpEnum {
             return s1.longValue() > s2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenLong(lhs, lhsType, rhs, rhsType, GT);
         }
     }
@@ -285,7 +288,7 @@ public enum RelationalOpEnum {
             return s1.longValue() >= s2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenLong(lhs, lhsType, rhs, rhsType, GE);
         }
     }
@@ -300,7 +303,7 @@ public enum RelationalOpEnum {
             return s1.longValue() < s2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenLong(lhs, lhsType, rhs, rhsType, LT);
         }
     }
@@ -315,7 +318,7 @@ public enum RelationalOpEnum {
             return s1.longValue() <= s2.longValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenLong(lhs, lhsType, rhs, rhsType, LE);
         }
     }
@@ -330,7 +333,7 @@ public enum RelationalOpEnum {
             return s1.intValue() > s2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenInt(lhs, lhsType, rhs, rhsType, GT);
         }
     }
@@ -345,7 +348,7 @@ public enum RelationalOpEnum {
             return s1.intValue() >= s2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenInt(lhs, lhsType, rhs, rhsType, GE);
         }
     }
@@ -360,7 +363,7 @@ public enum RelationalOpEnum {
             return s1.intValue() < s2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenInt(lhs, lhsType, rhs, rhsType, LT);
         }
     }
@@ -375,7 +378,7 @@ public enum RelationalOpEnum {
             return s1.intValue() <= s2.intValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenInt(lhs, lhsType, rhs, rhsType, LE);
         }
     }
@@ -390,7 +393,7 @@ public enum RelationalOpEnum {
             return s1.doubleValue() > s2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenDouble(lhs, lhsType, rhs, rhsType, GT);
         }
     }
@@ -405,7 +408,7 @@ public enum RelationalOpEnum {
             return s1.doubleValue() >= s2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenDouble(lhs, lhsType, rhs, rhsType, GE);
         }
     }
@@ -420,7 +423,7 @@ public enum RelationalOpEnum {
             return s1.doubleValue() < s2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenDouble(lhs, lhsType, rhs, rhsType, LT);
         }
     }
@@ -435,7 +438,7 @@ public enum RelationalOpEnum {
             return s1.doubleValue() <= s2.doubleValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenDouble(lhs, lhsType, rhs, rhsType, LE);
         }
     }
@@ -450,7 +453,7 @@ public enum RelationalOpEnum {
             return s1.floatValue() > s2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenFloat(lhs, lhsType, rhs, rhsType, GT);
         }
     }
@@ -465,7 +468,7 @@ public enum RelationalOpEnum {
             return s1.floatValue() >= s2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenFloat(lhs, lhsType, rhs, rhsType, GE);
         }
     }
@@ -480,7 +483,7 @@ public enum RelationalOpEnum {
             return s1.floatValue() < s2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenFloat(lhs, lhsType, rhs, rhsType, LT);
         }
     }
@@ -495,7 +498,7 @@ public enum RelationalOpEnum {
             return s1.floatValue() <= s2.floatValue();
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenFloat(lhs, lhsType, rhs, rhsType, LE);
         }
     }
@@ -511,7 +514,7 @@ public enum RelationalOpEnum {
             return result > 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GT);
         }
     }
@@ -526,7 +529,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) >= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
@@ -541,7 +544,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) <= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LE);
         }
     }
@@ -556,7 +559,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) < 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
@@ -572,7 +575,7 @@ public enum RelationalOpEnum {
             return result > 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GT);
         }
     }
@@ -587,7 +590,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) >= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
@@ -602,7 +605,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) <= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LE);
         }
     }
@@ -617,7 +620,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) < 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
@@ -647,7 +650,7 @@ public enum RelationalOpEnum {
             return result > 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GT);
         }
     }
@@ -676,7 +679,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) >= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
@@ -705,7 +708,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) <= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LE);
         }
     }
@@ -734,7 +737,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) < 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
@@ -764,7 +767,7 @@ public enum RelationalOpEnum {
             return result > 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GT);
         }
     }
@@ -793,7 +796,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) >= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
@@ -822,7 +825,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) <= 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LE);
         }
     }
@@ -851,7 +854,7 @@ public enum RelationalOpEnum {
             return s1.compareTo(s2) < 0;
         }
 
-        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        public CodegenExpression codegen(CodegenExpressionRef lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
             return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
@@ -865,54 +868,54 @@ public enum RelationalOpEnum {
         return expressionText;
     }
 
-    private static CodegenExpression codegenLong(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+    private static CodegenExpression codegenLong(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType, RelationalOpEnum op) {
         return op(MathArithTypeEnum.codegenAsLong(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsLong(rhs, rhsType));
     }
 
-    private static CodegenExpression codegenDouble(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+    private static CodegenExpression codegenDouble(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType, RelationalOpEnum op) {
         return op(MathArithTypeEnum.codegenAsDouble(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsDouble(rhs, rhsType));
     }
 
-    private static CodegenExpression codegenFloat(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+    private static CodegenExpression codegenFloat(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType, RelationalOpEnum op) {
         return op(MathArithTypeEnum.codegenAsFloat(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsFloat(rhs, rhsType));
     }
 
-    private static CodegenExpression codegenInt(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+    private static CodegenExpression codegenInt(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType, RelationalOpEnum op) {
         return op(MathArithTypeEnum.codegenAsInt(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsInt(rhs, rhsType));
     }
 
-    private static CodegenExpression codegenStringCompare(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, CodegenExpressionRelational.CodegenRelational rel) {
+    private static CodegenExpression codegenStringCompare(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType, CodegenExpressionRelational.CodegenRelational rel) {
         return relational(exprDotMethod(codegenAsString(lhs, lhsType), "compareTo", codegenAsString(rhs, rhsType)), rel, constant(0));
     }
 
-    private static CodegenExpression codegenAsString(CodegenExpression ref, Class type) {
-        if (type == String.class) {
+    private static CodegenExpression codegenAsString(CodegenExpression ref, EPTypeClass type) {
+        if (type.getType() == String.class) {
             return ref;
         }
-        return cast(String.class, ref);
+        return cast(EPTypePremade.STRING.getEPType(), ref);
     }
 
     private static CodegenExpression codegenBigIntBigDecPlain(CodegenExpression lhs, CodegenExpression rhs, CodegenExpressionRelational.CodegenRelational rel) {
         return relational(exprDotMethod(lhs, "compareTo", rhs), rel, constant(0));
     }
 
-    private static CodegenExpression codegenBigDecConv(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, SimpleNumberBigDecimalCoercer convLeft, SimpleNumberBigDecimalCoercer convRight, CodegenExpressionRelational.CodegenRelational rel) {
+    private static CodegenExpression codegenBigDecConv(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType, SimpleNumberBigDecimalCoercer convLeft, SimpleNumberBigDecimalCoercer convRight, CodegenExpressionRelational.CodegenRelational rel) {
         CodegenExpression leftConv = convLeft.coerceBoxedBigDecCodegen(lhs, lhsType);
         CodegenExpression rightConv = convRight.coerceBoxedBigDecCodegen(rhs, rhsType);
         return relational(exprDotMethod(leftConv, "compareTo", rightConv), rel, constant(0));
     }
 
-    private static CodegenExpression codegenBigIntConv(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, SimpleNumberBigIntegerCoercer convLeft, SimpleNumberBigIntegerCoercer convRight, CodegenExpressionRelational.CodegenRelational rel) {
+    private static CodegenExpression codegenBigIntConv(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType, SimpleNumberBigIntegerCoercer convLeft, SimpleNumberBigIntegerCoercer convRight, CodegenExpressionRelational.CodegenRelational rel) {
         CodegenExpression leftConv = convLeft.coerceBoxedBigIntCodegen(lhs, lhsType);
         CodegenExpression rightConv = convRight.coerceBoxedBigIntCodegen(rhs, rhsType);
         return relational(exprDotMethod(leftConv, "compareTo", rightConv), rel, constant(0));
     }
 
     public static class RelationalOpDesc {
-        private final Class type;
+        private final EPTypeClass type;
         private final RelationalOpEnum op;
 
-        public RelationalOpDesc(Class type, RelationalOpEnum op) {
+        public RelationalOpDesc(EPTypeClass type, RelationalOpEnum op) {
             this.type = type;
             this.op = op;
         }

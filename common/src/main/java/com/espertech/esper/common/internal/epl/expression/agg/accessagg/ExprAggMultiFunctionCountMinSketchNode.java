@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.epl.expression.agg.accessagg;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.CountMinSketchAgentForge;
 import com.espertech.esper.common.client.util.CountMinSketchAgentStringUTF16Forge;
 import com.espertech.esper.common.client.util.StatementType;
@@ -95,13 +99,16 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
 
         // obtain evaluator
         ExprForge addOrFrequencyEvaluator = null;
-        Class addOrFrequencyEvaluatorReturnType = null;
+        EPType addOrFrequencyEvaluatorReturnType = null;
         if (aggType == CountMinSketchAggType.ADD) {
             addOrFrequencyEvaluator = getChildNodes()[0].getForge();
             addOrFrequencyEvaluatorReturnType = addOrFrequencyEvaluator.getEvaluationType();
+            if (addOrFrequencyEvaluatorReturnType == EPTypeNull.INSTANCE) {
+                throw new ExprValidationException("Invalid null-type parameter");
+            }
         }
 
-        forgeFactory = new AggregationForgeFactoryAccessCountMinSketchAdd(this, addOrFrequencyEvaluator, addOrFrequencyEvaluatorReturnType);
+        forgeFactory = new AggregationForgeFactoryAccessCountMinSketchAdd(this, addOrFrequencyEvaluator, (EPTypeClass) addOrFrequencyEvaluatorReturnType);
         return forgeFactory;
     }
 
@@ -129,7 +136,7 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
         return null;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return null;
     }
 
@@ -185,35 +192,35 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
 
         // define what to populate
         PopulateFieldWValueDescriptor[] descriptors = new PopulateFieldWValueDescriptor[]{
-            new PopulateFieldWValueDescriptor(NAME_EPS_OF_TOTAL_COUNT, Double.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_EPS_OF_TOTAL_COUNT, EPTypePremade.DOUBLEBOXED.getEPType(), CountMinSketchSpecHashes.EPTYPE, new PopulateFieldValueSetter() {
                 public void set(Object value) {
                     if (value != null) {
                         spec.getHashesSpec().setEpsOfTotalCount((Double) value);
                     }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME_CONFIDENCE, Double.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_CONFIDENCE, EPTypePremade.DOUBLEBOXED.getEPType(), CountMinSketchSpecHashes.EPTYPE, new PopulateFieldValueSetter() {
                 public void set(Object value) {
                     if (value != null) {
                         spec.getHashesSpec().setConfidence((Double) value);
                     }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME_SEED, Integer.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_SEED, EPTypePremade.INTEGERBOXED.getEPType(), CountMinSketchSpecHashes.EPTYPE, new PopulateFieldValueSetter() {
                 public void set(Object value) {
                     if (value != null) {
                         spec.getHashesSpec().setSeed((Integer) value);
                     }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME_TOPK, Integer.class, spec.getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_TOPK, EPTypePremade.INTEGERBOXED.getEPType(), CountMinSketchSpecForge.EPTYPE, new PopulateFieldValueSetter() {
                 public void set(Object value) {
                     if (value != null) {
                         spec.setTopkSpec((Integer) value);
                     }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME_AGENT, String.class, spec.getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_AGENT, EPTypePremade.STRING.getEPType(), CountMinSketchSpecForge.EPTYPE, new PopulateFieldValueSetter() {
                 public void set(Object value) throws ExprValidationException {
                     if (value != null) {
                         CountMinSketchAgentForge transform;

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -53,21 +54,21 @@ public class PropertyDotEventSingleForge implements ExprEnumerationForge, ExprEn
     }
 
     public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, PropertyDotEventSingleForge.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, PropertyDotEventSingleForge.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(cast(EventBean.class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
+                .methodReturn(cast(EventBean.EPTYPE, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }
 
     public CodegenExpression evaluateEventGetEventBeanCodegen(CodegenMethodScope parent, ExprEnumerationGivenEventSymbol symbols, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = parent.makeChild(EventBean.class, PropertyDotEventSingleForge.class, codegenClassScope);
+        CodegenMethod methodNode = parent.makeChild(EventBean.EPTYPE, PropertyDotEventSingleForge.class, codegenClassScope);
         methodNode.getBlock()
                 .ifNullReturnNull(symbols.getAddEvent(methodNode))
-                .methodReturn(cast(EventBean.class, getter.eventBeanFragmentCodegen(symbols.getAddEvent(methodNode), methodNode, codegenClassScope)));
+                .methodReturn(cast(EventBean.EPTYPE, getter.eventBeanFragmentCodegen(symbols.getAddEvent(methodNode), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }
 
@@ -82,7 +83,7 @@ public class PropertyDotEventSingleForge implements ExprEnumerationForge, ExprEn
         return fragmentType;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return null;
     }
 

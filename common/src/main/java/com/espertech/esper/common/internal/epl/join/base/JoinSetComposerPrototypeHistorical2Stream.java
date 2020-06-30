@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalDataQueryStrategy;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.epl.join.strategy.QueryStrategy;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 public class JoinSetComposerPrototypeHistorical2Stream extends JoinSetComposerPrototypeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JoinSetComposerPrototypeHistorical2Stream.class);
 
     private int polledNum;
     private int streamNum;

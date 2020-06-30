@@ -11,17 +11,20 @@
 package com.espertech.esper.common.internal.context.controller.initterm;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptor;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerDetail;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class ContextControllerDetailInitiatedTerminated implements ContextControllerDetail {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerDetailInitiatedTerminated.class);
 
     private ContextConditionDescriptor startCondition;
     private ContextConditionDescriptor endCondition;
     private boolean overlapping;
     private ExprEvaluator distinctEval;
-    private Class[] distinctTypes;
+    private EPType[] distinctTypes;
     private DataInputOutputSerde<Object> distinctSerde;
 
     public ContextConditionDescriptor getStartCondition() {
@@ -56,11 +59,11 @@ public class ContextControllerDetailInitiatedTerminated implements ContextContro
         this.distinctEval = distinctEval;
     }
 
-    public Class[] getDistinctTypes() {
+    public EPType[] getDistinctTypes() {
         return distinctTypes;
     }
 
-    public void setDistinctTypes(Class[] distinctTypes) {
+    public void setDistinctTypes(EPType[] distinctTypes) {
         this.distinctTypes = distinctTypes;
     }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper;
 
 import java.util.Map;
@@ -19,10 +20,10 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.traverseMultiple;
 
 public class CodegenExpressionNewInstance implements CodegenExpression {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final CodegenExpression[] params;
 
-    public CodegenExpressionNewInstance(Class clazz, CodegenExpression[] params) {
+    public CodegenExpressionNewInstance(EPTypeClass clazz, CodegenExpression[] params) {
         this.clazz = clazz;
         this.params = params;
         CodegenExpression.assertNonNullArgs(params);
@@ -30,14 +31,14 @@ public class CodegenExpressionNewInstance implements CodegenExpression {
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("new ");
-        CodeGenerationHelper.appendClassName(builder, clazz, null, imports);
+        CodeGenerationHelper.appendClassName(builder, clazz, imports);
         builder.append("(");
         CodegenExpressionBuilder.renderExpressions(builder, params, imports, isInnerClass);
         builder.append(")");
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(clazz);
+        clazz.traverseClasses(clz -> classes.add(clz));
         CodegenExpressionBuilder.mergeClassesExpressions(classes, params);
     }
 

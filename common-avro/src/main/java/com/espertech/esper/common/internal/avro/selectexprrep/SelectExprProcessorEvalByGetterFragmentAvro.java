@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.avro.selectexprrep;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,9 +29,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class SelectExprProcessorEvalByGetterFragmentAvro implements ExprEvaluator, ExprForge, ExprNodeRenderable {
     private final int streamNum;
     private final EventPropertyGetterSPI getter;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public SelectExprProcessorEvalByGetterFragmentAvro(int streamNum, EventPropertyGetterSPI getter, Class returnType) {
+    public SelectExprProcessorEvalByGetterFragmentAvro(int streamNum, EventPropertyGetterSPI getter, EPTypeClass returnType) {
         this.streamNum = streamNum;
         this.getter = getter;
         this.returnType = returnType;
@@ -44,12 +45,12 @@ public class SelectExprProcessorEvalByGetterFragmentAvro implements ExprEvaluato
         return getter.get(streamEvent);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, this.getClass(), codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "streamEvent", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "streamEvent", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("streamEvent")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("streamEvent"), methodNode, codegenClassScope)));
         return localMethod(methodNode);
@@ -63,7 +64,7 @@ public class SelectExprProcessorEvalByGetterFragmentAvro implements ExprEvaluato
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.serde.serdeset.multikey;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayByte;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
 
@@ -19,6 +20,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class DIOMultiKeyArrayByteSerde implements DataInputOutputSerde<MultiKeyArrayByte> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOMultiKeyArrayByteSerde.class);
+
     public final static DIOMultiKeyArrayByteSerde INSTANCE = new DIOMultiKeyArrayByteSerde();
 
     public void write(MultiKeyArrayByte mk, DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer) throws IOException {

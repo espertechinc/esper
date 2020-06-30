@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -29,7 +31,6 @@ import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -64,7 +65,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope classScope) {
         CodegenExpressionField formatField = codegenFormatFieldInit(classScope);
-        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, classScope).addParam(long.class, "ts").getBlock();
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(EPTypePremade.STRING.getEPType(), ReformatFormatForge.class, classScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "ts").getBlock();
         CodegenBlock syncBlock = blockMethod.synchronizedOn(formatField);
         if (timeAbacus.getOneSecond() == 1000L) {
             syncBlock.blockReturn(exprDotMethod(formatField, "format", ref("ts")));
@@ -80,7 +81,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField formatField = codegenFormatFieldInit(codegenClassScope);
-        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, codegenClassScope).addParam(Date.class, "d").getBlock()
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(EPTypePremade.STRING.getEPType(), ReformatFormatForge.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "d").getBlock()
             .synchronizedOn(formatField)
             .blockReturn(exprDotMethod(formatField, "format", ref("d")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
@@ -92,7 +93,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField formatField = codegenFormatFieldInit(codegenClassScope);
-        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, codegenClassScope).addParam(Calendar.class, "cal").getBlock()
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(EPTypePremade.STRING.getEPType(), ReformatFormatForge.class, codegenClassScope).addParam(EPTypePremade.CALENDAR.getEPType(), "cal").getBlock()
             .synchronizedOn(formatField)
             .blockReturn(exprDotMethod(formatField, "format", exprDotMethod(ref("cal"), "getTime")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
@@ -116,8 +117,8 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         return exprDotMethod(inner, "format", formatField);
     }
 
-    public Class getReturnType() {
-        return String.class;
+    public EPTypeClass getReturnType() {
+        return EPTypePremade.STRING.getEPType();
     }
 
     public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
@@ -131,15 +132,15 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         if (formatterType.getFormatterType() != String.class) {
             init = formatEval;
         } else {
-            CodegenMethod parse = classScope.getPackageScope().getInitMethod().makeChild(formatterType.isJava8() ? DateTimeFormatter.class : DateFormat.class, this.getClass(), classScope);
+            CodegenMethod parse = classScope.getPackageScope().getInitMethod().makeChild(formatterType.isJava8() ? EPTypePremade.DATETIMEFORMATTER.getEPType() : EPTypePremade.DATEFORMAT.getEPType(), this.getClass(), classScope);
             if (formatterType.isJava8()) {
                 parse.getBlock().methodReturn(staticMethod(DateTimeFormatter.class, "ofPattern", formatEval));
             } else {
-                parse.getBlock().methodReturn(newInstance(SimpleDateFormat.class, formatEval));
+                parse.getBlock().methodReturn(newInstance(EPTypePremade.SIMPLEDATEFORMAT.getEPType(), formatEval));
             }
             init = localMethod(parse);
         }
-        return classScope.addFieldUnshared(true, formatterType.isJava8() ? DateTimeFormatter.class : DateFormat.class, init);
+        return classScope.addFieldUnshared(true, formatterType.isJava8() ? EPTypePremade.DATETIMEFORMATTER.getEPType() : EPTypePremade.DATEFORMAT.getEPType(), init);
     }
 
     private DateFormat getDateFormatFormatter() {

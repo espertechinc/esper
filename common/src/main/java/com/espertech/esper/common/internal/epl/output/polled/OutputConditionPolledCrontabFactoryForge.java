@@ -41,6 +41,6 @@ public final class OutputConditionPolledCrontabFactoryForge implements OutputCon
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        return newInstance(OutputConditionPolledCrontabFactory.class, ExprNodeUtilityCodegen.codegenEvaluators(expressions, parent, this.getClass(), classScope));
+        return newInstance(OutputConditionPolledCrontabFactory.EPTYPE, ExprNodeUtilityCodegen.codegenEvaluators(expressions, parent, this.getClass(), classScope));
     }
 }

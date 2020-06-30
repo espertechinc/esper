@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -50,10 +51,10 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
     }
 
     private CodegenMethod getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
-                .declareVar(Object.class, "valueTopObj", arrayAtIndex(ref("array"), constant(index)))
-                .ifRefNotTypeReturnConst("valueTopObj", Map.class, null)
-                .methodReturn(getter.underlyingGetCodegen(cast(Map.class, ref("valueTopObj")), codegenMethodScope, codegenClassScope));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "array").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "valueTopObj", arrayAtIndex(ref("array"), constant(index)))
+                .ifRefNotTypeReturnConst("valueTopObj", EPTypePremade.MAP.getEPType(), null)
+                .methodReturn(getter.underlyingGetCodegen(cast(EPTypePremade.MAP.getEPType(), ref("valueTopObj")), codegenMethodScope, codegenClassScope));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -65,10 +66,10 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
     }
 
     private CodegenMethod isObjectArrayExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
-                .declareVar(Object.class, "valueTopObj", arrayAtIndex(ref("array"), constant(index)))
-                .ifRefNotTypeReturnConst("valueTopObj", Map.class, false)
-                .methodReturn(getter.underlyingExistsCodegen(cast(Map.class, ref("valueTopObj")), codegenMethodScope, codegenClassScope));
+        return codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "array").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "valueTopObj", arrayAtIndex(ref("array"), constant(index)))
+                .ifRefNotTypeReturnConst("valueTopObj", EPTypePremade.MAP.getEPType(), false)
+                .methodReturn(getter.underlyingExistsCodegen(cast(EPTypePremade.MAP.getEPType(), ref("valueTopObj")), codegenMethodScope, codegenClassScope));
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -86,11 +87,11 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

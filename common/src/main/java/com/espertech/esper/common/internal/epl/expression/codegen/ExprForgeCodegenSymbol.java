@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.expression.codegen;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -86,35 +88,35 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
         return assigned;
     }
 
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
         if (optionalEPSRef != null) {
-            symbols.put(optionalEPSRef.getRef(), EventBean[].class);
+            symbols.put(optionalEPSRef.getRef(), EventBean.EPTYPEARRAY);
         }
         if (optionalExprEvalCtxRef != null) {
-            symbols.put(optionalExprEvalCtxRef.getRef(), ExprEvaluatorContext.class);
+            symbols.put(optionalExprEvalCtxRef.getRef(), ExprEvaluatorContext.EPTYPE);
         }
         if (optionalIsNewDataRef != null) {
-            symbols.put(optionalIsNewDataRef.getRef(), boolean.class);
+            symbols.put(optionalIsNewDataRef.getRef(), EPTypePremade.BOOLEANPRIMITIVE.getEPType());
         }
         if (allowUnderlyingReferences) {
             for (Map.Entry<Integer, EventTypeWithOptionalFlag> entry : underlyingStreamNums.entrySet()) {
-                symbols.put(entry.getValue().getRef().getRef(), entry.getValue().getEventType().getUnderlyingType());
+                symbols.put(entry.getValue().getRef().getRef(), entry.getValue().getEventType().getUnderlyingEPType());
             }
         }
     }
 
     public void derivedSymbolsCodegen(CodegenMethod parent, CodegenBlock processBlock, CodegenClassScope codegenClassScope) {
         for (Map.Entry<Integer, EventTypeWithOptionalFlag> underlying : underlyingStreamNums.entrySet()) {
-            Class underlyingType = underlying.getValue().getEventType().getUnderlyingType();
+            EPTypeClass underlyingType = underlying.getValue().getEventType().getUnderlyingEPType();
             String name = underlying.getValue().getRef().getRef();
             CodegenExpression arrayAtIndex = arrayAtIndex(ref(ExprForgeCodegenNames.NAME_EPS), constant(underlying.getKey()));
 
             if (!underlying.getValue().isOptionalEvent()) {
                 processBlock.declareVar(underlyingType, name, cast(underlyingType, exprDotUnderlying(arrayAtIndex)));
             } else {
-                CodegenMethod methodNode = parent.makeChild(underlyingType, ExprForgeCodegenSymbol.class, codegenClassScope).addParam(EventBean[].class, ExprForgeCodegenNames.NAME_EPS);
+                CodegenMethod methodNode = parent.makeChild(underlyingType, ExprForgeCodegenSymbol.class, codegenClassScope).addParam(EventBean.EPTYPEARRAY, ExprForgeCodegenNames.NAME_EPS);
                 methodNode.getBlock()
-                        .declareVar(EventBean.class, "event", arrayAtIndex)
+                        .declareVar(EventBean.EPTYPE, "event", arrayAtIndex)
                         .ifRefNullReturnNull("event")
                         .methodReturn(cast(underlyingType, exprDotUnderlying(ref("event"))));
                 processBlock.declareVar(underlyingType, name, localMethod(methodNode, ExprForgeCodegenNames.REF_EPS));

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array2dim;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 import com.espertech.esper.common.internal.event.json.parser.delegates.array.JsonDelegateArrayBigDecimal;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.array.Jso
 import java.math.BigDecimal;
 
 public class JsonDelegateArray2DimBigDecimal extends JsonDelegateArray2DimBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArray2DimBigDecimal.class);
     public JsonDelegateArray2DimBigDecimal(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);
     }

@@ -54,20 +54,20 @@ public class ContextSpecCategory implements ContextSpec {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextControllerDetailCategory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerDetailCategory.EPTYPE, this.getClass(), classScope);
 
         CodegenMethod makeFilter = filterSpecCompiled.makeCodegen(method, symbols, classScope);
         method.getBlock()
-                .declareVar(FilterSpecActivatable.class, "filterSpec", localMethod(makeFilter))
-                .declareVar(EventType.class, "eventType", exprDotMethod(ref("filterSpec"), "getFilterForEventType"));
+                .declareVar(FilterSpecActivatable.EPTYPE, "filterSpec", localMethod(makeFilter))
+                .declareVar(EventType.EPTYPE, "eventType", exprDotMethod(ref("filterSpec"), "getFilterForEventType"));
 
-        method.getBlock().declareVar(ContextControllerDetailCategoryItem[].class, "items", newArrayByLength(ContextControllerDetailCategoryItem.class, constant(items.size())));
+        method.getBlock().declareVar(ContextControllerDetailCategoryItem.EPTYPEARRAY, "items", newArrayByLength(ContextControllerDetailCategoryItem.EPTYPE, constant(items.size())));
         for (int i = 0; i < items.size(); i++) {
             method.getBlock().assignArrayElement("items", constant(i), localMethod(items.get(i).makeCodegen(classScope, method), ref("eventType"), symbols.getAddInitSvc(method)));
         }
 
         method.getBlock()
-                .declareVar(ContextControllerDetailCategory.class, "detail", newInstance(ContextControllerDetailCategory.class))
+                .declareVarNewInstance(ContextControllerDetailCategory.EPTYPE, "detail")
                 .exprDotMethod(ref("detail"), "setFilterSpecActivatable", ref("filterSpec"))
                 .exprDotMethod(ref("detail"), "setItems", ref("items"))
                 .methodReturn(ref("detail"));

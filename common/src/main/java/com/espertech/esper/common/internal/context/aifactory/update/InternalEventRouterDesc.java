@@ -11,12 +11,15 @@
 package com.espertech.esper.common.internal.context.aifactory.update;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.util.TypeWidener;
 
 import java.lang.annotation.Annotation;
 
 public class InternalEventRouterDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InternalEventRouterDesc.class);
+
     private TypeWidener[] wideners;
     private EventType eventType;
     private Annotation[] annotations;

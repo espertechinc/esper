@@ -12,9 +12,10 @@ package com.espertech.esper.common.client.hook.aggmultifunc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 /**
  * Part of the aggregation multi-function extension API, this class represents
@@ -39,13 +40,13 @@ public interface AggregationMultiFunctionHandler {
      * The accessor return values must match the return type declared herein.
      * </p>
      * <p>
-     * Use {@link EPTypeHelper#singleValue(Class)} (Class)} to indicate that the accessor
+     * Use {@link EPChainableTypeHelper#singleValue(Class)} (Class)} to indicate that the accessor
      * returns a single value. The accessor should return the single value upon invocation of
      * {@link AggregationMultiFunctionAccessor#getValue(AggregationMultiFunctionState, EventBean[], boolean, ExprEvaluatorContext)}.
      * The accessor should return a null value for all other accessor methods.
      * </p>
      * <p>
-     * Use {@link EPTypeHelper#collectionOfEvents(EventType)} to indicate that the accessor
+     * Use {@link EPChainableTypeHelper#collectionOfEvents(EventType)} to indicate that the accessor
      * returns a collection of events. The accessor should return a value in
      * {@link AggregationMultiFunctionAccessor#getEnumerableEvents(AggregationMultiFunctionState, EventBean[], boolean, ExprEvaluatorContext)}.
      * The accessor can also return an array of underlying event objects in
@@ -53,7 +54,7 @@ public interface AggregationMultiFunctionHandler {
      * The accessor should return a null value for all other accessor methods.
      * </p>
      * <p>
-     * Use {@link EPTypeHelper#singleEvent(EventType)} to indicate that the accessor
+     * Use {@link EPChainableTypeHelper#singleEvent(EventType)} to indicate that the accessor
      * returns a single event. The accessor should return a value in
      * {@link AggregationMultiFunctionAccessor#getEnumerableEvent(AggregationMultiFunctionState, EventBean[], boolean, ExprEvaluatorContext)}.
      * The accessor can also return the underlying event object in
@@ -61,13 +62,13 @@ public interface AggregationMultiFunctionHandler {
      * The accessor should return a null value for all other accessor methods.
      * </p>
      * <p>
-     * Use {@link EPTypeHelper#collectionOfSingleValue(Class)} to indicate that the accessor
+     * Use {@link EPChainableTypeHelper#collectionOfSingleValue(EPTypeClass)} to indicate that the accessor
      * returns a collection of single values (scalar, object etc.). The accessor should return a java.util.Collection in
      * {@link AggregationMultiFunctionAccessor#getValue(AggregationMultiFunctionState, EventBean[], boolean, ExprEvaluatorContext)}.
      * The accessor should return a null value for all other accessor methods.
      * </p>
      * <p>
-     * Use {@link EPTypeHelper#array(Class)} to indicate that the accessor
+     * Use {@link EPChainableTypeHelper#array(EPTypeClass)} to indicate that the accessor
      * returns an array of single values. The accessor should return an array in
      * {@link AggregationMultiFunctionAccessor#getValue(AggregationMultiFunctionState, EventBean[], boolean, ExprEvaluatorContext)}.
      * The accessor should return a null value for all other accessor methods.
@@ -75,7 +76,7 @@ public interface AggregationMultiFunctionHandler {
      *
      * @return expression result type
      */
-    EPType getReturnType();
+    EPChainableType getReturnType();
 
     /**
      * Return a state-key object that determines how the runtimeshares aggregation state

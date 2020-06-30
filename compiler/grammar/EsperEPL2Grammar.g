@@ -259,7 +259,7 @@ classDecl : CLASSDECL TRIPLEQUOTE stringconstant TRIPLEQUOTE;
 //----------------------------------------------------------------------------
 // Expression Declaration
 //----------------------------------------------------------------------------
-expressionDecl : EXPRESSIONDECL classIdentifier? (array=LBRACK RBRACK)? typeExpressionAnnotation? expressionDialect? name=IDENT (LPAREN columnList? RPAREN)? (alias=IDENT FOR)? expressionDef;
+expressionDecl : EXPRESSIONDECL classIdentifierWithDimensions? typeExpressionAnnotation? expressionDialect? name=IDENT (LPAREN columnList? RPAREN)? (alias=IDENT FOR)? expressionDef;
 
 expressionDialect : d=IDENT COLON;
 	
@@ -526,8 +526,7 @@ createSchemaQual : i=IDENT columnList;
 variantList : variantListElement (COMMA variantListElement)*;
 
 variantListElement : STAR 
-                | classIdentifier;
-
+                | classIdentifierWithDimensions;
 
 intoTableExpr
 @init  { paraphrases.push("into-table clause"); }
@@ -808,9 +807,9 @@ unaryExpression : unaryMinus
 		| rowSubSelectExpression 
 		| existsSubSelectExpression
 		| NEWKW LCURLY newAssign (COMMA newAssign)* RCURLY
-		| NEWKW classIdentifier LPAREN (expression (COMMA expression)*)? RPAREN chainableElements
-		| NEWKW classIdentifier LBRACK expression RBRACK (LBRACK expression RBRACK)?
-		| NEWKW classIdentifier LBRACK RBRACK (LBRACK RBRACK)? arrayExpression
+		| NEWKW classIdentifierNoDimensions LPAREN (expression (COMMA expression)*)? RPAREN chainableElements
+		| NEWKW classIdentifierNoDimensions LBRACK expression RBRACK (LBRACK expression? RBRACK)?
+		| NEWKW classIdentifierNoDimensions LBRACK RBRACK (LBRACK RBRACK)? arrayExpression
 		| jsonobject
 		;
 
@@ -897,7 +896,7 @@ patternExpression
 
 followedByExpression : orExpression (followedByRepeat)*;
 	
-followedByRepeat : (f=FOLLOWED_BY | (g=FOLLOWMAX_BEGIN expression FOLLOWMAX_END)) orExpression;
+followedByRepeat : (f=FOLLOWED_BY | (g=FOLLOWMAX_BEGIN expression RBRACK GT)) orExpression;
 	
 orExpression : andExpression (o=OR_EXPR andExpression)*;
 
@@ -957,7 +956,11 @@ patternFilterExpression
        	
 patternFilterAnnotation : ATCHAR i=IDENT (LPAREN number RPAREN)?;
 
-classIdentifierWithDimensions : classIdentifier dimensions*;
+classIdentifierNoDimensions : classIdentifier typeParameters?;
+
+classIdentifierWithDimensions : classIdentifier typeParameters? dimensions*;
+
+typeParameters : LT classIdentifierWithDimensions (COMMA classIdentifierWithDimensions)* GT;
 
 dimensions : LBRACK p=IDENT? RBRACK;
 
@@ -1305,7 +1308,6 @@ SETS:'sets';
 
 // Operators
 FOLLOWMAX_BEGIN : '-[';
-FOLLOWMAX_END   : ']>';
 FOLLOWED_BY 	: '->';
 GOES 		: '=>';
 EQUALS 		: '=';

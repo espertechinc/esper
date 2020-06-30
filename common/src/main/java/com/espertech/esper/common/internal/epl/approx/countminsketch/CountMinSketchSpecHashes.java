@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.approx.countminsketch;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,6 +19,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class CountMinSketchSpecHashes {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CountMinSketchSpecHashes.class);
 
     private double epsOfTotalCount;
     private double confidence;
@@ -54,7 +56,7 @@ public class CountMinSketchSpecHashes {
     }
 
     public CodegenExpression codegenMake(CodegenMethod method, CodegenClassScope classScope) {
-        return newInstance(CountMinSketchSpecHashes.class, constant(epsOfTotalCount), constant(confidence), constant(seed));
+        return newInstance(CountMinSketchSpecHashes.EPTYPE, constant(epsOfTotalCount), constant(confidence), constant(seed));
     }
 }
 

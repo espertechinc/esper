@@ -27,8 +27,8 @@ public class ViewableActivatorHistoricalForge implements ViewableActivatorForge 
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ViewableActivatorHistorical.class, this.getClass(), classScope);
-        method.getBlock().declareVar(ViewableActivatorHistorical.class, "hist", newInstance(ViewableActivatorHistorical.class))
+        CodegenMethod method = parent.makeChild(ViewableActivatorHistorical.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVarNewInstance(ViewableActivatorHistorical.EPTYPE, "hist")
                 .exprDotMethod(ref("hist"), "setFactory", viewableForge.make(method, symbols, classScope))
                 .methodReturn(ref("hist"));
         return localMethod(method);

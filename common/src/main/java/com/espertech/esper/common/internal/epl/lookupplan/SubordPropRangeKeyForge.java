@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRangeForge;
 
 import java.io.StringWriter;
@@ -17,14 +18,14 @@ import java.util.Collection;
 
 public class SubordPropRangeKeyForge {
     private final QueryGraphValueEntryRangeForge rangeInfo;
-    private final Class coercionType;
+    private final EPTypeClass coercionType;
 
-    public SubordPropRangeKeyForge(QueryGraphValueEntryRangeForge rangeInfo, Class coercionType) {
+    public SubordPropRangeKeyForge(QueryGraphValueEntryRangeForge rangeInfo, EPTypeClass coercionType) {
         this.rangeInfo = rangeInfo;
         this.coercionType = coercionType;
     }
 
-    public Class getCoercionType() {
+    public EPTypeClass getCoercionType() {
         return coercionType;
     }
 

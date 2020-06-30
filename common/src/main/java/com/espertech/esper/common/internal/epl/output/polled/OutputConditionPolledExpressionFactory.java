@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionExpressionTypeUtil;
@@ -22,6 +23,8 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
 public class OutputConditionPolledExpressionFactory implements OutputConditionPolledFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionPolledExpressionFactory.class);
+
     private ExprEvaluator whenExpression;
     private VariableReadWritePackage variableReadWritePackage;
     private boolean isUsingBuiltinProperties;

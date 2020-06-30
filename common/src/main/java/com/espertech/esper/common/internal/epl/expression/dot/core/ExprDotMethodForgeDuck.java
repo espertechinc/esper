@@ -10,24 +10,27 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 
 public class ExprDotMethodForgeDuck implements ExprDotForge {
     private final String statementName;
     private final ClasspathImportService classpathImportService;
     private final String methodName;
-    private final Class[] parameterTypes;
+    private final EPType[] parameterTypes;
     private final ExprForge[] parameters;
 
-    public ExprDotMethodForgeDuck(String statementName, ClasspathImportService classpathImportService, String methodName, Class[] parameterTypes, ExprForge[] parameters) {
+    public ExprDotMethodForgeDuck(String statementName, ClasspathImportService classpathImportService, String methodName, EPType[] parameterTypes, ExprForge[] parameters) {
         this.statementName = statementName;
         this.classpathImportService = classpathImportService;
         this.methodName = methodName;
@@ -35,8 +38,8 @@ public class ExprDotMethodForgeDuck implements ExprDotForge {
         this.parameters = parameters;
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.singleValue(Object.class);
+    public EPChainableType getTypeInfo() {
+        return EPChainableTypeHelper.singleValue(EPTypePremade.OBJECT.getEPType());
     }
 
     public void visit(ExprDotEvalVisitor visitor) {
@@ -47,7 +50,7 @@ public class ExprDotMethodForgeDuck implements ExprDotForge {
         return new ExprDotMethodForgeDuckEval(this, ExprNodeUtilityQuery.getEvaluatorsNoCompile(parameters));
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return ExprDotMethodForgeDuckEval.codegen(this, inner, innerType, parent, symbols, classScope);
     }
 
@@ -63,7 +66,7 @@ public class ExprDotMethodForgeDuck implements ExprDotForge {
         return methodName;
     }
 
-    public Class[] getParameterTypes() {
+    public EPType[] getParameterTypes() {
         return parameterTypes;
     }
 

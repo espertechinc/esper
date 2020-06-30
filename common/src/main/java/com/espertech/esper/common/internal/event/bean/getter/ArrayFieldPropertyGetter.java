@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -20,7 +22,9 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndIndexed;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.CollectionUtil;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
 
@@ -34,10 +38,9 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
     private final int index;
 
     public ArrayFieldPropertyGetter(Field field, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, field.getType().getComponentType(), null);
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getArrayComponentType(ClassHelperGenericType.getFieldEPType(field)));
         this.index = index;
         this.field = field;
-
         if (index < 0) {
             throw new IllegalArgumentException("Invalid negative index value");
         }
@@ -48,8 +51,8 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
     }
 
     private CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(getBeanPropType(), this.getClass(), codegenClassScope).addParam(getTargetType(), "object").addParam(int.class, "index").getBlock()
-            .declareVar(Object.class, "value", exprDotName(ref("object"), field.getName()))
+        return codegenMethodScope.makeChild(getBeanPropType(), this.getClass(), codegenClassScope).addParam(getTargetType(), "object").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotName(ref("object"), field.getName()))
             .methodReturn(cast(getBeanPropType(), staticMethod(CollectionUtil.class, "arrayValueAtIndex", ref("value"), ref("index"))));
     }
 
@@ -65,10 +68,6 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
         return BeanFieldGetterHelper.getFieldArray(field, eventBean.getUnderlying(), index);
     }
 
-    public Class getBeanPropType() {
-        return field.getType().getComponentType();
-    }
-
     public String toString() {
         return "ArrayFieldPropertyGetter " +
             " field=" + field.toString() +
@@ -79,8 +78,8 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Class getTargetType() {
-        return field.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(field.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

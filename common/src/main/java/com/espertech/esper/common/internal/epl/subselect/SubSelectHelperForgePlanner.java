@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HintEnum;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldName;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldNameSubqueryAgg;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -65,7 +67,6 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
@@ -76,6 +77,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
 
 public class SubSelectHelperForgePlanner {
     private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
@@ -246,7 +249,7 @@ public class SubSelectHelperForgePlanner {
         List<ExprAggregateNode> aggExpressionNodesHaving = Collections.emptyList();
         if (subselectSpec.getRaw().getHavingClause() != null) {
             ExprNode validatedHavingClause = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.HAVING, subselectSpec.getRaw().getHavingClause(), validationContext);
-            if (JavaClassHelper.getBoxedType(validatedHavingClause.getForge().getEvaluationType()) != Boolean.class) {
+            if (!isTypeBoolean(validatedHavingClause.getForge().getEvaluationType())) {
                 throw new ExprValidationException("Subselect having-clause expression must return a boolean value");
             }
             aggExpressionNodesHaving = new ArrayList<>();
@@ -411,7 +414,7 @@ public class SubSelectHelperForgePlanner {
         boolean correlatedSubquery = false;
         if (filterExpr != null) {
             filterExpr = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.FILTER, filterExpr, validationContext);
-            if (JavaClassHelper.getBoxedType(filterExpr.getForge().getEvaluationType()) != Boolean.class) {
+            if (!isTypeBoolean(filterExpr.getForge().getEvaluationType())) {
                 throw new ExprValidationException("Subselect filter expression must return a boolean value");
             }
 
@@ -528,7 +531,7 @@ public class SubSelectHelperForgePlanner {
         Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> indexPair = new Pair<>(indexDesc.getTableForge(), indexDesc.getLookupForge());
 
         SubSelectStrategyFactoryForge strategyForge = new SubSelectStrategyFactoryLocalViewPreloadedForge(viewForges, viewResourceDelegateDesc, indexPair,
-            filterExpr, correlatedSubquery, aggregationServiceForgeDesc,  /* viewResourceDelegateVerified */ subqueryNum, groupByNodes, namedWindow,
+            filterExpr, correlatedSubquery, aggregationServiceForgeDesc, subqueryNum, groupByNodes, namedWindow,
             namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
 
         // For subselect in filters, we must validate-subquery again as the first validate was not including the information compiled herein.
@@ -696,15 +699,16 @@ public class SubSelectHelperForgePlanner {
             rangeCoercionDesc = new CoercionDesc(false, null);
             if (joinPropDesc.getInKeywordSingleIndex() != null) {
                 String prop = joinPropDesc.getInKeywordSingleIndex().getIndexedProp();
-                Class[] propTypes = new Class[]{viewableEventType.getPropertyType(prop)};
-                hashCoercionDesc = new CoercionDesc(false, propTypes);
-                DataInputOutputSerdeForge serdeForge = services.getSerdeResolver().serdeForIndexHashNonArray(propTypes[0], statement.getStatementRawInfo());
+                EPType[] propTypes = new EPType[]{viewableEventType.getPropertyEPType(prop)};
+                EPTypeClass[] propTypeClass = CoercionUtil.getCoercionTypes(new EPType[]{viewableEventType.getPropertyEPType(prop)});
+                hashCoercionDesc = new CoercionDesc(false, CoercionUtil.getCoercionTypes(propTypes));
+                DataInputOutputSerdeForge serdeForge = services.getSerdeResolver().serdeForIndexHashNonArray(propTypeClass[0], statement.getStatementRawInfo());
                 hashMultikeyClasses = new MultiKeyClassRefWSerde(serdeForge, propTypes);
                 eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, new String[]{prop}, viewableEventType, unique, hashCoercionDesc, hashMultikeyClasses);
                 inKeywordSingleIdxKeys = joinPropDesc.getInKeywordSingleIndex().getExpressions();
             } else if (joinPropDesc.getInKeywordMultiIndex() != null) {
                 String[] props = joinPropDesc.getInKeywordMultiIndex().getIndexedProp();
-                hashCoercionDesc = new CoercionDesc(false, EventTypeUtility.getPropertyTypes(viewableEventType, props));
+                hashCoercionDesc = new CoercionDesc(false, CoercionUtil.getCoercionTypes(EventTypeUtility.getPropertyTypesEPType(viewableEventType, props)));
                 DataInputOutputSerdeForge[] serdes = new DataInputOutputSerdeForge[hashCoercionDesc.getCoercionTypes().length];
                 for (int i = 0; i < hashCoercionDesc.getCoercionTypes().length; i++) {
                     serdes[i] = services.getSerdeResolver().serdeForIndexHashNonArray(hashCoercionDesc.getCoercionTypes()[i], statement.getStatementRawInfo());
@@ -724,7 +728,7 @@ public class SubSelectHelperForgePlanner {
             rangeCoercionDesc = coercionRangeTypes;
         } else {
             String[] indexedKeyProps = hashKeys.keySet().toArray(new String[hashKeys.keySet().size()]);
-            Class[] coercionKeyTypes = SubordPropUtil.getCoercionTypes(hashKeys.values());
+            EPTypeClass[] coercionKeyTypes = SubordPropUtil.getCoercionTypes(hashKeys.values());
             MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(coercionKeyTypes, false, statement.getStatementRawInfo(), services.getSerdeResolver());
             additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
             hashMultikeyClasses = multiKeyPlan.getClassRef();

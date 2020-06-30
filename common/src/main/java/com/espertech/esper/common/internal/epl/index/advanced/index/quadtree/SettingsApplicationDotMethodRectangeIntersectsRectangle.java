@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.index.advanced.index.quadtree;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -90,7 +92,7 @@ public class SettingsApplicationDotMethodRectangeIntersectsRectangle extends Set
                     otherXEval.getExprEvaluator(), otherYEval.getExprEvaluator(), otherWidthEval.getExprEvaluator(), otherHeightEval.getExprEvaluator());
         }
 
-        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             return RectangleIntersectsRectangleEvaluator.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
 
@@ -98,8 +100,8 @@ public class SettingsApplicationDotMethodRectangeIntersectsRectangle extends Set
             return ExprForgeConstantType.NONCONST;
         }
 
-        public Class getEvaluationType() {
-            return Boolean.class;
+        public EPTypeClass getEvaluationType() {
+            return EPTypePremade.BOOLEANBOXED.getEPType();
         }
 
         public ExprNodeRenderable getForgeRenderable() {
@@ -171,7 +173,7 @@ public class SettingsApplicationDotMethodRectangeIntersectsRectangle extends Set
         }
 
         public static CodegenExpression codegen(RectangleIntersectsRectangleForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, RectangleIntersectsRectangleEvaluator.class, codegenClassScope);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), RectangleIntersectsRectangleEvaluator.class, codegenClassScope);
 
             CodegenBlock block = methodNode.getBlock();
             CodegenLegoCast.asDoubleNullReturnNull(block, "meX", forge.meXEval, methodNode, exprSymbol, codegenClassScope);

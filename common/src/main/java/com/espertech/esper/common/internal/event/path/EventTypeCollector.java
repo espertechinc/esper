@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
 
 import java.util.LinkedHashMap;
@@ -28,7 +29,7 @@ public interface EventTypeCollector {
 
     void registerWrapper(EventTypeMetadata metadata, EventType underlying, LinkedHashMap<String, Object> properties);
 
-    void registerBean(EventTypeMetadata metadata, Class clazz, String startTimestampName, String endTimestampName,
+    void registerBean(EventTypeMetadata metadata, EPTypeClass clazz, String startTimestampName, String endTimestampName,
                       EventType[] superTypes, Set<EventType> deepSupertypes);
 
     void registerXML(EventTypeMetadata metadata, String representsFragmentOfProperty, String representsOriginalTypeName);
@@ -42,5 +43,5 @@ public interface EventTypeCollector {
 
     void registerVariant(EventTypeMetadata metadata, EventType[] variants, boolean any);
 
-    void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, Class underlyingClass);
+    void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, EPTypeClass underlyingClass);
 }

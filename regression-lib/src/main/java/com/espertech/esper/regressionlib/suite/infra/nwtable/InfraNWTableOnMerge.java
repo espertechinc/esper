@@ -170,7 +170,7 @@ public class InfraNWTableOnMerge {
 
             // type incompatible cannot assign
             tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]='x'",
-                "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment to property 'intarray' component type 'int' from expression returning 'java.lang.String'");
+                "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment to property 'intarray' component type 'int' from expression returning 'String'");
             tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]=1L",
                 "Failed to validate assignment expression 'intarray[intPrimitive]=1': Invalid assignment to property 'intarray' component type 'int' from expression returning 'long'");
 

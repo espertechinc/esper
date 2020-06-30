@@ -24,6 +24,8 @@ import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvid
 
 import java.util.List;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
+
 public class MyFileExistsObserverForge implements ObserverForge {
     protected ExprNode filenameExpression;
     protected MatchedEventConvertorForge convertor;
@@ -33,7 +35,7 @@ public class MyFileExistsObserverForge implements ObserverForge {
         if (observerParameters.size() != 1) {
             throw new ObserverParameterException(message);
         }
-        if (!(observerParameters.get(0).getForge().getEvaluationType() == String.class)) {
+        if (!isTypeString(observerParameters.get(0).getForge().getEvaluationType())) {
             throw new ObserverParameterException(message);
         }
 
@@ -42,7 +44,7 @@ public class MyFileExistsObserverForge implements ObserverForge {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(MyFileExistsObserverFactory.class, this.getClass(), "observerFactory", parent, symbols, classScope);
+        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(MyFileExistsObserverFactory.EPTYPE, this.getClass(), "observerFactory", parent, symbols, classScope);
         return builder.exprnode("filenameExpression", filenameExpression)
             .expression("convertor", convertor.makeAnonymous(builder.getMethod(), classScope))
             .build();

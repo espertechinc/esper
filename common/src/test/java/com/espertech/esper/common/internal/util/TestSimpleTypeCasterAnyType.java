@@ -20,7 +20,7 @@ public class TestSimpleTypeCasterAnyType extends TestCase {
     private SimpleTypeCasterAnyType caster;
 
     public void setUp() {
-        caster = new SimpleTypeCasterAnyType(ISupportA.class);
+        caster = new SimpleTypeCasterAnyType(ClassHelperGenericType.getClassEPType(ISupportA.class));
     }
 
     public void testCast() {

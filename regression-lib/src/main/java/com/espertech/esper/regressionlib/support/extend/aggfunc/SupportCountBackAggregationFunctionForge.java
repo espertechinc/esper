@@ -16,6 +16,8 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeMul
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategy;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 
 public class SupportCountBackAggregationFunctionForge implements AggregationFunctionForge {
     public void setFunctionName(String functionName) {
@@ -26,12 +28,12 @@ public class SupportCountBackAggregationFunctionForge implements AggregationFunc
 
     }
 
-    public Class getValueType() {
-        return int.class;
+    public EPTypeClass getValueType() {
+        return EPTypePremade.INTEGERPRIMITIVE.getEPType();
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {
-        InjectionStrategy injectionStrategy = new InjectionStrategyClassNewInstance(SupportCountBackAggregationFunctionFactory.class);
+        InjectionStrategy injectionStrategy = new InjectionStrategyClassNewInstance(SupportCountBackAggregationFunctionFactory.EPTYPE);
 
         AggregationFunctionModeMultiParam multiParam = new AggregationFunctionModeMultiParam();
         multiParam.setInjectionStrategyAggregationFunctionFactory(injectionStrategy);

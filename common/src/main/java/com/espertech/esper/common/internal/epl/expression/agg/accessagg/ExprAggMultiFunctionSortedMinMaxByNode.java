@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.agg.accessagg;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -95,8 +97,8 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         // determine typing and evaluation
         containedType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
 
-        Class componentType = containedType.getUnderlyingType();
-        Class accessorResultType = componentType;
+        EPTypeClass componentType = containedType.getUnderlyingEPType();
+        EPTypeClass accessorResultType = componentType;
         AggregationAccessorForge accessor;
         TableMetaData tableMetadata = validationContext.getTableCompileTimeResolver().resolveTableFromEventType(containedType);
         if (!sortedwin) {
@@ -126,7 +128,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
 
         ExprForge optionalFilterForge = optionalFilter == null ? null : optionalFilter.getForge();
         EventType streamEventType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
-        Class[] criteriaTypes = ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions.getFirst());
+        EPType[] criteriaTypes = ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions.getFirst());
         DataInputOutputSerdeForge[] criteriaSerdes = new DataInputOutputSerdeForge[criteriaTypes.length];
         for (int i = 0; i < criteriaTypes.length; i++) {
             criteriaSerdes[i] = validationContext.getSerdeResolver().serdeForAggregation(criteriaTypes[i], validationContext.getStatementRawInfo());
@@ -162,8 +164,8 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         }
 
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
-        Class componentType = containedType.getUnderlyingType();
-        Class accessorResultType = componentType;
+        EPTypeClass componentType = containedType.getUnderlyingEPType();
+        EPTypeClass accessorResultType = componentType;
         AggregationAccessorForge accessor;
         if (!sortedwin) {
             accessor = new AggregationAccessorMinMaxByNonTable(max);
@@ -190,9 +192,9 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
             throw new ExprValidationException("'Sorted' requires that the event type is provided");
         }
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[0];
-        Class componentType = containedType.getUnderlyingType();
+        EPTypeClass componentType = containedType.getUnderlyingEPType();
         Pair<ExprNode[], boolean[]> criteriaExpressions = getCriteriaExpressions();
-        Class accessorResultType = componentType;
+        EPTypeClass accessorResultType = componentType;
         AggregationAccessorForge accessor;
         if (!sortedwin) {
             accessor = new AggregationAccessorMinMaxByNonTable(max);
@@ -200,7 +202,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
             accessor = new AggregationAccessorSortedNonTable(max, componentType);
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
-        Class[] criteriaTypes = ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions.getFirst());
+        EPType[] criteriaTypes = ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions.getFirst());
         DataInputOutputSerdeForge[] criteriaSerdes = new DataInputOutputSerdeForge[criteriaTypes.length];
         for (int i = 0; i < criteriaTypes.length; i++) {
             criteriaSerdes[i] = validationContext.getSerdeResolver().serdeForAggregation(criteriaTypes[i], validationContext.getStatementRawInfo());
@@ -259,7 +261,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         return containedType;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return null;
     }
 

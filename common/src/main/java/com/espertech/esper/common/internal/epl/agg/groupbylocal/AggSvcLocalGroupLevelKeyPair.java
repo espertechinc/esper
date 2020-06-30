@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class AggSvcLocalGroupLevelKeyPair {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggSvcLocalGroupLevelKeyPair.class);
+
     private final int level;
     private final Object key;
 

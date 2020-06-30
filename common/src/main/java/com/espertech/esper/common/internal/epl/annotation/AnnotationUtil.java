@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.annotation;
 
 import com.espertech.esper.common.client.annotation.*;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,10 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.type.*;
-import com.espertech.esper.common.internal.util.CollectionUtil;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.util.SimpleTypeCaster;
-import com.espertech.esper.common.internal.util.SimpleTypeCasterFactory;
+import com.espertech.esper.common.internal.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,9 +93,10 @@ public class AnnotationUtil {
         return annotations;
     }
 
-    public static CodegenMethod makeAnnotations(Class arrayType, Annotation[] annotations, CodegenMethod parent, CodegenClassScope classScope) {
+    public static CodegenMethod makeAnnotations(EPTypeClass arrayType, Annotation[] annotations, CodegenMethod parent, CodegenClassScope classScope) {
+        EPTypeClass componentType = JavaClassHelper.getArrayComponentType(arrayType);
         CodegenMethod method = parent.makeChild(arrayType, AnnotationUtil.class, classScope);
-        method.getBlock().declareVar(arrayType, "annotations", newArrayByLength(arrayType.getComponentType(), constant(annotations.length)));
+        method.getBlock().declareVar(arrayType, "annotations", newArrayByLength(componentType, constant(annotations.length)));
         for (int i = 0; i < annotations.length; i++) {
             method.getBlock().assignArrayElement("annotations", constant(i), makeAnnotation(annotations[i], parent, classScope));
         }
@@ -201,15 +201,16 @@ public class AnnotationUtil {
         }
 
         // handle non-array
-        if (!annotationAttribute.getType().isArray()) {
+        Class annotationAttClass = annotationAttribute.getType().getType();
+        if (!annotationAttClass.isArray()) {
             // handle primitive value
-            if (!annotationAttribute.getType().isAnnotation()) {
+            if (!annotationAttClass.isAnnotation()) {
                 // if expecting an enumeration type, allow string value
-                if (annotationAttribute.getType().isEnum() && JavaClassHelper.isImplementsInterface(value.getClass(), CharSequence.class)) {
+                if (annotationAttClass.isEnum() && JavaClassHelper.isImplementsInterface(value.getClass(), CharSequence.class)) {
                     String valueString = value.toString().trim();
 
                     // find case-sensitive exact match first
-                    for (Object constant : annotationAttribute.getType().getEnumConstants()) {
+                    for (Object constant : annotationAttClass.getEnumConstants()) {
                         Enum e = (Enum) constant;
                         if (e.name().equals(valueString)) {
                             return constant;
@@ -218,7 +219,7 @@ public class AnnotationUtil {
 
                     // find case-insensitive match
                     String valueUppercase = valueString.toUpperCase(Locale.ENGLISH);
-                    for (Object constant : annotationAttribute.getType().getEnumConstants()) {
+                    for (Object constant : annotationAttClass.getEnumConstants()) {
                         Enum e = (Enum) constant;
                         if (e.name().toUpperCase(Locale.ENGLISH).equals(valueUppercase)) {
                             return constant;
@@ -226,7 +227,7 @@ public class AnnotationUtil {
                     }
 
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires an enum-value '" +
-                        annotationAttribute.getType().getSimpleName() + "' for attribute '" + annotationAttribute.getName() +
+                        annotationAttClass.getSimpleName() + "' for attribute '" + annotationAttribute.getName() +
                         "' but received '" + value + "' which is not one of the enum choices");
                 }
 
@@ -235,7 +236,7 @@ public class AnnotationUtil {
                 Object finalValue = caster.cast(value);
                 if (finalValue == null) {
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                        annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
+                        annotationAttClass.getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
                         "a " + value.getClass().getSimpleName() + "-typed value");
                 }
                 return finalValue;
@@ -243,7 +244,7 @@ public class AnnotationUtil {
                 // nested annotation
                 if (!(value instanceof AnnotationDesc)) {
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                        annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
+                        annotationAttClass.getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
                         "a " + value.getClass().getSimpleName() + "-typed value");
                 }
                 return createProxy((AnnotationDesc) value, classpathImportService);
@@ -252,11 +253,11 @@ public class AnnotationUtil {
 
         if (!value.getClass().isArray()) {
             throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
-                annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
+                annotationAttClass.getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
                 "a " + value.getClass().getSimpleName() + "-typed value");
         }
 
-        Class componentType = annotationAttribute.getType().getComponentType();
+        Class componentType = annotationAttClass.getComponentType();
         Object array = Array.newInstance(componentType, Array.getLength(value));
 
         for (int i = 0; i < Array.getLength(value); i++) {
@@ -274,7 +275,8 @@ public class AnnotationUtil {
                 }
                 finalValue = inner;
             } else {
-                SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(arrayValue.getClass(), annotationAttribute.getType().getComponentType());
+                EPTypeClass component = JavaClassHelper.getArrayComponentType(annotationAttribute.getType());
+                SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(arrayValue.getClass(), component);
                 finalValue = caster.cast(arrayValue);
                 if (finalValue == null) {
                     throw makeArrayMismatchException(annotationClass, componentType, annotationAttribute.getName(), arrayValue.getClass());
@@ -293,7 +295,7 @@ public class AnnotationUtil {
         }
 
         for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getReturnType() == void.class) {
+            if (JavaClassHelper.isTypeVoid(methods[i].getReturnType())) {
                 continue;
             }
             if (methods[i].getParameterTypes().length > 0) {
@@ -307,7 +309,8 @@ public class AnnotationUtil {
                 continue;
             }
 
-            props.add(new AnnotationAttribute(methods[i].getName(), methods[i].getReturnType(), methods[i].getDefaultValue()));
+            EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(methods[i]);
+            props.add(new AnnotationAttribute(methods[i].getName(), returnType, methods[i].getDefaultValue()));
         }
 
         Collections.sort(props, new Comparator<AnnotationAttribute>() {
@@ -426,49 +429,49 @@ public class AnnotationUtil {
         if (annotation == null) {
             return constantNull();
         } else if (annotation instanceof Name) {
-            return newInstance(AnnotationName.class, constant(((Name) annotation).value()));
+            return newInstance(AnnotationName.EPTYPE, constant(((Name) annotation).value()));
         } else if (annotation instanceof Priority) {
-            return newInstance(AnnotationPriority.class, constant(((Priority) annotation).value()));
+            return newInstance(AnnotationPriority.EPTYPE, constant(((Priority) annotation).value()));
         } else if (annotation instanceof Tag) {
             Tag tag = (Tag) annotation;
-            return newInstance(AnnotationTag.class, constant(tag.name()), constant(tag.value()));
+            return newInstance(AnnotationTag.EPTYPE, constant(tag.name()), constant(tag.value()));
         } else if (annotation instanceof Drop) {
-            return newInstance(AnnotationDrop.class);
+            return newInstance(AnnotationDrop.EPTYPE);
         } else if (annotation instanceof Description) {
-            return newInstance(AnnotationDescription.class, constant(((Description) annotation).value()));
+            return newInstance(AnnotationDescription.EPTYPE, constant(((Description) annotation).value()));
         } else if (annotation instanceof Hint) {
             Hint hint = (Hint) annotation;
-            return newInstance(AnnotationHint.class, constant(hint.value()), constant(hint.applies()), constant(hint.model()));
+            return newInstance(AnnotationHint.EPTYPE, constant(hint.value()), constant(hint.applies()), constant(hint.model()));
         } else if (annotation instanceof NoLock) {
-            return newInstance(AnnotationNoLock.class);
+            return newInstance(AnnotationNoLock.EPTYPE);
         } else if (annotation instanceof Audit) {
             Audit hint = (Audit) annotation;
-            return newInstance(AnnotationAudit.class, constant(hint.value()));
+            return newInstance(AnnotationAudit.EPTYPE, constant(hint.value()));
         } else if (annotation instanceof EventRepresentation) {
             EventRepresentation anno = (EventRepresentation) annotation;
-            return newInstance(AnnotationEventRepresentation.class, enumValue(anno.value().getClass(), anno.value().name()));
+            return newInstance(AnnotationEventRepresentation.EPTYPE, enumValue(anno.value().getClass(), anno.value().name()));
         } else if (annotation instanceof IterableUnbound) {
-            return newInstance(AnnotationIterableUnbound.class);
+            return newInstance(AnnotationIterableUnbound.EPTYPE);
         } else if (annotation instanceof Hook) {
             Hook hook = (Hook) annotation;
-            return newInstance(AnnotationHook.class, enumValue(HookType.class, hook.type().name()), constant(hook.hook()));
+            return newInstance(AnnotationHook.EPTYPE, enumValue(HookType.class, hook.type().name()), constant(hook.hook()));
         } else if (annotation instanceof AvroSchemaField) {
             AvroSchemaField field = (AvroSchemaField) annotation;
-            return newInstance(AvroSchemaFieldHook.class, constant(field.name()), constant(field.schema()));
+            return newInstance(AvroSchemaFieldHook.EPTYPE, constant(field.name()), constant(field.schema()));
         } else if (annotation instanceof Private) {
-            return newInstance(AnnotationPrivate.class);
+            return newInstance(AnnotationPrivate.EPTYPE);
         } else if (annotation instanceof Protected) {
-            return newInstance(AnnotationProtected.class);
+            return newInstance(AnnotationProtected.EPTYPE);
         } else if (annotation instanceof Public) {
-            return newInstance(AnnotationPublic.class);
+            return newInstance(AnnotationPublic.EPTYPE);
         } else if (annotation instanceof BusEventType) {
-            return newInstance(AnnotationBusEventType.class);
+            return newInstance(AnnotationBusEventType.EPTYPE);
         } else if (annotation instanceof JsonSchema) {
             JsonSchema jsonSchema = (JsonSchema) annotation;
-            return newInstance(AnnotationJsonSchema.class, constant(jsonSchema.dynamic()), constant(jsonSchema.className()));
+            return newInstance(AnnotationJsonSchema.EPTYPE, constant(jsonSchema.dynamic()), constant(jsonSchema.className()));
         } else if (annotation instanceof JsonSchemaField) {
             JsonSchemaField field = (JsonSchemaField) annotation;
-            return newInstance(AnnotationJsonSchemaField.class, constant(field.name()), constant(field.adapter()));
+            return newInstance(AnnotationJsonSchemaField.EPTYPE, constant(field.name()), constant(field.adapter()));
         } else if (annotation instanceof XMLSchema) {
             XMLSchema xmlSchema = (XMLSchema) annotation;
             return AnnotationXMLSchema.toExpression(xmlSchema, parent, codegenClassScope);
@@ -483,10 +486,11 @@ public class AnnotationUtil {
         } else {
             // application-provided annotation
             EPLAnnotationInvocationHandler innerProxy = (EPLAnnotationInvocationHandler) Proxy.getInvocationHandler(annotation);
-            CodegenMethod methodNode = parent.makeChild(Annotation.class, AnnotationUtil.class, codegenClassScope);
-            CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(methodNode.getBlock(), annotation.annotationType());
+            CodegenMethod methodNode = parent.makeChild(EPTypePremade.ANNOTATION.getEPType(), AnnotationUtil.class, codegenClassScope);
+            EPTypeClass annotationTypeClass = ClassHelperGenericType.getClassEPType(annotation.annotationType());
+            CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(methodNode.getBlock(), annotationTypeClass);
 
-            CodegenMethod annotationType = CodegenMethod.makeParentNode(Class.class, AnnotationUtil.class, codegenClassScope);
+            CodegenMethod annotationType = CodegenMethod.makeParentNode(EPTypePremade.CLASS.getEPType(), AnnotationUtil.class, codegenClassScope);
             clazz.addMethod("annotationType", annotationType);
             annotationType.getBlock().methodReturn(clazz(innerProxy.getAnnotationClass()));
 
@@ -495,7 +499,8 @@ public class AnnotationUtil {
                     continue;
                 }
 
-                CodegenMethod annotationValue = CodegenMethod.makeParentNode(method.getReturnType(), AnnotationUtil.class, codegenClassScope);
+                EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+                CodegenMethod annotationValue = CodegenMethod.makeParentNode(returnType, AnnotationUtil.class, codegenClassScope);
                 Object value = innerProxy.getAttributes().get(method.getName());
                 clazz.addMethod(method.getName(), annotationValue);
 
@@ -505,11 +510,12 @@ public class AnnotationUtil {
                 } else if (method.getReturnType() == Class.class) {
                     valueExpression = clazz((Class) value);
                 } else if (method.getReturnType().isArray() && method.getReturnType().getComponentType().isAnnotation()) {
-                    valueExpression = localMethod(makeAnnotations(method.getReturnType(), (Annotation[]) value, methodNode, codegenClassScope));
+                    EPTypeClass returnTypeMethod = ClassHelperGenericType.getMethodReturnEPType(method);
+                    valueExpression = localMethod(makeAnnotations(returnTypeMethod, (Annotation[]) value, methodNode, codegenClassScope));
                 } else if (!method.getReturnType().isAnnotation()) {
                     valueExpression = constant(value);
                 } else {
-                    valueExpression = cast(method.getReturnType(), makeAnnotation((Annotation) value, methodNode, codegenClassScope));
+                    valueExpression = cast(returnType, makeAnnotation((Annotation) value, methodNode, codegenClassScope));
                 }
                 annotationValue.getBlock().methodReturn(valueExpression);
             }

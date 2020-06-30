@@ -252,7 +252,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
                 FilterSpecParamForge forge = SupportFilterPlanHook.assertPlanSingleTripletAndReset("SupportBean");
                 assertEquals(FilterOperator.REBOOL, forge.getFilterOperator());
                 assertEquals(".theString regexp ?", forge.getLookupable().getExpression());
-                assertEquals(String.class, forge.getLookupable().getReturnType());
+                assertEquals(String.class, forge.getLookupable().getReturnType().getType());
                 assertFilterSvcSingle(env.statement("s0"), ".theString regexp ?", REBOOL);
             }
 

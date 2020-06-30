@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
+
 public class ExprCoreEqualsIs {
 
     public static Collection<RegressionExecution> executions() {
@@ -30,7 +33,21 @@ public class ExprCoreEqualsIs {
         executions.add(new ExprCoreEqualsIsCoercionSameType());
         executions.add(new ExprCoreEqualsIsMultikeyWArray());
         executions.add(new ExprCoreEqualsInvalid());
+        executions.add(new ExprCoreEqualsNull());
         return executions;
+    }
+
+    private static class ExprCoreEqualsNull implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
+            SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean")
+                .expressions(fields, "theString = null", "theString is null", "null = theString", "null is theString", "null = null", "null is null");
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType()));
+            builder.assertion(new SupportBean("x", 0)).expect(fields, null, false, null, false, null, true);
+            builder.assertion(new SupportBean(null, 0)).expect(fields, null, true, null, true, null, true);
+            builder.run(env);
+            env.undeployAll();
+        }
     }
 
     private static class ExprCoreEqualsInvalid implements RegressionExecution {

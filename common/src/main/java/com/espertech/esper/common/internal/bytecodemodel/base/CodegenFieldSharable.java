@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 public interface CodegenFieldSharable {
-    Class type();
+    EPTypeClass type();
 
     CodegenExpression initCtorScoped();
 }

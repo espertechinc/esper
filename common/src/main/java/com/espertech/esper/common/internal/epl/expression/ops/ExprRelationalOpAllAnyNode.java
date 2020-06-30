@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.type.RelationalOpEnum;
 import com.espertech.esper.common.internal.util.CoercionException;
@@ -77,50 +80,56 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase {
         if (this.getChildNodes().length < 1) {
             throw new IllegalStateException("Group relational op node must have 1 or more parameters");
         }
-        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        EPType typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        ExprNodeUtilityValidate.validateLHSTypeAnyAllSomeIn(typeOne);
 
-        // collections, array or map not supported
-        if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
-            throw new ExprValidationException("Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
-        }
-
-        List<Class> comparedTypes = new ArrayList<Class>();
+        List<EPType> comparedTypes = new ArrayList<EPType>();
         comparedTypes.add(typeOne);
         boolean hasCollectionOrArray = false;
         for (int i = 0; i < this.getChildNodes().length - 1; i++) {
-            Class propType = getChildNodes()[i + 1].getForge().getEvaluationType();
-            if (propType.isArray()) {
-                hasCollectionOrArray = true;
-                if (propType.getComponentType() != Object.class) {
-                    comparedTypes.add(propType.getComponentType());
-                }
-            } else if (JavaClassHelper.isImplementsInterface(propType, Collection.class)) {
-                hasCollectionOrArray = true;
-            } else if (JavaClassHelper.isImplementsInterface(propType, Map.class)) {
-                hasCollectionOrArray = true;
+            EPType propType = getChildNodes()[i + 1].getForge().getEvaluationType();
+            if (propType == null || propType == EPTypeNull.INSTANCE) {
+                comparedTypes.add(EPTypeNull.INSTANCE);
             } else {
-                comparedTypes.add(propType);
+                EPTypeClass propClass = (EPTypeClass) propType;
+                if (propClass.getType().isArray()) {
+                    hasCollectionOrArray = true;
+                    if (propClass.getType().getComponentType() != Object.class) {
+                        EPTypeClass componentType = JavaClassHelper.getArrayComponentType(propClass);
+                        comparedTypes.add(componentType);
+                    }
+                } else if (JavaClassHelper.isImplementsInterface(propClass, Collection.class)) {
+                    hasCollectionOrArray = true;
+                } else if (JavaClassHelper.isImplementsInterface(propClass, Map.class)) {
+                    hasCollectionOrArray = true;
+                } else {
+                    comparedTypes.add(propType);
+                }
             }
         }
 
         // Determine common denominator type
-        Class coercionType;
+        EPType coercionType;
         try {
-            coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
+            coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new EPType[comparedTypes.size()]));
         } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
         }
 
         // Must be either numeric or string
-        if (coercionType != String.class) {
-            if (!JavaClassHelper.isNumeric(coercionType)) {
+        if (coercionType == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Implicit conversion from null-type to numeric or string is not allowed");
+        }
+        EPTypeClass coercionClass = (EPTypeClass) coercionType;
+        if (coercionClass.getType() != String.class) {
+            if (!JavaClassHelper.isNumeric(coercionClass)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
-                        coercionType.getSimpleName() +
-                        "' to numeric is not allowed");
+                    coercionClass +
+                    "' to numeric is not allowed");
             }
         }
 
-        RelationalOpEnum.Computer computer = relationalOpEnum.getComputer(coercionType, coercionType, coercionType);
+        RelationalOpEnum.Computer computer = relationalOpEnum.getComputer(coercionClass, coercionClass, coercionClass);
         forge = new ExprRelationalOpAllAnyNodeForge(this, computer, hasCollectionOrArray);
         return null;
     }
@@ -157,7 +166,7 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase {
         ExprRelationalOpAllAnyNode other = (ExprRelationalOpAllAnyNode) node;
 
         if ((other.relationalOpEnum != this.relationalOpEnum) ||
-                (other.isAll != this.isAll)) {
+            (other.isAll != this.isAll)) {
             return false;
         }
 

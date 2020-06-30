@@ -16,26 +16,26 @@ import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLa
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDesc;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDescFactory;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.util.List;
-import java.util.function.Function;
 
 public abstract class ThreeFormBaseFactory implements EnumForgeDescFactory {
-    protected abstract EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPType typeInfo, StatementCompileTimeServices services);
+    protected abstract EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPChainableType typeInfo, StatementCompileTimeServices services);
 
-    private final Function<ExprDotEvalParamLambda, EPType> returnType;
+    private final ThreeFormInitFunction returnType;
 
-    public ThreeFormBaseFactory(Function<ExprDotEvalParamLambda, EPType> returnType) {
+    public ThreeFormBaseFactory(ThreeFormInitFunction returnType) {
         this.returnType = returnType;
     }
 
-    public EnumForgeDesc makeEnumForgeDesc(List<ExprDotEvalParam> bodiesAndParameters, int streamCountIncoming, StatementCompileTimeServices services) {
+    public EnumForgeDesc makeEnumForgeDesc(List<ExprDotEvalParam> bodiesAndParameters, int streamCountIncoming, StatementCompileTimeServices services) throws ExprValidationException {
         if (bodiesAndParameters.isEmpty()) {
             throw new UnsupportedOperationException();
         }
         ExprDotEvalParamLambda first = (ExprDotEvalParamLambda) bodiesAndParameters.get(0);
-        EPType typeInfo = returnType.apply(first);
+        EPChainableType typeInfo = returnType.apply(first);
         EnumForge forge = makeForgeWithParam(first, typeInfo, services);
         return new EnumForgeDesc(typeInfo, forge);
     }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -38,7 +39,7 @@ public class QueryPlanIndexForge implements CodegenMakeable<SAIFFInitializeSymbo
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(QueryPlanIndex.class, CodegenMakeableUtil.makeMap("items", TableLookupIndexReqKey.class, QueryPlanIndexItem.class, items, this.getClass(), parent, symbols, classScope));
+        return newInstance(QueryPlanIndex.EPTYPE, CodegenMakeableUtil.makeMap("items", TableLookupIndexReqKey.EPTYPE, QueryPlanIndexItem.EPTYPE, items, this.getClass(), parent, symbols, classScope));
     }
 
     public Map<TableLookupIndexReqKey, QueryPlanIndexItemForge> getItems() {
@@ -62,7 +63,7 @@ public class QueryPlanIndexForge implements CodegenMakeable<SAIFFInitializeSymbo
      */
     public Pair<TableLookupIndexReqKey, int[]> getIndexNum(String[] indexProps, String[] rangeProps) {
         // find an exact match first
-        QueryPlanIndexItemForge proposed = new QueryPlanIndexItemForge(indexProps, new Class[indexProps.length], rangeProps, new Class[rangeProps.length], false, null, null);
+        QueryPlanIndexItemForge proposed = new QueryPlanIndexItemForge(indexProps, new EPTypeClass[indexProps.length], rangeProps, new EPTypeClass[rangeProps.length], false, null, null);
         for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItemForge> entry : items.entrySet()) {
             if (entry.getValue().equalsCompareSortedProps(proposed)) {
                 return new Pair<TableLookupIndexReqKey, int[]>(entry.getKey(), null);
@@ -86,9 +87,9 @@ public class QueryPlanIndexForge implements CodegenMakeable<SAIFFInitializeSymbo
         return items.keySet().iterator().next();
     }
 
-    public String addIndex(String[] indexProperties, Class[] coercionTypes, EventType eventType) {
+    public String addIndex(String[] indexProperties, EPTypeClass[] coercionTypes, EventType eventType) {
         String uuid = UuidGenerator.generate();
-        items.put(new TableLookupIndexReqKey(uuid, null), new QueryPlanIndexItemForge(indexProperties, coercionTypes, new String[0], new Class[0], false, null, eventType));
+        items.put(new TableLookupIndexReqKey(uuid, null), new QueryPlanIndexItemForge(indexProperties, coercionTypes, new String[0], new EPTypeClass[0], false, null, eventType));
         return uuid;
     }
 
@@ -113,7 +114,7 @@ public class QueryPlanIndexForge implements CodegenMakeable<SAIFFInitializeSymbo
      * @param indexProperties is the index field names
      * @return coercion types, or null if no coercion is required
      */
-    public Class[] getCoercionTypes(String[] indexProperties) {
+    public EPTypeClass[] getCoercionTypes(String[] indexProperties) {
         for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItemForge> entry : items.entrySet()) {
             if (Arrays.deepEquals(entry.getValue().getHashProps(), indexProperties)) {
                 return entry.getValue().getHashTypes();
@@ -128,7 +129,7 @@ public class QueryPlanIndexForge implements CodegenMakeable<SAIFFInitializeSymbo
      * @param indexProperties is the index property names
      * @param coercionTypes   is the coercion types
      */
-    public void setCoercionTypes(String[] indexProperties, Class[] coercionTypes) {
+    public void setCoercionTypes(String[] indexProperties, EPTypeClass[] coercionTypes) {
         boolean found = false;
         for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItemForge> entry : items.entrySet()) {
             if (Arrays.deepEquals(entry.getValue().getHashProps(), indexProperties)) {

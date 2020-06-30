@@ -474,9 +474,9 @@ public class ExprCoreAnyAllSome {
     private static class ExprCoreAnyAllSomeInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             SupportMessageAssertUtil.tryInvalidCompile(env, "select intArr = all (1, 2, 3) as r1 from SupportBeanArrayCollMap",
-                "Failed to validate select-clause expression 'intArr=all(1,2,3)': Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
+                "Failed to validate select-clause expression 'intArr=all(1,2,3)': Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
             SupportMessageAssertUtil.tryInvalidCompile(env, "select intArr > all (1, 2, 3) as r1 from SupportBeanArrayCollMap",
-                "Failed to validate select-clause expression 'intArr>all(1,2,3)': Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
+                "Failed to validate select-clause expression 'intArr>all(1,2,3)': Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
         }
     }
 

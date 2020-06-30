@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.bean.manufacturer;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,11 +21,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQu
 import java.lang.reflect.Constructor;
 
 public class InstanceManufacturerFactoryFastCtor implements InstanceManufacturerFactory {
-    private final Class targetClass;
+    private final EPTypeClass targetClass;
     private final Constructor ctor;
     private final ExprForge[] forges;
 
-    public InstanceManufacturerFactoryFastCtor(Class targetClass, Constructor ctor, ExprForge[] forges) {
+    public InstanceManufacturerFactoryFastCtor(EPTypeClass targetClass, Constructor ctor, ExprForge[] forges) {
         this.targetClass = targetClass;
         this.ctor = ctor;
         this.forges = forges;
@@ -38,7 +39,7 @@ public class InstanceManufacturerFactoryFastCtor implements InstanceManufacturer
         return InstanceManufacturerFastCtor.codegen(codegenMethodScope, exprSymbol, codegenClassScope, targetClass, forges);
     }
 
-    public Class getTargetClass() {
+    public EPTypeClass getTargetClass() {
         return targetClass;
     }
 

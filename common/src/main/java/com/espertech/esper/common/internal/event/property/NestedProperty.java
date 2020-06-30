@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.property;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.getter.NestedPropertyGetter;
@@ -85,29 +86,30 @@ public class NestedProperty implements Property {
             }
 
             if (it.hasNext()) {
-                Class clazz = property.getPropertyType(eventType, beanEventTypeFactory);
-                if (clazz == null) {
+                EPType type = property.getPropertyType(eventType, beanEventTypeFactory);
+                if (type == null || type == EPTypeNull.INSTANCE) {
                     // if the property is not valid, return null
                     return null;
                 }
+                EPTypeClass typeClass = (EPTypeClass) type;
                 // Map cannot be used to further nest as the type cannot be determined
-                if (clazz == Map.class) {
+                if (typeClass.getType() == Map.class) {
                     return null;
                 }
-                if (clazz.isArray()) {
+                if (typeClass.getType().isArray()) {
                     return null;
                 }
-                eventType = beanEventTypeFactory.getCreateBeanType(clazz, publicFields);
+                eventType = beanEventTypeFactory.getCreateBeanType(typeClass, publicFields);
             }
             getters.add(getter);
         }
 
-        GenericPropertyDesc finalPropertyType = lastProperty.getPropertyTypeGeneric(eventType, beanEventTypeFactory);
-        return new NestedPropertyGetter(getters, eventBeanTypedEventFactory, finalPropertyType.getType(), finalPropertyType.getGeneric(), beanEventTypeFactory);
+        EPTypeClass finalPropertyType = lastProperty.getPropertyType(eventType, beanEventTypeFactory);
+        return new NestedPropertyGetter(getters, eventBeanTypedEventFactory, finalPropertyType, beanEventTypeFactory);
     }
 
-    public Class getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
-        Class result = null;
+    public EPTypeClass getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
+        EPTypeClass result = null;
         boolean boxed = false;
 
         for (Iterator<Property> it = properties.iterator(); it.hasNext(); ) {
@@ -122,53 +124,30 @@ public class NestedProperty implements Property {
 
             if (it.hasNext()) {
                 // Map cannot be used to further nest as the type cannot be determined
-                if (result == Map.class) {
+                if (!(result instanceof EPTypeClass)) {
                     return null;
                 }
-
-                if (result.isArray() || result.isPrimitive() || JavaClassHelper.isJavaBuiltinDataType(result)) {
+                EPTypeClass type = result;
+                Class typeClass = type.getType();
+                if (typeClass == Map.class || typeClass.isArray() || typeClass.isPrimitive() || JavaClassHelper.isJavaBuiltinDataType(typeClass)) {
                     return null;
                 }
 
                 boolean publicFields = eventType.getStem().isPublicFields();
-                eventType = beanEventTypeFactory.getCreateBeanType(result, publicFields);
+                eventType = beanEventTypeFactory.getCreateBeanType(type, publicFields);
             }
         }
 
-        return !boxed ? result : JavaClassHelper.getBoxedType(result);
-    }
-
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
-        GenericPropertyDesc result = null;
-
-        boolean publicFields = eventType.getStem().isPublicFields();
-        for (Iterator<Property> it = properties.iterator(); it.hasNext(); ) {
-            Property property = it.next();
-            result = property.getPropertyTypeGeneric(eventType, beanEventTypeFactory);
-
-            if (result == null) {
-                // property not found, return null
-                return null;
-            }
-
-            if (it.hasNext()) {
-                // Map cannot be used to further nest as the type cannot be determined
-                if (result.getType() == Map.class) {
-                    return null;
-                }
-
-                if (result.getType().isArray()) {
-                    return null;
-                }
-
-                eventType = beanEventTypeFactory.getCreateBeanType(result.getType(), publicFields);
-            }
+        if (result == null) {
+            return null;
         }
-
-        return result;
+        if (!boxed || !JavaClassHelper.isTypePrimitive(result)) {
+            return result;
+        }
+        return JavaClassHelper.getBoxedType(result);
     }
 
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
+    public EPType getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
         Map currentDictionary = optionalMapPropTypes;
 
         int count = 0;
@@ -185,36 +164,36 @@ public class NestedProperty implements Property {
 
             if (nestedType == null) {
                 if (property instanceof DynamicProperty) {
-                    return Object.class;
+                    return EPTypePremade.OBJECT.getEPType();
                 } else {
                     return null;
                 }
             }
 
             if (!it.hasNext()) {
-                if (nestedType instanceof Class) {
-                    return (Class) nestedType;
+                if (nestedType instanceof EPTypeClass) {
+                    return (EPType) nestedType;
                 }
                 if (nestedType instanceof Map) {
-                    return Map.class;
+                    return EPTypePremade.MAP.getEPType();
                 }
             }
 
-            if (nestedType == Map.class) {
-                return Object.class;
+            if (nestedType instanceof EPTypeClass && ((EPTypeClass) nestedType).getType() == Map.class) {
+                return EPTypePremade.OBJECT.getEPType();
             }
 
-            if (nestedType instanceof Class) {
-                Class pojoClass = (Class) nestedType;
-                if (!pojoClass.isArray()) {
+            if (nestedType instanceof EPTypeClass) {
+                EPTypeClass pojoClass = (EPTypeClass) nestedType;
+                if (!pojoClass.getType().isArray()) {
                     BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(pojoClass, false);
                     String remainingProps = toPropertyEPL(properties, count);
-                    return beanType.getPropertyType(remainingProps);
+                    return beanType.getPropertyEPType(remainingProps);
                 } else if (property instanceof IndexedProperty) {
-                    Class componentType = pojoClass.getComponentType();
+                    EPTypeClass componentType = JavaClassHelper.getArrayComponentType(pojoClass);
                     BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(componentType, false);
                     String remainingProps = toPropertyEPL(properties, count);
-                    return beanType.getPropertyType(remainingProps);
+                    return beanType.getPropertyEPType(remainingProps);
                 }
             }
 
@@ -225,7 +204,7 @@ public class NestedProperty implements Property {
                 }
 
                 String remainingProps = toPropertyEPL(properties, count);
-                return innerType.getPropertyType(remainingProps);
+                return innerType.getPropertyEPType(remainingProps);
             }
             if (nestedType instanceof TypeBeanOrUnderlying[]) {
                 EventType innerType = ((TypeBeanOrUnderlying[]) nestedType)[0].getEventType();
@@ -234,12 +213,12 @@ public class NestedProperty implements Property {
                 }
 
                 String remainingProps = toPropertyEPL(properties, count);
-                return innerType.getPropertyType(remainingProps);
+                return innerType.getPropertyEPType(remainingProps);
             } else if (nestedType instanceof EventType) {
                 // property type is the name of a map event type
                 EventType innerType = (EventType) nestedType;
                 String remainingProps = toPropertyEPL(properties, count);
-                return innerType.getPropertyType(remainingProps);
+                return innerType.getPropertyEPType(remainingProps);
             } else {
                 if (!(nestedType instanceof Map)) {
                     String message = "Nestable map type configuration encountered an unexpected value type of '"
@@ -287,7 +266,7 @@ public class NestedProperty implements Property {
                 if (propertyReturnType != null) {
                     if (propertyReturnType instanceof Map) {
                         currentDictionary = (Map) propertyReturnType;
-                    } else if (propertyReturnType == Map.class) {
+                    } else if (propertyReturnType instanceof EPTypeClass && ((EPTypeClass) propertyReturnType).getType() == Map.class) {
                         currentDictionary = null;
                     } else if (propertyReturnType instanceof TypeBeanOrUnderlying) {
                         EventType innerType = ((TypeBeanOrUnderlying) propertyReturnType).getEventType();
@@ -326,8 +305,8 @@ public class NestedProperty implements Property {
                         break; // the single Pojo getter handles the rest
                     } else {
                         // treat the return type of the map property as a POJO
-                        Class pojoClass = (Class) propertyReturnType;
-                        if (!pojoClass.isArray()) {
+                        EPTypeClass pojoClass = (EPTypeClass) propertyReturnType;
+                        if (!pojoClass.getType().isArray()) {
                             BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(pojoClass, false);
                             String remainingProps = toPropertyEPL(properties, count);
                             EventPropertyGetterSPI getterInner = beanType.getGetterSPI(remainingProps);
@@ -337,7 +316,7 @@ public class NestedProperty implements Property {
                             getters.add(getterInner);
                             break; // the single Pojo getter handles the rest
                         } else {
-                            Class componentType = pojoClass.getComponentType();
+                            EPTypeClass componentType = JavaClassHelper.getArrayComponentType((EPTypeClass) pojoClass);
                             BeanEventType beanType = beanEventTypeFactory.getCreateBeanType(componentType, false);
                             String remainingProps = toPropertyEPL(properties, count);
                             EventPropertyGetterSPI getterInner = beanType.getGetterSPI(remainingProps);

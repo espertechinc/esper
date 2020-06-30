@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.virtualdw;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowKeyRange;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowLookup;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRange;
@@ -44,9 +45,9 @@ public class SubordTableLookupStrategyVDW implements SubordTableLookupStrategy {
         this.nwOnTrigger = subordTableFactory.isNwOnTrigger();
 
         ExprEvaluator[] hashKeys = subordTableFactory.getHashEvals();
-        Class[] hashCoercionTypes = subordTableFactory.getHashCoercionTypes();
+        EPTypeClass[] hashCoercionTypes = subordTableFactory.getHashCoercionTypes();
         QueryGraphValueEntryRange[] rangeKeys = subordTableFactory.getRangeEvals();
-        Class[] rangeCoercionTypes = subordTableFactory.getRangeCoercionTypes();
+        EPTypeClass[] rangeCoercionTypes = subordTableFactory.getRangeCoercionTypes();
 
         this.evaluators = new ExternalEvaluator[hashKeys.length + rangeKeys.length];
         this.eventsLocal = new EventBean[subordTableFactory.getNumOuterStreams() + 1];
@@ -109,9 +110,9 @@ public class SubordTableLookupStrategyVDW implements SubordTableLookupStrategy {
     private static class ExternalEvaluatorHashRelOp implements ExternalEvaluator {
 
         private final ExprEvaluator hashKeysEval;
-        private final Class coercionType;
+        private final EPTypeClass coercionType;
 
-        private ExternalEvaluatorHashRelOp(ExprEvaluator hashKeysEval, Class coercionType) {
+        private ExternalEvaluatorHashRelOp(ExprEvaluator hashKeysEval, EPTypeClass coercionType) {
             this.hashKeysEval = hashKeysEval;
             this.coercionType = coercionType;
         }
@@ -125,9 +126,9 @@ public class SubordTableLookupStrategyVDW implements SubordTableLookupStrategy {
 
         private final ExprEvaluator startEval;
         private final ExprEvaluator endEval;
-        private final Class coercionType;
+        private final EPTypeClass coercionType;
 
-        private ExternalEvaluatorBtreeRange(ExprEvaluator startEval, ExprEvaluator endEval, Class coercionType) {
+        private ExternalEvaluatorBtreeRange(ExprEvaluator startEval, ExprEvaluator endEval, EPTypeClass coercionType) {
             this.startEval = startEval;
             this.endEval = endEval;
             this.coercionType = coercionType;

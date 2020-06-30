@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
 import java.lang.reflect.Method;
 
 public class MethodTargetStrategyVariableFactory implements MethodTargetStrategyFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MethodTargetStrategyVariableFactory.class);
+
     private Variable variable;
     private String methodName;
     private Class[] methodParameters;
@@ -27,7 +30,7 @@ public class MethodTargetStrategyVariableFactory implements MethodTargetStrategy
     protected MethodTargetStrategyStaticMethodInvokeType invokeType;
 
     public void ready(StatementContext statementContext, ModuleIncidentals moduleIncidentals, boolean recovery) {
-        this.method = MethodTargetStrategyStaticMethod.resolveMethod(variable.getMetaData().getType(), methodName, methodParameters);
+        this.method = MethodTargetStrategyStaticMethod.resolveMethod(variable.getMetaData().getType().getType(), methodName, methodParameters);
         this.invokeType = MethodTargetStrategyStaticMethodInvokeType.getInvokeType(method);
     }
 

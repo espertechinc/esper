@@ -11,15 +11,15 @@
 package com.espertech.esper.regressionlib.suite.expr.define;
 
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementFormatter;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
-import com.espertech.esper.common.internal.support.EventRepresentationChoice;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
@@ -222,7 +223,7 @@ public class ExprDefineBasic {
         private void tryAssertionAnnotation(RegressionEnvironment env, String epl) {
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("scalar()"));
+            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("scalar()"));
             assertEquals("s0", env.statement("s0").getName());
 
             env.sendEventBean(new SupportBean_ST0("E1", 1));
@@ -299,7 +300,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val1"};
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{String.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType()});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 20));
@@ -336,7 +337,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val1", "val2"};
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 0));
@@ -370,7 +371,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val0", "val1"};
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{String.class, String.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E0", null});
@@ -406,7 +407,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val0", "val1"};
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{String.class, String.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E0", null});
@@ -444,7 +445,8 @@ public class ExprDefineBasic {
             env.compileDeploy("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean", path);
             env.compileDeploy(epl, path).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fieldsSelected, new Class[]{Collection.class, Collection.class});
+            EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, new EPTypeClassParameterized(Map.class, new EPTypeClass[] {STRING.getEPType(), OBJECT.getEPType()}));
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fieldsSelected, new EPTypeClass[]{inner, inner});
 
             env.sendEventBean(new SupportBean("E0", 0));
             env.sendEventBean(new SupportBean_ST0("ID0", 0));
@@ -517,7 +519,8 @@ public class ExprDefineBasic {
             env.compileDeploy("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean", path);
             env.compileDeploy(epl, path).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fieldSelected, new Class[]{Collection.class});
+            EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, new EPTypeClassParameterized(Map.class, new EPTypeClass[] {STRING.getEPType(), OBJECT.getEPType()}));
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fieldSelected, new EPTypeClass[]{inner});
 
             env.sendEventBean(new SupportBean("E0", 0));
             env.sendEventBean(new SupportBean_ST0("ID0", "x", 0));
@@ -560,7 +563,7 @@ public class ExprDefineBasic {
 
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class, Double.class, Long.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), DOUBLEBOXED.getEPType(), LONGBOXED.getEPType()});
 
             env.sendEventBean(getSupportBean(5, 6));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5, 6, 5 / 6d, 1L});
@@ -667,7 +670,7 @@ public class ExprDefineBasic {
         private void tryAssertionScalarReturn(RegressionEnvironment env, String epl) {
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val1".split(","), new Class[]{Collection.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val1".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, String.class)});
 
             env.sendEventBean(SupportCollection.makeString("E1,E2,E3,E4"));
             LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", "E3", "E4");
@@ -720,10 +723,10 @@ public class ExprDefineBasic {
         private void tryAssertionTwoParameterArithmetic(RegressionEnvironment env, String[] fields) {
             String[] props = env.statement("s0").getEventType().getPropertyNames();
             EPAssertionUtil.assertEqualsAnyOrder(props, fields);
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(fields[0]));
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(fields[1]));
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(fields[2]));
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(fields[3]));
+            EventType eventType = env.statement("s0").getEventType();
+            for (int i = 0; i < fields.length; i++) {
+                assertEquals(INTEGERBOXED.getEPType(), eventType.getPropertyEPType(fields[i]));
+            }
             EventPropertyGetter getter = env.statement("s0").getEventType().getGetter(fields[3]);
 
             env.sendEventBean(new SupportBean("E1", 11));
@@ -758,7 +761,8 @@ public class ExprDefineBasic {
 
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val1,val2".split(","), new Class[]{Collection.class, Collection.class});
+            EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class);
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val1,val2".split(","), new EPTypeClass[]{inner, inner});
 
             SupportBean_ST0_Container theEvent = SupportBean_ST0_Container.make3Value("E1,K1,1", "E2,K2,2", "E20,K20,20");
             env.sendEventBean(theEvent);
@@ -792,7 +796,7 @@ public class ExprDefineBasic {
             String[] fields = "val1,val2".split(",");
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 5});
@@ -822,7 +826,7 @@ public class ExprDefineBasic {
             String[] fields = "val1,val2,val3".split(",");
             env.compileDeploy(epl, path).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class, Integer.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 20, 40});
@@ -903,7 +907,8 @@ public class ExprDefineBasic {
     private static void tryAssertionAggregationAccess(RegressionEnvironment env, String epl) {
 
         env.compileDeploy(epl).addListener("s0");
-        LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val1".split(","), new Class[]{Collection.class, Collection.class});
+        EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, SupportBean.class);
+        SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val1".split(","), new EPTypeClass[]{inner, inner});
 
         env.sendEventBean(new SupportBean("E1", 2));
         SupportBean[] outArray = toArray((Collection) env.listener("s0").assertOneGetNewAndReset().get("val1"));

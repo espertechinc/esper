@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.annotation.AvroSchemaField;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeMeta;
 import com.espertech.esper.common.client.hook.type.TypeRepresentationMapper;
 import com.espertech.esper.common.client.hook.type.TypeRepresentationMapperContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.map.MapEventType;
@@ -79,8 +80,8 @@ public class AvroSchemaUtil {
             return;
         }
 
-        if (optionalMapper != null && propertyType instanceof Class) {
-            Schema result = (Schema) optionalMapper.map(new TypeRepresentationMapperContext((Class) propertyType, propertyName, statementName));
+        if (optionalMapper != null && propertyType instanceof EPTypeClass) {
+            Schema result = (Schema) optionalMapper.map(new TypeRepresentationMapperContext(((EPTypeClass) propertyType).getType(), propertyName, statementName));
             if (result != null) {
                 assembler.name(propertyName).type(result).noDefault();
                 return;
@@ -135,8 +136,8 @@ public class AvroSchemaUtil {
             } else {
                 throw new IllegalStateException("Unrecognized event type " + eventType);
             }
-        } else if (propertyType instanceof Class) {
-            Class propertyClass = (Class) propertyType;
+        } else if (propertyType instanceof EPTypeClass) {
+            Class propertyClass = ((EPTypeClass) propertyType).getType();
             Class propertyClassBoxed = JavaClassHelper.getBoxedType(propertyClass);
             boolean nullable = propertyClass == propertyClassBoxed;
             boolean preferNonNull = avroSettings.isEnableSchemaDefaultNonNull();

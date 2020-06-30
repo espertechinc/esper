@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.epl.expression.variable;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -45,7 +49,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
     private final String optSubPropName;
     private EventPropertyGetterSPI optSubPropGetter;
 
-    private Class variableType;
+    private EPType returnType;
 
     public ExprVariableNodeImpl(VariableMetaData variableMeta, String optSubPropName) {
         this.variableMeta = variableMeta;
@@ -60,8 +64,8 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
         return variableMeta;
     }
 
-    public Class getEvaluationType() {
-        return variableType;
+    public EPType getEvaluationType() {
+        return returnType;
     }
 
     public ExprForge getForge() {
@@ -104,12 +108,12 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
             if (optSubPropGetter == null) {
                 throw new ExprValidationException("Property '" + optSubPropName + "' is not valid for variable '" + variableName + "'");
             }
-            variableType = variableMeta.getEventType().getPropertyType(optSubPropName);
+            returnType = variableMeta.getEventType().getPropertyEPType(optSubPropName);
         } else {
-            variableType = variableMeta.getType();
+            returnType = variableMeta.getType();
         }
 
-        variableType = JavaClassHelper.getBoxedType(variableType);
+        returnType = JavaClassHelper.getBoxedType(returnType);
         return null;
     }
 
@@ -124,22 +128,26 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
         throw new IllegalStateException("Cannot evaluate at compile time");
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod methodNode = parent.makeChild(variableType, ExprVariableNodeImpl.class, classScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        if (returnType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass returnClass = (EPTypeClass) returnType;
+        CodegenMethod methodNode = parent.makeChild(returnClass, ExprVariableNodeImpl.class, classScope);
         CodegenExpression readerExpression = getReaderExpression(variableMeta, methodNode, symbols, classScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(VariableReader.class, "reader", readerExpression);
+                .declareVar(VariableReader.EPTYPE, "reader", readerExpression);
         if (variableMeta.getEventType() == null) {
-            block.declareVar(variableType, "value", cast(variableType, exprDotMethod(ref("reader"), "getValue")))
+            block.declareVar(returnClass, "value", cast(returnClass, exprDotMethod(ref("reader"), "getValue")))
                     .methodReturn(ref("value"));
         } else {
-            block.declareVar(Object.class, "value", exprDotMethod(ref("reader"), "getValue"))
+            block.declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("reader"), "getValue"))
                     .ifRefNullReturnNull("value")
-                    .declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")));
+                    .declareVar(EventBean.EPTYPE, "theEvent", cast(EventBean.EPTYPE, ref("value")));
             if (optSubPropName == null) {
-                block.methodReturn(cast(variableType, exprDotUnderlying(ref("theEvent"))));
+                block.methodReturn(cast(returnClass, exprDotUnderlying(ref("theEvent"))));
             } else {
-                block.methodReturn(CodegenLegoCast.castSafeFromObjectType(variableType, optSubPropGetter.eventBeanGetCodegen(ref("theEvent"), methodNode, classScope)));
+                block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, optSubPropGetter.eventBeanGetCodegen(ref("theEvent"), methodNode, classScope)));
             }
         }
         return localMethod(methodNode);
@@ -152,21 +160,25 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForgeInstr
         } else {
             CodegenExpressionField field = classScope.addOrGetFieldSharable(new VariableReaderPerCPCodegenFieldSharable(variableMeta));
             CodegenExpression cpid = exprDotMethod(symbols.getAddExprEvalCtx(methodNode), "getAgentInstanceId");
-            readerExpression = cast(VariableReader.class, exprDotMethod(field, "get", cpid));
+            readerExpression = cast(VariableReader.EPTYPE, exprDotMethod(field, "get", cpid));
         }
         return readerExpression;
     }
 
     public CodegenExpression codegenGetDeployTimeConstValue(CodegenClassScope classScope) {
+        if (returnType == null) {
+            return constantNull();
+        }
+        EPTypeClass returnClass = (EPTypeClass) returnType;
         CodegenExpression readerExpression = classScope.addOrGetFieldSharable(new VariableReaderCodegenFieldSharable(variableMeta));
         if (variableMeta.getEventType() == null) {
-            return cast(variableType, exprDotMethod(readerExpression, "getValue"));
+            return cast(returnClass, exprDotMethod(readerExpression, "getValue"));
         }
-        CodegenExpression unpack = exprDotUnderlying(cast(EventBean.class, exprDotMethod(readerExpression, "getValue")));
-        return cast(variableType, unpack);
+        CodegenExpression unpack = exprDotUnderlying(cast(EventBean.EPTYPE, exprDotMethod(readerExpression, "getValue")));
+        return cast(returnClass, unpack);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprVariable", requiredType, parent, symbols, classScope).build();
     }
 

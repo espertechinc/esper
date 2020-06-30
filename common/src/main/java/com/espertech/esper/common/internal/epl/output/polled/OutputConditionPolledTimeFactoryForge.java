@@ -27,10 +27,10 @@ public final class OutputConditionPolledTimeFactoryForge implements OutputCondit
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(OutputConditionPolledFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OutputConditionPolledFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(TimePeriodCompute.class, "delta", timePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope))
-                .methodReturn(newInstance(OutputConditionPolledTimeFactory.class, ref("delta")));
+                .declareVar(TimePeriodCompute.EPTYPE, "delta", timePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope))
+                .methodReturn(newInstance(OutputConditionPolledTimeFactory.EPTYPE, ref("delta")));
         return localMethod(method);
     }
 }

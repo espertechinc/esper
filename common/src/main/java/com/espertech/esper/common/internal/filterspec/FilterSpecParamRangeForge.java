@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -80,25 +82,25 @@ public final class FilterSpecParamRangeForge extends FilterSpecParamForge {
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
-        CodegenMethod method = parent.makeChild(FilterSpecParam.class, FilterSpecParamConstantForge.class, classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, FilterSpecParamConstantForge.class, classScope);
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+                .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+                .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.EPTYPE, Arrays.asList(ref("lookupable"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.EPTYPE, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
 
-        Class returnType = DoubleRange.class;
-        Class castType = Double.class;
-        if (lookupable.getReturnType() == String.class) {
-            castType = String.class;
-            returnType = StringRange.class;
+        EPTypeClass returnType = DoubleRange.EPTYPE;
+        EPTypeClass castType = EPTypePremade.DOUBLEBOXED.getEPType();
+        if (lookupable.getReturnType().getType() == String.class) {
+            castType = EPTypePremade.STRING.getEPType();
+            returnType = StringRange.EPTYPE;
         }
         getFilterValue.getBlock()
-                .declareVar(Object.class, "min", min.makeCodegen(classScope, method))
-                .declareVar(Object.class, "max", max.makeCodegen(classScope, method))
-                .declareVar(Object.class, "value", newInstance(returnType, cast(castType, ref("min")), cast(castType, ref("max"))))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "min", min.makeCodegen(classScope, method))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "max", max.makeCodegen(classScope, method))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", newInstance(returnType, cast(castType, ref("min")), cast(castType, ref("max"))))
                 .methodReturn(FilterValueSetParamImpl.codegenNew(ref("value")));
 
         method.getBlock().methodReturn(param);

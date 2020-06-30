@@ -37,11 +37,11 @@ public class AggregatorAccessPlugin extends AggregatorAccessWFilterBase {
 
     public AggregatorAccessPlugin(int col, boolean join, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter, AggregationMultiFunctionStateModeManaged mode) {
         super(optionalFilter);
-        state = membersColumnized.addMember(col, AggregationMultiFunctionState.class, "state");
+        state = membersColumnized.addMember(col, AggregationMultiFunctionState.EPTYPE, "state");
         this.mode = mode;
 
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationStateFactory();
-        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationMultiFunctionStateFactory.class, injectionStrategy.getInitializationExpression(classScope));
+        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationMultiFunctionStateFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
         ctor.getBlock().assignRef(state, exprDotMethod(factoryField, "newState", constantNull()));
     }
 

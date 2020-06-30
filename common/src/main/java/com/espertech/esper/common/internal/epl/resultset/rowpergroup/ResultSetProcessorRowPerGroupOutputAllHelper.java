@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.rowpergroup;
 
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputHelper;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import java.util.Set;
 
 public interface ResultSetProcessorRowPerGroupOutputAllHelper extends ResultSetProcessorOutputHelper {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorRowPerGroupOutputAllHelper.class);
 
     void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
 

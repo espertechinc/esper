@@ -53,7 +53,7 @@ public class ExprCoreBitWiseOperators {
     private static class ExprCoreBitWiseInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryInvalidCompile(env, "select * from SupportBean(theString = 'a' | 'x')",
-                "Failed to validate filter expression 'theString=\"a\"|\"x\"': Invalid datatype for binary operator, java.lang.String is not allowed");
+                "Failed to validate filter expression 'theString=\"a\"|\"x\"': Invalid datatype for binary operator, String is not allowed");
         }
     }
 

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.serde.compiletime.eventtype;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.event.core.TypeBeanOrUnderlying;
@@ -40,16 +41,17 @@ public class SerdeEventPropertyUtility {
         if (propertyType == null) {
             return new SerdeEventPropertyDesc(new DataInputOutputSerdeForgeSingleton(DIOSkipSerde.class), Collections.emptySet());
         }
-        if (propertyType instanceof Class) {
+        if (propertyType instanceof EPTypeClass) {
+            EPTypeClass epType = (EPTypeClass) propertyType;
 
             // handle special Json catch-all types
             if (eventTypeSerde instanceof JsonEventType) {
                 forge = null;
-                if (propertyType == Map.class) {
+                if (epType.getType() == Map.class) {
                     forge = new DataInputOutputSerdeForgeSingleton(DIOJsonObjectSerde.class);
-                } else if (propertyType == Object[].class) {
+                } else if (epType.getType() == Object[].class) {
                     forge = new DataInputOutputSerdeForgeSingleton(DIOJsonArraySerde.class);
-                } else if (propertyType == Object.class) {
+                } else if (epType.getType() == Object.class) {
                     forge = new DataInputOutputSerdeForgeSingleton(DIOJsonAnyValueSerde.class);
                 }
                 if (forge != null) {
@@ -58,11 +60,10 @@ public class SerdeEventPropertyUtility {
             }
 
             // handle all Class-type properties
-            Class typedProperty = (Class) propertyType;
-            if (typedProperty == Object.class && propertyName.equals(INTERNAL_RESERVED_PROPERTY)) {
+            if (epType.getType() == Object.class && propertyName.equals(INTERNAL_RESERVED_PROPERTY)) {
                 forge = new DataInputOutputSerdeForgeSingleton(DIOSkipSerde.class); // for expression data window or others that include transient references in the field
             } else {
-                forge = resolver.serdeForEventProperty(typedProperty, eventTypeSerde.getName(), propertyName, raw);
+                forge = resolver.serdeForEventProperty(epType, eventTypeSerde.getName(), propertyName, raw);
             }
             return new SerdeEventPropertyDesc(forge, Collections.emptySet());
         }

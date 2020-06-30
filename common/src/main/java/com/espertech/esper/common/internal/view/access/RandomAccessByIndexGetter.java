@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.access;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
 
@@ -17,6 +18,8 @@ import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
  * Getter that provides an index at runtime.
  */
 public class RandomAccessByIndexGetter implements RandomAccessByIndexObserver, PreviousGetterStrategy {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RandomAccessByIndexGetter.class);
+
     private RandomAccessByIndex randomAccessByIndex;
 
     public RandomAccessByIndexGetter() {

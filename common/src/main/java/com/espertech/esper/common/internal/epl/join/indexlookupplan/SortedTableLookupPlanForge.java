@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.indexlookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -29,9 +30,9 @@ import java.util.Collections;
  */
 public class SortedTableLookupPlanForge extends TableLookupPlanForge {
     private QueryGraphValueEntryRangeForge rangeKeyPair;
-    private Class optionalCoercionType;
+    private EPTypeClass optionalCoercionType;
 
-    public SortedTableLookupPlanForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryRangeForge rangeKeyPair, Class optionalCoercionType) {
+    public SortedTableLookupPlanForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryRangeForge rangeKeyPair, EPTypeClass optionalCoercionType) {
         super(lookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, new TableLookupIndexReqKey[]{indexNum});
         this.rangeKeyPair = rangeKeyPair;
         this.optionalCoercionType = optionalCoercionType;
@@ -51,8 +52,8 @@ public class SortedTableLookupPlanForge extends TableLookupPlanForge {
                 " keyProperties=" + rangeKeyPair.toQueryPlan();
     }
 
-    public Class typeOfPlanFactory() {
-        return SortedTableLookupPlanFactory.class;
+    public EPTypeClass typeOfPlanFactory() {
+        return SortedTableLookupPlanFactory.EPTYPE;
     }
 
     public Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

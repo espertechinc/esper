@@ -2704,6 +2704,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterClassIdentifierNoDimensions(EsperEPL2GrammarParser.ClassIdentifierNoDimensionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClassIdentifierNoDimensions(EsperEPL2GrammarParser.ClassIdentifierNoDimensionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterClassIdentifierWithDimensions(EsperEPL2GrammarParser.ClassIdentifierWithDimensionsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2711,6 +2723,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitClassIdentifierWithDimensions(EsperEPL2GrammarParser.ClassIdentifierWithDimensionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTypeParameters(EsperEPL2GrammarParser.TypeParametersContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeParameters(EsperEPL2GrammarParser.TypeParametersContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

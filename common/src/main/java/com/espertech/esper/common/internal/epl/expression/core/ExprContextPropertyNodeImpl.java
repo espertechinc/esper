@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -37,7 +40,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprContextPropertyNode, ExprEvaluator, ExprForgeInstrumentable {
     private final String propertyName;
-    private Class returnType;
+    private EPType returnType;
     private transient EventPropertyGetterSPI getter;
 
     public ExprContextPropertyNodeImpl(String propertyName) {
@@ -52,7 +55,7 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
         return propertyName;
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return returnType;
     }
 
@@ -73,10 +76,11 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
             throw new ExprValidationException("Context property '" + propertyName + "' cannot be used in the expression as provided");
         }
         getter = eventType.getGetterSPI(propertyName);
-        if (getter == null) {
+        EPType propertyType = eventType.getPropertyEPType(propertyName);
+        if (getter == null || propertyType == null) {
             throw new ExprValidationException("Context property '" + propertyName + "' is not a known property, known properties are " + Arrays.toString(eventType.getPropertyNames()));
         }
-        returnType = JavaClassHelper.getBoxedType(eventType.getPropertyType(propertyName));
+        returnType = JavaClassHelper.getBoxedType(propertyType);
         return null;
     }
 
@@ -90,17 +94,21 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
         return result;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(getEvaluationType(), ExprContextPropertyNodeImpl.class, codegenClassScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        if (returnType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass returnClass = (EPTypeClass) returnType;
+        CodegenMethod methodNode = codegenMethodScope.makeChild(returnClass, ExprContextPropertyNodeImpl.class, codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(EventBean.class, "props", exprDotMethod(refExprEvalCtx, "getContextProperties"))
+                .declareVar(EventBean.EPTYPE, "props", exprDotMethod(refExprEvalCtx, "getContextProperties"))
                 .ifRefNullReturnNull("props");
-        block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("props"), methodNode, codegenClassScope)));
+        block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnClass, getter.eventBeanGetCodegen(ref("props"), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprContextProp", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
@@ -108,7 +116,7 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getType() {
+    public EPType getValueType() {
         return returnType;
     }
 

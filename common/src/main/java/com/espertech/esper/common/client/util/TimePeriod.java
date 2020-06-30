@@ -10,12 +10,19 @@
  */
 package com.espertech.esper.common.client.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.Serializable;
 
 /**
  * Represents a time period.
  */
 public class TimePeriod implements Serializable {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimePeriod.class);
+
     private static final long serialVersionUID = 1897460581178729620L;
     private Integer years;
     private Integer months;

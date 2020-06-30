@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.util;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
@@ -32,7 +33,7 @@ public class ViewFactoryTimePeriodHelper {
                                                                              int expressionNumber,
                                                                              ViewForgeEnv viewForgeEnv,
                                                                              int streamNumber)
-            throws ViewParameterException {
+        throws ViewParameterException {
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(false);
         TimePeriodComputeForge forge;
         if (expression instanceof ExprTimePeriod) {
@@ -40,8 +41,8 @@ public class ViewFactoryTimePeriodHelper {
             forge = validated.getTimePeriodComputeForge();
         } else {
             ExprNode validated = ViewForgeSupport.validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber, streamNumber);
-            Class returnType = JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType());
-            if (!JavaClassHelper.isNumeric(returnType)) {
+            EPType type = validated.getForge().getEvaluationType();
+            if (type == null || !JavaClassHelper.isNumeric(type)) {
                 throw new ViewParameterException(expectedMessage);
             }
             if (validated.getForge().getForgeConstantType().isCompileTimeConstant()) {

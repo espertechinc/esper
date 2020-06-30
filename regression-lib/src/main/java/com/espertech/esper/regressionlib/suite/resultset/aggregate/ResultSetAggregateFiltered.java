@@ -11,9 +11,9 @@
 package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
 
 import java.math.BigDecimal;
@@ -310,7 +310,7 @@ public class ResultSetAggregateFiltered {
     private static class ResultSetAggregateInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryInvalidCompile(env, "select count(*, intPrimitive) from SupportBean",
-                "Failed to validate select-clause expression 'count(*,intPrimitive)': Invalid filter expression parameter to the aggregation function 'count' is expected to return a boolean value but returns java.lang.Integer [select count(*, intPrimitive) from SupportBean]");
+                "Failed to validate select-clause expression 'count(*,intPrimitive)': Invalid filter expression parameter to the aggregation function 'count' is expected to return a boolean value but returns Integer [select count(*, intPrimitive) from SupportBean]");
 
             tryInvalidCompile(env, "select fmin(intPrimitive) from SupportBean",
                 "Failed to validate select-clause expression 'min(intPrimitive)': MIN-filtered aggregation function must have a filter expression as a second parameter [select fmin(intPrimitive) from SupportBean]");

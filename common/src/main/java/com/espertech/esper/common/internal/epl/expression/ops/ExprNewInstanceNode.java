@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManufacturerFactory;
 import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManufacturerFactoryFactory;
-import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.settings.ClasspathImportEPTypeUtil;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -23,14 +27,14 @@ import java.io.StringWriter;
  */
 public class ExprNewInstanceNode extends ExprNodeBase {
 
-    private final String classIdent;
+    private final ClassDescriptor classIdentNoDimensions;
     private final int numArrayDimensions;
     private boolean arrayInitializedByExpr;
 
     private transient ExprForge forge;
 
-    public ExprNewInstanceNode(String classIdent, int numArrayDimensions) {
-        this.classIdent = classIdent;
+    public ExprNewInstanceNode(ClassDescriptor classIdentNoDimensions, int numArrayDimensions) {
+        this.classIdentNoDimensions = classIdentNoDimensions;
         this.numArrayDimensions = numArrayDimensions;
     }
 
@@ -46,16 +50,19 @@ public class ExprNewInstanceNode extends ExprNodeBase {
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Resolve target class
-        Class targetClass = null;
-        if (numArrayDimensions != 0) {
-            targetClass = JavaClassHelper.getPrimitiveClassForName(classIdent);
+        EPTypeClass targetClass = null;
+        if (numArrayDimensions > 0 && classIdentNoDimensions.getTypeParameters().isEmpty()) {
+            // the "double[]" does become "double[]" and not "Double[]"
+            Class primitive = JavaClassHelper.getPrimitiveClassForName(classIdentNoDimensions.getClassIdentifier());
+            if (primitive != null) {
+                targetClass = EPTypePremade.getOrCreate(primitive);
+            }
         }
         if (targetClass == null) {
-            try {
-                targetClass = validationContext.getClasspathImportService().resolveClass(classIdent, false, validationContext.getClassProvidedClasspathExtension());
-            } catch (ClasspathImportException e) {
-                throw new ExprValidationException("Failed to resolve new-operator class name '" + classIdent + "'");
-            }
+            targetClass = ClasspathImportEPTypeUtil.resolveClassIdentifierToEPType(classIdentNoDimensions, false, validationContext.getClasspathImportService(), validationContext.getClassProvidedClasspathExtension());
+        }
+        if (targetClass == null) {
+            throw new ExprValidationException("Failed to resolve type parameter '" + classIdentNoDimensions.toEPL() + "'");
         }
 
         // handle non-array
@@ -66,14 +73,14 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         }
 
         // determine array initialized or not
-        Class targetClassArray = JavaClassHelper.getArrayType(targetClass, numArrayDimensions);
+        EPTypeClass targetClassArray = JavaClassHelper.getArrayType(targetClass, numArrayDimensions);
         if (getChildNodes().length == 1 && getChildNodes()[0] instanceof ExprArrayNode) {
             arrayInitializedByExpr = true;
         } else {
             for (ExprNode child : getChildNodes()) {
-                Class evalType = child.getForge().getEvaluationType();
-                if (JavaClassHelper.getBoxedType(evalType) != Integer.class) {
-                    String message = "New-keyword with an array-type result requires an Integer-typed dimension but received type '" + JavaClassHelper.getClassNameFullyQualPretty(evalType) + "'";
+                EPType evalType = child.getForge().getEvaluationType();
+                if (!JavaClassHelper.isTypeInteger(evalType)) {
+                    String message = "New-keyword with an array-type result requires an Integer-typed dimension but received type '" + (evalType == null ? "null" : evalType.getTypeName()) + "'";
                     throw new ExprValidationException(message);
                 }
             }
@@ -101,7 +108,8 @@ public class ExprNewInstanceNode extends ExprNodeBase {
                 innerArray.setOptionalRequiredType(targetClass);
                 innerArray.validate(validationContext);
             }
-            arrayNode.setOptionalRequiredType(targetClassArray.getComponentType());
+            EPTypeClass component = JavaClassHelper.getArrayComponentType(targetClassArray);
+            arrayNode.setOptionalRequiredType(component);
         } else {
             arrayNode.setOptionalRequiredType(targetClass);
         }
@@ -115,8 +123,8 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         return false;
     }
 
-    public String getClassIdent() {
-        return classIdent;
+    public ClassDescriptor getClassIdentNoDimensions() {
+        return classIdentNoDimensions;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
@@ -125,12 +133,12 @@ public class ExprNewInstanceNode extends ExprNodeBase {
         }
 
         ExprNewInstanceNode other = (ExprNewInstanceNode) node;
-        return other.classIdent.equals(this.classIdent) && other.numArrayDimensions == this.numArrayDimensions;
+        return other.classIdentNoDimensions.equals(this.classIdentNoDimensions) && other.numArrayDimensions == this.numArrayDimensions;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
         writer.write("new ");
-        writer.write(classIdent);
+        writer.write(classIdentNoDimensions.toEPL());
         if (numArrayDimensions == 0) {
             ExprNodeUtilityPrint.toExpressionStringParams(writer, this.getChildNodes());
         } else {

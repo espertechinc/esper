@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.map;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -51,11 +52,11 @@ public class MapDynamicPropertyGetter implements MapEventPropertyGetter {
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return exprDotMethod(castUnderlying(Map.class, beanExpression), "get", constant(propertyName));
+        return exprDotMethod(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), "get", constant(propertyName));
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return exprDotMethod(castUnderlying(Map.class, beanExpression), "containsKey", constant(propertyName));
+        return exprDotMethod(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), "containsKey", constant(propertyName));
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.eval;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsTimeZoneField;
@@ -21,7 +22,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethodChain;
 
 public class DatetimeLongCoercerLocalDateTime implements DatetimeLongCoercer {
-
     public long coerce(Object date) {
         return coerceLDTToMilliWTimezone((LocalDateTime) date, TimeZone.getDefault());
     }
@@ -37,8 +37,8 @@ public class DatetimeLongCoercerLocalDateTime implements DatetimeLongCoercer {
         return ldt.atZone(timeZone.toZoneId()).toInstant().toEpochMilli();
     }
 
-    public CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenClassScope codegenClassScope) {
-        if (valueType != LocalDateTime.class) {
+    public CodegenExpression codegen(CodegenExpression value, EPTypeClass valueType, CodegenClassScope codegenClassScope) {
+        if (valueType.getType() != LocalDateTime.class) {
             throw new IllegalStateException("Expected a LocalDateTime type");
         }
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);

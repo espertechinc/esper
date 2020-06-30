@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.hook.vdw;
 
+import com.espertech.esper.common.client.type.EPType;
+
 /**
  * As part of a lookup context, see {@link VirtualDataWindowLookupContext}, this object encapsulates information about a single
  * property in a correlated where-clause.
@@ -17,7 +19,7 @@ package com.espertech.esper.common.client.hook.vdw;
 public class VirtualDataWindowLookupFieldDesc {
     private String propertyName;
     private VirtualDataWindowLookupOp operator;
-    private Class lookupValueType;
+    private EPType lookupValueType;
 
     /**
      * Ctor.
@@ -26,7 +28,7 @@ public class VirtualDataWindowLookupFieldDesc {
      * @param operator        operator
      * @param lookupValueType lookup key type
      */
-    public VirtualDataWindowLookupFieldDesc(String propertyName, VirtualDataWindowLookupOp operator, Class lookupValueType) {
+    public VirtualDataWindowLookupFieldDesc(String propertyName, VirtualDataWindowLookupOp operator, EPType lookupValueType) {
         this.propertyName = propertyName;
         this.operator = operator;
         this.lookupValueType = lookupValueType;
@@ -46,7 +48,7 @@ public class VirtualDataWindowLookupFieldDesc {
      *
      * @param lookupValueType type
      */
-    public void setLookupValueType(Class lookupValueType) {
+    public void setLookupValueType(EPType lookupValueType) {
         this.lookupValueType = lookupValueType;
     }
 
@@ -64,7 +66,7 @@ public class VirtualDataWindowLookupFieldDesc {
      *
      * @return lookup value type (aka. key type)
      */
-    public Class getLookupValueType() {
+    public EPType getLookupValueType() {
         return lookupValueType;
     }
 

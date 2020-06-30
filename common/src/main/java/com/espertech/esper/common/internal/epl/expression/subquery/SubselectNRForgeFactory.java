@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage1.spec.GroupByClauseElement;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityValidate;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.type.RelationalOpEnum;
@@ -21,9 +25,9 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
 
 /**
  * Factory for subselect evaluation strategies.
@@ -59,19 +63,18 @@ public class SubselectNRForgeFactory {
         }
         ExprNode valueExpr = subselectExpression.getChildNodes()[0];
 
-        // Must be the same boxed type returned by expressions under this
-        Class typeOne = JavaClassHelper.getBoxedType(subselectExpression.getChildNodes()[0].getForge().getEvaluationType());
+        EPType typeOne = JavaClassHelper.getBoxedType(subselectExpression.getChildNodes()[0].getForge().getEvaluationType());
+        EPTypeClass typeOneClass = ExprNodeUtilityValidate.validateLHSTypeAnyAllSomeIn(typeOne);
 
-        // collections, array or map not supported
-        if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
-            throw new ExprValidationException("Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
-        }
-
-        Class typeTwo;
+        EPTypeClass typeTwoClass;
         if (subselectExpression.getSelectClause() != null) {
-            typeTwo = subselectExpression.getSelectClause()[0].getForge().getEvaluationType();
+            EPType selectType = subselectExpression.getSelectClause()[0].getForge().getEvaluationType();
+            if (selectType == null || selectType == EPTypeNull.INSTANCE) {
+                throw new ExprValidationException("Null-type value not allowed for the IN, ANY, SOME or ALL keywords");
+            }
+            typeTwoClass = (EPTypeClass) selectType;
         } else {
-            typeTwo = subselectExpression.getRawEventType().getUnderlyingType();
+            typeTwoClass = subselectExpression.getRawEventType().getUnderlyingEPType();
         }
 
         boolean aggregated = aggregated(subselectExpression.getSubselectAggregationType());
@@ -82,21 +85,21 @@ public class SubselectNRForgeFactory {
         ExprForge havingEval = subselectExpression.havingExpr;
 
         if (relationalOp != null) {
-            if ((typeOne != String.class) || (typeTwo != String.class)) {
+            if (!isTypeString(typeOne) || !isTypeString(typeTwoClass)) {
                 if (!JavaClassHelper.isNumeric(typeOne)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
-                            typeOne.getSimpleName() +
+                            typeOne.getTypeName() +
                             "' to numeric is not allowed");
                 }
-                if (!JavaClassHelper.isNumeric(typeTwo)) {
+                if (!JavaClassHelper.isNumeric(typeTwoClass)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
-                            typeTwo.getSimpleName() +
+                            typeTwoClass.getTypeName() +
                             "' to numeric is not allowed");
                 }
             }
 
-            Class compareType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
-            RelationalOpEnum.Computer computer = relationalOp.getComputer(compareType, typeOne, typeTwo);
+            EPTypeClass compareType = JavaClassHelper.getCompareToCoercionType(typeOneClass, typeTwoClass);
+            RelationalOpEnum.Computer computer = relationalOp.getComputer(compareType, typeOneClass, typeTwoClass);
 
             if (isAny) {
                 if (grouped) {
@@ -118,7 +121,7 @@ public class SubselectNRForgeFactory {
             return new SubselectForgeNRRelOpAllDefault(subselectExpression, valueEval, selectEval, true, computer, filterEval);
         }
 
-        SimpleNumberCoercer coercer = getCoercer(typeOne, typeTwo);
+        SimpleNumberCoercer coercer = getCoercer(typeOneClass, typeTwoClass);
         if (isAll) {
             if (grouped) {
                 return new SubselectForgeNREqualsAllAnyWGroupBy(subselectExpression, valueEval, selectEval, true, isNot, coercer, havingEval, true);
@@ -146,24 +149,24 @@ public class SubselectNRForgeFactory {
         }
     }
 
-    private static SimpleNumberCoercer getCoercer(Class typeOne, Class typeTwo) throws ExprValidationException {
+    private static SimpleNumberCoercer getCoercer(EPTypeClass typeOne, EPTypeClass typeTwo) throws ExprValidationException {
         // Get the common type such as Bool, String or Double and Long
-        Class coercionType;
+        EPTypeClass coercionType;
         boolean mustCoerce;
         try {
             coercionType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
         } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion from datatype '" +
-                    typeTwo.getSimpleName() +
+                    typeTwo +
                     "' to '" +
-                    typeOne.getSimpleName() +
+                    typeOne +
                     "' is not allowed");
         }
 
         // Check if we need to coerce
         mustCoerce = false;
-        if ((coercionType != JavaClassHelper.getBoxedType(typeOne)) ||
-                (coercionType != JavaClassHelper.getBoxedType(typeTwo))) {
+        if (!coercionType.equals(JavaClassHelper.getBoxedType(typeOne)) ||
+                (!(coercionType.equals(JavaClassHelper.getBoxedType(typeTwo))))) {
             if (JavaClassHelper.isNumeric(coercionType)) {
                 mustCoerce = true;
             }

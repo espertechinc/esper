@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.indexlookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.composite.PropertyCompositeEventTable;
@@ -24,6 +25,8 @@ import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupPlan;
  * Plan to perform an indexed table lookup.
  */
 public class CompositeTableLookupPlanFactory extends TableLookupPlan {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CompositeTableLookupPlanFactory.class);
+
     private final ExprEvaluator hashKeys;
     private final QueryGraphValueEntryRange[] rangeKeyPairs;
 

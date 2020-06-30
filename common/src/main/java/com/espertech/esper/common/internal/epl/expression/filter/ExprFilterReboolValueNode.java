@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.filter;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,9 +24,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class ExprFilterReboolValueNode extends ExprNodeBase implements ExprForge {
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public ExprFilterReboolValueNode(Class returnType) {
+    public ExprFilterReboolValueNode(EPTypeClass returnType) {
         this.returnType = returnType;
     }
 
@@ -54,11 +55,11 @@ public class ExprFilterReboolValueNode extends ExprNodeBase implements ExprForge
         throw new UnsupportedOperationException("Evaluator not available");
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return cast(requiredType, CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(symbols.getAddExprEvalCtx(parent), "getFilterReboolConstant")));
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

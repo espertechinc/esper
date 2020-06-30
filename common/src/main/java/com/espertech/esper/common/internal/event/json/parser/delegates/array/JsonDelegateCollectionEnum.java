@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 
 public class JsonDelegateCollectionEnum extends JsonDelegateArrayEnum {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateCollectionEnum.class);
 
-    public JsonDelegateCollectionEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, Class enumType) {
+    public JsonDelegateCollectionEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, EPTypeClass enumType) {
         super(baseHandler, parent, enumType);
     }
 

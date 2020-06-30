@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -36,8 +38,8 @@ public class DTLocalCalOpsLocalDateTimeEval extends DTLocalEvaluatorCalOpsCalBas
         return DTLocalUtil.evaluateCalOpsLDT(calendarOps, ldt, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalCalOpsLocalDateTimeForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(LocalDateTime.class, DTLocalCalOpsLocalDateTimeEval.class, codegenClassScope).addParam(LocalDateTime.class, "target");
+    public static CodegenExpression codegen(DTLocalCalOpsLocalDateTimeForge forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.LOCALDATETIME.getEPType(), DTLocalCalOpsLocalDateTimeEval.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "target");
         CodegenBlock block = methodNode.getBlock();
         DTLocalUtil.evaluateCalOpsLDTCodegen(block, "target", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
         block.methodReturn(ref("target"));

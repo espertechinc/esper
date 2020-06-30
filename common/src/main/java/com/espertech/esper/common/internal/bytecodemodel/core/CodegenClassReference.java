@@ -10,13 +10,15 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenClassReference {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final String className;
 
     public CodegenClassReference(String className) {
@@ -27,7 +29,7 @@ public class CodegenClassReference {
         this.className = className;
     }
 
-    public CodegenClassReference(Class clazz) {
+    public CodegenClassReference(EPTypeClass clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException();
         }
@@ -35,7 +37,7 @@ public class CodegenClassReference {
         this.className = null;
     }
 
-    public Class getClazz() {
+    public EPTypeClass getClazz() {
         return clazz;
     }
 
@@ -45,13 +47,13 @@ public class CodegenClassReference {
 
     public void addReferenced(Set<Class> classes) {
         if (clazz != null) {
-            classes.add(clazz);
+            clazz.traverseClasses(classes::add);
         }
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
         if (clazz != null) {
-            appendClassName(builder, clazz, null, imports);
+            appendClassName(builder, clazz, imports);
         } else {
             builder.append(className);
         }

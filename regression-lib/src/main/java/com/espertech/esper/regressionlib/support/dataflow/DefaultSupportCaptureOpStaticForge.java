@@ -28,7 +28,7 @@ public class DefaultSupportCaptureOpStaticForge<T> implements DataFlowOperatorFo
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(DefaultSupportCaptureOpStaticFactory.class);
+        return newInstance(DefaultSupportCaptureOpStaticFactory.EPTYPE);
     }
 }
 

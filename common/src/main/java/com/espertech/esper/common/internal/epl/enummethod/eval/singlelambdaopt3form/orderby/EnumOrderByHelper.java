@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.orderby;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -53,16 +55,16 @@ public class EnumOrderByHelper {
         return coll;
     }
 
-    public static void sortingCode(CodegenBlock block, Class innerBoxedType, ExprForge innerExpression, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
+    public static void sortingCode(CodegenBlock block, EPTypeClass innerBoxedType, ExprForge innerExpression, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
         block.declareVar(innerBoxedType, "value", innerExpression.evaluateCodegen(innerBoxedType, methodNode, scope, codegenClassScope))
-            .declareVar(Object.class, "entry", exprDotMethod(ref("sort"), "get", ref("value")))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "entry", exprDotMethod(ref("sort"), "get", ref("value")))
             .ifCondition(equalsNull(ref("entry")))
             .expression(exprDotMethod(ref("sort"), "put", ref("value"), ref("next")))
             .blockContinue()
-            .ifCondition(instanceOf(ref("entry"), Collection.class))
-            .exprDotMethod(cast(Collection.class, ref("entry")), "add", ref("next"))
+            .ifCondition(instanceOf(ref("entry"), EPTypePremade.COLLECTION.getEPType()))
+            .exprDotMethod(cast(EPTypePremade.COLLECTION.getEPType(), ref("entry")), "add", ref("next"))
             .blockContinue()
-            .declareVar(Deque.class, "coll", newInstance(ArrayDeque.class, constant(2)))
+            .declareVar(EPTypePremade.DEQUE.getEPType(), "coll", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), constant(2)))
             .exprDotMethod(ref("coll"), "add", ref("entry"))
             .exprDotMethod(ref("coll"), "add", ref("next"))
             .exprDotMethod(ref("sort"), "put", ref("value"), ref("coll"))

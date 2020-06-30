@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.event.json.getter.provided.JsonFieldResolverProvided;
 
@@ -18,12 +19,14 @@ import java.lang.reflect.Field;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class JsonUnderlyingField {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonUnderlyingField.class);
+
     private final String fieldName;
     private final int propertyNumber;
-    private final Class propertyType;
+    private final EPTypeClass propertyType;
     private final Field optionalField;
 
-    public JsonUnderlyingField(String fieldName, int propertyNumber, Class propertyType, Field optionalField) {
+    public JsonUnderlyingField(String fieldName, int propertyNumber, EPTypeClass propertyType, Field optionalField) {
         this.fieldName = fieldName;
         this.propertyNumber = propertyNumber;
         this.propertyType = propertyType;
@@ -38,7 +41,7 @@ public class JsonUnderlyingField {
         return propertyNumber;
     }
 
-    public Class getPropertyType() {
+    public EPTypeClass getPropertyType() {
         return propertyType;
     }
 
@@ -51,6 +54,6 @@ public class JsonUnderlyingField {
         if (optionalField != null) {
             field = staticMethod(JsonFieldResolverProvided.class, "resolveJsonField", constant(optionalField.getDeclaringClass()), constant(optionalField.getName()));
         }
-        return newInstance(JsonUnderlyingField.class, constant(fieldName), constant(propertyNumber), constant(propertyType), field);
+        return newInstance(JsonUnderlyingField.EPTYPE, constant(fieldName), constant(propertyNumber), constant(propertyType), field);
     }
 }

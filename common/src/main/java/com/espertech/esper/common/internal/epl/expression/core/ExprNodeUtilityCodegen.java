@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -24,44 +28,52 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 
 public class ExprNodeUtilityCodegen {
-    public static CodegenExpression codegenExpressionMayCoerce(ExprForge forge, Class targetType, CodegenMethod exprMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope classScope) {
-        CodegenExpression expr = forge.evaluateCodegen(forge.getEvaluationType(), exprMethod, exprSymbol, classScope);
+    public static CodegenExpression codegenExpressionMayCoerce(ExprForge forge, EPType targetType, CodegenMethod exprMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope classScope) {
+        if (targetType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenExpression expr = forge.evaluateCodegen((EPTypeClass) forge.getEvaluationType(), exprMethod, exprSymbol, classScope);
         return ExprNodeUtilityCodegen.codegenCoerce(expr, forge.getEvaluationType(), targetType, false);
     }
 
-    public static CodegenExpression codegenCoerce(CodegenExpression expression, Class exprType, Class targetType, boolean alwaysCast) {
-        if (targetType == null) {
+    public static CodegenExpression codegenCoerce(CodegenExpression expression, EPType exprType, EPType targetType, boolean alwaysCast) {
+        if (targetType == null || targetType == EPTypeNull.INSTANCE || exprType == null || exprType == EPTypeNull.INSTANCE) {
             return expression;
         }
-        if (JavaClassHelper.getBoxedType(exprType) == JavaClassHelper.getBoxedType(targetType)) {
-            return alwaysCast ? cast(targetType, expression) : expression;
+        EPTypeClass exprClass = (EPTypeClass) exprType;
+        EPTypeClass exprClassBoxed = JavaClassHelper.getBoxedType(exprClass);
+        EPTypeClass targetClass = (EPTypeClass) targetType;
+        EPTypeClass targetClassBoxed = JavaClassHelper.getBoxedType(targetClass);
+        if (exprClassBoxed.getType() == targetClassBoxed.getType()) {
+            return alwaysCast ? cast(targetClass, expression) : expression;
         }
-        SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(exprType, JavaClassHelper.getBoxedType(targetType));
-        if (exprType.isPrimitive() || alwaysCast) {
-            expression = cast(JavaClassHelper.getBoxedType(exprType), expression);
+        SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(exprClass, JavaClassHelper.getBoxedType(targetClass));
+        if (exprClass.getType().isPrimitive() || alwaysCast) {
+            expression = cast(exprClassBoxed, expression);
         }
-        return coercer.coerceCodegen(expression, exprType);
+        return coercer.coerceCodegen(expression, exprClass);
     }
 
     public static CodegenExpressionNewAnonymousClass codegenEvaluator(ExprForge forge, CodegenMethod method, Class originator, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), ExprEvaluator.class);
-        CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, originator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), ExprEvaluator.EPTYPE);
+        CodegenMethod evaluate = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), originator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         anonymousClass.addMethod("evaluate", evaluate);
-        if (forge.getEvaluationType() == null) {
+        EPType type = forge.getEvaluationType();
+
+        if (type == null || type == EPTypeNull.INSTANCE) {
             evaluate.getBlock().methodReturn(constantNull());
-        } else if (forge.getEvaluationType() == void.class) {
+            return anonymousClass;
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        if (JavaClassHelper.isTypeVoid(typeClass)) {
             CodegenMethod evalMethod = CodegenLegoMethodExpression.codegenExpression(forge, method, classScope);
             evaluate.getBlock()
-                .localMethod(evalMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT)
-                .methodReturn(constantNull());
+                    .localMethod(evalMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT)
+                    .methodReturn(constantNull());
         } else {
             CodegenMethod evalMethod = CodegenLegoMethodExpression.codegenExpression(forge, method, classScope);
             evaluate.getBlock().methodReturn(localMethod(evalMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
@@ -78,12 +90,12 @@ public class ExprNodeUtilityCodegen {
         for (int i = 0; i < init.length; i++) {
             init[i] = codegenEvaluators(expressions[i], parent, originator, classScope);
         }
-        return newArrayWithInit(ExprEvaluator[].class, init);
+        return newArrayWithInit(ExprEvaluator.EPTYPEARRAY, init);
     }
 
     public static CodegenExpression codegenEvaluators(ExprForge[] expressions, CodegenMethodScope parent, Class originator, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ExprEvaluator[].class, originator, classScope);
-        method.getBlock().declareVar(ExprEvaluator[].class, "evals", newArrayByLength(ExprEvaluator.class, constant(expressions.length)));
+        CodegenMethod method = parent.makeChild(ExprEvaluator.EPTYPEARRAY, originator, classScope);
+        method.getBlock().declareVar(ExprEvaluator.EPTYPEARRAY, "evals", newArrayByLength(ExprEvaluator.EPTYPE, constant(expressions.length)));
         for (int i = 0; i < expressions.length; i++) {
             method.getBlock().assignArrayElement("evals", constant(i), expressions[i] == null ? constantNull() : codegenEvaluator(expressions[i], method, originator, classScope));
         }
@@ -95,9 +107,9 @@ public class ExprNodeUtilityCodegen {
         return codegenEvaluatorWCoerce(forge, null, method, generator, classScope);
     }
 
-    public static CodegenExpressionNewAnonymousClass codegenEvaluatorWCoerce(ExprForge forge, Class optCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEvaluator.class);
-        CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+    public static CodegenExpressionNewAnonymousClass codegenEvaluatorWCoerce(ExprForge forge, EPTypeClass optCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+        CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEvaluator.EPTYPE);
+        CodegenMethod evaluate = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), generator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         evaluator.addMethod("evaluate", evaluate);
 
         CodegenExpression result = constantNull();
@@ -105,10 +117,14 @@ public class ExprNodeUtilityCodegen {
             CodegenMethod evalMethod = CodegenLegoMethodExpression.codegenExpression(forge, method, classScope);
             result = localMethod(evalMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT);
 
-            if (optCoercionType != null && JavaClassHelper.getBoxedType(forge.getEvaluationType()) != JavaClassHelper.getBoxedType(optCoercionType)) {
-                SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(forge.getEvaluationType(), JavaClassHelper.getBoxedType(optCoercionType));
-                evaluate.getBlock().declareVar(forge.getEvaluationType(), "result", result);
-                result = coercer.coerceCodegen(ref("result"), forge.getEvaluationType());
+            if (optCoercionType != null) {
+                EPTypeClass type = (EPTypeClass) forge.getEvaluationType();
+                EPTypeClass boxed = JavaClassHelper.getBoxedType(type);
+                if (boxed.getType() != JavaClassHelper.getBoxedType(optCoercionType).getType()) {
+                    SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(boxed, JavaClassHelper.getBoxedType(optCoercionType));
+                    evaluate.getBlock().declareVar(boxed, "result", result);
+                    result = coercer.coerceCodegen(ref("result"), boxed);
+                }
             }
         }
 
@@ -117,20 +133,25 @@ public class ExprNodeUtilityCodegen {
     }
 
     public static CodegenExpressionNewAnonymousClass codegenEvaluatorObjectArray(ExprForge[] forges, CodegenMethod method, Class generator, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEvaluator.class);
-        CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEvaluator.EPTYPE);
+        CodegenMethod evaluate = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), generator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         evaluator.addMethod("evaluate", evaluate);
 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
-        CodegenMethod exprMethod = evaluate.makeChildWithScope(Object.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod exprMethod = evaluate.makeChildWithScope(EPTypePremade.OBJECT.getEPType(), CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
 
         CodegenExpression[] expressions = new CodegenExpression[forges.length];
         for (int i = 0; i < forges.length; i++) {
-            expressions[i] = forges[i].evaluateCodegen(forges[i].getEvaluationType(), exprMethod, exprSymbol, classScope);
+            EPType type = forges[i].getEvaluationType();
+            if (type == null || type == EPTypeNull.INSTANCE) {
+                expressions[i] = constantNull();
+            } else {
+                expressions[i] = forges[i].evaluateCodegen((EPTypeClass) type, exprMethod, exprSymbol, classScope);
+            }
         }
         exprSymbol.derivedSymbolsCodegen(evaluate, exprMethod.getBlock(), classScope);
 
-        exprMethod.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(forges.length)));
+        exprMethod.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "values", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forges.length)));
         for (int i = 0; i < forges.length; i++) {
             CodegenExpression result = expressions[i];
             exprMethod.getBlock().assignArrayElement("values", constant(i), result);
@@ -143,12 +164,12 @@ public class ExprNodeUtilityCodegen {
 
     public static CodegenMethod codegenMapSelect(ExprNode[] selectClause, String[] selectAsNames, Class generator, CodegenMethodScope parent, CodegenClassScope classScope) {
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
-        CodegenMethod method = parent.makeChildWithScope(Map.class, generator, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod method = parent.makeChildWithScope(EPTypePremade.MAP.getEPType(), generator, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
 
-        method.getBlock().declareVar(Map.class, "map", newInstance(HashMap.class, constant(selectAsNames.length + 2)));
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(selectAsNames.length + 2)));
         CodegenExpression[] expressions = new CodegenExpression[selectAsNames.length];
         for (int i = 0; i < selectClause.length; i++) {
-            expressions[i] = selectClause[i].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
+            expressions[i] = selectClause[i].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, exprSymbol, classScope);
         }
 
         exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
@@ -162,18 +183,18 @@ public class ExprNodeUtilityCodegen {
     }
 
     public static CodegenExpression codegenExprEnumEval(ExprEnumerationGivenEventForge enumEval, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope, Class generator) {
-        CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEnumerationGivenEvent.class);
+        CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEnumerationGivenEvent.EPTYPE);
 
         ExprEnumerationGivenEventSymbol enumSymbols = new ExprEnumerationGivenEventSymbol();
-        CodegenMethod evaluateEventGetROCollectionEvents = CodegenMethod.makeParentNode(Collection.class, generator, enumSymbols, classScope).addParam(EventBean.class, "event").addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod evaluateEventGetROCollectionEvents = CodegenMethod.makeParentNode(EPTypePremade.COLLECTION.getEPType(), generator, enumSymbols, classScope).addParam(EventBean.EPTYPE, "event").addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         evaluator.addMethod("evaluateEventGetROCollectionEvents", evaluateEventGetROCollectionEvents);
         evaluateEventGetROCollectionEvents.getBlock().methodReturn(enumEval.evaluateEventGetROCollectionEventsCodegen(evaluateEventGetROCollectionEvents, enumSymbols, classScope));
 
-        CodegenMethod evaluateEventGetROCollectionScalar = CodegenMethod.makeParentNode(Collection.class, generator, enumSymbols, classScope).addParam(EventBean.class, "event").addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod evaluateEventGetROCollectionScalar = CodegenMethod.makeParentNode(EPTypePremade.COLLECTION.getEPType(), generator, enumSymbols, classScope).addParam(EventBean.EPTYPE, "event").addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         evaluator.addMethod("evaluateEventGetROCollectionScalar", evaluateEventGetROCollectionScalar);
         evaluateEventGetROCollectionScalar.getBlock().methodReturn(enumEval.evaluateEventGetROCollectionScalarCodegen(evaluateEventGetROCollectionScalar, enumSymbols, classScope));
 
-        CodegenMethod evaluateEventGetEventBean = CodegenMethod.makeParentNode(EventBean.class, generator, enumSymbols, classScope).addParam(EventBean.class, "event").addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod evaluateEventGetEventBean = CodegenMethod.makeParentNode(EventBean.EPTYPE, generator, enumSymbols, classScope).addParam(EventBean.EPTYPE, "event").addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         evaluator.addMethod("evaluateEventGetEventBean", evaluateEventGetEventBean);
         evaluateEventGetEventBean.getBlock().methodReturn(enumEval.evaluateEventGetEventBeanCodegen(evaluateEventGetEventBean, enumSymbols, classScope));
 

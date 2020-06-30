@@ -39,7 +39,7 @@ public class TestSuiteExprCore extends TestCase {
     }
 
     public void testExprCoreRelOp() {
-        RegressionRunner.run(session, new ExprCoreRelOp());
+        RegressionRunner.run(session, ExprCoreRelOp.executions());
     }
 
     public void testExprCoreAndOrNot() {
@@ -142,7 +142,7 @@ public class TestSuiteExprCore extends TestCase {
         RegressionRunner.run(session, ExprCorePrior.executions());
     }
 
-    public void testExprEventIdentityEquals() {
+    public void testExprCoreEventIdentityEquals() {
         RegressionRunner.run(session, ExprCoreEventIdentityEquals.executions());
     }
 

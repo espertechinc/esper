@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -27,7 +28,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprCaseNodeForge implements ExprTypableReturnForge, ExprForgeInstrumentable {
     private final ExprCaseNode parent;
-    private final Class resultType;
+    private final EPTypeClass resultType;
     protected final LinkedHashMap<String, Object> mapResultType;
     private final boolean isNumericResult;
     private final boolean mustCoerce;
@@ -36,7 +37,10 @@ public class ExprCaseNodeForge implements ExprTypableReturnForge, ExprForgeInstr
     private final ExprNode optionalCompareExprNode;
     private final ExprNode optionalElseExprNode;
 
-    ExprCaseNodeForge(ExprCaseNode parent, Class resultType, LinkedHashMap<String, Object> mapResultType, boolean isNumericResult, boolean mustCoerce, SimpleNumberCoercer coercer, List<UniformPair<ExprNode>> whenThenNodeList, ExprNode optionalCompareExprNode, ExprNode optionalElseExprNode) {
+    ExprCaseNodeForge(ExprCaseNode parent, EPTypeClass resultType, LinkedHashMap<String, Object> mapResultType, boolean isNumericResult, boolean mustCoerce, SimpleNumberCoercer coercer, List<UniformPair<ExprNode>> whenThenNodeList, ExprNode optionalCompareExprNode, ExprNode optionalElseExprNode) {
+        if (resultType == null) {
+            throw new IllegalArgumentException("Null result");
+        }
         this.parent = parent;
         this.resultType = resultType;
         this.mapResultType = mapResultType;
@@ -64,7 +68,7 @@ public class ExprCaseNodeForge implements ExprTypableReturnForge, ExprForgeInstr
         return parent;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return resultType;
     }
 
@@ -96,7 +100,7 @@ public class ExprCaseNodeForge implements ExprTypableReturnForge, ExprForgeInstr
         return new ExprCaseNodeForgeEvalTypable(this);
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!parent.isCase2()) {
             return ExprCaseNodeForgeEvalSyntax1.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         } else {
@@ -104,7 +108,7 @@ public class ExprCaseNodeForge implements ExprTypableReturnForge, ExprForgeInstr
         }
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprCase", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 

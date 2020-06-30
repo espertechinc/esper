@@ -12,11 +12,10 @@ package com.espertech.esper.common.internal.epl.contained;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -26,7 +25,7 @@ import java.util.Collection;
  * property-upon-property.
  */
 public class PropertyEvaluatorAccumulative {
-    private static final Logger log = LoggerFactory.getLogger(PropertyEvaluatorAccumulative.class);
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyEvaluatorAccumulative.class);
 
     private ContainedEventEval[] containedEventEvals;
     private boolean[] fragmentEventTypeIsIndexed;

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 
@@ -17,5 +18,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
  * Factory for output processing views.
  */
 public interface OutputProcessViewFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(OutputProcessViewFactory.class);
+
     OutputProcessView makeView(ResultSetProcessor resultSetProcessor, AgentInstanceContext agentInstanceContext);
 }

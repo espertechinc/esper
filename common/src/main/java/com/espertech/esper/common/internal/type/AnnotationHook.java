@@ -12,10 +12,13 @@ package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.Hook;
 import com.espertech.esper.common.client.annotation.HookType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationHook implements Hook {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationHook.class);
+
     private final HookType type;
     private final String hook;
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,9 +27,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class BindProcessorStream implements ExprForge, ExprEvaluator, ExprNodeRenderable {
     private final int streamNum;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public BindProcessorStream(int streamNum, Class returnType) {
+    public BindProcessorStream(int streamNum, EPTypeClass returnType) {
         this.streamNum = streamNum;
         this.returnType = returnType;
     }
@@ -49,11 +50,11 @@ public class BindProcessorStream implements ExprForge, ExprEvaluator, ExprNodeRe
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(ref("event"), "getUnderlying")));
         return localMethod(methodNode);
@@ -63,7 +64,7 @@ public class BindProcessorStream implements ExprForge, ExprEvaluator, ExprNodeRe
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

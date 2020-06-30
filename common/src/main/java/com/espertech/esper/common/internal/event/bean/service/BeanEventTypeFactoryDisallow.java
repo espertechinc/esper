@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.service;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactory;
@@ -22,7 +23,7 @@ public class BeanEventTypeFactoryDisallow implements BeanEventTypeFactory {
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
     }
 
-    public BeanEventType getCreateBeanType(Class clazz, boolean publicFields) {
+    public BeanEventType getCreateBeanType(EPTypeClass clazz, boolean publicFields) {
         throw new EPException("Bean type creation not supported");
     }
 

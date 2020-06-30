@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Map;
  * Copy method for wrapper events.
  */
 public class WrapperEventBeanCopyMethod implements EventBeanCopyMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(WrapperEventBeanCopyMethod.class);
     private final WrapperEventType wrapperEventType;
     private final EventBeanTypedEventFactory eventAdapterService;
     private final EventBeanCopyMethod underlyingCopyMethod;

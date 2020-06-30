@@ -65,10 +65,10 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
         }
 
         String message = "The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation";
-        Class boxedParamOne = JavaClassHelper.getBoxedType(first.getForge().getEvaluationType());
-        if (boxedParamOne != Long.class) {
+        if (!JavaClassHelper.isTypeLong(first.getForge().getEvaluationType())) {
             throw new ExprValidationException(message);
         }
+
         if (first.getForge().getForgeConstantType().isConstant()) {
             throw new ExprValidationException(message);
         }

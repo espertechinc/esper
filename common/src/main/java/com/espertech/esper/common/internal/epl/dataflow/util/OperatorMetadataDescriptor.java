@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.dataflow.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,6 +24,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.annotation.AnnotationUtil.makeAnnotations;
 
 public class OperatorMetadataDescriptor {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OperatorMetadataDescriptor.class);
+
     private Class forgeClass;
     private String operatorPrettyPrint;
     private Annotation[] operatorAnnotations;
@@ -40,12 +44,12 @@ public class OperatorMetadataDescriptor {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(OperatorMetadataDescriptor.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OperatorMetadataDescriptor.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(OperatorMetadataDescriptor.class, "op", newInstance(OperatorMetadataDescriptor.class))
+                .declareVarNewInstance(OperatorMetadataDescriptor.EPTYPE, "op")
                 .exprDotMethod(ref("op"), "setForgeClass", constant(forgeClass))
                 .exprDotMethod(ref("op"), "setOperatorPrettyPrint", constant(operatorPrettyPrint))
-                .exprDotMethod(ref("op"), "setOperatorAnnotations", operatorAnnotations == null ? constantNull() : localMethod(makeAnnotations(Annotation[].class, operatorAnnotations, method, classScope)))
+                .exprDotMethod(ref("op"), "setOperatorAnnotations", operatorAnnotations == null ? constantNull() : localMethod(makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), operatorAnnotations, method, classScope)))
                 .exprDotMethod(ref("op"), "setNumOutputPorts", constant(numOutputPorts))
                 .exprDotMethod(ref("op"), "setOperatorName", constant(operatorName))
                 .methodReturn(ref("op"));

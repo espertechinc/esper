@@ -12,7 +12,9 @@ package com.espertech.esper.common.internal.avro.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeMeta;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
@@ -157,6 +159,9 @@ public class TestAvroSchemaUtil extends TestCase {
     }
 
     private Schema assemble(Object value, Annotation[] annotations, ConfigurationCommonEventTypeMeta.AvroSettings avroSettings, EventTypeNameResolver eventTypeNameResolver) {
+        if (value instanceof Class) {
+            value = ClassHelperGenericType.getClassEPType((Class) value);
+        }
         SchemaBuilder.FieldAssembler<Schema> assembler = SchemaBuilder.record("myrecord").fields();
         AvroSchemaUtil.assembleField("somefield", value, assembler, annotations, avroSettings, eventTypeNameResolver, "stmtname", null);
         Schema schema = assembler.endRecord();

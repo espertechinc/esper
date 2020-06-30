@@ -12,12 +12,15 @@ package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 
 public class AggregationMethodSortedMinMaxBy implements AggregationMultiFunctionAggregationMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationMethodSortedMinMaxBy.class);
+
     private boolean max;
 
     public void setMax(boolean max) {

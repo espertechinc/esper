@@ -11,12 +11,16 @@
 package com.espertech.esper.common.internal.epl.output.condition;
 
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * A condition that must be satisfied before output processing
  * is allowed to continue. Once the condition is satisfied, it
  * makes a callback to continue output processing.
  */
 public interface OutputCondition {
+    EPTypeClass EPTYPE = new EPTypeClass(OutputCondition.class);
+
     /**
      * Update the output condition.
      *

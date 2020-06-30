@@ -11,28 +11,33 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.selectfrom;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base.*;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
-import java.util.function.Function;
+import java.util.Collection;
 
 public class ExprDotForgeSelectFrom extends ExprDotForgeLambdaThreeForm {
-    protected EPType initAndNoParamsReturnType(EventType inputEventType, Class collectionComponentType) {
+    protected EPChainableType initAndNoParamsReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
         throw new IllegalStateException();
     }
 
-    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPType type, StatementCompileTimeServices services) {
+    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPChainableType type, StatementCompileTimeServices services) {
         throw new IllegalStateException();
     }
 
-    protected Function<ExprDotEvalParamLambda, EPType> initAndSingleParamReturnType(EventType inputEventType, Class collectionComponentType) {
+    protected ThreeFormInitFunction initAndSingleParamReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
         return lambda -> {
-            Class rt = lambda.getBodyForge().getEvaluationType();
-            return EPTypeHelper.collectionOfSingleValue(rt);
+            EPType rt = lambda.getBodyForge().getEvaluationType();
+            if (rt == EPTypeNull.INSTANCE) {
+                return EPChainableTypeHelper.collectionOfSingleValue(EPTypePremade.OBJECT.getEPType());
+            }
+            EPTypeClassParameterized clazz = new EPTypeClassParameterized(Collection.class, new EPTypeClass[] {(EPTypeClass) rt});
+            return new EPChainableTypeClass(clazz);
         };
     }
 

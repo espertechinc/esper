@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.order;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenFieldSharableComparator;
 import com.espertech.esper.common.internal.compile.stage1.spec.OrderByItem;
@@ -44,7 +45,7 @@ public class OrderByProcessorFactoryFactory {
                                                             boolean isSortUsingCollator,
                                                             String optionalContextName,
                                                             OrderByElementForge[][] orderByRollup)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Get the order by expression nodes
         List<ExprNode> orderByNodes = new ArrayList<ExprNode>();
         for (OrderByItem element : orderByList) {
@@ -93,7 +94,7 @@ public class OrderByProcessorFactoryFactory {
 
     private static void validateOrderByAggregates(List<ExprAggregateNode> selectAggNodes,
                                                   List<ExprAggregateNode> orderAggNodes)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Check that the order-by clause doesn't contain
         // any aggregate functions not in the select expression
         for (ExprAggregateNode orderAgg : orderAggNodes) {
@@ -117,7 +118,7 @@ public class OrderByProcessorFactoryFactory {
             nodes[i] = orderBy[i].getExprNode();
             descending[i] = orderBy[i].isDescending();
         }
-        Class[] types = ExprNodeUtilityQuery.getExprResultTypes(nodes);
+        EPType[] types = ExprNodeUtilityQuery.getExprResultTypes(nodes);
         return new CodegenFieldSharableComparator(COMPARATORHASHABLEMULTIKEYS, types, isSortUsingCollator, descending);
     }
 

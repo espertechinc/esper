@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -50,14 +51,14 @@ public class ExprConcatNodeForgeEvalWNew implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprConcatNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(String.class, ExprConcatNodeForgeEvalWNew.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.STRING.getEPType(), ExprConcatNodeForgeEvalWNew.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(StringBuffer.class, "buf", newInstance(StringBuffer.class))
-                .declareVarNoInit(String.class, "value");
+                .declareVarNewInstance(EPTypePremade.STRINGBUFFER.getEPType(), "buf")
+                .declareVarNoInit(EPTypePremade.STRING.getEPType(), "value");
         CodegenExpressionExprDotMethodChain chain = exprDotMethodChain(ref("buf"));
         for (ExprNode expr : forge.getForgeRenderable().getChildNodes()) {
-            block.assignRef("value", expr.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
+            block.assignRef("value", expr.getForge().evaluateCodegen(EPTypePremade.STRING.getEPType(), methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .exprDotMethod(ref("buf"), "append", ref("value"));
         }

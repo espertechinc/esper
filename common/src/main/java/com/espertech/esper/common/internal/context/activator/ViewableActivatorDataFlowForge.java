@@ -29,9 +29,9 @@ public class ViewableActivatorDataFlowForge implements ViewableActivatorForge {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ViewableActivatorDataFlow.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ViewableActivatorDataFlow.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ViewableActivatorDataFlow.class, "activator", newInstance(ViewableActivatorDataFlow.class))
+                .declareVarNewInstance(ViewableActivatorDataFlow.EPTYPE, "activator")
                 .exprDotMethod(ref("activator"), "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
                 .methodReturn(ref("activator"));
         return localMethod(method);

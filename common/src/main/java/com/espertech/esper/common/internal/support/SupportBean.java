@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.*;
 
 public class SupportBean implements Serializable {
+
     private static final long serialVersionUID = -5497659066725918444L;
     private String theString;
 

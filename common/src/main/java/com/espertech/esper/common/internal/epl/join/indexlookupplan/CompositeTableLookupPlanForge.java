@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.indexlookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -34,13 +35,13 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class CompositeTableLookupPlanForge extends TableLookupPlanForge {
     private final List<QueryGraphValueEntryHashKeyedForge> hashKeys;
-    private final Class[] hashCoercionTypes;
+    private final EPTypeClass[] hashCoercionTypes;
     private final List<QueryGraphValueEntryRangeForge> rangeKeyPairs;
-    private final Class[] optRangeCoercionTypes;
+    private final EPTypeClass[] optRangeCoercionTypes;
     private final QueryPlanIndexForge indexSpecs;
     private final MultiKeyClassRef optionalEPLTableLookupMultiKey;
 
-    public CompositeTableLookupPlanForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyedForge> hashKeys, Class[] hashCoercionTypes, List<QueryGraphValueEntryRangeForge> rangeKeyPairs, Class[] optRangeCoercionTypes, QueryPlanIndexForge indexSpecs, MultiKeyClassRef optionalEPLTableLookupMultiKey) {
+    public CompositeTableLookupPlanForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyedForge> hashKeys, EPTypeClass[] hashCoercionTypes, List<QueryGraphValueEntryRangeForge> rangeKeyPairs, EPTypeClass[] optRangeCoercionTypes, QueryPlanIndexForge indexSpecs, MultiKeyClassRef optionalEPLTableLookupMultiKey) {
         super(lookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, new TableLookupIndexReqKey[]{indexNum});
         this.hashKeys = hashKeys;
         this.hashCoercionTypes = hashCoercionTypes;
@@ -54,8 +55,8 @@ public class CompositeTableLookupPlanForge extends TableLookupPlanForge {
         return new TableLookupKeyDesc(hashKeys, rangeKeyPairs);
     }
 
-    public Class typeOfPlanFactory() {
-        return CompositeTableLookupPlanFactory.class;
+    public EPTypeClass typeOfPlanFactory() {
+        return CompositeTableLookupPlanFactory.EPTYPE;
     }
 
     public Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -70,10 +71,10 @@ public class CompositeTableLookupPlanForge extends TableLookupPlanForge {
             }
         }
 
-        CodegenMethod rangeGetters = method.makeChild(QueryGraphValueEntryRange[].class, this.getClass(), classScope);
-        rangeGetters.getBlock().declareVar(QueryGraphValueEntryRange[].class, "rangeGetters", newArrayByLength(QueryGraphValueEntryRange.class, constant(rangeKeyPairs.size())));
+        CodegenMethod rangeGetters = method.makeChild(QueryGraphValueEntryRange.EPTYPEARRAY, this.getClass(), classScope);
+        rangeGetters.getBlock().declareVar(QueryGraphValueEntryRange.EPTYPEARRAY, "rangeGetters", newArrayByLength(QueryGraphValueEntryRange.EPTYPE, constant(rangeKeyPairs.size())));
         for (int i = 0; i < rangeKeyPairs.size(); i++) {
-            Class optCoercionType = optRangeCoercionTypes == null ? null : optRangeCoercionTypes[i];
+            EPTypeClass optCoercionType = optRangeCoercionTypes == null ? null : optRangeCoercionTypes[i];
             rangeGetters.getBlock().assignArrayElement(ref("rangeGetters"), constant(i), rangeKeyPairs.get(i).make(optCoercionType, rangeGetters, symbols, classScope));
         }
         rangeGetters.getBlock().methodReturn(ref("rangeGetters"));

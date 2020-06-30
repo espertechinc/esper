@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 
 import java.io.StringWriter;
@@ -19,6 +20,8 @@ import java.io.StringWriter;
  * <p> Each filtering parameter has a lookup-able and operator type, and a value to filter for.
  */
 public interface FilterValueSetParam {
+    EPTypeClass EPTYPE = new EPTypeClass(FilterValueSetParam.class);
+
     FilterValueSetParam[][] EMPTY = new FilterValueSetParam[0][];
 
     /**

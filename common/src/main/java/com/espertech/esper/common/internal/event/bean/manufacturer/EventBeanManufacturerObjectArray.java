@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanManufacturer;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
  * Factory for ObjectArray-underlying events.
  */
 public class EventBeanManufacturerObjectArray implements EventBeanManufacturer {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventBeanManufacturerObjectArray.class);
     private final ObjectArrayEventType eventType;
     private final EventBeanTypedEventFactory eventAdapterService;
     private final int[] indexPerWritable;

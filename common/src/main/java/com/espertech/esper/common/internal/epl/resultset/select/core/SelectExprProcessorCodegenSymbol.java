@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
@@ -30,9 +32,9 @@ public class SelectExprProcessorCodegenSymbol {
         return optionalSynthesizeRef;
     }
 
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
         if (optionalSynthesizeRef != null) {
-            symbols.put(optionalSynthesizeRef.getRef(), boolean.class);
+            symbols.put(optionalSynthesizeRef.getRef(), EPTypePremade.BOOLEANPRIMITIVE.getEPType());
         }
     }
 }

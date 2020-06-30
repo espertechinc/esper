@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -34,12 +36,15 @@ public class SubselectForgeStrategyRowUnfilteredUnselectedTable extends Subselec
 
     @Override
     public CodegenExpression evaluateCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
+        if (subselect.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(table, classScope, this.getClass());
-        CodegenMethod method = parent.makeChild(subselect.getEvaluationType(), this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild((EPTypeClass) subselect.getEvaluationType(), this.getClass(), classScope);
         method.getBlock()
                 .ifCondition(relational(exprDotMethod(symbols.getAddMatchingEvents(method), "size"), CodegenExpressionRelational.CodegenRelational.GT, constant(1)))
                 .blockReturn(constantNull())
-                .declareVar(EventBean.class, "event", staticMethod(EventBeanUtility.class, "getNonemptyFirstEvent", symbols.getAddMatchingEvents(method)))
+                .declareVar(EventBean.EPTYPE, "event", staticMethod(EventBeanUtility.class, "getNonemptyFirstEvent", symbols.getAddMatchingEvents(method)))
                 .methodReturn(exprDotMethod(eventToPublic, "convertToUnd", ref("event"), symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)));
         return localMethod(method);
     }

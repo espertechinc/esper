@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.json.parser.delegates.array2dim;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateEventObjectArray;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
@@ -20,16 +21,17 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import java.lang.reflect.Method;
 
 public class JsonDelegateArray2DimEnum extends JsonDelegateArray2DimBase {
-    private final Class enumType;
-    private final Class enumTypeArray;
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArray2DimEnum.class);
+    private final EPTypeClass enumType;
+    private final EPTypeClass enumTypeArray;
     private final Method valueOf;
 
-    public JsonDelegateArray2DimEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, Class enumType) {
+    public JsonDelegateArray2DimEnum(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, EPTypeClass enumType) {
         super(baseHandler, parent);
         this.enumType = enumType;
         this.enumTypeArray = JavaClassHelper.getArrayType(enumType);
         try {
-            valueOf = enumType.getMethod("valueOf", new Class[]{String.class});
+            valueOf = enumType.getType().getMethod("valueOf", new Class[]{String.class});
         } catch (NoSuchMethodException e) {
             throw new EPException("Failed to find valueOf method for " + enumType);
         }
@@ -40,6 +42,6 @@ public class JsonDelegateArray2DimEnum extends JsonDelegateArray2DimBase {
     }
 
     public Object getResult() {
-        return JsonDelegateEventObjectArray.collectionToTypedArray(collection, enumTypeArray);
+        return JsonDelegateEventObjectArray.collectionToTypedArray(collection, enumTypeArray.getType());
     }
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.serde.compiletime.sharable;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -32,8 +33,8 @@ public class CodegenSharableSerdeEventTyped implements CodegenFieldSharable {
         }
     }
 
-    public Class type() {
-        return DataInputOutputSerde.class;
+    public EPTypeClass type() {
+        return DataInputOutputSerde.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

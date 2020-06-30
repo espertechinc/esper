@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -24,9 +25,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprEvalStreamNumUnd implements ExprForge, ExprEvaluator, ExprNodeRenderable {
     private final int streamNum;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public ExprEvalStreamNumUnd(int streamNum, Class returnType) {
+    public ExprEvalStreamNumUnd(int streamNum, EPTypeClass returnType) {
         this.streamNum = streamNum;
         this.returnType = returnType;
     }
@@ -35,7 +36,7 @@ public class ExprEvalStreamNumUnd implements ExprForge, ExprEvaluator, ExprNodeR
         return eventsPerStream[streamNum].getUnderlying();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
         return cast(returnType, exprDotUnderlying(arrayAtIndex(refEPS, constant(streamNum))));
     }
@@ -44,7 +45,7 @@ public class ExprEvalStreamNumUnd implements ExprForge, ExprEvaluator, ExprNodeR
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

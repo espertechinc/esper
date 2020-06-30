@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseElementCompiled;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 
@@ -19,7 +20,7 @@ public class SelectClauseStreamCompiledSpec implements SelectClauseElementCompil
     private int streamNumber = -1;
     private boolean isFragmentEvent = false;
     private boolean isProperty = false;
-    private Class propertyType;
+    private EPType propertyType;
     private TableMetaData tableMetadata;
 
     /**
@@ -100,7 +101,7 @@ public class SelectClauseStreamCompiledSpec implements SelectClauseElementCompil
      * @param property     selected
      * @param propertyType the return type
      */
-    public void setProperty(boolean property, Class propertyType) {
+    public void setProperty(boolean property, EPType propertyType) {
         this.isProperty = property;
         this.propertyType = propertyType;
     }
@@ -119,7 +120,7 @@ public class SelectClauseStreamCompiledSpec implements SelectClauseElementCompil
      *
      * @return property type
      */
-    public Class getPropertyType() {
+    public EPType getPropertyType() {
         return propertyType;
     }
 

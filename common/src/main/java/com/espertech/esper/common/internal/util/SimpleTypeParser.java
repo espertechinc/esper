@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Parser of a String input to an object.
  */
 public interface SimpleTypeParser {
+    EPTypeClass EPTYPE = new EPTypeClass(SimpleTypeParser.class);
+
     /**
      * Parses the text and returns an object value.
      *

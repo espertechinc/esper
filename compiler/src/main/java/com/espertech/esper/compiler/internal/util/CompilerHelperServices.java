@@ -20,6 +20,7 @@ import com.espertech.esper.common.client.configuration.compiler.*;
 import com.espertech.esper.common.client.serde.SerdeProvider;
 import com.espertech.esper.common.client.serde.SerdeProviderFactory;
 import com.espertech.esper.common.client.serde.SerdeProviderFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.PathException;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.collection.PathRegistryObjectType;
@@ -129,7 +130,7 @@ public class CompilerHelperServices {
         ParentClassLoader classLoaderParent = new ParentClassLoader(classpathImportServiceCompileTime.getClassLoader());
 
         // resolve pre-configured bean event types, make bean-stem service
-        Map<String, Class> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configuration.getCommon().getEventTypeNames(), classpathImportServiceCompileTime);
+        Map<String, EPTypeClass> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configuration.getCommon().getEventTypeNames(), classpathImportServiceCompileTime);
         BeanEventTypeStemService beanEventTypeStemService = BeanEventTypeRepoUtil.makeBeanEventTypeStemService(configuration, resolvedBeanEventTypes, EventBeanTypedEventFactoryCompileTime.INSTANCE);
 
         // allocate repositories

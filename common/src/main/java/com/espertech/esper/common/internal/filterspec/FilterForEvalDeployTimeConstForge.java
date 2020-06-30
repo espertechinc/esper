@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -29,16 +31,16 @@ import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.GET
 public class FilterForEvalDeployTimeConstForge implements FilterSpecParamInValueForge {
     private transient final ExprNodeDeployTimeConst deployTimeConst;
     private transient final SimpleNumberCoercer numberCoercer;
-    private transient final Class returnType;
+    private transient final EPType returnType;
 
-    public FilterForEvalDeployTimeConstForge(ExprNodeDeployTimeConst deployTimeConst, SimpleNumberCoercer numberCoercer, Class returnType) {
+    public FilterForEvalDeployTimeConstForge(ExprNodeDeployTimeConst deployTimeConst, SimpleNumberCoercer numberCoercer, EPType returnType) {
         this.deployTimeConst = deployTimeConst;
         this.numberCoercer = numberCoercer;
         this.returnType = returnType;
     }
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
 
         CodegenExpression value = deployTimeConst.codegenGetDeployTimeConstValue(classScope);
         if (numberCoercer != null) {
@@ -49,7 +51,7 @@ public class FilterForEvalDeployTimeConstForge implements FilterSpecParamInValue
         return localMethod(method, GET_FILTER_VALUE_REFS);
     }
 
-    public Class getReturnType() {
+    public EPType getReturnType() {
         return returnType;
     }
 

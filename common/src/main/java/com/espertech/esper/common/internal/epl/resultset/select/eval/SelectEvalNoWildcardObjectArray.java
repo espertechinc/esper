@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -36,11 +37,11 @@ public class SelectEvalNoWildcardObjectArray implements SelectExprProcessorForge
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(this.context.getExprForges().length)));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(this.context.getExprForges().length)));
         for (int i = 0; i < this.context.getExprForges().length; i++) {
-            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
+            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
             block.assignArrayElement("props", constant(i), expression);
         }
         block.methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedObjectArray", ref("props"), resultEventType));

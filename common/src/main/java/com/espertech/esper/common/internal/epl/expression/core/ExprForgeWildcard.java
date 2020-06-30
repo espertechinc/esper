@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -19,9 +20,9 @@ import java.io.StringWriter;
 
 public class ExprForgeWildcard implements ExprForge {
 
-    private final Class underlyingTypeStream0;
+    private final EPTypeClass underlyingTypeStream0;
 
-    public ExprForgeWildcard(Class underlyingTypeStream0) {
+    public ExprForgeWildcard(EPTypeClass underlyingTypeStream0) {
         this.underlyingTypeStream0 = underlyingTypeStream0;
     }
 
@@ -29,7 +30,7 @@ public class ExprForgeWildcard implements ExprForge {
         return ExprEvaluatorWildcard.INSTANCE;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprEvaluatorWildcard.codegen(requiredType, underlyingTypeStream0, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
@@ -37,7 +38,7 @@ public class ExprForgeWildcard implements ExprForge {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return underlyingTypeStream0;
     }
 

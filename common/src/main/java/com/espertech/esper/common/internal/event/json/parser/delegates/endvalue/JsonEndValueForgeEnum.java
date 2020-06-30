@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.json.parser.delegates.endvalue;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,14 +21,14 @@ import java.lang.reflect.Method;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class JsonEndValueForgeEnum implements JsonEndValueForge {
-    private final Class type;
+    private final EPTypeClass type;
 
-    public JsonEndValueForgeEnum(Class type) {
+    public JsonEndValueForgeEnum(EPTypeClass type) {
         this.type = type;
     }
 
     public CodegenExpression captureValue(JsonEndValueRefs refs, CodegenMethod method, CodegenClassScope classScope) {
-        return conditional(equalsNull(refs.getValueString()), constantNull(), staticMethod(type, "valueOf", refs.getValueString()));
+        return conditional(equalsNull(refs.getValueString()), constantNull(), staticMethod(type.getType(), "valueOf", refs.getValueString()));
     }
 
     public static Object jsonToEnum(String stringValue, Method valueOf) {

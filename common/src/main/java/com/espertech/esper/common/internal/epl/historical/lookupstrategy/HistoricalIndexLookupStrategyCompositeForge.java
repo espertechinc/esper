@@ -42,16 +42,16 @@ public class HistoricalIndexLookupStrategyCompositeForge implements HistoricalIn
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyComposite.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyComposite.EPTYPE, this.getClass(), classScope);
 
-        method.getBlock().declareVar(QueryGraphValueEntryRange[].class, "rangeGetters", newArrayByLength(QueryGraphValueEntryRange.class, constant(ranges.length)));
+        method.getBlock().declareVar(QueryGraphValueEntryRange.EPTYPEARRAY, "rangeGetters", newArrayByLength(QueryGraphValueEntryRange.EPTYPE, constant(ranges.length)));
         for (int i = 0; i < ranges.length; i++) {
             method.getBlock().assignArrayElement(ref("rangeGetters"), constant(i), ranges[i].make(null, method, symbols, classScope));
         }
 
         CodegenExpression hashGetter = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(evaluators, null, multiKeyClasses, method, classScope);
         method.getBlock()
-            .declareVar(HistoricalIndexLookupStrategyComposite.class, "strat", newInstance(HistoricalIndexLookupStrategyComposite.class))
+            .declareVarNewInstance(HistoricalIndexLookupStrategyComposite.EPTYPE, "strat")
             .exprDotMethod(ref("strat"), "setLookupStream", constant(lookupStream))
             .exprDotMethod(ref("strat"), "setHashGetter", hashGetter)
             .exprDotMethod(ref("strat"), "setRangeProps", ref("rangeGetters"))

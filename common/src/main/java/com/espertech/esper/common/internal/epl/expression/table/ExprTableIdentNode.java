@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.table;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,12 +35,12 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForgeInstrum
     private final TableMetaData tableMetadata;
     private final String streamOrPropertyName;
     private final String unresolvedPropertyName;
-    private final Class returnType;
+    private final EPTypeClass returnType;
     private final int streamNum;
     private final String columnName;
     private final int columnNum;
 
-    public ExprTableIdentNode(TableMetaData tableMetadata, String streamOrPropertyName, String unresolvedPropertyName, Class returnType, int streamNum, String columnName, int columnNum) {
+    public ExprTableIdentNode(TableMetaData tableMetadata, String streamOrPropertyName, String unresolvedPropertyName, EPTypeClass returnType, int streamNum, String columnName, int columnNum) {
         this.tableMetadata = tableMetadata;
         this.streamOrPropertyName = streamOrPropertyName;
         this.unresolvedPropertyName = unresolvedPropertyName;
@@ -68,11 +70,11 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForgeInstrum
         return null;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
         CodegenMethod method = parent.makeChild(requiredType, this.getClass(), codegenClassScope);
-        method.getBlock().declareVar(Object.class, "result", staticMethod(ExprTableIdentNode.class, "tableColumnAggValue", constant(streamNum), constant(columnNum),
+        method.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "result", staticMethod(ExprTableIdentNode.class, "tableColumnAggValue", constant(streamNum), constant(columnNum),
                 symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)));
-        if (requiredType == Object.class) {
+        if (requiredType.getType() == Object.class) {
             method.getBlock().methodReturn(ref("result"));
         } else {
             method.getBlock().methodReturn(cast(JavaClassHelper.getBoxedType(requiredType), ref("result")));
@@ -80,7 +82,7 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForgeInstrum
         return localMethod(method);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprTableSubproperty", requiredType, parent, symbols, codegenClassScope)
                 .qparams(new CodegenExpression[]{constant(tableMetadata.getTableName()), constant(unresolvedPropertyName)})
                 .build();
@@ -98,7 +100,7 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForgeInstrum
         };
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

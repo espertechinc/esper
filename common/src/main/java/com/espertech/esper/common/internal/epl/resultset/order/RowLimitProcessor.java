@@ -11,12 +11,14 @@
 package com.espertech.esper.common.internal.epl.resultset.order;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
 
 /**
  * An limit-processor for use with "limit" and "offset".
  */
 public class RowLimitProcessor {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowLimitProcessor.class);
 
     private final VariableReader numRowsVariableReader;
     private final VariableReader offsetVariableReader;

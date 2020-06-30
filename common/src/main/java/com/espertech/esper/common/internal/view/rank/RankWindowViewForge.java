@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.rank;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -117,8 +118,8 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
         return desc.getMultiKeyForgeables();
     }
 
-    protected Class typeOfFactory() {
-        return RankWindowViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return RankWindowViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -25,9 +26,9 @@ import java.io.StringWriter;
  */
 public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private final String returnTypeName;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public ExprTypedNoEvalNode(String returnTypeName, Class returnType) {
+    public ExprTypedNoEvalNode(String returnTypeName, EPTypeClass returnType) {
         this.returnTypeName = returnTypeName;
         this.returnType = returnType;
     }
@@ -36,7 +37,7 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprForge, Expr
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 
@@ -72,7 +73,7 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprForge, Expr
         throw new EPException(this.getClass().getSimpleName() + " cannot be evaluated");
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         throw new IllegalStateException("Typed-no-eval-expression does not allow code generation");
     }
 

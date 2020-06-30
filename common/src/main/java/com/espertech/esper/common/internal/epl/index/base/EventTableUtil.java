@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.index.base;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
 
@@ -33,10 +34,10 @@ public class EventTableUtil {
      */
     public static EventTable buildIndex(AgentInstanceContext agentInstanceContext, int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean coerceOnAddOnly, boolean unique, String optionalIndexName, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget) {
         String[] indexProps = item.getHashProps();
-        Class[] indexTypes = item.getHashPropTypes();
+        EPTypeClass[] indexTypes = item.getHashPropTypes();
         EventPropertyValueGetter indexGetter = item.getHashGetter();
         String[] rangeProps = item.getRangeProps();
-        Class[] rangeTypes = item.getRangePropTypes();
+        EPTypeClass[] rangeTypes = item.getRangePropTypes();
         EventPropertyValueGetter[] rangeGetters = item.getRangeGetters();
         DataInputOutputSerde[] rangeKeySerdes = item.getRangeKeySerdes();
         EventTableIndexService eventTableIndexService = agentInstanceContext.getStatementContext().getEventTableIndexService();

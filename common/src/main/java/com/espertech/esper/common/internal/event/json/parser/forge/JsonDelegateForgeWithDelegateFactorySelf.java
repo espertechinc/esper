@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.forge;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,17 +22,17 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class JsonDelegateForgeWithDelegateFactorySelf implements JsonDelegateForge {
 
     private final String delegateClassName;
-    private final Class beanClassName;
+    private final EPTypeClass beanClass;
 
-    public JsonDelegateForgeWithDelegateFactorySelf(String delegateClassName, Class beanClassName) {
+    public JsonDelegateForgeWithDelegateFactorySelf(String delegateClassName, EPTypeClass beanClass) {
         this.delegateClassName = delegateClassName;
-        this.beanClassName = beanClassName;
+        this.beanClass = beanClass;
     }
 
     public CodegenExpression newDelegate(JsonDelegateRefs fields, CodegenMethod parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(JsonDelegateBase.class, JsonForgeFactoryEventTypeTyped.class, classScope);
+        CodegenMethod method = parent.makeChild(JsonDelegateBase.EPTYPE, JsonForgeFactoryEventTypeTyped.class, classScope);
         method.getBlock()
-            .methodReturn(newInstance(delegateClassName, fields.getBaseHandler(), fields.getThis(), newInstance(beanClassName)));
+            .methodReturn(newInstance(delegateClassName, fields.getBaseHandler(), fields.getThis(), newInstance(beanClass)));
         return localMethod(method);
     }
 }

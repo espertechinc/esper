@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 
 public class Variable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(Variable.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(Variable[].class);
+
     private final int variableNumber;
     private final String deploymentId;
     private final VariableMetaData metaData;

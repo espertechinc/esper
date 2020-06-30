@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.join.assemble.BaseAssemblyNodeFactory;
@@ -29,6 +30,8 @@ import java.util.concurrent.locks.Lock;
  * a set of assembly instructions.
  */
 public class LookupInstructionQueryPlanNode extends QueryPlanNode {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(LookupInstructionQueryPlanNode.class);
+
     private final int rootStream;
     private final String rootStreamName;
     private final int numStreams;

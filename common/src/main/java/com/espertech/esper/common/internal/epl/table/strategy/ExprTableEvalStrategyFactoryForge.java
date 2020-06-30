@@ -61,7 +61,7 @@ public class ExprTableEvalStrategyFactoryForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ExprTableEvalStrategyFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ExprTableEvalStrategyFactory.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression groupKeyEval = constantNull();
         if (optionalGroupKeys != null && optionalGroupKeys.length > 0) {
@@ -69,15 +69,15 @@ public class ExprTableEvalStrategyFactoryForge {
         }
 
         method.getBlock()
-            .declareVar(ExprTableEvalStrategyFactory.class, "factory", newInstance(ExprTableEvalStrategyFactory.class))
-            .exprDotMethod(ref("factory"), "setStrategyEnum", constant(strategyEnum))
-            .exprDotMethod(ref("factory"), "setTable", TableDeployTimeResolver.makeResolveTable(tableMeta, symbols.getAddInitSvc(method)))
-            .exprDotMethod(ref("factory"), "setGroupKeyEval", groupKeyEval)
-            .exprDotMethod(ref("factory"), "setAggColumnNum", constant(aggColumnNum))
-            .exprDotMethod(ref("factory"), "setPropertyIndex", constant(propertyIndex))
-            .exprDotMethod(ref("factory"), "setOptionalEnumEval", optionalEnumEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenExprEnumEval(optionalEnumEval, method, symbols, classScope, this.getClass()))
-            .exprDotMethod(ref("factory"), "setAggregationMethod", aggregationMethod == null ? constantNull() : aggregationMethod.codegenCreateReader(method, symbols, classScope))
-            .methodReturn(ref("factory"));
+                .declareVarNewInstance(ExprTableEvalStrategyFactory.EPTYPE, "factory")
+                .exprDotMethod(ref("factory"), "setStrategyEnum", constant(strategyEnum))
+                .exprDotMethod(ref("factory"), "setTable", TableDeployTimeResolver.makeResolveTable(tableMeta, symbols.getAddInitSvc(method)))
+                .exprDotMethod(ref("factory"), "setGroupKeyEval", groupKeyEval)
+                .exprDotMethod(ref("factory"), "setAggColumnNum", constant(aggColumnNum))
+                .exprDotMethod(ref("factory"), "setPropertyIndex", constant(propertyIndex))
+                .exprDotMethod(ref("factory"), "setOptionalEnumEval", optionalEnumEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenExprEnumEval(optionalEnumEval, method, symbols, classScope, this.getClass()))
+                .exprDotMethod(ref("factory"), "setAggregationMethod", aggregationMethod == null ? constantNull() : aggregationMethod.codegenCreateReader(method, symbols, classScope))
+                .methodReturn(ref("factory"));
         return localMethod(method);
     }
 }

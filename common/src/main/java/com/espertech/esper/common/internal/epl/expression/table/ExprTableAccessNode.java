@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.table;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,7 +30,6 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrat
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
 
 import java.io.StringWriter;
-import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode.AccessEvaluationType.*;
@@ -73,8 +76,8 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
         }
 
         if (tableMeta.getOptionalContextName() != null &&
-                validationContext.getContextDescriptor() != null &&
-                !tableMeta.getOptionalContextName().equals(validationContext.getContextDescriptor().getContextName())) {
+            validationContext.getContextDescriptor() != null &&
+            !tableMeta.getOptionalContextName().equals(validationContext.getContextDescriptor().getContextName())) {
             throw new ExprValidationException("Table by name '" + getTableName() + "' has been declared for context '" + tableMeta.getOptionalContextName() + "' and can only be used within the same context");
         }
 
@@ -89,8 +92,8 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
         } else {
             groupKeyEvaluators = new ExprForge[0];
         }
-        Class[] typesReturned = ExprNodeUtilityQuery.getExprResultTypes(this.getChildNodes());
-        Class[] keyTypes = metadata.isKeyed() ? metadata.getKeyTypes() : new Class[0];
+        EPType[] typesReturned = ExprNodeUtilityQuery.getExprResultTypes(this.getChildNodes());
+        EPTypeClass[] keyTypes = metadata.isKeyed() ? metadata.getKeyTypes() : new EPTypeClass[0];
         ExprTableNodeUtil.validateExpressions(getTableName(), typesReturned, "key", this.getChildNodes(), keyTypes, "key");
     }
 
@@ -102,26 +105,26 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
         return this;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return makeEvaluate(PLAIN, this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, getInstrumentationQName(), requiredType, parent, exprSymbol, codegenClassScope)
-                .qparams(getInstrumentationQParams())
-                .build();
+            .qparams(getInstrumentationQParams())
+            .build();
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(GETEVENTCOLL, this, Collection.class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(GETEVENTCOLL, this, EPTypePremade.COLLECTION.getEPType(), parent, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(GETSCALARCOLL, this, Collection.class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(GETSCALARCOLL, this, EPTypePremade.COLLECTION.getEPType(), parent, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(GETEVENT, this, EventBean.class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(GETEVENT, this, EventBean.EPTYPE, parent, exprSymbol, codegenClassScope);
     }
 
     public final ExprForgeConstantType getForgeConstantType() {
@@ -157,7 +160,7 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
     }
 
     protected TableMetadataColumn validateSubpropertyGetCol(TableMetaData tableMetadata, String subpropName)
-            throws ExprValidationException {
+        throws ExprValidationException {
         TableMetadataColumn column = tableMetadata.getColumns().get(subpropName);
         if (column == null) {
             throw new ExprValidationException("A column '" + subpropName + "' could not be found for table '" + getTableName() + "'");
@@ -187,20 +190,24 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
         return tableMeta;
     }
 
-    protected static CodegenExpression makeEvaluate(AccessEvaluationType evaluationType, ExprTableAccessNode accessNode, Class resultType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    protected static CodegenExpression makeEvaluate(AccessEvaluationType evaluationType, ExprTableAccessNode accessNode, EPType resultType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        if (resultType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass resultClass = (EPTypeClass) resultType;
         if (accessNode.getTableAccessNumber() == -1) {
             throw new IllegalStateException("Table expression node has not been assigned");
         }
-        CodegenMethod method = parent.makeChild(resultType, ExprTableAccessNode.class, classScope);
+        CodegenMethod method = parent.makeChild(resultClass, ExprTableAccessNode.class, classScope);
 
         CodegenExpression eps = symbols.getAddEPS(method);
         CodegenExpression newData = symbols.getAddIsNewData(method);
         CodegenExpression evalCtx = symbols.getAddExprEvalCtx(method);
 
-        CodegenExpressionField future = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameTableAccess(accessNode.tableAccessNumber), ExprTableEvalStrategy.class);
+        CodegenExpressionField future = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameTableAccess(accessNode.tableAccessNumber), ExprTableEvalStrategy.EPTYPE);
         CodegenExpression evaluation = exprDotMethod(future, evaluationType.getMethodName(), eps, newData, evalCtx);
-        if (resultType != Object.class) {
-            evaluation = cast(resultType, evaluation);
+        if (resultClass.getType() != Object.class) {
+            evaluation = cast((EPTypeClass) resultType, evaluation);
         }
         method.getBlock().methodReturn(evaluation);
         return localMethod(method);

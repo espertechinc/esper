@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.interval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -57,22 +59,22 @@ public class ExprEvaluatorStreamDTPropFragment implements ExprForge, ExprEvaluat
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Long.class, ExprEvaluatorStreamDTPropFragment.class, codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.LONGBOXED.getEPType(), ExprEvaluatorStreamDTPropFragment.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         methodNode.getBlock()
-                .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(streamId)))
+                .declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("theEvent")
-                .declareVar(Object.class, "event", getterFragment.eventBeanFragmentCodegen(ref("theEvent"), methodNode, codegenClassScope))
-                .ifCondition(not(instanceOf(ref("event"), EventBean.class)))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "event", getterFragment.eventBeanFragmentCodegen(ref("theEvent"), methodNode, codegenClassScope))
+                .ifCondition(not(instanceOf(ref("event"), EventBean.EPTYPE)))
                 .blockReturn(constantNull())
-                .methodReturn(CodegenLegoCast.castSafeFromObjectType(Long.class, getterTimestamp.eventBeanGetCodegen(cast(EventBean.class, ref("event")), methodNode, codegenClassScope)));
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(EPTypePremade.LONGBOXED.getEPType(), getterTimestamp.eventBeanGetCodegen(cast(EventBean.EPTYPE, ref("event")), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
-        return Long.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.LONGBOXED.getEPType();
     }
 
     public ExprNodeRenderable getForgeRenderable() {

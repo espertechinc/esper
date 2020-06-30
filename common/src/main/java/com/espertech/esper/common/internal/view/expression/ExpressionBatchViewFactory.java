@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.view.access.RelativeAccessByEventNIndexGetterImpl;
@@ -21,6 +22,8 @@ import com.espertech.esper.common.internal.view.core.ViewEnum;
  * Factory for {@link ExpressionBatchView}.
  */
 public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExpressionBatchViewFactory.class);
+
     protected boolean includeTriggeringEvent = true;
 
     public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -81,13 +82,13 @@ public class FilterForEvalEventPropDoubleForge implements FilterSpecParamFilterF
     }
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
         CodegenExpression get = exprIdentNodeEvaluator.getGetter().eventBeanGetCodegen(ref("event"), method, classScope);
 
         method.getBlock()
-                .declareVar(EventBean.class, "event", exprDotMethod(ref("matchedEvents"), "getMatchingEventByTag", constant(resultEventAsName)))
-                .ifNull(ref("event")).blockThrow(newInstance(IllegalStateException.class, constant("Matching event named '" + resultEventAsName + "' not found in event result set")))
-                .declareVar(Number.class, "value", cast(Number.class, get))
+                .declareVar(EventBean.EPTYPE, "event", exprDotMethod(ref("matchedEvents"), "getMatchingEventByTag", constant(resultEventAsName)))
+                .ifNull(ref("event")).blockThrow(newInstance(EPTypePremade.ILLEGALSTATEEXCEPTION.getEPType(), constant("Matching event named '" + resultEventAsName + "' not found in event result set")))
+                .declareVar(EPTypePremade.NUMBER.getEPType(), "value", cast(EPTypePremade.NUMBER.getEPType(), get))
                 .ifRefNull("value").blockReturn(constantNull())
                 .methodReturn(exprDotMethod(ref("value"), "doubleValue"));
 

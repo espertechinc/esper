@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.client.serde;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * For use with high-availability and scale-out only, this class provides contextual information about the class that we
  * looking to serialize or de-serialize, for use with {@link SerdeProvider}
  */
 public class SerdeProviderContextClass {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final SerdeProviderAdditionalInfo additionalInfo;
 
     /**
@@ -23,7 +25,7 @@ public class SerdeProviderContextClass {
      * @param clazz type
      * @param additionalInfo additional information on why and where a serde is need for this type
      */
-    public SerdeProviderContextClass(Class clazz, SerdeProviderAdditionalInfo additionalInfo) {
+    public SerdeProviderContextClass(EPTypeClass clazz, SerdeProviderAdditionalInfo additionalInfo) {
         this.clazz = clazz;
         this.additionalInfo = additionalInfo;
     }
@@ -32,7 +34,7 @@ public class SerdeProviderContextClass {
      * Returns the type to provide a serde for
      * @return type
      */
-    public Class getClazz() {
+    public EPTypeClass getClazz() {
         return clazz;
     }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 import java.util.Collection;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 public class AggregationMethodSortedKeyedFactory {
 
-    public static AggregationMethodSortedKeyedEval makeSortedAggregationWithKey(ExprEvaluator keyEval, AggregationMethodSortedEnum method, Class underlyingClass) {
+    public static AggregationMethodSortedKeyedEval makeSortedAggregationWithKey(ExprEvaluator keyEval, AggregationMethodSortedEnum method, EPTypeClass underlyingClass) {
         if (method.getFootprint() != AggregationMethodSortedFootprintEnum.KEYONLY) {
             throw new IllegalStateException("Unrecognized aggregation method " + method);
         }
@@ -147,14 +148,14 @@ public class AggregationMethodSortedKeyedFactory {
         return event.getUnderlying();
     }
 
-    static Object eventsArrayUnd(Map.Entry<Object, Object> entry, Class underlyingClass) {
+    static Object eventsArrayUnd(Map.Entry<Object, Object> entry, EPTypeClass underlyingClass) {
         if (entry == null) {
             return null;
         }
         return AggregatorAccessSortedImpl.checkedPayloadGetUnderlyingArray(entry.getValue(), underlyingClass);
     }
 
-    private static Object eventsArrayUnd(Object value, Class underlyingClass) {
+    private static Object eventsArrayUnd(Object value, EPTypeClass underlyingClass) {
         if (value == null) {
             return null;
         }

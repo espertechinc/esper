@@ -598,7 +598,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         List<String> found = new ArrayList<>();
         for (int i = 0; i < split.length; i++) {
             VirtualDataWindowLookupFieldDesc field = fields.get(i);
-            String result = field.getPropertyName() + field.getOperator().getOp() + "(" + field.getLookupValueType().getSimpleName() + ")";
+            String result = field.getPropertyName() + field.getOperator().getOp() + "(" + field.getLookupValueType() + ")";
             found.add(result);
         }
         EPAssertionUtil.assertEqualsAnyOrder(split, found.toArray());

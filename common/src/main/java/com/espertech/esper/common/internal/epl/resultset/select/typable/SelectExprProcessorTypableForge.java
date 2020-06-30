@@ -10,8 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.select.typable;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 
 public interface SelectExprProcessorTypableForge extends ExprForge {
-    public Class getUnderlyingEvaluationType();
+    EPTypeClass getUnderlyingEvaluationType();
 }

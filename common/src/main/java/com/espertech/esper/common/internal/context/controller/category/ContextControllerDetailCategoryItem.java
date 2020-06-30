@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.context.controller.category;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlan;
 
 public class ContextControllerDetailCategoryItem {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerDetailCategoryItem.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ContextControllerDetailCategoryItem[].class);
 
     private String name;
     private FilterSpecPlan filterPlan;

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.json.getter.fromschema;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -54,11 +55,11 @@ public final class JsonGetterDynamicNestedSchema implements JsonEventPropertyGet
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
         method.getBlock()
-            .declareVar(Object.class, "inner", exprDotMethod(ref("und"), "get", constant(propertyName)))
-            .ifNotInstanceOf("inner", Map.class).blockReturn(constantNull())
-            .methodReturn(innerGetter.underlyingGetCodegen(cast(Map.class, ref("inner")), method, codegenClassScope));
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "inner", exprDotMethod(ref("und"), "get", constant(propertyName)))
+            .ifNotInstanceOf("inner", EPTypePremade.MAP.getEPType()).blockReturn(constantNull())
+            .methodReturn(innerGetter.underlyingGetCodegen(cast(EPTypePremade.MAP.getEPType(), ref("inner")), method, codegenClassScope));
         return localMethod(method, underlyingExpression);
     }
 
@@ -67,11 +68,11 @@ public final class JsonGetterDynamicNestedSchema implements JsonEventPropertyGet
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
         method.getBlock()
-            .declareVar(Object.class, "inner", exprDotMethod(ref("und"), "get", constant(propertyName)))
-            .ifNotInstanceOf("inner", Map.class).blockReturn(constantFalse())
-            .methodReturn(innerGetter.underlyingExistsCodegen(cast(Map.class, ref("inner")), method, codegenClassScope));
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "inner", exprDotMethod(ref("und"), "get", constant(propertyName)))
+            .ifNotInstanceOf("inner", EPTypePremade.MAP.getEPType()).blockReturn(constantFalse())
+            .methodReturn(innerGetter.underlyingExistsCodegen(cast(EPTypePremade.MAP.getEPType(), ref("inner")), method, codegenClassScope));
         return localMethod(method, underlyingExpression);
     }
 

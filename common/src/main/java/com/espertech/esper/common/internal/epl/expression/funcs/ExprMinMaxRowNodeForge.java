@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -22,9 +23,9 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 
 public class ExprMinMaxRowNodeForge implements ExprForgeInstrumentable {
     private final ExprMinMaxRowNode parent;
-    private final Class resultType;
+    private final EPTypeClass resultType;
 
-    public ExprMinMaxRowNodeForge(ExprMinMaxRowNode parent, Class resultType) {
+    public ExprMinMaxRowNodeForge(ExprMinMaxRowNode parent, EPTypeClass resultType) {
         this.parent = parent;
         this.resultType = resultType;
     }
@@ -38,11 +39,11 @@ public class ExprMinMaxRowNodeForge implements ExprForgeInstrumentable {
         return new ExprMinMaxRowNodeForgeEval(this, evaluators, ExprNodeUtilityQuery.getForges(parent.getChildNodes()));
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprMinMaxRowNodeForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprMinMaxRow", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
@@ -50,7 +51,7 @@ public class ExprMinMaxRowNodeForge implements ExprForgeInstrumentable {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return resultType;
     }
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,7 +34,6 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
     private final String streamName;
     private final boolean isWildcard;
     private int streamNum = -1;
-    private Class type;
     private transient EventType eventType;
 
     public ExprStreamUnderlyingNodeImpl(String streamName, boolean isWildcard) {
@@ -44,11 +44,11 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
         this.isWildcard = isWildcard;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         if (streamNum == -1) {
             throw new IllegalStateException("Stream underlying node has not been validated");
         }
-        return type;
+        return eventType.getUnderlyingEPType();
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -99,7 +99,6 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
         }
 
         eventType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
-        type = eventType.getUnderlyingType();
         return null;
     }
 
@@ -132,17 +131,17 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
         return event.getUnderlying();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(eventType.getUnderlyingType(), ExprStreamUnderlyingNodeImpl.class, codegenClassScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(eventType.getUnderlyingEPType(), ExprStreamUnderlyingNodeImpl.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(cast(eventType.getUnderlyingType(), exprDotMethod(ref("event"), "getUnderlying")));
+                .methodReturn(cast(eventType.getUnderlyingEPType(), exprDotMethod(ref("event"), "getUnderlying")));
         return localMethod(methodNode);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprStreamUnd", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -24,10 +25,10 @@ public class VariableTriggerWriteDescForge extends VariableTriggerWriteForge {
     private final String variableName;
     private final EventPropertyWriterSPI writer;
     private final EventPropertyGetterSPI getter;
-    private final Class getterType;
-    private final Class evaluationType;
+    private final EPType getterType;
+    private final EPType evaluationType;
 
-    public VariableTriggerWriteDescForge(EventTypeSPI type, String variableName, EventPropertyWriterSPI writer, EventPropertyGetterSPI getter, Class getterType, Class evaluationType) {
+    public VariableTriggerWriteDescForge(EventTypeSPI type, String variableName, EventPropertyWriterSPI writer, EventPropertyGetterSPI getter, EPType getterType, EPType evaluationType) {
         this.type = type;
         this.variableName = variableName;
         this.writer = writer;
@@ -53,9 +54,9 @@ public class VariableTriggerWriteDescForge extends VariableTriggerWriteForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(VariableTriggerWriteDesc.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(VariableTriggerWriteDesc.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(VariableTriggerWriteDesc.class, "desc", newInstance(VariableTriggerWriteDesc.class))
+                .declareVarNewInstance(VariableTriggerWriteDesc.EPTYPE, "desc")
                 .exprDotMethod(ref("desc"), "setType", EventTypeUtility.resolveTypeCodegen(type, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("desc"), "setVariableName", constant(variableName))
                 .exprDotMethod(ref("desc"), "setWriter", EventTypeUtility.codegenWriter(type, evaluationType, writer, method, this.getClass(), classScope))

@@ -56,7 +56,7 @@ public class TableOuterLookupNodeForge extends QueryPlanNodeForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(TableOuterLookupNode.class, tableLookupPlan.make(parent, symbols, classScope));
+        return newInstance(TableOuterLookupNode.EPTYPE, tableLookupPlan.make(parent, symbols, classScope));
     }
 
     public void accept(QueryPlanNodeForgeVisitor visitor) {

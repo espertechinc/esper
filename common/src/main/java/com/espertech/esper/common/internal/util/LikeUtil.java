@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.Serializable;
 import java.util.Locale;
 
@@ -17,6 +19,8 @@ import java.util.Locale;
  * Utility for performing a SQL Like comparsion.
  */
 public class LikeUtil implements Serializable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(LikeUtil.class);
+
     private final static int UNDERSCORE_CHAR = 1;
     private final static int PERCENT_CHAR = 2;
 

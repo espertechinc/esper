@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Contains the query plan for all streams.
  */
 public class QueryPlan {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryPlan.class);
+
     private QueryPlanIndex[] indexSpecs;
     private QueryPlanNode[] execNodeSpecs;
 

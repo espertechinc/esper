@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.event.json;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
@@ -485,6 +486,7 @@ public class EventJsonTypingCoreParse {
                 {"c15", Float[][].class},
                 {"c16", float[][].class},
             };
+            EventType eventType = env.statement("s0").getEventType();
             SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
             String json = "{ \"c0\": [[\"a\", \"b\"],[\"c\"]],\n" +

@@ -10,13 +10,24 @@
  */
 package com.espertech.esper.common.client;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Queue;
+
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
+
 /**
  * Descriptor for event property names, property types and access metadata.
  */
 public class EventPropertyDescriptor {
     private String propertyName;
-    private Class propertyType;
-    private Class propertyComponentType;
+    private EPType propertyType;
     private boolean isRequiresIndex;
     private boolean isRequiresMapkey;
     private boolean isIndexed;
@@ -26,19 +37,20 @@ public class EventPropertyDescriptor {
     /**
      * Ctor.
      *
-     * @param propertyName          name of the property
-     * @param propertyType          the property type
-     * @param propertyComponentType is the component type if the property is an indexed property
-     * @param requiresIndex         true if the access to property value access requires an integer index value
-     * @param requiresMapkey        true if the access to property value access requires a string map key
-     * @param indexed               true if the property is an indexed property, i.e. type is an array or the property value access requires an integer index value
-     * @param mapped                true if the property is a mapped property, i.e. type is an Map or the property value access requires an string map key
-     * @param fragment              true if the property value can be represented as an EventBean and property type can be represented as an EventType
+     * @param propertyName   name of the property
+     * @param propertyType   the property type
+     * @param requiresIndex  true if the access to property value access requires an integer index value
+     * @param requiresMapkey true if the access to property value access requires a string map key
+     * @param indexed        true if the property is an indexed property, i.e. type is an array or the property value access requires an integer index value
+     * @param mapped         true if the property is a mapped property, i.e. type is an Map or the property value access requires an string map key
+     * @param fragment       true if the property value can be represented as an EventBean and property type can be represented as an EventType
      */
-    public EventPropertyDescriptor(String propertyName, Class propertyType, Class propertyComponentType, boolean requiresIndex, boolean requiresMapkey, boolean indexed, boolean mapped, boolean fragment) {
+    public EventPropertyDescriptor(String propertyName, EPType propertyType, boolean requiresIndex, boolean requiresMapkey, boolean indexed, boolean mapped, boolean fragment) {
+        if (propertyType == null) {
+            throw new IllegalArgumentException("Null property type");
+        }
         this.propertyName = propertyName;
         this.propertyType = propertyType;
-        this.propertyComponentType = propertyComponentType;
         isRequiresIndex = requiresIndex;
         isRequiresMapkey = requiresMapkey;
         isIndexed = indexed;
@@ -59,20 +71,71 @@ public class EventPropertyDescriptor {
      * Returns the property underlying type.
      * <p>
      * Note that a null values is possible as null values can be selected.
+     * Use {@link #getPropertyEPType()} for access to type parameters.
      *
      * @return underlying property type
      */
     public Class getPropertyType() {
+        return getPropertyTypeAsClass(propertyType);
+    }
+
+    /**
+     * Returns the property underlying type.
+     * <p>
+     * Note that a null values is possible as null values can be selected.
+     *
+     * @return underlying property type
+     */
+    public EPType getPropertyEPType() {
         return propertyType;
     }
 
     /**
-     * Returns the component type.
+     * Returns the component type, if applicable.
+     * This is applicable only to arrays and collections, queues and iterators.
+     * Returns null if not applicable.
      *
      * @return component type
      */
     public Class getPropertyComponentType() {
-        return propertyComponentType;
+        EPTypeClass typeClass = getPropertyComponentEPType();
+        return typeClass == null ? null : typeClass.getType();
+    }
+
+    /**
+     * Returns the component type, if applicable.
+     * This is applicable only to arrays and collections, queues and iterators.
+     * Returns null if not applicable.
+     *
+     * @return component type
+     */
+    public EPTypeClass getPropertyComponentEPType() {
+        if (!(propertyType instanceof EPTypeClass)) {
+            return null;
+        }
+        EPTypeClass type = (EPTypeClass) propertyType;
+        if (type.getType().isArray()) {
+            return JavaClassHelper.getArrayComponentType(type);
+        }
+        if (propertyType instanceof EPTypeClassParameterized) {
+            EPTypeClassParameterized parameterized = (EPTypeClassParameterized) propertyType;
+            if (JavaClassHelper.isImplementsInterface(parameterized, Collection.class) ||
+                JavaClassHelper.isImplementsInterface(parameterized, Queue.class) ||
+                JavaClassHelper.isImplementsInterface(parameterized, Iterable.class)) {
+                return parameterized.getParameters()[0];
+            }
+            if (JavaClassHelper.isImplementsInterface(parameterized, Map.class)) {
+                return parameterized.getParameters()[1];
+            }
+        } else {
+            if (JavaClassHelper.isImplementsInterface(type, Collection.class) ||
+                JavaClassHelper.isImplementsInterface(type, Queue.class) ||
+                JavaClassHelper.isImplementsInterface(type, Iterable.class) ||
+                JavaClassHelper.isImplementsInterface(type, Map.class)) {
+                return EPTypePremade.OBJECT.getEPType();
+            }
+        }
+        return null;
     }
 
     /**
@@ -153,8 +216,6 @@ public class EventPropertyDescriptor {
         if (isMapped != that.isMapped) return false;
         if (isRequiresIndex != that.isRequiresIndex) return false;
         if (isRequiresMapkey != that.isRequiresMapkey) return false;
-        if (propertyComponentType != null ? !propertyComponentType.equals(that.propertyComponentType) : that.propertyComponentType != null)
-            return false;
         if (!propertyName.equals(that.propertyName)) return false;
         if (propertyType != null ? !propertyType.equals(that.propertyType) : that.propertyType != null) return false;
 
@@ -165,7 +226,6 @@ public class EventPropertyDescriptor {
     public int hashCode() {
         int result = propertyName.hashCode();
         result = 31 * result + (propertyType != null ? propertyType.hashCode() : 0);
-        result = 31 * result + (propertyComponentType != null ? propertyComponentType.hashCode() : 0);
         result = 31 * result + (isRequiresIndex ? 1 : 0);
         result = 31 * result + (isRequiresMapkey ? 1 : 0);
         result = 31 * result + (isIndexed ? 1 : 0);
@@ -176,12 +236,11 @@ public class EventPropertyDescriptor {
 
     public String toString() {
         return "name " + propertyName +
-                " propertyType " + propertyType +
-                " propertyComponentType " + propertyComponentType +
-                " isRequiresIndex " + isRequiresIndex +
-                " isRequiresMapkey " + isRequiresMapkey +
-                " isIndexed " + isIndexed +
-                " isMapped " + isMapped +
-                " isFragment " + isFragment;
+            " propertyType " + propertyType.getTypeName() +
+            " isRequiresIndex " + isRequiresIndex +
+            " isRequiresMapkey " + isRequiresMapkey +
+            " isIndexed " + isIndexed +
+            " isMapped " + isMapped +
+            " isFragment " + isFragment;
     }
 }

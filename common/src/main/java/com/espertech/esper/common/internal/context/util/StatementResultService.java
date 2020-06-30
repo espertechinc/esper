@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.util;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.UniformPair;
 
 /**
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.collection.UniformPair;
  * native deliver to subscribers and the presence/absence of listener or subscribers to a statement.
  */
 public interface StatementResultService {
+    EPTypeClass EPTYPE = new EPTypeClass(StatementResultService.class);
+
     String getStatementName();
 
     ThreadLocal<StatementDispatchTLEntry> getDispatchTL();

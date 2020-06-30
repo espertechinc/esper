@@ -43,7 +43,7 @@ public class OutputConditionCountForge implements OutputConditionFactoryForge {
             variableExpression = VariableDeployTimeResolver.makeVariableField(variableMetaData, classScope, this.getClass());
         }
 
-        CodegenMethod method = parent.makeChild(OutputConditionFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OutputConditionFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
                 .methodReturn(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY)
                         .add("makeOutputConditionCount", constant(eventRate), variableExpression));

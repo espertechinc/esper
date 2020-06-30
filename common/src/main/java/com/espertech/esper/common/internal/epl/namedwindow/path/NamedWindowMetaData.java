@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.namedwindow.path;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -28,6 +29,8 @@ import java.util.Set;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class NamedWindowMetaData implements Copyable<NamedWindowMetaData> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(NamedWindowMetaData.class);
+
     private final EventType eventType;
     private final String namedWindowModuleName;
     private final String contextName;
@@ -79,7 +82,7 @@ public class NamedWindowMetaData implements Copyable<NamedWindowMetaData> {
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
-        return newInstance(NamedWindowMetaData.class, EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc), constant(namedWindowModuleName), constant(contextName), constant(uniqueness),
+        return newInstance(NamedWindowMetaData.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc), constant(namedWindowModuleName), constant(contextName), constant(uniqueness),
             constant(isChildBatching), constant(isEnableIndexShare),
             optionalEventTypeAs == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(optionalEventTypeAs, addInitSvc),
             constant(virtualDataWindow));

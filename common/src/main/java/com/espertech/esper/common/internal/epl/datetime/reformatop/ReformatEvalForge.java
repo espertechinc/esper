@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -59,9 +61,9 @@ public class ReformatEvalForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod method = codegenMethodScope.makeChild(int.class, ReformatEvalForge.class, codegenClassScope).addParam(long.class, "ts");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.INTEGERPRIMITIVE.getEPType(), ReformatEvalForge.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "ts");
         method.getBlock()
-            .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+            .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
             .expression(timeAbacus.calendarSetCodegen(ref("ts"), ref("cal"), method, codegenClassScope))
             .methodReturn(calendarEval.codegen(ref("cal")));
         return localMethodBuild(method).pass(inner).call();
@@ -75,10 +77,10 @@ public class ReformatEvalForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(int.class, ReformatEvalForge.class, codegenClassScope).addParam(Date.class, "d");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.INTEGERPRIMITIVE.getEPType(), ReformatEvalForge.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "d");
 
         methodNode.getBlock()
-            .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+            .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
             .expression(exprDotMethod(ref("cal"), "setTimeInMillis", exprDotMethod(ref("d"), "getTime")))
             .methodReturn(calendarEval.codegen(ref("cal")));
         return localMethod(methodNode, inner);
@@ -108,8 +110,8 @@ public class ReformatEvalForge implements ReformatForge, ReformatOp {
         return calendarEval.codegen(inner);
     }
 
-    public Class getReturnType() {
-        return Integer.class;
+    public EPTypeClass getReturnType() {
+        return EPTypePremade.INTEGERBOXED.getEPType();
     }
 
     public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {

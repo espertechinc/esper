@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.core.MinMaxTypeEnum;
@@ -29,11 +30,11 @@ public class TestExprMinMaxRowNode extends TestCase {
         minMaxNode.addChildNode(new SupportExprNode(Double.class));
         minMaxNode.addChildNode(new SupportExprNode(Integer.class));
         minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Double.class, minMaxNode.getForge().getEvaluationType());
+        assertEquals(EPTypePremade.DOUBLEBOXED.getEPType(), minMaxNode.getForge().getEvaluationType());
 
         minMaxNode.addChildNode(new SupportExprNode(Double.class));
         minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Double.class, minMaxNode.getForge().getEvaluationType());
+        assertEquals(EPTypePremade.DOUBLEBOXED.getEPType(), minMaxNode.getForge().getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {

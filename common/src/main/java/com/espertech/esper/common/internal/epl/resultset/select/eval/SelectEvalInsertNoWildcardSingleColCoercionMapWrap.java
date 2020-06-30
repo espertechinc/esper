@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,7 +23,6 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -31,14 +32,14 @@ public class SelectEvalInsertNoWildcardSingleColCoercionMapWrap extends SelectEv
         super(selectExprForgeContext, wrapper);
     }
 
-    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return processFirstColCodegen(expression, eventBeanFactory, codegenClassScope, wrapper, "adapterForTypedMap", Map.class);
+    protected CodegenExpression processFirstColCodegen(EPTypeClass evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return processFirstColCodegen(expression, eventBeanFactory, codegenClassScope, wrapper, "adapterForTypedMap", EPTypePremade.MAP.getEPType());
     }
 
-    public static CodegenExpression processFirstColCodegen(CodegenExpression expression, CodegenExpression eventBeanFactory, CodegenClassScope codegenClassScope, WrapperEventType wrapperEventType, String adapterMethod, Class castType) {
-        CodegenExpressionField memberUndType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(wrapperEventType.getUnderlyingEventType(), EPStatementInitServices.REF));
-        CodegenExpressionField memberWrapperType = codegenClassScope.addFieldUnshared(true, WrapperEventType.class, cast(WrapperEventType.class, EventTypeUtility.resolveTypeCodegen(wrapperEventType, EPStatementInitServices.REF)));
-        CodegenExpression wrapped = exprDotMethod(eventBeanFactory, adapterMethod, castType == Object.class ? expression : cast(castType, expression), memberUndType);
+    public static CodegenExpression processFirstColCodegen(CodegenExpression expression, CodegenExpression eventBeanFactory, CodegenClassScope codegenClassScope, WrapperEventType wrapperEventType, String adapterMethod, EPTypeClass castType) {
+        CodegenExpressionField memberUndType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(wrapperEventType.getUnderlyingEventType(), EPStatementInitServices.REF));
+        CodegenExpressionField memberWrapperType = codegenClassScope.addFieldUnshared(true, WrapperEventType.EPTYPE, cast(WrapperEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(wrapperEventType, EPStatementInitServices.REF)));
+        CodegenExpression wrapped = exprDotMethod(eventBeanFactory, adapterMethod, castType.getType() == Object.class ? expression : cast(castType, expression), memberUndType);
         return exprDotMethod(eventBeanFactory, "adapterForTypedWrapper", wrapped, staticMethod(Collections.class, "emptyMap"), memberWrapperType);
     }
 }

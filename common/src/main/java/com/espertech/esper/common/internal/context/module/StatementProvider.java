@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface StatementProvider {
+    EPTypeClass EPTYPE = new EPTypeClass(StatementProvider.class);
+
     StatementInformationalsRuntime getInformationals();
 
     void initialize(EPStatementInitServices epInitServices);

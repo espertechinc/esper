@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.ArrayList;
@@ -21,9 +23,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class CodegenSubstitutionParamEntry {
     private final CodegenField field;
     private final String name;
-    private final Class type;
+    private final EPTypeClass type;
 
-    public CodegenSubstitutionParamEntry(CodegenField field, String name, Class type) {
+    public CodegenSubstitutionParamEntry(CodegenField field, String name, EPTypeClass type) {
         this.field = field;
         this.name = name;
         this.type = type;
@@ -37,7 +39,7 @@ public class CodegenSubstitutionParamEntry {
         return name;
     }
 
-    public Class getType() {
+    public EPTypeClass getType() {
         return type;
     }
 
@@ -58,7 +60,7 @@ public class CodegenSubstitutionParamEntry {
             fields = new ArrayList<>(named.values());
         }
 
-        method.getBlock().declareVar(int.class, "zidx", op(ref("index"), "-", constant(1)));
+        method.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "zidx", op(ref("index"), "-", constant(1)));
         CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("zidx"), fields.size(), false);
         for (int i = 0; i < blocks.length; i++) {
             CodegenSubstitutionParamEntry param = fields.get(i);

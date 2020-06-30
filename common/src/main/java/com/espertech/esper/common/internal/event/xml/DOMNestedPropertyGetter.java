@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.xml;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -58,9 +59,9 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethod getValueAsFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField member = codegenClassScope.addFieldUnshared(true, FragmentFactory.class, fragmentFactory.make(codegenClassScope.getPackageScope().getInitMethod(), codegenClassScope));
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
-                .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope))
+        CodegenExpressionField member = codegenClassScope.addFieldUnshared(true, FragmentFactory.EPTYPE, fragmentFactory.make(codegenClassScope.getPackageScope().getInitMethod(), codegenClassScope));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.NODE.getEPType(), "node").getBlock()
+                .declareVar(EPTypePremade.NODE.getEPType(), "result", getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(member, "getEvent", ref("result")));
     }
@@ -76,7 +77,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethod getValueAsNodeArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Node[].class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.NODEARRAY.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.NODE.getEPType(), "node").getBlock();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("node");
@@ -95,7 +96,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethod getValueAsNodeCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Node.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.NODE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.NODE.getEPType(), "node").getBlock();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("node");
@@ -134,7 +135,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethod isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Node.class, "value").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.NODE.getEPType(), "value").getBlock();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnFalse("value");
@@ -163,7 +164,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "value").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.NODE.getEPType(), "value").getBlock();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("value");
@@ -172,15 +173,15 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

@@ -29,7 +29,6 @@ import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowManag
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionExpressionTypeUtil;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 import com.espertech.esper.common.internal.view.core.DataWindowViewForge;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
@@ -40,6 +39,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
 
 public class EPStatementStartMethodHelperValidate {
     // Special-case validation: When an on-merge query in the not-matched clause uses a subquery then
@@ -65,7 +66,7 @@ public class EPStatementStartMethodHelperValidate {
 
     public static ExprNode validateExprNoAgg(ExprNodeOrigin exprNodeOrigin, ExprNode exprNode, StreamTypeService streamTypeService, String errorMsg, boolean allowTableConsumption, boolean allowTableAggReset, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
         ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, raw, compileTimeServices)
-                .withAllowBindingConsumption(allowTableConsumption).withAllowTableAggReset(allowTableAggReset).build();
+            .withAllowBindingConsumption(allowTableConsumption).withAllowTableAggReset(allowTableAggReset).build();
         ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(exprNodeOrigin, exprNode, validationContext);
         validateNoAggregations(validated, errorMsg);
         return validated;
@@ -97,18 +98,18 @@ public class EPStatementStartMethodHelperValidate {
             // Validate where clause, initializing nodes to the stream ids used
             try {
                 ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, statementRawInfo, compileTimeServices)
-                        .withViewResourceDelegate(viewResourceDelegate)
-                        .withAllowBindingConsumption(true)
-                        .withIntoTableName(intoTableName)
-                        .build();
+                    .withViewResourceDelegate(viewResourceDelegate)
+                    .withAllowBindingConsumption(true)
+                    .withIntoTableName(intoTableName)
+                    .build();
                 whereClause = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.FILTER, whereClause, validationContext);
-                if (whereClause.getForge().getEvaluationType() != boolean.class && whereClause.getForge().getEvaluationType() != Boolean.class) {
+                if (!isTypeBoolean(whereClause.getForge().getEvaluationType())) {
                     throw new ExprValidationException("The where-clause filter expression must return a boolean value");
                 }
                 whereClauseValidated = whereClause;
 
                 // Make sure there is no aggregation in the where clause
-                List<ExprAggregateNode> aggregateNodes = new LinkedList<ExprAggregateNode>();
+                List<ExprAggregateNode> aggregateNodes = new LinkedList<>();
                 ExprAggregateNodeUtil.getAggregatesBottomUp(whereClause, aggregateNodes);
                 if (!aggregateNodes.isEmpty()) {
                     throw new ExprValidationException("An aggregate function may not appear in a WHERE clause (use the HAVING clause)");
@@ -123,14 +124,13 @@ public class EPStatementStartMethodHelperValidate {
             EventType outputLimitType = OutputConditionExpressionTypeUtil.getBuiltInEventType(statementRawInfo.getModuleName(), compileTimeServices.getBeanEventTypeFactoryPrivate());
             StreamTypeService typeServiceOutputWhen = new StreamTypeServiceImpl(new EventType[]{outputLimitType}, new String[]{null}, new boolean[]{true}, false, false);
             ExprValidationContext validationContext = new ExprValidationContextBuilder(typeServiceOutputWhen, statementRawInfo, compileTimeServices)
-                    .withIntoTableName(intoTableName).build();
+                .withIntoTableName(intoTableName).build();
 
             ExprNode outputLimitWhenNode = statementSpec.getOutputLimitSpec().getWhenExpressionNode();
             if (outputLimitWhenNode != null) {
                 outputLimitWhenNode = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitWhenNode, validationContext);
                 statementSpec.getOutputLimitSpec().setWhenExpressionNode(outputLimitWhenNode);
-
-                if (JavaClassHelper.getBoxedType(outputLimitWhenNode.getForge().getEvaluationType()) != Boolean.class) {
+                if (!isTypeBoolean(outputLimitWhenNode.getForge().getEvaluationType())) {
                     throw new ExprValidationException("The when-trigger expression in the OUTPUT WHEN clause must return a boolean-type value");
                 }
                 EPStatementStartMethodHelperValidate.validateNoAggregations(outputLimitWhenNode, "An aggregate function may not appear in a OUTPUT LIMIT clause");
@@ -143,18 +143,17 @@ public class EPStatementStartMethodHelperValidate {
                 }
                 ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr(), validationContext);
                 statementSpec.getOutputLimitSpec().setAndAfterTerminateExpr(validated);
-
-                if (JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType()) != Boolean.class) {
+                if (!isTypeBoolean(validated.getForge().getEvaluationType())) {
                     throw new ExprValidationException("The terminated-and expression must return a boolean-type value");
                 }
                 EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "An aggregate function may not appear in a terminated-and clause");
             }
 
             // validate then-expression
-            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getThenExpressions(), validationContext, false);
+            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getThenExpressions(), validationContext);
 
             // validate after-terminated then-expression
-            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getAndAfterTerminateThenExpressions(), validationContext, false);
+            validateThenSetAssignments(statementSpec.getOutputLimitSpec().getAndAfterTerminateThenExpressions(), validationContext);
         }
 
         for (int outerJoinCount = 0; outerJoinCount < statementSpec.getOuterJoinDescList().size(); outerJoinCount++) {
@@ -166,7 +165,7 @@ public class EPStatementStartMethodHelperValidate {
                 );
 
                 if (outerJoinDesc.getAdditionalLeftNodes() != null) {
-                    Set<Integer> streamSet = new HashSet<Integer>();
+                    Set<Integer> streamSet = new HashSet<>();
                     streamSet.add(streamIdPair.getFirst());
                     streamSet.add(streamIdPair.getSecond());
                     for (int i = 0; i < outerJoinDesc.getAdditionalLeftNodes().length; i++) {
@@ -176,7 +175,7 @@ public class EPStatementStartMethodHelperValidate {
                         // make sure all additional properties point to the same two streams
                         if (!streamSet.contains(streamIdPairAdd.getFirst()) || (!streamSet.contains(streamIdPairAdd.getSecond()))) {
                             String message = "Outer join ON-clause columns must refer to properties of the same joined streams" +
-                                    " when using multiple columns in the on-clause";
+                                " when using multiple columns in the on-clause";
                             throw new ExprValidationException("Failed to validate outer-join expression: " + message);
                         }
 
@@ -189,8 +188,8 @@ public class EPStatementStartMethodHelperValidate {
     }
 
     protected static UniformPair<Integer> validateOuterJoinPropertyPair(
-            ExprIdentNode leftNode, ExprIdentNode rightNode, int outerJoinCount, StreamTypeService typeService,
-            ViewResourceDelegateExpr viewResourceDelegate, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
+        ExprIdentNode leftNode, ExprIdentNode rightNode, int outerJoinCount, StreamTypeService typeService,
+        ViewResourceDelegateExpr viewResourceDelegate, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
         // Validate the outer join clause using an artificial equals-node on top.
         // Thus types are checked via equals.
         // Sets stream ids used for validated nodes.
@@ -199,7 +198,7 @@ public class EPStatementStartMethodHelperValidate {
         equalsNode.addChildNode(rightNode);
         try {
             ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, statementRawInfo, compileTimeServices)
-                    .withViewResourceDelegate(viewResourceDelegate).withAllowBindingConsumption(true).withIsFilterExpression(true).build();
+                .withViewResourceDelegate(viewResourceDelegate).withAllowBindingConsumption(true).withIsFilterExpression(true).build();
             ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.JOINON, equalsNode, validationContext);
         } catch (ExprValidationException ex) {
             throw new ExprValidationException("Failed to validate outer-join expression: " + ex.getMessage(), ex);
@@ -217,7 +216,7 @@ public class EPStatementStartMethodHelperValidate {
         int expectedStreamJoined = outerJoinCount + 1;
         if ((streamIdLeft != expectedStreamJoined) && (streamIdRight != expectedStreamJoined)) {
             String message = "Outer join ON-clause must refer to at least one property of the joined stream" +
-                    " for stream " + expectedStreamJoined;
+                " for stream " + expectedStreamJoined;
             throw new ExprValidationException("Failed to validate outer-join expression: " + message);
         }
 
@@ -231,25 +230,25 @@ public class EPStatementStartMethodHelperValidate {
         }
         if (badPropertyName != null) {
             String message = "Outer join ON-clause invalid scope for property" +
-                    " '" + badPropertyName + "', expecting the current or a prior stream scope";
+                " '" + badPropertyName + "', expecting the current or a prior stream scope";
             throw new ExprValidationException("Failed to validate outer-join expression: " + message);
         }
 
-        return new UniformPair<Integer>(streamIdLeft, streamIdRight);
+        return new UniformPair<>(streamIdLeft, streamIdRight);
     }
 
     public static void validateNoAggregations(ExprNode exprNode, String errorMsg)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Make sure there is no aggregation in the where clause
-        List<ExprAggregateNode> aggregateNodes = new LinkedList<ExprAggregateNode>();
+        List<ExprAggregateNode> aggregateNodes = new LinkedList<>();
         ExprAggregateNodeUtil.getAggregatesBottomUp(exprNode, aggregateNodes);
         if (!aggregateNodes.isEmpty()) {
             throw new ExprValidationException(errorMsg);
         }
     }
 
-    private static void validateThenSetAssignments(List<OnTriggerSetAssignment> assignments, ExprValidationContext validationContext, boolean allowRHSAggregation)
-            throws ExprValidationException {
+    private static void validateThenSetAssignments(List<OnTriggerSetAssignment> assignments, ExprValidationContext validationContext)
+        throws ExprValidationException {
         if (assignments == null || assignments.isEmpty()) {
             return;
         }

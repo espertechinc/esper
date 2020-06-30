@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.context.controller.hash;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -78,25 +80,25 @@ public class ContextControllerHashedGetterCRC32SerializedForge implements EventP
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenExpressionField serializers = classScope.addFieldUnshared(true, Serializer[].class, staticMethod(SerializerFactory.class, "getSerializers", constant(ExprNodeUtilityQuery.getExprResultTypes(nodes))));
+        CodegenExpressionField serializers = classScope.addFieldUnshared(true, Serializer.EPTYPEARRAY, staticMethod(SerializerFactory.class, "getSerializers", constant(ExprNodeUtilityQuery.getExprResultTypes(nodes))));
 
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(EventBean.class, "eventBean");
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "eventBean");
         method.getBlock()
-                .declareVar(EventBean[].class, "events", newArrayWithInit(EventBean.class, ref("eventBean")));
+                .declareVar(EventBean.EPTYPEARRAY, "events", newArrayWithInit(EventBean.EPTYPE, ref("eventBean")));
 
         // method to return object-array from expressions
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
-        CodegenMethod exprMethod = method.makeChildWithScope(Object.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod exprMethod = method.makeChildWithScope(EPTypePremade.OBJECT.getEPType(), CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression[] expressions = new CodegenExpression[nodes.length];
         for (int i = 0; i < nodes.length; i++) {
-            expressions[i] = nodes[i].getForge().evaluateCodegen(nodes[i].getForge().getEvaluationType(), exprMethod, exprSymbol, classScope);
+            expressions[i] = nodes[i].getForge().evaluateCodegen((EPTypeClass) nodes[i].getForge().getEvaluationType(), exprMethod, exprSymbol, classScope);
         }
         exprSymbol.derivedSymbolsCodegen(method, exprMethod.getBlock(), classScope);
 
         if (nodes.length == 1) {
             exprMethod.getBlock().methodReturn(expressions[0]);
         } else {
-            exprMethod.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(nodes.length)));
+            exprMethod.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "values", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(nodes.length)));
             for (int i = 0; i < nodes.length; i++) {
                 CodegenExpression result = expressions[i];
                 exprMethod.getBlock().assignArrayElement("values", constant(i), result);
@@ -105,7 +107,7 @@ public class ContextControllerHashedGetterCRC32SerializedForge implements EventP
         }
 
         method.getBlock()
-                .declareVar(Object.class, "values", localMethod(exprMethod, ref("events"), constantTrue(), constantNull()))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "values", localMethod(exprMethod, ref("events"), constantTrue(), constantNull()))
                 .methodReturn(staticMethod(ContextControllerHashedGetterCRC32SerializedForge.class, "serializeAndCRC32Hash",
                         ref("values"), constant(granularity), serializers));
 

@@ -34,7 +34,7 @@ public interface FilterService {
      *
      * @param theEvent is the event to be matched against filters
      * @param matches  is a collection that is populated via add method with any handles for matching filters
-     * @param ctx
+     * @param ctx filter evaluator context
      * @return filter current version
      */
     public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, ExprEvaluatorContext ctx);
@@ -45,7 +45,7 @@ public interface FilterService {
      * @param theEvent    is the event to be matched against filters
      * @param matches     is a collection that is populated via add method with any handles for matching filters
      * @param statementId statement for which to return results for
-     * @param ctx
+     * @param ctx filter evaluator context
      * @return filter current version
      */
     public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId, ExprEvaluatorContext ctx);

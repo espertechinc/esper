@@ -18,6 +18,9 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
@@ -55,7 +58,7 @@ import static com.espertech.esper.common.internal.metrics.instrumentation.Instru
 
 public class ExprDotNodeUtility {
 
-    public static ObjectArrayEventType makeTransientOAType(String enumMethod, String propertyName, Class type, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+    public static ObjectArrayEventType makeTransientOAType(String enumMethod, String propertyName, EPType type, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
         Map<String, Object> propsResult = new HashMap<>();
         propsResult.put(propertyName, JavaClassHelper.getBoxedType(type));
         return makeTransientOATypeInternal(enumMethod, propsResult, propertyName, statementRawInfo, services);
@@ -80,24 +83,24 @@ public class ExprDotNodeUtility {
     public static ExprDotEnumerationSourceForge getEnumerationSource(ExprNode inputExpression, StreamTypeService streamTypeService, boolean hasEnumerationMethod, boolean disablePropertyExpressionEventCollCache, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
         ExprForge rootNodeForge = inputExpression.getForge();
         ExprEnumerationForge rootLambdaForge = null;
-        EPType info = null;
+        EPChainableType info = null;
 
         if (rootNodeForge instanceof ExprEnumerationForge) {
             rootLambdaForge = (ExprEnumerationForge) rootNodeForge;
             EventType eventTypeCollection = rootLambdaForge.getEventTypeCollection(statementRawInfo, compileTimeServices);
             if (eventTypeCollection != null) {
-                info = EPTypeHelper.collectionOfEvents(eventTypeCollection);
+                info = EPChainableTypeHelper.collectionOfEvents(eventTypeCollection);
             }
             if (info == null) {
                 EventType eventTypeSingle = rootLambdaForge.getEventTypeSingle(statementRawInfo, compileTimeServices);
                 if (eventTypeSingle != null) {
-                    info = EPTypeHelper.singleEvent(eventTypeSingle);
+                    info = EPChainableTypeHelper.singleEvent(eventTypeSingle);
                 }
             }
             if (info == null) {
-                Class componentType = rootLambdaForge.getComponentTypeCollection();
+                Class componentType = rootLambdaForge.getComponentTypeCollection() == null ? null : rootLambdaForge.getComponentTypeCollection().getType();
                 if (componentType != null) {
-                    info = EPTypeHelper.collectionOfSingleValue(rootLambdaForge.getComponentTypeCollection());
+                    info = EPChainableTypeHelper.collectionOfSingleValue(rootLambdaForge.getComponentTypeCollection());
                 }
             }
             if (info == null) {
@@ -114,8 +117,8 @@ public class ExprDotNodeUtility {
 
     public static ExprDotEnumerationSourceForgeForProps getPropertyEnumerationSource(String propertyName, int streamId, EventType streamType, boolean allowEnumType, boolean disablePropertyExpressionEventCollCache) {
 
-        Class propertyType = streamType.getPropertyType(propertyName);
-        EPType typeInfo = EPTypeHelper.singleValue(propertyType);  // assume scalar for now
+        EPType propertyType = streamType.getPropertyEPType(propertyName);
+        EPChainableType typeInfo = EPChainableTypeHelper.singleValue(propertyType);  // assume scalar for now
 
         // no enumeration methods, no need to expose as an enumeration
         if (!allowEnumType) {
@@ -129,24 +132,24 @@ public class ExprDotNodeUtility {
         if (getter != null && fragmentEventType != null) {
             if (fragmentEventType.isIndexed()) {
                 enumEvaluator = new PropertyDotEventCollectionForge(propertyName, streamId, fragmentEventType.getFragmentType(), getter, disablePropertyExpressionEventCollCache);
-                typeInfo = EPTypeHelper.collectionOfEvents(fragmentEventType.getFragmentType());
+                typeInfo = EPChainableTypeHelper.collectionOfEvents(fragmentEventType.getFragmentType());
             } else {   // we don't want native to require an eventbean instance
                 enumEvaluator = new PropertyDotEventSingleForge(streamId, fragmentEventType.getFragmentType(), getter);
-                typeInfo = EPTypeHelper.singleEvent(fragmentEventType.getFragmentType());
+                typeInfo = EPChainableTypeHelper.singleEvent(fragmentEventType.getFragmentType());
             }
         } else {
             EventPropertyDescriptor desc = EventTypeUtility.getNestablePropertyDescriptor(streamType, propertyName);
             if (desc != null && desc.isIndexed() && !desc.isRequiresIndex() && desc.getPropertyComponentType() != null) {
                 if (JavaClassHelper.isImplementsInterface(propertyType, Collection.class)) {
-                    enumEvaluator = new PropertyDotScalarCollection(propertyName, streamId, getter, desc.getPropertyComponentType());
+                    enumEvaluator = new PropertyDotScalarCollection(propertyName, streamId, getter, desc.getPropertyComponentEPType());
                 } else if (JavaClassHelper.isImplementsInterface(propertyType, Iterable.class)) {
-                    enumEvaluator = new PropertyDotScalarIterable(propertyName, streamId, getter, desc.getPropertyComponentType(), propertyType);
-                } else if (propertyType.isArray()) {
-                    enumEvaluator = new PropertyDotScalarArrayForge(propertyName, streamId, getter, desc.getPropertyComponentType(), desc.getPropertyType());
+                    enumEvaluator = new PropertyDotScalarIterable(propertyName, streamId, getter, desc.getPropertyComponentEPType(), (EPTypeClass) propertyType);
+                } else if (((EPTypeClass) propertyType).getType().isArray()) {
+                    enumEvaluator = new PropertyDotScalarArrayForge(propertyName, streamId, getter, desc.getPropertyComponentEPType(), (EPTypeClass) desc.getPropertyEPType());
                 } else {
                     throw new IllegalStateException("Property indicated indexed-type but failed to find proper collection adapter for use with enumeration methods");
                 }
-                typeInfo = EPTypeHelper.collectionOfSingleValue(desc.getPropertyComponentType());
+                typeInfo = EPChainableTypeHelper.collectionOfSingleValue(desc.getPropertyComponentEPType());
             }
         }
         return new ExprDotEnumerationSourceForgeForProps(enumEvaluator, typeInfo, streamId, (ExprEnumerationGivenEventForge) enumEvaluator);
@@ -172,14 +175,14 @@ public class ExprDotNodeUtility {
 
     public static ExprDotNodeRealizedChain getChainEvaluators(
         Integer streamOfProviderIfApplicable,
-        EPType inputType,
+        EPChainableType inputType,
         List<Chainable> chainSpec,
         ExprValidationContext validationContext,
         boolean isDuckTyping,
         ExprDotNodeFilterAnalyzerInput inputDesc)
         throws ExprValidationException {
         List<ExprDotForge> methodForges = new ArrayList<>();
-        EPType currentInputType = inputType;
+        EPChainableType currentInputType = inputType;
         EnumMethodDesc lastLambdaFunc = null;
         Chainable lastElement = chainSpec.isEmpty() ? null : chainSpec.get(chainSpec.size() - 1);
         FilterExprAnalyzerAffector filterAnalyzerDesc = null;
@@ -194,19 +197,20 @@ public class ExprDotNodeUtility {
 
             // compile parameters for chain element
             ExprForge[] paramForges = new ExprForge[parameters.size()];
-            Class[] paramTypes = new Class[parameters.size()];
+            EPType[] paramTypes = new EPType[parameters.size()];
             for (int i = 0; i < parameters.size(); i++) {
                 paramForges[i] = parameters.get(i).getForge();
                 paramTypes[i] = paramForges[i].getEvaluationType();
             }
 
             // check if special 'size' method
-            if (currentInputType instanceof ClassMultiValuedEPType) {
-                ClassMultiValuedEPType type = (ClassMultiValuedEPType) currentInputType;
-                if (chainElementName.toLowerCase(Locale.ENGLISH).equals("size") && paramTypes.length == 0 && lastElement == chainElement) {
+            if (currentInputType instanceof EPChainableTypeClass) {
+                EPChainableTypeClass type = (EPChainableTypeClass) currentInputType;
+                boolean array = type.getType().getType().isArray();
+                boolean collection = JavaClassHelper.isSubclassOrImplementsInterface(type.getType(), EPTypePremade.COLLECTION.getEPType());
+                if ((array || collection) && chainElementName.toLowerCase(Locale.ENGLISH).equals("size") && paramTypes.length == 0 && lastElement == chainElement) {
                     ExprDotForge size;
-                    Class containerType = ((ClassMultiValuedEPType) currentInputType).getContainer();
-                    if (containerType.isArray()) {
+                    if (array) {
                         size = new ExprDotForgeSizeArray();
                     } else {
                         size = new ExprDotForgeSizeCollection();
@@ -215,23 +219,24 @@ public class ExprDotNodeUtility {
                     currentInputType = size.getTypeInfo();
                     continue;
                 }
-                if (chainElementName.toLowerCase(Locale.ENGLISH).equals("get") && paramTypes.length == 1 && JavaClassHelper.getBoxedType(paramTypes[0]) == Integer.class) {
+                if ((array || collection) && chainElementName.toLowerCase(Locale.ENGLISH).equals("get") && paramTypes.length == 1 && JavaClassHelper.isTypeInteger(paramTypes[0])) {
                     ExprDotForge get;
-                    Class componentType = JavaClassHelper.getBoxedType(type.getComponent());
-                    if (type.getContainer().isArray()) {
-                        get = new ExprDotForgeGetArray(paramForges[0], componentType);
+                    EPTypeClass component = array ? JavaClassHelper.getArrayComponentType(type.getType()) : JavaClassHelper.getSingleParameterTypeOrObject(type.getType());
+                    EPTypeClass componentBoxed = JavaClassHelper.getBoxedType(component);
+                    if (array) {
+                        get = new ExprDotForgeGetArray(paramForges[0], componentBoxed);
                     } else {
-                        get = new ExprDotForgeGetCollection(paramForges[0], componentType);
+                        get = new ExprDotForgeGetCollection(paramForges[0], componentBoxed);
                     }
                     methodForges.add(get);
                     currentInputType = get.getTypeInfo();
                     continue;
                 }
-                if (chainElement instanceof ChainableArray && type.getContainer().isArray()) {
-                    ChainableArray array = (ChainableArray) chainElement;
-                    final EPType typeInfo = currentInputType;
-                    ExprNode indexExpr = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "operation on type " + EPTypeHelper.toTypeDescriptive(typeInfo));
-                    Class componentType = JavaClassHelper.getBoxedType(type.getComponent());
+                if (chainElement instanceof ChainableArray && array) {
+                    ChainableArray chainableArray = (ChainableArray) chainElement;
+                    final EPChainableType typeInfo = currentInputType;
+                    ExprNode indexExpr = ChainableArray.validateSingleIndexExpr(chainableArray.getIndexes(), () -> "operation on type " + EPChainableTypeHelper.toTypeDescriptive(typeInfo));
+                    EPTypeClass componentType = JavaClassHelper.getBoxedType(JavaClassHelper.getArrayComponentType(type.getType()));
                     ExprDotForgeGetArray get = new ExprDotForgeGetArray(indexExpr.getForge(), componentType);
                     methodForges.add(get);
                     currentInputType = get.getTypeInfo();
@@ -241,22 +246,19 @@ public class ExprDotNodeUtility {
 
             // determine if there is a matching method
             boolean matchingMethod = false;
-            Class methodTarget = getMethodTarget(currentInputType);
-            if (methodTarget != null && (!(chainElement instanceof ChainableArray))) {
+            EPTypeClass optionalMethodTarget = getMethodTarget(currentInputType);
+            if (optionalMethodTarget != null && (!(chainElement instanceof ChainableArray))) {
                 try {
-                    getValidateMethodDescriptor(methodTarget, chainElementName, parameters, validationContext);
+                    getValidateMethodDescriptor(optionalMethodTarget, chainElementName, parameters, validationContext);
                     matchingMethod = true;
                 } catch (ExprValidationException ex) {
                     // expected
                 }
             }
 
-            if (EnumMethodResolver.isEnumerationMethod(chainElementName, validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
+            if (EnumMethodResolver.isEnumerationMethod(chainElementName, validationContext.getClasspathImportService()) && (!matchingMethod || (optionalMethodTarget != null && (optionalMethodTarget.getType().isArray() || JavaClassHelper.isImplementsInterface(optionalMethodTarget, Collection.class))))) {
                 EnumMethodDesc enumerationMethod = EnumMethodResolver.fromName(chainElementName, validationContext.getClasspathImportService());
                 ExprDotForgeEnumMethod eval = enumerationMethod.getFactory().make(chainElement.getParametersOrEmpty().size());
-                if (currentInputType instanceof ClassEPType && JavaClassHelper.isImplementsInterface(((ClassEPType) currentInputType).getType(), Collection.class)) {
-                    currentInputType = EPTypeHelper.collectionOfSingleValue(Object.class);
-                }
                 eval.init(streamOfProviderIfApplicable, enumerationMethod, chainElementName, currentInputType, parameters, validationContext);
                 currentInputType = eval.getTypeInfo();
                 if (currentInputType == null) {
@@ -268,37 +270,43 @@ public class ExprDotNodeUtility {
             }
 
             // resolve datetime
-            if (DatetimeMethodResolver.isDateTimeMethod(chainElementName, validationContext.getClasspathImportService()) && (!matchingMethod || methodTarget == Calendar.class || methodTarget == Date.class)) {
+            if (DatetimeMethodResolver.isDateTimeMethod(chainElementName, validationContext.getClasspathImportService()) && (!matchingMethod || (optionalMethodTarget != null && (optionalMethodTarget.getType() == Calendar.class || optionalMethodTarget.getType() == Date.class)))) {
                 DatetimeMethodDesc datetimeMethod = DatetimeMethodResolver.fromName(chainElementName, validationContext.getClasspathImportService());
-                ExprDotDTMethodDesc datetimeImpl = ExprDotDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElementName, currentInputType, parameters, inputDesc, validationContext.getClasspathImportService().getTimeAbacus(), validationContext.getTableCompileTimeResolver(), validationContext.getClasspathImportService(), validationContext.getStatementRawInfo());
-                currentInputType = datetimeImpl.getReturnType();
-                if (currentInputType == null) {
-                    throw new IllegalStateException("Date-time method '" + chainElementName + "' has not returned type information");
+                try {
+                    ExprDotDTMethodDesc datetimeImpl = ExprDotDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElementName, currentInputType, parameters, inputDesc, validationContext.getClasspathImportService().getTimeAbacus(), validationContext.getTableCompileTimeResolver(), validationContext.getClasspathImportService(), validationContext.getStatementRawInfo());
+                    currentInputType = datetimeImpl.getReturnType();
+                    if (currentInputType == null) {
+                        throw new IllegalStateException("Date-time method '" + chainElementName + "' has not returned type information");
+                    }
+                    methodForges.add(datetimeImpl.getForge());
+                    filterAnalyzerDesc = datetimeImpl.getIntervalFilterDesc();
+                    continue;
+                } catch (ExprValidationException ex) {
+                    if (!chainElementName.toLowerCase(Locale.ENGLISH).equals("get")) {
+                        throw ex;
+                    }
                 }
-                methodForges.add(datetimeImpl.getForge());
-                filterAnalyzerDesc = datetimeImpl.getIntervalFilterDesc();
-                continue;
             }
 
             // try to resolve as property if the last method returned a type
-            if (currentInputType instanceof EventEPType) {
+            if (currentInputType instanceof EPChainableTypeEventSingle) {
                 if (chainElement instanceof ChainableArray) {
-                    throw new ExprValidationException("Could not perform array operation on type " + EPTypeHelper.toTypeDescriptive(currentInputType));
+                    throw new ExprValidationException("Could not perform array operation on type " + EPChainableTypeHelper.toTypeDescriptive(currentInputType));
                 }
-                EventTypeSPI inputEventType = (EventTypeSPI) ((EventEPType) currentInputType).getType();
-                Class type = inputEventType.getPropertyType(chainElementName);
+                EventTypeSPI inputEventType = (EventTypeSPI) ((EPChainableTypeEventSingle) currentInputType).getType();
+                EPType type = inputEventType.getPropertyEPType(chainElementName);
                 EventPropertyGetterSPI getter = inputEventType.getGetterSPI(chainElementName);
                 FragmentEventType fragmentType = inputEventType.getFragmentType(chainElementName);
                 ExprDotForge forge;
                 if (type != null && getter != null) {
                     if (fragmentType == null || last) {
-                        forge = new ExprDotForgeProperty(getter, EPTypeHelper.singleValue(JavaClassHelper.getBoxedType(type)));
+                        forge = new ExprDotForgeProperty(getter, EPChainableTypeHelper.singleValue(JavaClassHelper.getBoxedType(type)));
                         currentInputType = forge.getTypeInfo();
                     } else {
                         if (!fragmentType.isIndexed()) {
-                            currentInputType = EPTypeHelper.singleEvent(fragmentType.getFragmentType());
+                            currentInputType = EPChainableTypeHelper.singleEvent(fragmentType.getFragmentType());
                         } else {
-                            currentInputType = EPTypeHelper.arrayOfEvents(fragmentType.getFragmentType());
+                            currentInputType = EPChainableTypeHelper.arrayOfEvents(fragmentType.getFragmentType());
                         }
                         forge = new ExprDotForgePropertyFragment(getter, currentInputType);
                     }
@@ -307,33 +315,33 @@ public class ExprDotNodeUtility {
                 }
             }
 
-            if (currentInputType instanceof EventMultiValuedEPType && chainElement instanceof ChainableArray) {
-                EventTypeSPI inputEventType = (EventTypeSPI) ((EventMultiValuedEPType) currentInputType).getComponent();
+            if (currentInputType instanceof EPChainableTypeEventMulti && chainElement instanceof ChainableArray) {
+                EventTypeSPI inputEventType = (EventTypeSPI) ((EPChainableTypeEventMulti) currentInputType).getComponent();
                 ChainableArray array = (ChainableArray) chainElement;
-                EPType typeInfo = currentInputType;
-                ExprNode indexExpr = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "operation on type " + EPTypeHelper.toTypeDescriptive(typeInfo));
-                currentInputType = EPTypeHelper.singleEvent(inputEventType);
+                EPChainableType typeInfo = currentInputType;
+                ExprNode indexExpr = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "operation on type " + EPChainableTypeHelper.toTypeDescriptive(typeInfo));
+                currentInputType = EPChainableTypeHelper.singleEvent(inputEventType);
                 ExprDotForgeEventArrayAtIndex forge = new ExprDotForgeEventArrayAtIndex(currentInputType, indexExpr);
                 methodForges.add(forge);
                 continue;
             }
 
             // Finally try to resolve the method
-            if (methodTarget != null && !(chainElement instanceof ChainableArray)) {
+            if (optionalMethodTarget != null && !(chainElement instanceof ChainableArray)) {
                 try {
                     // find descriptor again, allow for duck typing
-                    ExprNodeUtilMethodDesc desc = getValidateMethodDescriptor(methodTarget, chainElementName, parameters, validationContext);
+                    ExprNodeUtilMethodDesc desc = getValidateMethodDescriptor(optionalMethodTarget, chainElementName, parameters, validationContext);
                     paramForges = desc.getChildForges();
                     ExprDotForge forge;
-                    if (currentInputType instanceof ClassEPType) {
+                    if (currentInputType instanceof EPChainableTypeClass) {
                         // if followed by an enumeration method, convert array to collection
                         if (desc.getReflectionMethod().getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodResolver.isEnumerationMethod(chainSpecStack.getFirst().getRootNameOrEmptyString(), validationContext.getClasspathImportService())) {
-                            forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), paramForges, ExprDotMethodForgeNoDuck.Type.WRAPARRAY);
+                            forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.WRAPARRAY);
                         } else {
-                            forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), paramForges, ExprDotMethodForgeNoDuck.Type.PLAIN);
+                            forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.PLAIN);
                         }
                     } else {
-                        forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), paramForges, ExprDotMethodForgeNoDuck.Type.UNDERLYING);
+                        forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.UNDERLYING);
                     }
                     methodForges.add(forge);
                     currentInputType = forge.getTypeInfo();
@@ -351,9 +359,9 @@ public class ExprDotNodeUtility {
 
             String message;
             if (!(chainElement instanceof ChainableArray)) {
-                message = "Could not find event property or method named '" + chainElementName + "' in " + EPTypeHelper.toTypeDescriptive(currentInputType);
+                message = "Could not find event property or method named '" + chainElementName + "' in " + EPChainableTypeHelper.toTypeDescriptive(currentInputType);
             } else {
-                message = "Could not perform array operation on type " + EPTypeHelper.toTypeDescriptive(currentInputType);
+                message = "Could not perform array operation on type " + EPChainableTypeHelper.toTypeDescriptive(currentInputType);
             }
             throw new ExprValidationException(message);
         }
@@ -362,16 +370,16 @@ public class ExprDotNodeUtility {
 
         if (lastLambdaFunc != null) {
             ExprDotForge finalEval = null;
-            if (currentInputType instanceof EventMultiValuedEPType) {
-                EventMultiValuedEPType mvType = (EventMultiValuedEPType) currentInputType;
+            if (currentInputType instanceof EPChainableTypeEventMulti) {
+                EPChainableTypeEventMulti mvType = (EPChainableTypeEventMulti) currentInputType;
                 TableMetaData tableMetadata = validationContext.getTableCompileTimeResolver().resolveTableFromEventType(mvType.getComponent());
                 if (tableMetadata != null) {
                     finalEval = new ExprDotForgeUnpackCollEventBeanTable(mvType.getComponent(), tableMetadata);
                 } else {
                     finalEval = new ExprDotForgeUnpackCollEventBean(mvType.getComponent());
                 }
-            } else if (currentInputType instanceof EventEPType) {
-                EventEPType epType = (EventEPType) currentInputType;
+            } else if (currentInputType instanceof EPChainableTypeEventSingle) {
+                EPChainableTypeEventSingle epType = (EPChainableTypeEventSingle) currentInputType;
                 TableMetaData tableMetadata = validationContext.getTableCompileTimeResolver().resolveTableFromEventType(epType.getType());
                 if (tableMetadata != null) {
                     finalEval = new ExprDotForgeUnpackBeanTable(epType.getType(), tableMetadata);
@@ -388,11 +396,11 @@ public class ExprDotNodeUtility {
         return new ExprDotNodeRealizedChain(intermediateEvals, unpackingForges, filterAnalyzerDesc);
     }
 
-    private static Class getMethodTarget(EPType currentInputType) {
-        if (currentInputType instanceof ClassEPType) {
-            return ((ClassEPType) currentInputType).getType();
-        } else if (currentInputType instanceof EventEPType) {
-            return ((EventEPType) currentInputType).getType().getUnderlyingType();
+    private static EPTypeClass getMethodTarget(EPChainableType currentInputType) {
+        if (currentInputType instanceof EPChainableTypeClass) {
+            return ((EPChainableTypeClass) currentInputType).getType();
+        } else if (currentInputType instanceof EPChainableTypeEventSingle) {
+            return ((EPChainableTypeEventSingle) currentInputType).getType().getUnderlyingEPType();
         }
         return null;
     }
@@ -423,20 +431,20 @@ public class ExprDotNodeUtility {
         return result;
     }
 
-    public static CodegenExpression evaluateChainCodegen(CodegenMethod parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, CodegenExpression inner, Class innerType, ExprDotForge[] forges, ExprDotStaticMethodWrap optionalResultWrapLambda) {
+    public static CodegenExpression evaluateChainCodegen(CodegenMethod parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, CodegenExpression inner, EPTypeClass innerType, ExprDotForge[] forges, ExprDotStaticMethodWrap optionalResultWrapLambda) {
         if (forges.length == 0) {
             return inner;
         }
         ExprDotForge last = forges[forges.length - 1];
-        Class lastType = EPTypeHelper.getCodegenReturnType(last.getTypeInfo());
+        EPTypeClass lastType = EPChainableTypeHelper.getCodegenReturnType(last.getTypeInfo());
         CodegenMethod methodNode = parent.makeChild(lastType, ExprDotNodeUtility.class, codegenClassScope).addParam(innerType, "inner");
 
         CodegenBlock block = methodNode.getBlock();
         String currentTarget = "wrapped";
-        Class currentTargetType;
+        EPTypeClass currentTargetType;
         if (optionalResultWrapLambda != null) {
-            currentTargetType = EPTypeHelper.getCodegenReturnType(optionalResultWrapLambda.getTypeInfo());
-            if (lastType != void.class) {
+            currentTargetType = EPChainableTypeHelper.getCodegenReturnType(optionalResultWrapLambda.getTypeInfo());
+            if (!JavaClassHelper.isTypeVoid(lastType)) {
                 block.ifRefNullReturnNull("inner");
             }
             block.declareVar(currentTargetType, "wrapped", optionalResultWrapLambda.codegenConvertNonNull(ref("inner"), methodNode, codegenClassScope));
@@ -454,21 +462,21 @@ public class ExprDotNodeUtility {
 
             CodegenExpression typeInformation = constantNull();
             if (codegenClassScope.isInstrumented()) {
-                typeInformation = codegenClassScope.addOrGetFieldSharable(new EPTypeCodegenSharable(forges[i].getTypeInfo(), codegenClassScope));
+                typeInformation = codegenClassScope.addOrGetFieldSharable(new EPChainableTypeCodegenSharable(forges[i].getTypeInfo(), codegenClassScope));
             }
 
-            Class reftype = EPTypeHelper.getCodegenReturnType(forges[i].getTypeInfo());
-            if (reftype == void.class) {
+            EPTypeClass reftype = EPChainableTypeHelper.getCodegenReturnType(forges[i].getTypeInfo());
+            if (JavaClassHelper.isTypeVoid(reftype)) {
                 block.expression(forges[i].codegen(ref(currentTarget), currentTargetType, methodNode, exprSymbol, codegenClassScope))
                     .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
             } else {
                 block.declareVar(reftype, refname, forges[i].codegen(ref(currentTarget), currentTargetType, methodNode, exprSymbol, codegenClassScope));
                 currentTarget = refname;
                 currentTargetType = reftype;
-                if (!reftype.isPrimitive()) {
+                if (!reftype.getType().isPrimitive()) {
                     CodegenBlock ifBlock = block.ifRefNull(refname)
                         .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
-                    if (lastType != void.class) {
+                    if (!JavaClassHelper.isTypeVoid(lastType)) {
                         ifBlock.blockReturn(constantNull());
                     } else {
                         ifBlock.blockEnd();
@@ -477,7 +485,7 @@ public class ExprDotNodeUtility {
                 block.apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, ref(refname)));
             }
         }
-        if (lastType == void.class) {
+        if (JavaClassHelper.isTypeVoid(lastType)) {
             block.methodEnd();
         } else {
             block.methodReturn(ref(refname));
@@ -485,7 +493,7 @@ public class ExprDotNodeUtility {
         return localMethod(methodNode, inner);
     }
 
-    private static ExprNodeUtilMethodDesc getValidateMethodDescriptor(Class methodTarget, final String methodName, List<ExprNode> parameters, ExprValidationContext validationContext)
+    private static ExprNodeUtilMethodDesc getValidateMethodDescriptor(EPTypeClass methodTarget, final String methodName, List<ExprNode> parameters, ExprValidationContext validationContext)
         throws ExprValidationException {
         ExprNodeUtilResolveExceptionHandler exceptionHandler = new ExprNodeUtilResolveExceptionHandler() {
             public ExprValidationException handle(Exception e) {
@@ -493,7 +501,7 @@ public class ExprDotNodeUtility {
             }
         };
         EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-        return ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(methodTarget.getName(), methodTarget, methodName, parameters,
+        return ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(methodTarget.getTypeName(), methodTarget, methodName, parameters,
             wildcardType != null, wildcardType, exceptionHandler, methodName, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.Set;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ModuleIndexMeta {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ModuleIndexMeta.class);
     public final static ModuleIndexMeta[] EMPTY_ARRAY = new ModuleIndexMeta[0];
 
     private final boolean namedWindow;
@@ -63,11 +65,11 @@ public class ModuleIndexMeta {
         for (ModuleIndexMeta entry : names) {
             expressions[count++] = entry.make();
         }
-        return newArrayWithInit(ModuleIndexMeta.class, expressions);
+        return newArrayWithInit(ModuleIndexMeta.EPTYPE, expressions);
     }
 
     private CodegenExpression make() {
-        return newInstance(ModuleIndexMeta.class, constant(namedWindow), constant(infraName), constant(infraModuleName), constant(indexName), constant(indexModuleName));
+        return newInstance(ModuleIndexMeta.EPTYPE, constant(namedWindow), constant(infraName), constant(infraModuleName), constant(indexName), constant(indexModuleName));
     }
 
     public static ModuleIndexMeta[] toArray(Set<ModuleIndexMeta> moduleIndexes) {

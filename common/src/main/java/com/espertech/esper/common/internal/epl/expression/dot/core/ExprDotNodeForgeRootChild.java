@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -38,7 +40,7 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
     protected final ExprDotForge[] forgesIteratorEventBean;
     protected final ExprDotForge[] forgesUnpacking;
 
-    public ExprDotNodeForgeRootChild(ExprDotNodeImpl parent, FilterExprAnalyzerAffector filterExprAnalyzerAffector, Integer streamNumReferenced, String rootPropertyName, boolean hasEnumerationMethod, ExprForge rootNodeForge, ExprEnumerationForge rootLambdaEvaluator, EPType typeInfo, ExprDotForge[] forgesIteratorEventBean, ExprDotForge[] forgesUnpacking, boolean checkedUnpackEvent) {
+    public ExprDotNodeForgeRootChild(ExprDotNodeImpl parent, FilterExprAnalyzerAffector filterExprAnalyzerAffector, Integer streamNumReferenced, String rootPropertyName, boolean hasEnumerationMethod, ExprForge rootNodeForge, ExprEnumerationForge rootLambdaEvaluator, EPChainableType typeInfo, ExprDotForge[] forgesIteratorEventBean, ExprDotForge[] forgesUnpacking, boolean checkedUnpackEvent) {
         if (forgesUnpacking.length == 0) {
             throw new IllegalArgumentException("Empty forges-unpacking");
         }
@@ -47,25 +49,27 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
         this.streamNumReferenced = streamNumReferenced;
         this.rootPropertyName = rootPropertyName;
         if (rootLambdaEvaluator != null) {
-            if (typeInfo instanceof EventMultiValuedEPType) {
-                innerForge = new InnerDotEnumerableEventCollectionForge(rootLambdaEvaluator, ((EventMultiValuedEPType) typeInfo).getComponent());
-            } else if (typeInfo instanceof EventEPType) {
-                innerForge = new InnerDotEnumerableEventBeanForge(rootLambdaEvaluator, ((EventEPType) typeInfo).getType());
+            if (typeInfo instanceof EPChainableTypeEventMulti) {
+                innerForge = new InnerDotEnumerableEventCollectionForge(rootLambdaEvaluator, ((EPChainableTypeEventMulti) typeInfo).getComponent());
+            } else if (typeInfo instanceof EPChainableTypeEventSingle) {
+                innerForge = new InnerDotEnumerableEventBeanForge(rootLambdaEvaluator, ((EPChainableTypeEventSingle) typeInfo).getType());
             } else {
-                innerForge = new InnerDotEnumerableScalarCollectionForge(rootLambdaEvaluator, ((ClassMultiValuedEPType) typeInfo).getComponent());
+                EPChainableTypeClass type = (EPChainableTypeClass) typeInfo;
+                EPTypeClass component = JavaClassHelper.getSingleParameterTypeOrObject(type.getType());
+                innerForge = new InnerDotEnumerableScalarCollectionForge(rootLambdaEvaluator, component);
             }
         } else {
             if (checkedUnpackEvent) {
                 innerForge = new InnerDotScalarUnpackEventForge(rootNodeForge);
             } else {
-                Class returnType = rootNodeForge.getEvaluationType();
-                if (hasEnumerationMethod && returnType.isArray()) {
-                    if (returnType.getComponentType().isPrimitive()) {
+                EPType returnType = rootNodeForge.getEvaluationType();
+                if (hasEnumerationMethod && returnType instanceof EPTypeClass && ((EPTypeClass) returnType).getType().isArray()) {
+                    if (((EPTypeClass) returnType).getType().getComponentType().isPrimitive()) {
                         innerForge = new InnerDotArrPrimitiveToCollForge(rootNodeForge);
                     } else {
                         innerForge = new InnerDotArrObjectToCollForge(rootNodeForge);
                     }
-                } else if (hasEnumerationMethod && JavaClassHelper.isImplementsInterface(returnType, Collection.class)) {
+                } else if (hasEnumerationMethod && returnType instanceof EPTypeClass && JavaClassHelper.isImplementsInterface(returnType, Collection.class)) {
                     innerForge = new InnerDotCollForge(rootNodeForge);
                 } else {
                     innerForge = new InnerDotScalarForge(rootNodeForge);
@@ -84,11 +88,11 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprDot", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprDotNodeForgeRootChildEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
@@ -104,8 +108,10 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
         return constantNull();
     }
 
-    public Class getEvaluationType() {
-        return EPTypeHelper.getNormalizedClass(forgesUnpacking[forgesUnpacking.length - 1].getTypeInfo());
+    public EPType getEvaluationType() {
+        ExprDotForge last = forgesUnpacking[forgesUnpacking.length - 1];
+        EPChainableType type = last.getTypeInfo();
+        return EPChainableTypeHelper.getNormalizedEPType(type);
     }
 
     public ExprDotNodeImpl getParent() {
@@ -132,7 +138,7 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
         return innerForge.getEventTypeCollection();
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return innerForge.getComponentTypeCollection();
     }
 

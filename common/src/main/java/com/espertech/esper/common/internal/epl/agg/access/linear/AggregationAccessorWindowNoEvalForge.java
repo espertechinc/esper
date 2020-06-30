@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForgeGetCodegenContext;
 
@@ -19,9 +20,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents the aggregation accessor that provides the result for the "window" aggregation function.
  */
 public class AggregationAccessorWindowNoEvalForge implements AggregationAccessorForge {
-    private final Class componentType;
+    private final EPTypeClass componentType;
 
-    public AggregationAccessorWindowNoEvalForge(Class componentType) {
+    public AggregationAccessorWindowNoEvalForge(EPTypeClass componentType) {
         this.componentType = componentType;
     }
 
@@ -41,7 +42,7 @@ public class AggregationAccessorWindowNoEvalForge implements AggregationAccessor
         AggregationAccessorWindowNoEval.getEnumerableScalarCodegen(this, (AggregationStateLinearForge) context.getAccessStateForge(), context);
     }
 
-    public Class getComponentType() {
+    public EPTypeClass getComponentType() {
         return componentType;
     }
 }

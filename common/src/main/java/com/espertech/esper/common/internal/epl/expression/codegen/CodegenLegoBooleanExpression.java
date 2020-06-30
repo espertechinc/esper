@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.codegen;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
@@ -36,14 +39,12 @@ public class CodegenLegoBooleanExpression {
      * @param evaluationType      type
      * @param expression          expr
      */
-    public static void codegenReturnBoolIfNullOrBool(CodegenBlock block, Class evaluationType, CodegenExpression expression, boolean earlyExitIfNull, Boolean resultEarlyExit, boolean checkFor, boolean resultIfCheckPasses) {
-        if (evaluationType != boolean.class && evaluationType != Boolean.class) {
-            throw new IllegalStateException("Invalid non-boolean expression");
-        }
-        block.declareVar(evaluationType, PASS_NAME, expression);
+    public static void codegenReturnBoolIfNullOrBool(CodegenBlock block, EPType evaluationType, CodegenExpression expression, boolean earlyExitIfNull, Boolean resultEarlyExit, boolean checkFor, boolean resultIfCheckPasses) {
+        EPTypeClass evaluationClass = checkBooleanEvalType(evaluationType);
+        block.declareVar(evaluationClass, PASS_NAME, expression);
         CodegenExpression passCheck = notOptional(!checkFor, ref(PASS_NAME));
 
-        if (evaluationType.isPrimitive()) {
+        if (evaluationClass.getType().isPrimitive()) {
             block.ifCondition(passCheck).blockReturn(constant(resultIfCheckPasses));
             return;
         }
@@ -74,7 +75,7 @@ public class CodegenLegoBooleanExpression {
      * @param expression     expression
      * @param value          value
      */
-    public static void codegenReturnValueIfNotNullAndNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression, CodegenExpression value) {
+    public static void codegenReturnValueIfNotNullAndNotPass(CodegenBlock block, EPType evaluationType, CodegenExpression expression, CodegenExpression value) {
         codegenDoIfNotNullAndNotPass(block, evaluationType, expression, false, false, value);
     }
 
@@ -92,7 +93,7 @@ public class CodegenLegoBooleanExpression {
      * @param expression     expression
      * @param value          value
      */
-    public static void codegenReturnValueIfNullOrNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression, CodegenExpression value) {
+    public static void codegenReturnValueIfNullOrNotPass(CodegenBlock block, EPType evaluationType, CodegenExpression expression, CodegenExpression value) {
         codegenDoIfNullOrNotPass(block, evaluationType, expression, false, false, value);
     }
 
@@ -109,7 +110,7 @@ public class CodegenLegoBooleanExpression {
      * @param evaluationType eval type
      * @param expression     expression
      */
-    public static void codegenBreakIfNotNullAndNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression) {
+    public static void codegenBreakIfNotNullAndNotPass(CodegenBlock block, EPType evaluationType, CodegenExpression expression) {
         codegenDoIfNotNullAndNotPass(block, evaluationType, expression, false, true, constantNull());
     }
 
@@ -125,7 +126,7 @@ public class CodegenLegoBooleanExpression {
      * @param evaluationType eval type
      * @param expression     expression
      */
-    public static void codegenContinueIfNotNullAndNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression) {
+    public static void codegenContinueIfNotNullAndNotPass(CodegenBlock block, EPType evaluationType, CodegenExpression expression) {
         codegenDoIfNotNullAndNotPass(block, evaluationType, expression, true, false, constantNull());
     }
 
@@ -141,19 +142,17 @@ public class CodegenLegoBooleanExpression {
      * @param evaluationType eval type
      * @param expression     expression
      */
-    public static void codegenContinueIfNullOrNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression) {
+    public static void codegenContinueIfNullOrNotPass(CodegenBlock block, EPType evaluationType, CodegenExpression expression) {
         codegenDoIfNullOrNotPass(block, evaluationType, expression, true, false, constantNull());
     }
 
-    private static void codegenDoIfNotNullAndNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression, boolean doContinue, boolean doBreakLoop, CodegenExpression returnValue) {
-        if (evaluationType != boolean.class && evaluationType != Boolean.class) {
-            throw new IllegalStateException("Invalid non-boolean expression");
-        }
-        block.declareVar(evaluationType, PASS_NAME, expression);
+    private static void codegenDoIfNotNullAndNotPass(CodegenBlock block, EPType evaluationType, CodegenExpression expression, boolean doContinue, boolean doBreakLoop, CodegenExpression returnValue) {
+        EPTypeClass evaluationClass = checkBooleanEvalType(evaluationType);
+        block.declareVar(evaluationClass, PASS_NAME, expression);
         CodegenExpression passCheck = not(ref(PASS_NAME));
 
         CodegenExpression condition;
-        if (evaluationType.isPrimitive()) {
+        if (evaluationClass.getType().isPrimitive()) {
             condition = passCheck;
         } else {
             condition = and(notEqualsNull(ref(PASS_NAME)), passCheck);
@@ -168,15 +167,24 @@ public class CodegenLegoBooleanExpression {
         }
     }
 
-    private static void codegenDoIfNullOrNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression, boolean doContinue, boolean doBreakLoop, CodegenExpression returnValue) {
-        if (evaluationType != boolean.class && evaluationType != Boolean.class) {
+    private static EPTypeClass checkBooleanEvalType(EPType evaluationType) {
+        if (evaluationType == null || evaluationType == EPTypeNull.INSTANCE) {
             throw new IllegalStateException("Invalid non-boolean expression");
         }
-        block.declareVar(evaluationType, PASS_NAME, expression);
+        EPTypeClass type = (EPTypeClass) evaluationType;
+        if (type.getType() != boolean.class && type.getType() != Boolean.class) {
+            throw new IllegalStateException("Invalid non-boolean expression");
+        }
+        return type;
+    }
+
+    private static void codegenDoIfNullOrNotPass(CodegenBlock block, EPType evaluationType, CodegenExpression expression, boolean doContinue, boolean doBreakLoop, CodegenExpression returnValue) {
+        EPTypeClass evaluationClass = checkBooleanEvalType(evaluationType);
+        block.declareVar(evaluationClass, PASS_NAME, expression);
         CodegenExpression passCheck = not(ref(PASS_NAME));
 
         CodegenExpression condition;
-        if (evaluationType.isPrimitive()) {
+        if (evaluationClass.getType().isPrimitive()) {
             condition = passCheck;
         } else {
             condition = or(equalsNull(ref(PASS_NAME)), passCheck);

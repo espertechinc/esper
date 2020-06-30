@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.join.exec.base.JoinExecTableLookupStrategy;
@@ -29,6 +30,8 @@ import java.util.concurrent.locks.Lock;
  * Specifies exection of a table lookup with outer join using the a specified lookup plan.
  */
 public class TableOuterLookupNode extends QueryPlanNode {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TableOuterLookupNode.class);
+
     private TableLookupPlan tableLookupPlan;
 
     /**

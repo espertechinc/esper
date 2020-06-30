@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.rate;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -42,12 +45,12 @@ public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
     protected final CodegenExpressionMember points;
     protected final CodegenExpressionMember hasLeave;
 
-    public AggregatorRateEver(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorRateEver(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
-        points = membersColumnized.addMember(col, Deque.class, "points");
-        hasLeave = membersColumnized.addMember(col, boolean.class, "hasLeave");
-        rowCtor.getBlock().assignRef(points, newInstance(ArrayDeque.class));
+        points = membersColumnized.addMember(col, EPTypePremade.DEQUE.getEPType(), "points");
+        hasLeave = membersColumnized.addMember(col, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "hasLeave");
+        rowCtor.getBlock().assignRef(points, newInstance(EPTypePremade.ARRAYDEQUE.getEPType()));
     }
 
     protected void applyEvalEnterFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
@@ -62,11 +65,11 @@ public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
     protected void applyEvalLeaveFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
     }
 
-    protected void applyTableEnterFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         apply(method, classScope);
     }
 
-    protected void applyTableLeaveFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         // This is an "ever" aggregator and is designed for use in non-window env
     }
 
@@ -76,8 +79,8 @@ public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
 
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().ifCondition(not(exprDotMethod(points, "isEmpty")))
-                .declareVar(long.class, "newest", cast(Long.class, exprDotMethod(points, "getLast")))
-                .declareVar(boolean.class, "leave", staticMethod(AggregatorRateEver.class, "removeFromHead", points, ref("newest"), constant(factory.getIntervalTime())))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "newest", cast(EPTypePremade.LONGBOXED.getEPType(), exprDotMethod(points, "getLast")))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "leave", staticMethod(AggregatorRateEver.class, "removeFromHead", points, ref("newest"), constant(factory.getIntervalTime())))
                 .assignCompound(hasLeave, "|", ref("leave"))
                 .blockEnd()
                 .ifCondition(not(hasLeave)).blockReturn(constantNull())
@@ -113,9 +116,9 @@ public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
 
     protected void apply(CodegenMethod method, CodegenClassScope classScope) {
         CodegenExpression timeProvider = classScope.addOrGetFieldSharable(TimeProviderField.INSTANCE);
-        method.getBlock().declareVar(long.class, "timestamp", exprDotMethod(timeProvider, "getTime"))
+        method.getBlock().declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "timestamp", exprDotMethod(timeProvider, "getTime"))
                 .exprDotMethod(points, "add", ref("timestamp"))
-                .declareVar(boolean.class, "leave", staticMethod(AggregatorRateEver.class, "removeFromHead", points, ref("timestamp"), constant(factory.getIntervalTime())))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "leave", staticMethod(AggregatorRateEver.class, "removeFromHead", points, ref("timestamp"), constant(factory.getIntervalTime())))
                 .assignCompound(hasLeave, "|", ref("leave"));
     }
 

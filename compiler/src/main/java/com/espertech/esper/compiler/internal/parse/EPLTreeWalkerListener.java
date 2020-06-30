@@ -567,7 +567,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             }
         }
 
-        ClassIdentifierWArray variableType = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
+        ClassDescriptor variableType = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
         String variableName = ctx.n.getText();
 
         ExprNode assignment = null;
@@ -832,7 +832,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             name = ASTUtil.unescapeSlashIdentifier(ctx.substitutionSlashIdent());
         }
 
-        ClassIdentifierWArray optionalType = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
+        ClassDescriptor optionalType = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
         substitutionNode = new ExprSubstitutionNode(name, optionalType);
         substitutionParamNodes.add(substitutionNode);
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(substitutionNode, ctx, astExprNodeMap);
@@ -1163,11 +1163,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             newNode.addChildNodes(expressions);
             astExprNodeMap.put(ctx, newNode);
         }
-        if (ctx.NEWKW() != null && ctx.classIdentifier() != null) {
-            String classIdent = ASTUtil.unescapeClassIdent(ctx.classIdentifier());
+        if (ctx.NEWKW() != null && ctx.classIdentifierNoDimensions() != null) {
+            ClassDescriptor classIdentNoDimensions = ASTClassIdentifierHelper.walk(ctx.classIdentifierNoDimensions());
             int numArrayDimensions = ctx.LBRACK().size();
             ExprNode exprNode;
-            ExprNode newNode = new ExprNewInstanceNode(classIdent, numArrayDimensions);
+            ExprNode newNode = new ExprNewInstanceNode(classIdentNoDimensions, numArrayDimensions);
             if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
                 List<Chainable> chainSpec = ASTChainSpecHelper.getChainables(ctx.chainableElements(), astExprNodeMap);
                 ExprDotNode dotNode = new ExprDotNodeImpl(chainSpec, mapEnv.getConfiguration().getCompiler().getExpression().isDuckTyping(),
@@ -1632,7 +1632,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitBuiltin_cast(EsperEPL2GrammarParser.Builtin_castContext ctx) {
-        ClassIdentifierWArray classIdentifierWArray = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
+        ClassDescriptor classIdentifierWArray = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
         ExprCastNode castNode = new ExprCastNode(classIdentifierWArray);
         if (ASTChainSpecHelper.hasChain(ctx.chainableElements())) {
             ASTExprHelper.exprCollectAddSubNodes(castNode, ctx.expression(), astExprNodeMap);
@@ -3168,5 +3168,17 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitColumnListKeywordAllowed(EsperEPL2GrammarParser.ColumnListKeywordAllowedContext ctx) {
+    }
+
+    public void enterTypeParameters(EsperEPL2GrammarParser.TypeParametersContext ctx) {
+    }
+
+    public void exitTypeParameters(EsperEPL2GrammarParser.TypeParametersContext ctx) {
+    }
+
+    public void enterClassIdentifierNoDimensions(EsperEPL2GrammarParser.ClassIdentifierNoDimensionsContext ctx) {
+    }
+
+    public void exitClassIdentifierNoDimensions(EsperEPL2GrammarParser.ClassIdentifierNoDimensionsContext ctx) {
     }
 }

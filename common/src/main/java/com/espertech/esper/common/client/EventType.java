@@ -11,6 +11,8 @@
 package com.espertech.esper.common.client;
 
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
 import java.util.Iterator;
@@ -44,11 +46,37 @@ import java.util.Set;
  * When the underlying class is bean the order of property names is depends on the order of the methods returned by reflection.
  */
 public interface EventType {
+    EPTypeClass EPTYPE = new EPTypeClass(EventType.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(EventType[].class);
+
     /**
      * Get the type of an event property.
      * <p>
      * Returns null if the property name or property expression is not valid against the event type.
-     * Can also return null if a select-clause selects a constant null value.
+     * Can also return null for null-value type i.e. if a select-clause selects a constant null value.
+     * <p>
+     * The method takes a property name or property expression as a parameter.
+     * Property expressions may include
+     * indexed properties via the syntax "name[index]",
+     * mapped properties via the syntax "name('key')",
+     * nested properties via the syntax "outer.inner"
+     * or combinations thereof.
+     * <p>
+     * Returns unboxed (such as 'int.class') as well as boxed (java.lang.Integer) type.
+     * <p>
+     * Use {@link #getPropertyEPType(String)} instead for type parameters.
+     * The implementation uses {@link #getPropertyEPType(String)} under the hoods.
+     *
+     * @param propertyExpression is the property name or property expression
+     * @return type of the property, the unboxed or the boxed type.
+     */
+    public Class getPropertyType(String propertyExpression);
+
+    /**
+     * Get the type of an event property with type parameters and null-type indication.
+     * <p>
+     * Returns null if the property name or property expression is not valid against the event type.
+     * Returns {@link com.espertech.esper.common.client.type.EPTypeNull} for null-value type.
      * <p>
      * The method takes a property name or property expression as a parameter.
      * Property expressions may include
@@ -62,7 +90,7 @@ public interface EventType {
      * @param propertyExpression is the property name or property expression
      * @return type of the property, the unboxed or the boxed type.
      */
-    public Class getPropertyType(String propertyExpression);
+    public EPType getPropertyEPType(String propertyExpression);
 
     /**
      * Check that the given property name or property expression is valid for this event type, ie. that the property exists on the event type.
@@ -131,12 +159,16 @@ public interface EventType {
 
     /**
      * Get the class that represents the Java type of the event type.
-     * Returns a Java bean event class if the schema represents a Java bean event type.
-     * Returns java.util.Map is the schema represents a collection of values in a Map.
-     *
+     * Use {@link #getUnderlyingEPType()} to receive the parameterized type.
      * @return type of the event object
      */
     public Class getUnderlyingType();
+
+    /**
+     * Get the full type information, including type parameters, that represents the Java type of the event type.
+     * @return type including type parameters of the event object
+     */
+    public EPTypeClass getUnderlyingEPType();
 
     /**
      * Get the property names for the event type.

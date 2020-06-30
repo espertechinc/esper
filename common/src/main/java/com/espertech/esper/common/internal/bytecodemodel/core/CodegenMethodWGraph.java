@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 
@@ -24,11 +25,11 @@ public class CodegenMethodWGraph {
     private final CodegenMethodFootprint footprint;
     private final CodegenBlock block;
     private final boolean isPublic;
-    private final List<Class> thrown;
+    private final List<EPTypeClass> thrown;
     private final CodegenMethod originator;
     private boolean isStatic;
 
-    public CodegenMethodWGraph(String name, CodegenMethodFootprint footprint, CodegenBlock block, boolean isPublic, List<Class> thrown, CodegenMethod originator) {
+    public CodegenMethodWGraph(String name, CodegenMethodFootprint footprint, CodegenBlock block, boolean isPublic, List<EPTypeClass> thrown, CodegenMethod originator) {
         this.name = name;
         this.footprint = footprint;
         this.block = block;
@@ -40,6 +41,11 @@ public class CodegenMethodWGraph {
     public void mergeClasses(Set<Class> classes) {
         footprint.mergeClasses(classes);
         block.mergeClasses(classes);
+        if (thrown != null && !thrown.isEmpty()) {
+            for (EPTypeClass clazz : thrown) {
+                clazz.traverseClasses(classes::add);
+            }
+        }
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isPublic, boolean isInnerClass, CodegenIndent indent, int additionalIndent) {
@@ -56,7 +62,7 @@ public class CodegenMethodWGraph {
             builder.append("static ");
         }
         if (footprint.getReturnType() != null) {
-            appendClassName(builder, footprint.getReturnType(), null, imports);
+            appendClassName(builder, footprint.getReturnType(), imports);
         } else {
             builder.append(footprint.getReturnTypeName());
         }
@@ -72,9 +78,9 @@ public class CodegenMethodWGraph {
         if (!thrown.isEmpty()) {
             builder.append(" throws ");
             String delimiterThrown = "";
-            for (Class ex : thrown) {
+            for (EPTypeClass ex : thrown) {
                 builder.append(delimiterThrown);
-                appendClassName(builder, ex, null, imports);
+                appendClassName(builder, ex, imports);
                 delimiterThrown = ",";
             }
         }

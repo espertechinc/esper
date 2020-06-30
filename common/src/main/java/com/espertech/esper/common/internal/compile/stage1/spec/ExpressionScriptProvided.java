@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -20,13 +21,13 @@ import com.espertech.esper.common.internal.epl.script.core.ExpressionScriptCompi
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExpressionScriptProvided {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExpressionScriptProvided.class);
 
     private String name;
     private String expression;
     private String[] parameterNames;
     private String optionalReturnTypeName;
     private String optionalEventTypeName;
-    private boolean optionalReturnTypeIsArray;
     private String optionalDialect;
     private String moduleName;
     private NameAccessModifier visibility = NameAccessModifier.TRANSIENT;
@@ -36,12 +37,11 @@ public class ExpressionScriptProvided {
     public ExpressionScriptProvided() {
     }
 
-    public ExpressionScriptProvided(String name, String expression, String[] parameterNames, String optionalReturnTypeName, boolean optionalReturnTypeIsArray, String optionalEventTypeName, String optionalDialect) {
+    public ExpressionScriptProvided(String name, String expression, String[] parameterNames, String optionalReturnTypeName, String optionalEventTypeName, String optionalDialect) {
         this.name = name;
         this.expression = expression;
         this.parameterNames = parameterNames;
         this.optionalReturnTypeName = optionalReturnTypeName;
-        this.optionalReturnTypeIsArray = optionalReturnTypeIsArray;
         this.optionalEventTypeName = optionalEventTypeName;
         this.optionalDialect = optionalDialect;
         if (expression == null) {
@@ -50,15 +50,14 @@ public class ExpressionScriptProvided {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ExpressionScriptProvided.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ExpressionScriptProvided.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExpressionScriptProvided.class, "sp", newInstance(ExpressionScriptProvided.class))
+                .declareVarNewInstance(ExpressionScriptProvided.EPTYPE, "sp")
                 .exprDotMethod(ref("sp"), "setName", constant(name))
                 .exprDotMethod(ref("sp"), "setExpression", constant(expression))
                 .exprDotMethod(ref("sp"), "setParameterNames", constant(parameterNames))
                 .exprDotMethod(ref("sp"), "setOptionalReturnTypeName", constant(optionalReturnTypeName))
                 .exprDotMethod(ref("sp"), "setOptionalEventTypeName", constant(optionalEventTypeName))
-                .exprDotMethod(ref("sp"), "setOptionalReturnTypeIsArray", constant(optionalReturnTypeIsArray))
                 .exprDotMethod(ref("sp"), "setOptionalDialect", constant(optionalDialect))
                 .exprDotMethod(ref("sp"), "setModuleName", constant(moduleName))
                 .exprDotMethod(ref("sp"), "setVisibility", constant(visibility))
@@ -86,10 +85,6 @@ public class ExpressionScriptProvided {
         return optionalDialect;
     }
 
-    public boolean isOptionalReturnTypeIsArray() {
-        return optionalReturnTypeIsArray;
-    }
-
     public String getOptionalEventTypeName() {
         return optionalEventTypeName;
     }
@@ -112,10 +107,6 @@ public class ExpressionScriptProvided {
 
     public void setOptionalEventTypeName(String optionalEventTypeName) {
         this.optionalEventTypeName = optionalEventTypeName;
-    }
-
-    public void setOptionalReturnTypeIsArray(boolean optionalReturnTypeIsArray) {
-        this.optionalReturnTypeIsArray = optionalReturnTypeIsArray;
     }
 
     public void setOptionalDialect(String optionalDialect) {

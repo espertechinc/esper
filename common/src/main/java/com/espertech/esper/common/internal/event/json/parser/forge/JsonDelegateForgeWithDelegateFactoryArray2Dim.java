@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.forge;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,18 +22,18 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class JsonDelegateForgeWithDelegateFactoryArray2Dim implements JsonDelegateForge {
 
     private final String delegateFactoryClassName;
-    private final Class componentType;
+    private final EPTypeClass componentType;
 
-    public JsonDelegateForgeWithDelegateFactoryArray2Dim(String delegateFactoryClassName, Class componentType) {
+    public JsonDelegateForgeWithDelegateFactoryArray2Dim(String delegateFactoryClassName, EPTypeClass componentType) {
         this.delegateFactoryClassName = delegateFactoryClassName;
         this.componentType = componentType;
     }
 
     public CodegenExpression newDelegate(JsonDelegateRefs fields, CodegenMethod parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(JsonDelegateEventObjectArray2Dim.class, JsonForgeFactoryEventTypeTyped.class, classScope);
+        CodegenMethod method = parent.makeChild(JsonDelegateEventObjectArray2Dim.EPTYPE, JsonForgeFactoryEventTypeTyped.class, classScope);
         method.getBlock()
-            .declareVar(JsonDelegateFactory.class, "factory", newInstance(delegateFactoryClassName))
-            .methodReturn(newInstance(JsonDelegateEventObjectArray2Dim.class, fields.getBaseHandler(), fields.getThis(), ref("factory"), constant(componentType)));
+            .declareVar(JsonDelegateFactory.EPTYPE, "factory", newInstance(delegateFactoryClassName))
+            .methodReturn(newInstance(JsonDelegateEventObjectArray2Dim.EPTYPE, fields.getBaseHandler(), fields.getThis(), ref("factory"), constant(componentType)));
         return localMethod(method);
     }
 }

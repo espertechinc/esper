@@ -10,14 +10,20 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static com.espertech.esper.common.internal.util.ClassHelperGenericType.getClassEPType;
+
 public class TestArithTypeEnum extends TestCase {
     public void testAddDouble() {
-        MathArithTypeEnum.Computer computer = MathArithTypeEnum.ADD.getComputer(Double.class, Double.class, Double.class, false, false, null);
+        EPTypeClass dbl = EPTypePremade.DOUBLEBOXED.getEPType();
+        MathArithTypeEnum.Computer computer = MathArithTypeEnum.ADD.getComputer(dbl, dbl, dbl, false, false, null);
         assertEquals(12.1d, computer.compute(5.5, 6.6));
     }
 
@@ -35,7 +41,8 @@ public class TestArithTypeEnum extends TestCase {
 
         for (Class clazz : testClasses) {
             for (MathArithTypeEnum type : MathArithTypeEnum.values()) {
-                MathArithTypeEnum.Computer computer = type.getComputer(clazz, clazz, clazz, false, false, null);
+                EPTypeClass typeClass = getClassEPType(clazz);
+                MathArithTypeEnum.Computer computer = type.getComputer(typeClass, typeClass, typeClass, false, false, null);
                 Number result = computer.compute(3, 4);
 
                 if (type == MathArithTypeEnum.ADD) {
@@ -105,9 +112,9 @@ public class TestArithTypeEnum extends TestCase {
 
             MathArithTypeEnum.Computer computer;
             if (isBigDec) {
-                computer = e.getComputer(BigDecimal.class, lhs.getClass(), rhs.getClass(), false, false, null);
+                computer = e.getComputer(EPTypePremade.BIGDECIMAL.getEPType(), getClassEPType(lhs.getClass()), getClassEPType(rhs.getClass()), false, false, null);
             } else {
-                computer = e.getComputer(BigInteger.class, lhs.getClass(), rhs.getClass(), false, false, null);
+                computer = e.getComputer(EPTypePremade.BIGINTEGER.getEPType(), getClassEPType(lhs.getClass()), getClassEPType(rhs.getClass()), false, false, null);
             }
 
             Object result = null;
@@ -121,8 +128,9 @@ public class TestArithTypeEnum extends TestCase {
     }
 
     private void tryInvalid(Class clazz) {
+        EPTypeClass type = getClassEPType(clazz);
         try {
-            MathArithTypeEnum.ADD.getComputer(clazz, clazz, clazz, false, false, null);
+            MathArithTypeEnum.ADD.getComputer(type, type, type, false, false, null);
             fail();
         } catch (IllegalArgumentException ex) {
             // Expected

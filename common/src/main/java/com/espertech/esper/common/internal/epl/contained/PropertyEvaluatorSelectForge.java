@@ -37,10 +37,10 @@ public class PropertyEvaluatorSelectForge implements PropertyEvaluatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PropertyEvaluatorSelect.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PropertyEvaluatorSelect.EPTYPE, this.getClass(), classScope);
         CodegenExpressionNewAnonymousClass processor = SelectExprProcessorUtil.makeAnonymous(selectExprProcessor.getForge(), method, symbols.getAddInitSvc(method), classScope);
         method.getBlock()
-                .declareVar(PropertyEvaluatorSelect.class, "pe", newInstance(PropertyEvaluatorSelect.class))
+                .declareVarNewInstance(PropertyEvaluatorSelect.EPTYPE, "pe")
                 .exprDotMethod(ref("pe"), "setResultEventType", EventTypeUtility.resolveTypeCodegen(selectExprProcessor.getForge().getResultEventType(), symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("pe"), "setAccumulative", accumulative.make(method, symbols, classScope))
                 .exprDotMethod(ref("pe"), "setSelectExprProcessor", processor)

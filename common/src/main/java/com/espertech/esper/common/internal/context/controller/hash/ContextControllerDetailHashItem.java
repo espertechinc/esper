@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.context.controller.hash;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 
 public class ContextControllerDetailHashItem {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerDetailHashItem.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ContextControllerDetailHashItem[].class);
+
     private FilterSpecActivatable filterSpecActivatable;
     private ExprFilterSpecLookupable lookupable;
 

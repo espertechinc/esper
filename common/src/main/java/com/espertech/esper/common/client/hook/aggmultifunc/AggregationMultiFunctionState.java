@@ -11,6 +11,7 @@
 package com.espertech.esper.common.client.hook.aggmultifunc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 /**
@@ -18,6 +19,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
  * but group by the group-by clause and that do not mirror the data windows sorting policy.
  */
 public interface AggregationMultiFunctionState {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationMultiFunctionState.class);
+
     /**
      * Enter an event.
      *

@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.historical.common;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface HistoricalEventViewableLookupValueToMultiKey {
+    EPTypeClass EPTYPE = new EPTypeClass(HistoricalEventViewableLookupValueToMultiKey.class);
+
     Object transform(Object lv);
 }

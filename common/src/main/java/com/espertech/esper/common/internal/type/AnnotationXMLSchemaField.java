@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.XMLSchemaField;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilder;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import java.lang.annotation.Annotation;
 
 public class AnnotationXMLSchemaField implements XMLSchemaField {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationXMLSchemaField.class);
+
     private String name;
     private String xpath;
     private String type;
@@ -29,7 +32,7 @@ public class AnnotationXMLSchemaField implements XMLSchemaField {
     }
 
     public static CodegenExpression toExpression(XMLSchemaField field, CodegenMethod parent, CodegenClassScope scope) {
-        return new CodegenSetterBuilder(AnnotationXMLSchemaField.class, AnnotationXMLSchemaField.class,
+        return new CodegenSetterBuilder(AnnotationXMLSchemaField.EPTYPE, AnnotationXMLSchemaField.class,
             "field", parent, scope)
             .constant("name", field.name())
             .constant("xpath", field.xpath())

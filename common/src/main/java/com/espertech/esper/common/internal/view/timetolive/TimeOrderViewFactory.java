@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timetolive;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -23,6 +24,8 @@ import com.espertech.esper.common.internal.view.previous.IStreamSortRankRandomAc
  * Factory for views for time-ordering events.
  */
 public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimeOrderViewFactory.class);
+
     protected ExprEvaluator timestampEval;
     protected TimePeriodCompute timePeriodCompute;
     protected EventType eventType;

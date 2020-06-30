@@ -18,5 +18,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExtensionAggregationFunction {
+    /**
+     * Aggregation function name.
+     * @return name
+     */
     String name();
 }

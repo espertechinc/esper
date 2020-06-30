@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class QueryGraphValueDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValueDesc.class);
+
     private final String[] indexExprs;
     private final QueryGraphValueEntry entry;
 

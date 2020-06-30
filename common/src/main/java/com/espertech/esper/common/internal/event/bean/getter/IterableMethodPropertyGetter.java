@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,6 +23,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndIndexed;
 import com.espertech.esper.common.internal.event.util.PropertyUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,10 +40,9 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
     private final int index;
 
     public IterableMethodPropertyGetter(Method method, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getGenericReturnType(method, false), null);
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getSingleParameterTypeOrObject(ClassHelperGenericType.getMethodReturnEPType(method)));
         this.index = index;
         this.method = method;
-
         if (index < 0) {
             throw new IllegalArgumentException("Invalid negative index value");
         }
@@ -105,9 +107,9 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
         }
     }
 
-    protected static CodegenMethod getBeanPropCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(beanPropType, IterableMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(int.class, "index").getBlock()
-                .declareVar(Object.class, "value", exprDotMethod(ref("object"), method.getName()))
+    protected static CodegenMethod getBeanPropCodegen(CodegenMethodScope codegenMethodScope, EPTypeClass beanPropType, EPTypeClass targetType, Method method, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(beanPropType, IterableMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("object"), method.getName()))
                 .methodReturn(cast(beanPropType, staticMethod(IterableMethodPropertyGetter.class, "getBeanEventIterableValue", ref("value"), ref("index"))));
     }
 
@@ -130,12 +132,8 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Class getBeanPropType() {
-        return JavaClassHelper.getGenericReturnType(method, false);
-    }
-
-    public Class getTargetType() {
-        return method.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(method.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,25 +26,25 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprEvalStreamInsertUnd implements ExprForgeInstrumentable {
     private final ExprStreamUnderlyingNode undNode;
     private final int streamNum;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public ExprEvalStreamInsertUnd(ExprStreamUnderlyingNode undNode, int streamNum, Class returnType) {
+    public ExprEvalStreamInsertUnd(ExprStreamUnderlyingNode undNode, int streamNum, EPTypeClass returnType) {
         this.undNode = undNode;
         this.streamNum = streamNum;
         this.returnType = returnType;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprStreamUndSelectClause", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, ExprEvalStreamInsertUnd.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
             .ifCondition(equalsNull(refEPS)).blockReturn(constantNull())
-            .declareVar(EventBean.class, "bean", arrayAtIndex(refEPS, constant(streamNum)))
+            .declareVar(EventBean.EPTYPE, "bean", arrayAtIndex(refEPS, constant(streamNum)))
             .ifRefNullReturnNull("bean")
             .methodReturn(cast(returnType, exprDotUnderlying(ref("bean"))));
         return localMethod(methodNode);
@@ -57,11 +58,11 @@ public class ExprEvalStreamInsertUnd implements ExprForgeInstrumentable {
         throw new IllegalStateException("Evaluator not available");
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 
-    public Class getUnderlyingReturnType() {
+    public EPTypeClass getUnderlyingReturnType() {
         return returnType;
     }
 

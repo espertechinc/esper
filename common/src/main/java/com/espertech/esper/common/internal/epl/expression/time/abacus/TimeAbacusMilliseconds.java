@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.time.abacus;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -49,7 +50,7 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
     }
 
     public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethodBuild(codegenMethodScope.makeChild(long.class, TimeAbacusMilliseconds.class, codegenClassScope).addParam(long.class, "fromTime").addParam(Calendar.class, "cal").getBlock()
+        return localMethodBuild(codegenMethodScope.makeChild(EPTypePremade.LONGPRIMITIVE.getEPType(), TimeAbacusMilliseconds.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "fromTime").addParam(EPTypePremade.CALENDAR.getEPType(), "cal").getBlock()
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("fromTime")))
                 .methodReturn(constant(0))).pass(startLong).pass(cal).call();
     }
@@ -67,7 +68,7 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
     }
 
     public CodegenExpression toDateCodegen(CodegenExpression ts) {
-        return newInstance(Date.class, ts);
+        return newInstance(EPTypePremade.DATE.getEPType(), ts);
     }
 
     public CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenClassScope codegenClassScope) {

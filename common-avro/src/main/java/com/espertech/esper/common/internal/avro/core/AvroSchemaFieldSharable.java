@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.avro.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import org.apache.avro.Schema;
@@ -23,11 +24,11 @@ public class AvroSchemaFieldSharable implements CodegenFieldSharable {
         this.schema = schema;
     }
 
-    public Class type() {
-        return Schema.class;
+    public EPTypeClass type() {
+        return AvroConstant.EPTYPE_SCHEMA;
     }
 
     public CodegenExpression initCtorScoped() {
-        return exprDotMethod(newInstance(Schema.Parser.class), "parse", constant(schema.toString()));
+        return exprDotMethod(newInstance(AvroConstant.EPTYPE_SCHEMAPARSER), "parse", constant(schema.toString()));
     }
 }

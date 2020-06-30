@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.polled;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * Output condition handling crontab-at schedule output.
  */
 public final class OutputConditionPolledCrontabFactory implements OutputConditionPolledFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionPolledCrontabFactory.class);
     private final ExprEvaluator[] expressions;
 
     public OutputConditionPolledCrontabFactory(ExprEvaluator[] expressions) {

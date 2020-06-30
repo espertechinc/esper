@@ -10,12 +10,19 @@
  */
 package com.espertech.esper.common.client.hook.aggfunc;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Maintains aggregation state applying values as entering and leaving the state.
  * <P>Implementations must also act as a factory for further independent copies of aggregation states such that
  * new aggregation state holders and be created from a prototype.
  */
 public interface AggregationFunction {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationFunction.class);
+
     /**
      * Apply the value as entering aggregation (entering window).
      * <p>The value can be null since 'null' values may be counted as unique separate values.

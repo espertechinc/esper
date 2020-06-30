@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Map;
@@ -19,37 +20,34 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenStatementDeclareVar extends CodegenStatementBase {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final String typeName;
-    private final Class optionalTypeVariable;
     private final String var;
     private final CodegenExpression optionalInitializer;
 
-    public CodegenStatementDeclareVar(Class clazz, Class optionalTypeVariable, String var, CodegenExpression optionalInitializer) {
+    public CodegenStatementDeclareVar(EPTypeClass clazz, String var, CodegenExpression optionalInitializer) {
         if (clazz == null) {
             throw new IllegalArgumentException("Class cannot be null");
         }
         this.clazz = clazz;
         this.typeName = null;
-        this.optionalTypeVariable = optionalTypeVariable;
         this.var = var;
         this.optionalInitializer = optionalInitializer;
     }
 
-    public CodegenStatementDeclareVar(String typeName, Class optionalTypeVariable, String var, CodegenExpression optionalInitializer) {
+    public CodegenStatementDeclareVar(String typeName, String var, CodegenExpression optionalInitializer) {
         if (typeName == null) {
             throw new IllegalArgumentException("Class cannot be null");
         }
         this.clazz = null;
         this.typeName = typeName;
-        this.optionalTypeVariable = optionalTypeVariable;
         this.var = var;
         this.optionalInitializer = optionalInitializer;
     }
 
     public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (clazz != null) {
-            appendClassName(builder, clazz, optionalTypeVariable, imports);
+            appendClassName(builder, clazz, imports);
         } else {
             builder.append(typeName);
         }
@@ -62,7 +60,7 @@ public class CodegenStatementDeclareVar extends CodegenStatementBase {
 
     public void mergeClasses(Set<Class> classes) {
         if (clazz != null) {
-            classes.add(clazz);
+            clazz.traverseClasses(classes::add);
         }
         if (optionalInitializer != null) {
             optionalInitializer.mergeClasses(classes);

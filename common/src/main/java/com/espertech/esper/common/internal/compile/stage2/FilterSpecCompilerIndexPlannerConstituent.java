@@ -41,16 +41,20 @@ public class FilterSpecCompilerIndexPlannerConstituent {
      * representing the expression, or null if not optimizable.
      *
      * @param constituent      is the expression to look at
-     * @param performConditionPlanning
+     * @param performConditionPlanning indicator whether condition planning should occur
      * @param taggedEventTypes event types that provide non-array values
      * @param arrayEventTypes  event types that provide array values
+     * @param allTagNamesOrdered tag names
      * @param statementName    statement name
      * @param streamTypeService stream type service
+     * @param raw statement info
+     * @param services compile services
      * @return filter parameter representing the expression, or null
      * @throws ExprValidationException if the expression is invalid
      */
     protected static FilterSpecPlanPathTripletForge makeFilterParam(ExprNode constituent,
-                                                                    boolean performConditionPlanning, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                                                    boolean performConditionPlanning,
+                                                                    LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
                                                                     LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
                                                                     LinkedHashSet<String> allTagNamesOrdered,
                                                                     String statementName,

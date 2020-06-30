@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -24,9 +25,6 @@ import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprP
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.util.CollectionUtil;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -44,11 +42,11 @@ public class SelectEvalJoinWildcardProcessorMap implements SelectExprProcessorFo
 
     public CodegenMethod processCodegen(CodegenExpression resultEventTypeOuter, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         // NOTE: Maintaining result-event-type as out own field as we may be an "inner" select-expr-processor
-        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(resultEventType, EPStatementInitServices.REF));
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(resultEventType, EPStatementInitServices.REF));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(Map.class, "tuple", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(streamNames.length))));
+                .declareVar(EPTypePremade.MAP.getEPType(), "tuple", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(streamNames.length))));
         for (int i = 0; i < streamNames.length; i++) {
             methodNode.getBlock().expression(exprDotMethod(ref("tuple"), "put", constant(streamNames[i]), arrayAtIndex(refEPS, constant(i))));
         }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -26,26 +28,26 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.Codegen
 
 public class ExprEqualsNodeForgeNCForgeEquals {
     public static CodegenMethod codegen(ExprEqualsNodeForgeNC forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprForge lhs, ExprForge rhs) {
-        Class lhsType = lhs.getEvaluationType();
-        Class rhsType = rhs.getEvaluationType();
+        EPTypeClass lhsType = (EPTypeClass) lhs.getEvaluationType();
+        EPTypeClass rhsType = (EPTypeClass) rhs.getEvaluationType();
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsNodeForgeNCForgeEquals.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprEqualsNodeForgeNCForgeEquals.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
             .declareVar(lhsType, "left", lhs.evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope))
             .declareVar(rhsType, "right", rhs.evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
 
-        if (!lhsType.isPrimitive()) {
+        if (!lhsType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
-        if (!rhsType.isPrimitive()) {
+        if (!rhsType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }
 
         CodegenExpression compare;
-        if (!lhsType.isArray()) {
+        if (!lhsType.getType().isArray()) {
             compare = codegenEqualsNonNullNoCoerce(ref("left"), lhsType, ref("right"), rhsType);
         } else {
-            if (!MultiKeyPlanner.requiresDeepEquals(lhsType.getComponentType())) {
+            if (!MultiKeyPlanner.requiresDeepEquals(lhsType.getType().getComponentType())) {
                 compare = staticMethod(Arrays.class, "equals", ref("left"), ref("right"));
             } else {
                 compare = staticMethod(Arrays.class, "deepEquals", ref("left"), ref("right"));

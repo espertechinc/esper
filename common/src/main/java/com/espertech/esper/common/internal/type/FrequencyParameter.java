@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +19,8 @@ import java.util.Set;
  * Encapsulates a parameter specifying a frequency, i.e. '* / 5'.
  */
 public class FrequencyParameter implements NumberSetParameter {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FrequencyParameter.class);
+
     private int frequency;
     private static final long serialVersionUID = -2303214112045704231L;
 

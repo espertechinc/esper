@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.join.queryplanbuild;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.NumberSetPermutationEnumeration;
 import com.espertech.esper.common.internal.collection.NumberSetShiftGroupEnumeration;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -221,15 +224,15 @@ public class NStreamQueryPlanBuilder {
      * @param historicalStreamIndexLists - index management, populated for the query plan
      * @param tablesPerStream            tables
      * @param streamJoinAnalysisResult   stream join analysis
-     * @param raw raw info
-     * @param serdeResolver serde resolver
+     * @param raw                        raw info
+     * @param serdeResolver              serde resolver
      * @return NestedIterationNode with lookups attached underneath
      */
     protected static QueryPlanNodeForgeDesc createStreamPlan(int lookupStream, int[] bestChain, QueryGraphForge queryGraph,
-                                                         QueryPlanIndexForge[] indexSpecsPerStream, EventType[] typesPerStream,
-                                                         boolean[] isHistorical, HistoricalStreamIndexListForge[] historicalStreamIndexLists,
-                                                         TableMetaData[] tablesPerStream,
-                                                         StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
+                                                             QueryPlanIndexForge[] indexSpecsPerStream, EventType[] typesPerStream,
+                                                             boolean[] isHistorical, HistoricalStreamIndexListForge[] historicalStreamIndexLists,
+                                                             TableMetaData[] tablesPerStream,
+                                                             StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
                                                              StatementRawInfo raw,
                                                              SerdeCompileTimeResolver serdeResolver) {
         NestedIterationNodeForge nestedIterNode = new NestedIterationNodeForge(bestChain);
@@ -272,15 +275,15 @@ public class NStreamQueryPlanBuilder {
      * @param typesPerStream         - event types for each stream
      * @param indexedStreamTableMeta table info
      * @param indexedStreamIsVDW     vdw indicators
-     * @param raw raw info
-     * @param serdeResolver serde resolver
+     * @param raw                    raw info
+     * @param serdeResolver          serde resolver
      * @return plan for performing a lookup in a given table using one of the indexes supplied
      */
     public static TableLookupPlanDesc createLookupPlan(QueryGraphForge queryGraph, int currentLookupStream, int indexedStream,
-                                                        boolean indexedStreamIsVDW,
-                                                        QueryPlanIndexForge indexSpecs,
-                                                        EventType[] typesPerStream,
-                                                        TableMetaData indexedStreamTableMeta,
+                                                       boolean indexedStreamIsVDW,
+                                                       QueryPlanIndexForge indexSpecs,
+                                                       EventType[] typesPerStream,
+                                                       TableMetaData indexedStreamTableMeta,
                                                        StatementRawInfo raw,
                                                        SerdeCompileTimeResolver serdeResolver) {
         QueryGraphValueForge queryGraphValue = queryGraph.getGraphValue(currentLookupStream, indexedStream);
@@ -373,7 +376,7 @@ public class NStreamQueryPlanBuilder {
                 return getFullTableScanTable(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexedStreamTableMeta);
             }
             if (indexNum == null) {
-                indexNum = new TableLookupIndexReqKey(indexSpecs.addIndex(new String[0], new Class[0], typesPerStream[indexedStream]), null);
+                indexNum = new TableLookupIndexReqKey(indexSpecs.addIndex(new String[0], new EPTypeClass[0], typesPerStream[indexedStream]), null);
             }
             FullTableScanLookupPlanForge forge = new FullTableScanLookupPlanForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum);
             return new TableLookupPlanDesc(forge, Collections.emptyList());
@@ -410,7 +413,7 @@ public class NStreamQueryPlanBuilder {
             CoercionDesc coercionTypes = CoercionUtil.getCoercionTypesHash(typesPerStream, currentLookupStream, indexedStream, hashPropsKeys, hashIndexProps);
             if (coercionTypes.isCoerce()) {
                 // check if there already are coercion types for this index
-                Class[] existCoercionTypes = indexSpecs.getCoercionTypes(hashIndexProps);
+                EPTypeClass[] existCoercionTypes = indexSpecs.getCoercionTypes(hashIndexProps);
                 if (existCoercionTypes != null) {
                     for (int i = 0; i < existCoercionTypes.length; i++) {
                         coercionTypes.getCoercionTypes()[i] = JavaClassHelper.getCompareToCoercionType(existCoercionTypes[i], coercionTypes.getCoercionTypes()[i]);
@@ -420,7 +423,7 @@ public class NStreamQueryPlanBuilder {
                     indexSpecs.setCoercionTypes(hashIndexProps, coercionTypes.getCoercionTypes());
                 }
             }
-            Class[] coercionTypesArray = coercionTypes.getCoercionTypes();
+            EPTypeClass[] coercionTypesArray = coercionTypes.getCoercionTypes();
             MultiKeyClassRef tableLookupMultiKey = null;
             List<StmtClassForgeableFactory> additionalForgeables = Collections.emptyList();
             if (indexNum.getTableName() != null) {
@@ -437,7 +440,7 @@ public class NStreamQueryPlanBuilder {
         CoercionDesc coercionTypesHash = CoercionUtil.getCoercionTypesHash(typesPerStream, currentLookupStream, indexedStream, hashPropsKeys, hashIndexProps);
         if (hashIndexProps.length == 0 && rangeIndexProps.length == 1) {
             QueryGraphValueEntryRangeForge range = rangePropsKeys.get(0);
-            Class coercionType = null;
+            EPTypeClass coercionType = null;
             if (coercionTypesRange.isCoerce()) {
                 coercionType = coercionTypesRange.getCoercionTypes()[0];
             }
@@ -670,7 +673,8 @@ public class NStreamQueryPlanBuilder {
         SubordPropRangeKeyForge[] keys = new SubordPropRangeKeyForge[funcs.size()];
         for (int i = 0; i < funcs.size(); i++) {
             QueryGraphValueEntryRangeForge func = funcs.get(i);
-            keys[i] = new SubordPropRangeKeyForge(func, func.getExpressions()[0].getForge().getEvaluationType());
+            EPType type = func.getExpressions()[0].getForge().getEvaluationType();
+            keys[i] = new SubordPropRangeKeyForge(func, type == EPTypeNull.INSTANCE ? null : (EPTypeClass) type);
         }
         return keys;
     }

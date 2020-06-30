@@ -11,15 +11,13 @@
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForgeGetCodegenContext;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -32,13 +30,15 @@ public class AggregationAccessorWindowWEval {
         CodegenExpression iterator = accessStateFactory.getAggregatorLinear().iteratorCodegen(context.getClassScope(), context.getMethod(), context.getNamedMethods());
         CodegenMethod childExpr = CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope());
 
+        EPTypeClass componentType = forge.getComponentType();
+        EPTypeClass arrayType = JavaClassHelper.getArrayType(componentType);
         context.getMethod().getBlock().ifCondition(equalsIdentity(size, constant(0))).blockReturn(constantNull())
-                .declareVar(JavaClassHelper.getArrayType(forge.getComponentType()), "array", newArrayByLength(forge.getComponentType(), size))
-                .declareVar(int.class, "count", constant(0))
-                .declareVar(Iterator.class, "it", iterator)
-                .declareVar(EventBean[].class, "eventsPerStreamBuf", newArrayByLength(EventBean.class, constant(forge.getStreamNum() + 1)))
+                .declareVar(arrayType, "array", newArrayByLength(componentType, size))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(0))
+                .declareVar(EPTypePremade.ITERATOR.getEPType(), "it", iterator)
+                .declareVar(EventBean.EPTYPEARRAY, "eventsPerStreamBuf", newArrayByLength(EventBean.EPTYPE, constant(forge.getStreamNum() + 1)))
                 .whileLoop(exprDotMethod(ref("it"), "hasNext"))
-                .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
+                .declareVar(EventBean.EPTYPE, "bean", cast(EventBean.EPTYPE, exprDotMethod(ref("it"), "next")))
                 .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
                 .assignArrayElement(ref("array"), ref("count"), localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), constantNull()))
                 .incrementRef("count")
@@ -53,17 +53,17 @@ public class AggregationAccessorWindowWEval {
     }
 
     public static void getEnumerableScalarCodegen(AggregationAccessorWindowWEvalForge forge, AggregationStateLinearForge stateForge, AggregationAccessorForgeGetCodegenContext context) {
-        context.getMethod().getBlock().declareVar(int.class, "size", stateForge.getAggregatorLinear().sizeCodegen())
-                .ifCondition(equalsIdentity(ref("size"), constant(0))).blockReturn(constantNull())
-                .declareVar(List.class, "values", newInstance(ArrayList.class, ref("size")))
-                .declareVar(Iterator.class, "it", stateForge.getAggregatorLinear().iteratorCodegen(context.getClassScope(), context.getMethod(), context.getNamedMethods()))
-                .declareVar(EventBean[].class, "eventsPerStreamBuf", newArrayByLength(EventBean.class, constant(forge.getStreamNum() + 1)))
-                .whileLoop(exprDotMethod(ref("it"), "hasNext"))
-                .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
-                .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
-                .declareVar(JavaClassHelper.getBoxedType(forge.getChildNode().getEvaluationType()), "value", localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), constantNull()))
-                .exprDotMethod(ref("values"), "add", ref("value"))
-                .blockEnd()
-                .methodReturn(ref("values"));
+        context.getMethod().getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "size", stateForge.getAggregatorLinear().sizeCodegen())
+        .ifCondition(equalsIdentity(ref("size"), constant(0))).blockReturn(constantNull())
+        .declareVar(EPTypePremade.LIST.getEPType(), "values", newInstance(EPTypePremade.ARRAYLIST.getEPType(), ref("size")))
+        .declareVar(EPTypePremade.ITERATOR.getEPType(), "it", stateForge.getAggregatorLinear().iteratorCodegen(context.getClassScope(), context.getMethod(), context.getNamedMethods()))
+        .declareVar(EventBean.EPTYPEARRAY, "eventsPerStreamBuf", newArrayByLength(EventBean.EPTYPE, constant(forge.getStreamNum() + 1)))
+        .whileLoop(exprDotMethod(ref("it"), "hasNext"))
+        .declareVar(EventBean.EPTYPE, "bean", cast(EventBean.EPTYPE, exprDotMethod(ref("it"), "next")))
+        .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
+        .declareVar((EPTypeClass) JavaClassHelper.getBoxedType(forge.getChildNode().getEvaluationType()), "value", localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), constantNull()))
+        .exprDotMethod(ref("values"), "add", ref("value"))
+        .blockEnd()
+        .methodReturn(ref("values"));
     }
 }

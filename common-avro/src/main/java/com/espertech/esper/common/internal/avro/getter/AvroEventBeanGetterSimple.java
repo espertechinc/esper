@@ -13,6 +13,11 @@ package com.espertech.esper.common.internal.avro.getter;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -33,7 +38,7 @@ public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter {
     private final int propertyIndex;
     private final EventType fragmentType;
     private final EventBeanTypedEventFactory eventAdapterService;
-    private final Class propertyType;
+    private final EPType propertyType;
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
@@ -62,7 +67,7 @@ public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter {
         return null;
     }
 
-    public AvroEventBeanGetterSimple(int propertyIndex, EventType fragmentType, EventBeanTypedEventFactory eventAdapterService, Class propertyType) {
+    public AvroEventBeanGetterSimple(int propertyIndex, EventType fragmentType, EventBeanTypedEventFactory eventAdapterService, EPType propertyType) {
         this.propertyIndex = propertyIndex;
         this.fragmentType = fragmentType;
         this.eventAdapterService = eventAdapterService;
@@ -97,26 +102,29 @@ public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter {
 
     private CodegenMethod getAvroFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField type = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(fragmentType, EPStatementInitServices.REF));
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
-                .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
-                .methodReturn(staticMethod(this.getClass(), "getFragmentAvro", ref("value"), factory, type));
+        CodegenExpressionField type = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fragmentType, EPStatementInitServices.REF));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(AvroConstant.EPTYPE_RECORD, "record").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
+            .methodReturn(staticMethod(this.getClass(), "getFragmentAvro", ref("value"), factory, type));
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return cast(propertyType, exprDotMethod(underlyingExpression, "get", constant(propertyIndex)));
+        if (propertyType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        return cast((EPTypeClass) propertyType, exprDotMethod(underlyingExpression, "get", constant(propertyIndex)));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

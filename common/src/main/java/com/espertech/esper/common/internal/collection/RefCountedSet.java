@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -20,6 +22,8 @@ import java.util.Map;
  * Each time a key is removed, the reference counter decreases.
  */
 public class RefCountedSet<K> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RefCountedSet.class);
+
     private Map<K, Integer> refSet;
     private int numValues;
 

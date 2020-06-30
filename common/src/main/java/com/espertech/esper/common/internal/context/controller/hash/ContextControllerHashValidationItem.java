@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.hash;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
@@ -20,6 +21,8 @@ import java.util.function.Supplier;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class ContextControllerHashValidationItem implements Supplier<EventType> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerHashValidationItem.class);
+
     private final EventType eventType;
 
     public ContextControllerHashValidationItem(EventType eventType) {
@@ -35,6 +38,6 @@ public class ContextControllerHashValidationItem implements Supplier<EventType> 
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
-        return newInstance(ContextControllerHashValidationItem.class, EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc));
+        return newInstance(ContextControllerHashValidationItem.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc));
     }
 }

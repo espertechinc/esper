@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.SingleEventIterator;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.view.core.*;
@@ -159,7 +160,7 @@ public class WeightedAverageView extends ViewSupport implements DerivedValueView
 
     public static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env, int streamNum) {
         LinkedHashMap<String, Object> schemaMap = new LinkedHashMap<String, Object>();
-        schemaMap.put(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE.getName(), Double.class);
+        schemaMap.put(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(schemaMap, additionalProps, ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE);
         return DerivedViewTypeUtil.newType("wavgview", schemaMap, env, streamNum);
     }

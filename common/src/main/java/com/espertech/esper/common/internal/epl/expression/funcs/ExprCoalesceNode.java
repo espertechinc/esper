@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.CoercionException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -39,13 +41,13 @@ public class ExprCoalesceNode extends ExprNodeBase {
         }
 
         // get child expression types
-        Class[] childTypes = new Class[getChildNodes().length];
+        EPType[] childTypes = new EPType[getChildNodes().length];
         for (int i = 0; i < this.getChildNodes().length; i++) {
             childTypes[i] = this.getChildNodes()[i].getForge().getEvaluationType();
         }
 
         // determine coercion type
-        Class resultType;
+        EPType resultType;
         try {
             resultType = JavaClassHelper.getCommonCoercionType(childTypes);
         } catch (CoercionException ex) {
@@ -56,12 +58,13 @@ public class ExprCoalesceNode extends ExprNodeBase {
         boolean[] isNumericCoercion = new boolean[getChildNodes().length];
         for (int i = 0; i < this.getChildNodes().length; i++) {
             ExprNode node = this.getChildNodes()[i];
-            if ((JavaClassHelper.getBoxedType(node.getForge().getEvaluationType()) != resultType) &&
-                    (node.getForge().getEvaluationType() != null) && (resultType != null)) {
+            EPType type = node.getForge().getEvaluationType();
+            EPType boxed = JavaClassHelper.getBoxedType(type);
+            if (resultType != null && boxed != null && boxed != EPTypeNull.INSTANCE && !(boxed.equals(resultType))) {
                 if (!JavaClassHelper.isNumeric(resultType)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
-                            resultType.getSimpleName() +
-                            "' to " + node.getForge().getEvaluationType() + " is not allowed");
+                        resultType.getTypeName() +
+                        "' to " + node.getForge().getEvaluationType() + " is not allowed");
                 }
                 isNumericCoercion[i] = true;
             }

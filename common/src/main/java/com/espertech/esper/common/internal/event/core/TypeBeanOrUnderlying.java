@@ -11,8 +11,11 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class TypeBeanOrUnderlying {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TypeBeanOrUnderlying.class);
+
     private final EventType eventType;
 
     public TypeBeanOrUnderlying(EventType eventType) {

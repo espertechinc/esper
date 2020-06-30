@@ -10,28 +10,30 @@
  */
 package com.espertech.esper.common.internal.epl.table.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class TableMetadataColumnAggregation extends TableMetadataColumn {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TableMetadataColumnAggregation.class);
 
     private int column;
     private AggregationPortableValidation aggregationPortableValidation;
     private String aggregationExpression;
     private boolean methodAgg;
-    private EPType optionalEnumerationType;
+    private EPChainableType optionalEnumerationType;
 
     public TableMetadataColumnAggregation() {
     }
 
-    public TableMetadataColumnAggregation(String columnName, boolean key, int column, AggregationPortableValidation aggregationPortableValidation, String aggregationExpression, boolean methodAgg, EPType optionalEnumerationType) {
+    public TableMetadataColumnAggregation(String columnName, boolean key, int column, AggregationPortableValidation aggregationPortableValidation, String aggregationExpression, boolean methodAgg, EPChainableType optionalEnumerationType) {
         super(columnName, key);
         this.column = column;
         this.aggregationPortableValidation = aggregationPortableValidation;
@@ -41,8 +43,8 @@ public class TableMetadataColumnAggregation extends TableMetadataColumn {
     }
 
     protected CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TableMetadataColumnAggregation.class, this.getClass(), classScope);
-        method.getBlock().declareVar(TableMetadataColumnAggregation.class, "col", newInstance(TableMetadataColumnAggregation.class));
+        CodegenMethod method = parent.makeChild(TableMetadataColumnAggregation.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVarNewInstance(TableMetadataColumnAggregation.EPTYPE, "col");
 
         super.makeSettersInline(ref("col"), method.getBlock());
         method.getBlock()
@@ -87,11 +89,11 @@ public class TableMetadataColumnAggregation extends TableMetadataColumn {
         this.methodAgg = methodAgg;
     }
 
-    public EPType getOptionalEnumerationType() {
+    public EPChainableType getOptionalEnumerationType() {
         return optionalEnumerationType;
     }
 
-    public void setOptionalEnumerationType(EPType optionalEnumerationType) {
+    public void setOptionalEnumerationType(EPChainableType optionalEnumerationType) {
         this.optionalEnumerationType = optionalEnumerationType;
     }
 }

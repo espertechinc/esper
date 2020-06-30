@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergroup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
@@ -23,6 +24,8 @@ import java.util.Set;
  * Iterator for the group-by case with a row per group.
  */
 public class ResultSetProcessorRowPerGroupIterator implements Iterator<EventBean> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorRowPerGroupIterator.class);
+
     private final Iterator<EventBean> sourceIterator;
     private final ResultSetProcessorRowPerGroup resultSetProcessor;
     private final AggregationService aggregationService;

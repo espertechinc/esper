@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.walk;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.ASTAggregationHelper;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapContext;
@@ -507,7 +510,12 @@ public class ChainableWalkHelper {
             return false;
         }
         ExprConstantNode constantNode = (ExprConstantNode) node;
-        return JavaClassHelper.getBoxedType(constantNode.getConstantType()) == expected;
+        EPType type = constantNode.getConstantType();
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            return expected == null;
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        return JavaClassHelper.getBoxedType(typeClass).getType() == expected;
     }
 
     private static String toPlainPropertyString(List<Chainable> chain, int startIndex) {

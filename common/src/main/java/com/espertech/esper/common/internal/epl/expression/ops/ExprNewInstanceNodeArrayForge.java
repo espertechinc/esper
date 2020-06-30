@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,10 +24,10 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 public class ExprNewInstanceNodeArrayForge implements ExprForgeInstrumentable {
 
     private final ExprNewInstanceNode parent;
-    private final Class targetClass;
-    private final Class targetClassArrayed;
+    private final EPTypeClass targetClass;
+    private final EPTypeClass targetClassArrayed;
 
-    public ExprNewInstanceNodeArrayForge(ExprNewInstanceNode parent, Class targetClass, Class targetClassArrayed) {
+    public ExprNewInstanceNodeArrayForge(ExprNewInstanceNode parent, EPTypeClass targetClass, EPTypeClass targetClassArrayed) {
         this.parent = parent;
         this.targetClass = targetClass;
         this.targetClassArrayed = targetClassArrayed;
@@ -36,15 +37,15 @@ public class ExprNewInstanceNodeArrayForge implements ExprForgeInstrumentable {
         return new ExprNewInstanceNodeArrayForgeEval(this);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprNewInstance", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprNewInstanceNodeArrayForgeEval.evaluateCodegen(requiredType, this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return targetClassArrayed;
     }
 
@@ -60,11 +61,11 @@ public class ExprNewInstanceNodeArrayForge implements ExprForgeInstrumentable {
         return parent;
     }
 
-    public Class getTargetClass() {
+    public EPTypeClass getTargetClass() {
         return targetClass;
     }
 
-    public Class getTargetClassArrayed() {
+    public EPTypeClass getTargetClassArrayed() {
         return targetClassArrayed;
     }
 }

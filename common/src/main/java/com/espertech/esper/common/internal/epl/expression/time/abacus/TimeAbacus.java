@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.time.abacus;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,6 +21,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 public interface TimeAbacus extends Serializable {
+    EPTypeClass EPTYPE = new EPTypeClass(TimeAbacus.class);
+
     long deltaForSecondsNumber(Number timeInSeconds);
 
     long deltaForSecondsDouble(double seconds);

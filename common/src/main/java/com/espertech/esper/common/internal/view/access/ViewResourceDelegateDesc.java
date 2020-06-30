@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.access;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoRichConstant;
 
@@ -23,6 +24,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * availability of view resources to expressions.
  */
 public class ViewResourceDelegateDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ViewResourceDelegateDesc.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ViewResourceDelegateDesc[].class);
+
     private final boolean hasPrevious;
     private final SortedSet<Integer> priorRequests;
 
@@ -40,7 +44,7 @@ public class ViewResourceDelegateDesc {
     }
 
     public CodegenExpression toExpression() {
-        return newInstance(this.getClass(), constant(hasPrevious), CodegenLegoRichConstant.toExpression(priorRequests));
+        return newInstance(EPTYPE, constant(hasPrevious), CodegenLegoRichConstant.toExpression(priorRequests));
     }
 
     public static boolean hasPrior(ViewResourceDelegateDesc[] delegates) {

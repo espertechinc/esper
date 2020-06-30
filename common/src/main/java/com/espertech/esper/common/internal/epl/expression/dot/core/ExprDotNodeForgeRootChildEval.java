@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -21,8 +25,9 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationEv
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode;
-import com.espertech.esper.common.internal.rettype.EPTypeCodegenSharable;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeCodegenSharable;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
 
@@ -54,31 +59,35 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     }
 
     public static CodegenExpression codegen(ExprDotNodeForgeRootChild forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class innerType = EPTypeHelper.getCodegenReturnType(forge.innerForge.getTypeInfo());
-        Class evaluationType = forge.getEvaluationType();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(evaluationType, ExprDotNodeForgeRootChildEval.class, codegenClassScope);
+        EPType evaluationType = forge.getEvaluationType();
+        if (evaluationType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass evaluationClass = (EPTypeClass) evaluationType;
+        EPTypeClass innerType = EPChainableTypeHelper.getCodegenReturnType(forge.innerForge.getTypeInfo());
+        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) evaluationType, ExprDotNodeForgeRootChildEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(innerType, "inner", forge.innerForge.codegenEvaluate(methodNode, exprSymbol, codegenClassScope));
-        if (!innerType.isPrimitive() && evaluationType != void.class) {
+            .declareVar(innerType, "inner", forge.innerForge.codegenEvaluate(methodNode, exprSymbol, codegenClassScope));
+        if (!innerType.getType().isPrimitive() && !JavaClassHelper.isTypeVoid(evaluationClass)) {
             block.ifRefNullReturnNull("inner");
         }
 
         CodegenExpression typeInformation = constantNull();
         if (codegenClassScope.isInstrumented()) {
-            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPTypeCodegenSharable(forge.innerForge.getTypeInfo(), codegenClassScope));
+            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPChainableTypeCodegenSharable(forge.innerForge.getTypeInfo(), codegenClassScope));
         }
 
         block.apply(InstrumentationCode.instblock(codegenClassScope, "qExprDotChain", typeInformation, ref("inner"), constant(forge.forgesUnpacking.length)));
         CodegenExpression expression = ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), innerType, forge.forgesUnpacking, null);
-        if (evaluationType == void.class) {
+        if (JavaClassHelper.isTypeVoid(evaluationClass)) {
             block.expression(expression)
-                    .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
-                    .methodEnd();
+                .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
+                .methodEnd();
         } else {
-            block.declareVar(evaluationType, "result", expression)
-                    .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
-                    .methodReturn(ref("result"));
+            block.declareVar((EPTypeClass) evaluationType, "result", expression)
+                .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
+                .methodReturn(ref("result"));
         }
         return localMethod(methodNode);
     }
@@ -95,20 +104,23 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     }
 
     public static CodegenExpression codegenEvaluateGetROCollectionEvents(ExprDotNodeForgeRootChild forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class, codegenClassScope);
+        if (forge.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class, codegenClassScope);
 
         CodegenExpression typeInformation = constantNull();
         if (codegenClassScope.isInstrumented()) {
-            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPTypeCodegenSharable(forge.innerForge.getTypeInfo(), codegenClassScope));
+            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPChainableTypeCodegenSharable(forge.innerForge.getTypeInfo(), codegenClassScope));
         }
 
         methodNode.getBlock()
-                .declareVar(Collection.class, "inner", forge.innerForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.COLLECTION.getEPType(), "inner", forge.innerForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .apply(InstrumentationCode.instblock(codegenClassScope, "qExprDotChain", typeInformation, ref("inner"), constant(forge.forgesUnpacking.length)))
                 .ifRefNull("inner")
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .blockReturn(constantNull())
-                .declareVar(forge.getEvaluationType(), "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), Collection.class, forge.forgesIteratorEventBean, null))
+                .declareVar((EPTypeClass) forge.getEvaluationType(), "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), EPTypePremade.COLLECTION.getEPType(), forge.forgesIteratorEventBean, null))
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .methodReturn(ref("result"));
         return localMethod(methodNode);
@@ -126,19 +138,22 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     }
 
     public static CodegenExpression codegenEvaluateGetROCollectionScalar(ExprDotNodeForgeRootChild forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class, codegenClassScope);
+        if (forge.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class, codegenClassScope);
 
         CodegenExpression typeInformation = constantNull();
         if (codegenClassScope.isInstrumented()) {
-            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPTypeCodegenSharable(forge.innerForge.getTypeInfo(), codegenClassScope));
+            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPChainableTypeCodegenSharable(forge.innerForge.getTypeInfo(), codegenClassScope));
         }
 
-        methodNode.getBlock().declareVar(Collection.class, "inner", forge.innerForge.evaluateGetROCollectionScalarCodegen(methodNode, exprSymbol, codegenClassScope))
+        methodNode.getBlock().declareVar(EPTypePremade.COLLECTION.getEPType(), "inner", forge.innerForge.evaluateGetROCollectionScalarCodegen(methodNode, exprSymbol, codegenClassScope))
                 .apply(InstrumentationCode.instblock(codegenClassScope, "qExprDotChain", typeInformation, ref("inner"), constant(forge.forgesUnpacking.length)))
                 .ifRefNull("inner")
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .blockReturn(constantNull())
-                .declareVar(forge.getEvaluationType(), "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), Collection.class, forge.forgesIteratorEventBean, null))
+                .declareVar((EPTypeClass) forge.getEvaluationType(), "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), EPTypePremade.COLLECTION.getEPType(), forge.forgesIteratorEventBean, null))
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .methodReturn(ref("result"));
         return localMethod(methodNode);

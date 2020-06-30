@@ -10,12 +10,16 @@
  */
 package com.espertech.esper.common.internal.event.bean.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.lang.reflect.Field;
 
 /**
  * Provides method information for dynamic (unchecked) properties of each class for use in obtaining property values.
  */
 public class DynamicPropertyDescriptorByField {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DynamicPropertyDescriptorByField.class);
+
     private Class clazz;
     private Field field;
 

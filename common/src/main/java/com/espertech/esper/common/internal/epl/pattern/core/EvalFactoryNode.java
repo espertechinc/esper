@@ -10,7 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface EvalFactoryNode {
+    EPTypeClass EPTYPE = new EPTypeClass(EvalFactoryNode.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(EvalFactoryNode[].class);
+
     short getFactoryNodeId();
 
     String getTextForAudit();

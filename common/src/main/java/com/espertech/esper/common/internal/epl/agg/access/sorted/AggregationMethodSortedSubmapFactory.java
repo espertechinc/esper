@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 import java.lang.reflect.Array;
@@ -24,7 +25,7 @@ public class AggregationMethodSortedSubmapFactory {
                                                                                         ExprEvaluator toKeyEval,
                                                                                         ExprEvaluator toInclusiveEval,
                                                                                         AggregationMethodSortedEnum method,
-                                                                                        Class underlyingClass) {
+                                                                                        EPTypeClass underlyingClass) {
         if (method.getFootprint() != AggregationMethodSortedFootprintEnum.SUBMAP) {
             throw new IllegalStateException("Unrecognized aggregation method " + method);
         }
@@ -51,9 +52,9 @@ public class AggregationMethodSortedSubmapFactory {
         return events;
     }
 
-    private static Object underlyingEvents(NavigableMap<Object, Object> submap, Class underlyingClass) {
+    private static Object underlyingEvents(NavigableMap<Object, Object> submap, EPTypeClass underlyingClass) {
         if (submap.isEmpty()) {
-            return Array.newInstance(underlyingClass, 0);
+            return Array.newInstance(underlyingClass.getType(), 0);
         }
 
         ArrayDeque<EventBean> events = new ArrayDeque<>(4);
@@ -61,7 +62,7 @@ public class AggregationMethodSortedSubmapFactory {
             AggregatorAccessSortedImpl.checkedPayloadAddAll(events, entry.getValue());
         }
 
-        Object array = Array.newInstance(underlyingClass, events.size());
+        Object array = Array.newInstance(underlyingClass.getType(), events.size());
         int index = 0;
         for (EventBean event : events) {
             Array.set(array, index++, event.getUnderlying());

@@ -42,7 +42,7 @@ public class QueryGraphValueDescForge {
         for (int i = 0; i < indexes.length; i++) {
             indexes[i] = getSingleIdentNodeProp(indexExprs[i]);
         }
-        return newInstance(QueryGraphValueDesc.class, constant(indexes), entry.make(parent, symbols, classScope));
+        return newInstance(QueryGraphValueDesc.EPTYPE, constant(indexes), entry.make(parent, symbols, classScope));
     }
 
     private String getSingleIdentNodeProp(ExprNode indexExpr) {

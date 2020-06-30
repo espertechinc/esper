@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.join.exec.base.NestedIterationExecNode;
@@ -25,6 +26,8 @@ import java.util.concurrent.locks.Lock;
  * Plan to perform a nested iteration over child nodes.
  */
 public class NestedIterationNode extends QueryPlanNode {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(NestedIterationNode.class);
+
     private final QueryPlanNode[] childNodes;
     private final int[] nestingOrder;
 

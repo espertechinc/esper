@@ -10,5 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public abstract class VariableTriggerWrite {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableTriggerWrite.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(VariableTriggerWrite[].class);
+
 }

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timetolive;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -19,7 +20,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodComputeConstGivenDeltaForge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
 
@@ -27,6 +27,7 @@ import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen.codegenEvaluator;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeLong;
 
 public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, DataWindowViewForgeWithPrevious, ScheduleHandleCallbackProvider {
     private List<ExprNode> viewParameters;
@@ -44,15 +45,15 @@ public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWin
         if (viewParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if (JavaClassHelper.getBoxedType(validated[0].getForge().getEvaluationType()) != Long.class) {
+        if (!isTypeLong(validated[0].getForge().getEvaluationType())) {
             throw new ViewParameterException(getViewParamMessage());
         }
         timestampExpression = validated[0];
         eventType = parentEventType;
     }
 
-    protected Class typeOfFactory() {
-        return TimeOrderViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return TimeOrderViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {
@@ -61,11 +62,11 @@ public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWin
 
     protected void assign(CodegenMethod method, CodegenExpressionRef factory, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock()
-                .declareVar(TimePeriodCompute.class, "eval", new TimePeriodComputeConstGivenDeltaForge(0).makeEvaluator(method, classScope))
-                .exprDotMethod(factory, "setTimestampEval", codegenEvaluator(timestampExpression.getForge(), method, TimeOrderViewForge.class, classScope))
-                .exprDotMethod(factory, "setTimePeriodCompute", ref("eval"))
-                .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))
-                .exprDotMethod(factory, "setTimeToLive", constantTrue());
+            .declareVar(TimePeriodCompute.EPTYPE, "eval", new TimePeriodComputeConstGivenDeltaForge(0).makeEvaluator(method, classScope))
+            .exprDotMethod(factory, "setTimestampEval", codegenEvaluator(timestampExpression.getForge(), method, TimeOrderViewForge.class, classScope))
+            .exprDotMethod(factory, "setTimePeriodCompute", ref("eval"))
+            .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))
+            .exprDotMethod(factory, "setTimeToLive", constantTrue());
     }
 
     public String getViewName() {

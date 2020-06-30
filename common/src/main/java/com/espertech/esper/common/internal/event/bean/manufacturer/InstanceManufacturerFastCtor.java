@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,7 +44,7 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
         for (int i = 0; i < row.length; i++) {
             row[i] = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         }
-        return makeUnderlyingFromFastCtor(row, factory.getCtor(), factory.getTargetClass());
+        return makeUnderlyingFromFastCtor(row, factory.getCtor(), factory.getTargetClass().getType());
     }
 
     public static Object makeUnderlyingFromFastCtor(Object[] properties, Constructor ctor, Class target) {
@@ -63,19 +67,24 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
         return new EPException("InvocationTargetException received invoking constructor for type '" + targetClassName + "': " + targetException.getMessage(), targetException);
     }
 
-    public static CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, Class targetClass, ExprForge[] forges) {
+    public static CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, EPTypeClass targetClass, ExprForge[] forges) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(targetClass, InstanceManufacturerFastCtor.class, codegenClassScope);
 
         CodegenExpression[] params = new CodegenExpression[forges.length];
         for (int i = 0; i < forges.length; i++) {
-            params[i] = forges[i].evaluateCodegen(forges[i].getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
+            EPType type = forges[i].getEvaluationType();
+            if (type == null || type == EPTypeNull.INSTANCE) {
+                params[i] = constantNull();
+            } else {
+                params[i] = forges[i].evaluateCodegen((EPTypeClass) type, methodNode, exprSymbol, codegenClassScope);
+            }
         }
 
         methodNode.getBlock()
                 .tryCatch()
                 .tryReturn(newInstance(targetClass, params))
-                .addCatch(Throwable.class, "t")
-                .blockThrow(staticMethod(InstanceManufacturerFastCtor.class, "getTargetExceptionAsEPException", constant(targetClass.getName()), ref("t")))
+                .addCatch(EPTypePremade.THROWABLE.getEPType(), "t")
+                .blockThrow(staticMethod(InstanceManufacturerFastCtor.class, "getTargetExceptionAsEPException", constant(targetClass.getTypeName()), ref("t")))
                 .methodEnd();
         return localMethod(methodNode);
     }

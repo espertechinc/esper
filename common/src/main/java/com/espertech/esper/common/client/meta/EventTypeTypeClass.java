@@ -114,6 +114,10 @@ public enum EventTypeTypeClass {
      */
     EXCLUDEPLANHINTDERIVED();
 
+    /**
+     * Returns indicator whether the type is related to a table.
+     * @return table-type indicator
+     */
     public boolean isTable() {
         return this == TABLE_PUBLIC || this == TABLE_INTERNAL;
     }

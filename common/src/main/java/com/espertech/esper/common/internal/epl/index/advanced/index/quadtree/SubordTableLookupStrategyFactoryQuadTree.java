@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.index.advanced.index.quadtree;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -20,6 +21,7 @@ import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategyF
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
 
 public class SubordTableLookupStrategyFactoryQuadTree implements SubordTableLookupStrategyFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordTableLookupStrategyFactoryQuadTree.class);
 
     private String[] lookupExpressions;
     private ExprEvaluator x;

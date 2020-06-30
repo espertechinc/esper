@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowOpProvideSignal;
 import com.espertech.esper.common.client.dataflow.util.DataFlowParameterValidation;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -92,7 +93,7 @@ public class FileSourceForge implements DataFlowOperatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(FileSourceFactory.class, this.getClass(), "factory", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(new EPTypeClass(FileSourceFactory.class), this.getClass(), "factory", parent, symbols, classScope)
             .exprnode("file", file)
             .exprnode("classpathFile", classpathFile)
             .exprnode("hasHeaderLine", hasHeaderLine)

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.controller.initterm;
 
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifierInitiatedTerminated;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.airegistry.*;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptorFilter;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptorPattern;
@@ -28,6 +29,8 @@ import java.util.Collections;
 import java.util.Map;
 
 public class ContextControllerInitTermFactory extends ContextControllerFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerInitTermFactory.class);
+
     protected ContextControllerDetailInitiatedTerminated initTermSpec;
 
     public ContextControllerDetailInitiatedTerminated getInitTermSpec() {

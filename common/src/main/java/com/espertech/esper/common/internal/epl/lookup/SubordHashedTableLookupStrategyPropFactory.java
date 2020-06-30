@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookup;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -22,6 +23,8 @@ import java.util.Arrays;
  * Index lookup strategy for subqueries.
  */
 public class SubordHashedTableLookupStrategyPropFactory implements SubordTableLookupStrategyFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordHashedTableLookupStrategyPropFactory.class);
+
     private final String[] properties;
     private final int[] keyStreamNums;
     protected final ExprEvaluator evaluator;

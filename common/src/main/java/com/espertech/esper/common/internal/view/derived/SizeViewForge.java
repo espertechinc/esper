@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -48,8 +49,8 @@ public class SizeViewForge extends ViewFactoryForgeBase {
         return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
     }
 
-    protected Class typeOfFactory() {
-        return SizeViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return SizeViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

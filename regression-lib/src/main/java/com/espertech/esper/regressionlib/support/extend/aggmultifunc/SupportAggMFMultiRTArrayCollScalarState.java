@@ -47,7 +47,7 @@ public class SupportAggMFMultiRTArrayCollScalarState implements AggregationMulti
     }
 
     public Object getValueAsArray() {
-        Object array = Array.newInstance(factory.getEvaluationType(), values.size());
+        Object array = Array.newInstance(factory.getEvaluationType().getType(), values.size());
         Iterator<Object> it = values.iterator();
         int count = 0;
         for (; it.hasNext(); ) {

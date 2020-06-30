@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.view.access.RandomAccessByIndexGetter;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.view.core.View;
 import com.espertech.esper.common.internal.view.core.ViewEnum;
 
 public class ExpressionWindowViewFactory extends ExpressionViewFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExpressionWindowViewFactory.class);
 
     public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);

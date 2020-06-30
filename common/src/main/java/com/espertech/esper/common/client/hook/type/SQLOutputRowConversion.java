@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.hook.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Implement this interface when providing a callback for SQL row result processing for a statement,
  * converting each row's values into a POJO.
@@ -26,7 +28,7 @@ public interface SQLOutputRowConversion {
      * @param context receives the context information such as database name, query fired and types returned by query
      * @return class that represents a result row
      */
-    public Class getOutputRowType(SQLOutputRowTypeContext context);
+    public EPTypeClass getOutputRowType(SQLOutputRowTypeContext context);
 
     /**
      * Returns the POJO object that represents a row of the SQL query result, or null to indicate to skip this row.

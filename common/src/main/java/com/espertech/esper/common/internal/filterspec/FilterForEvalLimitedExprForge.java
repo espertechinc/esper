@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,22 +43,22 @@ public class FilterForEvalLimitedExprForge implements FilterSpecParamInValueForg
     }
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
         CodegenMethod rhsExpression = CodegenLegoMethodExpression.codegenExpression(value.getForge(), method, classScope);
         CodegenMethod matchEventConvertor = convertor.make(method, classScope);
 
         CodegenExpression valueExpr = localMethod(rhsExpression, ref("eps"), constantTrue(), REF_EXPREVALCONTEXT);
         if (numberCoercer != null) {
-            valueExpr = numberCoercer.coerceCodegenMayNullBoxed(valueExpr, value.getForge().getEvaluationType(), method, classScope);
+            valueExpr = numberCoercer.coerceCodegenMayNullBoxed(valueExpr, (EPTypeClass) value.getForge().getEvaluationType(), method, classScope);
         }
         method.getBlock()
-            .declareVar(EventBean[].class, "eps", localMethod(matchEventConvertor, FilterSpecParam.REF_MATCHEDEVENTMAP))
+            .declareVar(EventBean.EPTYPEARRAY, "eps", localMethod(matchEventConvertor, FilterSpecParam.REF_MATCHEDEVENTMAP))
             .methodReturn(valueExpr);
 
         return localMethod(method, GET_FILTER_VALUE_REFS);
     }
 
-    public Class getReturnType() {
+    public EPType getReturnType() {
         return value.getForge().getEvaluationType();
     }
 

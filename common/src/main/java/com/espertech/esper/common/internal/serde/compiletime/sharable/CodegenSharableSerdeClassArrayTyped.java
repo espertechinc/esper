@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.serde.compiletime.sharable;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -24,19 +26,19 @@ import static com.espertech.esper.common.internal.event.path.EventTypeResolver.G
 
 public class CodegenSharableSerdeClassArrayTyped implements CodegenFieldSharable {
     private final CodegenSharableSerdeName name;
-    private final Class[] valueTypes;
+    private final EPType[] valueTypes;
     private final DataInputOutputSerdeForge[] serdes;
     private final CodegenClassScope classScope;
 
-    public CodegenSharableSerdeClassArrayTyped(CodegenSharableSerdeName name, Class[] valueTypes, DataInputOutputSerdeForge[] serdes, CodegenClassScope classScope) {
+    public CodegenSharableSerdeClassArrayTyped(CodegenSharableSerdeName name, EPType[] valueTypes, DataInputOutputSerdeForge[] serdes, CodegenClassScope classScope) {
         this.name = name;
         this.valueTypes = valueTypes;
         this.serdes = serdes;
         this.classScope = classScope;
     }
 
-    public Class type() {
-        return DataInputOutputSerde.class;
+    public EPTypeClass type() {
+        return DataInputOutputSerde.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.core;
 
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.PropertyResolutionStyle;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
@@ -22,14 +23,14 @@ import java.util.List;
 import java.util.Map;
 
 public class BeanEventTypeStemService {
-    private final Map<Class, List<String>> publicClassToTypeNames;
+    private final Map<EPTypeClass, List<String>> publicClassToTypeNames;
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final PropertyResolutionStyle defaultPropertyResolutionStyle;
     private final AccessorStyle defaultAccessorStyle;
 
-    private final Map<Class, BeanEventTypeStem> stems = new HashMap<>();
+    private final Map<EPTypeClass, BeanEventTypeStem> stems = new HashMap<>();
 
-    public BeanEventTypeStemService(Map<Class, List<String>> publicClassToTypeNames, EventBeanTypedEventFactory eventBeanTypedEventFactory, PropertyResolutionStyle defaultPropertyResolutionStyle, AccessorStyle defaultAccessorStyle) {
+    public BeanEventTypeStemService(Map<EPTypeClass, List<String>> publicClassToTypeNames, EventBeanTypedEventFactory eventBeanTypedEventFactory, PropertyResolutionStyle defaultPropertyResolutionStyle, AccessorStyle defaultAccessorStyle) {
         this.publicClassToTypeNames = publicClassToTypeNames;
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
         this.defaultPropertyResolutionStyle = defaultPropertyResolutionStyle;
@@ -40,11 +41,11 @@ public class BeanEventTypeStemService {
         return eventBeanTypedEventFactory;
     }
 
-    public Map<Class, List<String>> getPublicClassToTypeNames() {
+    public Map<EPTypeClass, List<String>> getPublicClassToTypeNames() {
         return publicClassToTypeNames;
     }
 
-    public BeanEventTypeStem getCreateStem(Class clazz, ConfigurationCommonEventTypeBean optionalConfiguration) {
+    public BeanEventTypeStem getCreateStem(EPTypeClass clazz, ConfigurationCommonEventTypeBean optionalConfiguration) {
         BeanEventTypeStem stem = stems.get(clazz);
         if (stem != null) {
             return stem;

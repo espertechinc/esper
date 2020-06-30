@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -54,16 +55,16 @@ public class ExprRegexpNode extends ExprNodeBase {
         }
 
         // check pattern child node
-        Class patternChildType = getChildNodes()[1].getForge().getEvaluationType();
-        if (patternChildType != String.class) {
+        EPTypeClass patternType = (EPTypeClass) getChildNodes()[1].getForge().getEvaluationType();
+        if (patternType.getType() != String.class) {
             throw new ExprValidationException("The regexp operator requires a String-type pattern expression");
         }
         boolean constantPattern = this.getChildNodes()[1].getForge().getForgeConstantType().isCompileTimeConstant();
 
         // check eval child node - can be String or numeric
-        Class evalChildType = getChildNodes()[0].getForge().getEvaluationType();
-        boolean isNumericValue = JavaClassHelper.isNumeric(evalChildType);
-        if ((evalChildType != String.class) && (!isNumericValue)) {
+        EPTypeClass evalType = (EPTypeClass) getChildNodes()[0].getForge().getEvaluationType();
+        boolean isNumericValue = JavaClassHelper.isNumeric(evalType);
+        if ((evalType.getType() != String.class) && (!isNumericValue)) {
             throw new ExprValidationException("The regexp operator requires a String or numeric type left-hand expression");
         }
 

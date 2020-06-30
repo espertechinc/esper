@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.Audit;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationAudit implements Audit {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationAudit.class);
+
     private final String value;
 
     public AnnotationAudit(String value) {

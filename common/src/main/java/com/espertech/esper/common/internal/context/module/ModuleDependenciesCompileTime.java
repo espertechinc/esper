@@ -95,9 +95,9 @@ public class ModuleDependenciesCompileTime {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ModuleDependenciesRuntime.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ModuleDependenciesRuntime.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ModuleDependenciesRuntime.class, "md", newInstance(ModuleDependenciesRuntime.class))
+                .declareVarNewInstance(ModuleDependenciesRuntime.EPTYPE, "md")
                 .exprDotMethod(ref("md"), "setPathEventTypes", NameAndModule.makeArray(pathEventTypes))
                 .exprDotMethod(ref("md"), "setPathNamedWindows", NameAndModule.makeArray(pathNamedWindows))
                 .exprDotMethod(ref("md"), "setPathTables", NameAndModule.makeArray(pathTables))

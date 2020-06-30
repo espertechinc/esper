@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.settings;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 
@@ -25,11 +26,11 @@ public interface ClasspathImportService {
 
     Class resolveClass(String className, boolean forAnnotation, ClasspathExtensionClass classpathExtension) throws ClasspathImportException;
 
-    Constructor resolveCtor(Class clazz, Class[] paramTypes) throws ClasspathImportException;
+    Constructor resolveCtor(Class clazz, EPType[] paramTypes) throws ClasspathImportException;
 
-    Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws ClasspathImportException;
+    Method resolveMethod(Class clazz, String methodName, EPType[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws ClasspathImportException;
 
-    Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtensionClass classpathExtension) throws ClasspathImportException;
+    Method resolveMethodOverloadChecked(String className, String methodName, EPType[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType, ClasspathExtensionClass classpathExtension) throws ClasspathImportException;
 
     Class resolveClassForBeanEventType(String fullyQualClassName) throws ClasspathImportException;
 }

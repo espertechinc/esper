@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -17,11 +19,11 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenExpressionCastExpression implements CodegenExpression {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final String typeName;
     private final CodegenExpression expression;
 
-    public CodegenExpressionCastExpression(Class clazz, CodegenExpression expression) {
+    public CodegenExpressionCastExpression(EPTypeClass clazz, CodegenExpression expression) {
         if (clazz == null) {
             throw new IllegalArgumentException("Cast-to class is a null value");
         }
@@ -42,7 +44,7 @@ public class CodegenExpressionCastExpression implements CodegenExpression {
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("((");
         if (clazz != null) {
-            appendClassName(builder, clazz, null, imports);
+            appendClassName(builder, clazz, imports);
         } else {
             builder.append(typeName);
         }
@@ -53,7 +55,7 @@ public class CodegenExpressionCastExpression implements CodegenExpression {
 
     public void mergeClasses(Set<Class> classes) {
         if (clazz != null) {
-            classes.add(clazz);
+            clazz.traverseClasses(classes::add);
         }
         expression.mergeClasses(classes);
     }

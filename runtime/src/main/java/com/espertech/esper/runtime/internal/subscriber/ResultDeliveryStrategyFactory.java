@@ -11,11 +11,9 @@
 package com.espertech.esper.runtime.internal.subscriber;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.util.TypeWidenerException;
-import com.espertech.esper.common.internal.util.TypeWidenerFactory;
-import com.espertech.esper.common.internal.util.TypeWidenerSPI;
+import com.espertech.esper.common.internal.util.*;
 import com.espertech.esper.runtime.client.EPStatement;
 
 import java.lang.reflect.Method;
@@ -205,14 +203,14 @@ public class ResultDeliveryStrategyFactory {
 
         if (subscriptionMethod == null) {
             if (updateMethods.size() > 1) {
-                String parametersDesc = JavaClassHelper.getParameterAsString(selectClauseTypes);
+                String parametersDesc = ClassHelperPrint.getParameterAsString(selectClauseTypes);
                 String message = "No suitable subscriber method named 'update' found, expecting a method that takes " +
                         selectClauseTypes.length + " parameter of type " + parametersDesc;
                 throw new ResultDeliveryStrategyInvalidException(message);
             } else {
                 Map.Entry<Method, Class[]> firstUpdateMethod = updateMethods.entrySet().iterator().next();
                 Class[] parametersNormalized = firstUpdateMethod.getValue();
-                String parametersDescNormalized = JavaClassHelper.getParameterAsString(selectClauseTypes);
+                String parametersDescNormalized = ClassHelperPrint.getParameterAsString(selectClauseTypes);
                 if (parametersNormalized.length != selectClauseTypes.length) {
                     if (selectClauseTypes.length > 0) {
                         String message = "No suitable subscriber method named 'update' found, expecting a method that takes " +
@@ -228,8 +226,8 @@ public class ResultDeliveryStrategyFactory {
                     Class boxedParameterType = JavaClassHelper.getBoxedType(parametersNormalized[i]);
                     if ((boxedExpressionType != null) && (!JavaClassHelper.isAssignmentCompatible(boxedExpressionType, boxedParameterType))) {
                         String message = "Subscriber method named 'update' for parameter number " + (i + 1) + " is not assignable, " +
-                                "expecting type '" + JavaClassHelper.getParameterAsString(selectClauseTypes[i]) + "' but found type '"
-                                + JavaClassHelper.getParameterAsString(parametersNormalized[i]) + "'";
+                                "expecting type '" + ClassHelperPrint.getParameterAsString(selectClauseTypes[i]) + "' but found type '"
+                                + ClassHelperPrint.getParameterAsString(parametersNormalized[i]) + "'";
                         throw new ResultDeliveryStrategyInvalidException(message);
                     }
                 }
@@ -351,7 +349,7 @@ public class ResultDeliveryStrategyFactory {
             return null;
         }
         try {
-            return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, selectClauseType, parameterType, "Method Parameter " + columnNum, false, null, statementName);
+            return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, ClassHelperGenericType.getClassEPType(selectClauseType), EPTypePremade.getOrCreate(parameterType), "Method Parameter " + columnNum, false, null, statementName);
         } catch (TypeWidenerException e) {
             throw new EPException("Unexpected exception assigning select clause columns to subscriber method " + method + ": " + e.getMessage(), e);
         }

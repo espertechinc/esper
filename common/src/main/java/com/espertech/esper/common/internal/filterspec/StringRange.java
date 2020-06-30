@@ -11,10 +11,14 @@
 package com.espertech.esper.common.internal.filterspec;
 
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Holds a range of double values with a minimum (start) value and a maximum (end) value.
  */
 public final class StringRange implements Range {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StringRange.class);
+
     private String min;
     private String max;
     private int hashCode;

@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.update;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.util.TypeWidener;
 
 public class InternalEventRouterWriterArrayElement extends InternalEventRouterWriter {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InternalEventRouterWriterArrayElement.class);
+
     private ExprEvaluator indexExpression;
     private ExprEvaluator rhsExpression;
     private TypeWidener typeWidener;

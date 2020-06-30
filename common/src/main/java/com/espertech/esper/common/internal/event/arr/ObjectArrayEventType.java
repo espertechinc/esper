@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
@@ -27,6 +29,7 @@ import com.espertech.esper.common.internal.util.CollectionUtil;
 import java.util.*;
 
 public class ObjectArrayEventType extends BaseNestableEventType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ObjectArrayEventType.class);
 
     protected Map<String, Pair<EventPropertyDescriptor, ObjectArrayEventBeanPropertyWriter>> propertyWriters;
     protected EventPropertyDescriptor[] writablePropertyDescriptors;
@@ -44,6 +47,10 @@ public class ObjectArrayEventType extends BaseNestableEventType {
 
     public final Class getUnderlyingType() {
         return Object[].class;
+    }
+
+    public EPTypeClass getUnderlyingEPType() {
+        return EPTypePremade.OBJECTARRAY.getEPType();
     }
 
     public EventBeanCopyMethodForge getCopyMethodForge(String[] properties) {
@@ -103,7 +110,7 @@ public class ObjectArrayEventType extends BaseNestableEventType {
                 return null;
             }
             MappedProperty mapProp = (MappedProperty) property;
-            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), Object.class, null, false, true, false, true, false);
+            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), false, true, false, true, false);
         }
         if (property instanceof IndexedProperty) {
             EventPropertyWriter writer = getWriter(propertyName);
@@ -111,7 +118,7 @@ public class ObjectArrayEventType extends BaseNestableEventType {
                 return null;
             }
             IndexedProperty indexedProp = (IndexedProperty) property;
-            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), Object.class, null, true, false, true, false, false);
+            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), true, false, true, false, false);
         }
         return null;
     }

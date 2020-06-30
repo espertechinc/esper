@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -28,19 +30,19 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 
 public class AggregationForgeFactoryFirstLastUnbound extends AggregationForgeFactoryBase {
     protected final ExprAggMultiFunctionLinearAccessNode parent;
-    private final Class resultType;
+    private final EPTypeClass resultType;
     protected final boolean hasFilter;
     protected final DataInputOutputSerdeForge serde;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryFirstLastUnbound(ExprAggMultiFunctionLinearAccessNode parent, Class resultType, boolean hasFilter, DataInputOutputSerdeForge serde) {
+    public AggregationForgeFactoryFirstLastUnbound(ExprAggMultiFunctionLinearAccessNode parent, EPTypeClass resultType, boolean hasFilter, DataInputOutputSerdeForge serde) {
         this.parent = parent;
         this.resultType = resultType;
         this.hasFilter = hasFilter;
         this.serde = serde;
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return resultType;
     }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.JsonEndValueForgeLocalDate;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.
 import java.time.LocalDate;
 
 public class JsonDelegateArrayLocalDate extends JsonDelegateArrayBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArrayLocalDate.class);
     public JsonDelegateArrayLocalDate(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);
     }

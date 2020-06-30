@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.onsplit;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -38,8 +39,8 @@ public class StatementAgentInstanceFactoryOnTriggerSplitStreamForge extends Stat
         this.first = first;
     }
 
-    public Class typeOfSubclass() {
-        return StatementAgentInstanceFactoryOnTriggerSplitStream.class;
+    public EPTypeClass typeOfSubclass() {
+        return StatementAgentInstanceFactoryOnTriggerSplitStream.EPTYPE;
     }
 
     public void inlineInitializeOnTriggerBase(CodegenExpressionRef saiff, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

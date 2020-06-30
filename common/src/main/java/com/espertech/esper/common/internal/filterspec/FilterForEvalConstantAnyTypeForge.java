@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
@@ -32,8 +35,8 @@ public class FilterForEvalConstantAnyTypeForge implements FilterSpecParamInValue
         this.constant = constant;
     }
 
-    public Class getReturnType() {
-        return constant == null ? null : constant.getClass();
+    public EPType getReturnType() {
+        return constant == null ? EPTypeNull.INSTANCE : ClassHelperGenericType.getClassEPType(constant.getClass());
     }
 
     public boolean isConstant() {

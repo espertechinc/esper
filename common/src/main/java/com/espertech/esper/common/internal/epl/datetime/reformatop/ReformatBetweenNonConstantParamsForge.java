@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -45,9 +47,11 @@ public class ReformatBetweenNonConstantParamsForge implements ReformatForge {
     public ReformatBetweenNonConstantParamsForge(List<ExprNode> parameters)
             throws ExprValidationException {
         start = parameters.get(0);
-        startCoercer = DatetimeLongCoercerFactory.getCoercer(start.getForge().getEvaluationType());
+        EPTypeClass startClass = (EPTypeClass) start.getForge().getEvaluationType();
+        startCoercer = DatetimeLongCoercerFactory.getCoercer(startClass.getType());
         end = parameters.get(1);
-        secondCoercer = DatetimeLongCoercerFactory.getCoercer(end.getForge().getEvaluationType());
+        EPTypeClass endClass = (EPTypeClass) end.getForge().getEvaluationType();
+        secondCoercer = DatetimeLongCoercerFactory.getCoercer(endClass.getType());
 
         if (parameters.size() == 2) {
             includeBoth = true;
@@ -95,8 +99,8 @@ public class ReformatBetweenNonConstantParamsForge implements ReformatForge {
         return ReformatBetweenNonConstantParamsForgeOp.codegenZDT(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getReturnType() {
-        return Boolean.class;
+    public EPTypeClass getReturnType() {
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 
     public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {

@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 
 public class JsonDelegateCollectionBigDecimal extends JsonDelegateArrayBigDecimal {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateCollectionBigDecimal.class);
 
     public JsonDelegateCollectionBigDecimal(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);

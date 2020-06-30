@@ -10,15 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.methodbase;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 public class DotMethodFPProvidedParam {
 
     private int lambdaParamNum; // 0 means not a lambda expression expected, 1 means "x=>", 2 means "(x,y)=>"
-    private Class returnType;
+    private EPType returnType;
     private ExprNode expression;
 
-    public DotMethodFPProvidedParam(int lambdaParamNum, Class returnType, ExprNode expression) {
+    public DotMethodFPProvidedParam(int lambdaParamNum, EPType returnType, ExprNode expression) {
         this.lambdaParamNum = lambdaParamNum;
         this.returnType = returnType;
         this.expression = expression;
@@ -28,7 +29,7 @@ public class DotMethodFPProvidedParam {
         return lambdaParamNum;
     }
 
-    public Class getReturnType() {
+    public EPType getReturnType() {
         return returnType;
     }
 

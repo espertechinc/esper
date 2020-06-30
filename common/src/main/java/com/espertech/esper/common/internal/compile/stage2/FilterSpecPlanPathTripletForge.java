@@ -52,9 +52,9 @@ public class FilterSpecPlanPathTripletForge {
     }
 
     public CodegenMethod codegen(CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FilterSpecPlanPathTriplet.class, FilterSpecParamForge.class, classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecPlanPathTriplet.EPTYPE, FilterSpecParamForge.class, classScope);
         method.getBlock()
-            .declareVar(FilterSpecPlanPathTriplet.class, "triplet", newInstance(FilterSpecPlanPathTriplet.class))
+            .declareVarNewInstance(FilterSpecPlanPathTriplet.EPTYPE, "triplet")
             .exprDotMethod(ref("triplet"), "setParam", localMethod(param.makeCodegen(classScope, method, symbols)))
             .exprDotMethod(ref("triplet"), "setTripletConfirm", optionalEvaluator(tripletConfirm, method, classScope))
             .methodReturn(ref("triplet"));

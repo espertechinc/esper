@@ -36,6 +36,7 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
 
     final static String INLINEDCLASS_PREFIXMAP = "inlined_class \"\"\"\n" +
         "import com.espertech.esper.common.client.*;\n" +
+        "import com.espertech.esper.common.client.type.*;\n" +
         "import com.espertech.esper.common.client.hook.aggmultifunc.*;\n" +
         "import com.espertech.esper.common.client.hook.forgeinject.*;\n" +
         "import com.espertech.esper.common.internal.epl.expression.core.*;\n" +
@@ -71,8 +72,8 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
         "         * This handler handles the \"trieState\"-type table column\n" +
         "         */\n" +
         "        public static class TrieAggHandlerTrieState implements AggregationMultiFunctionHandler {\n" +
-        "            public EPType getReturnType() {\n" +
-        "                return EPTypeHelper.singleValue(SupportTrie.class);\n" +
+        "            public EPChainableType getReturnType() {\n" +
+        "                return EPChainableTypeHelper.singleValue(SupportTrie.class);\n" +
         "            }\n" +
         "\n" +
         "            public AggregationMultiFunctionStateKey getAggregationStateUniqueKey() {\n" +
@@ -110,9 +111,9 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
         "                this.parameters = parameters;\n" +
         "            }\n" +
         "\n" +
-        "            public EPType getReturnType() {\n" +
+        "            public EPChainableType getReturnType() {\n" +
         "                // We return null unless using \"prefixMap\"\n" +
-        "                return EPTypeHelper.singleValue(null);\n" +
+        "                return EPChainableTypeNull.INSTANCE;\n" +
         "            }\n" +
         "\n" +
         "            public AggregationMultiFunctionStateKey getAggregationStateUniqueKey() {\n" +
@@ -130,7 +131,7 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
         "            }\n" +
         "\n" +
         "            public AggregationMultiFunctionAgentMode getAgentMode() {\n" +
-        "                if (parameters.length != 1 || parameters[0].getForge().getEvaluationType() != String.class) {\n" +
+        "                if (parameters.length != 1 || ((EPTypeClass) parameters[0].getForge().getEvaluationType()).getType() != String.class) {\n" +
         "                    throw new IllegalArgumentException(\"Requires a single parameter returing a string value\");\n" +
         "                }\n" +
         "                InjectionStrategyClassNewInstance injection = new InjectionStrategyClassNewInstance(TrieAggAgentFactory.class);\n" +
@@ -147,8 +148,8 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
         "         * This handler handles the \"prefixmap\" accessor for use with tables\n" +
         "         */\n" +
         "        public static class TrieAggHandlerTriePrefixMap implements AggregationMultiFunctionHandler {\n" +
-        "            public EPType getReturnType() {\n" +
-        "                return EPTypeHelper.singleValue(Map.class);\n" +
+        "            public EPChainableType getReturnType() {\n" +
+        "                return EPChainableTypeHelper.singleValue(Map.class);\n" +
         "            }\n" +
         "\n" +
         "            public AggregationMultiFunctionStateKey getAggregationStateUniqueKey() {\n" +
@@ -168,7 +169,7 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
         "            }\n" +
         "\n" +
         "            public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {\n" +
-        "                if (ctx.getParameters().length != 1 || ctx.getParameters()[0].getForge().getEvaluationType() != String.class) {\n" +
+        "                if (ctx.getParameters().length != 1 || ((EPTypeClass) ctx.getParameters()[0].getForge().getEvaluationType()).getType() != String.class) {\n" +
         "                    throw new IllegalArgumentException(\"Requires a single parameter returning a string value\");\n" +
         "                }\n" +
         "                InjectionStrategyClassNewInstance injection = new InjectionStrategyClassNewInstance(TrieAggMethodFactoryPrefixMap.class);\n" +

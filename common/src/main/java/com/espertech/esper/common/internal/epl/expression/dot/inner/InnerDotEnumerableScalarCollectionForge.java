@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.inner;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,17 +19,17 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalRootChildInnerEval;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalRootChildInnerForge;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
 public class InnerDotEnumerableScalarCollectionForge implements ExprDotEvalRootChildInnerForge {
 
     protected final ExprEnumerationForge rootLambdaForge;
-    protected final Class componentType;
+    protected final EPTypeClass componentType;
 
-    public InnerDotEnumerableScalarCollectionForge(ExprEnumerationForge rootLambdaForge, Class componentType) {
+    public InnerDotEnumerableScalarCollectionForge(ExprEnumerationForge rootLambdaForge, EPTypeClass componentType) {
         this.rootLambdaForge = rootLambdaForge;
         this.componentType = componentType;
     }
@@ -57,7 +58,7 @@ public class InnerDotEnumerableScalarCollectionForge implements ExprDotEvalRootC
         return null;
     }
 
-    public Class getComponentTypeCollection() {
+    public EPTypeClass getComponentTypeCollection() {
         return componentType;
     }
 
@@ -65,7 +66,7 @@ public class InnerDotEnumerableScalarCollectionForge implements ExprDotEvalRootC
         return null;
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.collectionOfSingleValue(componentType);
+    public EPChainableType getTypeInfo() {
+        return EPChainableTypeHelper.collectionOfSingleValue(componentType);
     }
 }

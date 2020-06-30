@@ -10,15 +10,18 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
 
 /**
  * Represents an And-condition.
@@ -27,19 +30,19 @@ public class ExprAndNodeImpl extends ExprNodeBase implements ExprForgeInstrument
     public ExprAndNodeImpl() {
     }
 
-    public Class getEvaluationType() {
-        return Boolean.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 
     public ExprEvaluator getExprEvaluator() {
         return new ExprAndNodeEval(this, ExprNodeUtilityQuery.getEvaluatorsNoCompile(this.getChildNodes()));
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprAndNodeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprAnd", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
@@ -58,8 +61,7 @@ public class ExprAndNodeImpl extends ExprNodeBase implements ExprForgeInstrument
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Sub-nodes must be returning boolean
         for (ExprNode child : getChildNodes()) {
-            Class childType = child.getForge().getEvaluationType();
-            if (!JavaClassHelper.isBoolean(childType)) {
+            if (!isTypeBoolean(child.getForge().getEvaluationType())) {
                 throw new ExprValidationException("Incorrect use of AND clause, sub-expressions do not return boolean");
             }
         }

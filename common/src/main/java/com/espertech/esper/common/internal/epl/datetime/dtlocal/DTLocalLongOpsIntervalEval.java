@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -50,15 +52,15 @@ public class DTLocalLongOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBa
         return intervalOp.evaluate(time, time, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenPointInTime(DTLocalLongOpsIntervalForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public static CodegenExpression codegenPointInTime(DTLocalLongOpsIntervalForge forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLongOpsIntervalEval.class, codegenClassScope).addParam(long.class, "target");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalLongOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "target");
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
-                .declareVar(long.class, "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("target"), ref("cal"), methodNode, codegenClassScope));
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("target"), ref("cal"), methodNode, codegenClassScope));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "time", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), codegenClassScope))
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "time", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), codegenClassScope))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
@@ -76,14 +78,14 @@ public class DTLocalLongOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBa
 
     public static CodegenExpression codegenStartEnd(DTLocalLongOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLongOpsIntervalEval.class, codegenClassScope).addParam(long.class, "startLong").addParam(long.class, "endLong");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalLongOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "startLong").addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "endLong");
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
-                .declareVar(long.class, "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("startLong"), ref("cal"), methodNode, codegenClassScope));
+                .declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", staticMethod(Calendar.class, "getInstance", timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("startLong"), ref("cal"), methodNode, codegenClassScope));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), methodNode, exprSymbol, codegenClassScope);
-        block.declareVar(long.class, "startTime", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), codegenClassScope))
-                .declareVar(long.class, "endTime", op(ref("startTime"), "+", op(ref("endLong"), "-", ref("startLong"))))
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startTime", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), codegenClassScope))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endTime", op(ref("startTime"), "+", op(ref("endLong"), "-", ref("startLong"))))
                 .methodReturn(forge.intervalForge.codegen(ref("startTime"), ref("endTime"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);
     }

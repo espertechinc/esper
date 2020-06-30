@@ -10,25 +10,21 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Set;
 
 public class CodegenField {
     private final String clazz;
     private final String name;
-    private final Class type;
-    private final Class optionalTypeParam;
+    private final EPTypeClass type;
     private final boolean isFinal;
 
-    public CodegenField(String clazz, String name, Class type, Class optionalTypeParam, boolean isFinal) {
+    public CodegenField(String clazz, String name, EPTypeClass type, boolean isFinal) {
         this.clazz = clazz;
         this.name = name;
         this.type = type;
-        this.optionalTypeParam = optionalTypeParam;
         this.isFinal = isFinal;
-    }
-
-    public Class getOptionalTypeParam() {
-        return optionalTypeParam;
     }
 
     public boolean equals(Object o) {
@@ -45,10 +41,7 @@ public class CodegenField {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(type);
-        if (optionalTypeParam != null) {
-            classes.add(optionalTypeParam);
-        }
+        type.traverseClasses(classes::add);
     }
 
     public String getClazz() {
@@ -59,7 +52,7 @@ public class CodegenField {
         return name;
     }
 
-    public Class getType() {
+    public EPTypeClass getType() {
         return type;
     }
 

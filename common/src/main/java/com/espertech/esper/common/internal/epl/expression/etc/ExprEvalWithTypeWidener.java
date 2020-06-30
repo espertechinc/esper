@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.etc;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,9 +24,9 @@ public class ExprEvalWithTypeWidener implements ExprForge {
 
     private final TypeWidenerSPI widener;
     private final ExprNode validated;
-    private final Class targetType;
+    private final EPTypeClass targetType;
 
-    public ExprEvalWithTypeWidener(TypeWidenerSPI widener, ExprNode validated, Class targetType) {
+    public ExprEvalWithTypeWidener(TypeWidenerSPI widener, ExprNode validated, EPTypeClass targetType) {
         this.widener = widener;
         this.validated = validated;
         this.targetType = targetType;
@@ -35,12 +36,12 @@ public class ExprEvalWithTypeWidener implements ExprForge {
         throw new UnsupportedOperationException("Not available at compile time");
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpression inner = validated.getForge().evaluateCodegen(validated.getForge().getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpression inner = validated.getForge().evaluateCodegen((EPTypeClass) validated.getForge().getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
         return widener.widenCodegen(inner, codegenMethodScope, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return targetType;
     }
 

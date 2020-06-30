@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.etc;
 
+import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -29,7 +32,7 @@ public class ExprEvalStreamNumEnumCollForge implements ExprForge {
         throw new UnsupportedOperationException("Not available at compile time");
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return enumeration.evaluateGetROCollectionEventsCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
@@ -37,8 +40,8 @@ public class ExprEvalStreamNumEnumCollForge implements ExprForge {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
-        return Collection.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypeClassParameterized.from(Collection.class, EventBean.class);
     }
 
     public ExprNodeRenderable getForgeRenderable() {

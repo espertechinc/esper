@@ -11,19 +11,19 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.sumof;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base.*;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -31,20 +31,21 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
 
     private ExprDotEvalSumMethodFactory aggMethodFactory;
 
-    protected EPType initAndNoParamsReturnType(EventType inputEventType, Class collectionComponentType) {
+    protected EPChainableType initAndNoParamsReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
         aggMethodFactory = getAggregatorFactory(collectionComponentType);
-        return EPTypeHelper.singleValue(JavaClassHelper.getBoxedType(aggMethodFactory.getValueType()));
+        return EPChainableTypeHelper.singleValue(JavaClassHelper.getBoxedType(aggMethodFactory.getValueType()));
     }
 
-    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPType type, StatementCompileTimeServices services) {
+    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPChainableType type, StatementCompileTimeServices services) {
         return streamCountIncoming -> new EnumSumScalarNoParams(streamCountIncoming, aggMethodFactory);
     }
 
-    protected Function<ExprDotEvalParamLambda, EPType> initAndSingleParamReturnType(EventType inputEventType, Class collectionComponentType) {
+    protected ThreeFormInitFunction initAndSingleParamReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
         return lambda -> {
-            aggMethodFactory = getAggregatorFactory(lambda.getBodyForge().getEvaluationType());
-            Class returnType = JavaClassHelper.getBoxedType(aggMethodFactory.getValueType());
-            return EPTypeHelper.singleValue(returnType);
+            EPTypeClass type = validateNonNull(lambda.getBodyForge().getEvaluationType());
+            aggMethodFactory = getAggregatorFactory(type);
+            EPTypeClass returnType = JavaClassHelper.getBoxedType(aggMethodFactory.getValueType());
+            return EPChainableTypeHelper.singleValue(returnType);
         };
     }
 
@@ -60,14 +61,14 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
         return (lambda, eventType, numParams, typeInfo, services) -> new EnumSumScalar(lambda, eventType, numParams, aggMethodFactory);
     }
 
-    private static ExprDotEvalSumMethodFactory getAggregatorFactory(Class evalType) {
+    private static ExprDotEvalSumMethodFactory getAggregatorFactory(EPTypeClass evalType) {
         if (JavaClassHelper.isFloatingPointClass(evalType)) {
             return ExprDotEvalSumMethodFactoryDouble.INSTANCE;
-        } else if (evalType == BigDecimal.class) {
+        } else if (evalType.getType() == BigDecimal.class) {
             return ExprDotEvalSumMethodFactoryBigDecimal.INSTANCE;
-        } else if (evalType == BigInteger.class) {
+        } else if (evalType.getType() == BigInteger.class) {
             return ExprDotEvalSumMethodFactoryBigInteger.INSTANCE;
-        } else if (JavaClassHelper.getBoxedType(evalType) == Long.class) {
+        } else if (JavaClassHelper.getBoxedType(evalType.getType()) == Long.class) {
             return ExprDotEvalSumMethodFactoryLong.INSTANCE;
         } else {
             return ExprDotEvalSumMethodFactoryInteger.INSTANCE;
@@ -85,13 +86,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
             return new ExprDotEvalSumMethodDouble();
         }
 
-        public Class getValueType() {
-            return Double.class;
+        public EPTypeClass getValueType() {
+            return EPTypePremade.DOUBLEBOXED.getEPType();
         }
 
         public void codegenDeclare(CodegenBlock block) {
-            block.declareVar(double.class, "sum", constant(0));
-            block.declareVar(long.class, "cnt", constant(0));
+            block.declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "sum", constant(0));
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt", constant(0));
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
@@ -101,7 +102,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
             block.incrementRef("cnt");
-            block.assignCompound("sum", "+", cast(Double.class, value));
+            block.assignCompound("sum", "+", cast(EPTypePremade.DOUBLEBOXED.getEPType(), value));
         }
 
         public void codegenReturn(CodegenBlock block) {
@@ -140,13 +141,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
             return new ExprDotEvalSumMethodBigDecimal();
         }
 
-        public Class getValueType() {
-            return BigDecimal.class;
+        public EPTypeClass getValueType() {
+            return EPTypePremade.BIGDECIMAL.getEPType();
         }
 
         public void codegenDeclare(CodegenBlock block) {
-            block.declareVar(BigDecimal.class, "sum", newInstance(BigDecimal.class, constant(0d)));
-            block.declareVar(long.class, "cnt", constant(0));
+            block.declareVar(EPTypePremade.BIGDECIMAL.getEPType(), "sum", newInstance(EPTypePremade.BIGDECIMAL.getEPType(), constant(0d)));
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt", constant(0));
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
@@ -156,7 +157,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
             block.incrementRef("cnt")
-                    .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(BigDecimal.class, value)));
+                    .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(EPTypePremade.BIGDECIMAL.getEPType(), value)));
         }
 
         public void codegenReturn(CodegenBlock block) {
@@ -199,13 +200,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
             return new ExprDotEvalSumMethodBigInteger();
         }
 
-        public Class getValueType() {
-            return BigInteger.class;
+        public EPTypeClass getValueType() {
+            return EPTypePremade.BIGINTEGER.getEPType();
         }
 
         public void codegenDeclare(CodegenBlock block) {
-            block.declareVar(BigInteger.class, "sum", staticMethod(BigInteger.class, "valueOf", constant(0)));
-            block.declareVar(long.class, "cnt", constant(0));
+            block.declareVar(EPTypePremade.BIGINTEGER.getEPType(), "sum", staticMethod(BigInteger.class, "valueOf", constant(0)));
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt", constant(0));
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
@@ -215,7 +216,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
             block.incrementRef("cnt")
-                    .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(BigInteger.class, value)));
+                    .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(EPTypePremade.BIGINTEGER.getEPType(), value)));
         }
 
         public void codegenReturn(CodegenBlock block) {
@@ -258,13 +259,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
             return new ExprDotEvalSumMethodLong();
         }
 
-        public Class getValueType() {
-            return Long.class;
+        public EPTypeClass getValueType() {
+            return EPTypePremade.LONGBOXED.getEPType();
         }
 
         public void codegenDeclare(CodegenBlock block) {
-            block.declareVar(long.class, "sum", constant(0));
-            block.declareVar(long.class, "cnt", constant(0));
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "sum", constant(0));
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt", constant(0));
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
@@ -274,7 +275,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
             block.incrementRef("cnt");
-            block.assignCompound("sum", "+", cast(Long.class, value));
+            block.assignCompound("sum", "+", cast(EPTypePremade.LONGBOXED.getEPType(), value));
         }
 
         public void codegenReturn(CodegenBlock block) {
@@ -313,13 +314,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
             return new ExprDotEvalSumMethodInteger();
         }
 
-        public Class getValueType() {
-            return Integer.class;
+        public EPTypeClass getValueType() {
+            return EPTypePremade.INTEGERBOXED.getEPType();
         }
 
         public void codegenDeclare(CodegenBlock block) {
-            block.declareVar(int.class, "sum", constant(0));
-            block.declareVar(long.class, "cnt", constant(0));
+            block.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "sum", constant(0));
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt", constant(0));
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
@@ -329,7 +330,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeLambdaThreeForm {
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
             block.incrementRef("cnt");
-            block.assignCompound("sum", "+", cast(Integer.class, value));
+            block.assignCompound("sum", "+", cast(EPTypePremade.INTEGERBOXED.getEPType(), value));
         }
 
         public void codegenReturn(CodegenBlock block) {

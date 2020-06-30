@@ -10,22 +10,26 @@
  */
 package com.espertech.esper.common.internal.event.bean.introspect;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.PropertyStem;
 
 public class PropertyInfo {
-    private Class clazz;
+    private EPTypeClass clazz;
     private EventPropertyGetterSPIFactory getterFactory;
     private PropertyStem stem;
 
     /**
      * Ctor.
      *
-     * @param clazz         is the class
+     * @param type         is the class
      * @param getterFactory is the getter
      * @param stem          is the property info
      */
-    public PropertyInfo(Class clazz, EventPropertyGetterSPIFactory getterFactory, PropertyStem stem) {
-        this.clazz = clazz;
+    public PropertyInfo(EPTypeClass type, EventPropertyGetterSPIFactory getterFactory, PropertyStem stem) {
+        if (type == null) {
+            throw new IllegalArgumentException("Null type");
+        }
+        this.clazz = type;
         this.getterFactory = getterFactory;
         this.stem = stem;
     }
@@ -35,7 +39,7 @@ public class PropertyInfo {
      *
      * @return return type
      */
-    public Class getClazz() {
+    public EPTypeClass getClazz() {
         return clazz;
     }
 

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
 import org.slf4j.Logger;
@@ -20,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
 
 /**
  * EventType than can be supplied with a preconfigured list of properties getters (aka. explicit properties).
@@ -32,7 +36,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
 
     private EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private EventTypeMetadata metadata;
-    private Class underlyingType;
+    private EPTypeClass underlyingType;
     private EventTypeNameResolver eventTypeResolver;
     private XMLFragmentEventTypeFactory xmlEventTypeFactory;
     private EventPropertyDescriptor[] propertyDescriptors;
@@ -50,7 +54,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
      */
     protected Map<String, EventPropertyDescriptor> propertyDescriptorMap;
 
-    protected BaseConfigurableEventType(EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeMetadata metadata, Class underlyingType, EventTypeNameResolver eventTypeResolver, XMLFragmentEventTypeFactory xmlEventTypeFactory) {
+    protected BaseConfigurableEventType(EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeMetadata metadata, EPTypeClass underlyingType, EventTypeNameResolver eventTypeResolver, XMLFragmentEventTypeFactory xmlEventTypeFactory) {
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
         this.metadata = metadata;
         this.underlyingType = underlyingType;
@@ -72,7 +76,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
      * @param property is the property expression
      * @return property type
      */
-    protected abstract Class doResolvePropertyType(String property);
+    protected abstract EPType doResolvePropertyType(String property);
 
     /**
      * Subclasses must implement this and return a fragment type for a property.
@@ -138,16 +142,24 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
         }
     }
 
-    public Class getPropertyType(String propertyExpression) {
+    public final Class getPropertyType(String propertyName) {
+        return getPropertyTypeAsClass(getPropertyEPType(propertyName));
+    }
+
+    public EPType getPropertyEPType(String propertyExpression) {
         EventPropertyDescriptor desc = propertyDescriptorMap.get(propertyExpression);
         if (desc != null) {
-            return desc.getPropertyType();
+            return desc.getPropertyEPType();
         }
 
         return doResolvePropertyType(propertyExpression);
     }
 
     public Class getUnderlyingType() {
+        return underlyingType.getType();
+    }
+
+    public EPTypeClass getUnderlyingEPType() {
         return underlyingType;
     }
 

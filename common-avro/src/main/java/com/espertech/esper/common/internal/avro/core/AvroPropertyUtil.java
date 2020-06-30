@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.avro.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.avro.getter.*;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
@@ -27,13 +31,13 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.avro.core.AvroFragmentTypeUtil.getFragmentEventTypeForField;
 
 public class AvroPropertyUtil {
-    protected static Class propertyType(Schema fieldSchema, Property property) {
+    protected static EPType propertyType(Schema fieldSchema, Property property) {
         AvroFieldDescriptor desc = AvroFieldUtil.fieldForProperty(fieldSchema, property);
         if (desc == null) {
             return null;
         }
         if (desc.isDynamic()) {
-            return Object.class;
+            return EPTypePremade.OBJECT.getEPType();
         }
         Schema typeSchema = desc.getField().schema();
         if (desc.isAccessedByIndex()) {
@@ -151,7 +155,8 @@ public class AvroPropertyUtil {
                 return null;
             }
             FragmentEventType fragmentEventType = AvroFragmentTypeUtil.getFragmentEventTypeForField(fieldNested.schema(), moduleName, eventAdapterService, eventTypeAvroHandler, fragmentTypeCache);
-            return factory.makeSimple(fieldNested.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), AvroTypeUtil.propertyType(fieldNested.schema()));
+            EPType type = AvroTypeUtil.propertyType(fieldNested.schema());
+            return factory.makeSimple(fieldNested.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), type);
         }
 
         if (property instanceof IndexedProperty) {
@@ -192,7 +197,7 @@ public class AvroPropertyUtil {
             Schema currentSchema = fieldSchema;
             int count = 0;
             int[] path = new int[nested.getProperties().size()];
-            Class[] types = new Class[nested.getProperties().size()];
+            EPTypeClass[] types = new EPTypeClass[nested.getProperties().size()];
             for (Property levelProperty : nested.getProperties()) {
                 if (currentSchema.getType() != Schema.Type.RECORD) {
                     return null;
@@ -203,7 +208,11 @@ public class AvroPropertyUtil {
                 }
                 currentSchema = fieldNested.schema();
                 path[count] = fieldNested.pos();
-                types[count] = AvroTypeUtil.propertyType(currentSchema);
+                EPType type = AvroTypeUtil.propertyType(currentSchema);
+                if (type == EPTypeNull.INSTANCE) {
+                    return null;
+                }
+                types[count] = (EPTypeClass) type;
                 count++;
             }
             FragmentEventType fragmentEventType = AvroFragmentTypeUtil.getFragmentEventTypeForField(currentSchema, moduleName, eventAdapterService, eventTypeAvroHandler, fragmentTypeCache);
@@ -224,7 +233,7 @@ public class AvroPropertyUtil {
                     return null;
                 }
                 FragmentEventType fragmentEventType = getFragmentEventTypeForField(fieldNested.schema(), moduleName, eventAdapterService, eventTypeAvroHandler, fragmentTypeCache);
-                Class propertyType = AvroTypeUtil.propertyType(fieldNested.schema());
+                EPType propertyType = AvroTypeUtil.propertyType(fieldNested.schema());
                 getters[count] = new AvroEventBeanGetterSimple(fieldNested.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventAdapterService, propertyType);
                 currentSchema = fieldNested.schema();
             } else if (levelProperty instanceof IndexedProperty) {
@@ -292,7 +301,7 @@ public class AvroPropertyUtil {
     }
 
     private interface GetterNestedFactory {
-        EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType, Class propertyType);
+        EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType, EPType propertyType);
 
         EventPropertyGetterSPI makeIndexed(int posNested, int index, EventType fragmentEventType);
 
@@ -300,7 +309,7 @@ public class AvroPropertyUtil {
 
         EventPropertyGetterSPI makeDynamicSimple(String propertyName);
 
-        EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, Class[] propertyTypes, EventType fragmentEventType);
+        EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, EPTypeClass[] propertyTypes, EventType fragmentEventType);
 
         EventPropertyGetterSPI makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters);
     }
@@ -314,7 +323,7 @@ public class AvroPropertyUtil {
             this.posTop = posTop;
         }
 
-        public EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType, Class propertyType) {
+        public EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType, EPType propertyType) {
             return new AvroEventBeanGetterNestedSimple(posTop, posNested, fragmentEventType, eventAdapterService);
         }
 
@@ -330,7 +339,7 @@ public class AvroPropertyUtil {
             return new AvroEventBeanGetterNestedDynamicSimple(posTop, propertyName);
         }
 
-        public EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, Class[] propertyTypes, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, EPTypeClass[] propertyTypes, EventType fragmentEventType) {
             return new AvroEventBeanGetterNestedMultiLevel(posTop, path, fragmentEventType, eventAdapterService);
         }
 
@@ -350,7 +359,7 @@ public class AvroPropertyUtil {
             this.index = index;
         }
 
-        public EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType, Class propertyType) {
+        public EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType, EPType propertyType) {
             return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterSimple(posNested, fragmentEventType, eventAdapterService, propertyType));
         }
 
@@ -366,7 +375,7 @@ public class AvroPropertyUtil {
             return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterSimpleDynamic(propertyName));
         }
 
-        public EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, Class[] propertyTypes, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, EPTypeClass[] propertyTypes, EventType fragmentEventType) {
             AvroEventPropertyGetter[] getters = new AvroEventPropertyGetter[path.length];
             for (int i = 0; i < path.length; i++) {
                 getters[i] = new AvroEventBeanGetterSimple(path[i], fragmentEventType, eventAdapterService, propertyTypes[i]);

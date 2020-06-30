@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.infra.nwtable;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadata;
@@ -115,6 +116,11 @@ public class InfraNWTableCreateIndex {
 
             tryInvalidCompile(env, path, "create unique index IndexTwo on MyInfraOne(f2 btree)",
                 "Combination of unique index with btree (range) is not supported [create unique index IndexTwo on MyInfraOne(f2 btree)]");
+
+            tryInvalidCompile(env, path, "create schema MyMap(somefield null);\n" +
+                    "create window MyWindow#keepall as MyMap;\n" +
+                    "create unique index MyIndex on MyWindow(somefield)",
+                "Property named 'somefield' is null-typed");
 
             // invalid insert-into unique index
             String eplCreateTwo = namedWindow ?
@@ -645,7 +651,7 @@ public class InfraNWTableCreateIndex {
     }
 
     private static EventTableIndexMetadataEntry getIndexEntry(RegressionEnvironment env, boolean namedWindow, String name) {
-        IndexedPropDesc descOne = new IndexedPropDesc("col0", String.class);
+        IndexedPropDesc descOne = new IndexedPropDesc("col0", EPTypePremade.STRING.getEPType());
         IndexMultiKey index = new IndexMultiKey(false, Arrays.asList(descOne), Collections.<IndexedPropDesc>emptyList(), null);
         EventTableIndexMetadata meta = getIndexMetaRepo(env, namedWindow, name);
         return meta.getIndexes().get(index);

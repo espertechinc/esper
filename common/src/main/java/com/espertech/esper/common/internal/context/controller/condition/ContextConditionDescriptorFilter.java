@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.common.internal.context.controller.condition;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 
 import java.util.List;
 
 public class ContextConditionDescriptorFilter implements ContextConditionDescriptor {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextConditionDescriptorFilter.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ContextConditionDescriptorFilter[].class);
 
     private FilterSpecActivatable filterSpecActivatable;
     private String optionalFilterAsName;

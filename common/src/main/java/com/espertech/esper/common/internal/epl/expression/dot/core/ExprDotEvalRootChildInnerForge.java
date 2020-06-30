@@ -11,20 +11,21 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public interface ExprDotEvalRootChildInnerForge {
     EventType getEventTypeCollection();
 
     EventType getEventTypeSingle();
 
-    Class getComponentTypeCollection();
+    EPTypeClass getComponentTypeCollection();
 
-    EPType getTypeInfo();
+    EPChainableType getTypeInfo();
 
     ExprDotEvalRootChildInnerEval getInnerEvaluator();
 

@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.guard;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertor;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 public class ExpressionGuardFactory implements GuardFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExpressionGuardFactory.class);
 
     protected ExprEvaluator expression;
     protected MatchedEventConvertor convertor;

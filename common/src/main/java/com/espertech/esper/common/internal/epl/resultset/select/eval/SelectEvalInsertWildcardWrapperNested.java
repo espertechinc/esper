@@ -41,7 +41,7 @@ public class SelectEvalInsertWildcardWrapperNested extends SelectEvalBaseMap imp
     }
 
     protected CodegenExpression processSpecificCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenExpression props, CodegenMethod methodNode, SelectExprProcessorCodegenSymbol selectEnv, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField innerType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(innerWrapperType, EPStatementInitServices.REF));
+        CodegenExpressionField innerType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(innerWrapperType, EPStatementInitServices.REF));
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         return staticMethod(this.getClass(), "wildcardNestedWrapper", arrayAtIndex(refEPS, constant(0)), innerType, resultEventType, eventBeanFactory, props);
     }

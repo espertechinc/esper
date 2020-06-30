@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,8 +29,8 @@ public class SubselectForgeNRExistsWGroupBy implements SubselectForgeNR {
     }
 
     public CodegenExpression evaluateMatchesCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(boolean.class, this.getClass(), classScope);
-        CodegenExpression aggService = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryAgg(subselect.getSubselectNumber()), AggregationResultFuture.class);
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), classScope);
+        CodegenExpression aggService = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryAgg(subselect.getSubselectNumber()), AggregationResultFuture.EPTYPE);
 
         method.getBlock().applyTri(new SubselectForgeCodegenUtil.ReturnIfNoMatch(constantFalse(), constantFalse()), method, symbols);
         method.getBlock().methodReturn(not(exprDotMethodChain(aggService).add("getGroupKeys", symbols.getAddExprEvalCtx(method)).add("isEmpty")));

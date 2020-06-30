@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.serde.compiletime.resolve;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
 import com.espertech.esper.common.client.serde.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventType;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSkipSerde;
@@ -46,51 +49,51 @@ public class SerdeCompileTimeResolverImpl implements SerdeCompileTimeResolver {
         return true;
     }
 
-    public DataInputOutputSerdeForge serdeForFilter(Class evaluationType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForFilter(EPType evaluationType, StatementRawInfo raw) {
         return serdeMayArray(evaluationType, new SerdeProviderAdditionalInfoFilter(raw));
     }
 
-    public DataInputOutputSerdeForge serdeForKeyNonArray(Class paramType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForKeyNonArray(EPType paramType, StatementRawInfo raw) {
         return serdeForClass(paramType, new SerdeProviderAdditionalInfoMultikey(raw));
     }
 
-    public DataInputOutputSerdeForge[] serdeForMultiKey(Class[] types, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge[] serdeForMultiKey(EPType[] types, StatementRawInfo raw) {
         return serdeForClasses(types, new SerdeProviderAdditionalInfoMultikey(raw));
     }
 
-    public DataInputOutputSerdeForge[] serdeForDataWindowSortCriteria(Class[] sortCriteriaExpressions, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge[] serdeForDataWindowSortCriteria(EPType[] sortCriteriaExpressions, StatementRawInfo raw) {
         return serdeForClasses(sortCriteriaExpressions, new SerdeProviderAdditionalInfoMultikey(raw));
     }
 
-    public DataInputOutputSerdeForge serdeForDerivedViewAddProp(Class evalType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForDerivedViewAddProp(EPType evalType, StatementRawInfo raw) {
         return serdeForClass(evalType, new SerdeProviderAdditionalInfoDerivedViewProperty(raw));
     }
 
-    public DataInputOutputSerdeForge serdeForIndexHashNonArray(Class propType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForIndexHashNonArray(EPTypeClass propType, StatementRawInfo raw) {
         return serdeForClass(propType, new SerdeProviderAdditionalInfoIndex(raw));
     }
 
-    public DataInputOutputSerdeForge serdeForBeanEventType(StatementRawInfo raw, Class underlyingType, String eventTypeName, EventType[] eventTypeSupertypes) {
+    public DataInputOutputSerdeForge serdeForBeanEventType(StatementRawInfo raw, EPTypeClass underlyingType, String eventTypeName, EventType[] eventTypeSupertypes) {
         return serdeForClass(underlyingType, new SerdeProviderAdditionalInfoEventType(raw, eventTypeName, eventTypeSupertypes));
     }
 
-    public DataInputOutputSerdeForge serdeForEventProperty(Class typedProperty, String eventTypeName, String propertyName, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForEventProperty(EPTypeClass typedProperty, String eventTypeName, String propertyName, StatementRawInfo raw) {
         return serdeForClass(typedProperty, new SerdeProviderAdditionalInfoEventProperty(raw, eventTypeName, propertyName));
     }
 
-    public DataInputOutputSerdeForge serdeForAggregation(Class type, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForAggregation(EPType type, StatementRawInfo raw) {
         return serdeForClass(type, new SerdeProviderAdditionalInfoAggregation(raw));
     }
 
-    public DataInputOutputSerdeForge serdeForIndexBtree(Class rangeType, StatementRawInfo raw) {
-        return serdeForClass(rangeType, new SerdeProviderAdditionalInfoIndex(raw));
-    }
-
-    public DataInputOutputSerdeForge serdeForAggregationDistinct(Class type, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForAggregationDistinct(EPType type, StatementRawInfo raw) {
         return serdeMayArray(type, new SerdeProviderAdditionalInfoAggregationDistinct(raw));
     }
 
-    public DataInputOutputSerdeForge serdeForVariable(Class type, String variableName, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForIndexBtree(EPTypeClass rangeType, StatementRawInfo raw) {
+        return serdeForClass(rangeType, new SerdeProviderAdditionalInfoIndex(raw));
+    }
+
+    public DataInputOutputSerdeForge serdeForVariable(EPTypeClass type, String variableName, StatementRawInfo raw) {
         return serdeForClass(type, new SerdeProviderAdditionalInfoVariable(raw, variableName));
     }
 
@@ -114,15 +117,16 @@ public class SerdeCompileTimeResolverImpl implements SerdeCompileTimeResolver {
         return null;
     }
 
-    private DataInputOutputSerdeForge serdeMayArray(Class type, SerdeProviderAdditionalInfo info) {
-        if (type.isArray()) {
-            DataInputOutputSerde mkSerde = getMKSerdeClassForComponentType(type.getComponentType());
+    private DataInputOutputSerdeForge serdeMayArray(EPType type, SerdeProviderAdditionalInfo info) {
+        if (type != EPTypeNull.INSTANCE && ((EPTypeClass) type).getType().isArray()) {
+            EPTypeClass component = JavaClassHelper.getArrayComponentType((EPTypeClass) type);
+            DataInputOutputSerde mkSerde = getMKSerdeClassForComponentType(component);
             return new DataInputOutputSerdeForgeSingleton(mkSerde.getClass());
         }
         return serdeForClass(type, info);
     }
 
-    private DataInputOutputSerdeForge[] serdeForClasses(Class[] sortCriteriaExpressions, SerdeProviderAdditionalInfo additionalInfo) {
+    private DataInputOutputSerdeForge[] serdeForClasses(EPType[] sortCriteriaExpressions, SerdeProviderAdditionalInfo additionalInfo) {
         DataInputOutputSerdeForge[] forges = new DataInputOutputSerdeForge[sortCriteriaExpressions.length];
         for (int i = 0; i < sortCriteriaExpressions.length; i++) {
             forges[i] = serdeForClass(sortCriteriaExpressions[i], additionalInfo);
@@ -130,27 +134,31 @@ public class SerdeCompileTimeResolverImpl implements SerdeCompileTimeResolver {
         return forges;
     }
 
-    private DataInputOutputSerdeForge serdeForClass(Class type, SerdeProviderAdditionalInfo additionalInfo) {
-        if (isJVMBasicBuiltin(type)) {
-            DataInputOutputSerde serde = VMBasicBuiltinSerdeFactory.getSerde(type);
+    private DataInputOutputSerdeForge serdeForClass(EPType type, SerdeProviderAdditionalInfo additionalInfo) {
+        if (type == EPTypeNull.INSTANCE) {
+            return DataInputOutputSerdeForgeNotApplicable.INSTANCE;
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        if (isJVMBasicBuiltin(typeClass.getType())) {
+            DataInputOutputSerde serde = VMBasicBuiltinSerdeFactory.getSerde(typeClass.getType());
             if (serde == null) {
-                throw new DataInputOutputSerdeException("Failed to find built-in serde for class " + type.getName());
+                throw new DataInputOutputSerdeException("Failed to find built-in serde for class " + typeClass.getType().getName());
             }
             return new DataInputOutputSerdeForgeSingleton(serde.getClass());
         }
 
         if (allowExtendedJVM) {
-            DataInputOutputSerde serde = VMExtendedBuiltinSerdeFactory.getSerde(type);
+            DataInputOutputSerde serde = VMExtendedBuiltinSerdeFactory.getSerde(typeClass);
             if (serde != null) {
                 return new DataInputOutputSerdeForgeSingleton(serde.getClass());
             }
         }
 
-        if (type == EPLMethodInvocationContext.class) {
+        if (typeClass.getType() == EPLMethodInvocationContext.class) {
             return new DataInputOutputSerdeForgeSingleton(DIOSkipSerde.class);
         }
 
-        SerdeProvision provision = SerdeCompileTimeResolverUtil.determineSerde(type, serdeProviders, allowSerializable, allowExternalizable, allowSerializationFallback, additionalInfo);
+        SerdeProvision provision = SerdeCompileTimeResolverUtil.determineSerde(typeClass, serdeProviders, allowSerializable, allowExternalizable, allowSerializationFallback, additionalInfo);
         return provision.toForge();
     }
 

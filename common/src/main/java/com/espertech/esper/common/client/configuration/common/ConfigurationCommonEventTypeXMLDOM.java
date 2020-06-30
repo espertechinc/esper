@@ -12,18 +12,20 @@ package com.espertech.esper.common.client.configuration.common;
 
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilderItemConsumer;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -54,6 +56,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * </p>
  */
 public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
+    /**
+     * Type information.
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ConfigurationCommonEventTypeXMLDOM.class);
+
     private String rootElementName;
 
     // Root element namespace.
@@ -287,7 +294,7 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
      * @param castToType is the type name of the type that the return value of the xpath expression is casted to
      */
     public void addXPathProperty(String name, String xpath, QName type, String castToType) {
-        Class castToTypeClass = null;
+        EPTypeClass castToTypeClass = null;
 
         if (castToType != null) {
             boolean isArray = false;
@@ -296,13 +303,14 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
                 castToType = castToType.replace("[]", "");
             }
 
-            castToTypeClass = JavaClassHelper.getClassForSimpleName(castToType, ClassForNameProviderDefault.INSTANCE);
-            if (castToTypeClass == null) {
+            Class castToTypeClazz = JavaClassHelper.getClassForSimpleName(castToType, ClassForNameProviderDefault.INSTANCE);
+            if (castToTypeClazz == null) {
                 throw new ConfigurationException("Invalid cast-to type for xpath expression named '" + name + "', the type is not recognized");
             }
+            castToTypeClass = ClassHelperGenericType.getClassEPType(castToTypeClazz);
 
             if (isArray) {
-                castToTypeClass = Array.newInstance(castToTypeClass, 0).getClass();
+                castToTypeClass = JavaClassHelper.getArrayType(castToTypeClass);
             }
         }
 
@@ -433,10 +441,15 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
      * Descriptor class for event properties that are resolved via XPath-expression.
      */
     public static class XPathPropertyDesc implements Serializable {
+        /**
+         * Type information.
+         */
+        public final static EPTypeClass EPTYPE = new EPTypeClass(XPathPropertyDesc.class);
+
         private String name;
         private String xpath;
         private QName type;
-        private Class optionalCastToType;
+        private EPTypeClass optionalCastToType;
         private String optionaleventTypeName;
         private static final long serialVersionUID = -4141721949296588319L;
 
@@ -464,7 +477,7 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
          * @param type               is a javax.xml.xpath.XPathConstants constant
          * @param optionalCastToType if non-null then the return value of the xpath expression is cast to this value
          */
-        public XPathPropertyDesc(String name, String xpath, QName type, Class optionalCastToType) {
+        public XPathPropertyDesc(String name, String xpath, QName type, EPTypeClass optionalCastToType) {
             this.name = name;
             this.xpath = xpath;
             this.type = type;
@@ -518,7 +531,7 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
          *
          * @return class to cast result of xpath expression to
          */
-        public Class getOptionalCastToType() {
+        public EPTypeClass getOptionalCastToType() {
             return optionalCastToType;
         }
 
@@ -543,7 +556,7 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
             this.type = type;
         }
 
-        public void setOptionalCastToType(Class optionalCastToType) {
+        public void setOptionalCastToType(EPTypeClass optionalCastToType) {
             this.optionalCastToType = optionalCastToType;
         }
 
@@ -556,9 +569,9 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         }
 
         public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
-            return new CodegenSetterBuilder(XPathPropertyDesc.class, XPathPropertyDesc.class, "desc", parent, scope)
+            return new CodegenSetterBuilder(XPathPropertyDesc.EPTYPE, XPathPropertyDesc.class, "desc", parent, scope)
                 .constant("name", name)
-                .expression("type", newInstance(QName.class, constant(type.getNamespaceURI()), constant(type.getLocalPart()), constant(type.getPrefix())))
+                .expression("type", newInstance(EPTypePremade.QNAME.getEPType(), constant(type.getNamespaceURI()), constant(type.getLocalPart()), constant(type.getPrefix())))
                 .constant("xpath", xpath)
                 .constant("optionaleventTypeName", optionaleventTypeName)
                 .constant("optionalCastToType", optionalCastToType)
@@ -628,7 +641,7 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
 
     public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
         CodegenSetterBuilderItemConsumer<XPathPropertyDesc> xPathBuild = (o, parentXPath, scopeXPath) -> o.toExpression(parentXPath, scopeXPath);
-        return new CodegenSetterBuilder(ConfigurationCommonEventTypeXMLDOM.class, ConfigurationCommonEventTypeXMLDOM.class, "xmlconfig", parent, scope)
+        return new CodegenSetterBuilder(ConfigurationCommonEventTypeXMLDOM.EPTYPE, ConfigurationCommonEventTypeXMLDOM.class, "xmlconfig", parent, scope)
             .constant("rootElementName", rootElementName)
             .map("xPathProperties", xPathProperties, xPathBuild)
             .mapOfConstants("namespacePrefixes", namespacePrefixes)

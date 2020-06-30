@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.wrap;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -45,9 +47,9 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethod getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
-            .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
-            .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EventBean.EPTYPE, "theEvent").getBlock()
+            .declareVarWCast(DecoratingEventBean.EPTYPE, "wrapperEvent", "theEvent")
+            .declareVar(EventBean.EPTYPE, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
             .ifRefNullReturnNull("wrappedEvent")
             .methodReturn(underlyingGetter.eventBeanGetCodegen(ref("wrappedEvent"), codegenMethodScope, codegenClassScope));
     }
@@ -69,9 +71,9 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
-            .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
-            .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EventBean.EPTYPE, "theEvent").getBlock()
+            .declareVarWCast(DecoratingEventBean.EPTYPE, "wrapperEvent", "theEvent")
+            .declareVar(EventBean.EPTYPE, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
             .ifRefNullReturnNull("wrappedEvent")
             .methodReturn(underlyingGetter.eventBeanFragmentCodegen(ref("wrappedEvent"), codegenMethodScope, codegenClassScope));
     }
@@ -89,10 +91,10 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "und");
-        Class undType = wrapperEventType.getUnderlyingEventType().getUnderlyingType();
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "und");
+        EPTypeClass undType = wrapperEventType.getUnderlyingEventType().getUnderlyingEPType();
         if (wrapperEventType.getUnderlyingType() == Pair.class) {
-            method.getBlock().declareVarWCast(Pair.class, "pair", "und")
+            method.getBlock().declareVarWCast(Pair.EPTYPE, "pair", "und")
                 .declareVar(undType, "wrapped", cast(undType, exprDotMethod(ref("pair"), "getFirst")))
                 .methodReturn(underlyingGetter.underlyingGetCodegen(ref("wrapped"), codegenMethodScope, codegenClassScope));
             return localMethod(method, ref("und"));

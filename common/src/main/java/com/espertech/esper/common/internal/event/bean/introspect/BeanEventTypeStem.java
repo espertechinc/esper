@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.introspect;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.PropertyResolutionStyle;
 import com.espertech.esper.common.internal.event.bean.core.PropertyStem;
@@ -21,14 +22,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class BeanEventTypeStem {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final ConfigurationCommonEventTypeBean optionalLegacyDef;
     private final String[] propertyNames;
     private final Map<String, PropertyInfo> simpleProperties;
     private final Map<String, PropertyStem> mappedPropertyDescriptors;
     private final Map<String, PropertyStem> indexedPropertyDescriptors;
-    private final Class[] superTypes;
-    private final Set<Class> deepSuperTypes;
+    private final EPTypeClass[] superTypes;
+    private final Set<EPTypeClass> deepSuperTypes;
     private final PropertyResolutionStyle propertyResolutionStyle;
 
     private final Map<String, List<PropertyInfo>> simpleSmartPropertyTable;
@@ -38,7 +39,7 @@ public class BeanEventTypeStem {
     private final EventPropertyDescriptor[] propertyDescriptors;
     private final Map<String, EventPropertyDescriptor> propertyDescriptorMap;
 
-    public BeanEventTypeStem(Class clazz, ConfigurationCommonEventTypeBean optionalLegacyDef, String[] propertyNames, Map<String, PropertyInfo> simpleProperties, Map<String, PropertyStem> mappedPropertyDescriptors, Map<String, PropertyStem> indexedPropertyDescriptors, Class[] superTypes, Set<Class> deepSuperTypes, PropertyResolutionStyle propertyResolutionStyle, Map<String, List<PropertyInfo>> simpleSmartPropertyTable, Map<String, List<PropertyInfo>> indexedSmartPropertyTable, Map<String, List<PropertyInfo>> mappedSmartPropertyTable, EventPropertyDescriptor[] propertyDescriptors, Map<String, EventPropertyDescriptor> propertyDescriptorMap) {
+    public BeanEventTypeStem(EPTypeClass clazz, ConfigurationCommonEventTypeBean optionalLegacyDef, String[] propertyNames, Map<String, PropertyInfo> simpleProperties, Map<String, PropertyStem> mappedPropertyDescriptors, Map<String, PropertyStem> indexedPropertyDescriptors, EPTypeClass[] superTypes, Set<EPTypeClass> deepSuperTypes, PropertyResolutionStyle propertyResolutionStyle, Map<String, List<PropertyInfo>> simpleSmartPropertyTable, Map<String, List<PropertyInfo>> indexedSmartPropertyTable, Map<String, List<PropertyInfo>> mappedSmartPropertyTable, EventPropertyDescriptor[] propertyDescriptors, Map<String, EventPropertyDescriptor> propertyDescriptorMap) {
         this.clazz = clazz;
         this.optionalLegacyDef = optionalLegacyDef;
         this.propertyNames = propertyNames;
@@ -55,7 +56,7 @@ public class BeanEventTypeStem {
         this.propertyDescriptorMap = propertyDescriptorMap;
     }
 
-    public Class getClazz() {
+    public EPTypeClass getClazz() {
         return clazz;
     }
 
@@ -79,11 +80,11 @@ public class BeanEventTypeStem {
         return indexedPropertyDescriptors;
     }
 
-    public Class[] getSuperTypes() {
+    public EPTypeClass[] getSuperTypes() {
         return superTypes;
     }
 
-    public Set<Class> getDeepSuperTypes() {
+    public Set<EPTypeClass> getDeepSuperTypes() {
         return deepSuperTypes;
     }
 

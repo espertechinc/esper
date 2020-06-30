@@ -38,11 +38,11 @@ public class ViewableActivatorFilterForge implements ViewableActivatorForge {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ViewableActivatorFilter.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ViewableActivatorFilter.EPTYPE, this.getClass(), classScope);
 
         CodegenMethod makeFilter = filterSpecCompiled.makeCodegen(method, symbols, classScope);
-        method.getBlock().declareVar(FilterSpecActivatable.class, "filterSpecCompiled", localMethod(makeFilter))
-                .declareVar(ViewableActivatorFilter.class, "activator", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createFilter"))
+        method.getBlock().declareVar(FilterSpecActivatable.EPTYPE, "filterSpecCompiled", localMethod(makeFilter))
+                .declareVar(ViewableActivatorFilter.EPTYPE, "activator", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createFilter"))
                 .exprDotMethod(ref("activator"), "setFilterSpec", ref("filterSpecCompiled"))
                 .exprDotMethod(ref("activator"), "setCanIterate", constant(canIterate))
                 .exprDotMethod(ref("activator"), "setStreamNumFromClause", constant(streamNumFromClause))

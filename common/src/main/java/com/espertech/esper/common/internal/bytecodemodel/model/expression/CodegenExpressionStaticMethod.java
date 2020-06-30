@@ -40,7 +40,7 @@ public class CodegenExpressionStaticMethod implements CodegenExpression {
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (target != null) {
-            appendClassName(builder, target, null, imports);
+            appendClassName(builder, target, imports);
         } else {
             builder.append(targetClassName);
         }

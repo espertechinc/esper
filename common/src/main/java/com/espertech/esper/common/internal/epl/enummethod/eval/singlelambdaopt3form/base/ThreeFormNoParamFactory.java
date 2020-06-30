@@ -17,15 +17,15 @@ import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDesc;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDescFactory;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeLambdaDesc;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.util.List;
 
 public class ThreeFormNoParamFactory implements EnumForgeDescFactory {
-    private final EPType returnType;
+    private final EPChainableType returnType;
     private final ForgeFunction function;
 
-    public ThreeFormNoParamFactory(EPType returnType, ForgeFunction function) {
+    public ThreeFormNoParamFactory(EPChainableType returnType, ForgeFunction function) {
         this.returnType = returnType;
         this.function = function;
     }

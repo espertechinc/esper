@@ -28,7 +28,7 @@ public class AggSvcGroupByReclaimAgedEvalFuncFactoryVariableForge implements Agg
 
     public CodegenExpressionField make(CodegenClassScope classScope) {
         CodegenExpression resolve = VariableDeployTimeResolver.makeResolveVariable(variableMetaData, EPStatementInitServices.REF);
-        return classScope.addFieldUnshared(true, AggSvcGroupByReclaimAgedEvalFuncFactoryVariable.class,
-                newInstance(AggSvcGroupByReclaimAgedEvalFuncFactoryVariable.class, resolve));
+        return classScope.addFieldUnshared(true, AggSvcGroupByReclaimAgedEvalFuncFactoryVariable.EPTYPE,
+                newInstance(AggSvcGroupByReclaimAgedEvalFuncFactoryVariable.EPTYPE, resolve));
     }
 }

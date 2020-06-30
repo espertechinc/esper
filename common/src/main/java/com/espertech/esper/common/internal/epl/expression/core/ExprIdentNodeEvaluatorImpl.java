@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -29,13 +33,13 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     private int streamNum;
     private final EventPropertyGetterSPI propertyGetter;
-    protected final Class returnType;
+    protected final EPType returnType;
     private final ExprIdentNode identNode;
     private final EventTypeSPI eventType;
     private boolean optionalEvent;
     private boolean audit;
 
-    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode, EventTypeSPI eventType, boolean optionalEvent, boolean audit) {
+    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, EPType returnType, ExprIdentNode identNode, EventTypeSPI eventType, boolean optionalEvent, boolean audit) {
         this.streamNum = streamNum;
         this.propertyGetter = propertyGetter;
         this.returnType = returnType;
@@ -57,32 +61,28 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         return propertyGetter.get(event);
     }
 
-    public Class getCodegenReturnType(Class requiredType) {
-        return requiredType == Object.class ? Object.class : returnType;
-    }
-
-    public CodegenExpression codegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression codegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
 
         if (!audit) {
             return codegenGet(requiredType, parent, symbols, classScope);
         }
 
-        Class targetType = getCodegenReturnType(requiredType);
+        EPTypeClass targetType = getCodegenReturnType(requiredType);
         CodegenMethod method = parent.makeChild(targetType, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(targetType, "value", codegenGet(requiredType, method, symbols, classScope))
-                .expression(exprDotMethodChain(symbols.getAddExprEvalCtx(method)).add("getAuditProvider").add("property", constant(identNode.getResolvedPropertyName()), ref("value"), symbols.getAddExprEvalCtx(method)))
-                .methodReturn(ref("value"));
+            .declareVar(targetType, "value", codegenGet(requiredType, method, symbols, classScope))
+            .expression(exprDotMethodChain(symbols.getAddExprEvalCtx(method)).add("getAuditProvider").add("property", constant(identNode.getResolvedPropertyName()), ref("value"), symbols.getAddExprEvalCtx(method)))
+            .methodReturn(ref("value"));
         return localMethod(method);
     }
 
-    private CodegenExpression codegenGet(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    private CodegenExpression codegenGet(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
 
         if (returnType == null) {
             return constantNull();
         }
 
-        Class castTargetType = getCodegenReturnType(requiredType);
+        EPTypeClass castTargetType = getCodegenReturnType(requiredType);
         boolean useUnderlying = exprSymbol.isAllowUnderlyingReferences() && !identNode.getResolvedPropertyName().contains("?") && !(eventType instanceof WrapperEventType) && !(eventType instanceof VariantEventType);
         if (useUnderlying && !optionalEvent) {
             CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(codegenMethodScope, streamNum, eventType, false);
@@ -95,10 +95,10 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         if (useUnderlying) {
             CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(method, streamNum, eventType, true);
             block.ifNullReturnNull(underlying)
-                    .methodReturn(CodegenLegoCast.castSafeFromObjectType(castTargetType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(castTargetType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
         } else {
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(method);
-            method.getBlock().declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)));
+            method.getBlock().declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)));
             if (optionalEvent) {
                 block.ifRefNullReturnNull("event");
             }
@@ -108,7 +108,7 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         return localMethod(method);
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return returnType;
     }
 
@@ -143,4 +143,10 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         return eventType;
     }
 
+    private EPTypeClass getCodegenReturnType(EPTypeClass requiredType) {
+        if (returnType == null || returnType == EPTypeNull.INSTANCE || requiredType.getType() == Object.class) {
+            return EPTypePremade.OBJECT.getEPType();
+        }
+        return (EPTypeClass) returnType;
+    }
 }

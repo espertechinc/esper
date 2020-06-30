@@ -11,31 +11,28 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.arrayOf;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base.*;
-import com.espertech.esper.common.internal.rettype.ClassMultiValuedEPType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
-
-import java.util.function.Function;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 public class ExprDotForgeArrayOf extends ExprDotForgeLambdaThreeForm {
 
-    protected EPType initAndNoParamsReturnType(EventType inputEventType, Class collectionComponentType) {
-        return EPTypeHelper.array(collectionComponentType);
+    protected EPChainableType initAndNoParamsReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
+        return EPChainableTypeHelper.array(collectionComponentType);
     }
 
-    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPType type, StatementCompileTimeServices services) {
+    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPChainableType type, StatementCompileTimeServices services) {
         return streamCountIncoming -> new EnumArrayOfScalarNoParams(componentType(type));
     }
 
-    protected Function<ExprDotEvalParamLambda, EPType> initAndSingleParamReturnType(EventType inputEventType, Class collectionComponentType) {
-        if (inputEventType != null) {
-            return lambda -> EPTypeHelper.array(lambda.getBodyForge().getEvaluationType());
-        }
-        return lambda -> EPTypeHelper.array(collectionComponentType);
+    protected ThreeFormInitFunction initAndSingleParamReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
+        return lambda -> {
+            EPTypeClass type = validateNonNull(lambda.getBodyForge().getEvaluationType());
+            return EPChainableTypeHelper.array(type);
+        };
     }
 
     protected ThreeFormEventPlainFactory.ForgeFunction singleParamEventPlain(EnumMethodEnum enumMethod) {
@@ -44,15 +41,13 @@ public class ExprDotForgeArrayOf extends ExprDotForgeLambdaThreeForm {
 
     protected ThreeFormEventPlusFactory.ForgeFunction singleParamEventPlus(EnumMethodEnum enumMethod) {
         return (lambda, indexEventType, numParameters, typeInfo, services) -> new EnumArrayOfEventPlus(lambda, indexEventType, numParameters, componentType(typeInfo));
-
     }
 
     protected ThreeFormScalarFactory.ForgeFunction singleParamScalar(EnumMethodEnum enumMethod) {
         return (lambda, fieldType, numParams, typeInfo, services) -> new EnumArrayOfScalar(lambda, fieldType, numParams, componentType(typeInfo));
     }
 
-    private Class componentType(EPType type) {
-        ClassMultiValuedEPType mv = (ClassMultiValuedEPType) type;
-        return mv.getComponent();
+    private EPTypeClass componentType(EPChainableType type) {
+        return EPChainableTypeHelper.getCollectionOrArrayComponentTypeOrNull(type);
     }
 }

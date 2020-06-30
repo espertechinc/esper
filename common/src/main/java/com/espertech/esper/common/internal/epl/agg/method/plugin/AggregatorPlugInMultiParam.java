@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunction;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionFactory;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeMultiParam;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -37,9 +39,9 @@ public class AggregatorPlugInMultiParam implements AggregatorMethod {
     public AggregatorPlugInMultiParam(AggregationForgeFactoryPlugin factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, AggregationFunctionModeMultiParam mode) {
         this.mode = mode;
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationFunctionFactory();
-        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationFunctionFactory.class, injectionStrategy.getInitializationExpression(classScope));
+        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationFunctionFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
 
-        plugin = membersColumnized.addMember(col, AggregationFunction.class, "plugin");
+        plugin = membersColumnized.addMember(col, AggregationFunction.EPTYPE, "plugin");
         rowCtor.getBlock().assignRef(plugin, exprDotMethod(factoryField, "newAggregator", constantNull()));
     }
 
@@ -51,11 +53,11 @@ public class AggregatorPlugInMultiParam implements AggregatorMethod {
         apply(false, method, symbols, forges, classScope);
     }
 
-    public void applyTableEnterCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public void applyTableEnterCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(plugin, "enter", value);
     }
 
-    public void applyTableLeaveCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public void applyTableLeaveCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(plugin, "leave", value);
     }
 
@@ -84,11 +86,11 @@ public class AggregatorPlugInMultiParam implements AggregatorMethod {
         if (forges.length == 0) {
             expression = constantNull();
         } else if (forges.length == 1) {
-            expression = forges[0].evaluateCodegen(Object.class, method, symbols, classScope);
+            expression = forges[0].evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, symbols, classScope);
         } else {
-            method.getBlock().declareVar(Object[].class, "params", newArrayByLength(Object.class, constant(forges.length)));
+            method.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "params", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forges.length)));
             for (int i = 0; i < forges.length; i++) {
-                method.getBlock().assignArrayElement("params", constant(i), forges[i].evaluateCodegen(Object.class, method, symbols, classScope));
+                method.getBlock().assignArrayElement("params", constant(i), forges[i].evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, symbols, classScope));
             }
             expression = ref("params");
         }

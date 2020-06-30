@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
@@ -25,6 +27,8 @@ import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -681,15 +685,25 @@ public class EPLInsertInto {
             RegressionPath path = new RegressionPath();
             String stmtOneTxt = "@name('s1') insert into InZoneTwo select null as dummy from SupportBean";
             env.compileDeploy(stmtOneTxt, path);
-            assertTrue(env.statement("s1").getEventType().isProperty("dummy"));
+            assertNullTypeForDummyField(env.statement("s1").getEventType());
 
             String stmtTwoTxt = "@name('s2') select dummy from InZoneTwo";
             env.compileDeploy(stmtTwoTxt, path).addListener("s2");
+            assertNullTypeForDummyField(env.statement("s2").getEventType());
 
             env.sendEventBean(new SupportBean());
             assertNull(env.listener("s2").assertOneGetNewAndReset().get("dummy"));
 
             env.undeployAll();
+        }
+
+        private void assertNullTypeForDummyField(EventType eventType) {
+            String fieldName = "dummy";
+            assertTrue(eventType.isProperty(fieldName));
+            assertNull(eventType.getPropertyType(fieldName));
+            assertSame(EPTypeNull.INSTANCE, eventType.getPropertyEPType(fieldName));
+            EventPropertyDescriptor desc = eventType.getPropertyDescriptor(fieldName);
+            SupportEventPropUtil.assertPropEquals(new SupportEventPropDesc(fieldName, EPTypeNull.INSTANCE), desc);
         }
     }
 

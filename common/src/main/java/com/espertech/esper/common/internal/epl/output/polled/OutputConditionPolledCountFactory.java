@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.polled;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
  * of old events arrived is greater than a preset value.
  */
 public final class OutputConditionPolledCountFactory implements OutputConditionPolledFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionPolledCountFactory.class);
+
     private int eventRate;
     private Variable variable;
 

@@ -31,10 +31,10 @@ public class SubordWMatchExprLookupStrategyAllFilteredForge implements SubordWMa
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordWMatchExprLookupStrategyAllFilteredFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordWMatchExprLookupStrategyAllFilteredFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprEvaluator.class, "eval", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(exprEvaluator.getForge(), method, this.getClass(), classScope))
-                .methodReturn(newInstance(SubordWMatchExprLookupStrategyAllFilteredFactory.class, ref("eval")));
+                .declareVar(ExprEvaluator.EPTYPE, "eval", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(exprEvaluator.getForge(), method, this.getClass(), classScope))
+                .methodReturn(newInstance(SubordWMatchExprLookupStrategyAllFilteredFactory.EPTYPE, ref("eval")));
         return localMethod(method);
     }
 

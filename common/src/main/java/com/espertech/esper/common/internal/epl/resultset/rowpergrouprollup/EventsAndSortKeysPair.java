@@ -11,8 +11,11 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class EventsAndSortKeysPair {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventsAndSortKeysPair.class);
+
     private final EventBean[] events;
     private final Object[] sortKeys;
 

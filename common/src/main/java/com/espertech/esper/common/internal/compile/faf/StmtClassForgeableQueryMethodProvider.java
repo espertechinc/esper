@@ -59,32 +59,32 @@ public class StmtClassForgeableQueryMethodProvider implements StmtClassForgeable
 
             // build ctor
             List<CodegenTypedParam> ctorParms = new ArrayList<>();
-            ctorParms.add(new CodegenTypedParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef(), false));
+            ctorParms.add(new CodegenTypedParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef(), false));
             CodegenCtor providerCtor = new CodegenCtor(this.getClass(), includeDebugSymbols, ctorParms);
             CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
 
             // add query method member
             List<CodegenTypedParam> providerExplicitMembers = new ArrayList<>(2);
-            providerExplicitMembers.add(new CodegenTypedParam(FAFQueryMethod.class, MEMBERNAME_QUERYMETHOD));
+            providerExplicitMembers.add(new CodegenTypedParam(FAFQueryMethod.EPTYPE, MEMBERNAME_QUERYMETHOD));
 
             SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
-            CodegenMethod makeMethod = providerCtor.makeChildWithScope(FAFQueryMethod.class, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+            CodegenMethod makeMethod = providerCtor.makeChildWithScope(FAFQueryMethod.EPTYPE, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
             providerCtor.getBlock()
                     .staticMethod(packageScope.getFieldsClassNameOptional(), "init", EPStatementInitServices.REF)
                     .assignMember(MEMBERNAME_QUERYMETHOD, localMethod(makeMethod, EPStatementInitServices.REF));
             forge.makeMethod(makeMethod, symbols, classScope);
 
             // make provider methods
-            CodegenMethod getQueryMethod = CodegenMethod.makeParentNode(FAFQueryMethod.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getQueryMethod = CodegenMethod.makeParentNode(FAFQueryMethod.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getQueryMethod.getBlock().methodReturn(ref(MEMBERNAME_QUERYMETHOD));
 
             // add get-informational methods
-            CodegenMethod getQueryInformationals = CodegenMethod.makeParentNode(FAFQueryInformationals.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getQueryInformationals = CodegenMethod.makeParentNode(FAFQueryInformationals.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             FAFQueryInformationals queryInformationals = FAFQueryInformationals.from(packageScope.getSubstitutionParamsByNumber(), packageScope.getSubstitutionParamsByName());
             getQueryInformationals.getBlock().methodReturn(queryInformationals.make(getQueryInformationals, classScope));
 
             // add get-statement-fields method
-            CodegenMethod getSubstitutionFieldSetter = CodegenMethod.makeParentNode(FAFQueryMethodAssignerSetter.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getSubstitutionFieldSetter = CodegenMethod.makeParentNode(FAFQueryMethodAssignerSetter.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             StmtClassForgeableStmtFields.makeSubstitutionSetter(packageScope, getSubstitutionFieldSetter, classScope);
 
             // make provider methods
@@ -95,7 +95,7 @@ public class StmtClassForgeableQueryMethodProvider implements StmtClassForgeable
             CodegenStackGenerator.recursiveBuildStack(getSubstitutionFieldSetter, "getSubstitutionFieldSetter", methods);
 
             // render and compile
-            return new CodegenClass(CodegenClassType.FAFQUERYMETHODPROVIDER, FAFQueryMethodProvider.class, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            return new CodegenClass(CodegenClassType.FAFQUERYMETHODPROVIDER, FAFQueryMethodProvider.EPTYPE, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
         } catch (Throwable t) {
             throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " : " + t.getMessage(), t);
         }

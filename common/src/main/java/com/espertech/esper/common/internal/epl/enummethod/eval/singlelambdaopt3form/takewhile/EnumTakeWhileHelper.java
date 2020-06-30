@@ -11,12 +11,14 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.takewhile;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenNames;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoBooleanExpression;
 
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -56,9 +58,9 @@ public class EnumTakeWhileHelper {
         return all;
     }
 
-    public static void initBlockSizeOneScalar(int numParameters, CodegenBlock block, CodegenExpression innerValue, Class evaluationType) {
+    public static void initBlockSizeOneScalar(int numParameters, CodegenBlock block, CodegenExpression innerValue, EPType evaluationType) {
         CodegenBlock blockSingle = block.ifCondition(equalsIdentity(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), constant(1)))
-            .declareVar(Object.class, "item", exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next"))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "item", exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next"))
             .assignArrayElement("props", constant(0), ref("item"));
         if (numParameters >= 2) {
             blockSingle.assignArrayElement("props", constant(1), constant(0));
@@ -66,22 +68,22 @@ public class EnumTakeWhileHelper {
         CodegenLegoBooleanExpression.codegenReturnValueIfNotNullAndNotPass(blockSingle, evaluationType, innerValue, staticMethod(Collections.class, "emptyList"));
         blockSingle.blockReturn(staticMethod(Collections.class, "singletonList", ref("item")));
 
-        block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class));
+        block.declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType()));
     }
 
-    public static void initBlockSizeOneEvent(CodegenBlock block, CodegenExpression innerValue, int streamNumLambda, Class evaluationType) {
+    public static void initBlockSizeOneEvent(CodegenBlock block, CodegenExpression innerValue, int streamNumLambda, EPTypeClass evaluationType) {
         CodegenBlock blockSingle = block.ifCondition(equalsIdentity(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), constant(1)))
-            .declareVar(EventBean.class, "item", cast(EventBean.class, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")))
+            .declareVar(EventBean.EPTYPE, "item", cast(EventBean.EPTYPE, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")))
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(streamNumLambda), ref("item"));
         CodegenLegoBooleanExpression.codegenReturnValueIfNotNullAndNotPass(blockSingle, evaluationType, innerValue, staticMethod(Collections.class, "emptyList"));
         blockSingle.blockReturn(staticMethod(Collections.class, "singletonList", ref("item")));
 
-        block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class));
+        block.declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType()));
     }
 
-    public static void initBlockSizeOneEventPlus(int numParameters, CodegenBlock block, CodegenExpression innerValue, int streamNumLambda, Class evaluationType) {
+    public static void initBlockSizeOneEventPlus(int numParameters, CodegenBlock block, CodegenExpression innerValue, int streamNumLambda, EPTypeClass evaluationType) {
         CodegenBlock blockSingle = block.ifCondition(equalsIdentity(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), constant(1)))
-            .declareVar(EventBean.class, "item", cast(EventBean.class, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")))
+            .declareVar(EventBean.EPTYPE, "item", cast(EventBean.EPTYPE, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")))
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(streamNumLambda), ref("item"))
             .assignArrayElement("props", constant(0), constant(0));
         if (numParameters > 2) {
@@ -90,6 +92,6 @@ public class EnumTakeWhileHelper {
         CodegenLegoBooleanExpression.codegenReturnValueIfNotNullAndNotPass(blockSingle, evaluationType, innerValue, staticMethod(Collections.class, "emptyList"));
         blockSingle.blockReturn(staticMethod(Collections.class, "singletonList", ref("item")));
 
-        block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class));
+        block.declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType()));
     }
 }

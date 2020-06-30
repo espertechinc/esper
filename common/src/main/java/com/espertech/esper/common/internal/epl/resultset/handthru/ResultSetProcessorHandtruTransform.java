@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.handthru;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.TransformEventMethod;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
  * Method to transform an event based on the select expression.
  */
 public class ResultSetProcessorHandtruTransform implements TransformEventMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorHandtruTransform.class);
+
     private final ResultSetProcessor resultSetProcessor;
     private final EventBean[] newData;
 

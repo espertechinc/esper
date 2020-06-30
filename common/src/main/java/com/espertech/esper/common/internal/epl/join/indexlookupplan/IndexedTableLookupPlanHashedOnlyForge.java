@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.join.indexlookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -34,10 +36,10 @@ import java.util.Collections;
 public class IndexedTableLookupPlanHashedOnlyForge extends TableLookupPlanForge {
     private final QueryGraphValueEntryHashKeyedForge[] hashKeys;
     private final QueryPlanIndexForge indexSpecs;
-    private final Class[] optionalCoercionTypes;
+    private final EPTypeClass[] optionalCoercionTypes;
     private final MultiKeyClassRef optionalEPLTableLookupMultiKey;
 
-    public IndexedTableLookupPlanHashedOnlyForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryHashKeyedForge[] hashKeys, QueryPlanIndexForge indexSpecs, Class[] optionalCoercionTypes, MultiKeyClassRef optionalEPLTableLookupMultiKey) {
+    public IndexedTableLookupPlanHashedOnlyForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryHashKeyedForge[] hashKeys, QueryPlanIndexForge indexSpecs, EPTypeClass[] optionalCoercionTypes, MultiKeyClassRef optionalEPLTableLookupMultiKey) {
         super(lookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, new TableLookupIndexReqKey[]{indexNum});
         this.hashKeys = hashKeys;
         this.indexSpecs = indexSpecs;
@@ -55,8 +57,8 @@ public class IndexedTableLookupPlanHashedOnlyForge extends TableLookupPlanForge 
             " keyProperty=" + getKeyDescriptor();
     }
 
-    public Class typeOfPlanFactory() {
-        return IndexedTableLookupPlanHashedOnlyFactory.class;
+    public EPTypeClass typeOfPlanFactory() {
+        return IndexedTableLookupPlanHashedOnlyFactory.EPTYPE;
     }
 
     public QueryGraphValueEntryHashKeyedForge[] getHashKeys() {
@@ -66,10 +68,10 @@ public class IndexedTableLookupPlanHashedOnlyForge extends TableLookupPlanForge 
     public Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
 
         ExprForge[] forges = QueryGraphValueEntryHashKeyedForge.getForges(hashKeys);
-        Class[] types = ExprNodeUtilityQuery.getExprResultTypes(forges);
+        EPType[] types = ExprNodeUtilityQuery.getExprResultTypes(forges);
 
         // we take coercion types from the index plan as the index plan is always accurate but not always available (for tables it is not)
-        Class[] coercionTypes;
+        EPTypeClass[] coercionTypes;
         QueryPlanIndexItemForge indexForge = indexSpecs.getItems().get(getIndexNum()[0]);
         if (indexForge != null) {
             coercionTypes = indexForge.getHashTypes();

@@ -79,10 +79,10 @@ public class EventJsonAdapter {
                 "Json schema field adapter class does not implement interface 'JsonFieldAdapterString");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "@JsonSchemaField(name=mydate, adapter='" + InvalidAdapterJSONDate.class.getName() + "') create json schema JsonEvent(mydate Date)",
-                "Json schema field adapter class 'InvalidAdapterJSONDate' does not have a default constructor");
+                "Json schema field adapter class '" + InvalidAdapterJSONDate.class.getName() + "' does not have a default constructor");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "@JsonSchemaField(name=mydate, adapter='" + SupportJsonFieldAdapterStringDate.class.getSimpleName() + "') create json schema JsonEvent(mydate String)",
-                "Json schema field adapter class 'SupportJsonFieldAdapterStringDate' mismatches the return type of the parse method, expected 'String' but found 'Date'");
+                "Json schema field adapter class '" + SupportJsonFieldAdapterStringDate.class.getName() + "' mismatches the return type of the parse method, expected 'String' but found 'Date'");
         }
     }
 

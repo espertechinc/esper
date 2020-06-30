@@ -11,9 +11,13 @@
 package com.espertech.esper.common.internal.context.activator;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 
 public interface ViewableActivator {
+    EPTypeClass EPTYPE = new EPTypeClass(ViewableActivator.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(ViewableActivator[].class);
+
     EventType getEventType();
 
     ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient);

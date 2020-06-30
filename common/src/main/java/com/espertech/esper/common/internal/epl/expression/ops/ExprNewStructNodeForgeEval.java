@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -44,15 +45,15 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
     }
 
     public static CodegenExpression codegen(ExprNewStructNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Map.class, ExprNewStructNodeForgeEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.MAP.getEPType(), ExprNewStructNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Map.class, "props", newInstance(HashMap.class));
+                .declareVar(EPTypePremade.MAP.getEPType(), "props", newInstance(EPTypePremade.HASHMAP.getEPType()));
         ExprNode[] nodes = forge.getForgeRenderable().getChildNodes();
         String[] columnNames = forge.getForgeRenderable().getColumnNames();
         for (int i = 0; i < nodes.length; i++) {
             ExprForge child = nodes[i].getForge();
-            block.exprDotMethod(ref("props"), "put", constant(columnNames[i]), child.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
+            block.exprDotMethod(ref("props"), "put", constant(columnNames[i]), child.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope));
         }
         block.methodReturn(ref("props"));
         return localMethod(methodNode);
@@ -68,12 +69,12 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
     }
 
     public static CodegenExpression codegenTypeableSingle(ExprNewStructNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Object[].class, ExprNewStructNodeForgeEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.OBJECTARRAY.getEPType(), ExprNewStructNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "rows", newArrayByLength(Object.class, constant(forge.getForgeRenderable().getColumnNames().length)));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "rows", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forge.getForgeRenderable().getColumnNames().length)));
         for (int i = 0; i < forge.getForgeRenderable().getColumnNames().length; i++) {
-            block.assignArrayElement("rows", constant(i), forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
+            block.assignArrayElement("rows", constant(i), forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope));
         }
         block.methodReturn(ref("rows"));
         return localMethod(methodNode);

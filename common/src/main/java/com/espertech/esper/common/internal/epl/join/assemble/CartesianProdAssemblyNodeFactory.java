@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.assemble;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,6 +24,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Assembly node for an event stream that is a branch with a two or more child nodes (required and optional) below it.
  */
 public class CartesianProdAssemblyNodeFactory extends BaseAssemblyNodeFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CartesianProdAssemblyNodeFactory.class);
+
     private final int[] childStreamIndex; // maintain mapping of stream number to index in array
     private final boolean allSubStreamsOptional;
 
@@ -55,6 +58,6 @@ public class CartesianProdAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(CartesianProdAssemblyNodeFactory.class, constant(streamNum), constant(numStreams), constant(allSubStreamsOptional));
+        return newInstance(CartesianProdAssemblyNodeFactory.EPTYPE, constant(streamNum), constant(numStreams), constant(allSubStreamsOptional));
     }
 }

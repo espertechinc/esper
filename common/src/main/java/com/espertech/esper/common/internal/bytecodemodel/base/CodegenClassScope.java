@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInnerClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
@@ -30,7 +31,7 @@ public class CodegenClassScope extends CodegenScope {
         this.outermostClassName = outermostClassName;
     }
 
-    public <T> CodegenExpressionField addFieldUnshared(boolean isFinal, Class<? extends T> clazz, CodegenExpression assignScopedPackageInitMethod) {
+    public CodegenExpressionField addFieldUnshared(boolean isFinal, EPTypeClass clazz, CodegenExpression assignScopedPackageInitMethod) {
         return packageScope.addFieldUnshared(isFinal, clazz, assignScopedPackageInitMethod);
     }
 
@@ -38,7 +39,7 @@ public class CodegenClassScope extends CodegenScope {
         return packageScope.addOrGetFieldSharable(sharable);
     }
 
-    public CodegenExpressionField addOrGetFieldWellKnown(CodegenFieldName fieldName, Class type) {
+    public CodegenExpressionField addOrGetFieldWellKnown(CodegenFieldName fieldName, EPTypeClass type) {
         return packageScope.addOrGetFieldWellKnown(fieldName, type);
     }
 
@@ -62,7 +63,7 @@ public class CodegenClassScope extends CodegenScope {
         return additionalInnerClasses;
     }
 
-    public CodegenField addSubstitutionParameter(String name, Class type) {
+    public CodegenField addSubstitutionParameter(String name, EPTypeClass type) {
         return packageScope.addSubstitutionParameter(name, type);
     }
 

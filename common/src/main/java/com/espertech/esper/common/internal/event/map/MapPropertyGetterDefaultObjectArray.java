@@ -36,7 +36,7 @@ public class MapPropertyGetterDefaultObjectArray extends MapPropertyGetterDefaul
 
     protected CodegenExpression handleCreateFragmentCodegen(CodegenExpression value, CodegenClassScope codegenClassScope) {
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(fragmentEventType, EPStatementInitServices.REF));
+        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fragmentEventType, EPStatementInitServices.REF));
         return staticMethod(BaseNestableEventUtil.class, "handleBNCreateFragmentObjectArray", value, eventType, factory);
     }
 }

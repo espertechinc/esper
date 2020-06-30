@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.createwindow;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,13 +34,13 @@ public class StmtClassForgeableAIFactoryProviderCreateNW extends StmtClassForgea
         this.namedWindowName = namedWindowName;
     }
 
-    protected Class typeOfFactory() {
-        return StatementAgentInstanceFactoryCreateNW.class;
+    protected EPTypeClass typeOfFactory() {
+        return StatementAgentInstanceFactoryCreateNW.EPTYPE;
     }
 
     protected CodegenMethod codegenConstructorInit(CodegenMethodScope parent, CodegenClassScope classScope) {
         SAIFFInitializeSymbol saiffInitializeSymbol = new SAIFFInitializeSymbol();
-        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
+        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
         method.getBlock()
                 .exprDotMethod(REF_STMTINITSVC, "activateNamedWindow", constant(namedWindowName))
                 .methodReturn(localMethod(forge.initializeCodegen(method, saiffInitializeSymbol, classScope)));

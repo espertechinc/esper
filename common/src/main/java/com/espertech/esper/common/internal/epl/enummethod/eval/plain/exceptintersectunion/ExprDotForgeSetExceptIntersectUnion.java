@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.exceptintersectunion;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParam;
@@ -26,25 +27,25 @@ import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEnumer
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeUtility;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.rettype.ClassMultiValuedEPType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.List;
 
 public class ExprDotForgeSetExceptIntersectUnion extends ExprDotForgeEnumMethodBase {
 
-    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext)
+    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, ExprValidationContext validationContext)
         throws ExprValidationException {
         ExprNode first = parameters.get(0);
 
         ExprDotEnumerationSourceForge enumSrc = ExprDotNodeUtility.getEnumerationSource(first, validationContext.getStreamTypeService(), true, validationContext.isDisablePropertyExpressionEventCollCache(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
-        EPType type;
+        EPChainableType type;
         if (inputEventType != null) {
-            type = EPTypeHelper.collectionOfEvents(inputEventType);
+            type = EPChainableTypeHelper.collectionOfEvents(inputEventType);
         } else {
-            type = EPTypeHelper.collectionOfSingleValue(collectionComponentType);
+            type = EPChainableTypeHelper.collectionOfSingleValue(collectionComponentType);
         }
 
         if (inputEventType != null) {
@@ -62,14 +63,19 @@ public class ExprDotForgeSetExceptIntersectUnion extends ExprDotForgeEnumMethodB
                 }
             }
         } else {
-            Class setType = enumSrc.getEnumeration() == null ? null : enumSrc.getEnumeration().getComponentTypeCollection();
+            Class setType;
+            if (enumSrc.getEnumeration() == null || enumSrc.getEnumeration().getComponentTypeCollection() == null) {
+                setType = null;
+            } else {
+                setType = enumSrc.getEnumeration().getComponentTypeCollection().getType();
+            }
             if (setType == null) {
                 String message = "Enumeration method '" + enumMethodUsedName + "' requires an expression yielding a " +
-                    "collection of values of type '" + collectionComponentType.getSimpleName() + "' as input parameter";
+                    "collection of values of type '" + collectionComponentType.getType().getSimpleName() + "' as input parameter";
                 throw new ExprValidationException(message);
             }
-            if (!JavaClassHelper.isAssignmentCompatible(setType, collectionComponentType)) {
-                String message = "Enumeration method '" + enumMethodUsedName + "' expects scalar type '" + collectionComponentType.getSimpleName() + "' but receives event type '" + setType.getSimpleName() + "'";
+            if (!JavaClassHelper.isAssignmentCompatible(setType, collectionComponentType.getType())) {
+                String message = "Enumeration method '" + enumMethodUsedName + "' expects scalar type '" + collectionComponentType.getType().getSimpleName() + "' but receives event type '" + setType.getSimpleName() + "'";
                 throw new ExprValidationException(message);
             }
         }
@@ -79,10 +85,10 @@ public class ExprDotForgeSetExceptIntersectUnion extends ExprDotForgeEnumMethodB
 
     private static class EnumForgeDescFactoryEIU implements EnumForgeDescFactory {
         private final EnumMethodEnum enumMethod;
-        private final EPType type;
+        private final EPChainableType type;
         private final ExprDotEnumerationSourceForge enumSrc;
 
-        public EnumForgeDescFactoryEIU(EnumMethodEnum enumMethod, EPType type, ExprDotEnumerationSourceForge enumSrc) {
+        public EnumForgeDescFactoryEIU(EnumMethodEnum enumMethod, EPChainableType type, ExprDotEnumerationSourceForge enumSrc) {
             this.enumMethod = enumMethod;
             this.type = type;
             this.enumSrc = enumSrc;
@@ -93,7 +99,7 @@ public class ExprDotForgeSetExceptIntersectUnion extends ExprDotForgeEnumMethodB
         }
 
         public EnumForgeDesc makeEnumForgeDesc(List<ExprDotEvalParam> bodiesAndParameters, int streamCountIncoming, StatementCompileTimeServices services) {
-            boolean scalar = type instanceof ClassMultiValuedEPType;
+            boolean scalar = type instanceof EPChainableTypeClass;
             EnumForge forge;
             if (enumMethod == EnumMethodEnum.UNION) {
                 forge = new EnumUnionForge(streamCountIncoming, enumSrc.getEnumeration(), scalar);

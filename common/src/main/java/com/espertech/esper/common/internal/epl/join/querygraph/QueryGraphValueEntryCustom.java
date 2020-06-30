@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 
 public class QueryGraphValueEntryCustom implements QueryGraphValueEntry {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValueEntryCustom.class);
+
     private Map<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> operations;
 
     public void setOperations(Map<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> operations) {

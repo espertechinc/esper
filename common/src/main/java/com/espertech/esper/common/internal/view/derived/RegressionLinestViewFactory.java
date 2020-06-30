@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link RegressionLinestView} instances.
  */
 public class RegressionLinestViewFactory implements ViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RegressionLinestViewFactory.class);
 
     protected ExprEvaluator expressionXEval;
     protected ExprEvaluator expressionYEval;

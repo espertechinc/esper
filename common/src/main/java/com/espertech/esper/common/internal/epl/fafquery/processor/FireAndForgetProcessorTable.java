@@ -11,12 +11,15 @@
 package com.espertech.esper.common.internal.epl.fafquery.processor;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 
 public class FireAndForgetProcessorTable extends FireAndForgetProcessor {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FireAndForgetProcessorTable.class);
+
     private Table table;
 
     public void setTable(Table table) {

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -62,8 +64,9 @@ public class ExprNewStructNode extends ExprNodeBase {
             if (eventTypeResult != null) {
                 eventType.put(columnNames[i], eventTypeResult);
             } else {
-                Class classResult = JavaClassHelper.getBoxedType(getChildNodes()[i].getForge().getEvaluationType());
-                eventType.put(columnNames[i], classResult);
+                EPType type = getChildNodes()[i].getForge().getEvaluationType();
+                EPType typeResult = type == null ? EPTypeNull.INSTANCE : JavaClassHelper.getBoxedType(type);
+                eventType.put(columnNames[i], typeResult);
             }
         }
         forge = new ExprNewStructNodeForge(this, isAllConstants, eventType);

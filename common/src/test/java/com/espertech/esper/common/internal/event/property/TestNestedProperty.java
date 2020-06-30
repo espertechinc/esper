@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.property;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
@@ -27,7 +28,6 @@ public class TestNestedProperty extends TestCase {
     private EventBean theEvent;
 
     public void setUp() {
-
         nested = new NestedProperty[2];
         nested[0] = makeProperty(new String[]{"nested", "nestedValue"});
         nested[1] = makeProperty(new String[]{"nested", "nestedNested", "nestedNestedValue"});
@@ -44,8 +44,8 @@ public class TestNestedProperty extends TestCase {
     }
 
     public void testGetPropertyType() {
-        assertEquals(String.class, nested[0].getPropertyType((BeanEventType) theEvent.getEventType(), SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
-        assertEquals(String.class, nested[1].getPropertyType((BeanEventType) theEvent.getEventType(), SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
+        assertEquals(EPTypePremade.STRING.getEPType(), nested[0].getPropertyType((BeanEventType) theEvent.getEventType(), SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
+        assertEquals(EPTypePremade.STRING.getEPType(), nested[1].getPropertyType((BeanEventType) theEvent.getEventType(), SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
     }
 
     private NestedProperty makeProperty(String[] propertyNames) {

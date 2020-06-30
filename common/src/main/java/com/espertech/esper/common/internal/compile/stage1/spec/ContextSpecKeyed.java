@@ -59,22 +59,22 @@ public class ContextSpecKeyed implements ContextSpec {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextControllerDetailKeyed.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerDetailKeyed.EPTYPE, this.getClass(), classScope);
 
-        method.getBlock().declareVar(ContextControllerDetailKeyedItem[].class, "items", newArrayByLength(ContextControllerDetailKeyedItem.class, constant(items.size())));
+        method.getBlock().declareVar(ContextControllerDetailKeyedItem.EPTYPEARRAY, "items", newArrayByLength(ContextControllerDetailKeyedItem.EPTYPE, constant(items.size())));
         for (int i = 0; i < items.size(); i++) {
             method.getBlock().assignArrayElement("items", constant(i), items.get(i).makeCodegen(method, symbols, classScope));
         }
 
         method.getBlock()
-                .declareVar(ContextControllerDetailKeyed.class, "detail", newInstance(ContextControllerDetailKeyed.class))
+                .declareVarNewInstance(ContextControllerDetailKeyed.EPTYPE, "detail")
                 .exprDotMethod(ref("detail"), "setItems", ref("items"))
                 .exprDotMethod(ref("detail"), "setMultiKeyFromObjectArray", MultiKeyCodegen.codegenMultiKeyFromArrayTransform(multiKeyClassRef, method, classScope));
 
         if (optionalInit != null && !optionalInit.isEmpty()) {
-            method.getBlock().declareVar(ContextConditionDescriptorFilter[].class, "init", newArrayByLength(ContextConditionDescriptorFilter.class, constant(optionalInit.size())));
+            method.getBlock().declareVar(ContextConditionDescriptorFilter.EPTYPEARRAY, "init", newArrayByLength(ContextConditionDescriptorFilter.EPTYPE, constant(optionalInit.size())));
             for (int i = 0; i < optionalInit.size(); i++) {
-                method.getBlock().assignArrayElement("init", constant(i), cast(ContextConditionDescriptorFilter.class, optionalInit.get(i).make(method, symbols, classScope)));
+                method.getBlock().assignArrayElement("init", constant(i), cast(ContextConditionDescriptorFilter.EPTYPE, optionalInit.get(i).make(method, symbols, classScope)));
             }
             method.getBlock().exprDotMethod(ref("detail"), "setOptionalInit", ref("init"));
         }

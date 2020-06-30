@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.exceptintersectunion;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -55,13 +56,13 @@ public class EnumExceptForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumExceptForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumIntersectForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.COLLECTION.getEPType(), EnumIntersectForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         if (forge.scalar) {
-            block.declareVar(Collection.class, "other", forge.evaluatorForge.evaluateGetROCollectionScalarCodegen(methodNode, scope, codegenClassScope));
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "other", forge.evaluatorForge.evaluateGetROCollectionScalarCodegen(methodNode, scope, codegenClassScope));
         } else {
-            block.declareVar(Collection.class, "other", forge.evaluatorForge.evaluateGetROCollectionEventsCodegen(methodNode, scope, codegenClassScope));
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "other", forge.evaluatorForge.evaluateGetROCollectionEventsCodegen(methodNode, scope, codegenClassScope));
         }
         block.methodReturn(staticMethod(EnumExceptForgeEval.class, "enumExceptForgeEvalSet", ref("other"), EnumForgeCodegenNames.REF_ENUMCOLL, constant(forge.scalar)));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());

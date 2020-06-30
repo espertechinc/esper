@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -20,7 +21,8 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValid
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderableFlags;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNodeSubprop;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
@@ -29,8 +31,6 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrat
 import java.io.StringWriter;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprDotNodeAggregationMethodForgeTableAccess extends ExprDotNodeAggregationMethodForge {
     private final ExprTableAccessNodeSubprop subprop;
@@ -42,18 +42,18 @@ public class ExprDotNodeAggregationMethodForgeTableAccess extends ExprDotNodeAgg
         this.column = column;
     }
 
-    protected CodegenExpression evaluateCodegen(String readerMethodName, Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    protected CodegenExpression evaluateCodegen(String readerMethodName, EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(requiredType, ExprTableAccessNode.class, classScope);
 
         CodegenExpression eps = symbols.getAddEPS(method);
         CodegenExpression newData = symbols.getAddIsNewData(method);
         CodegenExpression evalCtx = symbols.getAddExprEvalCtx(method);
 
-        CodegenExpressionField future = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameTableAccess(subprop.getTableAccessNumber()), ExprTableEvalStrategy.class);
+        CodegenExpressionField future = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameTableAccess(subprop.getTableAccessNumber()), ExprTableEvalStrategy.EPTYPE);
         method.getBlock()
-            .declareVar(AggregationRow.class, "row", exprDotMethod(future, "getAggregationRow", eps, newData, evalCtx))
-            .ifRefNullReturnNull("row")
-            .methodReturn(CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(getReader(classScope), readerMethodName, constant(column.getColumn()), ref("row"), symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method))));
+                .declareVar(AggregationRow.EPTYPE, "row", exprDotMethod(future, "getAggregationRow", eps, newData, evalCtx))
+                .ifRefNullReturnNull("row")
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(getReader(classScope), readerMethodName, constant(column.getColumn()), ref("row"), symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method))));
         return localMethod(method);
     }
 

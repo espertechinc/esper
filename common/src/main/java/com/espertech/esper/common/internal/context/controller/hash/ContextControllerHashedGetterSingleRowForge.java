@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.context.controller.hash;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -28,9 +30,8 @@ import com.espertech.esper.common.internal.epl.expression.codegen.StaticMethodCo
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -39,8 +40,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.codegen.StaticMethodCallHelper.*;
 
 public class ContextControllerHashedGetterSingleRowForge implements EventPropertyValueGetterForge {
-    private static final Logger log = LoggerFactory.getLogger(ContextControllerHashedGetterSingleRowForge.class);
-
     private final Method reflectionMethod;
     private final ExprForge[] nodes;
     private final int granularity;
@@ -57,12 +56,13 @@ public class ContextControllerHashedGetterSingleRowForge implements EventPropert
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(EventBean.class, "eventBean");
-        method.getBlock().declareVar(EventBean[].class, "events", newArrayWithInit(EventBean.class, ref("eventBean")));
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "eventBean");
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "events", newArrayWithInit(EventBean.EPTYPE, ref("eventBean")));
 
         // method to evaluate expressions and compute hash
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, true);
-        CodegenMethod exprMethod = method.makeChildWithScope(reflectionMethod.getReturnType(), CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(reflectionMethod);
+        CodegenMethod exprMethod = method.makeChildWithScope(returnType, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
 
         // generate args
         StaticMethodCodegenArgDesc[] args = allArgumentExpressions(nodes, reflectionMethod, exprMethod, exprSymbol, classScope);
@@ -78,11 +78,12 @@ public class ContextControllerHashedGetterSingleRowForge implements EventPropert
 
         exprMethod.getBlock().methodReturn(constant(0));
 
-        method.getBlock().declareVar(reflectionMethod.getReturnType(), "result", localMethod(exprMethod, ref("events"), constantTrue(), constantNull()));
+        EPTypeClass returnTypeMethod = ClassHelperGenericType.getMethodReturnEPType(reflectionMethod);
+        method.getBlock().declareVar(returnTypeMethod, "result", localMethod(exprMethod, ref("events"), constantTrue(), constantNull()));
         if (!reflectionMethod.getReturnType().isPrimitive()) {
             method.getBlock().ifRefNull("result").blockReturn(constant(0));
         }
-        method.getBlock().declareVar(int.class, "value", SimpleNumberCoercerFactory.getCoercer(reflectionMethod.getReturnType(), Integer.class).coerceCodegen(ref("result"), reflectionMethod.getReturnType()))
+        method.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "value", SimpleNumberCoercerFactory.getCoercer(returnTypeMethod, EPTypePremade.INTEGERBOXED.getEPType()).coerceCodegen(ref("result"), returnTypeMethod))
                 .ifCondition(relational(ref("value"), CodegenExpressionRelational.CodegenRelational.GE, constant(0)))
                 .blockReturn(op(ref("value"), "%", constant(granularity)))
                 .methodReturn(op(op(ref("value"), "%", constant(granularity)), "*", constant(-1)));

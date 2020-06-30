@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.time.node;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -34,8 +36,8 @@ public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator, Ex
         return this;
     }
 
-    public Class getEvaluationType() {
-        return Long.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.LONGBOXED.getEPType();
     }
 
     public ExprForge getForge() {
@@ -46,11 +48,11 @@ public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator, Ex
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprTimestamp", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
         return exprDotMethodChain(refExprEvalCtx).add("getTimeProvider").add("getTime");
     }

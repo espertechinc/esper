@@ -12,6 +12,7 @@ package com.espertech.esperio.amqp;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowOpPropertyHolder;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -38,7 +39,7 @@ public class AMQPSinkForge implements DataFlowOperatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(AMQPSinkFactory.class, this.getClass(), "amqpSink", parent, symbols, classScope);
+        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(new EPTypeClass(AMQPSinkFactory.class), this.getClass(), "amqpSink", parent, symbols, classScope);
         builder
             .expression("settings", settings.make(builder.getMethod(), symbols, classScope))
             .eventtype("eventType", eventType);

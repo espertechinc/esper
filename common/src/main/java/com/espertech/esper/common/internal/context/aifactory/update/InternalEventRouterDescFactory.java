@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.context.aifactory.update;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerSetAssignment;
 import com.espertech.esper.common.internal.compile.stage1.spec.UpdateDesc;
 import com.espertech.esper.common.internal.epl.expression.assign.*;
@@ -20,6 +23,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPr
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethodForge;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.TypeWidenerException;
 import com.espertech.esper.common.internal.util.TypeWidenerFactory;
 import com.espertech.esper.common.internal.util.TypeWidenerSPI;
@@ -33,8 +37,7 @@ import java.util.List;
  */
 public class InternalEventRouterDescFactory {
     public static InternalEventRouterDescForge getValidatePreprocessing(EventType eventType, UpdateDesc desc, Annotation[] annotations)
-        throws ExprValidationException {
-
+            throws ExprValidationException {
         if (!(eventType instanceof EventTypeSPI)) {
             throw new ExprValidationException("Update statements require the event type to implement the " + EventTypeSPI.class + " interface");
         }
@@ -64,9 +67,10 @@ public class InternalEventRouterDescFactory {
                         }
 
                         TypeWidenerSPI widener;
+                        EPType evalType = assignment.getRhs().getForge().getEvaluationType();
                         try {
-                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), assignment.getRhs().getForge().getEvaluationType(),
-                                writableProperty.getPropertyType(), propertyName, false, null, null);
+                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), evalType,
+                                    writableProperty.getPropertyEPType(), propertyName, false, null, null);
                         } catch (TypeWidenerException ex) {
                             throw new ExprValidationException(ex.getMessage(), ex);
                         }
@@ -85,14 +89,16 @@ public class InternalEventRouterDescFactory {
                         if (writableProperty == null) {
                             throw new ExprValidationException("Property '" + propertyName + "' is not available for write access");
                         }
-                        if (!writableProperty.getPropertyType().isArray()) {
+                        EPType type = writableProperty.getPropertyEPType();
+                        if (type == null || type == EPTypeNull.INSTANCE || !((EPTypeClass) type).getType().isArray()) {
                             throw new ExprValidationException("Property '" + propertyName + "' type is not array");
                         }
+                        EPTypeClass typeClass = (EPTypeClass) type;
 
                         TypeWidenerSPI widener;
                         try {
                             widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), assignment.getRhs().getForge().getEvaluationType(),
-                                writableProperty.getPropertyType().getComponentType(), propertyName, false, null, null);
+                                    JavaClassHelper.getArrayComponentType(typeClass), propertyName, false, null, null);
                         } catch (TypeWidenerException ex) {
                             throw new ExprValidationException(ex.getMessage(), ex);
                         }
@@ -111,8 +117,8 @@ public class InternalEventRouterDescFactory {
                 }
             } catch (ExprValidationException ex) {
                 throw new ExprValidationException("Failed to validate assignment expression '" +
-                    ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignmentDesc.getOriginalExpression()) + "': " +
-                    ex.getMessage(), ex);
+                        ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignmentDesc.getOriginalExpression()) + "': " +
+                        ex.getMessage(), ex);
             }
         }
 
@@ -123,6 +129,6 @@ public class InternalEventRouterDescFactory {
         }
 
         return new InternalEventRouterDescForge(copyMethod, wideners.toArray(new TypeWidenerSPI[0]), eventType, annotations, desc.getOptionalWhereClause(),
-            properties.toArray(new String[0]), expressions.toArray(new ExprNode[0]), specialWriters.toArray(new InternalEventRouterWriterForge[0]));
+                properties.toArray(new String[0]), expressions.toArray(new ExprNode[0]), specialWriters.toArray(new InternalEventRouterWriterForge[0]));
     }
 }

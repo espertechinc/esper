@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.event.json.compiletime;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
@@ -32,9 +35,7 @@ import com.espertech.esper.common.internal.event.json.parser.forge.JsonForgeDesc
 import com.espertech.esper.common.internal.event.json.write.JsonWriteForgeRefs;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -66,21 +67,21 @@ public class StmtClassForgeableJsonDelegateFactory implements StmtClassForgeable
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
 
-        CodegenMethod makeMethod = CodegenMethod.makeParentNode(JsonDelegateBase.class, StmtClassForgeableJsonDelegateFactory.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(JsonHandlerDelegator.class, "delegator")
-            .addParam(JsonDelegateBase.class, "parent");
+        CodegenMethod makeMethod = CodegenMethod.makeParentNode(JsonDelegateBase.EPTYPE, StmtClassForgeableJsonDelegateFactory.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+            .addParam(JsonHandlerDelegator.EPTYPE, "delegator")
+            .addParam(JsonDelegateBase.EPTYPE, "parent");
         makeMethod.getBlock().methodReturn(newInstance(delegateClassName, ref("delegator"), ref("parent"), newInstance(underlyingClassName)));
         CodegenStackGenerator.recursiveBuildStack(makeMethod, "make", methods);
 
         // write-method (applicable for nested classes)
-        CodegenMethod writeMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(JsonWriter.class, "writer").addParam(Object.class, "underlying").addThrown(IOException.class);
+        CodegenMethod writeMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+            .addParam(JsonWriter.EPTYPE, "writer").addParam(EPTypePremade.OBJECT.getEPType(), "underlying").addThrown(EPTypePremade.IOEXCEPTION.getEPType());
         writeMethod.getBlock().staticMethod(className, "writeStatic", ref("writer"), ref("underlying"));
         CodegenStackGenerator.recursiveBuildStack(writeMethod, "write", methods);
 
         // write-static-method (applicable for nested classes)
-        CodegenMethod writeStaticMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(JsonWriter.class, "writer").addParam(Object.class, "underlying").addThrown(IOException.class);
+        CodegenMethod writeStaticMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+            .addParam(JsonWriter.EPTYPE, "writer").addParam(EPTypePremade.OBJECT.getEPType(), "underlying").addThrown(EPTypePremade.IOEXCEPTION.getEPType());
         writeStaticMethod.setStatic(true);
         if (makeWriteMethod) {
             makeNativeWrite(writeStaticMethod, classScope);
@@ -90,30 +91,30 @@ public class StmtClassForgeableJsonDelegateFactory implements StmtClassForgeable
         CodegenStackGenerator.recursiveBuildStack(writeStaticMethod, "writeStatic", methods);
 
         // copy-method
-        CodegenMethod copyMethod = CodegenMethod.makeParentNode(Object.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(Object.class, "und");
+        CodegenMethod copyMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+            .addParam(EPTypePremade.OBJECT.getEPType(), "und");
         makeCopy(copyMethod, classScope);
         CodegenStackGenerator.recursiveBuildStack(copyMethod, "copy", methods);
 
         // get-value-method
-        CodegenMethod getValueMethod = CodegenMethod.makeParentNode(Object.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(int.class, "num").addParam(Object.class, "und");
+        CodegenMethod getValueMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+            .addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "num").addParam(EPTypePremade.OBJECT.getEPType(), "und");
         makeGetValue(getValueMethod, classScope);
         CodegenStackGenerator.recursiveBuildStack(getValueMethod, "getValue", methods);
 
         // set-value-method
-        CodegenMethod setValueMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(int.class, "num").addParam(Object.class, "value").addParam(Object.class, "und");
+        CodegenMethod setValueMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+            .addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "num").addParam(EPTypePremade.OBJECT.getEPType(), "value").addParam(EPTypePremade.OBJECT.getEPType(), "und");
         makeSetValue(setValueMethod, classScope);
         CodegenStackGenerator.recursiveBuildStack(setValueMethod, "setValue", methods);
 
         // newUnderlying-method
-        CodegenMethod newUnderlyingMethod = CodegenMethod.makeParentNode(Object.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod newUnderlyingMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         makeNewUnderlyingMethod(newUnderlyingMethod);
         CodegenStackGenerator.recursiveBuildStack(newUnderlyingMethod, "newUnderlying", methods);
 
         CodegenClass clazz = new CodegenClass(classType, className, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
-        clazz.getSupers().addInterfaceImplemented(JsonDelegateFactory.class);
+        clazz.getSupers().addInterfaceImplemented(JsonDelegateFactory.EPTYPE);
         return clazz;
     }
 
@@ -126,7 +127,7 @@ public class StmtClassForgeableJsonDelegateFactory implements StmtClassForgeable
         if (desc.getNumFieldsSupertype() > 0) {
             method.getBlock()
                 .ifCondition(relational(ref("num"), LT, constant(desc.getNumFieldsSupertype())))
-                .blockReturn(exprDotMethod(cast(JsonEventObjectBase.class, ref("und")), "getNativeValue", ref("num")));
+                .blockReturn(exprDotMethod(cast(JsonEventObjectBase.EPTYPE, ref("und")), "getNativeValue", ref("num")));
         }
 
         method.getBlock()
@@ -148,23 +149,23 @@ public class StmtClassForgeableJsonDelegateFactory implements StmtClassForgeable
             .declareVar(underlyingClassName, "src", cast(underlyingClassName, ref("und")));
         for (Map.Entry<String, JsonUnderlyingField> field : desc.getFieldDescriptorsInclSupertype().entrySet()) {
             String fieldName = field.getValue().getFieldName();
-            Class fieldType = field.getValue().getPropertyType();
+            EPTypeClass fieldType = field.getValue().getPropertyType();
             CodegenExpression sourceField = ref("src." + fieldName);
             CodegenExpression rhs;
-            if (fieldType.isArray()) {
+            if (fieldType.getType().isArray()) {
                 CodegenMethod arrayCopy = method.makeChild(fieldType, this.getClass(), classScope).addParam(fieldType, "src");
                 rhs = localMethod(arrayCopy, sourceField);
                 arrayCopy.getBlock()
                     .ifRefNullReturnNull("src")
-                    .declareVar(fieldType, "copy", newArrayByLength(fieldType.getComponentType(), arrayLength(ref("src"))))
+                    .declareVar(fieldType, "copy", newArrayByLength(JavaClassHelper.getArrayComponentType(fieldType), arrayLength(ref("src"))))
                     .staticMethod(System.class, "arraycopy", ref("src"), constant(0), ref("copy"), constant(0), constant(0))
                     .methodReturn(ref("copy"));
-            } else if (fieldType == Map.class) {
-                CodegenMethod mapCopy = method.makeChild(Map.class, this.getClass(), classScope).addParam(fieldType, "src");
+            } else if (fieldType.getType() == Map.class) {
+                CodegenMethod mapCopy = method.makeChild(EPTypePremade.MAP.getEPType(), this.getClass(), classScope).addParam(fieldType, "src");
                 rhs = localMethod(mapCopy, sourceField);
                 mapCopy.getBlock()
                     .ifRefNullReturnNull("src")
-                    .methodReturn(newInstance(HashMap.class, ref("src")));
+                    .methodReturn(newInstance(EPTypePremade.HASHMAP.getEPType(), ref("src")));
             } else {
                 rhs = sourceField;
             }
@@ -222,11 +223,11 @@ public class StmtClassForgeableJsonDelegateFactory implements StmtClassForgeable
             String fieldName = "bean." + field.getFieldName();
 
             Object type = desc.getPropertiesThisType().get(property.getKey());
-            if (type == null) {
+            if (type == EPTypeNull.INSTANCE) {
                 // no action
-            } else if (type instanceof Class) {
-                Class classType = (Class) type;
-                if (classType.isPrimitive()) {
+            } else if (type instanceof EPTypeClass) {
+                EPTypeClass classType = (EPTypeClass) type;
+                if (classType.getType().isPrimitive()) {
                     blocks[index]
                         .ifRefNotNull("value")
                         .assignRef(fieldName, cast(JavaClassHelper.getBoxedType(classType), ref("value")));
@@ -237,25 +238,25 @@ public class StmtClassForgeableJsonDelegateFactory implements StmtClassForgeable
                 EventType eventType = ((TypeBeanOrUnderlying) type).getEventType();
                 if (eventType instanceof JsonEventType) {
                     JsonEventType jsonEventType = (JsonEventType) eventType;
-                    CodegenExpression castAsBean = castUnderlying(jsonEventType.getDetail().getUnderlyingClassName(), cast(EventBean.class, ref("value")));
+                    CodegenExpression castAsBean = castUnderlying(jsonEventType.getDetail().getUnderlyingClassName(), cast(EventBean.EPTYPE, ref("value")));
                     CodegenExpression castUnd = cast(jsonEventType.getDetail().getUnderlyingClassName(), ref("value"));
-                    blocks[index].assignRef(fieldName, conditional(instanceOf(ref("value"), EventBean.class), castAsBean, castUnd));
+                    blocks[index].assignRef(fieldName, conditional(instanceOf(ref("value"), EventBean.EPTYPE), castAsBean, castUnd));
                 } else {
-                    CodegenExpression castAsBean = castUnderlying(Map.class, cast(EventBean.class, ref("value")));
-                    CodegenExpression castUnd = cast(Map.class, ref("value"));
-                    blocks[index].assignRef(fieldName, conditional(instanceOf(ref("value"), EventBean.class), castAsBean, castUnd));
+                    CodegenExpression castAsBean = castUnderlying(EPTypePremade.MAP.getEPType(), cast(EventBean.EPTYPE, ref("value")));
+                    CodegenExpression castUnd = cast(EPTypePremade.MAP.getEPType(), ref("value"));
+                    blocks[index].assignRef(fieldName, conditional(instanceOf(ref("value"), EventBean.EPTYPE), castAsBean, castUnd));
                 }
             } else if (type instanceof TypeBeanOrUnderlying[]) {
                 TypeBeanOrUnderlying[] typeDef = (TypeBeanOrUnderlying[]) type;
                 EventType eventType = typeDef[0].getEventType();
-                Class arrayType = JavaClassHelper.getArrayType(eventType.getUnderlyingType());
+                EPTypeClass arrayType = JavaClassHelper.getArrayType(eventType.getUnderlyingEPType());
                 blocks[index]
                     .ifRefNull("value").assignRef(fieldName, constantNull()).blockReturnNoValue()
                     .ifCondition(instanceOf(ref("value"), arrayType)).assignRef(fieldName, cast(arrayType, ref("value"))).blockReturnNoValue()
-                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, ref("value")))
-                    .declareVar(arrayType, "array", newArrayByLength(eventType.getUnderlyingType(), arrayLength(ref("events"))))
+                    .declareVar(EventBean.EPTYPEARRAY, "events", cast(EventBean.EPTYPEARRAY, ref("value")))
+                    .declareVar(arrayType, "array", newArrayByLength(eventType.getUnderlyingEPType(), arrayLength(ref("events"))))
                     .forLoopIntSimple("i", arrayLength(ref("events")))
-                    .assignArrayElement("array", ref("i"), castUnderlying(eventType.getUnderlyingType(), arrayAtIndex(ref("events"), ref("i"))))
+                    .assignArrayElement("array", ref("i"), castUnderlying(eventType.getUnderlyingEPType(), arrayAtIndex(ref("events"), ref("i"))))
                     .blockEnd()
                     .assignRef(fieldName, ref("array"));
             } else {

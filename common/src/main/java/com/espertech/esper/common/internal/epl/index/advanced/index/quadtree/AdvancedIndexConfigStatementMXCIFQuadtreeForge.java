@@ -53,10 +53,10 @@ public class AdvancedIndexConfigStatementMXCIFQuadtreeForge implements EventAdva
     }
 
     public CodegenExpression codegenMake(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AdvancedIndexConfigStatementMXCIFQuadtree.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AdvancedIndexConfigStatementMXCIFQuadtree.EPTYPE, this.getClass(), classScope);
         Function<ExprForge, CodegenExpression> expr = forge -> ExprNodeUtilityCodegen.codegenEvaluator(forge, method, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AdvancedIndexConfigStatementMXCIFQuadtree.class, "factory", newInstance(AdvancedIndexConfigStatementMXCIFQuadtree.class))
+                .declareVarNewInstance(AdvancedIndexConfigStatementMXCIFQuadtree.EPTYPE, "factory")
                 .exprDotMethod(ref("factory"), "setxEval", expr.apply(xEval))
                 .exprDotMethod(ref("factory"), "setyEval", expr.apply(yEval))
                 .exprDotMethod(ref("factory"), "setWidthEval", expr.apply(widthEval))

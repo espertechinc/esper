@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.variable.core;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariable;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
@@ -23,23 +24,23 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClass;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
-import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.settings.ClasspathImportEPTypeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Locale;
 import java.util.Map;
 
 public class VariableUtil {
     private static final Logger log = LoggerFactory.getLogger(VariableUtil.class);
 
-    public static String getAssigmentExMessage(String variableName, Class variableType, Class initValueClass) {
+    public static String getAssigmentExMessage(String variableName, EPTypeClass variableType, EPTypeClass initValueClass) {
         return "Variable '" + variableName
-                + "' of declared type " + JavaClassHelper.getClassNameFullyQualPretty(variableType) +
-                " cannot be assigned a value of type " + JavaClassHelper.getClassNameFullyQualPretty(initValueClass);
+                + "' of declared type " + ClassHelperPrint.getClassNameFullyQualPretty(variableType) +
+                " cannot be assigned a value of type " + ClassHelperPrint.getClassNameFullyQualPretty(initValueClass);
     }
 
     public static void configureVariables(VariableRepositoryPreconfigured repo, Map<String, ConfigurationCommonVariable> variables, ClasspathImportService classpathImportService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, BeanEventTypeFactory beanEventTypeFactory) throws ConfigurationException {
@@ -51,7 +52,7 @@ public class VariableUtil {
 
             VariableMetaData meta;
             try {
-                ClassIdentifierWArray variableType = ClassIdentifierWArray.parseSODA(entry.getValue().getType());
+                ClassDescriptor variableType = ClassDescriptor.parseTypeText(entry.getValue().getType());
                 meta = getTypeInfo(variableName, null, NameAccessModifier.PRECONFIGURED, null, null, null, variableType, true, entry.getValue().isConstant(), entry.getValue().isConstant(), entry.getValue().getInitializationValue(), classpathImportService, ClasspathExtensionClassEmpty.INSTANCE, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
             } catch (Throwable t) {
                 throw new ConfigurationException("Error configuring variable '" + variableName + "': " + t.getMessage(), t);
@@ -61,7 +62,7 @@ public class VariableUtil {
         }
     }
 
-    public static VariableMetaData compileVariable(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalModuleName, ClassIdentifierWArray variableType, boolean isConstant, boolean compileTimeConstant, Object initializationValue, ClasspathImportService classpathImportService, ClasspathExtensionClass classpathExtension, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, BeanEventTypeFactory beanEventTypeFactory) throws ExprValidationException {
+    public static VariableMetaData compileVariable(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalModuleName, ClassDescriptor variableType, boolean isConstant, boolean compileTimeConstant, Object initializationValue, ClasspathImportService classpathImportService, ClasspathExtensionClass classpathExtension, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, BeanEventTypeFactory beanEventTypeFactory) throws ExprValidationException {
         try {
             return getTypeInfo(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalModuleName, variableType, false, isConstant, compileTimeConstant, initializationValue, classpathImportService, classpathExtension, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
         } catch (VariableTypeException t) {
@@ -91,7 +92,7 @@ public class VariableUtil {
                                                 String optionalContextName,
                                                 NameAccessModifier optionalContextVisibility,
                                                 String optionalContextModule,
-                                                ClassIdentifierWArray variableTypeWArray,
+                                                ClassDescriptor variableTypeWArray,
                                                 boolean preconfigured,
                                                 boolean constant,
                                                 boolean compileTimeConstant,
@@ -102,72 +103,47 @@ public class VariableUtil {
                                                 EventTypeRepositoryImpl eventTypeRepositoryPreconfigured,
                                                 BeanEventTypeFactory beanEventTypeFactory) throws VariableTypeException {
 
-        // Determime the variable type
-        Class primitiveType = JavaClassHelper.getPrimitiveClassForName(variableTypeWArray.getClassIdentifier());
-        Class type = JavaClassHelper.getClassForSimpleName(variableTypeWArray.getClassIdentifier(), classpathImportService.getClassForNameProvider());
-        Class arrayType = null;
-        EventType eventType = null;
-        if (type == null) {
-            if (variableTypeWArray.getClassIdentifier().toLowerCase(Locale.ENGLISH).equals("object")) {
-                type = JavaClassHelper.getArrayType(Object.class, variableTypeWArray.getArrayDimensions());
+        EPTypeClass variableClass = null;
+        ExprValidationException exTypeResolution = null;
+        try {
+            variableClass = ClasspathImportEPTypeUtil.resolveClassIdentifierToEPType(variableTypeWArray, true, classpathImportService, classpathExtension);
+            if (variableClass == null) {
+                throw new ExprValidationException("Failed to resolve type parameter '" + variableTypeWArray.toEPL() + "'");
             }
-            if (type == null) {
-                eventType = eventTypeRepositoryPreconfigured.getTypeByName(variableTypeWArray.getClassIdentifier());
-                if (eventType != null) {
-                    type = eventType.getUnderlyingType();
-                }
-            }
+        } catch (ExprValidationException ex) {
+            exTypeResolution = ex;
+        }
 
-            ClasspathImportException lastException = null;
-            if (type == null) {
-                try {
-                    type = classpathImportService.resolveClass(variableTypeWArray.getClassIdentifier(), false, classpathExtension);
-                    type = JavaClassHelper.getArrayType(type, variableTypeWArray.getArrayDimensions());
-                } catch (ClasspathImportException e) {
-                    log.debug("Not found '" + type + "': " + e.getMessage(), e);
-                    lastException = e;
-                    // expected
-                }
-            }
-            if (type == null) {
-                throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                        variableTypeWArray.getClassIdentifier() + "' is not a recognized type", lastException);
-            }
-            if (variableTypeWArray.getArrayDimensions() > 0 && eventType != null) {
-                throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                        variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array type as it is an event type", lastException);
-            }
-        } else {
-            if (variableTypeWArray.getArrayDimensions() > 0) {
-                if (variableTypeWArray.isArrayOfPrimitive()) {
-                    if (primitiveType == null) {
-                        throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                                variableTypeWArray.getClassIdentifier() + "' is not a primitive type");
-                    }
-                    arrayType = JavaClassHelper.getArrayType(primitiveType, variableTypeWArray.getArrayDimensions());
-                } else {
-                    arrayType = JavaClassHelper.getArrayType(type, variableTypeWArray.getArrayDimensions());
-                }
+        EventType variableEventType = null;
+        if (variableClass == null) {
+            variableEventType = eventTypeRepositoryPreconfigured.getTypeByName(variableTypeWArray.getClassIdentifier());
+            if (variableEventType != null) {
+                variableClass = variableEventType.getUnderlyingEPType();
             }
         }
 
-        if ((eventType == null) && (!JavaClassHelper.isJavaBuiltinDataType(type)) && (type != Object.class) && !type.isArray() && !type.isEnum()) {
+        if (variableClass == null) {
+            throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
+                variableTypeWArray.getClassIdentifier() + "' is not a recognized type", exTypeResolution);
+        }
+        if (variableEventType != null && (variableTypeWArray.getArrayDimensions() > 0 || !variableTypeWArray.getTypeParameters().isEmpty())) {
+            throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
+                variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array type and cannot receive type parameters as it is an event type", exTypeResolution);
+        }
+
+        if ((variableEventType == null) && (!JavaClassHelper.isJavaBuiltinDataType(variableClass)) && (variableClass.getType() != Object.class) && !variableClass.getType().isArray() && !variableClass.getType().isEnum()) {
             if (variableTypeWArray.getArrayDimensions() > 0) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                        variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array, only scalar types can be array");
+                    variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array, only scalar types can be array");
             }
-            eventType = beanEventTypeFactory.getCreateBeanType(type, false);
+            variableEventType = beanEventTypeFactory.getCreateBeanType(variableClass, false);
         }
 
-        if (arrayType != null) {
-            type = arrayType;
-        }
-
-        Object coerced = getCoercedValue(valueAsProvided, eventType, variableName, type, eventBeanTypedEventFactory);
-        return new VariableMetaData(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalContextModule, type, eventType, preconfigured, constant, compileTimeConstant, coerced, true);
+        Object coerced = getCoercedValue(valueAsProvided, variableEventType, variableName, variableClass, eventBeanTypedEventFactory);
+        return new VariableMetaData(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalContextModule, variableClass, variableEventType, preconfigured, constant, compileTimeConstant, coerced, true);
     }
 
-    private static Object getCoercedValue(Object value, EventType eventType, String variableName, Class variableType, EventBeanTypedEventFactory eventBeanTypedEventFactory) throws VariableTypeException {
+    private static Object getCoercedValue(Object value, EventType eventType, String variableName, EPTypeClass variableType, EventBeanTypedEventFactory eventBeanTypedEventFactory) throws VariableTypeException {
 
         Object coercedValue = value;
 
@@ -180,30 +156,30 @@ public class VariableUtil {
             if (eventBeanTypedEventFactory != EventBeanTypedEventFactoryCompileTime.INSTANCE) {
                 coercedValue = eventBeanTypedEventFactory.adapterForTypedBean(value, eventType);
             }
-        } else if (variableType == java.lang.Object.class) {
+        } else if (variableType.getType() == java.lang.Object.class) {
             // no validation
         } else {
             // allow string assignments to non-string variables
             if ((coercedValue != null) && (coercedValue instanceof String)) {
                 try {
-                    coercedValue = JavaClassHelper.parse(variableType, (String) coercedValue);
+                    coercedValue = JavaClassHelper.parse(variableType.getType(), (String) coercedValue);
                 } catch (Exception ex) {
                     throw new VariableTypeException("Variable '" + variableName
-                            + "' of declared type " + JavaClassHelper.getClassNameFullyQualPretty(variableType) +
+                            + "' of declared type " + ClassHelperPrint.getClassNameFullyQualPretty(variableType) +
                             " cannot be initialized by value '" + coercedValue + "': " + ex.toString());
                 }
             }
 
-            if ((coercedValue != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(coercedValue.getClass(), variableType))) {
+            if ((coercedValue != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(coercedValue.getClass(), variableType.getType()))) {
                 // if the declared type is not numeric or the init value is not numeric, fail
                 if ((!JavaClassHelper.isNumeric(variableType)) || (!(coercedValue instanceof Number))) {
-                    throw getVariableTypeException(variableName, variableType, coercedValue.getClass());
+                    throw getVariableTypeException(variableName, variableType.getType(), coercedValue.getClass());
                 }
-                if (!(JavaClassHelper.canCoerce(coercedValue.getClass(), variableType))) {
-                    throw getVariableTypeException(variableName, variableType, coercedValue.getClass());
+                if (!(JavaClassHelper.canCoerce(coercedValue.getClass(), variableType.getType()))) {
+                    throw getVariableTypeException(variableName, variableType.getType(), coercedValue.getClass());
                 }
                 // coerce
-                coercedValue = JavaClassHelper.coerceBoxed((Number) coercedValue, variableType);
+                coercedValue = JavaClassHelper.coerceBoxed((Number) coercedValue, variableType.getType());
             }
         }
 
@@ -212,7 +188,7 @@ public class VariableUtil {
 
     private static VariableTypeException getVariableTypeException(String variableName, Class variableType, Class initValueClass) {
         return new VariableTypeException("Variable '" + variableName
-                + "' of declared type " + JavaClassHelper.getClassNameFullyQualPretty(variableType) +
-                " cannot be initialized by a value of type " + JavaClassHelper.getClassNameFullyQualPretty(initValueClass));
+                + "' of declared type " + ClassHelperPrint.getClassNameFullyQualPretty(variableType) +
+                " cannot be initialized by a value of type " + ClassHelperPrint.getClassNameFullyQualPretty(initValueClass));
     }
 }

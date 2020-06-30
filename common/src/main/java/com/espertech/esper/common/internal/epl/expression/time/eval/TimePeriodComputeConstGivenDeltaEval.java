@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.epl.expression.time.eval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 
 public class TimePeriodComputeConstGivenDeltaEval implements TimePeriodCompute, TimePeriodProvide {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimePeriodComputeConstGivenDeltaEval.class);
+
     private final long timeDelta;
 
     public TimePeriodComputeConstGivenDeltaEval(long timeDelta) {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.historical.lookupstrategy;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,9 +24,9 @@ public class HistoricalIndexLookupStrategySortedForge implements HistoricalIndex
 
     private final int lookupStream;
     private final QueryGraphValueEntryRangeForge range;
-    private final Class coercionType;
+    private final EPTypeClass coercionType;
 
-    public HistoricalIndexLookupStrategySortedForge(int lookupStream, QueryGraphValueEntryRangeForge range, Class coercionType) {
+    public HistoricalIndexLookupStrategySortedForge(int lookupStream, QueryGraphValueEntryRangeForge range, EPTypeClass coercionType) {
         this.lookupStream = lookupStream;
         this.range = range;
         this.coercionType = coercionType;
@@ -36,10 +37,10 @@ public class HistoricalIndexLookupStrategySortedForge implements HistoricalIndex
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategySorted.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategySorted.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(HistoricalIndexLookupStrategySorted.class, "strat", newInstance(HistoricalIndexLookupStrategySorted.class))
+                .declareVarNewInstance(HistoricalIndexLookupStrategySorted.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setLookupStream", constant(lookupStream))
                 .exprDotMethod(ref("strat"), "setEvalRange", range.make(coercionType, method, symbols, classScope))
                 .exprDotMethod(ref("strat"), "init")

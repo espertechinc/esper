@@ -71,7 +71,7 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
     public void provideCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpressionRef spec = ref("spec");
         method.getBlock()
-                .declareVar(OutputProcessViewConditionSpec.class, spec.getRef(), newInstance(OutputProcessViewConditionSpec.class))
+                .declareVarNewInstance(OutputProcessViewConditionSpec.EPTYPE, spec.getRef())
                 .exprDotMethod(spec, "setConditionType", enumValue(ResultSetProcessorOutputConditionType.class, conditionType.name()))
                 .exprDotMethod(spec, "setOutputConditionFactory", outputConditionFactoryForge.make(method, symbols, classScope))
                 .exprDotMethod(spec, "setStreamCount", constant(streamCount))
@@ -86,7 +86,7 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
                 .exprDotMethod(spec, "setAfterConditionNumberOfEvents", constant(afterNumberOfEvents))
                 .exprDotMethod(spec, "setUnaggregatedUngrouped", constant(unaggregatedUngrouped))
                 .exprDotMethod(spec, "setEventTypes", EventTypeUtility.resolveTypeArrayCodegen(eventTypes, EPStatementInitServices.REF))
-                .methodReturn(newInstance(OutputProcessViewConditionFactory.class, spec));
+                .methodReturn(newInstance(OutputProcessViewConditionFactory.EPTYPE, spec));
     }
 
     public void updateCodegen(CodegenMethod method, CodegenClassScope classScope) {

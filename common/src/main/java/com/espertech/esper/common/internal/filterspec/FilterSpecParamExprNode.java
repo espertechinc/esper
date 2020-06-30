@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
  * This class represents an arbitrary expression node returning a boolean value as a filter parameter in an {@link FilterSpecActivatable} filter specification.
  */
 public abstract class FilterSpecParamExprNode extends FilterSpecParam {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecParamExprNode.class);
+
     private ExprEvaluator exprNode;
     private String exprText;
     private EventBeanTypedEventFactory eventBeanTypedEventFactory;

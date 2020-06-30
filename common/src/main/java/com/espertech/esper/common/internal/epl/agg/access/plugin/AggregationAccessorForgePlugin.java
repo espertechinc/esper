@@ -52,7 +52,7 @@ public class AggregationAccessorForgePlugin implements AggregationAccessorForge 
     private void makeBlock(String getterMethod, int column, CodegenMethod method, CodegenClassScope classScope) {
         if (accessorField == null) {
             InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationAccessorFactory();
-            accessorField = classScope.addFieldUnshared(true, AggregationMultiFunctionAccessor.class, exprDotMethod(injectionStrategy.getInitializationExpression(classScope), "newAccessor", constantNull()));
+            accessorField = classScope.addFieldUnshared(true, AggregationMultiFunctionAccessor.EPTYPE, exprDotMethod(injectionStrategy.getInitializationExpression(classScope), "newAccessor", constantNull()));
         }
         method.getBlock().methodReturn(exprDotMethod(accessorField, getterMethod, memberCol("state", column), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }

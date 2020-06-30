@@ -12,11 +12,15 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.EnumValue;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -29,7 +33,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNode, ExprEvaluator, ExprForgeInstrumentable {
     private Object value;
-    private final Class clazz;
+    private final EPType type;
     private EnumValue enumValue;
     private final String stringConstantWhenProvided;
 
@@ -37,9 +41,9 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         this.value = value;
         this.stringConstantWhenProvided = stringConstantWhenProvided;
         if (value == null) {
-            clazz = null;
+            type = EPTypeNull.INSTANCE;
         } else {
-            clazz = JavaClassHelper.getPrimitiveType(value.getClass());
+            type = JavaClassHelper.getPrimitiveType(value.getClass());
         }
     }
 
@@ -50,7 +54,7 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
     public ExprConstantNodeImpl(EnumValue enumValue) {
         this.stringConstantWhenProvided = null;
         this.enumValue = enumValue;
-        this.clazz = enumValue.getEnumField().getType();
+        this.type = ClassHelperGenericType.getFieldEPType(enumValue.getEnumField());
         try {
             value = enumValue.getEnumField().get(null);
         } catch (IllegalAccessException e) {
@@ -58,23 +62,29 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         }
     }
 
+    public ExprConstantNodeImpl(Object value, EPType valueType) {
+        this.stringConstantWhenProvided = null;
+        this.value = value;
+        this.type = valueType;
+    }
+
     public ExprConstantNodeImpl(Object value, Class valueType) {
         this.stringConstantWhenProvided = null;
         this.value = value;
         if (value == null) {
-            clazz = valueType;
+            type = valueType == null ? EPTypeNull.INSTANCE : ClassHelperGenericType.getClassEPType(valueType);
         } else {
-            clazz = JavaClassHelper.getPrimitiveType(value.getClass());
+            type = JavaClassHelper.getPrimitiveType(ClassHelperGenericType.getClassEPType(value.getClass()));
         }
     }
 
     /**
      * Ctor - for use when the constant should return a given type and the actual value is always null.
      *
-     * @param clazz the type of the constant null.
+     * @param type the type of the constant null.
      */
-    public ExprConstantNodeImpl(Class clazz) {
-        this.clazz = JavaClassHelper.getBoxedType(clazz);
+    public ExprConstantNodeImpl(Class type) {
+        this.type = type == null ? EPTypeNull.INSTANCE : ClassHelperGenericType.getClassEPType(JavaClassHelper.getBoxedType(type));
         this.value = null;
         this.stringConstantWhenProvided = null;
     }
@@ -87,8 +97,8 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         return this;
     }
 
-    public Class getEvaluationType() {
-        return clazz;
+    public EPType getEvaluationType() {
+        return type;
     }
 
     public ExprForge getForge() {
@@ -103,11 +113,11 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprConst", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).noqparam().build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (value == null) {
             return constantNull();
         }
@@ -146,8 +156,8 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         this.value = value;
     }
 
-    public Class getConstantType() {
-        return clazz;
+    public EPType getConstantType() {
+        return type;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

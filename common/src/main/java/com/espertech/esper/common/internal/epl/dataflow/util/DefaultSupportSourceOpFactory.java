@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.dataflow.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpFactoryInitializeContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpInitializeContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperator;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperatorFactory;
 
 public class DefaultSupportSourceOpFactory implements DataFlowOperatorFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DefaultSupportSourceOpFactory.class);
 
     private String name;
 

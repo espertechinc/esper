@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.method.count;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -26,24 +28,24 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 public class AggregationForgeFactoryCount extends AggregationForgeFactoryBase {
     protected final ExprCountNode parent;
     protected final boolean ignoreNulls;
-    protected final Class countedValueType;
+    protected final EPType countedValueType;
     protected final DataInputOutputSerdeForge distinctValueSerde;
 
     private AggregatorCount aggregator;
 
-    public AggregationForgeFactoryCount(ExprCountNode parent, boolean ignoreNulls, Class countedValueType, DataInputOutputSerdeForge distinctValueSerde) {
+    public AggregationForgeFactoryCount(ExprCountNode parent, boolean ignoreNulls, EPType countedValueType, DataInputOutputSerdeForge distinctValueSerde) {
         this.parent = parent;
         this.ignoreNulls = ignoreNulls;
         this.countedValueType = countedValueType;
         this.distinctValueSerde = distinctValueSerde;
     }
 
-    public Class getResultType() {
-        return Long.class;
+    public EPType getResultType() {
+        return EPTypePremade.LONGBOXED.getEPType();
     }
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        Class distinctType = !parent.isDistinct() ? null : countedValueType;
+        EPType distinctType = !parent.isDistinct() ? null : countedValueType;
         aggregator = new AggregatorCount(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctValueSerde, parent.isHasFilter(), parent.getOptionalFilter(), false);
     }
 

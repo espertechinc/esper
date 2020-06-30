@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.distinctof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -35,7 +39,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EnumDistinctOfScalar extends ThreeFormScalar {
 
-    private final Class innerType;
+    private final EPType innerType;
 
     public EnumDistinctOfScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters) {
         super(lambda, fieldEventType, numParameters);
@@ -74,8 +78,8 @@ public class EnumDistinctOfScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
-        return Collection.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.COLLECTION.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -86,11 +90,11 @@ public class EnumDistinctOfScalar extends ThreeFormScalar {
         methodNode.getBlock()
             .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
             .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
-            .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class));
+            .declareVar(EPTypePremade.MAP.getEPType(), "distinct", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        CodegenExpression eval = innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope);
+        CodegenExpression eval = innerType == EPTypeNull.INSTANCE ? constantNull() : innerExpression.evaluateCodegen((EPTypeClass) innerType, methodNode, scope, codegenClassScope);
         EnumDistinctOfHelper.forEachBlock(block, eval, innerType);
     }
 

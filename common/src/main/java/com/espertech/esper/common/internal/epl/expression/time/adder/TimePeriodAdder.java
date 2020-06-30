@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.expression.time.adder;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Calendar;
 
 public interface TimePeriodAdder {
+    EPTypeClass EPTYPE = new EPTypeClass(TimePeriodAdder.class);
+
     double compute(Double value);
 
     void add(Calendar cal, int value);

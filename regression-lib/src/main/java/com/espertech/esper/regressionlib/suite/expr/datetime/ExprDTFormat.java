@@ -11,11 +11,12 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -47,7 +48,7 @@ public class ExprDTFormat {
                 "zoneddate.format() as val5" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{String.class, String.class, String.class, String.class, String.class, String.class});
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypePremade.STRING.getEPType());
 
             env.sendEventBean(SupportDateTime.make(startTime));
             Object[] expected = SupportDateTime.getArrayCoerced(startTime, "sdf", "sdf", "sdf", "sdf", "dtf_isodt", "dtf_isozdt");
@@ -80,7 +81,7 @@ public class ExprDTFormat {
                 "localdate.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE) as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, String.class);
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypePremade.STRING.getEPType());
 
             SupportDateTime sdt = SupportDateTime.make(startTime);
             env.sendEventBean(SupportDateTime.make(startTime));

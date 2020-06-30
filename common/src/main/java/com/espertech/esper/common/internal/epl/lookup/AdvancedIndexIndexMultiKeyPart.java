@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookup;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,6 +22,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class AdvancedIndexIndexMultiKeyPart {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AdvancedIndexIndexMultiKeyPart.class);
+
     private final String indexTypeName;
     private final String[] indexExpressions;
     private final String[] indexedProperties;
@@ -60,6 +63,6 @@ public class AdvancedIndexIndexMultiKeyPart {
     }
 
     public CodegenExpression codegenMake(CodegenMethodScope parent, CodegenClassScope classScope) {
-        return newInstance(AdvancedIndexIndexMultiKeyPart.class, constant(indexTypeName), constant(indexExpressions), constant(indexedProperties));
+        return newInstance(AdvancedIndexIndexMultiKeyPart.EPTYPE, constant(indexTypeName), constant(indexExpressions), constant(indexedProperties));
     }
 }

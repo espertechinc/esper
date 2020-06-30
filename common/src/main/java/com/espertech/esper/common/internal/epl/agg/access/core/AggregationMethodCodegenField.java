@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.core;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -33,13 +34,13 @@ public class AggregationMethodCodegenField implements CodegenFieldSharable {
         this.generator = generator;
     }
 
-    public Class type() {
-        return AggregationMultiFunctionAggregationMethod.class;
+    public EPTypeClass type() {
+        return AggregationMultiFunctionAggregationMethod.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {
         SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
-        CodegenMethod init = classScope.getPackageScope().getInitMethod().makeChildWithScope(AggregationMultiFunctionAggregationMethod.class, generator, symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+        CodegenMethod init = classScope.getPackageScope().getInitMethod().makeChildWithScope(AggregationMultiFunctionAggregationMethod.EPTYPE, generator, symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
         init.getBlock().methodReturn(readerForge.codegenCreateReader(init, symbols, classScope));
         return localMethod(init, EPStatementInitServices.REF);
     }

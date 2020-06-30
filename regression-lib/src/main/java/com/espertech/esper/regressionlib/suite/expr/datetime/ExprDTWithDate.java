@@ -11,16 +11,13 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
-
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Date;
 
 public class ExprDTWithDate implements RegressionExecution {
 
@@ -44,7 +41,7 @@ public class ExprDTWithDate implements RegressionExecution {
             " from SupportDateTime";
         env.compileDeploy(epl).addListener("s0");
         String deployId = env.deploymentId("s0");
-        LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Long.class, Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class});
+        SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{EPTypePremade.LONGBOXED.getEPType(), EPTypePremade.DATE.getEPType(), EPTypePremade.LONGBOXED.getEPType(), EPTypePremade.CALENDAR.getEPType(), EPTypePremade.LOCALDATETIME.getEPType(), EPTypePremade.ZONEDDATETIME.getEPType()});
 
         env.sendEventBean(SupportDateTime.make(null));
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});

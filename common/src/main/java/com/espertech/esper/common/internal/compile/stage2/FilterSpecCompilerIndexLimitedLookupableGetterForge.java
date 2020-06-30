@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -30,11 +31,11 @@ public class FilterSpecCompilerIndexLimitedLookupableGetterForge implements Expr
     }
 
     public CodegenExpression eventBeanWithCtxGet(CodegenExpression beanExpression, CodegenExpression ctxExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(EventBean.class, "eventBean").addParam(ExprEvaluatorContext.class, "ctx");
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "eventBean").addParam(ExprEvaluatorContext.EPTYPE, "ctx");
         CodegenMethod getImpl = CodegenLegoMethodExpression.codegenExpression(lookupable.getForge(), method, classScope);
         method.getBlock()
-            .declareVar(EventBean[].class, "events", newArrayWithInit(EventBean.class, ref("eventBean")))
-            .methodReturn(localMethod(getImpl, newArrayWithInit(EventBean.class, ref("eventBean")), constantTrue(), ref("ctx")));
+            .declareVar(EventBean.EPTYPEARRAY, "events", newArrayWithInit(EventBean.EPTYPE, ref("eventBean")))
+            .methodReturn(localMethod(getImpl, newArrayWithInit(EventBean.EPTYPE, ref("eventBean")), constantTrue(), ref("ctx")));
         return localMethod(method, beanExpression, ctxExpression);
     }
 }

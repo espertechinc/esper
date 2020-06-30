@@ -34,10 +34,18 @@ public class DotExpressionItemArray extends DotExpressionItem implements Seriali
         this.indexes = indexes;
     }
 
+    /**
+     * Returns array index expressions
+     * @return array index expressions
+     */
     public List<Expression> getIndexes() {
         return indexes;
     }
 
+    /**
+     * Sets array index expressions
+     * @param  indexes array index expressions
+     */
     public void setIndexes(List<Expression> indexes) {
         this.indexes = indexes;
     }

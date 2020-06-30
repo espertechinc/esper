@@ -10,7 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.script.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface ExpressionScriptCompiled {
 
-    public Class getKnownReturnType();
+    public EPTypeClass getKnownReturnType();
 }

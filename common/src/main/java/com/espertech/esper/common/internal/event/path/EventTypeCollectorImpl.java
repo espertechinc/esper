@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariantStream;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
@@ -82,7 +83,7 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         handleRegister(eventType);
     }
 
-    public void registerBean(EventTypeMetadata metadata, Class clazz, String startTimestampName, String endTimestampName, EventType[] superTypes, Set<EventType> deepSuperTypes) {
+    public void registerBean(EventTypeMetadata metadata, EPTypeClass clazz, String startTimestampName, String endTimestampName, EventType[] superTypes, Set<EventType> deepSuperTypes) {
         BeanEventTypeStem stem = beanEventTypeStemService.getCreateStem(clazz, null);
         BeanEventType eventType = eventTypeFactory.createBeanType(stem, metadata, beanEventTypeFactory, superTypes, deepSuperTypes, startTimestampName, endTimestampName);
         handleRegister(eventType);
@@ -150,7 +151,7 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         moduleEventTypes.put(eventType.getName(), eventType);
     }
 
-    public void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, Class underlyingClass) {
+    public void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, EPTypeClass underlyingClass) {
         serdes.add(new EventTypeCollectedSerde(metadata, underlyingSerde, underlyingClass));
     }
 

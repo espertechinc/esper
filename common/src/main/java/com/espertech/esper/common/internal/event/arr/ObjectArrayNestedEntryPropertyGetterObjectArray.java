@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -79,6 +80,6 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
     }
 
     private CodegenMethod generateMethod(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenLegoPropertyBeanOrUnd.AccessType accessType) {
-        return CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, Object[].class, arrayGetter, accessType, this.getClass());
+        return CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, EPTypePremade.OBJECTARRAY.getEPType(), arrayGetter, accessType, this.getClass());
     }
 }

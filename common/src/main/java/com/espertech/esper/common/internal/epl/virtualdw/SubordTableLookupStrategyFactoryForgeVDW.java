@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.virtualdw;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -63,20 +64,20 @@ public class SubordTableLookupStrategyFactoryForgeVDW implements SubordTableLook
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         ExprNode[] hashes = new ExprNode[hashKeys.size()];
-        Class[] hashTypes = new Class[hashKeys.size()];
+        EPTypeClass[] hashTypes = new EPTypeClass[hashKeys.size()];
         for (int i = 0; i < hashKeys.size(); i++) {
             hashes[i] = hashKeys.get(i).getHashKey().getKeyExpr();
             hashTypes[i] = hashKeyCoercionTypes.getCoercionTypes()[i];
         }
 
         QueryGraphValueEntryRangeForge[] ranges = new QueryGraphValueEntryRangeForge[rangeKeys.size()];
-        Class[] rangesTypes = new Class[rangeKeys.size()];
+        EPTypeClass[] rangesTypes = new EPTypeClass[rangeKeys.size()];
         for (int i = 0; i < rangeKeys.size(); i++) {
             ranges[i] = rangeKeys.get(i).getRangeInfo();
             rangesTypes[i] = rangeKeyCoercionTypes.getCoercionTypes()[i];
         }
 
-        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(SubordTableLookupStrategyFactoryVDW.class, this.getClass(), "lookup", parent, symbols, classScope);
+        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(SubordTableLookupStrategyFactoryVDW.EPTYPE, this.getClass(), "lookup", parent, symbols, classScope);
         builder
                 .expression("indexHashedProps", IndexedPropDesc.makeArray(hashAndRanges.getHashedProps()))
                 .expression("indexBtreeProps", IndexedPropDesc.makeArray(hashAndRanges.getBtreeProps()))

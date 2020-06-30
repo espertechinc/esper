@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.sum;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -34,41 +37,41 @@ public abstract class AggregatorSumBase extends AggregatorMethodWDistinctWFilter
 
     protected final CodegenExpressionMember cnt;
     protected final CodegenExpressionMember sum;
-    protected final Class sumType;
+    protected final EPTypeClass sumType;
 
     protected abstract CodegenExpression initOfSum();
 
-    protected abstract void applyAggEnterSum(CodegenExpressionRef value, Class valueType, CodegenMethod method);
+    protected abstract void applyAggEnterSum(CodegenExpressionRef value, EPType valueType, CodegenMethod method);
 
-    protected abstract void applyTableEnterSum(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
+    protected abstract void applyTableEnterSum(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
 
-    protected abstract void applyAggLeaveSum(CodegenExpressionRef value, Class valueType, CodegenMethod method);
+    protected abstract void applyAggLeaveSum(CodegenExpressionRef value, EPType valueType, CodegenMethod method);
 
-    protected abstract void applyTableLeaveSum(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
+    protected abstract void applyTableLeaveSum(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
 
     protected abstract void writeSum(CodegenExpressionRef row, CodegenExpressionRef output, CodegenMethod method, CodegenClassScope classScope);
 
     protected abstract void readSum(CodegenExpressionRef row, CodegenExpressionRef input, CodegenMethod method, CodegenClassScope classScope);
 
-    public AggregatorSumBase(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, Class sumType) {
+    public AggregatorSumBase(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, EPTypeClass sumType) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
-        this.cnt = membersColumnized.addMember(col, long.class, "cnt");
+        this.cnt = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");
         this.sum = membersColumnized.addMember(col, JavaClassHelper.getPrimitiveType(sumType), "sum");
         this.sumType = sumType;
         rowCtor.getBlock().assignRef(sum, initOfSum());
     }
 
-    protected final void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected final void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock().increment(cnt);
         applyAggEnterSum(value, valueType, method);
     }
 
-    protected final void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected final void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().increment(cnt);
         applyTableEnterSum(value, evaluationTypes, method, classScope);
     }
 
-    protected final void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected final void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock()
                 .ifCondition(relational(cnt, LE, constant(1)))
                 .assignRef(cnt, constant(0))
@@ -78,7 +81,7 @@ public abstract class AggregatorSumBase extends AggregatorMethodWDistinctWFilter
         applyAggLeaveSum(value, valueType, method);
     }
 
-    protected final void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected final void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .ifCondition(relational(cnt, LE, constant(1)))
                 .assignRef(cnt, constant(0))

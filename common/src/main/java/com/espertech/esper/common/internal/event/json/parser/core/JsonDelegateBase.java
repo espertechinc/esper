@@ -10,11 +10,15 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.event.json.parser.core.JsonValueType.*;
 
 public abstract class JsonDelegateBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateBase.class);
+
     protected final JsonHandlerDelegator baseHandler;
     protected final JsonDelegateBase parent;
 

@@ -19,6 +19,7 @@ import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.metric.RuntimeMetric;
 import com.espertech.esper.common.client.metric.StatementMetric;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -27,7 +28,7 @@ import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeSt
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepository;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.util.CRC32Util;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 import java.util.*;
 
@@ -35,7 +36,7 @@ import java.util.*;
 public class EventTypeRepositoryBeanTypeUtil {
     public static void buildBeanTypes(BeanEventTypeStemService beanEventTypeStemService,
                                       EventTypeRepositoryImpl repo,
-                                      Map<String, Class> beanTypes,
+                                      Map<String, EPTypeClass> beanTypes,
                                       BeanEventTypeFactoryPrivate privateFactory,
                                       Map<String, ConfigurationCommonEventTypeBean> configs) {
 
@@ -44,7 +45,7 @@ public class EventTypeRepositoryBeanTypeUtil {
         }
         addPredefinedBeanEventTypes(beanTypes);
 
-        for (Map.Entry<String, Class> beanType : beanTypes.entrySet()) {
+        for (Map.Entry<String, EPTypeClass> beanType : beanTypes.entrySet()) {
             if (repo.getTypeByName(beanType.getKey()) != null) {
                 continue;
             }
@@ -52,21 +53,21 @@ public class EventTypeRepositoryBeanTypeUtil {
         }
     }
 
-    private static void buildPublicBeanType(BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, String eventTypeName, Class clazz, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
+    private static void buildPublicBeanType(BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, String eventTypeName, EPTypeClass clazz, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
 
         // check existing type
         EventType existingType = repo.getTypeByName(eventTypeName);
         if (existingType != null) {
             if (existingType.getMetadata().getApplicationType() != EventTypeApplicationType.CLASS) {
                 throw new ConfigurationException("Event type named '" + eventTypeName +
-                        "' has already been declared with differing underlying type information: Class " + existingType.getUnderlyingType().getName() +
-                        " versus " + clazz.getName());
+                    "' has already been declared with differing underlying type information: Class " + existingType.getUnderlyingType().getName() +
+                    " versus " + clazz.getTypeName());
             }
             BeanEventType beanEventType = (BeanEventType) existingType;
-            if (beanEventType.getUnderlyingType() != clazz) {
+            if (beanEventType.getUnderlyingType() != clazz.getType()) {
                 throw new ConfigurationException("Event type named '" + eventTypeName +
-                        "' has already been declared with differing underlying type information: Class " + existingType.getUnderlyingType().getName() +
-                        " versus " + beanEventType.getUnderlyingType());
+                    "' has already been declared with differing underlying type information: Class " + existingType.getUnderlyingType().getName() +
+                    " versus " + beanEventType.getUnderlyingType());
             }
             return;
         }
@@ -92,7 +93,7 @@ public class EventTypeRepositoryBeanTypeUtil {
         repo.addType(eventType);
     }
 
-    private static EventType[] getSuperTypes(Class[] superTypes, BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
+    private static EventType[] getSuperTypes(EPTypeClass[] superTypes, BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
         if (superTypes == null || superTypes.length == 0) {
             return null;
         }
@@ -103,18 +104,18 @@ public class EventTypeRepositoryBeanTypeUtil {
         return types;
     }
 
-    private static Set<EventType> getDeepSupertypes(Set<Class> superTypes, BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
+    private static Set<EventType> getDeepSupertypes(Set<EPTypeClass> superTypes, BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
         if (superTypes == null || superTypes.isEmpty()) {
             return Collections.emptySet();
         }
         LinkedHashSet<EventType> supers = new LinkedHashSet<>(4);
-        for (Class clazz : superTypes) {
+        for (EPTypeClass clazz : superTypes) {
             supers.add(getBuildSuperType(clazz, beanEventTypeStemService, repo, privateFactory, configs));
         }
         return supers;
     }
 
-    public static EventType getBuildSuperType(Class clazz, BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
+    public static EventType getBuildSuperType(EPTypeClass clazz, BeanEventTypeStemService beanEventTypeStemService, EventTypeRepository repo, BeanEventTypeFactoryPrivate privateFactory, Map<String, ConfigurationCommonEventTypeBean> configs) {
         List<String> existingSuperTypeNames = beanEventTypeStemService.getPublicClassToTypeNames().get(clazz);
         if (existingSuperTypeNames != null) {
             EventType eventType = repo.getTypeByName(existingSuperTypeNames.get(0));
@@ -122,20 +123,20 @@ public class EventTypeRepositoryBeanTypeUtil {
                 return eventType;
             }
         }
-        buildPublicBeanType(beanEventTypeStemService, repo, clazz.getName(), clazz, privateFactory, configs);
-        return repo.getTypeByName(clazz.getName());
+        buildPublicBeanType(beanEventTypeStemService, repo, clazz.getTypeName(), clazz, privateFactory, configs);
+        return repo.getTypeByName(clazz.getTypeName());
     }
 
-    private static void addPredefinedBeanEventTypes(Map<String, Class> resolvedBeanEventTypes) {
-        addPredefinedBeanEventType(StatementMetric.class, resolvedBeanEventTypes);
-        addPredefinedBeanEventType(RuntimeMetric.class, resolvedBeanEventTypes);
+    private static void addPredefinedBeanEventTypes(Map<String, EPTypeClass> resolvedBeanEventTypes) {
+        addPredefinedBeanEventType(StatementMetric.EPTYPE, resolvedBeanEventTypes);
+        addPredefinedBeanEventType(RuntimeMetric.EPTYPE, resolvedBeanEventTypes);
     }
 
-    private static void addPredefinedBeanEventType(Class clazz, Map<String, Class> resolvedBeanEventTypes) {
-        Class existing = resolvedBeanEventTypes.get(clazz.getName());
-        if (existing != null && existing != clazz) {
-            throw new ConfigurationException("Predefined event type " + clazz.getName() + " expected class " + JavaClassHelper.getClassNameFullyQualPretty(clazz) + " but is already defined to another class " + existing.getName());
+    private static void addPredefinedBeanEventType(EPTypeClass clazz, Map<String, EPTypeClass> resolvedBeanEventTypes) {
+        EPTypeClass existing = resolvedBeanEventTypes.get(clazz.getType().getName());
+        if (existing != null && !(existing.equals(clazz))) {
+            throw new ConfigurationException("Predefined event type " + clazz.getTypeName() + " expected class " + ClassHelperPrint.getClassNameFullyQualPretty(clazz) + " but is already defined to another class " + existing);
         }
-        resolvedBeanEventTypes.put(clazz.getName(), clazz);
+        resolvedBeanEventTypes.put(clazz.getType().getName(), clazz);
     }
 }

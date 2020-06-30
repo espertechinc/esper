@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.join.queryplanbuild;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
@@ -60,20 +63,20 @@ public class QueryPlanIndexBuilder {
                 String[] hashIndexProps = hashKeyAndIndexProps.getIndexed();
                 List<QueryGraphValueEntryHashKeyedForge> hashKeyProps = hashKeyAndIndexProps.getKeys();
                 CoercionDesc indexCoercionTypes = CoercionUtil.getCoercionTypesHash(typePerStream, streamLookup, streamIndexed, hashKeyProps, hashIndexProps);
-                Class[] hashCoercionTypeArr = indexCoercionTypes.getCoercionTypes();
+                EPTypeClass[] hashCoercionTypeArr = indexCoercionTypes.getCoercionTypes();
 
                 QueryGraphValuePairRangeIndexForge rangeAndIndexProps = value.getRangeProps();
                 String[] rangeIndexProps = rangeAndIndexProps.getIndexed();
                 List<QueryGraphValueEntryRangeForge> rangeKeyProps = rangeAndIndexProps.getKeys();
                 CoercionDesc rangeCoercionTypes = CoercionUtil.getCoercionTypesRange(typePerStream, streamIndexed, rangeIndexProps, rangeKeyProps);
-                Class[] rangeCoercionTypeArr = rangeCoercionTypes.getCoercionTypes();
+                EPTypeClass[] rangeCoercionTypeArr = rangeCoercionTypes.getCoercionTypes();
 
                 if (hashIndexProps.length == 0 && rangeIndexProps.length == 0) {
                     QueryGraphValuePairInKWSingleIdxForge singles = value.getInKeywordSingles();
                     if (!singles.getKey().isEmpty()) {
                         String indexedProp = singles.getIndexed()[0];
-                        Class indexedType = typePerStream[streamIndexed].getPropertyType(indexedProp);
-                        QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(new String[]{indexedProp}, new Class[]{indexedType}, new String[0], new Class[0], false, null, typePerStream[streamIndexed]);
+                        EPTypeClass indexedType = (EPTypeClass) typePerStream[streamIndexed].getPropertyEPType(indexedProp);
+                        QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(new String[]{indexedProp}, new EPTypeClass[]{indexedType}, new String[0], new EPTypeClass[0], false, null, typePerStream[streamIndexed]);
                         checkDuplicateOrAdd(indexItem, indexesSet);
                     }
 
@@ -82,8 +85,8 @@ public class QueryPlanIndexBuilder {
                         QueryGraphValuePairInKWMultiIdx multi = multis.get(0);
                         for (ExprNode propIndexed : multi.getIndexed()) {
                             ExprIdentNode identNode = (ExprIdentNode) propIndexed;
-                            Class type = identNode.getForge().getEvaluationType();
-                            QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(new String[]{identNode.getResolvedPropertyName()}, new Class[]{type}, new String[0], new Class[0], false, null, typePerStream[streamIndexed]);
+                            EPTypeClass type = (EPTypeClass) identNode.getForge().getEvaluationType();
+                            QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(new String[]{identNode.getResolvedPropertyName()}, new EPTypeClass[]{type}, new String[0], new EPTypeClass[0], false, null, typePerStream[streamIndexed]);
                             checkDuplicateOrAdd(indexItem, indexesSet);
                         }
                     }
@@ -98,7 +101,7 @@ public class QueryPlanIndexBuilder {
                     hashCoercionTypeArr = reduced.getCoercionTypes();
                     unique = true;
                     rangeIndexProps = new String[0];
-                    rangeCoercionTypeArr = new Class[0];
+                    rangeCoercionTypeArr = new EPTypeClass[0];
                 }
 
                 QueryPlanIndexItemForge proposed = new QueryPlanIndexItemForge(hashIndexProps, hashCoercionTypeArr,
@@ -108,7 +111,7 @@ public class QueryPlanIndexBuilder {
 
             // create full-table-scan
             if (indexesSet.isEmpty()) {
-                indexesSet.add(new QueryPlanIndexItemForge(new String[0], new Class[0], new String[0], new Class[0], false, null, typePerStream[streamIndexed]));
+                indexesSet.add(new QueryPlanIndexItemForge(new String[0], new EPTypeClass[0], new String[0], new EPTypeClass[0], false, null, typePerStream[streamIndexed]));
             }
 
             indexSpecs[streamIndexed] = QueryPlanIndexForge.makeIndex(indexesSet);
@@ -161,9 +164,9 @@ public class QueryPlanIndexBuilder {
                     QueryGraphValueEntryHashKeyedForge keyDesc = keyPropertiesJoin.get(i);
                     ExprNode compareNode = keyDesc.getKeyExpr();
 
-                    Class keyPropType = JavaClassHelper.getBoxedType(compareNode.getForge().getEvaluationType());
-                    Class indexedPropType = JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyType(indexPropertiesJoin[i]));
-                    Class coercionType = indexedPropType;
+                    EPType keyPropType = JavaClassHelper.getBoxedType(compareNode.getForge().getEvaluationType());
+                    EPTypeClass indexedPropType = (EPTypeClass) JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyEPType(indexPropertiesJoin[i]));
+                    EPTypeClass coercionType = indexedPropType;
                     if (keyPropType != indexedPropType) {
                         coercionType = JavaClassHelper.getCompareToCoercionType(keyPropType, indexedPropType);
                     }
@@ -221,9 +224,9 @@ public class QueryPlanIndexBuilder {
                         boolean allowRangeReversal = relOpOther.isBetweenPart() && relOpThis.isBetweenPart();
                         QueryGraphValueEntryRangeInForge rangeIn = new QueryGraphValueEntryRangeInForge(opsDesc.getType(), start, end, allowRangeReversal);
 
-                        Class indexedPropType = JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyType(rangeIndexProp));
-                        Class coercionType = indexedPropType;
-                        Class proposedType = CoercionUtil.getCoercionTypeRangeIn(indexedPropType, rangeIn.getExprStart(), rangeIn.getExprEnd());
+                        EPTypeClass indexedPropType = (EPTypeClass) JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyEPType(rangeIndexProp));
+                        EPTypeClass coercionType = indexedPropType;
+                        EPTypeClass proposedType = CoercionUtil.getCoercionTypeRangeIn(indexedPropType, rangeIn.getExprStart(), rangeIn.getExprEnd());
                         if (proposedType != null && proposedType != indexedPropType) {
                             coercionType = proposedType;
                         }
@@ -238,19 +241,19 @@ public class QueryPlanIndexBuilder {
                 // an existing entry has not been found
                 if (rangeDesc.getType().isRange()) {
                     QueryGraphValueEntryRangeInForge rangeIn = (QueryGraphValueEntryRangeInForge) rangeDesc;
-                    Class indexedPropType = JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyType(rangeIndexProp));
-                    Class coercionType = indexedPropType;
-                    Class proposedType = CoercionUtil.getCoercionTypeRangeIn(indexedPropType, rangeIn.getExprStart(), rangeIn.getExprEnd());
-                    if (proposedType != null && proposedType != indexedPropType) {
+                    EPTypeClass indexedPropType = (EPTypeClass) JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyEPType(rangeIndexProp));
+                    EPTypeClass coercionType = indexedPropType;
+                    EPTypeClass proposedType = CoercionUtil.getCoercionTypeRangeIn(indexedPropType, rangeIn.getExprStart(), rangeIn.getExprEnd());
+                    if (proposedType != null && proposedType.getType() != indexedPropType.getType()) {
                         coercionType = proposedType;
                     }
                     subqRangeDesc = new SubordPropRangeKeyForge(rangeDesc, coercionType);
                 } else {
                     QueryGraphValueEntryRangeRelOpForge relOp = (QueryGraphValueEntryRangeRelOpForge) rangeDesc;
-                    Class keyPropType = relOp.getExpression().getForge().getEvaluationType();
-                    Class indexedPropType = JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyType(rangeIndexProp));
-                    Class coercionType = indexedPropType;
-                    if (keyPropType != indexedPropType) {
+                    EPType keyPropType = relOp.getExpression().getForge().getEvaluationType();
+                    EPTypeClass indexedPropType = (EPTypeClass) JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyEPType(rangeIndexProp));
+                    EPTypeClass coercionType = indexedPropType;
+                    if (!keyPropType.equals(indexedPropType)) {
                         coercionType = JavaClassHelper.getCompareToCoercionType(keyPropType, indexedPropType);
                     }
                     subqRangeDesc = new SubordPropRangeKeyForge(rangeDesc, coercionType);
@@ -273,14 +276,17 @@ public class QueryPlanIndexBuilder {
                     if (inKeywordSingleIdxProp != null) {
                         continue;
                     }
-                    Class coercionType = keys[0].getForge().getEvaluationType();  // for in-comparison the same type is required
+                    EPType type = keys[0].getForge().getEvaluationType();
+                    EPTypeClass coercionType = type == null || type == EPTypeNull.INSTANCE ? null : (EPTypeClass) type;
                     inKeywordSingleIdxProp = new SubordPropInKeywordSingleIndex(key, coercionType, keys);
                 }
 
                 List<QueryGraphValuePairInKWMultiIdx> inkwMultis = queryGraphValue.getInKeywordMulti();
                 if (!inkwMultis.isEmpty()) {
                     QueryGraphValuePairInKWMultiIdx multi = inkwMultis.get(0);
-                    inKeywordMultiIdxProp = new SubordPropInKeywordMultiIndex(ExprNodeUtilityQuery.getIdentResolvedPropertyNames(multi.getIndexed()), multi.getIndexed()[0].getForge().getEvaluationType(), multi.getKey().getKeyExpr());
+                    EPType type = multi.getIndexed()[0].getForge().getEvaluationType();
+                    EPTypeClass coercionType = type == null || type == EPTypeNull.INSTANCE ? null : (EPTypeClass) type;
+                    inKeywordMultiIdxProp = new SubordPropInKeywordMultiIndex(ExprNodeUtilityQuery.getIdentResolvedPropertyNames(multi.getIndexed()), coercionType, multi.getKey().getKeyExpr());
                 }
 
                 if (inKeywordSingleIdxProp != null && inKeywordMultiIdxProp != null) {

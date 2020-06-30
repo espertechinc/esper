@@ -118,10 +118,10 @@ public class TimerScheduleObserverForge implements ObserverForge, ScheduleHandle
             throw new IllegalStateException("Unassigned schedule callback id");
         }
 
-        CodegenMethod method = parent.makeChild(TimerScheduleObserverFactory.class, TimerIntervalObserverForge.class, classScope);
+        CodegenMethod method = parent.makeChild(TimerScheduleObserverFactory.EPTYPE, TimerIntervalObserverForge.class, classScope);
 
         method.getBlock()
-                .declareVar(TimerScheduleObserverFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("observerTimerSchedule"))
+                .declareVar(TimerScheduleObserverFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("observerTimerSchedule"))
                 .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
                 .exprDotMethod(ref("factory"), "setAllConstant", constant(allConstantResult))
                 .exprDotMethod(ref("factory"), "setScheduleComputer", scheduleComputer.make(method, classScope))

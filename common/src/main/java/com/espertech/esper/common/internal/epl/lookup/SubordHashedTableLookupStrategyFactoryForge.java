@@ -62,7 +62,7 @@ public class SubordHashedTableLookupStrategyFactoryForge implements SubordTableL
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod methodNode = parent.makeChild(SubordTableLookupStrategyFactory.class, this.getClass(), classScope);
+        CodegenMethod methodNode = parent.makeChild(SubordTableLookupStrategyFactory.EPTYPE, this.getClass(), classScope);
         if (isStrictKeys) {
             int[] keyStreamNums = IntArrayUtil.copy(keyStreamNumbers);
             EventType[] keyStreamTypes = outerStreamTypesZeroIndexed;
@@ -74,7 +74,7 @@ public class SubordHashedTableLookupStrategyFactoryForge implements SubordTableL
             }
             ExprForge[] forges = ExprNodeUtilityQuery.forgesForProperties(keyStreamTypes, hashStrictKeys, keyStreamNums);
             CodegenExpression eval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashKeyCoercionTypes.getCoercionTypes(), hashMultikeyClasses, methodNode, classScope);
-            methodNode.getBlock().methodReturn(newInstance(SubordHashedTableLookupStrategyPropFactory.class, constant(hashStrictKeys), constant(keyStreamNums), eval));
+            methodNode.getBlock().methodReturn(newInstance(SubordHashedTableLookupStrategyPropFactory.EPTYPE, constant(hashStrictKeys), constant(keyStreamNums), eval));
             return localMethod(methodNode);
         } else {
             ExprForge[] forges = new ExprForge[hashKeys.size()];
@@ -84,7 +84,7 @@ public class SubordHashedTableLookupStrategyFactoryForge implements SubordTableL
 
             String[] expressions = ExprNodeUtilityPrint.toExpressionStringsMinPrecedence(forges);
             CodegenExpression eval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashKeyCoercionTypes.getCoercionTypes(), hashMultikeyClasses, methodNode, classScope);
-            methodNode.getBlock().methodReturn(newInstance(SubordHashedTableLookupStrategyExprFactory.class, constant(expressions), eval, constant(isNWOnTrigger), constant(numStreamsOuter)));
+            methodNode.getBlock().methodReturn(newInstance(SubordHashedTableLookupStrategyExprFactory.EPTYPE, constant(expressions), eval, constant(isNWOnTrigger), constant(numStreamsOuter)));
             return localMethod(methodNode);
         }
     }

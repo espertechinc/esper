@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.intersect;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -61,8 +62,8 @@ public class IntersectViewFactoryForge extends ViewFactoryForgeBase implements D
         this.eventType = parentEventType;
     }
 
-    protected Class typeOfFactory() {
-        return IntersectViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return IntersectViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.avro.selectexprrep;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,16 +24,15 @@ import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEvaluator, ExprForge, ExprNodeRenderable {
     private final int streamNum;
     private final EventPropertyGetterSPI getter;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public SelectExprProcessorEvalByGetterFragmentAvroArray(int streamNum, EventPropertyGetterSPI getter, Class returnType) {
+    public SelectExprProcessorEvalByGetterFragmentAvroArray(int streamNum, EventPropertyGetterSPI getter, EPTypeClass returnType) {
         this.streamNum = streamNum;
         this.getter = getter;
         this.returnType = returnType;
@@ -53,21 +54,21 @@ public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEva
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
-                .declareVar(Object[].class, "result", cast(Object[].class, getter.eventBeanGetCodegen(ref("event"), methodNode, codegenClassScope)))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "result", cast(EPTypePremade.OBJECTARRAY.getEPType(), getter.eventBeanGetCodegen(ref("event"), methodNode, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(Arrays.class, "asList", ref("result")));
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

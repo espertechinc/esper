@@ -30,9 +30,9 @@ public class StatementAgentInstanceFactoryCreateExpressionForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateExpression.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateExpression.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateExpression.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateExpression.class))
+                .declareVarNewInstance(StatementAgentInstanceFactoryCreateExpression.EPTYPE, "saiff")
                 .exprDotMethod(ref("saiff"), "setStatementEventType", EventTypeUtility.resolveTypeCodegen(statementEventType, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("saiff"), "setExpressionName", constant(expressionName))
                 .methodReturn(ref("saiff"));

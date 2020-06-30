@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.avro.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -37,9 +39,9 @@ public class AvroEventBeanGetterMappedRuntimeKeyed implements EventPropertyGette
     }
 
     public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, AvroEventBeanGetterMappedRuntimeKeyed.class, codegenClassScope).addParam(EventBean.class, "event").addParam(String.class, "key").getBlock()
-                .declareVar(GenericData.Record.class, "record", castUnderlying(GenericData.Record.class, ref("event")))
-                .declareVar(Map.class, "values", cast(Map.class, exprDotMethod(ref("record"), "get", constant(pos))))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), AvroEventBeanGetterMappedRuntimeKeyed.class, codegenClassScope).addParam(EventBean.EPTYPE, "event").addParam(EPTypePremade.STRING.getEPType(), "key").getBlock()
+                .declareVar(AvroConstant.EPTYPE_RECORD, "record", castUnderlying(AvroConstant.EPTYPE_RECORD, ref("event")))
+                .declareVar(EPTypePremade.MAP.getEPType(), "values", cast(EPTypePremade.MAP.getEPType(), exprDotMethod(ref("record"), "get", constant(pos))))
                 .methodReturn(staticMethod(AvroEventBeanGetterMapped.class, "getAvroMappedValueWNullCheck", ref("values"), ref("key")));
         return localMethodBuild(method).pass(beanExpression).pass(key).call();
     }

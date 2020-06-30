@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubSelectStrategyFactoryIndexShare.class);
 
     private NamedWindow namedWindow;
     private Table table;

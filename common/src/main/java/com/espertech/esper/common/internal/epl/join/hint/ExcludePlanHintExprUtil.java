@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
@@ -36,12 +37,12 @@ public class ExcludePlanHintExprUtil {
 
     static {
         LinkedHashMap<String, Object> properties = new LinkedHashMap<String, Object>();
-        properties.put("from_streamnum", Integer.class);
-        properties.put("to_streamnum", Integer.class);
-        properties.put("from_streamname", String.class);
-        properties.put("to_streamname", String.class);
-        properties.put("opname", String.class);
-        properties.put("exprs", String[].class);
+        properties.put("from_streamnum", EPTypePremade.INTEGERBOXED.getEPType());
+        properties.put("to_streamnum", EPTypePremade.INTEGERBOXED.getEPType());
+        properties.put("from_streamname", EPTypePremade.STRING.getEPType());
+        properties.put("to_streamname", EPTypePremade.STRING.getEPType());
+        properties.put("opname", EPTypePremade.STRING.getEPType());
+        properties.put("exprs", EPTypePremade.STRINGARRAY.getEPType());
         String eventTypeName = EventTypeNameUtil.getAnonymousTypeNameExcludePlanHint();
         EventTypeMetadata eventTypeMetadata = new EventTypeMetadata(eventTypeName, null, EventTypeTypeClass.EXCLUDEPLANHINTDERIVED,
                 EventTypeApplicationType.OBJECTARR, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());

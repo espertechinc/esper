@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalEventViewable;
@@ -34,6 +35,8 @@ import java.util.concurrent.locks.Lock;
  * Translates into a particular execution for use in regular and outer joins.
  */
 public class HistoricalDataPlanNode extends QueryPlanNode {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(HistoricalDataPlanNode.class);
+
     private int numStreams = -1;
     private int streamNum = -1;
     private int rootStreamNum = -1;

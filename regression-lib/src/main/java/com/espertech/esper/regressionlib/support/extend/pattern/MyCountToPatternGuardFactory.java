@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.support.extend.pattern;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertor;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MyCountToPatternGuardFactory implements GuardFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MyCountToPatternGuardFactory.class);
     private static final Logger log = LoggerFactory.getLogger(MyCountToPatternGuardFactory.class);
 
     private ExprEvaluator numCountToExpr;

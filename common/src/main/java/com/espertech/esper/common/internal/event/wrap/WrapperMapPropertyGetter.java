@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.wrap;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -50,9 +51,9 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethod getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
-                .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
-                .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EventBean.EPTYPE, "theEvent").getBlock()
+                .declareVarWCast(DecoratingEventBean.EPTYPE, "wrapperEvent", "theEvent")
+                .declareVar(EPTypePremade.MAP.getEPType(), "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
                 .methodReturn(mapGetter.underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope));
     }
 
@@ -70,9 +71,9 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
-                .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
-                .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EventBean.EPTYPE, "theEvent").getBlock()
+                .declareVarWCast(DecoratingEventBean.EPTYPE, "wrapperEvent", "theEvent")
+                .declareVar(EPTypePremade.MAP.getEPType(), "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
                 .methodReturn(mapGetter.underlyingFragmentCodegen(ref("map"), codegenMethodScope, codegenClassScope));
     }
 
@@ -89,10 +90,10 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "und");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "und");
         if (wrapperEventType.getUnderlyingType() == Pair.class) {
-            method.getBlock().declareVarWCast(Pair.class, "pair", "und")
-                .declareVar(Map.class, "wrapped", cast(Map.class, exprDotMethod(ref("pair"), "getSecond")))
+            method.getBlock().declareVarWCast(Pair.EPTYPE, "pair", "und")
+                .declareVar(EPTypePremade.MAP.getEPType(), "wrapped", cast(EPTypePremade.MAP.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
                 .methodReturn(mapGetter.underlyingGetCodegen(ref("wrapped"), codegenMethodScope, codegenClassScope));
         } else {
             method.getBlock().methodReturn(constantNull());

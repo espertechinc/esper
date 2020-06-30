@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.selectfrom;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -68,8 +70,8 @@ public class EnumSelectFromEventPlus extends ThreeFormEventPlus {
         };
     }
 
-    public Class returnType() {
-        return Collection.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.COLLECTION.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -77,11 +79,11 @@ public class EnumSelectFromEventPlus extends ThreeFormEventPlus {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class, exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size")));
+        block.declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size")));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Object.class, "item", getInnerExpression().evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+        block.declareVar(EPTypePremade.OBJECT.getEPType(), "item", getInnerExpression().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
             .ifCondition(notEqualsNull(ref("item")))
             .expression(exprDotMethod(ref("result"), "add", ref("item")));
     }

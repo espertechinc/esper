@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array2dim;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class JsonDelegateArray2DimBase extends JsonDelegateBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArray2DimBase.class);
     protected Collection collection = new ArrayList();
 
     public abstract JsonDelegateBase startArrayInner();

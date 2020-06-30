@@ -43,7 +43,7 @@ public class SubordSortedTableLookupStrategyFactoryForge implements SubordTableL
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         String[] expressions = ExprNodeUtilityPrint.toExpressionStringsMinPrecedence(rangeKey.getRangeInfo().getExpressions());
-        return newInstance(SubordSortedTableLookupStrategyFactory.class, constant(isNWOnTrigger), constant(numStreamsOuter),
+        return newInstance(SubordSortedTableLookupStrategyFactory.EPTYPE, constant(isNWOnTrigger), constant(numStreamsOuter),
                 constant(expressions[0]),
                 rangeKey.getRangeInfo().make(coercionDesc.getCoercionTypes()[0], parent, symbols, classScope));
     }

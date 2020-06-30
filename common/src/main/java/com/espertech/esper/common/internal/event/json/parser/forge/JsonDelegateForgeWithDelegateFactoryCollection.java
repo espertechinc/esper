@@ -27,10 +27,10 @@ public class JsonDelegateForgeWithDelegateFactoryCollection implements JsonDeleg
     }
 
     public CodegenExpression newDelegate(JsonDelegateRefs fields, CodegenMethod parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(JsonDelegateCollection.class, JsonDelegateForgeWithDelegateFactoryCollection.class, classScope);
+        CodegenMethod method = parent.makeChild(JsonDelegateCollection.EPTYPE, JsonDelegateForgeWithDelegateFactoryCollection.class, classScope);
         method.getBlock()
-            .declareVar(JsonDelegateFactory.class, "factory", newInstance(delegateFactoryClassName))
-            .methodReturn(newInstance(JsonDelegateCollection.class, fields.getBaseHandler(), fields.getThis(), ref("factory")));
+            .declareVar(JsonDelegateFactory.EPTYPE, "factory", newInstance(delegateFactoryClassName))
+            .methodReturn(newInstance(JsonDelegateCollection.EPTYPE, fields.getBaseHandler(), fields.getThis(), ref("factory")));
         return localMethod(method);
     }
 }

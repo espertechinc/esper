@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.context.controller.hash;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.ContextSpecHash;
 import com.espertech.esper.common.internal.compile.stage1.spec.ContextSpecHashItem;
@@ -58,11 +62,15 @@ public class ContextControllerHashUtil {
             }
             // get first parameter
             ExprNode paramExpr = params.get(0);
-            Class paramType = paramExpr.getForge().getEvaluationType();
+            EPType paramType = paramExpr.getForge().getEvaluationType();
             EventPropertyValueGetterForge getter;
+            if (paramType == EPTypeNull.INSTANCE) {
+                throw new ExprValidationException("Expression returns a null-type value");
+            }
+            EPTypeClass paramClass = (EPTypeClass) paramType;
 
             if (hashFunction == HashFunctionEnum.CONSISTENT_HASH_CRC32) {
-                if (params.size() > 1 || paramType != String.class) {
+                if (params.size() > 1 || paramClass.getType() != String.class) {
                     getter = new ContextControllerHashedGetterCRC32SerializedForge(params, hashedSpec.getGranularity());
                 } else {
                     getter = new ContextControllerHashedGetterCRC32SingleForge(paramExpr, hashedSpec.getGranularity());
@@ -84,7 +92,7 @@ public class ContextControllerHashUtil {
             String expression = hashFuncName + "(" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
             DataInputOutputSerdeForge valueSerde = new DataInputOutputSerdeForgeSingleton(DIONullableIntegerSerde.class);
             ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(getter);
-            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, eval, null, Integer.class, true, valueSerde);
+            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, eval, null, EPTypePremade.INTEGERBOXED.getEPType(), true, valueSerde);
             item.setLookupable(lookupable);
         }
     }

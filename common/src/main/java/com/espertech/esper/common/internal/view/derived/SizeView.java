@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.SingleEventIterator;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
@@ -120,8 +121,8 @@ public class SizeView extends ViewSupport {
     }
 
     public static EventType createEventType(ViewForgeEnv env, StatViewAdditionalPropsForge additionalProps, int streamNum) {
-        LinkedHashMap<String, Object> schemaMap = new LinkedHashMap<String, Object>();
-        schemaMap.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), long.class);
+        LinkedHashMap<String, Object> schemaMap = new LinkedHashMap<>();
+        schemaMap.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), EPTypePremade.LONGPRIMITIVE.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(schemaMap, additionalProps, ViewFieldEnum.SIZE_VIEW__SIZE);
         return DerivedViewTypeUtil.newType("sizeview", schemaMap, env, streamNum);
     }

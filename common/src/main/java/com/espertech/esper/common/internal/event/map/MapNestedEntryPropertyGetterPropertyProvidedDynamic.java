@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.map;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -60,19 +61,19 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
     }
 
     private CodegenMethod handleNestedValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
-                .ifRefNotTypeReturnConst("value", Map.class, "null");
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "value").getBlock()
+                .ifRefNotTypeReturnConst("value", EPTypePremade.MAP.getEPType(), "null");
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingGetCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingGetCodegen(cast(EPTypePremade.MAP.getEPType(), ref("value")), codegenMethodScope, codegenClassScope));
         }
         return block.methodReturn(constantNull());
     }
 
     private CodegenMethod handleNestedValueExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
-            .ifRefNotTypeReturnConst("value", Map.class, false);
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "value").getBlock()
+            .ifRefNotTypeReturnConst("value", EPTypePremade.MAP.getEPType(), false);
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(EPTypePremade.MAP.getEPType(), ref("value")), codegenMethodScope, codegenClassScope));
         }
         return block.methodReturn(constantFalse());
     }
@@ -89,12 +90,12 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
     }
 
     private CodegenMethod isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
-                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "map").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnFalse("value")
-                .ifRefNotTypeReturnConst("value", Map.class, false);
+                .ifRefNotTypeReturnConst("value", EPTypePremade.MAP.getEPType(), false);
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(EPTypePremade.MAP.getEPType(), ref("value")), codegenMethodScope, codegenClassScope));
         }
         return block.methodReturn(constantFalse());
     }
@@ -117,7 +118,7 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
 
     @Override
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     @Override

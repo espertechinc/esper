@@ -17,6 +17,9 @@ import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.core.*;
@@ -24,7 +27,6 @@ import com.espertech.esper.common.internal.util.ClassInstantiationException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 
 import javax.xml.xpath.*;
 import java.util.*;
@@ -33,6 +35,7 @@ import java.util.*;
  * Base class for XML event types.
  */
 public abstract class BaseXMLEventType extends BaseConfigurableEventType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(BaseXMLEventType.class);
 
     private static final Logger log = LoggerFactory.getLogger(BaseXMLEventType.class);
 
@@ -58,7 +61,7 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
      * @param eventTypeResolver            resolver
      */
     public BaseXMLEventType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM configurationEventTypeXMLDOM, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeNameResolver eventTypeResolver, XMLFragmentEventTypeFactory xmlEventTypeFactory) {
-        super(eventBeanTypedEventFactory, metadata, Node.class, eventTypeResolver, xmlEventTypeFactory);
+        super(eventBeanTypedEventFactory, metadata, EPTypePremade.NODE.getEPType(), eventTypeResolver, xmlEventTypeFactory);
         this.rootElementName = configurationEventTypeXMLDOM.getRootElementName();
         this.configurationEventTypeXMLDOM = configurationEventTypeXMLDOM;
         xPathFactory = XPathFactory.newInstance();
@@ -149,9 +152,9 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
                 }
 
                 EventPropertyGetterSPI getter = new XPathPropertyGetter(this, property.getName(), xpathExpression, expression, property.getType(), property.getOptionalCastToType(), fragmentFactory);
-                Class returnType = SchemaUtil.toReturnType(property.getType(), property.getOptionalCastToType());
+                EPType returnType = SchemaUtil.toReturnType(property.getType(), property.getOptionalCastToType());
 
-                EventPropertyDescriptor desc = new EventPropertyDescriptor(property.getName(), returnType, null, false, false, isArray, false, isFragment);
+                EventPropertyDescriptor desc = new EventPropertyDescriptor(property.getName(), returnType, false, false, isArray, false, isFragment);
                 ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, isArray, property.getOptionaleventTypeName());
                 namedProperties.put(desc.getPropertyName(), explicit);
             }

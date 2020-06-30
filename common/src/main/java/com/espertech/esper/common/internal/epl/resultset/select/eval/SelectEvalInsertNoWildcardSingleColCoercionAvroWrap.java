@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -22,7 +24,7 @@ public class SelectEvalInsertNoWildcardSingleColCoercionAvroWrap extends SelectE
         super(selectExprForgeContext, wrapper);
     }
 
-    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return SelectEvalInsertNoWildcardSingleColCoercionMapWrap.processFirstColCodegen(expression, eventBeanFactory, codegenClassScope, wrapper, "adapterForTypedAvro", Object.class);
+    protected CodegenExpression processFirstColCodegen(EPTypeClass evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return SelectEvalInsertNoWildcardSingleColCoercionMapWrap.processFirstColCodegen(expression, eventBeanFactory, codegenClassScope, wrapper, "adapterForTypedAvro", EPTypePremade.OBJECT.getEPType());
     }
 }

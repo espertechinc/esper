@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.script.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -25,13 +28,15 @@ import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
-import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.settings.ClasspathImportEPTypeUtil;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
@@ -117,27 +122,24 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         this.parameters = validatedParameters;
 
         // Compile script
-        Class[] parameterTypes = ExprNodeUtilityQuery.getExprResultTypes(forges);
+        EPType[] parameterTypes = ExprNodeUtilityQuery.getExprResultTypes(forges);
         String dialect = script.getOptionalDialect() == null ? defaultDialect : script.getOptionalDialect();
         ExpressionScriptCompiled compiled = ExpressionNodeScriptCompiler.compileScript(dialect, script.getName(), script.getExpression(), script.getParameterNames(), parameterTypes, script.getCompiledBuf(), validationContext.getClasspathImportService());
 
         // Determine declared return type
-        Class declaredReturnType = getDeclaredReturnType(script.getOptionalReturnTypeName(), validationContext);
-        if (script.isOptionalReturnTypeIsArray() && declaredReturnType != null) {
-            declaredReturnType = JavaClassHelper.getArrayType(declaredReturnType);
-        }
-        Class returnType;
+        EPTypeClass declaredReturnType = getDeclaredReturnType(script.getOptionalReturnTypeName(), validationContext);
+        EPTypeClass returnType;
         if (compiled.getKnownReturnType() == null && script.getOptionalReturnTypeName() == null) {
-            returnType = Object.class;
+            returnType = EPTypePremade.OBJECT.getEPType();
         } else if (compiled.getKnownReturnType() != null) {
             if (declaredReturnType == null) {
                 returnType = compiled.getKnownReturnType();
             } else {
-                Class knownReturnType = compiled.getKnownReturnType();
-                if (declaredReturnType.isArray() && knownReturnType.isArray()) {
+                EPTypeClass knownReturnType = compiled.getKnownReturnType();
+                if (declaredReturnType.getType().isArray() && knownReturnType.getType().isArray()) {
                     // we are fine
-                } else if (!JavaClassHelper.isAssignmentCompatible(knownReturnType, declaredReturnType)) {
-                    throw new ExprValidationException("Return type and declared type not compatible for script '" + script.getName() + "', known return type is " + knownReturnType.getName() + " versus declared return type " + declaredReturnType.getName());
+                } else if (!JavaClassHelper.isAssignmentCompatible(knownReturnType, declaredReturnType.getType())) {
+                    throw new ExprValidationException("Return type and declared type not compatible for script '" + script.getName() + "', known return type is " + knownReturnType.getTypeName() + " versus declared return type " + declaredReturnType.getTypeName());
                 }
                 returnType = declaredReturnType;
             }
@@ -145,12 +147,12 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
             returnType = declaredReturnType;
         }
         if (returnType == null) {
-            returnType = Object.class;
+            returnType = EPTypePremade.OBJECT.getEPType();
         }
 
         eventTypeCollection = null;
         if (script.getOptionalEventTypeName() != null) {
-            if (returnType.isArray() && returnType.getComponentType() == EventBean.class) {
+            if (returnType.getType().isArray() && returnType.getType().getComponentType() == EventBean.class) {
                 eventTypeCollection = EventTypeUtility.requireEventType("Script", script.getName(), script.getOptionalEventTypeName(), validationContext.getStatementCompileTimeService().getEventTypeCompileTimeResolver());
             } else {
                 throw new ExprValidationException(EventTypeUtility.disallowedAtTypeMessage());
@@ -188,7 +190,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         };
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return scriptDescriptor.getReturnType();
     }
 
@@ -200,10 +202,10 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         return this;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
-        Class returnType = scriptDescriptor.getReturnType();
-        if (returnType.isArray()) {
-            return returnType.getComponentType();
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
+        EPTypeClass returnType = scriptDescriptor.getReturnType();
+        if (returnType.getType().isArray()) {
+            return JavaClassHelper.getArrayComponentType(returnType);
         }
         return null;
     }
@@ -216,7 +218,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
         return CodegenLegoCast.castSafeFromObjectType(requiredType, makeEval("evaluate", codegenMethodScope, symbols, codegenClassScope));
     }
 
@@ -245,7 +247,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    private Class getDeclaredReturnType(String returnTypeName, ExprValidationContext validationContext)
+    private EPTypeClass getDeclaredReturnType(String returnTypeName, ExprValidationContext validationContext)
             throws ExprValidationException {
         if (returnTypeName == null) {
             return null;
@@ -255,19 +257,24 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
             return null;
         }
 
-        Class returnType = JavaClassHelper.getClassForSimpleName(returnTypeName, validationContext.getClasspathImportService().getClassForNameProvider());
-        if (returnType != null) {
-            return returnType;
+        Class simpleNameClass = JavaClassHelper.getClassForSimpleName(returnTypeName, validationContext.getClasspathImportService().getClassForNameProvider());
+        if (simpleNameClass != null) {
+            return ClassHelperGenericType.getClassEPType(simpleNameClass);
         }
 
-        if (returnTypeName.equals("EventBean")) {
-            return EventBean.class;
+        String returnTypeLower = returnTypeName.toLowerCase(Locale.ENGLISH);
+        if (returnTypeLower.equals("eventbean")) {
+            return EventBean.EPTYPE;
+        }
+        if (returnTypeLower.equals("eventbean[]")) {
+            return EventBean.EPTYPEARRAY;
         }
 
-        try {
-            return validationContext.getClasspathImportService().resolveClass(returnTypeName, false, ClasspathExtensionClassEmpty.INSTANCE);
-        } catch (ClasspathImportException e1) {
+        ClassDescriptor classDescriptor = ClassDescriptor.parseTypeText(returnTypeName);
+        EPTypeClass returnType = ClasspathImportEPTypeUtil.resolveClassIdentifierToEPType(classDescriptor, false, validationContext.getClasspathImportService(), validationContext.getClassProvidedClasspathExtension());
+        if (returnType == null) {
             throw new ExprValidationException("Failed to resolve return type '" + returnTypeName + "' specified for script '" + script.getName() + "'");
         }
+        return returnType;
     }
 }

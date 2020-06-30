@@ -62,9 +62,9 @@ public class HistoricalDataPlanNodeForge extends QueryPlanNodeForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(HistoricalDataPlanNode.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(HistoricalDataPlanNode.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(HistoricalDataPlanNode.class, "node", newInstance(HistoricalDataPlanNode.class))
+                .declareVarNewInstance(HistoricalDataPlanNode.EPTYPE, "node")
                 .exprDotMethod(ref("node"), "setStreamNum", constant(streamNum))
                 .exprDotMethod(ref("node"), "setNumStreams", constant(numStreams))
                 .exprDotMethod(ref("node"), "setIndexingStrategy", pollResultIndexingStrategy.make(method, symbols, classScope))

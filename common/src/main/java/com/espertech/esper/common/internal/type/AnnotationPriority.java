@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.Priority;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationPriority implements Priority {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationPriority.class);
+
     private final int priority;
 
     public AnnotationPriority(int priority) {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.order;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
@@ -23,6 +24,7 @@ import java.util.List;
  * A processor for ordering output events according to the order specified in the order-by clause.
  */
 public interface OrderByProcessor {
+    EPTypeClass EPTYPE = new EPTypeClass(OrderByProcessor.class);
 
     /**
      * Sort the output events. If the order-by processor needs group-by

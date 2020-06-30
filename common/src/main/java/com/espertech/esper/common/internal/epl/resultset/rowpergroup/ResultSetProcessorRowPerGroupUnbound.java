@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergroup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -19,9 +20,6 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -34,14 +32,14 @@ import static com.espertech.esper.common.internal.epl.resultset.rowpergroup.Resu
 public class ResultSetProcessorRowPerGroupUnbound {
 
     public static void applyViewResultCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().declareVar(EventBean[].class, NAME_EPS, newArrayByLength(EventBean.class, constant(1)));
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, NAME_EPS, newArrayByLength(EventBean.EPTYPE, constant(1)));
 
         {
             CodegenBlock ifNew = method.getBlock().ifCondition(notEqualsNull(REF_NEWDATA));
             {
-                CodegenBlock newLoop = ifNew.forEach(EventBean.class, "aNewData", REF_NEWDATA);
+                CodegenBlock newLoop = ifNew.forEach(EventBean.EPTYPE, "aNewData", REF_NEWDATA);
                 newLoop.assignArrayElement(NAME_EPS, constant(0), ref("aNewData"))
-                        .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantTrue()))
+                        .declareVar(EPTypePremade.OBJECT.getEPType(), "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantTrue()))
                         .exprDotMethod(ref("groupReps"), "put", ref("mk"), ref("aNewData"))
                         .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", REF_EPS, ref("mk"), MEMBER_AGENTINSTANCECONTEXT);
             }
@@ -50,9 +48,9 @@ public class ResultSetProcessorRowPerGroupUnbound {
         {
             CodegenBlock ifOld = method.getBlock().ifCondition(notEqualsNull(REF_OLDDATA));
             {
-                CodegenBlock oldLoop = ifOld.forEach(EventBean.class, "anOldData", REF_OLDDATA);
+                CodegenBlock oldLoop = ifOld.forEach(EventBean.EPTYPE, "anOldData", REF_OLDDATA);
                 oldLoop.assignArrayElement(NAME_EPS, constant(0), ref("anOldData"))
-                        .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantFalse()))
+                        .declareVar(EPTypePremade.OBJECT.getEPType(), "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantFalse()))
                         .exprDotMethod(MEMBER_AGGREGATIONSVC, "applyLeave", REF_EPS, ref("mk"), MEMBER_AGENTINSTANCECONTEXT);
             }
         }
@@ -67,11 +65,11 @@ public class ResultSetProcessorRowPerGroupUnbound {
         ifShortcut.ifCondition(or(equalsNull(REF_OLDDATA), equalsIdentity(arrayLength(REF_OLDDATA), constant(0))))
                 .blockReturn(localMethod(processViewResultNewDepthOneUnbound, REF_NEWDATA, REF_ISSYNTHESIZE));
 
-        method.getBlock().declareVar(Map.class, "keysAndEvents", newInstance(HashMap.class))
-                .declareVar(EventBean[].class, NAME_EPS, newArrayByLength(EventBean.class, constant(1)))
-                .declareVar(Object[].class, "newDataMultiKey", localMethod(generateGroupKeysKeepEvent, REF_NEWDATA, ref("keysAndEvents"), constantTrue(), REF_EPS))
-                .declareVar(Object[].class, "oldDataMultiKey", localMethod(generateGroupKeysKeepEvent, REF_OLDDATA, ref("keysAndEvents"), constantFalse(), REF_EPS))
-                .declareVar(EventBean[].class, "selectOldEvents", forge.isSelectRStream() ? localMethod(generateOutputEventsView, ref("keysAndEvents"), constantFalse(), REF_ISSYNTHESIZE, REF_EPS) : constantNull());
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "keysAndEvents", newInstance(EPTypePremade.HASHMAP.getEPType()))
+                .declareVar(EventBean.EPTYPEARRAY, NAME_EPS, newArrayByLength(EventBean.EPTYPE, constant(1)))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(generateGroupKeysKeepEvent, REF_NEWDATA, ref("keysAndEvents"), constantTrue(), REF_EPS))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(generateGroupKeysKeepEvent, REF_OLDDATA, ref("keysAndEvents"), constantFalse(), REF_EPS))
+                .declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", forge.isSelectRStream() ? localMethod(generateOutputEventsView, ref("keysAndEvents"), constantFalse(), REF_ISSYNTHESIZE, REF_EPS) : constantNull());
 
         {
             CodegenBlock ifNew = method.getBlock().ifCondition(notEqualsNull(REF_NEWDATA));
@@ -92,14 +90,14 @@ public class ResultSetProcessorRowPerGroupUnbound {
             }
         }
 
-        method.getBlock().declareVar(EventBean[].class, "selectNewEvents", localMethod(generateOutputEventsView, ref("keysAndEvents"), constantTrue(), REF_ISSYNTHESIZE, REF_EPS))
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", localMethod(generateOutputEventsView, ref("keysAndEvents"), constantTrue(), REF_ISSYNTHESIZE, REF_EPS))
                 .methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
     public static void getIteratorViewUnboundedCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         if (!forge.isSorting()) {
-            method.getBlock().declareVar(Iterator.class, "it", exprDotMethod(ref("groupReps"), "valueIterator"))
-                    .methodReturn(newInstance(ResultSetProcessorRowPerGroupIterator.class, ref("it"), ref("this"), MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT));
+            method.getBlock().declareVar(EPTypePremade.ITERATOR.getEPType(), "it", exprDotMethod(ref("groupReps"), "valueIterator"))
+                    .methodReturn(newInstance(ResultSetProcessorRowPerGroupIterator.EPTYPE, ref("it"), ref("this"), MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT));
         } else {
             CodegenMethod getIteratorSorted = getIteratorSortedCodegen(forge, classScope, instance);
             method.getBlock().methodReturn(localMethod(getIteratorSorted, exprDotMethod(ref("groupReps"), "valueIterator")));
@@ -110,13 +108,13 @@ public class ResultSetProcessorRowPerGroupUnbound {
         CodegenMethod shortcutEvalGivenKey = ResultSetProcessorRowPerGroupImpl.shortcutEvalGivenKeyCodegen(forge.getOptionalHavingNode(), classScope, instance);
 
         Consumer<CodegenMethod> code = methodNode -> {
-            methodNode.getBlock().declareVar(Object.class, "groupKey", localMethod(forge.getGenerateGroupKeySingle(), REF_NEWDATA, constantTrue()));
+            methodNode.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "groupKey", localMethod(forge.getGenerateGroupKeySingle(), REF_NEWDATA, constantTrue()));
             if (forge.isSelectRStream()) {
-                methodNode.getBlock().declareVar(EventBean.class, "rstream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantFalse(), REF_ISSYNTHESIZE));
+                methodNode.getBlock().declareVar(EventBean.EPTYPE, "rstream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantFalse(), REF_ISSYNTHESIZE));
             }
             methodNode.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "applyEnter", REF_NEWDATA, ref("groupKey"), MEMBER_AGENTINSTANCECONTEXT)
                     .exprDotMethod(ref("groupReps"), "put", ref("groupKey"), arrayAtIndex(REF_NEWDATA, constant(0)))
-                    .declareVar(EventBean.class, "istream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantTrue(), REF_ISSYNTHESIZE));
+                    .declareVar(EventBean.EPTYPE, "istream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantTrue(), REF_ISSYNTHESIZE));
             if (forge.isSelectRStream()) {
                 methodNode.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, "toPairNullIfAllNullSingle", ref("istream"), ref("rstream")));
             } else {
@@ -124,7 +122,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
             }
         };
 
-        return instance.getMethods().addMethod(UniformPair.class, "processViewResultNewDepthOneUnboundCodegen", CodegenNamedParam.from(EventBean[].class, NAME_NEWDATA, boolean.class, NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
+        return instance.getMethods().addMethod(UniformPair.EPTYPE, "processViewResultNewDepthOneUnboundCodegen", CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_NEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
     }
 
     public static void stopMethodCodegenUnbound(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {

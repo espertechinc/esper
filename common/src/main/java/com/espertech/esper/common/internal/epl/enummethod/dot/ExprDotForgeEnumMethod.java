@@ -14,7 +14,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public interface ExprDotForgeEnumMethod extends ExprDotForge {
     void init(Integer streamOfProviderIfApplicable,
               EnumMethodDesc lambda,
               String lambdaUsedName,
-              EPType currentInputType,
+              EPChainableType currentInputType,
               List<ExprNode> parameters,
               ExprValidationContext validationContext) throws ExprValidationException;
 }

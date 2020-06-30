@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionMode;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeMultiParam;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 import java.util.List;
@@ -25,11 +27,11 @@ public class SupportIntListAggregationForge implements AggregationFunctionForge 
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {
-        return new AggregationFunctionModeMultiParam().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportIntListAggregationFactory.class));
+        return new AggregationFunctionModeMultiParam().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportIntListAggregationFactory.EPTYPE));
     }
 
-    public Class getValueType() {
-        return List.class;
+    public EPTypeClass getValueType() {
+        return new EPTypeClassParameterized(List.class, new EPTypeClass[] {new EPTypeClass(Integer.class)});
     }
 
     public void setFunctionName(String functionName) {

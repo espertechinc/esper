@@ -13,8 +13,11 @@ package com.espertech.esper.regressionlib.support.extend.aggfunc;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunction;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionFactory;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class SupportLowerUpperCompareAggregationFunctionFactory implements AggregationFunctionFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportLowerUpperCompareAggregationFunctionFactory.class);
+
     public AggregationFunction newAggregator(AggregationFunctionFactoryContext ctx) {
         return new SupportLowerUpperCompareAggregationFunction();
     }

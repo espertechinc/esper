@@ -11,6 +11,7 @@
 package com.espertech.esper.common.client.hook.enummethod;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -25,7 +26,7 @@ import java.util.List;
 public class EnumMethodValidateContext {
     private final DotMethodFP footprintFound;
     private final EventType inputEventType;
-    private final Class inputCollectionComponentType;
+    private final EPTypeClass inputCollectionComponentType;
     private final StreamTypeService streamTypeService;
     private final EnumMethodEnum currentMethod;
     private final List<ExprNode> currentParameters;
@@ -42,7 +43,7 @@ public class EnumMethodValidateContext {
      * @param currentParameters            parameters
      * @param statementRawInfo             EPL statement information
      */
-    public EnumMethodValidateContext(DotMethodFP footprintFound, EventType inputEventType, Class inputCollectionComponentType, StreamTypeService streamTypeService, EnumMethodEnum currentMethod, List<ExprNode> currentParameters, StatementRawInfo statementRawInfo) {
+    public EnumMethodValidateContext(DotMethodFP footprintFound, EventType inputEventType, EPTypeClass inputCollectionComponentType, StreamTypeService streamTypeService, EnumMethodEnum currentMethod, List<ExprNode> currentParameters, StatementRawInfo statementRawInfo) {
         this.footprintFound = footprintFound;
         this.inputEventType = inputEventType;
         this.inputCollectionComponentType = inputCollectionComponentType;
@@ -113,7 +114,7 @@ public class EnumMethodValidateContext {
      *
      * @return scalar value input type or null when the input is events
      */
-    public Class getInputCollectionComponentType() {
+    public EPTypeClass getInputCollectionComponentType() {
         return inputCollectionComponentType;
     }
 }

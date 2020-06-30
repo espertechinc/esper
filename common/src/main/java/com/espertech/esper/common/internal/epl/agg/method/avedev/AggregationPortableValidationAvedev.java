@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.avedev;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -20,15 +21,17 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValid
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 public class AggregationPortableValidationAvedev extends AggregationPortableValidationWFilterWInputType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationAvedev.class);
+
     public AggregationPortableValidationAvedev() {
     }
 
-    public AggregationPortableValidationAvedev(boolean distinct, boolean hasFilter, Class inputValueType) {
+    public AggregationPortableValidationAvedev(boolean distinct, boolean hasFilter, EPTypeClass inputValueType) {
         super(distinct, hasFilter, inputValueType);
     }
 
-    protected Class typeOf() {
-        return AggregationPortableValidationAvedev.class;
+    protected EPTypeClass typeOf() {
+        return AggregationPortableValidationAvedev.EPTYPE;
     }
 
     protected void validateIntoTableWFilterWInputType(String tableExpression, AggregationPortableValidation intoTableAgg, String intoExpression, AggregationForgeFactory factory) throws ExprValidationException {

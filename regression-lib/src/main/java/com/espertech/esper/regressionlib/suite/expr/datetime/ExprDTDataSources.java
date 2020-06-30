@@ -175,6 +175,8 @@ public class ExprDTDataSources {
                 "Event type declares start timestamp as property 'startTS' however inherited event type 'T2' declares start timestamp as property 'startTSOne'");
             tryInvalidCompile(env, path, "create schema T12 as (startTSOne long, endTSXXX long) inherits T2 starttimestamp startTSOne endtimestamp endTSXXX",
                 "Event type declares end timestamp as property 'endTSXXX' however inherited event type 'T2' declares end timestamp as property 'endTSOne'");
+            tryInvalidCompile(env, path, "create schema T12 as (startTSOne null, endTSXXX long) starttimestamp startTSOne endtimestamp endTSXXX",
+                "Declared start timestamp property 'startTSOne' is expected to return a Date, Calendar or long-typed value but returns 'null'");
 
             env.undeployAll();
         }

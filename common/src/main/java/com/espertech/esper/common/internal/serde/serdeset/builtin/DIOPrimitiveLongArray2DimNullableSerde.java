@@ -12,12 +12,15 @@ package com.espertech.esper.common.internal.serde.serdeset.builtin;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 public class DIOPrimitiveLongArray2DimNullableSerde implements DataInputOutputSerde<long[][]> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOPrimitiveLongArray2DimNullableSerde.class);
+
     public final static DIOPrimitiveLongArray2DimNullableSerde INSTANCE = new DIOPrimitiveLongArray2DimNullableSerde();
 
     private DIOPrimitiveLongArray2DimNullableSerde() {

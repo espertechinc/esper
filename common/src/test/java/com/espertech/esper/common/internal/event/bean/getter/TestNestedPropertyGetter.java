@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.supportunit.bean.SupportBeanCombinedProps;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventBeanFactory;
@@ -36,12 +37,12 @@ public class TestNestedPropertyGetter extends TestCase {
         List<EventPropertyGetter> getters = new LinkedList<EventPropertyGetter>();
         getters.add(makeGetterOne(0));
         getters.add(makeGetterTwo("0ma"));
-        getter = new NestedPropertyGetter(getters, null, Map.class, null, null);
+        getter = new NestedPropertyGetter(getters, null, EPTypePremade.MAP.getEPType(), null);
 
         getters = new LinkedList<EventPropertyGetter>();
         getters.add(makeGetterOne(2));
         getters.add(makeGetterTwo("0ma"));
-        getterNull = new NestedPropertyGetter(getters, null, Map.class, null, null);
+        getterNull = new NestedPropertyGetter(getters, null, EPTypePremade.MAP.getEPType(), null);
     }
 
     public void testGet() {

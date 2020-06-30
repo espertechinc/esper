@@ -13,7 +13,11 @@ package com.espertech.esper.regressionlib.suite.expr.enummethod;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -53,7 +57,66 @@ public class ExprEnumDataSources {
         execs.add(new ExprEnumMatchRecognizeMeasures(false));
         execs.add(new ExprEnumMatchRecognizeMeasures(true));
         execs.add(new ExprEnumCast());
+        execs.add(new ExprEnumPropertyGenericComponentType());
+        execs.add(new ExprEnumUDFStaticMethodGeneric());
+        execs.add(new ExprEnumSubqueryGenericComponentType());
         return execs;
+    }
+
+    private static class ExprEnumSubqueryGenericComponentType implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventType create schema MyEvent as (item Optional<Integer>);\n" +
+                "@name('s0') select (select item from MyEvent#keepall).sumOf(v => v.get()) as c0 from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendEvent(env, 10);
+            sendEvent(env, -2);
+            env.sendEventBean(new SupportBean());
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[] {8});
+
+            env.undeployAll();
+        }
+
+        private void sendEvent(RegressionEnvironment env, int i) {
+            env.sendEventMap(Collections.singletonMap("item", Optional.of(i)), "MyEvent");
+        }
+    }
+
+    public static class ExprEnumUDFStaticMethodGeneric implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select " + this.getClass().getName() + ".doit().sumOf(v => v.get()) as c0 from SupportBean;";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean());
+            assertEquals(30, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
+
+        public static Collection<Optional<Integer>> doit() {
+            return Arrays.asList(Optional.of(10), Optional.of(20));
+        }
+    }
+
+    private static class ExprEnumPropertyGenericComponentType implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventType create schema MyEvent as (arrayOfOptionalInt Optional<Integer>[], listOfOptionalInt List<Optional<Integer>>);\n" +
+                "@name('s0') select arrayOfOptionalInt.sumOf(v => v.get()) as c0, arrayOfOptionalInt.where(v => v.get() > 0).sumOf(v => v.get()) as c1," +
+                "listOfOptionalInt.sumOf(v => v.get()) as c2, listOfOptionalInt.where(v => v.get() > 0).sumOf(v => v.get()) as c3 from MyEvent;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            Map<String, Object> event = new HashMap<>();
+            event.put("arrayOfOptionalInt", makeOptional(10, -1));
+            event.put("listOfOptionalInt", Arrays.asList(makeOptional(5, -2)));
+            env.sendEventMap(event, "MyEvent");
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[] {9, 10, 3, 5});
+
+            env.undeployAll();
+        }
+
+        private Optional<Integer>[] makeOptional(int first, int second) {
+            return (Optional<Integer>[]) new Optional[]{Optional.of(first), Optional.of(second)};
+        }
     }
 
     private static class ExprEnumCast implements RegressionExecution {
@@ -341,7 +404,8 @@ public class ExprEnumDataSources {
                 "from SupportBean_ST0#sort(3, p00 asc) as st0";
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0,val1".split(","), new Class[]{SupportBean_ST0[].class, Collection.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val0,val1".split(","), new EPTypeClass[]{new EPTypeClass(SupportBean_ST0[].class),
+                EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
 
             env.sendEventBean(new SupportBean_ST0("E1", 5));
             LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E1");
@@ -365,7 +429,7 @@ public class ExprEnumDataSources {
             String stmtScalar = "@name('s0') select prevwindow(id).where(x => x not like '%ignore%') as val0 " +
                 "from SupportBean_ST0#keepall as st0";
             env.compileDeploy(stmtScalar).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, String.class)});
 
             env.sendEventBean(new SupportBean_ST0("E1", 5));
             LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E1");
@@ -397,7 +461,7 @@ public class ExprEnumDataSources {
 
             env.compileDeploy("@name('s0') select MyWindow.allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall", path);
             env.addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "allOfX".split(","), new Class[]{Boolean.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "allOfX".split(","), new EPTypeClass[]{EPTypePremade.BOOLEANBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean("E1", 1));
             assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
@@ -570,7 +634,6 @@ public class ExprEnumDataSources {
 
     private static class ExprEnumProperty implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-
             // test fragment type - collection inside
             String eplFragment = "@name('s0') select contained.allOf(x => x.p00 < 5) as allOfX from SupportBean_ST0_Container#keepall";
             env.compileDeploy(eplFragment).addListener("s0");
@@ -726,7 +789,7 @@ public class ExprEnumDataSources {
                 "makeSampleArrayString().where(x => x != 'E1') as val3 " +
                 "from SupportBean#length(2) as sb";
             env.compileDeploy(eplScalar).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Collection.class, Collection.class, Collection.class, Collection.class});
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class));
 
             SupportCollection.setSampleCSV("E1,E2,E3");
             env.sendEventBean(new SupportBean());

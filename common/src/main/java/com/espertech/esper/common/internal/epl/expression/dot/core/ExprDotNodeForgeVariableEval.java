@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -21,8 +22,9 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableReaderCodegenFieldSharable;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode;
-import com.espertech.esper.common.internal.rettype.ClassEPType;
-import com.espertech.esper.common.internal.rettype.EPTypeCodegenSharable;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeCodegenSharable;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -31,10 +33,10 @@ public class ExprDotNodeForgeVariableEval {
 
         CodegenExpressionField variableReader = classScope.addOrGetFieldSharable(new VariableReaderCodegenFieldSharable(forge.getVariable()));
 
-        Class variableType;
+        EPTypeClass variableType;
         VariableMetaData metaData = forge.getVariable();
         if (metaData.getEventType() != null) {
-            variableType = EventBean.class;
+            variableType = EventBean.EPTYPE;
         } else {
             variableType = metaData.getType();
         }
@@ -42,14 +44,14 @@ public class ExprDotNodeForgeVariableEval {
 
         CodegenExpression typeInformation = constantNull();
         if (classScope.isInstrumented()) {
-            typeInformation = classScope.addOrGetFieldSharable(new EPTypeCodegenSharable(new ClassEPType(variableType), classScope));
+            typeInformation = classScope.addOrGetFieldSharable(new EPChainableTypeCodegenSharable(new EPChainableTypeClass(variableType), classScope));
         }
 
         CodegenBlock block = methodNode.getBlock()
             .declareVar(variableType, "result", cast(variableType, exprDotMethod(variableReader, "getValue")))
             .apply(InstrumentationCode.instblock(classScope, "qExprDotChain", typeInformation, ref("result"), constant(forge.getChainForge().length)));
         CodegenExpression chain = ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, classScope, ref("result"), variableType, forge.getChainForge(), forge.getResultWrapLambda());
-        if (forge.getEvaluationType() != void.class) {
+        if (!JavaClassHelper.isTypeVoid(forge.getEvaluationType().getType())) {
             block.declareVar(forge.getEvaluationType(), "returned", chain)
                 .apply(InstrumentationCode.instblock(classScope, "aExprDotChain"))
                 .methodReturn(ref("returned"));

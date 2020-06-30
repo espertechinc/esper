@@ -47,10 +47,10 @@ public class StatementAgentInstanceFactoryCreateIndexForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateIndex.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateIndex.EPTYPE, this.getClass(), classScope);
         CodegenExpressionRef saiff = ref("saiff");
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateIndex.class, saiff.getRef(), newInstance(StatementAgentInstanceFactoryCreateIndex.class))
+                .declareVarNewInstance(StatementAgentInstanceFactoryCreateIndex.EPTYPE, saiff.getRef())
                 .exprDotMethod(saiff, "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
                 .exprDotMethod(saiff, "setIndexName", constant(indexName))
                 .exprDotMethod(saiff, "setIndexModuleName", constant(indexModuleName))

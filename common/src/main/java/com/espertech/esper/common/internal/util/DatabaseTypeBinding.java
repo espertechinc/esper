@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.io.Serializable;
@@ -35,7 +36,7 @@ public interface DatabaseTypeBinding extends Serializable {
      *
      * @return Java type
      */
-    public Class getType();
+    public EPType getType();
 
     public CodegenExpression make();
 }

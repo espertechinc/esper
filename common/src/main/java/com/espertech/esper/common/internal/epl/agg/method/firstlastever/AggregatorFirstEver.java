@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.firstlastever;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
@@ -41,26 +44,26 @@ public class AggregatorFirstEver extends AggregatorMethodWDistinctWFilterWValueB
     private final CodegenExpressionMember firstValue;
     private final CodegenExpressionField serde;
 
-    public AggregatorFirstEver(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, Class childType, DataInputOutputSerdeForge serde) {
+    public AggregatorFirstEver(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, EPTypeClass childType, DataInputOutputSerdeForge serde) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
-        isSet = membersColumnized.addMember(col, boolean.class, "isSet");
-        firstValue = membersColumnized.addMember(col, Object.class, "firstValue");
+        isSet = membersColumnized.addMember(col, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "isSet");
+        firstValue = membersColumnized.addMember(col, EPTypePremade.OBJECT.getEPType(), "firstValue");
         this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(VALUE_NULLABLE, childType, serde, classScope));
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
-        method.getBlock().apply(enterConsumer(forges[0].evaluateCodegen(Object.class, method, symbols, classScope)));
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+        method.getBlock().apply(enterConsumer(forges[0].evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, symbols, classScope)));
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().apply(enterConsumer(value));
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         // no op
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         // no op
     }
 

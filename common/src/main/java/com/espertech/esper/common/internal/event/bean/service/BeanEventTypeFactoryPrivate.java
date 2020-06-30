@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
@@ -33,7 +34,7 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
     private final EventTypeFactory eventTypeFactory;
     private final BeanEventTypeStemService stemFactory;
 
-    private final Map<Class, BeanEventType> types = new HashMap<>();
+    private final Map<EPTypeClass, BeanEventType> types = new HashMap<>();
 
     public BeanEventTypeFactoryPrivate(EventBeanTypedEventFactory typedEventFactory, EventTypeFactory eventTypeFactory, BeanEventTypeStemService stemFactory) {
         this.typedEventFactory = typedEventFactory;
@@ -41,7 +42,7 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
         this.stemFactory = stemFactory;
     }
 
-    public BeanEventType getCreateBeanType(Class clazz, boolean publicFields) {
+    public BeanEventType getCreateBeanType(EPTypeClass clazz, boolean publicFields) {
         BeanEventType existing = types.get(clazz);
         if (existing != null) {
             return existing;
@@ -57,7 +58,7 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
         BeanEventTypeStem stem = stemFactory.getCreateStem(clazz, config);
 
         // metadata
-        EventTypeMetadata metadata = new EventTypeMetadata(clazz.getName(), null, EventTypeTypeClass.BEAN_INCIDENTAL, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, computeTypeId(clazz.getName()));
+        EventTypeMetadata metadata = new EventTypeMetadata(clazz.getTypeName(), null, EventTypeTypeClass.BEAN_INCIDENTAL, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, computeTypeId(clazz.getTypeName()));
 
         // supertypes
         EventType[] superTypes = getSuperTypes(stem.getSuperTypes());
@@ -87,7 +88,7 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
         return new EventTypeIdPair(0, id);
     }
 
-    private EventType[] getSuperTypes(Class[] superTypes) {
+    private EventType[] getSuperTypes(EPTypeClass[] superTypes) {
         if (superTypes == null || superTypes.length == 0) {
             return null;
         }
@@ -98,12 +99,12 @@ public class BeanEventTypeFactoryPrivate implements BeanEventTypeFactory {
         return types;
     }
 
-    private Set<EventType> getDeepSupertypes(Set<Class> superTypes) {
+    private Set<EventType> getDeepSupertypes(Set<EPTypeClass> superTypes) {
         if (superTypes == null || superTypes.isEmpty()) {
             return Collections.emptySet();
         }
         LinkedHashSet<EventType> supers = new LinkedHashSet<>(4);
-        for (Class clazz : superTypes) {
+        for (EPTypeClass clazz : superTypes) {
             supers.add(getCreateBeanType(clazz, false));
         }
         return supers;

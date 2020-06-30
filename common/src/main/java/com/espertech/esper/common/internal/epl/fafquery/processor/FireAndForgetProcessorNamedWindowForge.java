@@ -51,10 +51,10 @@ public class FireAndForgetProcessorNamedWindowForge implements FireAndForgetProc
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FireAndForgetProcessorNamedWindow.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FireAndForgetProcessorNamedWindow.EPTYPE, this.getClass(), classScope);
         CodegenExpressionRef nw = ref("nw");
         method.getBlock()
-                .declareVar(FireAndForgetProcessorNamedWindow.class, nw.getRef(), newInstance(FireAndForgetProcessorNamedWindow.class))
+                .declareVarNewInstance(FireAndForgetProcessorNamedWindow.EPTYPE, nw.getRef())
                 .exprDotMethod(nw, "setNamedWindow", NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)))
                 .methodReturn(nw);
         return localMethod(method);

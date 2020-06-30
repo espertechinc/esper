@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.serde;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -18,6 +20,10 @@ import java.io.IOException;
  * Implementations read and write objects from/to the stream.
  */
 public interface DataInputOutputSerde<E> {
+    /**
+     * Type information
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(DataInputOutputSerde.class);
 
     /**
      * Write an object to the stream.

@@ -12,11 +12,14 @@ package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import org.w3c.dom.Node;
 
 import java.util.Map;
 
 public interface EventBeanTypedEventFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(EventBeanTypedEventFactory.class);
+
     String ADAPTERFORTYPEDMAP = "adapterForTypedMap";
     String ADAPTERFORTYPEDOBJECTARRAY = "adapterForTypedObjectArray";
     String ADAPTERFORTYPEDBEAN = "adapterForTypedBean";

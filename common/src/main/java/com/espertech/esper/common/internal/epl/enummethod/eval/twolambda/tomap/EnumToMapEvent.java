@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.tomap;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -68,16 +69,16 @@ public class EnumToMapEvent extends EnumForgeBasePlain {
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Map.class, EnumToMapEvent.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.MAP.getEPType(), EnumToMapEvent.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
             .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
             .blockReturn(staticMethod(Collections.class, "emptyMap"));
-        block.declareVar(Map.class, "map", newInstance(HashMap.class));
-        block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+        block.declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.HASHMAP.getEPType()));
+        block.forEach(EventBean.EPTYPE, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("next"))
-            .declareVar(Object.class, "key", innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
-            .declareVar(Object.class, "value", secondExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "key", innerExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", secondExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
             .expression(exprDotMethod(ref("map"), "put", ref("key"), ref("value")));
         block.methodReturn(ref("map"));
         return localMethod(methodNode, premade.getEps(), premade.getEnumcoll(), premade.getIsNewData(), premade.getExprCtx());

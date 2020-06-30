@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.onsplit;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StatementAgentInstanceFactoryOnTriggerBase;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
@@ -24,6 +25,8 @@ import com.espertech.esper.common.internal.view.core.View;
 import java.util.List;
 
 public class StatementAgentInstanceFactoryOnTriggerSplitStream extends StatementAgentInstanceFactoryOnTriggerBase implements StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryOnTriggerSplitStream.class);
+
     private OnSplitItemEval[] items;
     private boolean isFirst;
     private StatementContext statementContext;

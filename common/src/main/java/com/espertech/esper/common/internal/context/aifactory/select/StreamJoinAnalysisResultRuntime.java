@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.select;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindow;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 
 public class StreamJoinAnalysisResultRuntime {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StreamJoinAnalysisResultRuntime.class);
+
     private boolean pureSelfJoin;
     private boolean[] unidirectional;
     private boolean[] unidirectionalNonDriving;

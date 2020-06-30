@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.instantiator.BeanInstantiator;
 import com.espertech.esper.common.internal.event.bean.instantiator.BeanInstantiatorForgeByNewInstanceReflection;
 import com.espertech.esper.common.internal.event.core.EventBeanManufactureException;
@@ -25,10 +26,13 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypePrimitive;
+
 /**
  * Factory for event beans created and populate anew from a set of values.
  */
 public class EventBeanManufacturerJsonProvided implements EventBeanManufacturer {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventBeanManufacturerJsonProvided.class);
     private final static Logger log = LoggerFactory.getLogger(EventBeanManufacturerJsonProvided.class);
 
     private final BeanInstantiator beanInstantiator;
@@ -56,7 +60,7 @@ public class EventBeanManufacturerJsonProvided implements EventBeanManufacturer 
         this.jsonEventType = jsonEventType;
         this.service = service;
 
-        beanInstantiator = new BeanInstantiatorForgeByNewInstanceReflection(jsonEventType.getUnderlyingType());
+        beanInstantiator = new BeanInstantiatorForgeByNewInstanceReflection(jsonEventType.getUnderlyingEPType());
 
         writeFieldsReflection = new Field[properties.length];
         boolean primitiveTypeCheck = false;
@@ -65,7 +69,7 @@ public class EventBeanManufacturerJsonProvided implements EventBeanManufacturer 
             String propertyName = properties[i].getPropertyName();
             JsonUnderlyingField field = jsonEventType.getDetail().getFieldDescriptors().get(propertyName);
             writeFieldsReflection[i] = field.getOptionalField();
-            primitiveType[i] = properties[i].getType().isPrimitive();
+            primitiveType[i] = isTypePrimitive(properties[i].getType());
             primitiveTypeCheck |= primitiveType[i];
         }
         hasPrimitiveTypes = primitiveTypeCheck;

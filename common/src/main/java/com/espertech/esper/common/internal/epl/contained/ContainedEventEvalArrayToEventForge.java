@@ -33,11 +33,11 @@ public class ContainedEventEvalArrayToEventForge implements ContainedEventEvalFo
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContainedEventEvalArrayToEvent.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContainedEventEvalArrayToEvent.EPTYPE, this.getClass(), classScope);
         CodegenExpression eval = ExprNodeUtilityCodegen.codegenEvaluator(evaluator, method, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(EventBeanManufacturer.class, "manu", manufacturer.make(method, classScope))
-                .methodReturn(newInstance(ContainedEventEvalArrayToEvent.class, eval, ref("manu")));
+                .declareVar(EventBeanManufacturer.EPTYPE, "manu", manufacturer.make(method, classScope))
+                .methodReturn(newInstance(ContainedEventEvalArrayToEvent.EPTYPE, eval, ref("manu")));
         return localMethod(method);
     }
 }

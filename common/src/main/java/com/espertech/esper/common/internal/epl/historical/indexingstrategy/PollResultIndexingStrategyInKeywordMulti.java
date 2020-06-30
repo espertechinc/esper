@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.hash.PropertyHashedEventTableFactory;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.epl.index.hash.PropertyHashedEventTab
 import java.util.List;
 
 public class PollResultIndexingStrategyInKeywordMulti implements PollResultIndexingStrategy {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PollResultIndexingStrategyInKeywordMulti.class);
+
     private int streamNum;
     private String[] propertyNames;
     private EventPropertyValueGetter[] valueGetters;

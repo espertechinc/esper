@@ -73,7 +73,7 @@ public class EPLSubselectAllAnySomeExpr {
             env.undeployAll();
 
             tryInvalidCompile(env, "select intArr > all (select intPrimitive from SupportBean#keepall) from SupportBeanArrayCollMap",
-                "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr > all (select intPrimitive from SupportBean#keepall) from SupportBeanArrayCollMap]");
+                "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords [select intArr > all (select intPrimitive from SupportBean#keepall) from SupportBeanArrayCollMap]");
 
             // test OM
             env.eplToModelCompileDeploy(stmtText).addListener("s0");
@@ -282,7 +282,7 @@ public class EPLSubselectAllAnySomeExpr {
         public void run(RegressionEnvironment env) {
             tryInvalidCompile(env,
                 "select intArr = all (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap",
-                "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr = all (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap]");
+                "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords [select intArr = all (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap]");
         }
     }
 

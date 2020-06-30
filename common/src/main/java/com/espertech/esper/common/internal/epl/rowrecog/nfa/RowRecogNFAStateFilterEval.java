@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.rowrecog.nfa;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
  * NFA state for a single match that applies a filter.
  */
 public class RowRecogNFAStateFilterEval extends RowRecogNFAStateBase implements RowRecogNFAState {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowRecogNFAStateFilterEval.class);
+
     private ExprEvaluator expression;
     private String expressionTextForAudit;
 

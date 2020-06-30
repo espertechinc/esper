@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.util.LikeUtil;
 import java.io.StringWriter;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
 
 /**
  * Represents the like-clause in an expression tree.
@@ -56,26 +58,27 @@ public class ExprLikeNode extends ExprNodeBase {
         }
 
         // check eval child node - can be String or numeric
-        Class evalChildType = getChildNodes()[0].getForge().getEvaluationType();
-        boolean isNumericValue = JavaClassHelper.isNumeric(evalChildType);
-        if ((evalChildType != String.class) && (!isNumericValue)) {
+        EPType evalType = getChildNodes()[0].getForge().getEvaluationType();
+        boolean isNumericValue = JavaClassHelper.isNumeric(evalType);
+        if (!isTypeString(evalType) && !isNumericValue) {
             throw new ExprValidationException("The 'like' operator requires a String or numeric type left-hand expression");
         }
 
         // check pattern child node
-        Class patternChildType = getChildNodes()[1].getForge().getEvaluationType();
-        if (patternChildType != String.class) {
+        ExprForge patternForge = getChildNodes()[1].getForge();
+        if (!isTypeString(patternForge.getEvaluationType())) {
             throw new ExprValidationException("The 'like' operator requires a String-type pattern expression");
         }
-        boolean isConstantPattern = getChildNodes()[1].getForge().getForgeConstantType().isCompileTimeConstant();
+        boolean isConstantPattern = patternForge.getForgeConstantType().isCompileTimeConstant();
 
         // check escape character node
         boolean isConstantEscape = true;
         if (this.getChildNodes().length == 3) {
-            if (this.getChildNodes()[2].getForge().getEvaluationType() != String.class) {
+            ExprForge escapeForge = this.getChildNodes()[2].getForge();
+            if (!isTypeString(escapeForge.getEvaluationType())) {
                 throw new ExprValidationException("The 'like' operator escape parameter requires a character-type value");
             }
-            isConstantEscape = getChildNodes()[2].getForge().getForgeConstantType().isCompileTimeConstant();
+            isConstantEscape = escapeForge.getForgeConstantType().isCompileTimeConstant();
         }
 
         if (isConstantPattern && isConstantEscape) {
@@ -92,7 +95,7 @@ public class ExprLikeNode extends ExprNodeBase {
                 escapeCharacter = escape.charAt(0);
             }
             LikeUtil likeUtil = new LikeUtil(patternVal, escapeCharacter, false);
-            CodegenExpression likeUtilInit = newInstance(LikeUtil.class, constant(patternVal), constant(escapeCharacter), constantFalse());
+            CodegenExpression likeUtilInit = newInstance(LikeUtil.EPTYPE, constant(patternVal), constant(escapeCharacter), constantFalse());
             forge = new ExprLikeNodeForgeConst(this, isNumericValue, likeUtil, likeUtilInit);
         } else {
             forge = new ExprLikeNodeForgeNonconst(this, isNumericValue);

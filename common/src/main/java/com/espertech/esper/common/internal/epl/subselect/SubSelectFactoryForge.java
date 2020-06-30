@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.subselect;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -19,7 +20,6 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,9 +41,9 @@ public class SubSelectFactoryForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubSelectFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubSelectFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(SubSelectFactory.class, "factory", newInstance(SubSelectFactory.class))
+                .declareVarNewInstance(SubSelectFactory.EPTYPE, "factory")
                 .exprDotMethod(ref("factory"), "setSubqueryNumber", constant(subqueryNumber))
                 .exprDotMethod(ref("factory"), "setActivator", activator.makeCodegen(method, symbols, classScope))
                 .exprDotMethod(ref("factory"), "setStrategyFactory", strategyFactoryForge.makeCodegen(method, symbols, classScope))
@@ -56,9 +56,9 @@ public class SubSelectFactoryForge {
     }
 
     public static CodegenExpression codegenInitMap(Map<ExprSubselectNode, SubSelectFactoryForge> subselects, Class generator, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, generator, classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), generator, classScope);
         method.getBlock()
-                .declareVar(Map.class, "subselects", newInstance(LinkedHashMap.class, constant(subselects.size() + 2)));
+                .declareVar(EPTypePremade.MAP.getEPType(), "subselects", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType(), constant(subselects.size() + 2)));
         for (Map.Entry<ExprSubselectNode, SubSelectFactoryForge> entry : subselects.entrySet()) {
             method.getBlock().exprDotMethod(ref("subselects"), "put", constant(entry.getKey().getSubselectNumber()), entry.getValue().make(method, symbols, classScope));
         }

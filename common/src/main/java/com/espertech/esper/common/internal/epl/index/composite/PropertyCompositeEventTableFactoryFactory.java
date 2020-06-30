@@ -13,24 +13,27 @@ package com.espertech.esper.common.internal.epl.index.composite;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class PropertyCompositeEventTableFactoryFactory implements EventTableFactoryFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyCompositeEventTableFactoryFactory.class);
+
     private final int indexedStreamNum;
     private final Integer subqueryNum;
     private final boolean isFireAndForget;
     private final String[] keyProps;
-    private final Class[] keyTypes;
+    private final EPTypeClass[] keyTypes;
     private final EventPropertyValueGetter keyGetter;
     private final DataInputOutputSerde<Object> keySerde;
     private final String[] rangeProps;
-    private final Class[] rangeTypes;
+    private final EPTypeClass[] rangeTypes;
     private final EventPropertyValueGetter[] rangeGetters;
     private final DataInputOutputSerde<Object>[] rangeKeySerdes;
 
-    public PropertyCompositeEventTableFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] keyProps, Class[] keyTypes, EventPropertyValueGetter keyGetter, DataInputOutputSerde<Object> keySerde, String[] rangeProps, Class[] rangeTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeKeySerdes) {
+    public PropertyCompositeEventTableFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] keyProps, EPTypeClass[] keyTypes, EventPropertyValueGetter keyGetter, DataInputOutputSerde<Object> keySerde, String[] rangeProps, EPTypeClass[] rangeTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeKeySerdes) {
         this.indexedStreamNum = indexedStreamNum;
         this.subqueryNum = subqueryNum;
         this.isFireAndForget = isFireAndForget;

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.lookupplansubord;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -39,7 +40,7 @@ import java.util.List;
 
 public class SubordinateQueryPlannerUtil {
 
-    public static SubordinateQueryPlannerIndexPropListPair toListOfHashedAndBtreeProps(String[] hashIndexPropsProvided, Class[] hashIndexCoercionType, String[] rangeIndexPropsProvided, Class[] rangeIndexCoercionType) {
+    public static SubordinateQueryPlannerIndexPropListPair toListOfHashedAndBtreeProps(String[] hashIndexPropsProvided, EPTypeClass[] hashIndexCoercionType, String[] rangeIndexPropsProvided, EPTypeClass[] rangeIndexCoercionType) {
         List<IndexedPropDesc> hashedProps = new ArrayList<IndexedPropDesc>();
         List<IndexedPropDesc> btreeProps = new ArrayList<IndexedPropDesc>();
         for (int i = 0; i < hashIndexPropsProvided.length; i++) {
@@ -133,7 +134,7 @@ public class SubordinateQueryPlannerUtil {
         IndexedPropDesc[] indexedKeyProps = indexMultiKey.getHashIndexedProps();
         boolean isCoerceHash = false;
         SubordPropHashKeyForge[] hashesDesc = new SubordPropHashKeyForge[indexedKeyProps.length];
-        Class[] hashPropCoercionTypes = new Class[indexedKeyProps.length];
+        EPTypeClass[] hashPropCoercionTypes = new EPTypeClass[indexedKeyProps.length];
 
         for (int i = 0; i < indexedKeyProps.length; i++) {
             String indexField = indexedKeyProps[i].getIndexPropName();
@@ -144,7 +145,7 @@ public class SubordinateQueryPlannerUtil {
             hashesDesc[i] = hashJoinedProps[index];
             hashPropCoercionTypes[i] = indexedKeyProps[i].getCoercionType();
             ExprForge keyForge = hashesDesc[i].getHashKey().getKeyExpr().getForge();
-            if (JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()) != JavaClassHelper.getBoxedType(keyForge.getEvaluationType())) {   // we allow null evaluator
+            if (!JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()).equals(JavaClassHelper.getBoxedType(keyForge.getEvaluationType()))) {   // we allow null evaluator
                 isCoerceHash = true;
             }
         }
@@ -152,7 +153,7 @@ public class SubordinateQueryPlannerUtil {
         // map the order of range columns (range) to the range information available
         indexedKeyProps = indexMultiKey.getRangeIndexedProps();
         SubordPropRangeKeyForge[] rangesDesc = new SubordPropRangeKeyForge[indexedKeyProps.length];
-        Class[] rangePropCoercionTypes = new Class[indexedKeyProps.length];
+        EPTypeClass[] rangePropCoercionTypes = new EPTypeClass[indexedKeyProps.length];
         boolean isCoerceRange = false;
         for (int i = 0; i < indexedKeyProps.length; i++) {
             String indexField = indexedKeyProps[i].getIndexPropName();
@@ -162,7 +163,7 @@ public class SubordinateQueryPlannerUtil {
             }
             rangesDesc[i] = rangeJoinedProps[index];
             rangePropCoercionTypes[i] = rangeJoinedProps[index].getCoercionType();
-            if (JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()) != JavaClassHelper.getBoxedType(rangePropCoercionTypes[i])) {
+            if (JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()).getType() != JavaClassHelper.getBoxedType(rangePropCoercionTypes[i]).getType()) {
                 isCoerceRange = true;
             }
         }

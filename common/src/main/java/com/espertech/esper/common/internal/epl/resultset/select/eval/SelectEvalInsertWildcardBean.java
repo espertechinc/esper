@@ -31,7 +31,7 @@ public class SelectEvalInsertWildcardBean extends SelectEvalBase implements Sele
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression bean = exprDotMethod(arrayAtIndex(refEPS, constant(0)), "getUnderlying");
         methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedBean", bean, resultEventType));

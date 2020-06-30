@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.minmax;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -24,10 +25,12 @@ import com.espertech.esper.common.internal.epl.expression.core.MinMaxTypeEnum;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
 public class AggregationPortableValidationMinMax extends AggregationPortableValidationWFilterWInputType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationMinMax.class);
+
     private MinMaxTypeEnum minMax;
     private boolean unbound;
 
-    public AggregationPortableValidationMinMax(boolean distinct, boolean hasFilter, Class inputValueType, MinMaxTypeEnum minMax, boolean unbound) {
+    public AggregationPortableValidationMinMax(boolean distinct, boolean hasFilter, EPTypeClass inputValueType, MinMaxTypeEnum minMax, boolean unbound) {
         super(distinct, hasFilter, inputValueType);
         this.minMax = minMax;
         this.unbound = unbound;
@@ -36,8 +39,8 @@ public class AggregationPortableValidationMinMax extends AggregationPortableVali
     public AggregationPortableValidationMinMax() {
     }
 
-    protected Class typeOf() {
-        return AggregationPortableValidationMinMax.class;
+    protected EPTypeClass typeOf() {
+        return AggregationPortableValidationMinMax.EPTYPE;
     }
 
     protected void codegenInlineSetWFilterWInputType(CodegenExpressionRef ref, CodegenMethod method, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {

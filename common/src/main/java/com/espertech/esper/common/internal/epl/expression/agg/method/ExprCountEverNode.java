@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.count.AggregationForgeFactoryCountEver;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -46,7 +47,7 @@ public class ExprCountEverNode extends ExprAggregateNodeBase {
                 optionalFilter = positionalParams[1];
             }
         }
-        Class childType = getChildNodes()[0].getForge().getEvaluationType();
+        EPType childType = getChildNodes()[0].getForge().getEvaluationType();
         DataInputOutputSerdeForge distinctSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo()) : null;
         return new AggregationForgeFactoryCountEver(this, ignoreNulls, childType, distinctSerde);
     }

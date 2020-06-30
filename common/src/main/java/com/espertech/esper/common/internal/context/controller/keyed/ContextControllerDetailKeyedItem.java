@@ -12,16 +12,20 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 
 public class ContextControllerDetailKeyedItem {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerDetailKeyedItem.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ContextControllerDetailKeyedItem[].class);
 
     private EventPropertyValueGetter getter;
     private FilterSpecActivatable filterSpecActivatable;
     private String optionalInitConditionAsName;
     private ExprFilterSpecLookupable[] lookupables;
-    private Class[] propertyTypes;
+    private EPType[] propertyTypes;
     private DataInputOutputSerde<Object> keySerde;
     private String aliasName;
 
@@ -57,11 +61,11 @@ public class ContextControllerDetailKeyedItem {
         this.lookupables = lookupables;
     }
 
-    public Class[] getPropertyTypes() {
+    public EPType[] getPropertyTypes() {
         return propertyTypes;
     }
 
-    public void setPropertyTypes(Class[] propertyTypes) {
+    public void setPropertyTypes(EPType[] propertyTypes) {
         this.propertyTypes = propertyTypes;
     }
 

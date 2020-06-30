@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.view.util;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
@@ -24,7 +27,7 @@ import java.util.List;
 
 public class ViewForgeSupport {
     public static Object validateAndEvaluate(String viewName, ExprNode expression, ViewForgeEnv viewForgeEnv, int streamNumber)
-            throws ViewParameterException {
+        throws ViewParameterException {
         return validateAndEvaluateExpr(viewName, expression, new StreamTypeServiceImpl(false), viewForgeEnv, 0, streamNumber);
     }
 
@@ -58,7 +61,7 @@ public class ViewForgeSupport {
     }
 
     public static Object validateAndEvaluateExpr(String viewName, ExprNode expression, StreamTypeService streamTypeService, ViewForgeEnv viewForgeEnv, int expressionNumber, int streamNumber)
-            throws ViewParameterException {
+        throws ViewParameterException {
         ExprNode validated = validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber, streamNumber);
 
         try {
@@ -82,8 +85,12 @@ public class ViewForgeSupport {
 
     public static ExprForge validateSizeParam(String viewName, ExprNode sizeNode, int expressionNumber) throws ViewParameterException {
         ExprForge forge = sizeNode.getForge();
-        Class returnType = JavaClassHelper.getBoxedType(sizeNode.getForge().getEvaluationType());
-        if (!JavaClassHelper.isNumeric(returnType) || JavaClassHelper.isFloatingPointClass(returnType) || returnType == Long.class) {
+        EPType sizeType = sizeNode.getForge().getEvaluationType();
+        if (sizeType == null || sizeType == EPTypeNull.INSTANCE) {
+            throw new ViewParameterException(getViewParamMessage(viewName));
+        }
+        EPTypeClass sizeTypeBoxed = JavaClassHelper.getBoxedType((EPTypeClass) sizeType);
+        if (!JavaClassHelper.isNumeric(sizeTypeBoxed) || JavaClassHelper.isFloatingPointClass(sizeTypeBoxed) || sizeTypeBoxed.getType() == Long.class) {
             throw new ViewParameterException(getViewParamMessage(viewName));
         }
         if (sizeNode.getForge().getForgeConstantType().isCompileTimeConstant()) {
@@ -112,7 +119,7 @@ public class ViewForgeSupport {
      * @throws ViewParameterException if the expressions fail to validate
      */
     public static ExprNode[] validate(String viewName, EventType eventType, List<ExprNode> expressions, boolean allowConstantResult, ViewForgeEnv viewForgeEnv, int streamNumber)
-            throws ViewParameterException {
+        throws ViewParameterException {
         List<ExprNode> results = new ArrayList<ExprNode>();
         int expressionNumber = 0;
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventType, null, false);
@@ -131,7 +138,7 @@ public class ViewForgeSupport {
     }
 
     public static ExprNode[] validate(String viewName, List<ExprNode> expressions, ViewForgeEnv viewForgeEnv, int streamNumber)
-            throws ViewParameterException {
+        throws ViewParameterException {
         ExprNode[] results = new ExprNode[expressions.size()];
         int expressionNumber = 0;
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(false);
@@ -143,12 +150,12 @@ public class ViewForgeSupport {
     }
 
     public static ExprNode validateExpr(String viewName, ExprNode expression, StreamTypeService streamTypeService, ViewForgeEnv viewForgeEnv, int expressionNumber, int streamNumber)
-            throws ViewParameterException {
+        throws ViewParameterException {
         ExprNode validated;
         try {
             ExprValidationMemberNameQualifiedView names = new ExprValidationMemberNameQualifiedView(streamNumber);
             ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getStatementCompileTimeServices())
-                    .withMemberName(names).build();
+                .withMemberName(names).build();
             validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.VIEWPARAMETER, expression, validationContext);
         } catch (ExprValidationException ex) {
             String message = "Invalid parameter expression " + expressionNumber + getViewDesc(viewName);
@@ -161,7 +168,7 @@ public class ViewForgeSupport {
     }
 
     public static Object evaluate(ExprEvaluator evaluator, int expressionNumber, String viewName)
-            throws ViewParameterException {
+        throws ViewParameterException {
         try {
             return evaluator.evaluate(null, true, null);
         } catch (RuntimeException ex) {

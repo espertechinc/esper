@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.historical.database.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.util.DatabaseTypeBinding;
 
@@ -19,6 +20,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Descriptor for SQL output columns.
  */
 public class DBOutputTypeDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DBOutputTypeDesc.class);
+
     private int sqlType;
     private String className;
     private DatabaseTypeBinding optionalBinding;
@@ -69,7 +72,7 @@ public class DBOutputTypeDesc {
     }
 
     public CodegenExpression make() {
-        return newInstance(DBOutputTypeDesc.class, constant(sqlType), constant(className), optionalBinding == null ? constantNull() : optionalBinding.make());
+        return newInstance(DBOutputTypeDesc.EPTYPE, constant(sqlType), constant(className), optionalBinding == null ? constantNull() : optionalBinding.make());
     }
 }
 

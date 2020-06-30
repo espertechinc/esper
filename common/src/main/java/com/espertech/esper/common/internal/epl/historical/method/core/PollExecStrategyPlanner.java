@@ -34,41 +34,41 @@ public class PollExecStrategyPlanner {
             }
 
             if (metadata.getEventTypeEventBeanArray() != null) {
-                conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyEventBeans.class);
+                conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyEventBeans.EPTYPE);
             } else if (metadata.getOptionalMapType() != null) {
                 if (targetMethod.getReturnType().isArray()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyArrayMap.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyArrayMap.EPTYPE);
                 } else if (metadata.isCollection()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyCollectionMap.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyCollectionMap.EPTYPE);
                 } else if (metadata.isIterator()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyIteratorMap.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyIteratorMap.EPTYPE);
                 } else {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyPlainMap.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyPlainMap.EPTYPE);
                 }
             } else if (metadata.getOptionalOaType() != null) {
                 if (targetMethod.getReturnType() == Object[][].class) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyArrayOA.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyArrayOA.EPTYPE);
                 } else if (metadata.isCollection()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyCollectionOA.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyCollectionOA.EPTYPE);
                 } else if (metadata.isIterator()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyIteratorOA.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyIteratorOA.EPTYPE);
                 } else {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyPlainOA.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyPlainOA.EPTYPE);
                 }
             } else {
                 if (targetMethod.getReturnType().isArray()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyArrayPOJO.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyArrayPOJO.EPTYPE);
                 } else if (metadata.isCollection()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyCollectionPOJO.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyCollectionPOJO.EPTYPE);
                 } else if (metadata.isIterator()) {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyIteratorPOJO.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyIteratorPOJO.EPTYPE);
                 } else {
-                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyPlainPOJO.class);
+                    conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyPlainPOJO.EPTYPE);
                 }
             }
         } else {
             target = new MethodTargetStrategyScriptForge(metadata.getScriptExpression());
-            conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyScript.class);
+            conversion = new MethodConversionStrategyForge(eventType, MethodConversionStrategyScript.EPTYPE);
         }
         return new Pair<>(target, conversion);
     }

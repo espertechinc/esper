@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.metric;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Reports runtime-level instrumentation values.
  */
 public class RuntimeMetric extends MetricEvent {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RuntimeMetric.class);
+
     private static final long serialVersionUID = 1875223434088366151L;
     private final long timestamp;
     private final long inputCount;

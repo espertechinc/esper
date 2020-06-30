@@ -13,11 +13,15 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
+import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanWithEnum;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -27,8 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import static com.espertech.esper.common.client.type.EPTypeClassParameterized.from;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ExprCoreCase {
 
@@ -56,7 +63,69 @@ public class ExprCoreCase {
         executions.add(new ExprCoreCaseSyntax2EnumResult());
         executions.add(new ExprCoreCaseSyntax2NoAsName());
         executions.add(new ExprCoreCaseWithArrayResult());
+        executions.add(new ExprCoreCaseWithTypeParameterizedProperty());
         return executions;
+    }
+
+    private static class ExprCoreCaseWithTypeParameterizedProperty implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertion(env, "List<Integer>", "List<Integer>", from(List.class, Integer.class));
+            runAssertion(env, "List<List<Integer>>", "List<List<Integer>>", from(List.class, from(List.class, Integer.class)));
+            runAssertion(env, "List<int[primitive]>", "List<int[primitive]>", from(List.class, int[].class));
+
+            runAssertion(env, "Integer[]", "String[]", new EPTypeClass(Object[].class));
+            runInvalid(env, "int[primitive]", "String[]", "Cannot coerce to int[] type String[]");
+            runInvalid(env, "long[primitive]", "long[]", "Cannot coerce to long[] type Long[]");
+
+            runAssertion(env, "List<Integer>", "List<Object>", new EPTypeClass(List.class));
+            runAssertion(env, "Collection<Integer>", "List<Object>", EPTypePremade.OBJECT.getEPType());
+
+            runAssertion(env, "Collection<Integer>", "null", from(Collection.class, Integer.class));
+            runInvalid(env, "null", "null", "Null-type return value is not allowed");
+        }
+
+        private void runAssertion(RegressionEnvironment env, String typeOne, String typeTwo, EPType expected) {
+            String eplSyntaxOne = getEPLSyntaxOne(typeOne, typeTwo);
+            runAssertionEPL(env, eplSyntaxOne, expected);
+
+            String eplSyntaxTwo = getEPLSyntaxTwo(typeOne, typeTwo);
+            runAssertionEPL(env, eplSyntaxTwo, expected);
+        }
+
+        private void runAssertionEPL(RegressionEnvironment env, String epl, EPType expected) {
+            env.compileDeploy(epl);
+            assertEquals(expected, env.statement("s0").getEventType().getPropertyEPType("thecase"));
+            env.undeployAll();
+        }
+
+        private void runInvalid(RegressionEnvironment env, String typeOne, String typeTwo, String detail) {
+            String eplSyntaxOne = getEPLSyntaxOne(typeOne, typeTwo);
+            runInvalidEPL(env, eplSyntaxOne, detail);
+
+            String eplSyntaxTwo = getEPLSyntaxTwo(typeOne, typeTwo);
+            runInvalidEPL(env, eplSyntaxTwo, detail);
+        }
+
+        private void runInvalidEPL(RegressionEnvironment env, String epl, String detail) {
+            try {
+                env.compileWCheckedEx(epl);
+                fail();
+            } catch (EPCompileException ex) {
+                if (!ex.getMessage().contains(detail)) {
+                    assertEquals(detail, ex.getMessage());
+                }
+            }
+        }
+
+        private String getEPLSyntaxOne(String typeOne, String typeTwo) {
+            return "create schema MyEvent(switch boolean, fieldOne " + typeOne + ", fieldTwo " + typeTwo + ");\n" +
+                "@name('s0') select case when switch then fieldOne else fieldTwo end as thecase from MyEvent;\n";
+        }
+
+        private String getEPLSyntaxTwo(String typeOne, String typeTwo) {
+            return "create schema MyEvent(switch boolean, fieldOne " + typeOne + ", fieldTwo " + typeTwo + ");\n" +
+                "@name('s0') select case switch when true then fieldOne when false then fieldTwo end as thecase from MyEvent;\n";
+        }
     }
 
     private static class ExprCoreCaseWithArrayResult implements RegressionExecution {

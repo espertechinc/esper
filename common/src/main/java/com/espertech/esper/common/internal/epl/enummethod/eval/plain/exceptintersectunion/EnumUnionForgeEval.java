@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.exceptintersectunion;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -59,17 +60,17 @@ public class EnumUnionForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumUnionForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumUnionForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.COLLECTION.getEPType(), EnumUnionForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         if (forge.scalar) {
-            block.declareVar(Collection.class, "other", forge.evaluatorForge.evaluateGetROCollectionScalarCodegen(methodNode, scope, codegenClassScope));
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "other", forge.evaluatorForge.evaluateGetROCollectionScalarCodegen(methodNode, scope, codegenClassScope));
         } else {
-            block.declareVar(Collection.class, "other", forge.evaluatorForge.evaluateGetROCollectionEventsCodegen(methodNode, scope, codegenClassScope));
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "other", forge.evaluatorForge.evaluateGetROCollectionEventsCodegen(methodNode, scope, codegenClassScope));
         }
         block.ifCondition(or(equalsNull(ref("other")), exprDotMethod(ref("other"), "isEmpty")))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL);
-        block.declareVar(ArrayList.class, "result", newInstance(ArrayList.class, op(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), "+", exprDotMethod(ref("other"), "size"))))
+        block.declareVar(EPTypePremade.ARRAYLIST.getEPType(), "result", newInstance(EPTypePremade.ARRAYLIST.getEPType(), op(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), "+", exprDotMethod(ref("other"), "size"))))
                 .expression(exprDotMethod(ref("result"), "addAll", EnumForgeCodegenNames.REF_ENUMCOLL))
                 .expression(exprDotMethod(ref("result"), "addAll", ref("other")))
                 .methodReturn(ref("result"));

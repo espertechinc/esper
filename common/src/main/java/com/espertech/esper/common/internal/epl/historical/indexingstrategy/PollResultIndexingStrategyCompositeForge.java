@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -29,12 +31,12 @@ public class PollResultIndexingStrategyCompositeForge implements PollResultIndex
     private final int streamNum;
     private final EventType eventType;
     private final String[] optHashPropertyNames;
-    private final Class[] optHashCoercedTypes;
+    private final EPTypeClass[] optHashCoercedTypes;
     private final MultiKeyClassRef optHashMultiKeyClasses;
     private final String[] rangeProps;
-    private final Class[] rangeTypes;
+    private final EPTypeClass[] rangeTypes;
 
-    public PollResultIndexingStrategyCompositeForge(int streamNum, EventType eventType, String[] optHashPropertyNames, Class[] optHashCoercedTypes, MultiKeyClassRef optHashMultiKeyClasses, String[] rangeProps, Class[] rangeTypes) {
+    public PollResultIndexingStrategyCompositeForge(int streamNum, EventType eventType, String[] optHashPropertyNames, EPTypeClass[] optHashCoercedTypes, MultiKeyClassRef optHashMultiKeyClasses, String[] rangeProps, EPTypeClass[] rangeTypes) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.optHashPropertyNames = optHashPropertyNames;
@@ -50,25 +52,25 @@ public class PollResultIndexingStrategyCompositeForge implements PollResultIndex
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
 
-        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyComposite.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyComposite.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression hashGetter = constantNull();
         if (optHashPropertyNames != null) {
             EventPropertyGetterSPI[] propertyGetters = EventTypeUtility.getGetters(eventType, optHashPropertyNames);
-            Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, optHashPropertyNames);
+            EPType[] propertyTypes = EventTypeUtility.getPropertyTypesEPType(eventType, optHashPropertyNames);
             hashGetter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, propertyGetters, propertyTypes, optHashCoercedTypes, optHashMultiKeyClasses, method, classScope);
         }
 
-        method.getBlock().declareVar(EventPropertyValueGetter[].class, "rangeGetters", newArrayByLength(EventPropertyValueGetter.class, constant(rangeProps.length)));
+        method.getBlock().declareVar(EventPropertyValueGetter.EPTYPEARRAY, "rangeGetters", newArrayByLength(EventPropertyValueGetter.EPTYPE, constant(rangeProps.length)));
         for (int i = 0; i < rangeProps.length; i++) {
-            Class propertyType = eventType.getPropertyType(rangeProps[i]);
+            EPType propertyType = eventType.getPropertyEPType(rangeProps[i]);
             EventPropertyGetterSPI getterSPI = ((EventTypeSPI) eventType).getGetterSPI(rangeProps[i]);
             CodegenExpression getter = EventTypeUtility.codegenGetterWCoerce(getterSPI, propertyType, rangeTypes[i], method, this.getClass(), classScope);
             method.getBlock().assignArrayElement(ref("rangeGetters"), constant(i), getter);
         }
 
         method.getBlock()
-            .declareVar(PollResultIndexingStrategyComposite.class, "strat", newInstance(PollResultIndexingStrategyComposite.class))
+            .declareVarNewInstance(PollResultIndexingStrategyComposite.EPTYPE, "strat")
             .exprDotMethod(ref("strat"), "setStreamNum", constant(streamNum))
             .exprDotMethod(ref("strat"), "setOptionalKeyedProps", constant(optHashPropertyNames))
             .exprDotMethod(ref("strat"), "setOptKeyCoercedTypes", constant(optHashCoercedTypes))

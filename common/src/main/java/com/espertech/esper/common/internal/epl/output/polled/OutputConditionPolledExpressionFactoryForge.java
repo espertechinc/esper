@@ -45,6 +45,7 @@ public class OutputConditionPolledExpressionFactoryForge implements OutputCondit
      * @param whenExpressionNode the expression to evaluate, returning true when to output
      * @param assignments        is the optional then-clause variable assignments, or null or empty if none
      * @param services           services
+     * @param statementName statement name
      * @throws ExprValidationException when validation fails
      */
     public OutputConditionPolledExpressionFactoryForge(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, String statementName, StatementCompileTimeServices services)
@@ -75,13 +76,13 @@ public class OutputConditionPolledExpressionFactoryForge implements OutputCondit
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
         // initialize+resolve variables
         SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
-        CodegenMethod variableInit = classScope.getPackageScope().getInitMethod().makeChildWithScope(VariableReadWritePackage.class, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+        CodegenMethod variableInit = classScope.getPackageScope().getInitMethod().makeChildWithScope(VariableReadWritePackage.EPTYPE, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
         variableInit.getBlock().methodReturn(variableReadWritePackage.make(variableInit, symbols, classScope));
-        CodegenExpressionField variableRW = classScope.getPackageScope().addFieldUnshared(true, VariableReadWritePackage.class, localMethod(variableInit, EPStatementInitServices.REF));
+        CodegenExpressionField variableRW = classScope.getPackageScope().addFieldUnshared(true, VariableReadWritePackage.EPTYPE, localMethod(variableInit, EPStatementInitServices.REF));
 
-        CodegenMethod method = parent.makeChild(OutputConditionPolledExpressionFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OutputConditionPolledExpressionFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(OutputConditionPolledExpressionFactory.class, "factory", newInstance(OutputConditionPolledExpressionFactory.class))
+                .declareVarNewInstance(OutputConditionPolledExpressionFactory.EPTYPE, "factory")
                 .exprDotMethod(ref("factory"), "setWhenExpression", ExprNodeUtilityCodegen.codegenEvaluator(whenExpressionNode, method, this.getClass(), classScope))
                 .exprDotMethod(ref("factory"), "setVariableReadWritePackage", variableRW)
                 .exprDotMethod(ref("factory"), "setUsingBuiltinProperties", constant(isUsingBuiltinProperties))

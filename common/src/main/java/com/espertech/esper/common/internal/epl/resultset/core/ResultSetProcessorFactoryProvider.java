@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorFactory;
 
 public interface ResultSetProcessorFactoryProvider {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorFactoryProvider.class);
+
     ResultSetProcessorFactory getResultSetProcessorFactory();
 
     AggregationServiceFactory getAggregationServiceFactory();

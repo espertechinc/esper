@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.interval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -29,9 +30,9 @@ public class ExprEvaluatorStreamDTProp implements ExprForge, ExprEvaluator, Expr
 
     private final int streamId;
     private final EventPropertyGetterSPI getter;
-    private final Class getterReturnTypeBoxed;
+    private final EPTypeClass getterReturnTypeBoxed;
 
-    public ExprEvaluatorStreamDTProp(int streamId, EventPropertyGetterSPI getter, Class getterReturnTypeBoxed) {
+    public ExprEvaluatorStreamDTProp(int streamId, EventPropertyGetterSPI getter, EPTypeClass getterReturnTypeBoxed) {
         this.streamId = streamId;
         this.getter = getter;
         this.getterReturnTypeBoxed = getterReturnTypeBoxed;
@@ -53,19 +54,19 @@ public class ExprEvaluatorStreamDTProp implements ExprForge, ExprEvaluator, Expr
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(getterReturnTypeBoxed, ExprEvaluatorStreamDTProp.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(getterReturnTypeBoxed, getter.eventBeanGetCodegen(ref("event"), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return getterReturnTypeBoxed;
     }
 

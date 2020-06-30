@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.everydistinct;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -53,8 +54,8 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
         this.expressions = expressions;
     }
 
-    protected Class typeOfFactory() {
-        return EvalEveryDistinctFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalEveryDistinctFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {

@@ -59,6 +59,6 @@ public class AggregationLocalGroupByColumnForge {
     }
 
     public CodegenExpression toExpression(int fieldNum) {
-        return newInstance(AggregationLocalGroupByColumn.class, constant(defaultGroupLevel), constant(fieldNum), constant(levelNum));
+        return newInstance(AggregationLocalGroupByColumn.EPTYPE, constant(defaultGroupLevel), constant(fieldNum), constant(levelNum));
     }
 }

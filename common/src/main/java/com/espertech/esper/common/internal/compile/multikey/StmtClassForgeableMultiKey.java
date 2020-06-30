@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.compile.multikey;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
@@ -32,10 +36,10 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
 
     private final String className;
     private final CodegenPackageScope packageScope;
-    private final Class[] types;
+    private final EPType[] types;
     private final boolean lenientEquals;
 
-    public StmtClassForgeableMultiKey(String className, CodegenPackageScope packageScope, Class[] types, boolean lenientEquals) {
+    public StmtClassForgeableMultiKey(String className, CodegenPackageScope packageScope, EPType[] types, boolean lenientEquals) {
         this.className = className;
         this.packageScope = packageScope;
         this.types = types;
@@ -45,34 +49,35 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
     public CodegenClass forge(boolean includeDebugSymbols, boolean fireAndForget) {
         List<CodegenTypedParam> params = new ArrayList<>();
         for (int i = 0; i < types.length; i++) {
-            params.add(new CodegenTypedParam(JavaClassHelper.getBoxedType(types[i]), "k" + i));
+            EPType boxed = JavaClassHelper.getBoxedType(types[i]);
+            params.add(new CodegenTypedParam(boxed == EPTypeNull.INSTANCE ? EPTypePremade.OBJECT.getEPType() : (EPTypeClass) boxed, "k" + i));
         }
         CodegenCtor ctor = new CodegenCtor(StmtClassForgeableMultiKey.class, includeDebugSymbols, params);
 
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
 
-        CodegenMethod hashMethod = CodegenMethod.makeParentNode(int.class, StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod hashMethod = CodegenMethod.makeParentNode(EPTypePremade.INTEGERPRIMITIVE.getEPType(), StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         makeHashMethod(types.length, hashMethod);
         CodegenStackGenerator.recursiveBuildStack(hashMethod, "hashCode", methods);
 
-        CodegenMethod equalsMethod = CodegenMethod.makeParentNode(boolean.class, StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(Object.class, "o");
+        CodegenMethod equalsMethod = CodegenMethod.makeParentNode(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.OBJECT.getEPType(), "o");
         makeEqualsMethod(types.length, equalsMethod);
         CodegenStackGenerator.recursiveBuildStack(equalsMethod, "equals", methods);
 
-        CodegenMethod getNumKeysMethod = CodegenMethod.makeParentNode(int.class, StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getNumKeysMethod = CodegenMethod.makeParentNode(EPTypePremade.INTEGERPRIMITIVE.getEPType(), StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getNumKeysMethod.getBlock().methodReturn(constant(types.length));
         CodegenStackGenerator.recursiveBuildStack(getNumKeysMethod, "getNumKeys", methods);
 
-        CodegenMethod getKeyMethod = CodegenMethod.makeParentNode(Object.class, StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "num");
+        CodegenMethod getKeyMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "num");
         makeGetKeyMethod(types.length, getKeyMethod);
         CodegenStackGenerator.recursiveBuildStack(getKeyMethod, "getKey", methods);
 
-        CodegenMethod toStringMethod = CodegenMethod.makeParentNode(String.class, StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod toStringMethod = CodegenMethod.makeParentNode(EPTypePremade.STRING.getEPType(), StmtClassForgeableMultiKey.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         makeToStringMethod(toStringMethod);
         CodegenStackGenerator.recursiveBuildStack(toStringMethod, "toString", methods);
 
-        return new CodegenClass(CodegenClassType.KEYPROVISIONING, MultiKey.class, className, classScope, Collections.emptyList(), ctor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.KEYPROVISIONING, MultiKey.EPTYPE, className, classScope, Collections.emptyList(), ctor, methods, Collections.emptyList());
     }
 
     public String getClassName() {
@@ -107,11 +112,17 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
                 CodegenExpressionRef self = ref("k" + i);
                 CodegenExpressionRef other = ref("k.k" + i);
                 if (i < length - 1) {
-                    CodegenExpression notEquals = getNotEqualsExpression(types[i], self, other);
-                    equalsMethod.getBlock().ifCondition(notEquals).blockReturn(constantFalse());
+                    if (types[i] != EPTypeNull.INSTANCE) {
+                        CodegenExpression notEquals = getNotEqualsExpression((EPTypeClass) types[i], self, other);
+                        equalsMethod.getBlock().ifCondition(notEquals).blockReturn(constantFalse());
+                    }
                 } else {
-                    CodegenExpression equals = getEqualsExpression(types[i], self, other);
-                    equalsMethod.getBlock().methodReturn(equals);
+                    if (types[i] != EPTypeNull.INSTANCE) {
+                        CodegenExpression equals = getEqualsExpression((EPTypeClass) types[i], self, other);
+                        equalsMethod.getBlock().methodReturn(equals);
+                    } else {
+                        equalsMethod.getBlock().methodReturn(constantTrue());
+                    }
                 }
             }
             return;
@@ -121,21 +132,30 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
         // - does not check the class
         // - pull the key value from the "getKey" method of KeyProvisioning
         // - may cast the key in case of Array.equals
-        equalsMethod.getBlock().ifCondition(not(instanceOf(ref("o"), MultiKey.class))).blockReturn(constant(false))
-            .declareVar(MultiKey.class, "k", cast(MultiKey.class, ref("o")));
+        equalsMethod.getBlock().ifCondition(not(instanceOf(ref("o"), MultiKey.EPTYPE))).blockReturn(constant(false))
+            .declareVar(MultiKey.EPTYPE, "k", cast(MultiKey.EPTYPE, ref("o")));
 
         for (int i = 0; i < length; i++) {
             CodegenExpressionRef self = ref("k" + i);
             CodegenExpression other = exprDotMethod(ref("k"), "getKey", constant(i));
-            if (types[i].isArray()) {
-                other = cast(types[i], other);
-            }
-            if (i < length - 1) {
-                CodegenExpression notEquals = getNotEqualsExpression(types[i], self, other);
-                equalsMethod.getBlock().ifCondition(notEquals).blockReturn(constantFalse());
+            if (types[i] != EPTypeNull.INSTANCE) {
+                EPTypeClass type = (EPTypeClass) types[i];
+                if (type.getType().isArray()) {
+                    other = cast(type, other);
+                }
+                if (i < length - 1) {
+                    CodegenExpression notEquals = getNotEqualsExpression(type, self, other);
+                    equalsMethod.getBlock().ifCondition(notEquals).blockReturn(constantFalse());
+                } else {
+                    CodegenExpression equals = getEqualsExpression(type, self, other);
+                    equalsMethod.getBlock().methodReturn(equals);
+                }
             } else {
-                CodegenExpression equals = getEqualsExpression(types[i], self, other);
-                equalsMethod.getBlock().methodReturn(equals);
+                if (i < length - 1) {
+                    // no action
+                } else {
+                    equalsMethod.getBlock().methodReturn(constantTrue());
+                }
             }
         }
     }
@@ -157,28 +177,28 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
         }
     }
 
-    private static CodegenExpression getEqualsExpression(Class type, CodegenExpressionRef self, CodegenExpression other) {
-        if (!type.isArray()) {
+    private static CodegenExpression getEqualsExpression(EPTypeClass type, CodegenExpressionRef self, CodegenExpression other) {
+        if (!type.getType().isArray()) {
             CodegenExpression cond = notEqualsNull(self);
             CodegenExpression condTrue = exprDotMethod(self, "equals", other);
             CodegenExpression condFalse = equalsNull(other);
             return conditional(cond, condTrue, condFalse);
         }
-        if (requiresDeepEquals(type.getComponentType())) {
+        if (requiresDeepEquals(type.getType().getComponentType())) {
             return staticMethod(Arrays.class, "deepEquals", self, other);
         } else {
             return staticMethod(Arrays.class, "equals", self, other);
         }
     }
 
-    private static CodegenExpression getNotEqualsExpression(Class type, CodegenExpressionRef self, CodegenExpression other) {
-        if (!type.isArray()) {
+    private static CodegenExpression getNotEqualsExpression(EPTypeClass type, CodegenExpressionRef self, CodegenExpression other) {
+        if (!type.getType().isArray()) {
             CodegenExpression cond = notEqualsNull(self);
             CodegenExpression condTrue = not(exprDotMethod(self, "equals", other));
             CodegenExpression condFalse = notEqualsNull(other);
             return conditional(cond, condTrue, condFalse);
         }
-        if (requiresDeepEquals(type.getComponentType())) {
+        if (requiresDeepEquals(type.getType().getComponentType())) {
             return not(staticMethod(Arrays.class, "deepEquals", self, other));
         } else {
             return not(staticMethod(Arrays.class, "equals", self, other));
@@ -193,7 +213,7 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
             return result;
         */
         CodegenExpression computeHash = getHashExpression(ref("k0"), types[0]);
-        hashMethod.getBlock().declareVar(int.class, "h", computeHash);
+        hashMethod.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "h", computeHash);
 
         for (int i = 1; i < length; i++) {
             computeHash = getHashExpression(ref("k" + i), types[i]);
@@ -203,11 +223,15 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
         hashMethod.getBlock().methodReturn(ref("h"));
     }
 
-    private static CodegenExpression getHashExpression(CodegenExpressionRef key, Class type) {
-        if (!type.isArray()) {
+    private static CodegenExpression getHashExpression(CodegenExpressionRef key, EPType type) {
+        if (type == EPTypeNull.INSTANCE) {
+            return constant(0);
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        if (!typeClass.getType().isArray()) {
             return conditional(notEqualsNull(key), exprDotMethod(key, "hashCode"), constant(0));
         }
-        if (requiresDeepEquals(type.getComponentType())) {
+        if (requiresDeepEquals(typeClass.getType().getComponentType())) {
             return staticMethod(Arrays.class, "deepHashCode", key);
         } else {
             return staticMethod(Arrays.class, "hashCode", key);
@@ -216,7 +240,7 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
 
     private void makeToStringMethod(CodegenMethod toStringMethod) {
         toStringMethod.getBlock()
-            .declareVar(StringBuilder.class, "b", newInstance(StringBuilder.class))
+            .declareVarNewInstance(EPTypePremade.STRINGBUILDER.getEPType(), "b")
             .exprDotMethod(ref("b"), "append", constant(MultiKey.class.getSimpleName() + "["));
         for (int i = 0; i < types.length; i++) {
             if (i > 0) {
@@ -224,7 +248,11 @@ public class StmtClassForgeableMultiKey implements StmtClassForgeable {
             }
             CodegenExpressionRef self = ref("k" + i);
             CodegenExpression text = self;
-            if (types[i].isArray()) {
+            if (types[i] == EPTypeNull.INSTANCE) {
+                toStringMethod.getBlock().exprDotMethod(ref("b"), "append", constant("null"));
+                continue;
+            }
+            if (((EPTypeClass) types[i]).getType().isArray()) {
                 text = staticMethod(Arrays.class, "toString", self);
             }
             toStringMethod.getBlock().exprDotMethod(ref("b"), "append", text);

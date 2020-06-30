@@ -11,8 +11,9 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -54,9 +55,8 @@ public class EventXMLNoSchemaEventTransposeDOM {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
 
         env.compileDeploy("@name('insert') insert into MyNestedStream select nested1 from " + eventTypeName, path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nested1", String.class, null, false, false, false, false, false),
-        }, env.statement("insert").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("nested1", String.class));
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("insert").getEventType());
 
         env.compileDeploy("@name('s0') select * from " + eventTypeName, path);

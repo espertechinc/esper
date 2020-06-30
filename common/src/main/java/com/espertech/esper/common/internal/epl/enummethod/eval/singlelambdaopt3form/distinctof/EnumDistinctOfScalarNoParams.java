@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.distinctof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -23,17 +25,20 @@ import com.espertech.esper.common.internal.epl.enummethod.eval.EnumEval;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeBasePlain;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
 
 public class EnumDistinctOfScalarNoParams extends EnumForgeBasePlain implements EnumForge, EnumEval {
 
-    private final Class fieldType;
+    private final EPTypeClass fieldType;
 
-    public EnumDistinctOfScalarNoParams(int streamCountIncoming, Class fieldType) {
+    public EnumDistinctOfScalarNoParams(int streamCountIncoming, EPTypeClass fieldType) {
         super(streamCountIncoming);
         this.fieldType = fieldType;
     }
@@ -55,21 +60,22 @@ public class EnumDistinctOfScalarNoParams extends EnumForgeBasePlain implements 
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Collection.class, EnumDistinctOfScalarNoParams.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), EnumDistinctOfScalarNoParams.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         method.getBlock()
             .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
             .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL);
 
-        if (fieldType == null || !fieldType.isArray()) {
+        if (fieldType == null || !fieldType.getType().isArray()) {
             method.getBlock()
-                .ifCondition(instanceOf(ref("enumcoll"), Set.class))
+                .ifCondition(instanceOf(ref("enumcoll"), EPTypePremade.SET.getEPType()))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
-                .methodReturn(newInstance(LinkedHashSet.class, EnumForgeCodegenNames.REF_ENUMCOLL));
+                .methodReturn(newInstance(EPTypePremade.LINKEDHASHSET.getEPType(), EnumForgeCodegenNames.REF_ENUMCOLL));
         } else {
-            Class arrayMK = MultiKeyPlanner.getMKClassForComponentType(fieldType.getComponentType());
-            method.getBlock().declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class));
-            CodegenBlock loop = method.getBlock().forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL);
+            EPTypeClass componentType = JavaClassHelper.getArrayComponentType(fieldType);
+            EPTypeClass arrayMK = MultiKeyPlanner.getMKClassForComponentType(componentType);
+            method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "distinct", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));
+            CodegenBlock loop = method.getBlock().forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL);
             {
                 loop.declareVar(arrayMK, "comparable", newInstance(arrayMK, cast(fieldType, ref("next"))))
                     .expression(exprDotMethod(ref("distinct"), "put", ref("comparable"), ref("next")));

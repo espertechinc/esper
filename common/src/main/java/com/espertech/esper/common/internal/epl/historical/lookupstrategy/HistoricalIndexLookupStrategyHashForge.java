@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.historical.lookupstrategy;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,10 +26,10 @@ public class HistoricalIndexLookupStrategyHashForge implements HistoricalIndexLo
 
     private final int lookupStream;
     private final ExprForge[] evaluators;
-    private final Class[] coercionTypes;
+    private final EPTypeClass[] coercionTypes;
     private final MultiKeyClassRef multiKeyClassRef;
 
-    public HistoricalIndexLookupStrategyHashForge(int lookupStream, ExprForge[] evaluators, Class[] coercionTypes, MultiKeyClassRef multiKeyClassRef) {
+    public HistoricalIndexLookupStrategyHashForge(int lookupStream, ExprForge[] evaluators, EPTypeClass[] coercionTypes, MultiKeyClassRef multiKeyClassRef) {
         this.lookupStream = lookupStream;
         this.evaluators = evaluators;
         this.coercionTypes = coercionTypes;
@@ -40,11 +41,11 @@ public class HistoricalIndexLookupStrategyHashForge implements HistoricalIndexLo
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyHash.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyHash.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression evaluator = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(evaluators, coercionTypes, multiKeyClassRef, method, classScope);
         method.getBlock()
-            .declareVar(HistoricalIndexLookupStrategyHash.class, "strat", newInstance(HistoricalIndexLookupStrategyHash.class))
+            .declareVarNewInstance(HistoricalIndexLookupStrategyHash.EPTYPE, "strat")
             .exprDotMethod(ref("strat"), "setLookupStream", constant(lookupStream))
             .exprDotMethod(ref("strat"), "setEvaluator", evaluator)
             .methodReturn(ref("strat"));

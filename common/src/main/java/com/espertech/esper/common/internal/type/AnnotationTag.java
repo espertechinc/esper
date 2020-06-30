@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.Tag;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationTag implements Tag {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationTag.class);
+
     private final String name;
     private final String value;
 

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,6 +24,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndIndexed;
 import com.espertech.esper.common.internal.event.util.PropertyUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -38,10 +41,9 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
     private final int index;
 
     public ArrayMethodPropertyGetter(Method method, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, method.getReturnType().getComponentType(), null);
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getArrayComponentType(ClassHelperGenericType.getMethodReturnEPType(method)));
         this.index = index;
         this.method = method;
-
         if (index < 0) {
             throw new IllegalArgumentException("Invalid negative index value");
         }
@@ -86,16 +88,21 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
     }
 
     protected static CodegenMethod getBeanPropInternalCode(CodegenMethodScope codegenMethodScope, Method method, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayMethodPropertyGetter.class, codegenClassScope).addParam(method.getDeclaringClass(), "obj").addParam(int.class, "index").getBlock()
-                .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
-                .ifRefNullReturnNull("array")
-                .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), null)
-                .methodReturn(arrayAtIndex(ref("array"), ref("index")));
+        EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+        EPTypeClass boxedComponent = JavaClassHelper.getBoxedType(JavaClassHelper.getArrayComponentType(returnType));
+        EPTypeClass declaringClass = ClassHelperGenericType.getClassEPType(method.getDeclaringClass());
+        return codegenMethodScope.makeChild(boxedComponent, ArrayMethodPropertyGetter.class, codegenClassScope).addParam(declaringClass, "obj").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+            .declareVar(returnType, "array", exprDotMethod(ref("obj"), method.getName()))
+            .ifRefNullReturnNull("array")
+            .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), null)
+            .methodReturn(arrayAtIndex(ref("array"), ref("index")));
     }
 
     protected static CodegenMethod getBeanPropInternalExistsCode(CodegenMethodScope codegenMethodScope, Method method, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, ArrayMethodPropertyGetter.class, codegenClassScope).addParam(method.getDeclaringClass(), "obj").addParam(int.class, "index").getBlock()
-            .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
+        EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+        EPTypeClass declaringClass = ClassHelperGenericType.getClassEPType(method.getDeclaringClass());
+        return codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ArrayMethodPropertyGetter.class, codegenClassScope).addParam(declaringClass, "obj").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+            .declareVar(returnType, "array", exprDotMethod(ref("obj"), method.getName()))
             .ifRefNullReturnFalse("array")
             .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), false)
             .methodReturn(constantTrue());
@@ -112,8 +119,8 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
 
     public String toString() {
         return "ArrayMethodPropertyGetter " +
-                " method=" + method.toString() +
-                " index=" + index;
+            " method=" + method.toString() +
+            " index=" + index;
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -121,12 +128,8 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
         return getBeanPropInternalExists(underlying, index);
     }
 
-    public Class getBeanPropType() {
-        return method.getReturnType().getComponentType();
-    }
-
-    public Class getTargetType() {
-        return method.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(method.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

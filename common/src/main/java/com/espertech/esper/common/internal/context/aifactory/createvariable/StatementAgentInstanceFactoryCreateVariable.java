@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createvariable;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
@@ -35,6 +36,7 @@ import java.util.List;
 import static com.espertech.esper.common.internal.context.util.StatementCPCacheService.DEFAULT_AGENT_INSTANCE_ID;
 
 public class StatementAgentInstanceFactoryCreateVariable implements StatementAgentInstanceFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryCreateVariable.class);
 
     private String variableName;
     private ExprEvaluator variableInitialValueExpr;

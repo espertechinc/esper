@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.table.strategy;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,7 +26,6 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataCo
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -40,9 +40,9 @@ public class ExprTableEvalStrategyUtil {
     }
 
     public static CodegenExpression codegenInitMap(Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, Class generator, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, generator, classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), generator, classScope);
         method.getBlock()
-                .declareVar(Map.class, "ta", newInstance(LinkedHashMap.class, constant(tableAccesses.size() + 2)));
+                .declareVar(EPTypePremade.MAP.getEPType(), "ta", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType(), constant(tableAccesses.size() + 2)));
         for (Map.Entry<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> entry : tableAccesses.entrySet()) {
             method.getBlock().exprDotMethod(ref("ta"), "put", constant(entry.getKey().getTableAccessNumber()), entry.getValue().make(method, symbols, classScope));
         }

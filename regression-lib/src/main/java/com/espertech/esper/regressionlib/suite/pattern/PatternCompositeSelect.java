@@ -11,9 +11,9 @@
 package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.FragmentEventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
@@ -52,10 +52,9 @@ public class PatternCompositeSelect {
                 values[count++] = theEvent.get(name);
             }
 
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-                new EventPropertyDescriptor("a", SupportBean_A.class, null, false, false, false, false, true),
-                new EventPropertyDescriptor("b", SupportBean_B.class, null, false, false, false, false, true)
-            }, env.statement("insert").getEventType().getPropertyDescriptors());
+            SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("a", SupportBean_A.class).fragment(),
+                new SupportEventPropDesc("b", SupportBean_B.class).fragment());
 
             env.undeployAll();
         }
@@ -66,10 +65,9 @@ public class PatternCompositeSelect {
             String stmtTxtOne = "@name('s0') select * from pattern [[2] a=SupportBean_A -> b=SupportBean_B]";
             env.compileDeploy(stmtTxtOne).addListener("s0");
 
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-                new EventPropertyDescriptor("a", SupportBean_A[].class, SupportBean_A.class, false, false, true, false, true),
-                new EventPropertyDescriptor("b", SupportBean_B.class, null, false, false, false, false, true)
-            }, env.statement("s0").getEventType().getPropertyDescriptors());
+            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("a", SupportBean_A[].class).indexed().fragment(),
+                new SupportEventPropDesc("b", SupportBean_B.class).fragment());
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_A("A2"));

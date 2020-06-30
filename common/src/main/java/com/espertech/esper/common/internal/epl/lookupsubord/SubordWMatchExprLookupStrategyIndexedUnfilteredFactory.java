@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.lookupsubord;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategy;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.epl.lookupplansubord.SubordWMatchExpr
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
 
 public class SubordWMatchExprLookupStrategyIndexedUnfilteredFactory implements SubordWMatchExprLookupStrategyFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordWMatchExprLookupStrategyIndexedUnfilteredFactory.class);
+
     private final SubordTableLookupStrategyFactory lookupStrategyFactory;
 
     public SubordWMatchExprLookupStrategyIndexedUnfilteredFactory(SubordTableLookupStrategyFactory lookupStrategyFactory) {

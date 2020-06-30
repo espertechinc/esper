@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -27,11 +28,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprCastNodeForge implements ExprForgeInstrumentable {
     private final ExprCastNode parent;
     private final ExprCastNode.CasterParserComputerForge casterParserComputerForge;
-    private final Class targetType;
+    private final EPTypeClass targetType;
     private final boolean isConstant;
     private final Object constant;
 
-    ExprCastNodeForge(ExprCastNode parent, ExprCastNode.CasterParserComputerForge casterParserComputerForge, Class targetType, boolean isConstant, Object constant) {
+    ExprCastNodeForge(ExprCastNode parent, ExprCastNode.CasterParserComputerForge casterParserComputerForge, EPTypeClass targetType, boolean isConstant, Object constant) {
         this.parent = parent;
         this.casterParserComputerForge = casterParserComputerForge;
         this.targetType = targetType;
@@ -54,7 +55,7 @@ public class ExprCastNodeForge implements ExprForgeInstrumentable {
         }
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (isConstant) {
             if (constant == null) {
                 return constantNull();
@@ -64,11 +65,11 @@ public class ExprCastNodeForge implements ExprForgeInstrumentable {
         return ExprCastNodeForgeNonConstEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprCast", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return targetType;
     }
 

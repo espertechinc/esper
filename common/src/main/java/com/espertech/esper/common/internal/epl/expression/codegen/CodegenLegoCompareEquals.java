@@ -10,20 +10,21 @@
  */
 package com.espertech.esper.common.internal.epl.expression.codegen;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenLegoCompareEquals {
-    public static CodegenExpression codegenEqualsNonNullNoCoerce(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
-        if (lhsType.isPrimitive() && rhsType.isPrimitive() && !JavaClassHelper.isFloatingPointClass(lhsType) && !JavaClassHelper.isFloatingPointClass(rhsType)) {
+    public static CodegenExpression codegenEqualsNonNullNoCoerce(CodegenExpression lhs, EPTypeClass lhsType, CodegenExpression rhs, EPTypeClass rhsType) {
+        if (lhsType.getType().isPrimitive() && rhsType.getType().isPrimitive() && !JavaClassHelper.isFloatingPointClass(lhsType) && !JavaClassHelper.isFloatingPointClass(rhsType)) {
             return equalsIdentity(lhs, rhs);
         }
-        if (lhsType.isPrimitive() && rhsType.isPrimitive()) {
-            return staticMethod(JavaClassHelper.getBoxedType(lhsType), "compare", lhs, rhs);
+        if (lhsType.getType().isPrimitive() && rhsType.getType().isPrimitive()) {
+            return staticMethod(JavaClassHelper.getBoxedType(lhsType).getType(), "compare", lhs, rhs);
         }
-        if (lhsType.isPrimitive()) {
+        if (lhsType.getType().isPrimitive()) {
             return exprDotMethod(rhs, "equals", lhs);
         }
         return exprDotMethod(lhs, "equals", rhs);

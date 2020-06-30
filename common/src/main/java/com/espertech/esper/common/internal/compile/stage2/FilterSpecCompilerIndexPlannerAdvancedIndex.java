@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
@@ -57,13 +58,13 @@ public class FilterSpecCompilerIndexPlannerAdvancedIndex {
         config.toConfiguration(builder);
         String expression = builder.toString();
 
-        Class returnType;
+        EPTypeClass returnType;
         switch (filterDesc.getIndexType()) {
             case SettingsApplicationDotMethodPointInsideRectange.INDEXTYPE_NAME:
-                returnType = XYPoint.class;
+                returnType = XYPoint.EPTYPE;
                 break;
             case SettingsApplicationDotMethodRectangeIntersectsRectangle.INDEXTYPE_NAME:
-                returnType = XYWHRectangle.class;
+                returnType = XYWHRectangle.EPTYPE;
                 break;
             default:
                 throw new IllegalStateException("Unrecognized index type " + filterDesc.getIndexType());

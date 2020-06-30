@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.avro.writer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.avro.core.AvroEventType;
 import com.espertech.esper.common.internal.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
@@ -149,9 +152,9 @@ public class AvroRecastFactory {
         }
 
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-            CodegenExpression theEvent = cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber)));
+            CodegenExpression theEvent = cast(AvroGenericDataBackedEventBean.EPTYPE, arrayAtIndex(refEPS, constant(underlyingStreamNumber)));
             methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedAvro", exprDotMethod(theEvent, "getProperties"), resultEventType));
             return methodNode;
         }
@@ -200,23 +203,23 @@ public class AvroRecastFactory {
         }
 
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenExpressionField schema = codegenClassScope.getPackageScope().addFieldUnshared(true, Schema.class, staticMethod(AvroSchemaUtil.class, "resolveAvroSchema", EventTypeUtility.resolveTypeCodegen(resultType, EPStatementInitServices.REF)));
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+            CodegenExpressionField schema = codegenClassScope.getPackageScope().addFieldUnshared(true, AvroConstant.EPTYPE_SCHEMA, staticMethod(AvroSchemaUtil.class, "resolveAvroSchema", EventTypeUtility.resolveTypeCodegen(resultType, EPStatementInitServices.REF)));
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(AvroGenericDataBackedEventBean.class, "theEvent", cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
-                    .declareVar(GenericData.Record.class, "source", exprDotMethod(ref("theEvent"), "getProperties"))
-                    .declareVar(GenericData.Record.class, "target", newInstance(GenericData.Record.class, schema));
+                    .declareVar(AvroGenericDataBackedEventBean.EPTYPE, "theEvent", cast(AvroGenericDataBackedEventBean.EPTYPE, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
+                    .declareVar(AvroConstant.EPTYPE_RECORD, "source", exprDotMethod(ref("theEvent"), "getProperties"))
+                    .declareVar(AvroConstant.EPTYPE_RECORD, "target", newInstance(AvroConstant.EPTYPE_RECORD, schema));
             for (Item item : items) {
                 CodegenExpression value;
                 if (item.getOptionalFromIndex() != -1) {
                     value = exprDotMethod(ref("source"), "get", constant(item.getOptionalFromIndex()));
                 } else {
                     if (item.getOptionalWidener() != null) {
-                        value = item.forge.evaluateCodegen(item.getForge().getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
+                        value = item.forge.evaluateCodegen((EPTypeClass) item.getForge().getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
                         value = item.getOptionalWidener().widenCodegen(value, methodNode, codegenClassScope);
                     } else {
-                        value = item.forge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope);
+                        value = item.forge.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope);
                     }
                 }
                 block.exprDotMethod(ref("target"), "put", constant(item.getToIndex()), value);

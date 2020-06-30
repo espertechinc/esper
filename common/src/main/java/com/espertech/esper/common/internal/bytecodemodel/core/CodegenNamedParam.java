@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 import java.util.ArrayList;
@@ -20,11 +21,11 @@ import java.util.Set;
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenNamedParam {
-    private final Class type;
+    private final EPTypeClass type;
     private final String typeName;
     private final String name;
 
-    public CodegenNamedParam(Class type, String name) {
+    public CodegenNamedParam(EPTypeClass type, String name) {
         if (type == null) {
             throw new IllegalArgumentException("Invalid null type");
         }
@@ -42,11 +43,11 @@ public class CodegenNamedParam {
         this.name = name;
     }
 
-    public CodegenNamedParam(Class type, CodegenExpressionRef name) {
+    public CodegenNamedParam(EPTypeClass type, CodegenExpressionRef name) {
         this(type, name.getRef());
     }
 
-    public Class getType() {
+    public EPTypeClass getType() {
         return type;
     }
 
@@ -56,27 +57,27 @@ public class CodegenNamedParam {
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
         if (type != null) {
-            appendClassName(builder, type, null, imports);
+            appendClassName(builder, type, imports);
         } else {
             builder.append(typeName);
         }
         builder.append(" ").append(name);
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne) {
         List<CodegenNamedParam> result = new ArrayList<>(2);
         result.add(new CodegenNamedParam(typeOne, nameOne));
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne, Class typeTwo, String nameTwo) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne, EPTypeClass typeTwo, String nameTwo) {
         List<CodegenNamedParam> result = new ArrayList<>(2);
         result.add(new CodegenNamedParam(typeOne, nameOne));
         result.add(new CodegenNamedParam(typeTwo, nameTwo));
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne, Class typeTwo, String nameTwo, Class typeThree, String nameThree) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne, EPTypeClass typeTwo, String nameTwo, EPTypeClass typeThree, String nameThree) {
         List<CodegenNamedParam> result = new ArrayList<>(3);
         result.add(new CodegenNamedParam(typeOne, nameOne));
         result.add(new CodegenNamedParam(typeTwo, nameTwo));
@@ -84,7 +85,7 @@ public class CodegenNamedParam {
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne, Class typeTwo, String nameTwo, Class typeThree, String nameThree, Class typeFour, String nameFour) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne, EPTypeClass typeTwo, String nameTwo, EPTypeClass typeThree, String nameThree, EPTypeClass typeFour, String nameFour) {
         List<CodegenNamedParam> result = new ArrayList<>(4);
         result.add(new CodegenNamedParam(typeOne, nameOne));
         result.add(new CodegenNamedParam(typeTwo, nameTwo));
@@ -93,7 +94,7 @@ public class CodegenNamedParam {
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne, Class typeTwo, String nameTwo, Class typeThree, String nameThree, Class typeFour, String nameFour, Class typeFive, String nameFive) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne, EPTypeClass typeTwo, String nameTwo, EPTypeClass typeThree, String nameThree, EPTypeClass typeFour, String nameFour, EPTypeClass typeFive, String nameFive) {
         List<CodegenNamedParam> result = new ArrayList<>(5);
         result.add(new CodegenNamedParam(typeOne, nameOne));
         result.add(new CodegenNamedParam(typeTwo, nameTwo));
@@ -103,7 +104,7 @@ public class CodegenNamedParam {
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne, Class typeTwo, String nameTwo, Class typeThree, String nameThree, Class typeFour, String nameFour, Class typeFive, String nameFive, Class typeSix, String nameSix) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne, EPTypeClass typeTwo, String nameTwo, EPTypeClass typeThree, String nameThree, EPTypeClass typeFour, String nameFour, EPTypeClass typeFive, String nameFive, EPTypeClass typeSix, String nameSix) {
         List<CodegenNamedParam> result = new ArrayList<>(6);
         result.add(new CodegenNamedParam(typeOne, nameOne));
         result.add(new CodegenNamedParam(typeTwo, nameTwo));
@@ -114,7 +115,7 @@ public class CodegenNamedParam {
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne, Class typeTwo, String nameTwo, Class typeThree, String nameThree, Class typeFour, String nameFour, Class typeFive, String nameFive, Class typeSix, String nameSix, Class typeSeven, String nameSeven) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne, EPTypeClass typeTwo, String nameTwo, EPTypeClass typeThree, String nameThree, EPTypeClass typeFour, String nameFour, EPTypeClass typeFive, String nameFive, EPTypeClass typeSix, String nameSix, EPTypeClass typeSeven, String nameSeven) {
         List<CodegenNamedParam> result = new ArrayList<>();
         result.add(new CodegenNamedParam(typeOne, nameOne));
         result.add(new CodegenNamedParam(typeTwo, nameTwo));
@@ -126,7 +127,7 @@ public class CodegenNamedParam {
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne, Class typeTwo, String nameTwo, Class typeThree, String nameThree, Class typeFour, String nameFour, Class typeFive, String nameFive, Class typeSix, String nameSix, Class typeSeven, String nameSeven, Class typeEight, String nameEight) {
+    public static List<CodegenNamedParam> from(EPTypeClass typeOne, String nameOne, EPTypeClass typeTwo, String nameTwo, EPTypeClass typeThree, String nameThree, EPTypeClass typeFour, String nameFour, EPTypeClass typeFive, String nameFive, EPTypeClass typeSix, String nameSix, EPTypeClass typeSeven, String nameSeven, EPTypeClass typeEight, String nameEight) {
         List<CodegenNamedParam> result = new ArrayList<>();
         result.add(new CodegenNamedParam(typeOne, nameOne));
         result.add(new CodegenNamedParam(typeTwo, nameTwo));
@@ -149,7 +150,9 @@ public class CodegenNamedParam {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(type);
+        if (type != null) {
+            type.traverseClasses(classes::add);
+        }
     }
 
     public static void render(StringBuilder builder, Map<Class, String> imports, List<CodegenNamedParam> params) {

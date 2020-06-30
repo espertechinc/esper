@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -44,11 +45,11 @@ public class SelectEvalJoinWildcardProcessorObjectArray implements SelectExprPro
 
     public CodegenMethod processCodegen(CodegenExpression resultEventTypeOuter, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         // NOTE: Maintaining result-event-type as out own field as we may be an "inner" select-expr-processor
-        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(resultEventType, EPStatementInitServices.REF));
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(resultEventType, EPStatementInitServices.REF));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(Object[].class, "tuple", newArrayByLength(Object.class, constant(streamNames.length)))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "tuple", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(streamNames.length)))
                 .staticMethod(System.class, "arraycopy", refEPS, constant(0), ref("tuple"), constant(0), constant(streamNames.length))
                 .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedObjectArray", ref("tuple"), mType));
         return methodNode;

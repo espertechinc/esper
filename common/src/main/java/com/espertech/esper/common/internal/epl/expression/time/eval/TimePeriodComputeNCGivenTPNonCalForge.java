@@ -33,9 +33,9 @@ public class TimePeriodComputeNCGivenTPNonCalForge implements TimePeriodComputeF
     }
 
     public CodegenExpression makeEvaluator(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TimePeriodComputeNCGivenTPNonCalEval.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TimePeriodComputeNCGivenTPNonCalEval.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(TimePeriodComputeNCGivenTPNonCalEval.class, "eval", newInstance(TimePeriodComputeNCGivenTPNonCalEval.class))
+                .declareVarNewInstance(TimePeriodComputeNCGivenTPNonCalEval.EPTYPE, "eval")
                 .exprDotMethod(ref("eval"), "setAdders", TimePeriodAdderUtil.makeArray(timePeriodForge.getAdders(), parent, classScope))
                 .exprDotMethod(ref("eval"), "setEvaluators", ExprNodeUtilityCodegen.codegenEvaluators(timePeriodForge.getForges(), method, this.getClass(), classScope))
                 .exprDotMethod(ref("eval"), "setTimeAbacus", classScope.addOrGetFieldSharable(TimeAbacusField.INSTANCE))

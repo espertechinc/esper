@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
@@ -24,6 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Method;
@@ -39,37 +41,41 @@ public class ExprDotStaticMethodWrapFactory {
             return null;
         }
 
-        if (method.getReturnType().isArray() && method.getReturnType().getComponentType() == EventBean.class) {
+        EPTypeClass methodReturnType = ClassHelperGenericType.getMethodReturnEPType(method);
+
+        if (methodReturnType.getType().isArray() && methodReturnType.getType().getComponentType() == EventBean.class) {
             EventType eventType = requireEventType(method, optionalEventTypeName, validationContext);
             return new ExprDotStaticMethodWrapEventBeanArr(eventType);
         }
 
-        if (method.getReturnType().isArray()) {
-            Class componentType = method.getReturnType().getComponentType();
-            if (componentType == null || JavaClassHelper.isJavaBuiltinDataType(componentType)) {
-                return new ExprDotStaticMethodWrapArrayScalar(method.getName(), method.getReturnType());
+        if (methodReturnType.getType().isArray()) {
+            EPTypeClass componentType = JavaClassHelper.getArrayComponentType(methodReturnType);
+            if (JavaClassHelper.isJavaBuiltinDataType(componentType)) {
+                EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+                return new ExprDotStaticMethodWrapArrayScalar(method.getName(), returnType);
             }
 
             BeanEventType type = makeBeanType(method.getName(), componentType, validationContext);
             return new ExprDotStaticMethodWrapArrayEvents(null, type);
         }
 
-        if (JavaClassHelper.isImplementsInterface(method.getReturnType(), Collection.class)) {
-            Class genericType = JavaClassHelper.getGenericReturnType(method, true);
+        if (JavaClassHelper.isImplementsInterface(methodReturnType.getType(), Collection.class)) {
+            EPTypeClass genericType = JavaClassHelper.getSingleParameterTypeOrObject(methodReturnType);
 
-            if (genericType == EventBean.class) {
+            if (genericType.getType() == EventBean.class) {
                 EventType eventType = requireEventType(method, optionalEventTypeName, validationContext);
                 return new ExprDotStaticMethodWrapEventBeanColl(eventType);
             }
 
-            if (genericType == null || JavaClassHelper.isJavaBuiltinDataType(genericType)) {
+            if (JavaClassHelper.isJavaBuiltinDataType(genericType)) {
                 return new ExprDotStaticMethodWrapCollection(method.getName(), genericType);
             }
         }
 
-        if (JavaClassHelper.isImplementsInterface(method.getReturnType(), Iterable.class)) {
-            Class genericType = JavaClassHelper.getGenericReturnType(method, true);
-            if (genericType == null || JavaClassHelper.isJavaBuiltinDataType(genericType)) {
+        if (JavaClassHelper.isImplementsInterface(methodReturnType.getType(), Iterable.class)) {
+            EPTypeClass genericType = JavaClassHelper.getSingleParameterTypeOrObject(methodReturnType);
+
+            if (JavaClassHelper.isJavaBuiltinDataType(genericType)) {
                 return new ExprDotStaticMethodWrapIterableScalar(method.getName(), genericType);
             }
 
@@ -79,8 +85,8 @@ public class ExprDotStaticMethodWrapFactory {
         return null;
     }
 
-    private static BeanEventType makeBeanType(String methodName, Class clazz, ExprValidationContext validationContext) {
-        String eventTypeName = validationContext.getStatementCompileTimeService().getEventTypeNameGeneratorStatement().getAnonymousTypeNameUDFMethod(methodName, clazz.getName());
+    private static BeanEventType makeBeanType(String methodName, EPTypeClass clazz, ExprValidationContext validationContext) {
+        String eventTypeName = validationContext.getStatementCompileTimeService().getEventTypeNameGeneratorStatement().getAnonymousTypeNameUDFMethod(methodName, clazz.getTypeName());
         EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, validationContext.getModuleName(), EventTypeTypeClass.UDFDERIVED, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         BeanEventTypeStem stem = validationContext.getStatementCompileTimeService().getBeanEventTypeStemService().getCreateStem(clazz, null);
         BeanEventType beantype = new BeanEventType(stem, metadata, validationContext.getStatementCompileTimeService().getBeanEventTypeFactoryPrivate(), null, null, null, null);

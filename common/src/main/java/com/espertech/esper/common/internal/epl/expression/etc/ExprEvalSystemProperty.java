@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -43,12 +45,12 @@ public class ExprEvalSystemProperty extends ExprNodeBase implements ExprForge, E
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return staticMethod(System.class, "getProperty", constant(systemPropertyName));
     }
 
-    public Class getEvaluationType() {
-        return String.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.STRING.getEPType();
     }
 
     public ExprForgeConstantType getForgeConstantType() {

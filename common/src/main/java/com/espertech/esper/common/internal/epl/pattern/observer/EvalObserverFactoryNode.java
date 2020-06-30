@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.observer;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalFactoryNodeBase;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalFactoryNodeVisitor;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalNode;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
 
 public class EvalObserverFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalObserverFactoryNode.class);
 
     private ObserverFactory observerFactory;
 

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -68,21 +69,21 @@ public class EventBeanManufacturerObjectArrayForge implements EventBeanManufactu
         CodegenMethod init = codegenClassScope.getPackageScope().getInitMethod();
 
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(this.eventType, EPStatementInitServices.REF));
+        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(this.eventType, EPStatementInitServices.REF));
 
-        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.class);
+        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.EPTYPE);
 
-        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(Object[].class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECTARRAY.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("makeUnderlying", makeUndMethod);
         makeUnderlyingCodegen(makeUndMethod, codegenClassScope);
 
-        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("make", makeMethod);
         makeMethod.getBlock()
-                .declareVar(Object[].class, "und", localMethod(makeUndMethod, ref("properties")))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "und", localMethod(makeUndMethod, ref("properties")))
                 .methodReturn(exprDotMethod(factory, "adapterForTypedObjectArray", ref("und"), eventType));
 
-        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, manufacturer);
+        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, manufacturer);
     }
 
     private void makeUnderlyingCodegen(CodegenMethod method, CodegenClassScope codegenClassScope) {
@@ -91,7 +92,7 @@ public class EventBeanManufacturerObjectArrayForge implements EventBeanManufactu
             return;
         }
 
-        method.getBlock().declareVar(Object[].class, "cols", newArrayByLength(Object.class, constant(eventType.getPropertyNames().length)));
+        method.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "cols", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(eventType.getPropertyNames().length)));
         for (int i = 0; i < indexPerWritable.length; i++) {
             method.getBlock().assignArrayElement(ref("cols"), constant(indexPerWritable[i]), arrayAtIndex(ref("properties"), constant(i)));
         }

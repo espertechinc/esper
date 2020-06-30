@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimAgedEvalFuncFactory;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
@@ -27,11 +28,11 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, Class[] groupByTypes, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, DataInputOutputSerde<Object> groupKeySerde) {
+    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, EPType[] groupByTypes, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, DataInputOutputSerde<Object> groupKeySerde) {
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory, AggregationGroupByRollupDesc groupByRollupDesc, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, Class[] groupByTypes) {
+    public AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory, AggregationGroupByRollupDesc groupByRollupDesc, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, EPType[] groupByTypes) {
         return nonHAFactory;
     }
 

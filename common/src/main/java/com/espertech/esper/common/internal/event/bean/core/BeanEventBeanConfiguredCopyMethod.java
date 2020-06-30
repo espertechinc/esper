@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import java.lang.reflect.Method;
  * Copies an event for modification.
  */
 public class BeanEventBeanConfiguredCopyMethod implements EventBeanCopyMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(BeanEventBeanConfiguredCopyMethod.class);
     private static final Logger log = LoggerFactory.getLogger(BeanEventBeanConfiguredCopyMethod.class);
 
     private final BeanEventType beanEventType;

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.serde.serdeset.builtin;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.io.DataInput;
@@ -21,6 +22,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DIOSetSerde implements DataInputOutputSerde<Set<Object>> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOSetSerde.class);
+
     private final DataInputOutputSerde inner;
 
     public DIOSetSerde(DataInputOutputSerde inner) {

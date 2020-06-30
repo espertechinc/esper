@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.keyed;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptor;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContextControllerDetailKeyed implements ContextControllerDetail, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerDetailKeyed.class);
 
     private ContextControllerDetailKeyedItem[] items;
     private ContextConditionDescriptorFilter[] optionalInit;

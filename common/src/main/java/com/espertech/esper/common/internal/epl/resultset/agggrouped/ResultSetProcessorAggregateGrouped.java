@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.agggrouped;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowRemovedCallback;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
@@ -24,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ResultSetProcessorAggregateGrouped extends ResultSetProcessor, AggregationRowRemovedCallback {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorAggregateGrouped.class);
+
     boolean hasHavingClause();
 
     boolean evaluateHavingClause(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);

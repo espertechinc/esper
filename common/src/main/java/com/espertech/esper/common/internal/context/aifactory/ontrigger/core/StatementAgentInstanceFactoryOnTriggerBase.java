@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.ontrigger.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.activator.ViewableActivationResult;
 import com.espertech.esper.common.internal.context.activator.ViewableActivator;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StatementAgentInstanceFactoryOnTriggerBase implements StatementAgentInstanceFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryOnTriggerBase.class);
+
     private EventType resultEventType;
     private ViewableActivator activator;
     private Map<Integer, SubSelectFactory> subselects;

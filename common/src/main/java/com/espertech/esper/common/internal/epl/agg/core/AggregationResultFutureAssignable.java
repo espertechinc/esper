@@ -10,6 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface AggregationResultFutureAssignable {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationResultFutureAssignable.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(AggregationResultFutureAssignable[].class);
+
     void assign(AggregationResultFuture future);
 }

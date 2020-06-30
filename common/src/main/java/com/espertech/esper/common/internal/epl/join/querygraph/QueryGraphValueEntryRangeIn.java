@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class QueryGraphValueEntryRangeIn extends QueryGraphValueEntryRange {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValueEntryRangeIn.class);
 
     private ExprEvaluator exprStart;
     private ExprEvaluator exprEnd;

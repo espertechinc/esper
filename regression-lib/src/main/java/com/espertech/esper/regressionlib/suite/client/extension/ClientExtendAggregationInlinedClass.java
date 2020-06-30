@@ -42,18 +42,19 @@ public class ClientExtendAggregationInlinedClass {
         "import com.espertech.esper.common.internal.epl.expression.core.*;\n" +
         "import com.espertech.esper.common.client.hook.forgeinject.*;\n" +
         "import com.espertech.esper.common.client.serde.*;\n" +
+        "import com.espertech.esper.common.client.type.*;\n" +
         "import java.io.*;\n" +
         "@ExtensionAggregationFunction(name=\"concat\")\n" +
         "public class ConcatAggForge implements AggregationFunctionForge {\n" +
         "  public void validate(AggregationFunctionValidationContext validationContext) throws ExprValidationException {\n" +
-        "    Class paramType = validationContext.getParameterTypes()[0];\n" +
-        "    if (paramType != String.class) {\n" +
-        "      throw new ExprValidationException(\"Invalid parameter type '\" + paramType.getSimpleName() + \"'\");\n" +
+        "    EPType paramType = validationContext.getParameterTypes()[0];\n" +
+        "    if (paramType == EPTypeNull.INSTANCE || ((EPTypeClass) paramType).getType() != String.class) {\n" +
+        "      throw new ExprValidationException(\"Invalid parameter type '\" + paramType + \"'\");\n" +
         "    }\n" +
         "  }\n" +
         "\n" +
-        "  public Class getValueType() {\n" +
-        "    return String.class;\n" +
+        "  public EPTypeClass getValueType() {\n" +
+        "    return new EPTypeClass(String.class);\n" +
         "  }\n" +
         "\n" +
         "  public AggregationFunctionMode getAggregationFunctionMode() {\n" +

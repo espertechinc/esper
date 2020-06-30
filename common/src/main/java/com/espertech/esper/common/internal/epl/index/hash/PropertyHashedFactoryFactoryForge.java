@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.index.hash;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -46,8 +48,8 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
         this.multiKeyClassRef = multiKeyClassRef;
     }
 
-    protected Class typeOf() {
-        return PropertyHashedFactoryFactory.class;
+    protected EPTypeClass typeOf() {
+        return PropertyHashedFactoryFactory.EPTYPE;
     }
 
     protected List<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -55,7 +57,7 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
         params.add(constant(indexedProps));
         params.add(constant(hashCoercionDesc.getCoercionTypes()));
         params.add(constant(unique));
-        Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, indexedProps);
+        EPType[] propertyTypes = EventTypeUtility.getPropertyTypesEPType(eventType, indexedProps);
         EventPropertyGetterSPI[] getters = EventTypeUtility.getGetters(eventType, indexedProps);
 
         CodegenExpression getter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, getters, propertyTypes, hashCoercionDesc.getCoercionTypes(), multiKeyClassRef, method, classScope);

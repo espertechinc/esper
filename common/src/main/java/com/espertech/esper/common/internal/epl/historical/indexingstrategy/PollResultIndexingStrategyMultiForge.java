@@ -41,15 +41,15 @@ public class PollResultIndexingStrategyMultiForge implements PollResultIndexingS
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyMulti.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyMulti.EPTYPE, this.getClass(), classScope);
 
-        method.getBlock().declareVar(PollResultIndexingStrategy[].class, "strats", newArrayByLength(PollResultIndexingStrategy.class, constant(indexingStrategies.length)));
+        method.getBlock().declareVar(PollResultIndexingStrategy.EPTYPEARRAY, "strats", newArrayByLength(PollResultIndexingStrategy.EPTYPE, constant(indexingStrategies.length)));
         for (int i = 0; i < indexingStrategies.length; i++) {
             method.getBlock().assignArrayElement(ref("strats"), constant(i), indexingStrategies[i].make(method, symbols, classScope));
         }
 
         method.getBlock()
-                .declareVar(PollResultIndexingStrategyMulti.class, "strat", newInstance(PollResultIndexingStrategyMulti.class))
+                .declareVarNewInstance(PollResultIndexingStrategyMulti.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setIndexingStrategies", ref("strats"))
                 .methodReturn(ref("strat"));
         return localMethod(method);

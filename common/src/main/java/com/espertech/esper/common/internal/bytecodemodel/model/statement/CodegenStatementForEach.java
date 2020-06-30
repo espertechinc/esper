@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,13 +22,13 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenStatementForEach extends CodegenStatementWBlockBase {
-    private final Class type;
+    private final EPTypeClass type;
     private final String ref;
     private final CodegenExpression target;
 
     private CodegenBlock block;
 
-    public CodegenStatementForEach(CodegenBlock parent, Class type, String ref, CodegenExpression target) {
+    public CodegenStatementForEach(CodegenBlock parent, EPTypeClass type, String ref, CodegenExpression target) {
         super(parent);
         this.type = type;
         this.ref = ref;
@@ -40,7 +41,7 @@ public class CodegenStatementForEach extends CodegenStatementWBlockBase {
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         builder.append("for (");
-        appendClassName(builder, type, null, imports);
+        appendClassName(builder, type, imports);
         builder.append(" ").append(ref).append(" : ");
         target.render(builder, imports, isInnerClass);
         builder.append(") {\n");
@@ -50,7 +51,7 @@ public class CodegenStatementForEach extends CodegenStatementWBlockBase {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(type);
+        type.traverseClasses(classes::add);
         block.mergeClasses(classes);
         target.mergeClasses(classes);
     }

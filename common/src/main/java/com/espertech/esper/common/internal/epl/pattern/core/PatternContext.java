@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,6 +24,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Contains handles to implementations of services needed by evaluation nodes.
  */
 public class PatternContext {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PatternContext.class);
+
     private int streamNumber;
     private MatchedEventMapMeta matchedEventMapMeta;
     private boolean isContextDeclaration;
@@ -81,9 +84,9 @@ public class PatternContext {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PatternContext.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PatternContext.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(PatternContext.class, "ctx", newInstance(PatternContext.class))
+                .declareVar(PatternContext.EPTYPE, "ctx", newInstance(PatternContext.EPTYPE))
                 .exprDotMethod(ref("ctx"), "setMatchedEventMapMeta", localMethod(matchedEventMapMeta.makeCodegen(classScope, method, symbols)));
         if (streamNumber != 0) {
             method.getBlock().exprDotMethod(ref("ctx"), "setStreamNumber", constant(streamNumber));

@@ -31,7 +31,7 @@ public class QueryPlanNodeForgeAllUnidirectionalOuter extends QueryPlanNodeForge
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(QueryPlanNodeAllUnidirectionalOuter.class, constant(streamNum));
+        return newInstance(QueryPlanNodeAllUnidirectionalOuter.EPTYPE, constant(streamNum));
     }
 
     public void addIndexes(HashSet<TableLookupIndexReqKey> usedIndexes) {

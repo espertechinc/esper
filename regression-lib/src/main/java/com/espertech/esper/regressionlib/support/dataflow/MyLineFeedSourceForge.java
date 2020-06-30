@@ -42,6 +42,6 @@ public class MyLineFeedSourceForge implements DataFlowOperatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(MyLineFeedSourceFactory.class);
+        return newInstance(MyLineFeedSourceFactory.EPTYPE);
     }
 }

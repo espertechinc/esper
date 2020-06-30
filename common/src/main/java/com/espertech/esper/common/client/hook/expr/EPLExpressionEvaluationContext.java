@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.hook.expr;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Provides expression evaluation context information in an expression.
  */
 public class EPLExpressionEvaluationContext {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EPLExpressionEvaluationContext.class);
+
     private final String statementName;
     private final int contextPartitionId;
     private final String runtimeURI;

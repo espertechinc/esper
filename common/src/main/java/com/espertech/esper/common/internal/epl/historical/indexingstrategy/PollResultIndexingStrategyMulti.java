@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.epl.index.base.MultiIndexEventTable;
 import java.util.List;
 
 public class PollResultIndexingStrategyMulti implements PollResultIndexingStrategy {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PollResultIndexingStrategyMulti.class);
+
     private int streamNum;
     private PollResultIndexingStrategy[] indexingStrategies;
 

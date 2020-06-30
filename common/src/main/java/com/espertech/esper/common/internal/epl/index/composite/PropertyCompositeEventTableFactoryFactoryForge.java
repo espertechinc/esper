@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.index.composite;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -36,14 +38,14 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
     private final Integer subqueryNum;
     private final boolean isFireAndForget;
     private final String[] optKeyProps;
-    private final Class[] optKeyTypes;
+    private final EPTypeClass[] optKeyTypes;
     private final MultiKeyClassRef hashMultikeyClasses;
     private final String[] rangeProps;
-    private final Class[] rangeTypes;
+    private final EPTypeClass[] rangeTypes;
     private final DataInputOutputSerdeForge[] rangeSerdes;
     private final EventType eventType;
 
-    public PropertyCompositeEventTableFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] optKeyProps, Class[] optKeyTypes, MultiKeyClassRef hashMultikeyClasses, String[] rangeProps, Class[] rangeTypes, DataInputOutputSerdeForge[] rangeSerdes, EventType eventType) {
+    public PropertyCompositeEventTableFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] optKeyProps, EPTypeClass[] optKeyTypes, MultiKeyClassRef hashMultikeyClasses, String[] rangeProps, EPTypeClass[] rangeTypes, DataInputOutputSerdeForge[] rangeSerdes, EventType eventType) {
         this.indexedStreamNum = indexedStreamNum;
         this.subqueryNum = subqueryNum;
         this.isFireAndForget = isFireAndForget;
@@ -68,18 +70,18 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PropertyCompositeEventTableFactoryFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PropertyCompositeEventTableFactoryFactory.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression hashGetter = constantNull();
         if (optKeyProps != null && optKeyProps.length > 0) {
-            Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, optKeyProps);
+            EPType[] propertyTypes = EventTypeUtility.getPropertyTypesEPType(eventType, optKeyProps);
             EventPropertyGetterSPI[] getters = EventTypeUtility.getGetters(eventType, optKeyProps);
             hashGetter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, getters, propertyTypes, optKeyTypes, hashMultikeyClasses, method, classScope);
         }
 
-        method.getBlock().declareVar(EventPropertyValueGetter[].class, "rangeGetters", newArrayByLength(EventPropertyValueGetter.class, constant(rangeProps.length)));
+        method.getBlock().declareVar(EventPropertyValueGetter.EPTYPEARRAY, "rangeGetters", newArrayByLength(EventPropertyValueGetter.EPTYPE, constant(rangeProps.length)));
         for (int i = 0; i < rangeProps.length; i++) {
-            Class propertyType = eventType.getPropertyType(rangeProps[i]);
+            EPType propertyType = eventType.getPropertyEPType(rangeProps[i]);
             EventPropertyGetterSPI getterSPI = ((EventTypeSPI) eventType).getGetterSPI(rangeProps[i]);
             CodegenExpression getter = EventTypeUtility.codegenGetterWCoerce(getterSPI, propertyType, rangeTypes[i], method, this.getClass(), classScope);
             method.getBlock().assignArrayElement(ref("rangeGetters"), constant(i), getter);
@@ -98,7 +100,7 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
         params.add(ref("rangeGetters"));
         params.add(DataInputOutputSerdeForge.codegenArray(rangeSerdes, method, classScope, null));
 
-        method.getBlock().methodReturn(newInstance(PropertyCompositeEventTableFactoryFactory.class, params.toArray(new CodegenExpression[0])));
+        method.getBlock().methodReturn(newInstance(PropertyCompositeEventTableFactoryFactory.EPTYPE, params.toArray(new CodegenExpression[0])));
         return localMethod(method);
     }
 }

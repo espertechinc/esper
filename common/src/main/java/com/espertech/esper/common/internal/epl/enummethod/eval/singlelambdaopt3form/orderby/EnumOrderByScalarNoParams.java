@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.orderby;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -58,10 +59,10 @@ public class EnumOrderByScalarNoParams extends EnumForgeBasePlain implements Enu
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, EnumOrderByScalarNoParams.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), EnumOrderByScalarNoParams.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(or(equalsNull(EnumForgeCodegenNames.REF_ENUMCOLL), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty")))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
-                .declareVar(List.class, "list", newInstance(ArrayList.class, EnumForgeCodegenNames.REF_ENUMCOLL));
+                .declareVar(EPTypePremade.LIST.getEPType(), "list", newInstance(EPTypePremade.ARRAYLIST.getEPType(), EnumForgeCodegenNames.REF_ENUMCOLL));
         if (descending) {
             block.staticMethod(Collections.class, "sort", ref("list"), staticMethod(Collections.class, "reverseOrder"));
         } else {

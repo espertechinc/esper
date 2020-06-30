@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
 import com.espertech.esper.common.client.soda.Expression;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,6 +26,8 @@ import java.util.function.Supplier;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExpressionDeclItem implements Copyable<ExpressionDeclItem> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExpressionDeclItem.class);
+
     private final String name;
     private final String[] parametersNames;
     private final boolean alias;
@@ -97,15 +101,15 @@ public class ExpressionDeclItem implements Copyable<ExpressionDeclItem> {
     }
 
     public CodegenExpression make(CodegenMethod parent, ModuleExpressionDeclaredInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ExpressionDeclItem.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ExpressionDeclItem.EPTYPE, this.getClass(), classScope);
 
-        CodegenExpressionNewAnonymousClass supplierSodaBytes = newAnonymousClass(method.getBlock(), Supplier.class);
-        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope);
+        CodegenExpressionNewAnonymousClass supplierSodaBytes = newAnonymousClass(method.getBlock(), EPTypePremade.SUPPLIER.getEPType());
+        CodegenMethod get = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope);
         supplierSodaBytes.addMethod("get", get);
         get.getBlock().methodReturn(constant(optionalSodaBytes.get()));
 
         method.getBlock()
-                .declareVar(ExpressionDeclItem.class, "item", newInstance(ExpressionDeclItem.class, constant(name), constant(parametersNames), constant(alias)))
+                .declareVar(ExpressionDeclItem.EPTYPE, "item", newInstance(ExpressionDeclItem.EPTYPE, constant(name), constant(parametersNames), constant(alias)))
                 .exprDotMethod(ref("item"), "setOptionalSodaBytes", supplierSodaBytes)
                 .exprDotMethod(ref("item"), "setModuleName", constant(moduleName))
                 .exprDotMethod(ref("item"), "setVisibility", constant(visibility))

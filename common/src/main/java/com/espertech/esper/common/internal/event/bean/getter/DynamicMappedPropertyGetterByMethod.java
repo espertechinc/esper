@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -58,15 +59,15 @@ public class DynamicMappedPropertyGetterByMethod extends DynamicPropertyGetterBy
     }
 
     protected CodegenExpression callCodegen(CodegenExpressionRef desc, CodegenExpressionRef object, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField params = codegenClassScope.addFieldUnshared(true, Object[].class, constant(parameters));
+        CodegenExpressionField params = codegenClassScope.addFieldUnshared(true, EPTypePremade.OBJECTARRAY.getEPType(), constant(parameters));
         return staticMethod(DynamicMappedPropertyGetterByMethod.class, "dynamicMappedPropertyGet", desc, object, params);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenExpression memberCache = codegenClassScope.addOrGetFieldSharable(sharableCode);
-        CodegenMethod method = parent.makeChild(boolean.class, DynamicPropertyGetterByMethodBase.class, codegenClassScope).addParam(Object.class, "object");
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), DynamicPropertyGetterByMethodBase.class, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "object");
         method.getBlock()
-            .declareVar(DynamicPropertyDescriptorByMethod.class, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
+            .declareVar(DynamicPropertyDescriptorByMethod.EPTYPE, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
             .ifCondition(equalsNull(exprDotMethod(ref("desc"), "getMethod"))).blockReturn(constantFalse())
             .methodReturn(staticMethod(DynamicMappedPropertyGetterByMethod.class, "dynamicMappedPropertyExists", ref("desc"), ref("object"), constant(parameters[0])));
         return localMethod(method, underlyingExpression);

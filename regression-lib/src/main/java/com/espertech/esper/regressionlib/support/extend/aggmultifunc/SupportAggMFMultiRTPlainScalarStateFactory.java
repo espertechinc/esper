@@ -13,9 +13,11 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionState;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateFactory;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class SupportAggMFMultiRTPlainScalarStateFactory implements AggregationMultiFunctionStateFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportAggMFMultiRTPlainScalarStateFactory.class);
 
     private ExprEvaluator param;
 

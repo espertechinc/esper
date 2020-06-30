@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.cache;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Collection;
 
@@ -21,6 +22,7 @@ import java.util.Collection;
  * NOTE: ExpressionResultCacheForPropUnwrap should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForPropUnwrap {
+    EPTypeClass EPTYPE = new EPTypeClass(ExpressionResultCacheForPropUnwrap.class);
 
     ExpressionResultCacheEntryBeanAndCollBean getPropertyColl(String propertyNameFullyQualified, EventBean reference);
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.followedby;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
@@ -78,8 +79,8 @@ public class EvalFollowedByForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.FOLLOWEDBY;
     }
 
-    protected Class typeOfFactory() {
-        return EvalFollowedByFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalFollowedByFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {
@@ -87,7 +88,7 @@ public class EvalFollowedByForgeNode extends EvalForgeNodeBase {
     }
 
     protected void inlineCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        method.getBlock().declareVar(EvalFactoryNode[].class, "children", newArrayByLength(EvalFactoryNode.class, constant(getChildNodes().size())));
+        method.getBlock().declareVar(EvalFactoryNode.EPTYPEARRAY, "children", newArrayByLength(EvalFactoryNode.EPTYPE, constant(getChildNodes().size())));
         for (int i = 0; i < getChildNodes().size(); i++) {
             method.getBlock().assignArrayElement(ref("children"), constant(i), localMethod(getChildNodes().get(i).makeCodegen(method, symbols, classScope)));
         }
@@ -96,7 +97,7 @@ public class EvalFollowedByForgeNode extends EvalForgeNodeBase {
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add("addReadyCallback", ref("node")));
 
         if (optionalMaxExpressions != null && !optionalMaxExpressions.isEmpty()) {
-            method.getBlock().declareVar(ExprEvaluator[].class, "evals", newArrayByLength(ExprEvaluator.class, constant(this.getChildNodes().size() - 1)));
+            method.getBlock().declareVar(ExprEvaluator.EPTYPEARRAY, "evals", newArrayByLength(ExprEvaluator.EPTYPE, constant(this.getChildNodes().size() - 1)));
 
             for (int i = 0; i < getChildNodes().size() - 1; i++) {
                 if (optionalMaxExpressions.size() <= i) {

@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,24 +32,24 @@ public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
     private final Object filterConstant;
 
     public FilterSpecParamConstantForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, Object filterConstant)
-            throws IllegalArgumentException {
+        throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.filterConstant = filterConstant;
 
         if (filterOperator.isRangeOperator()) {
             throw new IllegalArgumentException("Illegal filter operator " + filterOperator + " supplied to " +
-                    "constant filter parameter");
+                "constant filter parameter");
         }
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
-        CodegenMethod method = parent.makeChild(FilterSpecParam.class, FilterSpecParamConstantForge.class, classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, FilterSpecParamConstantForge.class, classScope);
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+            .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+            .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass inner = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass inner = newAnonymousClass(method.getBlock(), FilterSpecParam.EPTYPE, Arrays.asList(ref("lookupable"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.EPTYPE, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         inner.addMethod("getFilterValue", getFilterValue);
         getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(constant(filterConstant)));
 
@@ -95,8 +95,8 @@ public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
 
     public static void valueExprToString(StringBuilder out, Object constant) {
         out.append("constant ");
-        CodegenExpressionUtil.renderConstant(out, constant, Collections.emptyMap());
-        out.append(" type ").append(JavaClassHelper.getClassNameFullyQualPretty(constant == null ? null : constant.getClass()));
+        CodegenExpressionUtil.renderConstant(out, constant, Collections.emptyMap(), false);
+        out.append(" type ").append(ClassHelperPrint.getClassNameFullyQualPretty(constant == null ? null : constant.getClass()));
     }
 
     public static String valueExprToString(Object constant) {

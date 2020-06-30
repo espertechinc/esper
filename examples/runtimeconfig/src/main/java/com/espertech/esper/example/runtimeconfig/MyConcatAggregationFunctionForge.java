@@ -16,12 +16,15 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeMan
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategy;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
 
 public class MyConcatAggregationFunctionForge implements AggregationFunctionForge {
 
     public void validate(AggregationFunctionValidationContext validationContext) {
-        if ((validationContext.getParameterTypes().length != 1) ||
-            (validationContext.getParameterTypes()[0] != String.class)) {
+        if (validationContext.getParameterTypes().length != 1 || !isTypeString(validationContext.getParameterTypes()[0])) {
             throw new IllegalArgumentException("Concat aggregation requires a single parameter of type String");
         }
     }
@@ -37,8 +40,8 @@ public class MyConcatAggregationFunctionForge implements AggregationFunctionForg
         return mode;
     }
 
-    public Class getValueType() {
-        return String.class;
+    public EPTypeClass getValueType() {
+        return EPTypePremade.STRING.getEPType();
     }
 
     public void setFunctionName(String functionName) {

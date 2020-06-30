@@ -15,7 +15,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.common.internal.support.SupportExprValidationContextFactory;
 import com.espertech.esper.common.internal.supportunit.util.SupportExprNode;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import junit.framework.TestCase;
 
 public class TestExprCastNode extends TestCase {
@@ -24,10 +24,10 @@ public class TestExprCastNode extends TestCase {
     public void setUp() {
         castNodes = new ExprCastNode[2];
 
-        castNodes[0] = new ExprCastNode(new ClassIdentifierWArray("long"));
+        castNodes[0] = new ExprCastNode(new ClassDescriptor("long"));
         castNodes[0].addChildNode(new SupportExprNode(10L, Long.class));
 
-        castNodes[1] = new ExprCastNode(new ClassIdentifierWArray("java.lang.Integer"));
+        castNodes[1] = new ExprCastNode(new ClassDescriptor("java.lang.Integer"));
         castNodes[1].addChildNode(new SupportExprNode(0x10, byte.class));
     }
 
@@ -41,7 +41,7 @@ public class TestExprCastNode extends TestCase {
     }
 
     public void testValidate() throws Exception {
-        ExprCastNode castNode = new ExprCastNode(new ClassIdentifierWArray("int"));
+        ExprCastNode castNode = new ExprCastNode(new ClassDescriptor("int"));
 
         // Test too few nodes under this node
         try {
@@ -64,7 +64,7 @@ public class TestExprCastNode extends TestCase {
     public void testEquals() throws Exception {
         assertFalse(castNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false), false));
         assertFalse(castNodes[0].equalsNode(castNodes[1], false));
-        assertFalse(castNodes[0].equalsNode(new ExprCastNode(new ClassIdentifierWArray("java.lang.Integer")), false));
+        assertFalse(castNodes[0].equalsNode(new ExprCastNode(new ClassDescriptor("java.lang.Integer")), false));
     }
 
     public void testToExpressionString() throws Exception {

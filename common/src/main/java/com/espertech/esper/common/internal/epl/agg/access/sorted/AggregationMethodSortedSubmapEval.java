@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -27,9 +28,9 @@ public class AggregationMethodSortedSubmapEval implements AggregationMultiFuncti
     private final ExprEvaluator fromInclusiveEval;
     private final ExprEvaluator toKeyEval;
     private final ExprEvaluator toInclusiveEval;
-    private final Class underlyingClass;
+    private final EPTypeClass underlyingClass;
 
-    public AggregationMethodSortedSubmapEval(ExprEvaluator fromKeyEval, ExprEvaluator fromInclusiveEval, ExprEvaluator toKeyEval, ExprEvaluator toInclusiveEval, Class underlyingClass) {
+    public AggregationMethodSortedSubmapEval(ExprEvaluator fromKeyEval, ExprEvaluator fromInclusiveEval, ExprEvaluator toKeyEval, ExprEvaluator toInclusiveEval, EPTypeClass underlyingClass) {
         this.fromKeyEval = fromKeyEval;
         this.fromInclusiveEval = fromInclusiveEval;
         this.toKeyEval = toKeyEval;

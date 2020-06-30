@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.pattern.guard;
 
 import com.espertech.esper.common.client.soda.GuardEnum;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage1.spec.PatternGuardSpec;
@@ -87,8 +88,8 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
         return true;
     }
 
-    protected Class typeOfFactory() {
-        return EvalGuardFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalGuardFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {

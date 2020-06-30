@@ -11,11 +11,13 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergroup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowRemovedCallback;
 
 import java.util.Iterator;
 
 public interface ResultSetProcessorRowPerGroupUnboundHelper extends AggregationRowRemovedCallback {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorRowPerGroupUnboundHelper.class);
 
     void put(Object key, EventBean event);
 

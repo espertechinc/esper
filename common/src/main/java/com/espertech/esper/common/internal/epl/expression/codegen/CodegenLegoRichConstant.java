@@ -10,17 +10,17 @@
  */
 package com.espertech.esper.common.internal.epl.expression.codegen;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Arrays;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenLegoRichConstant {
     public static CodegenExpression toExpression(SortedSet<Integer> values) {
         Integer[] arr = values.toArray(new Integer[values.size()]);
-        return newInstance(TreeSet.class, staticMethod(Arrays.class, "asList", constant(arr)));
+        return newInstance(EPTypePremade.TREESET.getEPType(), staticMethod(Arrays.class, "asList", constant(arr)));
     }
 }

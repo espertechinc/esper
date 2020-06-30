@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.XMLSchema;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilder;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import java.lang.annotation.Annotation;
 
 public class AnnotationXMLSchema implements XMLSchema {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationXMLSchema.class);
+
     private String rootElementName;
     private String schemaResource;
     private String schemaText;
@@ -35,7 +38,7 @@ public class AnnotationXMLSchema implements XMLSchema {
     }
 
     public static CodegenExpression toExpression(XMLSchema xmlSchema, CodegenMethodScope parent, CodegenClassScope scope) {
-        return new CodegenSetterBuilder(AnnotationXMLSchema.class, AnnotationXMLSchema.class, "xmlschema", parent, scope)
+        return new CodegenSetterBuilder(AnnotationXMLSchema.EPTYPE, AnnotationXMLSchema.class, "xmlschema", parent, scope)
             .constant("rootElementName", xmlSchema.rootElementName())
             .constant("schemaResource", xmlSchema.schemaResource())
             .constant("schemaText", xmlSchema.schemaText())

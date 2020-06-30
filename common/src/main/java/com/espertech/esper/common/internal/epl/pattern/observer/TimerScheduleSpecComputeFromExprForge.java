@@ -34,9 +34,9 @@ public class TimerScheduleSpecComputeFromExprForge implements TimerScheduleSpecC
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TimerScheduleSpecComputeFromExpr.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TimerScheduleSpecComputeFromExpr.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(TimerScheduleSpecComputeFromExpr.class, "compute", newInstance(TimerScheduleSpecComputeFromExpr.class))
+                .declareVarNewInstance(TimerScheduleSpecComputeFromExpr.EPTYPE, "compute")
                 .exprDotMethod(ref("compute"), "setDate", dateNode == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(dateNode.getForge(), method, this.getClass(), classScope))
                 .exprDotMethod(ref("compute"), "setRepetitions", repetitionsNode == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(repetitionsNode.getForge(), method, this.getClass(), classScope));
         if (periodNode != null) {

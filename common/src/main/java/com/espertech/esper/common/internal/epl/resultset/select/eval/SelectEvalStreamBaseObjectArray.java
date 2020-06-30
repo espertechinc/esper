@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -39,14 +40,14 @@ public abstract class SelectEvalStreamBaseObjectArray extends SelectEvalStreamBa
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         int size = computeSize();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(size)));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(size)));
         int count = 0;
         for (ExprForge forge : this.context.getExprForges()) {
-            block.assignArrayElement(ref("props"), constant(count), CodegenLegoMayVoid.expressionMayVoid(Object.class, forge, methodNode, exprSymbol, codegenClassScope));
+            block.assignArrayElement(ref("props"), constant(count), CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), forge, methodNode, exprSymbol, codegenClassScope));
             count++;
         }
         for (SelectClauseStreamCompiledSpec element : namedStreams) {

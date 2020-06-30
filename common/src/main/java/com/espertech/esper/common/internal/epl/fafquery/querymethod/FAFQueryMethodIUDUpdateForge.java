@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -75,8 +76,8 @@ public class FAFQueryMethodIUDUpdateForge extends FAFQueryMethodIUDBaseForge {
         }
     }
 
-    protected Class typeOfMethod() {
-        return FAFQueryMethodIUDUpdate.class;
+    protected EPTypeClass typeOfMethod() {
+        return FAFQueryMethodIUDUpdate.EPTYPE;
     }
 
     protected void makeInlineSpecificSetter(CodegenExpressionRef queryMethod, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.groupby;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -71,8 +73,8 @@ public class EnumGroupByOneParamScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
-        return Map.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.MAP.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -80,14 +82,14 @@ public class EnumGroupByOneParamScalar extends ThreeFormScalar {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Map.class, "result", newInstance(LinkedHashMap.class));
+        block.declareVar(EPTypePremade.MAP.getEPType(), "result", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Object.class, "key", innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
-            .declareVar(Collection.class, "value", cast(Collection.class, exprDotMethod(ref("result"), "get", ref("key"))))
+        block.declareVar(EPTypePremade.OBJECT.getEPType(), "key", innerExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
+            .declareVar(EPTypePremade.COLLECTION.getEPType(), "value", cast(EPTypePremade.COLLECTION.getEPType(), exprDotMethod(ref("result"), "get", ref("key"))))
             .ifRefNull("value")
-            .assignRef("value", newInstance(ArrayList.class))
+            .assignRef("value", newInstance(EPTypePremade.ARRAYLIST.getEPType()))
             .expression(exprDotMethod(ref("result"), "put", ref("key"), ref("value")))
             .blockEnd()
             .expression(exprDotMethod(ref("value"), "add", ref("next")));

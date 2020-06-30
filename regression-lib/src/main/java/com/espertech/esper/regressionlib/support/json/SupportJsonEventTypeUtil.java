@@ -17,7 +17,7 @@ import com.espertech.esper.common.client.json.minimaljson.JsonValue;
 import com.espertech.esper.common.client.json.minimaljson.WriterConfig;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.event.core.TypeBeanOrUnderlying;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 
@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 
 public class SupportJsonEventTypeUtil {
 
-    public static Class getUnderlyingType(RegressionEnvironment env, String statementNameOfDeployment, String typeName) {
+    public static EPTypeClass getUnderlyingEPType(RegressionEnvironment env, String statementNameOfDeployment, String typeName) {
         String deploymentId = env.deploymentId(statementNameOfDeployment);
         if (deploymentId == null) {
             throw new IllegalArgumentException("Failed to find deployment id for statement '" + statementNameOfDeployment + "'");
@@ -40,18 +40,11 @@ public class SupportJsonEventTypeUtil {
         if (eventType == null) {
             throw new IllegalArgumentException("Failed to find event type '" + typeName + "' for deployment '" + deploymentId + "'");
         }
-        return eventType.getUnderlyingType();
+        return eventType.getUnderlyingEPType();
     }
 
-    public static Class getNestedUnderlyingType(JsonEventType eventType, String propertyName) {
-        Object type = eventType.getTypes().get(propertyName);
-        EventType innerType;
-        if (type instanceof TypeBeanOrUnderlying) {
-            innerType = ((TypeBeanOrUnderlying) type).getEventType();
-        } else {
-            innerType = ((TypeBeanOrUnderlying[]) type)[0].getEventType();
-        }
-        return innerType.getUnderlyingType();
+    public static Class getUnderlyingType(RegressionEnvironment env, String statementNameOfDeployment, String typeName) {
+        return getUnderlyingEPType(env, statementNameOfDeployment, typeName).getType();
     }
 
     public static void assertJsonWrite(String jsonExpected, EventBean eventBean) {

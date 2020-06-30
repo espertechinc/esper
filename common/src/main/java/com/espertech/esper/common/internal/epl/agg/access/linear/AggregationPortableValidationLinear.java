@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionMethodDesc;
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,6 +35,8 @@ import java.util.Locale;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class AggregationPortableValidationLinear implements AggregationPortableValidation {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationLinear.class);
+
     private EventType containedEventType;
 
     public AggregationPortableValidationLinear() {
@@ -57,11 +61,11 @@ public class AggregationPortableValidationLinear implements AggregationPortableV
     }
 
     public CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationPortableValidationLinear.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationPortableValidationLinear.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationPortableValidationLinear.class, "v", newInstance(AggregationPortableValidationLinear.class))
-            .exprDotMethod(ref("v"), "setContainedEventType", EventTypeUtility.resolveTypeCodegen(containedEventType, symbols.getAddInitSvc(method)))
-            .methodReturn(ref("v"));
+                .declareVarNewInstance(AggregationPortableValidationLinear.EPTYPE, "v")
+                .exprDotMethod(ref("v"), "setContainedEventType", EventTypeUtility.resolveTypeCodegen(containedEventType, symbols.getAddInitSvc(method)))
+                .methodReturn(ref("v"));
         return localMethod(method);
     }
 
@@ -77,10 +81,10 @@ public class AggregationPortableValidationLinear implements AggregationPortableV
                 throw new ExprValidationException("Invalid number of parameters");
             }
             Class provider = AggregationMethodLinearCount.class;
-            Class result = Integer.class;
+            EPTypeClass result = EPTypePremade.INTEGERBOXED.getEPType();
             if (aggMethodName.equals("listreference")) {
                 provider = AggregationMethodLinearListReference.class;
-                result = List.class;
+                result = EPTypeClassParameterized.from(List.class, EventBean.EPTYPE);
             }
             return new AggregationMultiFunctionMethodDesc(new AggregationMethodLinearNoParamForge(provider, result), null, null, null);
         }
@@ -93,11 +97,12 @@ public class AggregationPortableValidationLinear implements AggregationPortableV
     }
 
     private AggregationMultiFunctionMethodDesc handleMethodWindow(ExprNode[] childNodes, ExprValidationContext validationContext)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         if (childNodes.length == 0 || (childNodes.length == 1 && childNodes[0] instanceof ExprWildcard)) {
-            Class componentType = getContainedEventType().getUnderlyingType();
-            AggregationMethodLinearWindowForge forge = new AggregationMethodLinearWindowForge(JavaClassHelper.getArrayType(componentType), null);
+            EPTypeClass componentType = getContainedEventType().getUnderlyingEPType();
+            EPTypeClass arrayType = JavaClassHelper.getArrayType(componentType);
+            AggregationMethodLinearWindowForge forge = new AggregationMethodLinearWindowForge(arrayType, null);
             return new AggregationMultiFunctionMethodDesc(forge, getContainedEventType(), null, null);
         }
         if (childNodes.length == 1) {
@@ -106,16 +111,21 @@ public class AggregationPortableValidationLinear implements AggregationPortableV
             StreamTypeServiceImpl streams = TableCompileTimeUtil.streamTypeFromTableColumn(getContainedEventType());
             ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
             paramNode = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
-            Class paramNodeType = JavaClassHelper.getBoxedType(paramNode.getForge().getEvaluationType());
-            AggregationMethodLinearWindowForge forge = new AggregationMethodLinearWindowForge(JavaClassHelper.getArrayType(paramNodeType), paramNode);
-            return new AggregationMultiFunctionMethodDesc(forge, null, paramNodeType, null);
+            EPType paramNodeType = JavaClassHelper.getBoxedType(paramNode.getForge().getEvaluationType());
+            if (paramNodeType == null || paramNodeType == EPTypeNull.INSTANCE) {
+                throw new ExprValidationException("Null-type value expression is not allowed");
+            }
+            EPTypeClass componentType = (EPTypeClass) paramNodeType;
+            EPTypeClass arrayType = JavaClassHelper.getArrayType(componentType);
+            AggregationMethodLinearWindowForge forge = new AggregationMethodLinearWindowForge(arrayType, paramNode);
+            return new AggregationMultiFunctionMethodDesc(forge, null, componentType, null);
         }
         throw new ExprValidationException("Invalid number of parameters");
     }
 
     private AggregationMultiFunctionMethodDesc handleMethodFirstLast(ExprNode[] childNodes, AggregationAccessorLinearType methodType, ExprValidationContext validationContext)
-        throws ExprValidationException {
-        Class underlyingType = getContainedEventType().getUnderlyingType();
+            throws ExprValidationException {
+        EPTypeClass underlyingType = getContainedEventType().getUnderlyingEPType();
         if (childNodes.length == 0) {
             AggregationMethodLinearFirstLastForge forge = new AggregationMethodLinearFirstLastForge(underlyingType, methodType, null);
             return new AggregationMultiFunctionMethodDesc(forge, null, null, getContainedEventType());
@@ -133,14 +143,14 @@ public class AggregationPortableValidationLinear implements AggregationPortableV
             StreamTypeServiceImpl streams = TableCompileTimeUtil.streamTypeFromTableColumn(getContainedEventType());
             ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
             paramNode = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
-            AggregationMethodLinearFirstLastForge forge = new AggregationMethodLinearFirstLastForge(paramNode.getForge().getEvaluationType(), methodType, paramNode);
+            AggregationMethodLinearFirstLastForge forge = new AggregationMethodLinearFirstLastForge((EPTypeClass) paramNode.getForge().getEvaluationType(), methodType, paramNode);
             return new AggregationMultiFunctionMethodDesc(forge, null, null, null);
         }
         if (childNodes.length == 2) {
             Integer constant = null;
             ExprNode indexEvalNode = childNodes[1];
-            Class indexEvalType = indexEvalNode.getForge().getEvaluationType();
-            if (indexEvalType != Integer.class && indexEvalType != int.class) {
+            EPType indexEvalType = JavaClassHelper.getBoxedType(indexEvalNode.getForge().getEvaluationType());
+            if (indexEvalType == null || indexEvalType == EPTypeNull.INSTANCE || !JavaClassHelper.isTypeInteger(indexEvalType)) {
                 throw new ExprValidationException(getErrorPrefix(methodType) + " requires a constant index expression that returns an integer value");
             }
 

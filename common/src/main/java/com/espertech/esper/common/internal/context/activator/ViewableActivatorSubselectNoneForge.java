@@ -31,9 +31,9 @@ public class ViewableActivatorSubselectNoneForge implements ViewableActivatorFor
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenExpressionField type = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF));
-        CodegenMethod method = parent.makeChild(ViewableActivatorSubselectNone.class, this.getClass(), classScope);
-        method.getBlock().declareVar(ViewableActivatorSubselectNone.class, "none", newInstance(ViewableActivatorSubselectNone.class))
+        CodegenExpressionField type = classScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF));
+        CodegenMethod method = parent.makeChild(ViewableActivatorSubselectNone.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVarNewInstance(ViewableActivatorSubselectNone.EPTYPE, "none")
                 .exprDotMethod(ref("none"), "setEventType", type)
                 .methodReturn(ref("none"));
         return localMethod(method);

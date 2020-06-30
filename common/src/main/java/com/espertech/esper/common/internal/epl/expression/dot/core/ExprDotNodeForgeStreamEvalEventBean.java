@@ -20,8 +20,8 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode;
-import com.espertech.esper.common.internal.rettype.EPTypeCodegenSharable;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeCodegenSharable;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -48,16 +48,16 @@ public class ExprDotNodeForgeStreamEvalEventBean implements ExprEvaluator {
 
         CodegenExpression typeInformation = constantNull();
         if (codegenClassScope.isInstrumented()) {
-            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPTypeCodegenSharable(EPTypeHelper.singleEvent(forge.getEventType()), codegenClassScope));
+            typeInformation = codegenClassScope.addOrGetFieldSharable(new EPChainableTypeCodegenSharable(EPChainableTypeHelper.singleEvent(forge.getEventType()), codegenClassScope));
         }
 
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamNumber())))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(forge.getStreamNumber())))
                 .apply(InstrumentationCode.instblock(codegenClassScope, "qExprDotChain", typeInformation, ref("event"), constant(forge.getEvaluators().length)))
                 .ifRefNull("event")
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .blockReturn(constantNull())
-                .declareVar(forge.getEvaluationType(), "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("event"), EventBean.class, forge.getEvaluators(), null))
+                .declareVar(forge.getEvaluationType(), "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("event"), EventBean.EPTYPE, forge.getEvaluators(), null))
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .methodReturn(ref("result"));
         return localMethod(methodNode);

@@ -50,6 +50,6 @@ public class AggregationGroupByRollupDescForge {
         for (int i = 0; i < levels.length; i++) {
             level[i] = levels[i].codegen(parent, classScope);
         }
-        return newInstance(AggregationGroupByRollupDesc.class, newArrayWithInit(AggregationGroupByRollupLevel.class, level));
+        return newInstance(AggregationGroupByRollupDesc.EPTYPE, newArrayWithInit(AggregationGroupByRollupLevel.EPTYPE, level));
     }
 }

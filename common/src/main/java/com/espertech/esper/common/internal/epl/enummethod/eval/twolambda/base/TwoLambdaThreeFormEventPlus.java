@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.base;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -26,8 +27,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenNames.REF_ENUMCOLL;
@@ -54,33 +53,33 @@ public abstract class TwoLambdaThreeFormEventPlus extends EnumForgeBaseWFields {
     public abstract void returnResult(CodegenBlock block);
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(getFieldEventType(), EPStatementInitServices.REF)));
+        CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(getFieldEventType(), EPStatementInitServices.REF)));
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Map.class, getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.MAP.getEPType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
         boolean hasSize = numParameters >= 3;
 
         CodegenExpression returnIfEmpty = returnIfEmptyOptional();
         if (returnIfEmpty != null) {
             methodNode.getBlock()
-                .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
-                .blockReturn(returnIfEmpty);
+                    .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
+                    .blockReturn(returnIfEmpty);
         }
 
         initBlock(methodNode.getBlock(), methodNode, scope, codegenClassScope);
 
-        methodNode.getBlock().declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(numParameters - 1)), resultTypeMember))
-            .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda() + 1), ref("indexEvent"))
-            .declareVar(Object[].class, "props", exprDotMethod(ref("indexEvent"), "getProperties"))
-            .declareVar(int.class, "count", constant(-1));
+        methodNode.getBlock().declareVar(ObjectArrayEventBean.EPTYPE, "indexEvent", newInstance(ObjectArrayEventBean.EPTYPE, newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(numParameters - 1)), resultTypeMember))
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda() + 1), ref("indexEvent"))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", exprDotMethod(ref("indexEvent"), "getProperties"))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(-1));
         if (hasSize) {
             methodNode.getBlock().assignArrayElement(ref("props"), constant(1), exprDotMethod(REF_ENUMCOLL, "size"));
         }
 
-        CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-            .incrementRef("count")
-            .assignArrayElement("props", constant(0), ref("count"))
-            .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("next"));
+        CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.EPTYPE, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .incrementRef("count")
+                .assignArrayElement("props", constant(0), ref("count"))
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("next"));
         forEachBlock(forEach, methodNode, scope, codegenClassScope);
 
         returnResult(methodNode.getBlock());

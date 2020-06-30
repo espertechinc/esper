@@ -11,11 +11,15 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.MultiKey;
 
 import java.util.Arrays;
 
 public abstract class AggregationGroupByRollupLevel {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationGroupByRollupLevel.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(AggregationGroupByRollupLevel[].class);
+
     private final int levelNumber;
     private final int levelOffset;
     private final int[] rollupKeys;

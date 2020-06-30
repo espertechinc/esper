@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.client.hook.vdw;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Context for use with a virtual data window factory factory {@link VirtualDataWindowFactoryFactory}.
  */
 public class VirtualDataWindowFactoryFactoryContext {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VirtualDataWindowFactoryFactoryContext.class);
 }

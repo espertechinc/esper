@@ -11,30 +11,29 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.minmaxby;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base.*;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
-
-import java.util.function.Function;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 public class ExprDotForgeMinByMaxBy extends ExprDotForgeLambdaThreeForm {
 
-    protected EPType initAndNoParamsReturnType(EventType inputEventType, Class collectionComponentType) {
+    protected EPChainableType initAndNoParamsReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
         throw new IllegalStateException();
     }
 
-    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPType type, StatementCompileTimeServices services) {
+    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPChainableType type, StatementCompileTimeServices services) {
         throw new IllegalStateException();
     }
 
-    protected Function<ExprDotEvalParamLambda, EPType> initAndSingleParamReturnType(EventType inputEventType, Class collectionComponentType) {
-        if (inputEventType == null) {
-            return lambda -> EPTypeHelper.singleValue(collectionComponentType);
-        }
-        return lambda -> EPTypeHelper.singleEvent(inputEventType);
+    protected ThreeFormInitFunction initAndSingleParamReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
+        return lambda -> {
+            validateNonNull(lambda.getBodyForge().getEvaluationType());
+            return inputEventType == null ? new EPChainableTypeClass(collectionComponentType) : EPChainableTypeHelper.singleEvent(inputEventType);
+        };
     }
 
     protected ThreeFormEventPlainFactory.ForgeFunction singleParamEventPlain(EnumMethodEnum enumMethod) {

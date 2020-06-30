@@ -32,9 +32,9 @@ public class MethodTargetStrategyVariableForge implements MethodTargetStrategyFo
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(MethodTargetStrategyVariableFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(MethodTargetStrategyVariableFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(MethodTargetStrategyVariableFactory.class, "target", newInstance(MethodTargetStrategyVariableFactory.class))
+                .declareVarNewInstance(MethodTargetStrategyVariableFactory.EPTYPE, "target")
                 .exprDotMethod(ref("target"), "setVariable", VariableDeployTimeResolver.makeResolveVariable(variableMetaData, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("target"), "setMethodName", constant(reflectionMethod.getName()))
                 .exprDotMethod(ref("target"), "setMethodParameters", constant(reflectionMethod.getParameterTypes()))

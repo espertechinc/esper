@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.output.condition;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 
 public class OutputConditionNullFactory implements OutputConditionFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionNullFactory.class);
 
     public final static OutputConditionNullFactory INSTANCE = new OutputConditionNullFactory();
 

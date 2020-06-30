@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -37,17 +40,20 @@ public class SubselectForgeStrategyRowFilteredUnselectedTable extends SubselectF
 
     @Override
     public CodegenExpression evaluateCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
+        if (subselect.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(table, classScope, this.getClass());
-        CodegenMethod method = parent.makeChild(subselect.getEvaluationType(), this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild((EPTypeClass) subselect.getEvaluationType(), this.getClass(), classScope);
 
         method.getBlock().applyTri(DECLARE_EVENTS_SHIFTED, method, symbols);
 
-        method.getBlock().declareVar(EventBean.class, "filtered", constantNull());
-        CodegenBlock foreach = method.getBlock().forEach(EventBean.class, "event", symbols.getAddMatchingEvents(method));
+        method.getBlock().declareVar(EventBean.EPTYPE, "filtered", constantNull());
+        CodegenBlock foreach = method.getBlock().forEach(EventBean.EPTYPE, "event", symbols.getAddMatchingEvents(method));
         {
             foreach.assignArrayElement(REF_EVENTS_SHIFTED, constant(0), ref("event"));
             CodegenMethod filter = CodegenLegoMethodExpression.codegenExpression(subselect.filterExpr, method, classScope);
-            CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(foreach, Boolean.class, localMethod(filter, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)));
+            CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(foreach, EPTypePremade.BOOLEANBOXED.getEPType(), localMethod(filter, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)));
             foreach.ifCondition(notEqualsNull(ref("filtered"))).blockReturn(constantNull())
                     .assignRef("filtered", ref("event"));
         }

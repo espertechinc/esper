@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 
 public class ArrayWrappingCollection implements Collection {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ArrayWrappingCollection.class);
 
     private Object array;
 

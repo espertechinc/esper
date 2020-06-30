@@ -13,6 +13,10 @@ package com.espertech.esper.common.internal.epl.enummethod.eval.plugin;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.enummethod.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -42,11 +46,11 @@ import static com.espertech.esper.common.internal.epl.enummethod.codegen.EnumFor
 public class EnumForgePlugin implements EnumForge {
     private final List<ExprDotEvalParam> bodiesAndParameters;
     private final EnumMethodModeStaticMethod mode;
-    private final Class expectedStateReturnType;
+    private final EPTypeClass expectedStateReturnType;
     private final int numStreamsIncoming;
     private final EventType inputEventType;
 
-    public EnumForgePlugin(List<ExprDotEvalParam> bodiesAndParameters, EnumMethodModeStaticMethod mode, Class expectedStateReturnType, int numStreamsIncoming, EventType inputEventType) {
+    public EnumForgePlugin(List<ExprDotEvalParam> bodiesAndParameters, EnumMethodModeStaticMethod mode, EPTypeClass expectedStateReturnType, int numStreamsIncoming, EventType inputEventType) {
         this.bodiesAndParameters = bodiesAndParameters;
         this.mode = mode;
         this.expectedStateReturnType = expectedStateReturnType;
@@ -73,13 +77,13 @@ public class EnumForgePlugin implements EnumForge {
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(expectedStateReturnType, EnumForgePlugin.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
-        methodNode.getBlock().declareVar(mode.getStateClass(), "state", newInstance(mode.getStateClass()));
+        methodNode.getBlock().declareVarNewInstance(mode.getStateClass(), "state");
 
         // call set-parameter for each non-lambda expression
         int indexNonLambda = 0;
         for (ExprDotEvalParam param : bodiesAndParameters) {
             if (param instanceof ExprDotEvalParamExpr) {
-                CodegenExpression expression = param.getBodyForge().evaluateCodegen(Object.class, methodNode, scope, codegenClassScope);
+                CodegenExpression expression = param.getBodyForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope);
                 methodNode.getBlock().exprDotMethod(ref("state"), "setParameter", constant(indexNonLambda), expression);
                 indexNonLambda++;
             }
@@ -95,13 +99,13 @@ public class EnumForgePlugin implements EnumForge {
                     EnumMethodLambdaParameterType lambdaParameterType = mode.getLambdaParameters().apply(new EnumMethodLambdaParameterDescriptor(indexParameter, i));
 
                     if (eventType != inputEventType) {
-                        CodegenExpressionField type = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(lambda.getLambdaDesc().getTypes()[i], EPStatementInitServices.REF)));
+                        CodegenExpressionField type = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(lambda.getLambdaDesc().getTypes()[i], EPStatementInitServices.REF)));
                         String eventName = getNameExt("resultEvent", indexParameter, i);
                         String propName = getNameExt("props", indexParameter, i);
                         methodNode.getBlock()
-                            .declareVar(ObjectArrayEventBean.class, eventName, newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), type))
+                            .declareVar(ObjectArrayEventBean.EPTYPE, eventName, newInstance(ObjectArrayEventBean.EPTYPE, newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(1)), type))
                             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(lambda.getStreamCountIncoming() + i), ref(eventName))
-                            .declareVar(Object[].class, propName, exprDotMethod(ref(eventName), "getProperties"));
+                            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), propName, exprDotMethod(ref(eventName), "getProperties"));
 
                         // initialize index-type lambda-parameters to zer0
                         if (lambdaParameterType instanceof EnumMethodLambdaParameterTypeIndex) {
@@ -123,8 +127,8 @@ public class EnumForgePlugin implements EnumForge {
             indexParameter++;
         }
 
-        Class elementType = inputEventType == null ? Object.class : EventBean.class;
-        methodNode.getBlock().declareVar(int.class, "count", constant(-1));
+        EPTypeClass elementType = inputEventType == null ? EPTypePremade.OBJECT.getEPType() : EventBean.EPTYPE;
+        methodNode.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(-1));
         CodegenBlock forEach = methodNode.getBlock().forEach(elementType, "next", EnumForgeCodegenNames.REF_ENUMCOLL);
         {
             forEach.incrementRef("count");
@@ -162,7 +166,12 @@ public class EnumForgePlugin implements EnumForge {
                     }
 
                     ExprForge forge = lambda.getBodyForge();
-                    forEach.declareVar(forge.getEvaluationType(), valueName, forge.evaluateCodegen(forge.getEvaluationType(), methodNode, scope, codegenClassScope));
+                    EPType evalType = forge.getEvaluationType();
+                    if (evalType == null || evalType == EPTypeNull.INSTANCE) {
+                        forEach.declareVar(EPTypePremade.OBJECT.getEPType(), valueName, constantNull());
+                    } else {
+                        forEach.declareVar((EPTypeClass) evalType, valueName, forge.evaluateCodegen((EPTypeClass) evalType, methodNode, scope, codegenClassScope));
+                    }
                     paramsNext.add(ref(valueName));
                 }
                 indexParameter++;

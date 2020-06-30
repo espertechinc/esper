@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.support.extend.pattern;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -26,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
+
 public class MyCountToPatternGuardForge implements GuardForge {
     private static final Logger log = LoggerFactory.getLogger(MyCountToPatternGuardForge.class);
 
@@ -38,8 +41,8 @@ public class MyCountToPatternGuardForge implements GuardForge {
             throw new GuardParameterException(message);
         }
 
-        Class paramType = guardParameters.get(0).getForge().getEvaluationType();
-        if (paramType != Integer.class && paramType != int.class) {
+        EPType paramType = guardParameters.get(0).getForge().getEvaluationType();
+        if (!isTypeInteger(paramType)) {
             throw new GuardParameterException(message);
         }
 
@@ -51,7 +54,7 @@ public class MyCountToPatternGuardForge implements GuardForge {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(MyCountToPatternGuardFactory.class, this.getClass(), "guardFactory", parent, symbols, classScope);
+        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(MyCountToPatternGuardFactory.EPTYPE, this.getClass(), "guardFactory", parent, symbols, classScope);
         return builder.exprnode("numCountToExpr", numCountToExpr)
             .expression("convertor", convertor.makeAnonymous(builder.getMethod(), classScope))
             .build();

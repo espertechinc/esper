@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProvider;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -40,12 +41,12 @@ public class ExprEnumerationGivenEventSymbol implements CodegenSymbolProvider {
         return optionalEventRef;
     }
 
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
         if (optionalExprEvalCtxRef != null) {
-            symbols.put(optionalExprEvalCtxRef.getRef(), ExprEvaluatorContext.class);
+            symbols.put(optionalExprEvalCtxRef.getRef(), ExprEvaluatorContext.EPTYPE);
         }
         if (optionalEventRef != null) {
-            symbols.put(optionalEventRef.getRef(), EventBean.class);
+            symbols.put(optionalEventRef.getRef(), EventBean.EPTYPE);
         }
     }
 }

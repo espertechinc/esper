@@ -26,6 +26,6 @@ public class CountMinSketchAgentStringUTF16Forge implements CountMinSketchAgentF
     }
 
     public CodegenExpression codegenMake(CodegenMethod parent, CodegenClassScope classScope) {
-        return newInstance(CountMinSketchAgentStringUTF16.class);
+        return newInstance(CountMinSketchAgentStringUTF16.EPTYPE);
     }
 }

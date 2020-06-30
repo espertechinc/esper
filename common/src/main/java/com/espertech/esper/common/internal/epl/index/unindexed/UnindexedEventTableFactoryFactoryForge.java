@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.index.unindexed;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -32,8 +33,8 @@ public class UnindexedEventTableFactoryFactoryForge extends EventTableFactoryFac
         return UnindexedEventTable.class;
     }
 
-    protected Class typeOf() {
-        return UnindexedEventTableFactoryFactory.class;
+    protected EPTypeClass typeOf() {
+        return UnindexedEventTableFactoryFactory.EPTYPE;
     }
 
     protected List<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

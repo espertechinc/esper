@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.hook.aggmultifunc;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Factory for aggregation multi-function state
  */
 public interface AggregationMultiFunctionStateFactory {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationMultiFunctionStateFactory.class);
+
     /**
      * Returns a new state holder
      *

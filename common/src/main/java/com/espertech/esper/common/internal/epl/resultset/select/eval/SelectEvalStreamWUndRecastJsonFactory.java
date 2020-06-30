@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -43,7 +45,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class SelectEvalStreamWUndRecastJsonFactory {
 
     public static SelectExprProcessorForge make(EventType[] eventTypes, SelectExprForgeContext selectExprForgeContext, int streamNumber, EventType targetType, ExprNode[] exprNodes, ClasspathImportServiceCompileTime classpathImportService, String statementName)
-        throws ExprValidationException {
+            throws ExprValidationException {
         JsonEventType jsonResultType = (JsonEventType) targetType;
         JsonEventType jsonStreamType = (JsonEventType) eventTypes[streamNumber];
 
@@ -92,7 +94,7 @@ public class SelectEvalStreamWUndRecastJsonFactory {
             TypeWidenerSPI widener;
             try {
                 widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
-                    writable.getType(), columnName, false, null, statementName);
+                        writable.getType(), columnName, false, null, statementName);
             } catch (TypeWidenerException ex) {
                 throw new ExprValidationException(ex.getMessage(), ex);
             }
@@ -131,11 +133,11 @@ public class SelectEvalStreamWUndRecastJsonFactory {
         }
 
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
-                .declareVar(resultType.getUnderlyingType(), "und", newInstance(resultType.getUnderlyingType()))
-                .declareVar(sourceType.getUnderlyingType(), "src", castUnderlying(sourceType.getUnderlyingType(), arrayAtIndex(refEPS, constant(underlyingStreamNumber))));
+                    .declareVar(resultType.getUnderlyingEPType(), "und", newInstance(resultType.getUnderlyingEPType()))
+                    .declareVar(sourceType.getUnderlyingEPType(), "src", castUnderlying(sourceType.getUnderlyingEPType(), arrayAtIndex(refEPS, constant(underlyingStreamNumber))));
             for (Map.Entry<String, JsonUnderlyingField> sourceFieldEntry : sourceType.getDetail().getFieldDescriptors().entrySet()) {
                 JsonUnderlyingField targetField = resultType.getDetail().getFieldDescriptors().get(sourceFieldEntry.getKey());
                 methodNode.getBlock().assignRef("und." + targetField.getFieldName(), ref("src." + sourceFieldEntry.getValue().getFieldName()));
@@ -163,21 +165,21 @@ public class SelectEvalStreamWUndRecastJsonFactory {
         }
 
         public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenBlock block = methodNode.getBlock()
-                .declareVar(sourceType.getUnderlyingType(), "src", castUnderlying(sourceType.getUnderlyingType(), arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
-                .declareVar(resultType.getUnderlyingType(), "und", newInstance(resultType.getUnderlyingType()));
+                    .declareVar(sourceType.getUnderlyingEPType(), "src", castUnderlying(sourceType.getUnderlyingEPType(), arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
+                    .declareVar(resultType.getUnderlyingEPType(), "und", newInstance(resultType.getUnderlyingEPType()));
             for (Item item : items) {
                 if (item.getOptionalFromField() != null) {
                     block.assignRef("und." + item.getToField().getFieldName(), ref("src." + item.getOptionalFromField().getFieldName()));
                 } else {
                     CodegenExpression value;
                     if (item.getOptionalWidener() != null) {
-                        value = item.forge.evaluateCodegen(item.forge.getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
+                        value = item.forge.evaluateCodegen((EPTypeClass) item.forge.getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
                         value = item.getOptionalWidener().widenCodegen(value, methodNode, codegenClassScope);
                     } else {
-                        value = item.forge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope);
+                        value = item.forge.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope);
                     }
                     block.assignRef("und." + item.getToField().getFieldName(), value);
                 }

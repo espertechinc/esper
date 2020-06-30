@@ -52,11 +52,11 @@ public class ContextSpecCategoryItem {
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(ContextControllerDetailCategoryItem.class, this.getClass(), classScope).addParam(EventType.class, REF_EVENTTYPE.getRef()).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
+        CodegenMethod method = parent.makeChild(ContextControllerDetailCategoryItem.EPTYPE, this.getClass(), classScope).addParam(EventType.EPTYPE, REF_EVENTTYPE.getRef()).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
         CodegenMethod makeFilter = filterPlan.codegenWithEventType(method, classScope);
         method.getBlock()
-                .declareVar(FilterSpecPlan.class, "filterPlan", localMethod(makeFilter, REF_EVENTTYPE, REF_STMTINITSVC))
-                .declareVar(ContextControllerDetailCategoryItem.class, "item", newInstance(ContextControllerDetailCategoryItem.class))
+                .declareVar(FilterSpecPlan.EPTYPE, "filterPlan", localMethod(makeFilter, REF_EVENTTYPE, REF_STMTINITSVC))
+                .declareVarNewInstance(ContextControllerDetailCategoryItem.EPTYPE, "item")
                 .exprDotMethod(ref("item"), "setFilterPlan", ref("filterPlan"))
                 .exprDotMethod(ref("item"), "setName", constant(name))
                 .methodReturn(ref("item"));

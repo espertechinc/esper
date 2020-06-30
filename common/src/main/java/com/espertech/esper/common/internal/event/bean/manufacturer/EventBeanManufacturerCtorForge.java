@@ -37,9 +37,9 @@ public class EventBeanManufacturerCtorForge implements EventBeanManufacturerForg
 
     public CodegenExpression make(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField beanType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(beanEventType, EPStatementInitServices.REF));
+        CodegenExpressionField beanType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(beanEventType, EPStatementInitServices.REF));
         CodegenExpression ctor = staticMethod(EventBeanManufacturerCtorForge.class, "resolveConstructor", constant(constructor.getParameterTypes()), constant(constructor.getDeclaringClass()));
-        return newInstance(EventBeanManufacturerCtor.class, ctor, beanType, factory);
+        return newInstance(EventBeanManufacturerCtor.EPTYPE, ctor, beanType, factory);
     }
 
     public EventBeanManufacturer getManufacturer(EventBeanTypedEventFactory eventBeanTypedEventFactory) {

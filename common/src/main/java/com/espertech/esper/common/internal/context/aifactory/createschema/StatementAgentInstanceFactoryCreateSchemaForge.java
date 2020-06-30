@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class StatementAgentInstanceFactoryCreateSchemaForge {
@@ -29,11 +28,11 @@ public class StatementAgentInstanceFactoryCreateSchemaForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateSchema.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateSchema.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateSchema.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateSchema.class))
-                .exprDotMethod(ref("saiff"), "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
-                .methodReturn(ref("saiff"));
+            .declareVarNewInstance(StatementAgentInstanceFactoryCreateSchema.EPTYPE, "saiff")
+            .exprDotMethod(ref("saiff"), "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
+            .methodReturn(ref("saiff"));
         return method;
     }
 }

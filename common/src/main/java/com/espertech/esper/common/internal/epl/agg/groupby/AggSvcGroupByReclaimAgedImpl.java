@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,10 +27,8 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationRowRemovedCal
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacusField;
 
-import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
@@ -53,18 +52,18 @@ public class AggSvcGroupByReclaimAgedImpl {
     public static final long DEFAULT_MAX_AGE_MSEC = 60000L;
 
     public static void rowCtorCodegen(CodegenNamedMethods namedMethods, CodegenClassScope classScope, List<CodegenTypedParam> rowMembers) {
-        rowMembers.add(new CodegenTypedParam(long.class, "lastUpdateTime"));
-        namedMethods.addMethod(void.class, "setLastUpdateTime", CodegenNamedParam.from(long.class, "time"), AggSvcGroupByReclaimAgedImpl.class, classScope, method -> method.getBlock().assignRef("lastUpdateTime", ref("time")));
-        namedMethods.addMethod(long.class, "getLastUpdateTime", Collections.emptyList(), AggSvcGroupByReclaimAgedImpl.class, classScope, method -> method.getBlock().methodReturn(ref("lastUpdateTime")));
+        rowMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "lastUpdateTime"));
+        namedMethods.addMethod(EPTypePremade.VOID.getEPType(), "setLastUpdateTime", CodegenNamedParam.from(EPTypePremade.LONGPRIMITIVE.getEPType(), "time"), AggSvcGroupByReclaimAgedImpl.class, classScope, method -> method.getBlock().assignRef("lastUpdateTime", ref("time")));
+        namedMethods.addMethod(EPTypePremade.LONGPRIMITIVE.getEPType(), "getLastUpdateTime", Collections.emptyList(), AggSvcGroupByReclaimAgedImpl.class, classScope, method -> method.getBlock().methodReturn(ref("lastUpdateTime")));
     }
 
     public static void ctorCodegenReclaim(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, CodegenExpression maxAgeFactory, CodegenExpression frequencyFactory) {
-        explicitMembers.add(new CodegenTypedParam(Long.class, REF_NEXTSWEEPTIME.getRef()));
-        explicitMembers.add(new CodegenTypedParam(AggregationRowRemovedCallback.class, REF_REMOVEDCALLBACK.getRef()));
-        explicitMembers.add(new CodegenTypedParam(long.class, REF_CURRENTMAXAGE.getRef()));
-        explicitMembers.add(new CodegenTypedParam(long.class, REF_CURRENTRECLAIMFREQUENCY.getRef()));
-        explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.class, REF_EVALUATORFUNCTIONMAXAGE.getRef()));
-        explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.class, REF_EVALUATIONFUNCTIONFREQUENCY.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGBOXED.getEPType(), REF_NEXTSWEEPTIME.getRef()));
+        explicitMembers.add(new CodegenTypedParam(AggregationRowRemovedCallback.EPTYPE, REF_REMOVEDCALLBACK.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_CURRENTMAXAGE.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_CURRENTRECLAIMFREQUENCY.getRef()));
+        explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.EPTYPE, REF_EVALUATORFUNCTIONMAXAGE.getRef()));
+        explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.EPTYPE, REF_EVALUATIONFUNCTIONFREQUENCY.getRef()));
         ctor.getBlock().assignRef(REF_CURRENTMAXAGE, constant(DEFAULT_MAX_AGE_MSEC))
                 .assignRef(REF_CURRENTRECLAIMFREQUENCY, constant(DEFAULT_MAX_AGE_MSEC))
                 .assignRef(REF_EVALUATORFUNCTIONMAXAGE, exprDotMethod(maxAgeFactory, "make", MEMBER_AGENTINSTANCECONTEXT))
@@ -73,7 +72,7 @@ public class AggSvcGroupByReclaimAgedImpl {
 
     public static void applyEnterCodegenSweep(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
         CodegenExpressionField timeAbacus = classScope.addOrGetFieldSharable(TimeAbacusField.INSTANCE);
-        method.getBlock().declareVar(long.class, "currentTime", exprDotMethodChain(REF_EXPREVALCONTEXT).add("getTimeProvider").add("getTime"))
+        method.getBlock().declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "currentTime", exprDotMethodChain(REF_EXPREVALCONTEXT).add("getTimeProvider").add("getTime"))
                 .ifCondition(or(equalsNull(REF_NEXTSWEEPTIME), relational(REF_NEXTSWEEPTIME, LE, ref("currentTime"))))
                 .assignRef(REF_CURRENTMAXAGE, staticMethod(AggSvcGroupByReclaimAgedImpl.class, "computeTimeReclaimAgeFreq", REF_CURRENTMAXAGE, REF_EVALUATORFUNCTIONMAXAGE, timeAbacus))
                 .assignRef(REF_CURRENTRECLAIMFREQUENCY, staticMethod(AggSvcGroupByReclaimAgedImpl.class, "computeTimeReclaimAgeFreq", REF_CURRENTRECLAIMFREQUENCY, REF_EVALUATIONFUNCTIONFREQUENCY, timeAbacus))
@@ -98,15 +97,15 @@ public class AggSvcGroupByReclaimAgedImpl {
     }
 
     private static CodegenMethod sweepCodegen(CodegenMethodScope parent, CodegenClassScope classScope, AggregationClassNames classNames) {
-        CodegenMethod method = parent.makeChild(void.class, AggSvcGroupByReclaimAgedImpl.class, classScope).addParam(long.class, "currentTime").addParam(long.class, REF_CURRENTMAXAGE.getRef());
-        method.getBlock().declareVar(ArrayDeque.class, "removed", newInstance(ArrayDeque.class))
-                .forEach(Map.Entry.class, "entry", exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "entrySet"))
-                .declareVar(long.class, "age", op(ref("currentTime"), "-", exprDotMethod(cast(classNames.getRowTop(), exprDotMethod(ref("entry"), "getValue")), "getLastUpdateTime")))
+        CodegenMethod method = parent.makeChild(EPTypePremade.VOID.getEPType(), AggSvcGroupByReclaimAgedImpl.class, classScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "currentTime").addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_CURRENTMAXAGE.getRef());
+        method.getBlock().declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "removed", newInstance(EPTypePremade.ARRAYDEQUE.getEPType()))
+                .forEach(EPTypePremade.MAPENTRY.getEPType(), "entry", exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "entrySet"))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "age", op(ref("currentTime"), "-", exprDotMethod(cast(classNames.getRowTop(), exprDotMethod(ref("entry"), "getValue")), "getLastUpdateTime")))
                 .ifCondition(relational(ref("age"), GT, REF_CURRENTMAXAGE))
                 .exprDotMethod(ref("removed"), "add", exprDotMethod(ref("entry"), "getKey"))
                 .blockEnd()
                 .blockEnd()
-                .forEach(Object.class, "key", ref("removed"))
+                .forEach(EPTypePremade.OBJECT.getEPType(), "key", ref("removed"))
                 .exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "remove", ref("key"))
                 .exprDotMethod(REF_REMOVEDCALLBACK, "removedAggregationGroupKey", ref("key"));
         return method;

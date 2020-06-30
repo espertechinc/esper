@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
@@ -37,7 +38,7 @@ public class TestDatabaseTypeEnum extends TestCase {
 
         for (int i = 0; i < types.length; i++) {
             DatabaseTypeEnum val = (DatabaseTypeEnum) types[i][0];
-            assertEquals(types[i][1], val.getBinding().getType());
+            assertEquals(types[i][1], ((EPTypeClass) val.getBinding().getType()).getType());
             assertEquals(types[i][1], val.getJavaClass());
         }
     }

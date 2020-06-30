@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.map;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,8 +35,8 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
     private final String propertyMap;
     private final BeanEventPropertyGetter mapEntryGetter;
 
-    public MapPOJOEntryPropertyGetter(String propertyMap, BeanEventPropertyGetter mapEntryGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, Class returnType, Class nestedComponentType, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType, nestedComponentType);
+    public MapPOJOEntryPropertyGetter(String propertyMap, BeanEventPropertyGetter mapEntryGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, EPTypeClass returnType, BeanEventTypeFactory beanEventTypeFactory) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType);
         this.propertyMap = propertyMap;
         this.mapEntryGetter = mapEntryGetter;
     }
@@ -53,12 +55,12 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
     }
 
     private CodegenMethod getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
-                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
-                .ifRefNullReturnNull("value")
-                .ifInstanceOf("value", EventBean.class)
-                .blockReturn(mapEntryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), codegenMethodScope, codegenClassScope))
-                .methodReturn(mapEntryGetter.underlyingGetCodegen(castRef(mapEntryGetter.getTargetType(), "value"), codegenMethodScope, codegenClassScope));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "map").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+            .ifRefNullReturnNull("value")
+            .ifInstanceOf("value", EventBean.EPTYPE)
+            .blockReturn(mapEntryGetter.eventBeanGetCodegen(castRef(EventBean.EPTYPE, "value"), codegenMethodScope, codegenClassScope))
+            .methodReturn(mapEntryGetter.underlyingGetCodegen(castRef(mapEntryGetter.getTargetType(), "value"), codegenMethodScope, codegenClassScope));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -74,7 +76,7 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -89,11 +91,12 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
         return constantTrue();
     }
 
-    public Class getTargetType() {
-        return Map.class;
+    public EPTypeClass getTargetType() {
+        return EPTypePremade.MAP.getEPType();
     }
 
-    public Class getBeanPropType() {
-        return Object.class;
+    @Override
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 }

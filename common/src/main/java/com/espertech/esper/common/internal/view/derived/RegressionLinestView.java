@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
@@ -78,25 +79,25 @@ public class RegressionLinestView extends BaseBivariateStatisticsView {
 
     protected static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env, int streamNum) {
         LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<String, Object>();
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__SLOPE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__YINTERCEPT.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__XAVERAGE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__XSTANDARDDEVIATIONPOP.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__XSTANDARDDEVIATIONSAMPLE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__XSUM.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__XVARIANCE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__YAVERAGE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__YSTANDARDDEVIATIONPOP.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__YSTANDARDDEVIATIONSAMPLE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__YSUM.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__YVARIANCE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__DATAPOINTS.getName(), Long.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__N.getName(), Long.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMX.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMXSQ.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMXY.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMY.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMYSQ.getName(), Double.class);
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__SLOPE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__YINTERCEPT.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__XAVERAGE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__XSTANDARDDEVIATIONPOP.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__XSTANDARDDEVIATIONSAMPLE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__XSUM.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__XVARIANCE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__YAVERAGE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__YSTANDARDDEVIATIONPOP.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__YSTANDARDDEVIATIONSAMPLE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__YSUM.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__YVARIANCE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__DATAPOINTS.getName(), EPTypePremade.LONGBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__N.getName(), EPTypePremade.LONGBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMX.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMXSQ.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMXY.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMY.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMYSQ.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.REGRESSION__SLOPE, ViewFieldEnum.REGRESSION__YINTERCEPT);
         return DerivedViewTypeUtil.newType("regview", eventTypeMap, env, streamNum);

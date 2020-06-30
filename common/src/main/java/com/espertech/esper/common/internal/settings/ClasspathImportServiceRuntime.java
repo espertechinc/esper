@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonMethodRef;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 public class ClasspathImportServiceRuntime extends ClasspathImportServiceBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ClasspathImportServiceRuntime.class);
 
     private final TimeZone timeZone;
     private final Map<String, ConfigurationCommonMethodRef> methodInvocationRef;

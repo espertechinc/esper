@@ -11,9 +11,12 @@
 package com.espertech.esper.common.internal.epl.agg.rollup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
 
 public class GroupByRollupKey {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(GroupByRollupKey.class);
+
     private final EventBean[] generator;
     private final AggregationGroupByRollupLevel level;
     private final Object groupKey;

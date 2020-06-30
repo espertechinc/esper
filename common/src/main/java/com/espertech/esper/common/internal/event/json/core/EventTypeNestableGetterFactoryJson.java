@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.json.core;
 
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.event.json.getter.fromschema.*;
 import com.espertech.esper.common.internal.event.json.getter.provided.*;
 import com.espertech.esper.common.internal.event.map.MapEventPropertyGetter;
 import com.espertech.esper.common.internal.event.property.*;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Map;
 
@@ -54,7 +56,7 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
             if (type == null) {
                 return null;
             }
-            if (type instanceof Class) {
+            if (type instanceof EPTypeClass) {
                 return getGetterProperty(prop.getPropertyNameAtomic(), null, eventBeanTypedEventFactory);
             }
             if (type instanceof TypeBeanOrUnderlying) {
@@ -68,8 +70,10 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
             if (type == null) {
                 return null;
             }
-            if (type instanceof Class && ((Class) type).isArray()) {
-                return getGetterIndexedClassArray(prop.getPropertyNameAtomic(), indexed.getIndex(), eventBeanTypedEventFactory, ((Class) type).getComponentType(), beanEventTypeFactory);
+            if (type instanceof EPTypeClass && (((EPTypeClass) type).getType()).isArray()) {
+                EPTypeClass eptype = (EPTypeClass) type;
+                EPTypeClass component = JavaClassHelper.getArrayComponentType(eptype);
+                return getGetterIndexedClassArray(prop.getPropertyNameAtomic(), indexed.getIndex(), eventBeanTypedEventFactory, component, beanEventTypeFactory);
             }
             if (type instanceof TypeBeanOrUnderlying[]) {
                 return getGetterIndexedUnderlyingArray(prop.getPropertyNameAtomic(), indexed.getIndex(), eventBeanTypedEventFactory, null, beanEventTypeFactory);
@@ -81,7 +85,7 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
             if (type == null) {
                 return null;
             }
-            if (type instanceof Map || type == Map.class) {
+            if (type instanceof Map || (type instanceof EPTypeClass && ((EPTypeClass) type).getType() == Map.class)) {
                 return getGetterMappedProperty(prop.getPropertyNameAtomic(), mapped.getKey());
             }
             return null;
@@ -125,7 +129,7 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
         return new JsonGetterSimpleSchemaWFragment(field, detail.getUnderlyingClassName(), null, eventBeanTypedEventFactory);
     }
 
-    public EventPropertyGetterSPI getGetterEventBean(String name, Class underlyingType) {
+    public EventPropertyGetterSPI getGetterEventBean(String name, EPTypeClass underlyingType) {
         throw makeIllegalState();
     }
 
@@ -170,7 +174,7 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
         return new JsonGetterIndexedSchema(index, detail.getUnderlyingClassName(), innerType, eventBeanTypedEventFactory, field);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedClassArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, Class componentType, BeanEventTypeFactory beanEventTypeFactory) {
+    public EventPropertyGetterSPI getGetterIndexedClassArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, EPTypeClass componentType, BeanEventTypeFactory beanEventTypeFactory) {
         JsonUnderlyingField field = findField(propertyNameAtomic);
         if (field == null) {
             return null;
@@ -207,7 +211,7 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
         throw makeIllegalState();
     }
 
-    public EventPropertyGetterSPI getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class propertyTypeGetter) {
+    public EventPropertyGetterSPI getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass propertyTypeGetter) {
         JsonUnderlyingField field = findField(propertyNameAtomic);
         if (field.getOptionalField() == null) {
             throw makeIllegalState();
@@ -219,12 +223,12 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
         return null;
     }
 
-    public EventPropertyGetterSPI getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class nestedReturnType, Class nestedComponentType) {
+    public EventPropertyGetterSPI getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass nestedValueType) {
         JsonUnderlyingField field = findField(propertyName);
         if (field == null || field.getOptionalField() == null) {
             return null;
         }
-        return new JsonGetterNestedPOJOPropProvided(eventBeanTypedEventFactory, beanEventTypeFactory, nestedReturnType, nestedComponentType, field.getOptionalField(), nestedGetter);
+        return new JsonGetterNestedPOJOPropProvided(eventBeanTypedEventFactory, beanEventTypeFactory, nestedValueType, field.getOptionalField(), nestedGetter);
     }
 
     public EventPropertyGetterSPI getGetterNestedEventBean(String propertyName, EventPropertyGetterSPI nestedGetter) {

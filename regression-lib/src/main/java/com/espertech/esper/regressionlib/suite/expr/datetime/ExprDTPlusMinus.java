@@ -11,19 +11,18 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
+
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 
 public class ExprDTPlusMinus {
 
@@ -57,8 +56,8 @@ public class ExprDTPlusMinus {
                 "zoneddate.minus(varmsec) as val11" +
                 " from SupportDateTime";
             env.compileDeploy(epl, path).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Long.class, Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class,
-                Long.class, Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
+                LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             env.sendEventBean(SupportDateTime.make(null));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null,
@@ -108,8 +107,8 @@ public class ExprDTPlusMinus {
                 "zoneddate.minus(1 hour 10 sec 20 msec) as val11" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Long.class, Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class,
-                Long.class, Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
+                LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             env.sendEventBean(SupportDateTime.make(startTime));
             Object[] expectedPlus = SupportDateTime.getArrayCoerced("2002-05-30T010:00:10.020", "long", "util", "long", "cal", "ldt", "zdt");

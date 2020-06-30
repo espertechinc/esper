@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.support.SupportExprValidationContextFactory;
@@ -41,7 +42,7 @@ public class TestExprEqualsNode extends TestCase {
     }
 
     public void testGetType() {
-        assertEquals(Boolean.class, equalsNodes[1].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.BOOLEANBOXED.getEPType(), equalsNodes[1].getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {

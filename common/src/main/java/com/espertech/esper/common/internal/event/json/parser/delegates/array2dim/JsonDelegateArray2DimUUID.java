@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array2dim;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 import com.espertech.esper.common.internal.event.json.parser.delegates.array.JsonDelegateArrayUUID;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.array.Jso
 import java.util.UUID;
 
 public class JsonDelegateArray2DimUUID extends JsonDelegateArray2DimBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArray2DimUUID.class);
     public JsonDelegateArray2DimUUID(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);
     }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.typable;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -24,7 +25,6 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -40,14 +40,14 @@ public class SelectExprProcessorTypableMapEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(SelectExprProcessorTypableMapForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpression mapType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(forge.getMapType(), EPStatementInitServices.REF));
+        CodegenExpression mapType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(forge.getMapType(), EPStatementInitServices.REF));
         CodegenExpression beanFactory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableMapEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, SelectExprProcessorTypableMapEval.class, codegenClassScope);
 
         methodNode.getBlock()
-                .declareVar(Map.class, "values", forge.innerForge.evaluateCodegen(Map.class, methodNode, exprSymbol, codegenClassScope))
-                .declareVarNoInit(Map.class, "map")
+                .declareVar(EPTypePremade.MAP.getEPType(), "values", forge.innerForge.evaluateCodegen(EPTypePremade.MAP.getEPType(), methodNode, exprSymbol, codegenClassScope))
+                .declareVarNoInit(EPTypePremade.MAP.getEPType(), "map")
                 .ifRefNull("values")
                 .assignRef("values", staticMethod(Collections.class, "emptyMap"))
                 .blockEnd()

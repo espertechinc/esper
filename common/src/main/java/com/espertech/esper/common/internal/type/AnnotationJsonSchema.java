@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.JsonSchema;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationJsonSchema implements JsonSchema {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationJsonSchema.class);
+
     private final boolean dynamic;
     private final String className;
 

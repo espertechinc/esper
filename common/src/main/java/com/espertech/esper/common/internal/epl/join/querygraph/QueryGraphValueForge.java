@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -274,12 +275,12 @@ public class QueryGraphValueForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryGraphValue.class, this.getClass(), classScope);
-        method.getBlock().declareVar(List.class, "items", newInstance(ArrayList.class, constant(items.size())));
+        CodegenMethod method = parent.makeChild(QueryGraphValue.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVar(EPTypePremade.LIST.getEPType(), "items", newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(items.size())));
         for (int i = 0; i < items.size(); i++) {
             method.getBlock().exprDotMethod(ref("items"), "add", items.get(i).make(method, symbols, classScope));
         }
-        method.getBlock().methodReturn(newInstance(QueryGraphValue.class, ref("items")));
+        method.getBlock().methodReturn(newInstance(QueryGraphValue.EPTYPE, ref("items")));
         return localMethod(method);
     }
 }

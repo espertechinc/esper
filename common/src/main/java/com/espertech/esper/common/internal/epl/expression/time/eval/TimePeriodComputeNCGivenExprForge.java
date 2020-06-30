@@ -35,9 +35,9 @@ public class TimePeriodComputeNCGivenExprForge implements TimePeriodComputeForge
     }
 
     public CodegenExpression makeEvaluator(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(TimePeriodComputeNCGivenExprEval.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TimePeriodComputeNCGivenExprEval.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(TimePeriodComputeNCGivenExprEval.class, "eval", newInstance(TimePeriodComputeNCGivenExprEval.class))
+                .declareVarNewInstance(TimePeriodComputeNCGivenExprEval.EPTYPE, "eval")
                 .exprDotMethod(ref("eval"), "setSecondsEvaluator", ExprNodeUtilityCodegen.codegenEvaluator(secondsEvaluator, method, this.getClass(), classScope))
                 .exprDotMethod(ref("eval"), "setTimeAbacus", classScope.addOrGetFieldSharable(TimeAbacusField.INSTANCE))
                 .methodReturn(ref("eval"));

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createdataflow;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperatorFactory;
 import com.espertech.esper.common.internal.epl.dataflow.realize.LogicalChannel;
@@ -21,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class DataflowDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DataflowDesc.class);
+
     private String dataflowName;
     private Map<String, EventType> declaredTypes;
     private Map<Integer, OperatorMetadataDescriptor> operatorMetadata;

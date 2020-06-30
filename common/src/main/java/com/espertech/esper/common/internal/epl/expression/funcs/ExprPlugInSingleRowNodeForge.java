@@ -26,6 +26,7 @@ public abstract class ExprPlugInSingleRowNodeForge implements ExprForgeInstrumen
     private final boolean isReturnsConstantResult;
 
     public abstract Method getMethod();
+
     public abstract boolean isLocalInlinedClass();
 
     public boolean isHasMethodInvocationContextParam() {
@@ -57,6 +58,6 @@ public abstract class ExprPlugInSingleRowNodeForge implements ExprForgeInstrumen
             parameterTypes[i] = method.getParameterTypes()[i].getName();
         }
         return new CodegenExpression[]{constant(method.getDeclaringClass().getName()),
-            constant(method.getName()), constant(method.getReturnType().getSimpleName()), constant(parameterTypes)};
+                constant(method.getName()), constant(method.getReturnType().getSimpleName()), constant(parameterTypes)};
     }
 }

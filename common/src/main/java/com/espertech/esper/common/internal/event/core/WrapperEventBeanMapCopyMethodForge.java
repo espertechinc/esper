@@ -35,8 +35,8 @@ public class WrapperEventBeanMapCopyMethodForge implements EventBeanCopyMethodFo
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        return newInstance(WrapperEventBeanMapCopyMethod.class,
-                cast(WrapperEventType.class, EventTypeUtility.resolveTypeCodegen(wrapperEventType, EPStatementInitServices.REF)),
+        return newInstance(WrapperEventBeanMapCopyMethod.EPTYPE,
+                cast(WrapperEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(wrapperEventType, EPStatementInitServices.REF)),
                 factory);
     }
 

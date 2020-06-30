@@ -44,9 +44,9 @@ public final class OutputConditionPolledCountFactoryForge implements OutputCondi
             variableExpression = VariableDeployTimeResolver.makeVariableField(variableMetaData, classScope, this.getClass());
         }
 
-        CodegenMethod method = parent.makeChild(OutputConditionPolledCountFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OutputConditionPolledCountFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(OutputConditionPolledCountFactory.class, "factory", newInstance(OutputConditionPolledCountFactory.class))
+                .declareVarNewInstance(OutputConditionPolledCountFactory.EPTYPE, "factory")
                 .exprDotMethod(ref("factory"), "setEventRate", constant(eventRate))
                 .exprDotMethod(ref("factory"), "setVariable", variableExpression)
                 .methodReturn(ref("factory"));

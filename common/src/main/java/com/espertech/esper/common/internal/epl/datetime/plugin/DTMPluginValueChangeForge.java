@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.plugin;
 
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodOpsModify;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,25 +22,21 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.epl.datetime.plugin.DTMPluginUtil.codegenPluginDTM;
 import static com.espertech.esper.common.internal.epl.datetime.plugin.DTMPluginUtil.validateDTMStaticMethodAllowNull;
 
 public class DTMPluginValueChangeForge implements CalendarForge {
-
     private final DateTimeMethodOpsModify transformOp;
     private final List<ExprNode> transformOpParams;
 
-    public DTMPluginValueChangeForge(Class inputType, DateTimeMethodOpsModify transformOp, List<ExprNode> transformOpParams) throws ExprValidationException {
+    public DTMPluginValueChangeForge(EPTypeClass inputType, DateTimeMethodOpsModify transformOp, List<ExprNode> transformOpParams) throws ExprValidationException {
         this.transformOp = transformOp;
         this.transformOpParams = transformOpParams;
-        validateDTMStaticMethodAllowNull(inputType, transformOp.getCalendarOp(), Calendar.class, transformOpParams);
-        validateDTMStaticMethodAllowNull(inputType, transformOp.getLdtOp(), LocalDateTime.class, transformOpParams);
-        validateDTMStaticMethodAllowNull(inputType, transformOp.getZdtOp(), ZonedDateTime.class, transformOpParams);
+        validateDTMStaticMethodAllowNull(inputType, transformOp.getCalendarOp(), EPTypePremade.CALENDAR.getEPType(), transformOpParams);
+        validateDTMStaticMethodAllowNull(inputType, transformOp.getLdtOp(), EPTypePremade.LOCALDATETIME.getEPType(), transformOpParams);
+        validateDTMStaticMethodAllowNull(inputType, transformOp.getZdtOp(), EPTypePremade.ZONEDDATETIME.getEPType(), transformOpParams);
     }
 
     public CalendarOp getEvalOp() {
@@ -46,14 +44,14 @@ public class DTMPluginValueChangeForge implements CalendarForge {
     }
 
     public CodegenExpression codegenCalendar(CodegenExpression cal, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return codegenPluginDTM(transformOp.getCalendarOp(), void.class, Calendar.class, cal, transformOpParams, parent, symbols, classScope);
+        return codegenPluginDTM(transformOp.getCalendarOp(), EPTypePremade.VOID.getEPType(), EPTypePremade.CALENDAR.getEPType(), cal, transformOpParams, parent, symbols, classScope);
     }
 
     public CodegenExpression codegenLDT(CodegenExpression ldt, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return codegenPluginDTM(transformOp.getLdtOp(), LocalDateTime.class, LocalDateTime.class, ldt, transformOpParams, parent, symbols, classScope);
+        return codegenPluginDTM(transformOp.getLdtOp(), EPTypePremade.LOCALDATETIME.getEPType(), EPTypePremade.LOCALDATETIME.getEPType(), ldt, transformOpParams, parent, symbols, classScope);
     }
 
     public CodegenExpression codegenZDT(CodegenExpression zdt, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        return codegenPluginDTM(transformOp.getZdtOp(), ZonedDateTime.class, ZonedDateTime.class, zdt, transformOpParams, parent, symbols, classScope);
+        return codegenPluginDTM(transformOp.getZdtOp(), EPTypePremade.ZONEDDATETIME.getEPType(), EPTypePremade.ZONEDDATETIME.getEPType(), zdt, transformOpParams, parent, symbols, classScope);
     }
 }

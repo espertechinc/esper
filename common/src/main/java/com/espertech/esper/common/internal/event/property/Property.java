@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.event.property;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
@@ -36,16 +38,7 @@ public interface Property {
      * @param beanEventTypeFactory bean factory
      * @return property type class
      */
-    public Class getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory);
-
-    /**
-     * Returns the property type plus its generic type parameter, if any.
-     *
-     * @param eventType            is the event type representing the JavaBean
-     * @param beanEventTypeFactory bean factory
-     * @return type and generic descriptor
-     */
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory);
+    public EPTypeClass getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory);
 
     /**
      * Returns value getter for the property of an event of the given event type.
@@ -64,7 +57,7 @@ public interface Property {
      * @param beanEventTypeFactory bean factory
      * @return property type @param optionalMapPropTypes
      */
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory);
+    public EPType getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory);
 
     /**
      * Returns the getter-method for use with Map event representations.

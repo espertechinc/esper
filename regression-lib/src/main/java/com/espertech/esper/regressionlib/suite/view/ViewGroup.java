@@ -89,6 +89,11 @@ public class ViewGroup {
             epl = "select * from SupportBean#groupwin(theString)#length(2)#merge(theString)#keepall";
             SupportMessageAssertUtil.tryInvalidCompile(env, epl,
                 "Failed to validate data window declaration: The 'merge' declaration cannot be used in conjunction with multiple data windows");
+
+            epl = "create schema MyEvent(somefield null);\n" +
+                "select * from MyEvent#groupwin(somefield)#length(2)";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+                "Failed to validate data window declaration: Group-window received a null-typed criteria expression");
         }
     }
 

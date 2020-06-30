@@ -10,12 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 
 /**
  * Specifies an index to build as part of an overall query plan.
  */
 public class QueryPlanIndex {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryPlanIndex.class);
+
     private Map<TableLookupIndexReqKey, QueryPlanIndexItem> items;
 
     public QueryPlanIndex(Map<TableLookupIndexReqKey, QueryPlanIndexItem> items) {

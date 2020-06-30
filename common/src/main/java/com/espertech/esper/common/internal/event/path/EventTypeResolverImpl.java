@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.path;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.PathException;
@@ -57,7 +58,7 @@ public class EventTypeResolverImpl implements EventTypeResolver, EventTypeNameRe
         }
     }
 
-    public BeanEventType resolvePrivateBean(Class clazz, boolean publicFields) {
+    public BeanEventType resolvePrivateBean(EPTypeClass clazz, boolean publicFields) {
         return beanEventTypeFactoryPrivate.getCreateBeanType(clazz, publicFields);
     }
 

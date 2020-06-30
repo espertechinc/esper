@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.compile.stage2;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerExecution;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -79,14 +82,20 @@ public class FilterSpecCompilerIndexPlannerHelper {
         return topLevelControl;
     }
 
-    protected static SimpleNumberCoercer getNumberCoercer(Class leftType, Class rightType, String expression) throws ExprValidationException {
-        Class numericCoercionType = JavaClassHelper.getBoxedType(leftType);
-        if (rightType != leftType) {
+    protected static SimpleNumberCoercer getNumberCoercer(EPType leftType, EPType rightType, String expression) throws ExprValidationException {
+        EPType numericCoercionType = JavaClassHelper.getBoxedType(leftType);
+        if (numericCoercionType == null || numericCoercionType == EPTypeNull.INSTANCE ||
+                rightType == null || rightType == EPTypeNull.INSTANCE) {
+            return null;
+        }
+        EPTypeClass leftClass = (EPTypeClass) leftType;
+        EPTypeClass rightClass = (EPTypeClass) rightType;
+        if (rightClass.getType() != leftClass.getType()) {
             if (JavaClassHelper.isNumeric(rightType)) {
-                if (!JavaClassHelper.canCoerce(rightType, leftType)) {
-                    throwConversionError(rightType, leftType, expression);
+                if (!JavaClassHelper.canCoerce(rightClass.getType(), leftClass.getType())) {
+                    throwConversionError(rightClass.getType(), leftClass.getType(), expression);
                 }
-                return SimpleNumberCoercerFactory.getCoercer(rightType, numericCoercionType);
+                return SimpleNumberCoercerFactory.getCoercer(rightType, (EPTypeClass) numericCoercionType);
             }
         }
         return null;
@@ -185,7 +194,7 @@ public class FilterSpecCompilerIndexPlannerHelper {
     // filters require the same type
     protected static Object handleConstantsCoercion(ExprFilterSpecLookupableForge lookupable, Object constant)
         throws ExprValidationException {
-        Class identNodeType = lookupable.getReturnType();
+        EPTypeClass identNodeType = lookupable.getReturnType();
         if (!JavaClassHelper.isNumeric(identNodeType)) {
             return constant;    // no coercion required, other type checking performed by expression this comes from
         }
@@ -195,11 +204,11 @@ public class FilterSpecCompilerIndexPlannerHelper {
             return null;
         }
 
-        if (!JavaClassHelper.canCoerce(constant.getClass(), identNodeType)) {
-            throwConversionError(constant.getClass(), identNodeType, lookupable.getExpression());
+        if (!JavaClassHelper.canCoerce(constant.getClass(), identNodeType.getType())) {
+            throwConversionError(constant.getClass(), identNodeType.getType(), lookupable.getExpression());
         }
 
-        Class identNodeTypeBoxed = JavaClassHelper.getBoxedType(identNodeType);
+        Class identNodeTypeBoxed = JavaClassHelper.getBoxedType(identNodeType).getType();
         return JavaClassHelper.coerceBoxed((Number) constant, identNodeTypeBoxed);
     }
 
@@ -227,7 +236,7 @@ public class FilterSpecCompilerIndexPlannerHelper {
         if (!FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.LKUPCOMPOSITE, raw, services)) {
             return null;
         }
-        Class lookupableType = lookupable.getForge().getEvaluationType();
+        EPTypeClass lookupableType = (EPTypeClass) lookupable.getForge().getEvaluationType();
         String expression = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(lookupable);
         FilterSpecCompilerIndexLimitedLookupableGetterForge getterForge = new FilterSpecCompilerIndexLimitedLookupableGetterForge(lookupable);
         DataInputOutputSerdeForge serde = services.getSerdeResolver().serdeForFilter(lookupableType, raw);
@@ -299,7 +308,7 @@ public class FilterSpecCompilerIndexPlannerHelper {
         exprNode.accept(visitor);
         boolean hasVariable = visitor.isHasVariables();
 
-        Class evalType = exprNode.getForge().getEvaluationType();
+        EPTypeClass evalType = (EPTypeClass) exprNode.getForge().getEvaluationType();
         DataInputOutputSerdeForge serdeForge = args.compileTimeServices.getSerdeResolver().serdeForFilter(evalType, args.statementRawInfo);
         ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(PROPERTY_NAME_BOOLEAN_EXPRESSION, null, null, evalType, false, serdeForge);
 

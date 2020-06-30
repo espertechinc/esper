@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,10 +29,10 @@ public class PollResultIndexingStrategyHashForge implements PollResultIndexingSt
     private final int streamNum;
     private final EventType eventType;
     private final String[] propertyNames;
-    private final Class[] coercionTypes;
+    private final EPTypeClass[] coercionTypes;
     private final MultiKeyClassRef multiKeyClasses;
 
-    public PollResultIndexingStrategyHashForge(int streamNum, EventType eventType, String[] propertyNames, Class[] coercionTypes, MultiKeyClassRef multiKeyClasses) {
+    public PollResultIndexingStrategyHashForge(int streamNum, EventType eventType, String[] propertyNames, EPTypeClass[] coercionTypes, MultiKeyClassRef multiKeyClasses) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.propertyNames = propertyNames;
@@ -44,14 +46,14 @@ public class PollResultIndexingStrategyHashForge implements PollResultIndexingSt
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
 
-        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyHash.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PollResultIndexingStrategyHash.EPTYPE, this.getClass(), classScope);
 
         EventPropertyGetterSPI[] propertyGetters = EventTypeUtility.getGetters(eventType, propertyNames);
-        Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, propertyNames);
+        EPType[] propertyTypes = EventTypeUtility.getPropertyTypesEPType(eventType, propertyNames);
         CodegenExpression valueGetter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, propertyGetters, propertyTypes, coercionTypes, multiKeyClasses, method, classScope);
 
         method.getBlock()
-            .declareVar(PollResultIndexingStrategyHash.class, "strat", newInstance(PollResultIndexingStrategyHash.class))
+            .declareVarNewInstance(PollResultIndexingStrategyHash.EPTYPE, "strat")
             .exprDotMethod(ref("strat"), "setStreamNum", constant(streamNum))
             .exprDotMethod(ref("strat"), "setPropertyNames", constant(propertyNames))
             .exprDotMethod(ref("strat"), "setValueGetter", valueGetter)

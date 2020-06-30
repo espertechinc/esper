@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -89,15 +90,15 @@ public class ContextSpecKeyedItem {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextControllerDetailKeyedItem.class, this.getClass(), classScope);
-        Class[] types = EventTypeUtility.getPropertyTypes(filterSpecCompiled.getFilterForEventType(), propertyNames.toArray(new String[0]));
+        CodegenMethod method = parent.makeChild(ContextControllerDetailKeyedItem.EPTYPE, this.getClass(), classScope);
+        EPType[] types = EventTypeUtility.getPropertyTypesEPType(filterSpecCompiled.getFilterForEventType(), propertyNames.toArray(new String[0]));
 
         method.getBlock()
-            .declareVar(FilterSpecActivatable.class, "activatable", localMethod(filterSpecCompiled.makeCodegen(method, symbols, classScope)))
-            .declareVar(ExprFilterSpecLookupable[].class, "lookupables", newArrayByLength(ExprFilterSpecLookupable.class, constant(getters.length)));
+            .declareVar(FilterSpecActivatable.EPTYPE, "activatable", localMethod(filterSpecCompiled.makeCodegen(method, symbols, classScope)))
+            .declareVar(ExprFilterSpecLookupable.EPTYPEARRAY, "lookupables", newArrayByLength(ExprFilterSpecLookupable.EPTYPE, constant(getters.length)));
         for (int i = 0; i < getters.length; i++) {
-            CodegenExpression getter = EventTypeUtility.codegenGetterWCoerceWArray(ExprEventEvaluator.class, getters[i], types[i], types[i], method, this.getClass(), classScope);
-            CodegenExpression lookupable = newInstance(ExprFilterSpecLookupable.class, constant(propertyNames.get(i)), getter, constantNull(),
+            CodegenExpression getter = EventTypeUtility.codegenGetterWCoerceWArray(ExprEventEvaluator.EPTYPE, getters[i], types[i], types[i], method, this.getClass(), classScope);
+            CodegenExpression lookupable = newInstance(ExprFilterSpecLookupable.EPTYPE, constant(propertyNames.get(i)), getter, constantNull(),
                 constant(types[i]), constantFalse(), lookupableSerdes[i].codegen(method, classScope, null));
             CodegenExpression eventType = exprDotMethod(ref("activatable"), "getFilterForEventType");
             method.getBlock()
@@ -108,7 +109,7 @@ public class ContextSpecKeyedItem {
         CodegenExpression getter = MultiKeyCodegen.codegenGetterMayMultiKey(filterSpecCompiled.getFilterForEventType(), getters, types, null, keyMultiKey, method, classScope);
 
         method.getBlock()
-            .declareVar(ContextControllerDetailKeyedItem.class, "item", newInstance(ContextControllerDetailKeyedItem.class))
+            .declareVarNewInstance(ContextControllerDetailKeyedItem.EPTYPE, "item")
             .exprDotMethod(ref("item"), "setGetter", getter)
             .exprDotMethod(ref("item"), "setLookupables", ref("lookupables"))
             .exprDotMethod(ref("item"), "setPropertyTypes", constant(types))

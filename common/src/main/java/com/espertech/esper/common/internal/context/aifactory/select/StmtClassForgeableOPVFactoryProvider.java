@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.aifactory.select;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -80,12 +81,12 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
 
             // build ctor
             List<CodegenTypedParam> ctorParms = new ArrayList<>();
-            ctorParms.add(new CodegenTypedParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef(), false));
+            ctorParms.add(new CodegenTypedParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef(), false));
             CodegenCtor providerCtor = new CodegenCtor(StmtClassForgeableOPVFactoryProvider.class, includeDebugSymbols, ctorParms);
             CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
             List<CodegenTypedParam> providerExplicitMembers = new ArrayList<>();
-            providerExplicitMembers.add(new CodegenTypedParam(StatementResultService.class, MEMBERNAME_STATEMENTRESULTSVC));
-            providerExplicitMembers.add(new CodegenTypedParam(OutputProcessViewFactory.class, MEMBERNAME_OPVFACTORY));
+            providerExplicitMembers.add(new CodegenTypedParam(StatementResultService.EPTYPE, MEMBERNAME_STATEMENTRESULTSVC));
+            providerExplicitMembers.add(new CodegenTypedParam(OutputProcessViewFactory.EPTYPE, MEMBERNAME_OPVFACTORY));
 
             if (spec.isCodeGenerated()) {
                 // make factory and view both, assign to member
@@ -94,13 +95,13 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
             } else {
                 // build factory from existing classes
                 SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
-                CodegenMethod init = providerCtor.makeChildWithScope(OutputProcessViewFactory.class, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+                CodegenMethod init = providerCtor.makeChildWithScope(OutputProcessViewFactory.EPTYPE, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
                 spec.provideCodegen(init, symbols, classScope);
                 providerCtor.getBlock().assignMember(MEMBERNAME_OPVFACTORY, localMethod(init, EPStatementInitServices.REF));
             }
 
             // make get-factory method
-            CodegenMethod getFactoryMethod = CodegenMethod.makeParentNode(OutputProcessViewFactory.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            CodegenMethod getFactoryMethod = CodegenMethod.makeParentNode(OutputProcessViewFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_OPVFACTORY));
 
             CodegenClassMethods methods = new CodegenClassMethods();
@@ -108,7 +109,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
             CodegenStackGenerator.recursiveBuildStack(getFactoryMethod, "getOutputProcessViewFactory", methods);
 
             // render and compile
-            return new CodegenClass(CodegenClassType.OUTPUTPROCESSVIEWFACTORYPROVIDER, OutputProcessViewFactoryProvider.class, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            return new CodegenClass(CodegenClassType.OUTPUTPROCESSVIEWFACTORYPROVIDER, OutputProcessViewFactoryProvider.EPTYPE, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
         } catch (Throwable t) {
             throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " : " + t.getMessage(), t);
         }
@@ -123,9 +124,9 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
     }
 
     private static void makeOPVFactory(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> providerExplicitMembers, CodegenCtor providerCtor, String providerClassName) {
-        CodegenMethod makeViewMethod = CodegenMethod.makeParentNode(OutputProcessView.class, StmtClassForgeableOPVFactoryProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(ResultSetProcessor.class, NAME_RESULTSETPROCESSOR)
-                .addParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT);
+        CodegenMethod makeViewMethod = CodegenMethod.makeParentNode(OutputProcessView.EPTYPE, StmtClassForgeableOPVFactoryProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(ResultSetProcessor.EPTYPE, NAME_RESULTSETPROCESSOR)
+                .addParam(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT);
         makeViewMethod.getBlock().methodReturn(CodegenExpressionBuilder.newInstance(CLASSNAME_OUTPUTPROCESSVIEW, ref("o"), MEMBER_RESULTSETPROCESSOR, MEMBER_AGENTINSTANCECONTEXT));
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(makeViewMethod, "makeView", methods);
@@ -133,7 +134,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
         List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(providerClassName, "o"));
         CodegenCtor ctor = new CodegenCtor(StmtClassForgeableOPVFactoryProvider.class, classScope, ctorParams);
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_OUTPUTPROCESSVIEWFACTORY, OutputProcessViewFactory.class, ctor, Collections.emptyList(), methods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_OUTPUTPROCESSVIEWFACTORY, OutputProcessViewFactory.EPTYPE, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
 
         providerCtor.getBlock().assignMember(MEMBERNAME_OPVFACTORY, CodegenExpressionBuilder.newInstance(CLASSNAME_OUTPUTPROCESSVIEWFACTORY, ref("this")))
@@ -144,19 +145,19 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
 
         List<CodegenTypedParam> ctorParams = new ArrayList<>();
         ctorParams.add(new CodegenTypedParam(classNameParent, "o"));
-        ctorParams.add(new CodegenTypedParam(ResultSetProcessor.class, NAME_RESULTSETPROCESSOR));
-        ctorParams.add(new CodegenTypedParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT));
+        ctorParams.add(new CodegenTypedParam(ResultSetProcessor.EPTYPE, NAME_RESULTSETPROCESSOR));
+        ctorParams.add(new CodegenTypedParam(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT));
 
         // make ctor code
         CodegenCtor serviceCtor = new CodegenCtor(StmtClassForgeableOPVFactoryProvider.class, classScope, ctorParams);
 
         // Get-Result-Type Method
-        CodegenMethod getEventTypeMethod = CodegenMethod.makeParentNode(EventType.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getEventTypeMethod = CodegenMethod.makeParentNode(EventType.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getEventTypeMethod.getBlock().methodReturn(exprDotMethod(member(NAME_RESULTSETPROCESSOR), "getResultEventType"));
 
         // Process-View-Result Method
-        CodegenMethod updateMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(EventBean[].class, NAME_NEWDATA).addParam(EventBean[].class, NAME_OLDDATA);
+        CodegenMethod updateMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EventBean.EPTYPEARRAY, NAME_NEWDATA).addParam(EventBean.EPTYPEARRAY, NAME_OLDDATA);
         if (numStreams == 1) {
             forge.updateCodegen(updateMethod, classScope);
         } else {
@@ -164,8 +165,8 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
         }
 
         // Process-Join-Result Method
-        CodegenMethod processMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(Set.class, NAME_NEWDATA).addParam(Set.class, NAME_OLDDATA).addParam(ExprEvaluatorContext.class, "not_applicable");
+        CodegenMethod processMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.SET.getEPType(), NAME_NEWDATA).addParam(EPTypePremade.SET.getEPType(), NAME_OLDDATA).addParam(ExprEvaluatorContext.EPTYPE, "not_applicable");
         if (numStreams == 1) {
             processMethod.getBlock().methodThrowUnsupported();
         } else {
@@ -173,22 +174,22 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
         }
 
         // Stop-Method (generates last as other methods may allocate members)
-        CodegenMethod iteratorMethod = CodegenMethod.makeParentNode(Iterator.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod iteratorMethod = CodegenMethod.makeParentNode(EPTypePremade.ITERATOR.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         forge.iteratorCodegen(iteratorMethod, classScope);
 
         // GetNumChangesetRows-Methods (always zero for generated code)
-        CodegenMethod getNumChangesetRowsMethod = CodegenMethod.makeParentNode(int.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getNumChangesetRowsMethod = CodegenMethod.makeParentNode(EPTypePremade.INTEGERPRIMITIVE.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getNumChangesetRowsMethod.getBlock().methodReturn(constant(0));
 
         // GetOptionalOutputCondition-Method (always null for generated code)
-        CodegenMethod getOptionalOutputConditionMethod = CodegenMethod.makeParentNode(OutputCondition.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getOptionalOutputConditionMethod = CodegenMethod.makeParentNode(OutputCondition.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getOptionalOutputConditionMethod.getBlock().methodReturn(constantNull());
 
         // Stop-Method (no action for generated code)
-        CodegenMethod stopMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AgentInstanceStopServices.class, "svc");
+        CodegenMethod stopMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AgentInstanceStopServices.EPTYPE, "svc");
 
         // Terminate-Method (no action for generated code)
-        CodegenMethod terminatedMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod terminatedMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
 
         CodegenClassMethods innerMethods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(getEventTypeMethod, "getEventType", innerMethods);
@@ -200,7 +201,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
         CodegenStackGenerator.recursiveBuildStack(stopMethod, "stop", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(terminatedMethod, "terminated", innerMethods);
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_OUTPUTPROCESSVIEW, OutputProcessView.class, serviceCtor, Collections.emptyList(), innerMethods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_OUTPUTPROCESSVIEW, OutputProcessView.EPTYPE, serviceCtor, Collections.emptyList(), innerMethods);
         innerClasses.add(innerClass);
     }
 }

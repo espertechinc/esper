@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
@@ -99,7 +100,7 @@ public class ResultSetProcessorRowPerGroupRollupUtil {
      * @param outputConditionPolledFactory    condition factory
      * @return helpers
      */
-    public static ResultSetProcessorGroupedOutputFirstHelper[] initializeOutputFirstHelpers(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, Class[] groupKeyTypes, AggregationGroupByRollupDesc groupByRollupDesc, OutputConditionPolledFactory outputConditionPolledFactory) {
+    public static ResultSetProcessorGroupedOutputFirstHelper[] initializeOutputFirstHelpers(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, EPType[] groupKeyTypes, AggregationGroupByRollupDesc groupByRollupDesc, OutputConditionPolledFactory outputConditionPolledFactory) {
         ResultSetProcessorGroupedOutputFirstHelper[] outputFirstHelpers = new ResultSetProcessorGroupedOutputFirstHelper[groupByRollupDesc.getLevels().length];
         for (int i = 0; i < groupByRollupDesc.getLevels().length; i++) {
             outputFirstHelpers[i] = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, groupKeyTypes, outputConditionPolledFactory, groupByRollupDesc, i, null);

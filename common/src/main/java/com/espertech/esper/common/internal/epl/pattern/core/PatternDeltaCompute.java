@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 public interface PatternDeltaCompute {
+    EPTypeClass EPTYPE = new EPTypeClass(PatternDeltaCompute.class);
+
     long computeDelta(MatchedEventMap beginState, PatternAgentInstanceContext context);
 }

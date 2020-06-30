@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.hook.datetimemethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * For adding a date-time method that reformats the date-time value returning a result of a different type
  * as the date-time value.
@@ -18,7 +20,7 @@ package com.espertech.esper.common.client.hook.datetimemethod;
  * </p>
  */
 public class DateTimeMethodOpsReformat implements DateTimeMethodOps {
-    private Class returnType;
+    private EPTypeClass returnType;
     private DateTimeMethodMode longOp;
     private DateTimeMethodMode dateOp;
     private DateTimeMethodMode calendarOp;
@@ -115,7 +117,7 @@ public class DateTimeMethodOpsReformat implements DateTimeMethodOps {
      * Returns the return type.
      * @return return type
      */
-    public Class getReturnType() {
+    public EPTypeClass getReturnType() {
         return returnType;
     }
 
@@ -123,7 +125,7 @@ public class DateTimeMethodOpsReformat implements DateTimeMethodOps {
      * Sets the return type.
      * @param returnType return type
      */
-    public void setReturnType(Class returnType) {
+    public void setReturnType(EPTypeClass returnType) {
         this.returnType = returnType;
     }
 }

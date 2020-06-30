@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.declared.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
@@ -23,12 +25,12 @@ public class ExprDeclaredCacheKeyLocalCodegenField implements CodegenFieldSharab
         this.expressionName = expressionName;
     }
 
-    public Class type() {
-        return Object.class;
+    public EPTypeClass type() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 
     public CodegenExpression initCtorScoped() {
-        return newInstance(Object.class);
+        return newInstance(EPTypePremade.OBJECT.getEPType());
     }
 
     public boolean equals(Object o) {

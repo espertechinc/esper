@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -49,15 +50,15 @@ public class ExprMathNodeForgeEval implements ExprEvaluator {
 
     public static CodegenMethod codegen(ExprMathNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprMathNodeForgeEval.class, codegenClassScope);
-        Class lhsType = lhs.getForge().getEvaluationType();
-        Class rhsType = rhs.getForge().getEvaluationType();
+        EPTypeClass lhsType = (EPTypeClass) lhs.getForge().getEvaluationType();
+        EPTypeClass rhsType = (EPTypeClass) rhs.getForge().getEvaluationType();
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(lhsType, "left", lhs.getForge().evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope));
-        if (!lhsType.isPrimitive()) {
+        if (!lhsType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
         block.declareVar(rhsType, "right", rhs.getForge().evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
-        if (!rhsType.isPrimitive()) {
+        if (!rhsType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }
         block.methodReturn(forge.getArithTypeEnumComputer().codegen(methodNode, codegenClassScope, ref("left"), ref("right"), lhsType, rhsType));

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.mostleastfreq;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -33,12 +35,12 @@ import static com.espertech.esper.common.internal.epl.enummethod.eval.singlelamb
 public class EnumMostLeastFrequentEventPlus extends ThreeFormEventPlus {
 
     protected final boolean isMostFrequent;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
     public EnumMostLeastFrequentEventPlus(ExprDotEvalParamLambda lambda, ObjectArrayEventType indexEventType, int numParameters, boolean isMostFrequent) {
         super(lambda, indexEventType, numParameters);
         this.isMostFrequent = isMostFrequent;
-        this.returnType = JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
+        this.returnType = JavaClassHelper.getBoxedType((EPTypeClass) innerExpression.getEvaluationType());
     }
 
     public EnumEval getEnumEvaluator() {
@@ -78,7 +80,7 @@ public class EnumMostLeastFrequentEventPlus extends ThreeFormEventPlus {
         };
     }
 
-    public Class returnType() {
+    public EPTypeClass returnTypeOfMethod() {
         return returnType;
     }
 
@@ -87,12 +89,12 @@ public class EnumMostLeastFrequentEventPlus extends ThreeFormEventPlus {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Map.class, "items", newInstance(LinkedHashMap.class));
+        block.declareVar(EPTypePremade.MAP.getEPType(), "items", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Object.class, "key", innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
-            .declareVar(Integer.class, "existing", cast(Integer.class, exprDotMethod(ref("items"), "get", ref("key"))))
+        block.declareVar(EPTypePremade.OBJECT.getEPType(), "key", innerExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
+            .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "existing", cast(EPTypePremade.INTEGERBOXED.getEPType(), exprDotMethod(ref("items"), "get", ref("key"))))
             .ifCondition(equalsNull(ref("existing")))
             .assignRef("existing", constant(1))
             .ifElse()

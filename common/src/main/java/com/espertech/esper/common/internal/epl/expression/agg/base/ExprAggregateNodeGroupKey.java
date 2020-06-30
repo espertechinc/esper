@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.agg.base;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -30,10 +34,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private final int numGroupKeys;
     private final int groupKeyIndex;
-    private final Class returnType;
+    private final EPType returnType;
     private final CodegenFieldName aggregationResultFutureMemberName;
 
-    public ExprAggregateNodeGroupKey(int numGroupKeys, int groupKeyIndex, Class returnType, CodegenFieldName aggregationResultFutureMemberName) {
+    public ExprAggregateNodeGroupKey(int numGroupKeys, int groupKeyIndex, EPType returnType, CodegenFieldName aggregationResultFutureMemberName) {
         this.numGroupKeys = numGroupKeys;
         this.groupKeyIndex = groupKeyIndex;
         this.returnType = returnType;
@@ -44,25 +48,28 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbol, CodegenClassScope classScope) {
-        CodegenExpression future = classScope.getPackageScope().addOrGetFieldWellKnown(aggregationResultFutureMemberName, AggregationResultFuture.class);
-        CodegenMethod method = parent.makeChild(returnType, this.getClass(), classScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbol, CodegenClassScope classScope) {
+        if (returnType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenExpression future = classScope.getPackageScope().addOrGetFieldWellKnown(aggregationResultFutureMemberName, AggregationResultFuture.EPTYPE);
+        CodegenMethod method = parent.makeChild((EPTypeClass) returnType, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(Object.class, "key", exprDotMethod(future, "getGroupKey", exprDotMethod(symbol.getAddExprEvalCtx(method), "getAgentInstanceId")));
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "key", exprDotMethod(future, "getGroupKey", exprDotMethod(symbol.getAddExprEvalCtx(method), "getAgentInstanceId")));
 
-        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKey.class))
-            .declareVar(MultiKey.class, "mk", cast(MultiKey.class, ref("key")))
+        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKey.EPTYPE))
+            .declareVar(MultiKey.EPTYPE, "mk", cast(MultiKey.EPTYPE, ref("key")))
             .blockReturn(CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(ref("mk"), "getKey", constant(groupKeyIndex))));
 
-        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKeyArrayWrap.class))
-            .declareVar(MultiKeyArrayWrap.class, "mk", cast(MultiKeyArrayWrap.class, ref("key")))
+        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKeyArrayWrap.EPTYPE))
+            .declareVar(MultiKeyArrayWrap.EPTYPE, "mk", cast(MultiKeyArrayWrap.EPTYPE, ref("key")))
             .blockReturn(CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(ref("mk"), "getArray")));
 
         method.getBlock().methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, ref("key")));
         return localMethod(method);
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return returnType;
     }
 

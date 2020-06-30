@@ -31,8 +31,8 @@ public class BeanEventBeanSerializableCopyMethodForge implements EventBeanCopyMe
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        return newInstance(BeanEventBeanSerializableCopyMethod.class,
-                cast(BeanEventType.class, EventTypeUtility.resolveTypeCodegen(beanEventType, EPStatementInitServices.REF)),
+        return newInstance(BeanEventBeanSerializableCopyMethod.EPTYPE,
+                cast(BeanEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(beanEventType, EPStatementInitServices.REF)),
                 factory);
     }
 

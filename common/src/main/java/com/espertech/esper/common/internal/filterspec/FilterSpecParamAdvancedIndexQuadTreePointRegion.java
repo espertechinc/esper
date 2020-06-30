@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.type.XYPoint;
 
 public final class FilterSpecParamAdvancedIndexQuadTreePointRegion extends FilterSpecParam {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecParamAdvancedIndexQuadTreePointRegion.class);
 
     private FilterSpecParamFilterForEvalDouble xEval;
     private FilterSpecParamFilterForEvalDouble yEval;

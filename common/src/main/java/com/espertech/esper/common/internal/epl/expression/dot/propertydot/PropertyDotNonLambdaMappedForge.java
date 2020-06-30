@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.propertydot;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -24,9 +25,9 @@ public class PropertyDotNonLambdaMappedForge implements ExprForge, ExprNodeRende
     private final int streamId;
     private final EventPropertyGetterMappedSPI mappedGetter;
     private final ExprForge paramForge;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public PropertyDotNonLambdaMappedForge(int streamId, EventPropertyGetterMappedSPI mappedGetter, ExprForge paramForge, Class returnType) {
+    public PropertyDotNonLambdaMappedForge(int streamId, EventPropertyGetterMappedSPI mappedGetter, ExprForge paramForge, EPTypeClass returnType) {
         this.streamId = streamId;
         this.mappedGetter = mappedGetter;
         this.paramForge = paramForge;
@@ -37,7 +38,7 @@ public class PropertyDotNonLambdaMappedForge implements ExprForge, ExprNodeRende
         return new PropertyDotNonLambdaMappedForgeEval(this, paramForge.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return PropertyDotNonLambdaMappedForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
@@ -45,7 +46,7 @@ public class PropertyDotNonLambdaMappedForge implements ExprForge, ExprNodeRende
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

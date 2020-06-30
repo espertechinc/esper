@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.countof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -54,8 +56,8 @@ public class EnumCountOfEvent extends ThreeFormEventPlain {
         };
     }
 
-    public Class returnType() {
-        return int.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.INTEGERPRIMITIVE.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -63,11 +65,11 @@ public class EnumCountOfEvent extends ThreeFormEventPlain {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(int.class, "count", constant(0));
+        block.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(0));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));
+        CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, scope, codegenClassScope));
         block.incrementRef("count");
     }
 

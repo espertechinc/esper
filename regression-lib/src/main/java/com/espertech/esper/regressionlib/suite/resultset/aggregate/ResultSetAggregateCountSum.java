@@ -48,7 +48,26 @@ public class ResultSetAggregateCountSum {
         execs.add(new ResultSetAggregateCountDistinctGrouped());
         execs.add(new ResultSetAggregateSumNamedWindowRemoveGroup());
         execs.add(new ResultSetAggregateCountDistinctMultikeyWArray());
+        execs.add(new ResultSetAggregateCountSumInvalid());
         return execs;
+    }
+
+    private static class ResultSetAggregateCountSumInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl;
+
+            String message = "Failed to validate select-clause expression 'XXX': Implicit conversion from datatype 'null' to numeric is not allowed for aggregation function '";
+            epl = "select avg(null) from SupportBean";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "avg(null)"));
+            epl = "select avg(distinct null) from SupportBean";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "avg(distinct null)"));
+            epl = "select median(null) from SupportBean";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "median(null)"));
+            epl = "select sum(null) from SupportBean";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "sum(null)"));
+            epl = "select stddev(null) from SupportBean";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "stddev(null)"));
+        }
     }
 
     private static class ResultSetAggregateCountDistinctMultikeyWArray implements RegressionExecution {

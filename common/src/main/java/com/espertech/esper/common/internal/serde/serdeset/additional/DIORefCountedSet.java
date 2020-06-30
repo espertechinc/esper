@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.serde.serdeset.additional;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.RefCountedSet;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
@@ -20,6 +21,8 @@ import java.io.IOException;
 import java.util.Map;
 
 public class DIORefCountedSet implements DataInputOutputSerde<RefCountedSet<Object>> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIORefCountedSet.class);
+
     private final DataInputOutputSerde inner;
 
     public DIORefCountedSet(DataInputOutputSerde inner) {

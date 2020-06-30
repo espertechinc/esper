@@ -188,9 +188,9 @@ public class StreamJoinAnalysisResultCompileTime {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StreamJoinAnalysisResultRuntime.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StreamJoinAnalysisResultRuntime.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StreamJoinAnalysisResultRuntime.class, "ar", newInstance(StreamJoinAnalysisResultRuntime.class))
+                .declareVarNewInstance(StreamJoinAnalysisResultRuntime.EPTYPE, "ar")
                 .exprDotMethod(ref("ar"), "setPureSelfJoin", constant(isPureSelfJoin))
                 .exprDotMethod(ref("ar"), "setUnidirectional", constant(unidirectional))
                 .exprDotMethod(ref("ar"), "setUnidirectionalNonDriving", constant(unidirectionalNonDriving))
@@ -209,7 +209,7 @@ public class StreamJoinAnalysisResultCompileTime {
         for (int i = 0; i < init.length; i++) {
             init[i] = tablesPerStream[i] == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(tablesPerStream[i], symbols.getAddInitSvc(method));
         }
-        return newArrayWithInit(Table.class, init);
+        return newArrayWithInit(Table.EPTYPE, init);
     }
 
     private CodegenExpression makeNamedWindows(CodegenMethod method, SAIFFInitializeSymbol symbols) {
@@ -217,7 +217,7 @@ public class StreamJoinAnalysisResultCompileTime {
         for (int i = 0; i < init.length; i++) {
             init[i] = namedWindowsPerStream[i] == null ? constantNull() : NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindowsPerStream[i], symbols.getAddInitSvc(method));
         }
-        return newArrayWithInit(NamedWindow.class, init);
+        return newArrayWithInit(NamedWindow.EPTYPE, init);
     }
 
     public static Set<String> getUniqueCandidateProperties(List<ViewFactoryForge> forges, Annotation[] annotations) {

@@ -11,9 +11,12 @@
 package com.espertech.esper.common.internal.epl.expression.time.eval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.TimePeriod;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface TimePeriodEval {
+    EPTypeClass EPTYPE = new EPTypeClass(TimePeriodEval.class);
+
     TimePeriod timePeriodEval(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 }

@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -47,20 +50,20 @@ public class ExprCastNodeForgeNonConstEval implements ExprEvaluator {
             return constantNull();
         }
         ExprNode child = forge.getForgeRenderable().getChildNodes()[0];
-        Class childType = child.getForge().getEvaluationType();
-        if (childType == null) {
+        EPType type = child.getForge().getEvaluationType();
+        if (type == null || type == EPTypeNull.INSTANCE) {
             return constantNull();
         }
+        EPTypeClass typeClass = (EPTypeClass) type;
         CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCastNodeForgeNonConstEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(childType, "result", child.getForge().evaluateCodegen(childType, methodNode, exprSymbol, codegenClassScope));
-        if (!childType.isPrimitive()) {
+                .declareVar(typeClass, "result", child.getForge().evaluateCodegen(typeClass, methodNode, exprSymbol, codegenClassScope));
+        if (!typeClass.getType().isPrimitive()) {
             block.ifRefNullReturnNull("result");
         }
-        CodegenExpression cast = forge.getCasterParserComputerForge().codegenPremade(forge.getEvaluationType(), ref("result"), childType, methodNode, exprSymbol, codegenClassScope);
+        CodegenExpression cast = forge.getCasterParserComputerForge().codegenPremade(forge.getEvaluationType(), ref("result"), typeClass, methodNode, exprSymbol, codegenClassScope);
         block.methodReturn(cast);
         return localMethod(methodNode);
     }
-
 }

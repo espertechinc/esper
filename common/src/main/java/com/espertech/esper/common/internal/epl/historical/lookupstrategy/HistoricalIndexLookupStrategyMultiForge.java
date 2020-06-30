@@ -29,9 +29,9 @@ public class HistoricalIndexLookupStrategyMultiForge implements HistoricalIndexL
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyMulti.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyMulti.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(HistoricalIndexLookupStrategyMulti.class, "strat", newInstance(HistoricalIndexLookupStrategyMulti.class))
+                .declareVarNewInstance(HistoricalIndexLookupStrategyMulti.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setIndexUsed", constant(indexUsed))
                 .exprDotMethod(ref("strat"), "setInnerLookupStrategy", innerLookupStrategy.make(method, symbols, classScope))
                 .methodReturn(ref("strat"));

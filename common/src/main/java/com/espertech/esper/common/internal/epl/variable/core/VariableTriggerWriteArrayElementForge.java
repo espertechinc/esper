@@ -34,9 +34,9 @@ public class VariableTriggerWriteArrayElementForge extends VariableTriggerWriteF
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(VariableTriggerWriteArrayElement.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(VariableTriggerWriteArrayElement.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(VariableTriggerWriteArrayElement.class, "desc", newInstance(VariableTriggerWriteArrayElement.class))
+            .declareVarNewInstance(VariableTriggerWriteArrayElement.EPTYPE, "desc")
             .exprDotMethod(ref("desc"), "setVariableName", constant(variableName))
             .exprDotMethod(ref("desc"), "setIndexExpression",
                 ExprNodeUtilityCodegen.codegenEvaluator(indexExpression, method, VariableTriggerWriteArrayElementForge.class, classScope))

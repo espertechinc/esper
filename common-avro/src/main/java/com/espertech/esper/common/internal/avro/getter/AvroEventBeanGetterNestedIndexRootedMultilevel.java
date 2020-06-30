@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.avro.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -44,8 +46,8 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     private CodegenMethod getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
-                .declareVar(GenericData.Record.class, "value", localMethod(navigateMethodCodegen(codegenMethodScope, codegenClassScope), ref("record")))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(AvroConstant.EPTYPE_RECORD, "record").getBlock()
+                .declareVar(AvroConstant.EPTYPE_RECORD, "value", localMethod(navigateMethodCodegen(codegenMethodScope, codegenClassScope), ref("record")))
                 .ifRefNullReturnNull("value")
                 .methodReturn(nested[nested.length - 1].underlyingGetCodegen(ref("value"), codegenMethodScope, codegenClassScope));
     }
@@ -63,14 +65,14 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
-                .declareVar(GenericData.Record.class, "value", localMethod(navigateMethodCodegen(codegenMethodScope, codegenClassScope), ref("record")))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(AvroConstant.EPTYPE_RECORD, "record").getBlock()
+                .declareVar(AvroConstant.EPTYPE_RECORD, "value", localMethod(navigateMethodCodegen(codegenMethodScope, codegenClassScope), ref("record")))
                 .ifRefNullReturnNull("value")
                 .methodReturn(nested[nested.length - 1].underlyingFragmentCodegen(ref("value"), codegenMethodScope, codegenClassScope));
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -78,7 +80,7 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -103,10 +105,10 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
 
     private CodegenMethod navigateMethodCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMethod navigateRecordMethod = navigateRecordMethodCodegen(codegenMethodScope, codegenClassScope);
-        return codegenMethodScope.makeChild(GenericData.Record.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
-                .declareVar(Object.class, "value", staticMethod(AvroEventBeanGetterNestedIndexRooted.class, "getAtIndex", ref("record"), constant(posTop), constant(index)))
+        return codegenMethodScope.makeChild(AvroConstant.EPTYPE_RECORD, this.getClass(), codegenClassScope).addParam(AvroConstant.EPTYPE_RECORD, "record").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", staticMethod(AvroEventBeanGetterNestedIndexRooted.class, "getAtIndex", ref("record"), constant(posTop), constant(index)))
                 .ifRefNullReturnNull("value")
-                .methodReturn(CodegenExpressionBuilder.localMethod(navigateRecordMethod, castRef(GenericData.Record.class, "value")));
+                .methodReturn(CodegenExpressionBuilder.localMethod(navigateRecordMethod, castRef(AvroConstant.EPTYPE_RECORD, "value")));
     }
 
     private GenericData.Record navigateRecord(GenericData.Record record) {
@@ -122,13 +124,13 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     private CodegenMethod navigateRecordMethodCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(GenericData.Record.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
-                .declareVar(GenericData.Record.class, "current", ref("record"))
-                .declareVarNull(Object.class, "value");
+        CodegenBlock block = codegenMethodScope.makeChild(AvroConstant.EPTYPE_RECORD, this.getClass(), codegenClassScope).addParam(AvroConstant.EPTYPE_RECORD, "record").getBlock()
+                .declareVar(AvroConstant.EPTYPE_RECORD, "current", ref("record"))
+                .declareVarNull(EPTypePremade.OBJECT.getEPType(), "value");
         for (int i = 0; i < nested.length - 1; i++) {
             block.assignRef("value", nested[i].underlyingGetCodegen(ref("current"), codegenMethodScope, codegenClassScope))
-                    .ifRefNotTypeReturnConst("value", GenericData.Record.class, null)
-                    .assignRef("current", castRef(GenericData.Record.class, "value"));
+                    .ifRefNotTypeReturnConst("value", AvroConstant.EPTYPE_RECORD, null)
+                    .assignRef("current", castRef(AvroConstant.EPTYPE_RECORD, "value"));
         }
         return block.methodReturn(ref("current"));
     }

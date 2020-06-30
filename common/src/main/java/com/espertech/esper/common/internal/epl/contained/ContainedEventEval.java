@@ -11,8 +11,11 @@
 package com.espertech.esper.common.internal.epl.contained;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface ContainedEventEval {
+    EPTypeClass EPTYPE = new EPTypeClass(ContainedEventEval.class);
+
     Object getFragment(EventBean eventBean, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
@@ -22,6 +23,8 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 public class StatementInformationalsRuntime {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementInformationalsRuntime.class);
+
     private String statementNameCompileTime;
     private boolean alwaysSynthesizeOutputEvents; // set when insert-into/for-clause/select-distinct
     private String optionalContextName;

@@ -14,6 +14,9 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
@@ -78,7 +81,7 @@ public class SimpleXMLEventType extends BaseXMLEventType {
         super.initialize(configurationEventTypeXMLDOM.getXPathProperties().values(), Collections.EMPTY_LIST);
     }
 
-    protected Class doResolvePropertyType(String propertyExpression) {
+    protected EPType doResolvePropertyType(String propertyExpression) {
         return resolveSimpleXMLPropertyType(propertyExpression);
     }
 
@@ -99,12 +102,12 @@ public class SimpleXMLEventType extends BaseXMLEventType {
         return null;  // Since we have no type information, the fragments are not allowed unless explicitly configured via XPath getter
     }
 
-    public static Class resolveSimpleXMLPropertyType(String propertyExpression) {
+    public static EPTypeClass resolveSimpleXMLPropertyType(String propertyExpression) {
         Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
         if (PropertyParser.isPropertyDynamic(prop)) {
-            return org.w3c.dom.Node.class;
+            return EPTypePremade.NODE.getEPType();
         } else {
-            return String.class;
+            return EPTypePremade.STRING.getEPType();
         }
     }
 

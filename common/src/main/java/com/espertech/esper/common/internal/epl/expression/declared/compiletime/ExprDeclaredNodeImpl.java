@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.AuditEnum;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -95,7 +98,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return forge != null;
     }
 
-    public Class getConstantType() {
+    public EPType getConstantType() {
         checkValidated(forge);
         return forge.getEvaluationType();
     }
@@ -187,7 +190,8 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
             for (int index : valueParameters) {
                 String name = prototype.getParametersNames()[index];
                 ExprNode expr = chainParameters.get(index);
-                Class result = JavaClassHelper.getBoxedType(expr.getForge().getEvaluationType());
+                EPType type = expr.getForge().getEvaluationType();
+                EPType result = JavaClassHelper.getBoxedType(type);
                 valuePropertyTypes.put(name, result);
                 valueExpressions.add(expr);
             }
@@ -302,13 +306,13 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public ExprFilterSpecLookupableForge getFilterLookupable() {
-        if (!(forge instanceof ExprDeclaredForgeBase)) {
+        if (!(forge instanceof ExprDeclaredForgeBase) || forge.getEvaluationType() == EPTypeNull.INSTANCE || forge.getEvaluationType() == null) {
             return null;
         }
         ExprDeclaredForgeBase declaredForge = (ExprDeclaredForgeBase) forge;
         ExprForge forge = declaredForge.getInnerForge();
-        DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), exprValidationContext.getStatementRawInfo());
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), null, forge.getEvaluationType(), true, serde);
+        DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter((EPTypeClass) forge.getEvaluationType(), exprValidationContext.getStatementRawInfo());
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), null, (EPTypeClass) forge.getEvaluationType(), true, serde);
     }
 
     public boolean isConstantResult() {
@@ -384,7 +388,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         ExpressionDeclItem prototype = prototypeWVisibility;
         if (chainParameters.size() != prototype.getParametersNames().length) {
             throw new ExprValidationException("Parameter count mismatches for declared expression '" + prototype.getName() + "', expected " +
-                prototype.getParametersNames().length + " parameters but received " + chainParameters.size() + " parameters");
+                    prototype.getParametersNames().length + " parameters but received " + chainParameters.size() + " parameters");
         }
     }
 
@@ -418,13 +422,16 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         }
 
         public CodegenExpression eventBeanWithCtxGet(CodegenExpression beanExpression, CodegenExpression ctxExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
-            CodegenMethod method = parent.makeChild(exprForge.getEvaluationType(), this.getClass(), classScope).addParam(EventBean.class, "bean");
+            if (exprForge.getEvaluationType() == EPTypeNull.INSTANCE || exprForge.getEvaluationType() == null) {
+                return constantNull();
+            }
+            CodegenMethod method = parent.makeChild((EPTypeClass) exprForge.getEvaluationType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "bean");
             CodegenMethod exprMethod = CodegenLegoMethodExpression.codegenExpression(exprForge, method, classScope);
 
             method.getBlock()
-                .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))
-                .assignArrayElement(ref("events"), constant(0), ref("bean"))
-                .methodReturn(localMethod(exprMethod, ref("events"), constantTrue(), constantNull()));
+                    .declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, constant(1)))
+                    .assignArrayElement(ref("events"), constant(0), ref("bean"))
+                    .methodReturn(localMethod(exprMethod, ref("events"), constantTrue(), constantNull()));
 
             return localMethod(method, beanExpression);
         }

@@ -11,8 +11,11 @@
 package com.espertech.esper.common.internal.epl.updatehelper;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface EventBeanUpdateHelperWCopy {
+    EPTypeClass EPTYPE = new EPTypeClass(EventBeanUpdateHelperWCopy.class);
+
     EventBean updateWCopy(EventBean matchingEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 }

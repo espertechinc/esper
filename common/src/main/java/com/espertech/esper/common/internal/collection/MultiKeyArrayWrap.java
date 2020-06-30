@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface MultiKeyArrayWrap {
+    EPTypeClass EPTYPE = new EPTypeClass(MultiKeyArrayWrap.class);
+
     Object getArray();
 }

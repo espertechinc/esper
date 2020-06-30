@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.avro.selectexprrep;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -45,7 +47,7 @@ public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator, Expr
         return selectExprProcessAvroMap(map, inner);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField schema = codegenClassScope.addOrGetFieldSharable(new AvroSchemaFieldSharable(inner));
         return staticMethod(SelectExprProcessorEvalAvroMapToAvro.class, "selectExprProcessAvroMap", forge.evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope), schema);
     }
@@ -75,8 +77,8 @@ public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator, Expr
         return this;
     }
 
-    public Class getEvaluationType() {
-        return GenericData.Record.class;
+    public EPTypeClass getEvaluationType() {
+        return AvroConstant.EPTYPE_RECORD;
     }
 
     public ExprForgeConstantType getForgeConstantType() {

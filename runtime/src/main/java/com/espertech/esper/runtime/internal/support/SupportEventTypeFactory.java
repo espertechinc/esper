@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.runtime.internal.support;
 
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
@@ -26,11 +25,9 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryRuntime;
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
-import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.support.*;
-import com.espertech.esper.common.internal.util.UuidGenerator;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
-import java.util.Map;
 import java.util.function.Function;
 
 public class SupportEventTypeFactory {
@@ -71,12 +68,7 @@ public class SupportEventTypeFactory {
         throw new UnsupportedOperationException("Unrecognized type " + clazz.getName());
     }
 
-    public static EventType createMapType(Map<String, Object> map) {
-        EventTypeMetadata metadata = new EventTypeMetadata(UuidGenerator.generate(), null, EventTypeTypeClass.STREAM, EventTypeApplicationType.MAP, NameAccessModifier.PROTECTED, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
-        return new MapEventType(metadata, map, null, null, null, null, BEAN_EVENT_TYPE_FACTORY);
-    }
-
     private static BeanEventType makeType(Class clazz) {
-        return new BeanEventType(STEM_BUILDER.make(clazz), METADATA_CLASS.apply(clazz.getSimpleName()), BEAN_EVENT_TYPE_FACTORY, null, null, null, null);
+        return new BeanEventType(STEM_BUILDER.make(ClassHelperGenericType.getClassEPType(clazz)), METADATA_CLASS.apply(clazz.getSimpleName()), BEAN_EVENT_TYPE_FACTORY, null, null, null, null);
     }
 }

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -34,10 +36,10 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
 public class StatViewAdditionalPropsForge {
     private final String[] additionalProps;
     private final ExprNode[] additionalEvals;
-    private final Class[] additionalTypes;
+    private final EPTypeClass[] additionalTypes;
     private final DataInputOutputSerdeForge[] additionalSerdes;
 
-    public StatViewAdditionalPropsForge(String[] additionalProps, ExprNode[] additionalEvals, Class[] additionalTypes, DataInputOutputSerdeForge[] additionalSerdes) {
+    public StatViewAdditionalPropsForge(String[] additionalProps, ExprNode[] additionalEvals, EPTypeClass[] additionalTypes, DataInputOutputSerdeForge[] additionalSerdes) {
         this.additionalProps = additionalProps;
         this.additionalEvals = additionalEvals;
         this.additionalTypes = additionalTypes;
@@ -52,7 +54,7 @@ public class StatViewAdditionalPropsForge {
         return additionalEvals;
     }
 
-    public Class[] getAdditionalTypes() {
+    public EPTypeClass[] getAdditionalTypes() {
         return additionalTypes;
     }
 
@@ -61,9 +63,9 @@ public class StatViewAdditionalPropsForge {
             return null;
         }
 
-        List<String> additionalProps = new ArrayList<String>();
+        List<String> additionalProps = new ArrayList<>();
         List<ExprNode> lastValueForges = new ArrayList<>();
-        List<Class> lastValueTypes = new ArrayList<>();
+        List<EPType> lastValueTypes = new ArrayList<>();
         List<DataInputOutputSerdeForge> lastSerdes = new ArrayList<>();
         boolean copyAllProperties = false;
 
@@ -73,7 +75,7 @@ public class StatViewAdditionalPropsForge {
                 copyAllProperties = true;
             } else {
                 additionalProps.add(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(validated[i]));
-                Class evalType = validated[i].getForge().getEvaluationType();
+                EPType evalType = validated[i].getForge().getEvaluationType();
                 lastValueTypes.add(evalType);
                 lastValueForges.add(validated[i]);
                 lastSerdes.add(viewForgeEnv.getSerdeResolver().serdeForDerivedViewAddProp(evalType, viewForgeEnv.getStatementRawInfo()));
@@ -86,7 +88,7 @@ public class StatViewAdditionalPropsForge {
                     continue;
                 }
                 additionalProps.add(propertyDescriptor.getPropertyName());
-                Class type = propertyDescriptor.getPropertyType();
+                EPType type = propertyDescriptor.getPropertyEPType();
                 lastValueForges.add(new ExprIdentNodeImpl(parentEventType, propertyDescriptor.getPropertyName(), streamNumber));
                 lastValueTypes.add(type);
                 lastSerdes.add(viewForgeEnv.getSerdeResolver().serdeForDerivedViewAddProp(type, viewForgeEnv.getStatementRawInfo()));
@@ -95,7 +97,7 @@ public class StatViewAdditionalPropsForge {
 
         String[] addPropsArr = additionalProps.toArray(new String[additionalProps.size()]);
         ExprNode[] valueExprArr = lastValueForges.toArray(new ExprNode[lastValueForges.size()]);
-        Class[] typeArr = lastValueTypes.toArray(new Class[lastValueTypes.size()]);
+        EPTypeClass[] typeArr = lastValueTypes.toArray(new EPTypeClass[lastValueTypes.size()]);
         DataInputOutputSerdeForge[] additionalForges = lastSerdes.toArray(new DataInputOutputSerdeForge[0]);
         return new StatViewAdditionalPropsForge(addPropsArr, valueExprArr, typeArr, additionalForges);
     }
@@ -117,7 +119,7 @@ public class StatViewAdditionalPropsForge {
     }
 
     public CodegenExpression codegen(CodegenMethod method, CodegenClassScope classScope) {
-        return newInstance(StatViewAdditionalPropsEval.class, constant(additionalProps),
+        return newInstance(StatViewAdditionalPropsEval.EPTYPE, constant(additionalProps),
                 codegenEvaluators(additionalEvals, method, this.getClass(), classScope), constant(additionalTypes),
                 DataInputOutputSerdeForge.codegenArray(additionalSerdes, method, classScope, null));
     }

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.expression.funcs;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -97,14 +98,14 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
     public ExprFilterSpecLookupableForge getFilterLookupable() {
         EventPropertyValueGetterForge eventPropertyForge = new EventPropertyValueGetterForge() {
             public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
-                CodegenMethod method = parent.makeChild(String.class, this.getClass(), classScope).addParam(EventBean.class, "bean");
+                CodegenMethod method = parent.makeChild(EPTypePremade.STRING.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "bean");
                 method.getBlock().methodReturn(exprDotMethodChain(ref("bean")).add("getEventType").add("getName"));
                 return localMethod(method, beanExpression);
             }
         };
-        DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(String.class, exprValidationContext.getStatementRawInfo());
+        DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(EPTypePremade.STRING.getEPType(), exprValidationContext.getStatementRawInfo());
         ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(eventPropertyForge);
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eval, null, String.class, true, serde);
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eval, null, EPTypePremade.STRING.getEPType(), true, serde);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {

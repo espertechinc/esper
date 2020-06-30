@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.interval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -43,15 +45,15 @@ public class IntervalForgeOp implements IntervalOp {
     }
 
     public static CodegenExpression codegen(IntervalForgeImpl forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalForgeOp.class, codegenClassScope).addParam(long.class, "startTs").addParam(long.class, "endTs");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalForgeOp.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "startTs").addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "endTs");
 
-        Class evaluationType = forge.getForgeTimestamp().getEvaluationType();
+        EPTypeClass evaluationType = (EPTypeClass) forge.getForgeTimestamp().getEvaluationType();
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(evaluationType, "parameter", forge.getForgeTimestamp().evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope));
-        if (!forge.getForgeTimestamp().getEvaluationType().isPrimitive()) {
+            .declareVar(evaluationType, "parameter", forge.getForgeTimestamp().evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope));
+        if (!evaluationType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("parameter");
         }
-        block.methodReturn(forge.getIntervalOpForge().codegen(ref("startTs"), ref("endTs"), ref("parameter"), forge.getForgeTimestamp().getEvaluationType(), methodNode, exprSymbol, codegenClassScope));
+        block.methodReturn(forge.getIntervalOpForge().codegen(ref("startTs"), ref("endTs"), ref("parameter"), evaluationType, methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);
     }
 }

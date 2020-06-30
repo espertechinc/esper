@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,9 +23,6 @@ import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprF
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -39,10 +37,10 @@ public class SelectEvalNoWildcardMap implements SelectExprProcessorForge {
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
-        methodNode.getBlock().declareVar(Map.class, "props", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(selectContext.getColumnNames().length))));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
+        methodNode.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "props", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(selectContext.getColumnNames().length))));
         for (int i = 0; i < selectContext.getColumnNames().length; i++) {
-            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, selectContext.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
+            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), selectContext.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
             methodNode.getBlock().expression(exprDotMethod(ref("props"), "put", constant(selectContext.getColumnNames()[i]), expression));
         }
         methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedMap", ref("props"), resultEventType));

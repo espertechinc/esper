@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.createvariable;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -35,13 +36,13 @@ public class StmtClassForgeableAIFactoryProviderCreateVariable extends StmtClass
         this.serde = serde;
     }
 
-    protected Class typeOfFactory() {
-        return StatementAgentInstanceFactoryCreateVariable.class;
+    protected EPTypeClass typeOfFactory() {
+        return StatementAgentInstanceFactoryCreateVariable.EPTYPE;
     }
 
     protected CodegenMethod codegenConstructorInit(CodegenMethodScope parent, CodegenClassScope classScope) {
         SAIFFInitializeSymbol saiffInitializeSymbol = new SAIFFInitializeSymbol();
-        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
+        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
         method.getBlock()
                 .exprDotMethod(REF_STMTINITSVC, "activateVariable", constant(variableName), serde.codegen(method, classScope, null))
                 .methodReturn(localMethod(forge.initializeCodegen(method, saiffInitializeSymbol, classScope)));

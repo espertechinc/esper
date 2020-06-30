@@ -11,12 +11,15 @@
 package com.espertech.esper.common.internal.epl.expression.prior;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 /**
  * Represents the 'prior' prior event resolution strategy for use in an expression node tree.
  */
 public interface PriorEvalStrategy {
+    EPTypeClass EPTYPE = new EPTypeClass(PriorEvalStrategy.class);
+
     PriorEvalStrategy[] EMPTY_ARRAY = new PriorEvalStrategy[0];
 
     EventBean getSubstituteEvent(EventBean originalEvent, boolean isNewData, int constantIndexNumber, int relativeIndex, ExprEvaluatorContext exprEvaluatorContext, int streamNum);

@@ -11,8 +11,11 @@
 package com.espertech.esper.common.internal.event.json.parser.core;
 
 import com.espertech.esper.common.client.json.minimaljson.JsonHandler;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class JsonHandlerDelegator extends JsonHandler<Object, Object> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonHandlerDelegator.class);
+
     private JsonDelegateBase currentDelegate;
     private String currentName;
 

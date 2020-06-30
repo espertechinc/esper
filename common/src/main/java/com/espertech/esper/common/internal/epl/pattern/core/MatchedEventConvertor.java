@@ -11,12 +11,15 @@
 package com.espertech.esper.common.internal.epl.pattern.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 /**
  * Converts from a map of prior matching events to a events per stream for resultion by expressions.
  */
 public interface MatchedEventConvertor {
+    EPTypeClass EPTYPE = new EPTypeClass(MatchedEventConvertor.class);
+
     /**
      * Converts pattern matching events to events per stream.
      *

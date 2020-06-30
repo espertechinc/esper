@@ -26,8 +26,8 @@ public class InfraOnMergeActionDelForge extends InfraOnMergeActionForge {
     }
 
     protected CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InfraOnMergeActionDel.class, this.getClass(), classScope);
-        method.getBlock().methodReturn(newInstance(InfraOnMergeActionDel.class,
+        CodegenMethod method = parent.makeChild(InfraOnMergeActionDel.EPTYPE, this.getClass(), classScope);
+        method.getBlock().methodReturn(newInstance(InfraOnMergeActionDel.EPTYPE,
                 optionalFilter == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(optionalFilter.getForge(), method, getClass(), classScope)));
         return localMethod(method);
     }

@@ -58,6 +58,8 @@ public class ExprCoreMinMaxNonAgg {
 
             builder.assertion(makeBoxedEvent(10L, 20, (short) 4)).expect(fields, 20L, 20L, 10L, 4L);
             builder.assertion(makeBoxedEvent(-10L, -20, (short) -30)).expect(fields, -10L, -10L, -20L, -30L);
+            builder.assertion(makeBoxedEvent(null, null, null)).expect(fields, null, null, null, null);
+            builder.assertion(makeBoxedEvent(1L, null, (short) 1)).expect(fields, null, null, null, null);
 
             builder.run(env);
             env.undeployAll();

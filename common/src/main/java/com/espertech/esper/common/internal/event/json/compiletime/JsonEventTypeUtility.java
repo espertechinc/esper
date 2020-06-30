@@ -16,6 +16,9 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassType;
@@ -41,9 +44,7 @@ import com.espertech.esper.common.internal.event.json.write.JsonWriteForgeNull;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
-import com.espertech.esper.common.internal.util.CollectionUtil;
-import com.espertech.esper.common.internal.util.ConstructorHelper;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -58,7 +59,7 @@ public class JsonEventTypeUtility {
         EventTypeNestableGetterFactoryJson getterFactoryJson = new EventTypeNestableGetterFactoryJson(existingType.getDetail());
         return new JsonEventType(metadata, existingType.getTypes(),
             null, Collections.emptySet(), existingType.getStartTimestampPropertyName(), existingType.getEndTimestampPropertyName(),
-            getterFactoryJson, services.getBeanEventTypeFactoryPrivate(), existingType.getDetail(), existingType.getUnderlyingType());
+            getterFactoryJson, services.getBeanEventTypeFactoryPrivate(), existingType.getDetail(), existingType.getUnderlyingEPType());
     }
 
     public static EventTypeForgablesPair makeJsonTypeCompileTimeNewType(EventTypeMetadata metadata, Map<String, Object> compiledTyping, Pair<EventType[], Set<EventType>> superTypes, ConfigurationCommonEventTypeWithSupertype config, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
@@ -75,12 +76,12 @@ public class JsonEventTypeUtility {
         boolean dynamic = determineDynamic(jsonSchema, optionalSuperType, raw);
 
         // determine json underlying type class
-        Class optionalUnderlyingProvided = determineUnderlyingProvided(jsonSchema, services);
+        EPTypeClass optionalUnderlyingProvided = determineUnderlyingProvided(jsonSchema, services);
 
         // determine properties
         Map<String, Object> properties;
         Map<String, String> fieldNames;
-        Map<Class, JsonApplicationClassDelegateDesc> deepClasses;
+        Map<EPTypeClass, JsonApplicationClassDelegateDesc> deepClasses;
         Map<String, Field> fields;
         if (optionalUnderlyingProvided == null) {
             properties = resolvePropertyTypes(compiledTyping, services.getEventTypeCompileTimeResolver());
@@ -95,10 +96,10 @@ public class JsonEventTypeUtility {
             if (optionalSuperType != null) {
                 throw new ExprValidationException("Specifying a supertype is not supported with a provided JSON event class");
             }
-            if (!Modifier.isPublic(optionalUnderlyingProvided.getModifiers())) {
+            if (!Modifier.isPublic(optionalUnderlyingProvided.getType().getModifiers())) {
                 throw new ExprValidationException("Provided JSON event class is not public");
             }
-            if (!ConstructorHelper.hasDefaultConstructor(optionalUnderlyingProvided)) {
+            if (!ConstructorHelper.hasDefaultConstructor(optionalUnderlyingProvided.getType())) {
                 throw new ExprValidationException("Provided JSON event class does not have a public default constructor or is a non-static inner class");
             }
             deepClasses = JsonEventTypeUtilityReflective.computeClassesDeep(optionalUnderlyingProvided, metadata.getName(), raw.getAnnotations(), services);
@@ -107,7 +108,7 @@ public class JsonEventTypeUtility {
             properties = resolvePropertiesFromFields(fields);
             fieldNames = computeFieldNamesFromProperties(properties);
             compiledTyping = resolvePropertyTypes(compiledTyping, services.getEventTypeCompileTimeResolver());
-            validateFieldTypes(optionalUnderlyingProvided, fields, compiledTyping);
+            validateFieldTypes(optionalUnderlyingProvided.getType(), fields, compiledTyping);
 
             // use the rich-type definition for properties that may come from events
             for (Map.Entry<String, Object> compiledTypingEntry : compiledTyping.entrySet()) {
@@ -122,7 +123,7 @@ public class JsonEventTypeUtility {
 
         String jsonClassNameSimple;
         if (optionalUnderlyingProvided != null) {
-            jsonClassNameSimple = optionalUnderlyingProvided.getSimpleName();
+            jsonClassNameSimple = optionalUnderlyingProvided.getType().getSimpleName();
         } else {
             jsonClassNameSimple = metadata.getName();
             if (metadata.getAccessModifier().isPrivateOrTransient()) {
@@ -136,7 +137,7 @@ public class JsonEventTypeUtility {
         StmtClassForgeableJsonDesc forgeableDesc = new StmtClassForgeableJsonDesc(properties, fieldDescriptors, dynamic, numFieldsSuperType, optionalSuperType, forges);
 
         final String underlyingClassNameSimple = jsonClassNameSimple;
-        String underlyingClassNameForReference = optionalUnderlyingProvided != null ? optionalUnderlyingProvided.getName() : underlyingClassNameSimple;
+        String underlyingClassNameForReference = optionalUnderlyingProvided != null ? optionalUnderlyingProvided.getTypeName() : underlyingClassNameSimple;
         StmtClassForgeableFactory underlying = new StmtClassForgeableFactory() {
             public StmtClassForgeable make(CodegenPackageScope packageScope, String classPostfix) {
                 return new StmtClassForgeableJsonUnderlying(underlyingClassNameSimple, packageScope, forgeableDesc);
@@ -157,23 +158,23 @@ public class JsonEventTypeUtility {
             }
         };
 
-        String underlyingClassNameFull = optionalUnderlyingProvided == null ? services.getPackageName() + "." + underlyingClassNameSimple : optionalUnderlyingProvided.getName();
+        String underlyingClassNameFull = optionalUnderlyingProvided == null ? services.getPackageName() + "." + underlyingClassNameSimple : optionalUnderlyingProvided.getTypeName();
         String delegateClassNameFull = services.getPackageName() + "." + delegateClassNameSimple;
         String delegateFactoryClassNameFull = services.getPackageName() + "." + delegateFactoryClassNameSimple;
         String serdeClassNameFull = services.getPackageName() + "." + jsonClassNameSimple + "__" + metadata.getName() + "__Serde"; // include event type name as underlying-class may occur multiple times
 
-        JsonEventTypeDetail detail = new JsonEventTypeDetail(underlyingClassNameFull, optionalUnderlyingProvided, delegateClassNameFull, delegateFactoryClassNameFull, serdeClassNameFull, fieldDescriptors, dynamic, numFieldsSuperType);
+        JsonEventTypeDetail detail = new JsonEventTypeDetail(underlyingClassNameFull, optionalUnderlyingProvided == null ? null : optionalUnderlyingProvided.getType(), delegateClassNameFull, delegateFactoryClassNameFull, serdeClassNameFull, fieldDescriptors, dynamic, numFieldsSuperType);
         EventTypeNestableGetterFactoryJson getterFactoryJson = new EventTypeNestableGetterFactoryJson(detail);
 
         Class standIn = optionalUnderlyingProvided == null ? services.getCompilerServices().compileStandInClass(CodegenClassType.JSONEVENT, underlyingClassNameSimple, services.getServices())
-            : optionalUnderlyingProvided;
+            : optionalUnderlyingProvided.getType();
 
         JsonEventType eventType = new JsonEventType(metadata, properties,
             superTypes == null ? new EventType[0] : superTypes.getFirst(),
             superTypes == null ? Collections.emptySet() : superTypes.getSecond(),
             config == null ? null : config.getStartTimestampPropertyName(),
             config == null ? null : config.getEndTimestampPropertyName(),
-            getterFactoryJson, services.getBeanEventTypeFactoryPrivate(), detail, standIn);
+            getterFactoryJson, services.getBeanEventTypeFactoryPrivate(), detail, ClassHelperGenericType.getClassEPType(standIn));
 
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(3);
 
@@ -200,8 +201,8 @@ public class JsonEventTypeUtility {
             }
 
             Class fieldClass = JavaClassHelper.getBoxedType(field.getType());
-            if (insertedType instanceof Class) {
-                Class insertedClass = JavaClassHelper.getBoxedType((Class) insertedType);
+            if (insertedType instanceof EPTypeClass) {
+                Class insertedClass = JavaClassHelper.getBoxedType(((EPTypeClass) insertedType).getType());
                 if (!JavaClassHelper.isSubclassOrImplementsInterface(insertedClass, fieldClass)) {
                     throw makeInvalidField(insertedName, insertedClass, declaredClass, field);
                 }
@@ -222,14 +223,14 @@ public class JsonEventTypeUtility {
     }
 
     private static ExprValidationException makeInvalidField(String insertedName, Class insertedClass, Class declaredClass, Field field) {
-        return new ExprValidationException("Public field '" + insertedName + "' of class '" + JavaClassHelper.getClassNameFullyQualPretty(declaredClass) + "' declared as type " +
-            "'" + JavaClassHelper.getClassNameFullyQualPretty(field.getType()) + "' cannot receive a value of type '" + JavaClassHelper.getClassNameFullyQualPretty(insertedClass) + "'");
+        return new ExprValidationException("Public field '" + insertedName + "' of class '" + ClassHelperPrint.getClassNameFullyQualPretty(declaredClass) + "' declared as type " +
+            "'" + ClassHelperPrint.getClassNameFullyQualPretty(field.getType()) + "' cannot receive a value of type '" + ClassHelperPrint.getClassNameFullyQualPretty(insertedClass) + "'");
     }
 
-    private static void generateApplicationClassForgables(Class optionalUnderlyingProvided, Map<Class, JsonApplicationClassDelegateDesc> deepClasses, List<StmtClassForgeableFactory> additionalForgeables, Annotation[] annotations, StatementCompileTimeServices services)
+    private static void generateApplicationClassForgables(EPTypeClass optionalUnderlyingProvided, Map<EPTypeClass, JsonApplicationClassDelegateDesc> deepClasses, List<StmtClassForgeableFactory> additionalForgeables, Annotation[] annotations, StatementCompileTimeServices services)
         throws ExprValidationException {
-        for (Map.Entry<Class, JsonApplicationClassDelegateDesc> entry : deepClasses.entrySet()) {
-            if (entry.getKey() == optionalUnderlyingProvided) {
+        for (Map.Entry<EPTypeClass, JsonApplicationClassDelegateDesc> entry : deepClasses.entrySet()) {
+            if (entry.getKey().equals(optionalUnderlyingProvided)) {
                 continue;
             }
 
@@ -245,14 +246,14 @@ public class JsonEventTypeUtility {
             StmtClassForgeableJsonDesc forgeableDesc = new StmtClassForgeableJsonDesc(properties, fieldDescriptors, false, 0, null, forges);
             StmtClassForgeableFactory delegate = new StmtClassForgeableFactory() {
                 public StmtClassForgeable make(CodegenPackageScope packageScope, String classPostfix) {
-                    return new StmtClassForgeableJsonDelegate(CodegenClassType.JSONNESTEDCLASSDELEGATEANDFACTORY, delegateClassNameSimple, packageScope, entry.getKey().getName(), forgeableDesc);
+                    return new StmtClassForgeableJsonDelegate(CodegenClassType.JSONNESTEDCLASSDELEGATEANDFACTORY, delegateClassNameSimple, packageScope, entry.getKey().getTypeName(), forgeableDesc);
                 }
             };
 
             final String delegateFactoryClassNameSimple = entry.getValue().getDelegateFactoryClassName();
             StmtClassForgeableFactory delegateFactory = new StmtClassForgeableFactory() {
                 public StmtClassForgeable make(CodegenPackageScope packageScope, String classPostfix) {
-                    return new StmtClassForgeableJsonDelegateFactory(CodegenClassType.JSONNESTEDCLASSDELEGATEANDFACTORY, delegateFactoryClassNameSimple, true, packageScope, delegateClassNameSimple, entry.getKey().getName(), forgeableDesc);
+                    return new StmtClassForgeableJsonDelegateFactory(CodegenClassType.JSONNESTEDCLASSDELEGATEANDFACTORY, delegateFactoryClassNameSimple, true, packageScope, delegateClassNameSimple, entry.getKey().getTypeName(), forgeableDesc);
                 }
             };
 
@@ -269,11 +270,12 @@ public class JsonEventTypeUtility {
         return fieldNames;
     }
 
-    private static Class determineUnderlyingProvided(JsonSchema jsonSchema, StatementCompileTimeServices services)
+    private static EPTypeClass determineUnderlyingProvided(JsonSchema jsonSchema, StatementCompileTimeServices services)
         throws ExprValidationException {
         if (jsonSchema != null && !jsonSchema.className().trim().isEmpty()) {
             try {
-                return services.getClasspathImportServiceCompileTime().resolveClass(jsonSchema.className(), true, ClasspathExtensionClassEmpty.INSTANCE);
+                Class clazz = services.getClasspathImportServiceCompileTime().resolveClass(jsonSchema.className(), true, ClasspathExtensionClassEmpty.INSTANCE);
+                return ClassHelperGenericType.getClassEPType(clazz);
             } catch (ClasspathImportException e) {
                 throw new ExprValidationException("Failed to resolve JSON event class '" + jsonSchema.className() + "': " + e.getMessage(), e);
             }
@@ -306,16 +308,16 @@ public class JsonEventTypeUtility {
         return verified;
     }
 
-    private static Map<String, JsonForgeDesc> computeValueForges(Map<String, Object> compiledTyping, Map<String, Field> fields, Map<Class, JsonApplicationClassDelegateDesc> deepClasses, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
+    private static Map<String, JsonForgeDesc> computeValueForges(Map<String, Object> compiledTyping, Map<String, Field> fields, Map<EPTypeClass, JsonApplicationClassDelegateDesc> deepClasses, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
         Map<String, JsonForgeDesc> valueForges = new HashMap<>();
         for (Map.Entry<String, Object> entry : compiledTyping.entrySet()) {
             Object type = entry.getValue();
             Field optionalField = fields.get(entry.getKey());
             JsonForgeDesc forgeDesc;
-            if (type == null) {
+            if (type == null || type == EPTypeNull.INSTANCE) {
                 forgeDesc = new JsonForgeDesc(entry.getKey(), null, null, JsonEndValueForgeNull.INSTANCE, JsonWriteForgeNull.INSTANCE);
-            } else if (type instanceof Class) {
-                Class clazz = (Class) type;
+            } else if (type instanceof EPTypeClass) {
+                EPTypeClass clazz = (EPTypeClass) type;
                 forgeDesc = JsonForgeFactoryBuiltinClassTyped.forge(clazz, entry.getKey(), optionalField, deepClasses, annotations, services);
             } else if (type instanceof TypeBeanOrUnderlying) {
                 EventType eventType = ((TypeBeanOrUnderlying) type).getEventType();
@@ -323,7 +325,7 @@ public class JsonEventTypeUtility {
                 if (eventType instanceof JsonEventType) {
                     forgeDesc = JsonForgeFactoryEventTypeTyped.forgeNonArray(entry.getKey(), (JsonEventType) eventType);
                 } else {
-                    forgeDesc = JsonForgeFactoryBuiltinClassTyped.forge(Map.class, entry.getKey(), optionalField, deepClasses, annotations, services);
+                    forgeDesc = JsonForgeFactoryBuiltinClassTyped.forge(EPTypePremade.MAP.getEPType(), entry.getKey(), optionalField, deepClasses, annotations, services);
                 }
             } else if (type instanceof TypeBeanOrUnderlying[]) {
                 EventType eventType = ((TypeBeanOrUnderlying[]) type)[0].getEventType();
@@ -331,7 +333,7 @@ public class JsonEventTypeUtility {
                 if (eventType instanceof JsonEventType) {
                     forgeDesc = JsonForgeFactoryEventTypeTyped.forgeArray(entry.getKey(), (JsonEventType) eventType);
                 } else {
-                    forgeDesc = JsonForgeFactoryBuiltinClassTyped.forge(Map[].class, entry.getKey(), optionalField, deepClasses, annotations, services);
+                    forgeDesc = JsonForgeFactoryBuiltinClassTyped.forge(EPTypePremade.MAPARRAY.getEPType(), entry.getKey(), optionalField, deepClasses, annotations, services);
                 }
             } else {
                 throw new IllegalStateException("Unrecognized type " + type);
@@ -360,11 +362,11 @@ public class JsonEventTypeUtility {
             String fieldName = fieldNames.get(entry.getKey());
 
             Object type = entry.getValue();
-            Class assignedType;
-            if (type == null) {
-                assignedType = Object.class;
-            } else if (type instanceof Class) {
-                assignedType = (Class) type;
+            EPTypeClass assignedType;
+            if (type == null || type == EPTypeNull.INSTANCE) {
+                assignedType = EPTypePremade.OBJECT.getEPType();
+            } else if (type instanceof EPTypeClass) {
+                assignedType = (EPTypeClass) type;
             } else if (type instanceof TypeBeanOrUnderlying) {
                 EventType other = ((TypeBeanOrUnderlying) type).getEventType();
                 validateJsonOrMapType(other);
@@ -383,12 +385,9 @@ public class JsonEventTypeUtility {
         return allFieldsInclSupertype;
     }
 
-    private static Class getAssignedType(EventType type) throws ExprValidationException {
-        if (type instanceof JsonEventType) {
-            return type.getUnderlyingType();
-        }
-        if (type instanceof MapEventType) {
-            return Map.class;
+    private static EPTypeClass getAssignedType(EventType type) throws ExprValidationException {
+        if (type instanceof JsonEventType || type instanceof MapEventType) {
+            return type.getUnderlyingEPType();
         }
         throw new ExprValidationException("Incompatible type '" + type.getName() + "' encountered, expected a Json or Map event type");
     }
@@ -444,7 +443,8 @@ public class JsonEventTypeUtility {
     private static Map<String, Object> resolvePropertiesFromFields(Map<String, Field> fields) {
         LinkedHashMap<String, Object> properties = new LinkedHashMap<>(CollectionUtil.capacityHashMap(fields.size()));
         for (Map.Entry<String, Field> field : fields.entrySet()) {
-            properties.put(field.getKey(), field.getValue().getType());
+            EPTypeClass type = ClassHelperGenericType.getFieldEPType(field.getValue());
+            properties.put(field.getKey(), type);
         }
         return properties;
     }

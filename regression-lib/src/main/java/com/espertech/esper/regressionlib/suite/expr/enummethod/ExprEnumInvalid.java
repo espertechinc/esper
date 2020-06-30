@@ -47,7 +47,7 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // invalid incompatible params
         epl = "select contained.take('a') from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.take('a')': Failed to resolve enumeration method, date-time method or mapped property 'contained.take('a')': Failed to validate enumeration method 'take', expected a number-type result for expression parameter 0 but received java.lang.String [select contained.take('a') from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.take('a')': Failed to resolve enumeration method, date-time method or mapped property 'contained.take('a')': Failed to validate enumeration method 'take', expected a number-type result for expression parameter 0 but received String [select contained.take('a') from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.take(x => x.p00) from SupportBean_ST0_Container";
@@ -90,20 +90,8 @@ public class ExprEnumInvalid implements RegressionExecution {
         SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'avg(intPrimitive).where()': Failed to validate method-chain parameter expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream");
 
         // invalid incompatible params
-        epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Failed to validate enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
-
-        // invalid incompatible params
-        epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Failed to validate enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
-
-        // invalid incompatible params
-        epl = "select contained.aggregate(0, (result, item) => result || ',') from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.aggregate(0,)': Failed to validate enumeration method 'aggregate' parameter 1: Failed to validate declared expression body expression 'result||\",\"': Implicit conversion from datatype 'Integer' to string is not allowed [select contained.aggregate(0, (result, item) => result || ',') from SupportBean_ST0_Container]");
-
-        // invalid incompatible params
         epl = "select contained.average(x => x.id) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.average()': Failed to validate enumeration method 'average', expected a number-type result for expression parameter 0 but received java.lang.String [select contained.average(x => x.id) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.average()': Failed to validate enumeration method 'average', expected a number-type result for expression parameter 0 but received String [select contained.average(x => x.id) from SupportBean_ST0_Container]");
 
         // not a property
         epl = "select contained.firstof().dummy from SupportBean_ST0_Container";

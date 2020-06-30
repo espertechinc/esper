@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.join.exec.base.ExecNodeAllUnidirectionalOuter;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 public class QueryPlanNodeAllUnidirectionalOuter extends QueryPlanNode {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryPlanNodeAllUnidirectionalOuter.class);
 
     private final int streamNum;
 

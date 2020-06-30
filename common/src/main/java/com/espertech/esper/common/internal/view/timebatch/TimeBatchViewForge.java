@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timebatch;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -78,8 +79,8 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
         this.eventType = parentEventType;
     }
 
-    protected Class typeOfFactory() {
-        return TimeBatchViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return TimeBatchViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {
@@ -91,7 +92,7 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
             throw new IllegalStateException("No schedule callback id");
         }
         method.getBlock()
-                .declareVar(TimePeriodCompute.class, "eval", timePeriodCompute.makeEvaluator(method, classScope))
+                .declareVar(TimePeriodCompute.EPTYPE, "eval", timePeriodCompute.makeEvaluator(method, classScope))
                 .exprDotMethod(factory, "setTimePeriodCompute", ref("eval"))
                 .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))
                 .exprDotMethod(factory, "setForceUpdate", constant(isForceUpdate))

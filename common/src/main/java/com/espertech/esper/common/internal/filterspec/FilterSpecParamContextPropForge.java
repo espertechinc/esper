@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -39,21 +40,21 @@ public class FilterSpecParamContextPropForge extends FilterSpecParamForge {
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
-        CodegenMethod method = parent.makeChild(FilterSpecParam.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+                .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+                .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.EPTYPE, Arrays.asList(ref("lookupable"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.EPTYPE, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
         getFilterValue.getBlock()
-                .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
+                .declareVar(EventBean.EPTYPE, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
                 .ifNullReturnNull(ref("props"))
-                .declareVar(Object.class, "result", getter.eventBeanGetCodegen(ref("props"), method, classScope));
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", getter.eventBeanGetCodegen(ref("props"), method, classScope));
         if (numberCoercer != null) {
-            getFilterValue.getBlock().assignRef("result", numberCoercer.coerceCodegenMayNullBoxed(cast(Number.class, ref("result")), Number.class, method, classScope));
+            getFilterValue.getBlock().assignRef("result", numberCoercer.coerceCodegenMayNullBoxed(cast(EPTypePremade.NUMBER.getEPType(), ref("result")), EPTypePremade.NUMBER.getEPType(), method, classScope));
         }
         getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(ref("result")));
 

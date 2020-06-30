@@ -13,22 +13,24 @@ package com.espertech.esper.common.internal.epl.index.hash;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class PropertyHashedFactoryFactory extends EventTableFactoryFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyHashedFactoryFactory.class);
 
     private final String[] indexProps;
-    private final Class[] indexTypes;
+    private final EPTypeClass[] indexTypes;
     private final boolean unique;
     private final EventPropertyValueGetter valueGetter;
     private final MultiKeyFromObjectArray transformFireAndForget;
     private final DataInputOutputSerde<Object> keySerde;
 
     public PropertyHashedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget,
-                                        String[] indexProps, Class[] indexTypes, boolean unique, EventPropertyValueGetter valueGetter,
+                                        String[] indexProps, EPTypeClass[] indexTypes, boolean unique, EventPropertyValueGetter valueGetter,
                                         MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexProps = indexProps;

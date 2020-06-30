@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,7 +30,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Factory for type widening.
  */
 public class TypeWidenerFactory {
-    private static final SimpleTypeCasterFactory.CharacterCaster STRING_TO_CHAR_COERCER = new SimpleTypeCasterFactory.CharacterCaster();
+    private static final SimpleTypeCasterFactory.CharacterCaster STRING_TO_CHAR_COERCER = SimpleTypeCasterFactory.CharacterCaster.INSTANCE;
     public static final TypeWidenerObjectArrayToCollectionCoercer OBJECT_ARRAY_TO_COLLECTION_COERCER = new TypeWidenerObjectArrayToCollectionCoercer();
     private static final TypeWidenerByteArrayToCollectionCoercer BYTE_ARRAY_TO_COLLECTION_COERCER = new TypeWidenerByteArrayToCollectionCoercer();
     private static final TypeWidenerShortArrayToCollectionCoercer SHORT_ARRAY_TO_COLLECTION_COERCER = new TypeWidenerShortArrayToCollectionCoercer();
@@ -51,55 +55,61 @@ public class TypeWidenerFactory {
      * @return type widender
      * @throws TypeWidenerException if type validation fails
      */
-    public static TypeWidenerSPI getCheckPropertyAssignType(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, boolean allowObjectArrayToCollectionConversion, TypeWidenerCustomizer customizer, String statementName)
+    public static TypeWidenerSPI getCheckPropertyAssignType(String columnName, EPType columnType, EPType writeablePropertyType, String writeablePropertyName, boolean allowObjectArrayToCollectionConversion, TypeWidenerCustomizer customizer, String statementName)
             throws TypeWidenerException {
-        Class columnClassBoxed = JavaClassHelper.getBoxedType(columnType);
-        Class targetClassBoxed = JavaClassHelper.getBoxedType(writeablePropertyType);
-
         if (customizer != null) {
             TypeWidenerSPI custom = customizer.widenerFor(columnName, columnType, writeablePropertyType, writeablePropertyName, statementName);
             if (custom != null) {
                 return custom;
             }
         }
+        if (writeablePropertyType == EPTypeNull.INSTANCE) {
+            return null;
+        }
+        EPTypeClass writtenClass = (EPTypeClass) writeablePropertyType;
 
-        if (columnType == null) {
-            if (writeablePropertyType.isPrimitive()) {
+        if (columnType == null || columnType == EPTypeNull.INSTANCE) {
+            if (writtenClass.getType().isPrimitive()) {
                 String message = "Invalid assignment of column '" + columnName +
                         "' of null type to event property '" + writeablePropertyName +
-                        "' typed as '" + writeablePropertyType.getName() +
+                        "' typed as '" + writeablePropertyType.getTypeName() +
                         "', nullable type mismatch";
                 throw new TypeWidenerException(message);
             }
-        } else if (columnClassBoxed != targetClassBoxed) {
-            if (columnClassBoxed == String.class && targetClassBoxed == Character.class) {
-                return STRING_TO_CHAR_COERCER;
-            } else if (allowObjectArrayToCollectionConversion &&
-                    columnClassBoxed.isArray() &&
-                    !columnClassBoxed.getComponentType().isPrimitive() &&
-                    JavaClassHelper.isImplementsInterface(targetClassBoxed, Collection.class)) {
-                return OBJECT_ARRAY_TO_COLLECTION_COERCER;
-            } else if (!JavaClassHelper.isAssignmentCompatible(columnClassBoxed, targetClassBoxed)) {
-                String writablePropName = writeablePropertyType.getName();
-                if (writeablePropertyType.isArray()) {
-                    writablePropName = writeablePropertyType.getComponentType().getName() + "[]";
-                }
+        } else {
+            EPTypeClass columnClass = JavaClassHelper.getBoxedType((EPTypeClass) columnType);
+            writtenClass = JavaClassHelper.getBoxedType(writtenClass);
 
-                String columnTypeName = columnType.getName();
-                if (columnType.isArray()) {
-                    columnTypeName = columnType.getComponentType().getName() + "[]";
-                }
+            if (columnClass.getType() != writtenClass.getType()) {
+                if (columnClass.getType() == String.class && writtenClass.getType() == Character.class) {
+                    return STRING_TO_CHAR_COERCER;
+                } else if (allowObjectArrayToCollectionConversion &&
+                    columnClass.getType().isArray() &&
+                    !columnClass.getType().getComponentType().isPrimitive() &&
+                    JavaClassHelper.isImplementsInterface(columnClass, Collection.class)) {
+                    return OBJECT_ARRAY_TO_COLLECTION_COERCER;
+                } else if (!JavaClassHelper.isAssignmentCompatible(columnClass.getType(), writtenClass.getType())) {
+                    String writablePropName = writeablePropertyType.getTypeName();
+                    if (writtenClass.getType().isArray()) {
+                        writablePropName = writtenClass.getType().getComponentType().getName() + "[]";
+                    }
 
-                String message = "Invalid assignment of column '" + columnName +
+                    String columnTypeName = columnType.getTypeName();
+                    if (columnClass.getType().isArray()) {
+                        columnTypeName = columnClass.getType().getComponentType().getName() + "[]";
+                    }
+
+                    String message = "Invalid assignment of column '" + columnName +
                         "' of type '" + columnTypeName +
                         "' to event property '" + writeablePropertyName +
                         "' typed as '" + writablePropName +
                         "', column and parameter types mismatch";
-                throw new TypeWidenerException(message);
-            }
+                    throw new TypeWidenerException(message);
+                }
 
-            if (JavaClassHelper.isNumeric(writeablePropertyType)) {
-                return new TypeWidenerBoxedNumeric(SimpleNumberCoercerFactory.getCoercer(columnClassBoxed, targetClassBoxed));
+                if (JavaClassHelper.isNumeric(writtenClass)) {
+                    return new TypeWidenerBoxedNumeric(SimpleNumberCoercerFactory.getCoercer(columnClass, writtenClass));
+                }
             }
         }
 
@@ -130,8 +140,8 @@ public class TypeWidenerFactory {
     }
 
     public static CodegenExpression codegenWidener(TypeWidenerSPI widener, CodegenMethod method, Class originator, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), TypeWidener.class);
-        CodegenMethod widen = CodegenMethod.makeParentNode(Object.class, originator, classScope).addParam(Object.class, "input");
+        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), TypeWidener.EPTYPE);
+        CodegenMethod widen = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), originator, classScope).addParam(EPTypePremade.OBJECT.getEPType(), "input");
         anonymousClass.addMethod("widen", widen);
         CodegenExpression widenResult = widener.widenCodegen(ref("input"), method, classScope);
         widen.getBlock().methodReturn(widenResult);
@@ -144,7 +154,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, byte[].class, codegenMethodScope, TypeWidenerByteArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerByteArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -154,7 +164,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, short[].class, codegenMethodScope, TypeWidenerShortArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.SHORTPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerShortArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -164,7 +174,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, int[].class, codegenMethodScope, TypeWidenerIntArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.INTEGERPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerIntArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -174,7 +184,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, long[].class, codegenMethodScope, TypeWidenerLongArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.LONGPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerLongArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -184,7 +194,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, float[].class, codegenMethodScope, TypeWidenerFloatArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.FLOATPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerFloatArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -194,7 +204,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, double[].class, codegenMethodScope, TypeWidenerDoubleArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.DOUBLEPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerDoubleArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -204,7 +214,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, boolean[].class, codegenMethodScope, TypeWidenerBooleanArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.BOOLEANPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerBooleanArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -214,7 +224,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, char[].class, codegenMethodScope, TypeWidenerCharArrayToCollectionCoercer.class, codegenClassScope);
+            return codegenWidenArrayAsListMayNull(expression, EPTypePremade.CHARPRIMITIVEARRAY.getEPType(), codegenMethodScope, TypeWidenerCharArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -224,15 +234,15 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenMethod method = codegenMethodScope.makeChild(ByteBuffer.class, TypeWidenerByteArrayToByteBufferCoercer.class, codegenClassScope).addParam(Object.class, "input").getBlock()
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BYTEBUFFER.getEPType(), TypeWidenerByteArrayToByteBufferCoercer.class, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "input").getBlock()
                     .ifRefNullReturnNull("input")
-                    .methodReturn(staticMethod(ByteBuffer.class, "wrap", cast(byte[].class, ref("input"))));
+                    .methodReturn(staticMethod(ByteBuffer.class, "wrap", cast(EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), ref("input"))));
             return localMethodBuild(method).pass(expression).call();
         }
     }
 
-    protected static CodegenExpression codegenWidenArrayAsListMayNull(CodegenExpression expression, Class arrayType, CodegenMethodScope codegenMethodScope, Class generator, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Collection.class, generator, codegenClassScope).addParam(Object.class, "input").getBlock()
+    protected static CodegenExpression codegenWidenArrayAsListMayNull(CodegenExpression expression, EPTypeClass arrayType, CodegenMethodScope codegenMethodScope, Class generator, CodegenClassScope codegenClassScope) {
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), generator, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "input").getBlock()
                 .ifRefNullReturnNull("input")
                 .methodReturn(staticMethod(Arrays.class, "asList", cast(arrayType, ref("input"))));
         return localMethodBuild(method).pass(expression).call();

@@ -49,7 +49,7 @@ public class EPLSubselectWithinPattern {
                 "Failed to validate subquery number 1 querying MyWindowInvalid: Consuming statements to a named window cannot declare a data window view onto the named window [select * from SupportBean_S0(exists (select * from MyWindowInvalid#lastevent))]");
 
             tryInvalidCompile(env, path, "select * from SupportBean_S0(id in ((select p00 from MyWindowInvalid)))",
-                "Failed to validate filter expression 'id in (subselect_1)': Implicit conversion not allowed: Cannot coerce types java.lang.Integer and java.lang.String [select * from SupportBean_S0(id in ((select p00 from MyWindowInvalid)))]");
+                "Failed to validate filter expression 'id in (subselect_1)': Implicit conversion not allowed: Cannot coerce types Integer and String [select * from SupportBean_S0(id in ((select p00 from MyWindowInvalid)))]");
 
             env.undeployAll();
         }

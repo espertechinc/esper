@@ -54,10 +54,10 @@ public class FireAndForgetProcessorTableForge implements FireAndForgetProcessorF
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FireAndForgetProcessorTable.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FireAndForgetProcessorTable.EPTYPE, this.getClass(), classScope);
         CodegenExpressionRef nw = ref("tbl");
         method.getBlock()
-                .declareVar(FireAndForgetProcessorTable.class, nw.getRef(), newInstance(FireAndForgetProcessorTable.class))
+                .declareVarNewInstance(FireAndForgetProcessorTable.EPTYPE, nw.getRef())
                 .exprDotMethod(nw, "setTable", TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method)))
                 .methodReturn(nw);
         return localMethod(method);

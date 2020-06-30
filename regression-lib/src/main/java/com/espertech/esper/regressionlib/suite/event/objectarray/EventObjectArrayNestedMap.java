@@ -39,7 +39,7 @@ public class EventObjectArrayNestedMap implements RegressionExecution {
             env.sendEventMap(new HashMap(), "MyMapNestedObjectArray");
             fail();
         } catch (EPException ex) {
-            assertEquals("Event type named 'MyMapNestedObjectArray' has not been defined or is not a Map-type event type, the name 'MyMapNestedObjectArray' refers to a java.lang.Object(Array) event type", ex.getMessage());
+            assertEquals("Event type named 'MyMapNestedObjectArray' has not been defined or is not a Map-type event type, the name 'MyMapNestedObjectArray' refers to a Object[] event type", ex.getMessage());
         }
 
         env.undeployAll();

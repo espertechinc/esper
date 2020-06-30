@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.core;
 
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirements;
 import com.espertech.esper.common.internal.context.airegistry.StatementAIResourceRegistry;
 import com.espertech.esper.common.internal.context.mgr.ContextControllerStatementDesc;
@@ -22,6 +23,9 @@ import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import java.util.Map;
 
 public interface ContextControllerFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(ContextControllerFactory.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(ContextControllerFactory[].class);
+
     void setFactoryEnv(ContextControllerFactoryEnv factoryEnv);
 
     ContextControllerFactoryEnv getFactoryEnv();

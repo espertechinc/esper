@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNodeImpl;
@@ -52,11 +53,11 @@ public class TestExprCoalesceNode extends TestCase {
             coalesceNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
-        assertEquals(Long.class, coalesceNodes[0].getForge().getEvaluationType());
-        assertEquals(String.class, coalesceNodes[1].getForge().getEvaluationType());
-        assertEquals(Boolean.class, coalesceNodes[2].getForge().getEvaluationType());
-        assertEquals(Character.class, coalesceNodes[3].getForge().getEvaluationType());
-        assertEquals(Double.class, coalesceNodes[4].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.LONGBOXED.getEPType(), coalesceNodes[0].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.STRING.getEPType(), coalesceNodes[1].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.BOOLEANBOXED.getEPType(), coalesceNodes[2].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.CHARBOXED.getEPType(), coalesceNodes[3].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.DOUBLEBOXED.getEPType(), coalesceNodes[4].getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {

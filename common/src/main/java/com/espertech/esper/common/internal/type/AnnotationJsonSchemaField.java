@@ -11,10 +11,12 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.JsonSchemaField;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationJsonSchemaField implements JsonSchemaField {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationJsonSchemaField.class);
     private final String name;
     private final String adapter;
 

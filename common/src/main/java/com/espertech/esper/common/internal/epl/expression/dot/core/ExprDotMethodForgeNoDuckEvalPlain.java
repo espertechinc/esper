@@ -12,16 +12,23 @@ package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.exception.ExceptionHandlerExceptionType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.statement.CodegenStatementTryCatch;
+import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +68,7 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
         return null;
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return forge.getTypeInfo();
     }
 
@@ -69,38 +76,54 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
         return forge;
     }
 
-    public static CodegenExpression codegenPlain(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class returnType = JavaClassHelper.getBoxedType(forge.getMethod().getReturnType());
-        CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, ExprDotMethodForgeNoDuckEvalPlain.class, codegenClassScope).addParam(forge.getMethod().getDeclaringClass(), "target");
+    public static CodegenExpression codegenPlain(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPTypeClass returnType;
+        if (forge.getWrapType() == ExprDotMethodForgeNoDuck.WrapType.WRAPARRAY) {
+            returnType = ClassHelperGenericType.getMethodReturnEPType(forge.getMethod());
+        } else {
+            EPType result = EPChainableTypeHelper.getNormalizedEPType(forge.getTypeInfo());
+            if (result == EPTypeNull.INSTANCE) {
+                return constantNull();
+            }
+            returnType = JavaClassHelper.getBoxedType((EPTypeClass) result);
+        }
+
+        EPTypeClass declaringType = ClassHelperGenericType.getClassEPType(forge.getMethod().getDeclaringClass());
+        CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, ExprDotMethodForgeNoDuckEvalPlain.class, codegenClassScope).addParam(declaringType, "target");
 
         CodegenBlock block = methodNode.getBlock();
 
-        if (!innerType.isPrimitive() && returnType != void.class) {
+        if (!innerType.getType().isPrimitive() && !JavaClassHelper.isTypeVoid(returnType)) {
             block.ifRefNullReturnNull("target");
         }
         CodegenExpression[] args = new CodegenExpression[forge.getParameters().length];
         for (int i = 0; i < forge.getParameters().length; i++) {
             String name = "p" + i;
-            Class evaluationType = forge.getParameters()[i].getEvaluationType();
-            block.declareVar(evaluationType, name, forge.getParameters()[i].evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope));
+            EPType type = forge.getParameters()[i].getEvaluationType();
+            if (type == null || type == EPTypeNull.INSTANCE) {
+                block.declareVar(EPTypePremade.OBJECT.getEPType(), name, constantNull());
+            } else {
+                EPTypeClass typeClass = (EPTypeClass) type;
+                block.declareVar(typeClass, name, forge.getParameters()[i].evaluateCodegen(typeClass, methodNode, exprSymbol, codegenClassScope));
+            }
             args[i] = ref(name);
         }
         CodegenBlock tryBlock = block.tryCatch();
         CodegenExpression invocation = exprDotMethod(ref("target"), forge.getMethod().getName(), args);
         CodegenStatementTryCatch tryCatch;
-        if (returnType == void.class) {
+        if (JavaClassHelper.isTypeVoid(returnType)) {
             tryCatch = tryBlock.expression(invocation).tryEnd();
         } else {
-            tryCatch = tryBlock.tryReturn(invocation);
+            tryCatch = tryBlock.tryReturn(CodegenLegoCast.castSafeFromObjectType(returnType, invocation));
         }
-        CodegenBlock catchBlock = tryCatch.addCatch(Throwable.class, "t");
-        catchBlock.declareVar(Object[].class, "args", newArrayByLength(Object.class, constant(forge.getParameters().length)));
+        CodegenBlock catchBlock = tryCatch.addCatch(EPTypePremade.THROWABLE.getEPType(), "t");
+        catchBlock.declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "args", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forge.getParameters().length)));
         for (int i = 0; i < forge.getParameters().length; i++) {
             catchBlock.assignArrayElement("args", constant(i), args[i]);
         }
         catchBlock.staticMethod(ExprDotMethodForgeNoDuckEvalPlain.class, METHOD_HANDLETARGETEXCEPTION, constant(forge.getOptionalStatementName()), constant(forge.getMethod().getName()), constant(forge.getMethod().getParameterTypes()),
-                exprDotMethodChain(ref("target")).add("getClass").add("getName"), ref("args"), ref("t"), exprSymbol.getAddExprEvalCtx(methodNode));
-        if (returnType == void.class) {
+            exprDotMethodChain(ref("target")).add("getClass").add("getName"), ref("args"), ref("t"), exprSymbol.getAddExprEvalCtx(methodNode));
+        if (JavaClassHelper.isTypeVoid(returnType)) {
             block.methodEnd();
         } else {
             block.methodReturn(constantNull());
@@ -110,13 +133,14 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     *  @param optionalStatementName name
+     *
+     * @param optionalStatementName name
      * @param methodName            method name
      * @param methodParams          params
      * @param targetClassName       target class name
      * @param args                  args
      * @param t                     throwable
-     * @param exprEvaluatorContext expr context
+     * @param exprEvaluatorContext  expr context
      */
     public static void handleTargetException(String optionalStatementName, String methodName, Class[] methodParams, String targetClassName, Object[] args, Throwable t, ExprEvaluatorContext exprEvaluatorContext) {
         if (t instanceof InvocationTargetException) {

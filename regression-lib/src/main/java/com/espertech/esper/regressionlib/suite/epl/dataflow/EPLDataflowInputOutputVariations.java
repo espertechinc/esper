@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.epl.dataflow;
 import com.espertech.esper.common.client.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -182,6 +183,7 @@ public class EPLDataflowInputOutputVariations {
     }
 
     public static class MyFactorialOp implements DataFlowOperatorForge, DataFlowOperatorFactory, DataFlowOperator {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyFactorialOp.class);
 
         @DataFlowContext
         private EPDataFlowEmitter graphContext;
@@ -191,7 +193,7 @@ public class EPLDataflowInputOutputVariations {
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return newInstance(MyFactorialOp.class);
+            return newInstance(MyFactorialOp.EPTYPE);
         }
 
         public void initializeFactory(DataFlowOpFactoryInitializeContext context) {
@@ -217,6 +219,7 @@ public class EPLDataflowInputOutputVariations {
     }
 
     public static class MyCustomOp implements DataFlowOperatorForge, DataFlowOperatorFactory, DataFlowOperator {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyCustomOp.class);
 
         @DataFlowContext
         private EPDataFlowEmitter graphContext;
@@ -226,7 +229,7 @@ public class EPLDataflowInputOutputVariations {
         }
 
         public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-            return newInstance(MyCustomOp.class);
+            return newInstance(MyCustomOp.EPTYPE);
         }
 
         public void initializeFactory(DataFlowOpFactoryInitializeContext context) {

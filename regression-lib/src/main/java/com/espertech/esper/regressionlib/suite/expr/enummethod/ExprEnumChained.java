@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.sales.PersonSales;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,7 +26,7 @@ public class ExprEnumChained implements RegressionExecution {
         String eplFragment = "@name('s0') select sales.where(x => x.cost > 1000).min(y => y.buyer.age) as val from PersonSales";
         env.compileDeploy(eplFragment).addListener("s0");
 
-        LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val".split(","), new Class[]{Integer.class});
+        SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val".split(","), new EPTypeClass[]{EPTypePremade.INTEGERBOXED.getEPType()});
 
         PersonSales bean = PersonSales.make();
         env.sendEventBean(bean);

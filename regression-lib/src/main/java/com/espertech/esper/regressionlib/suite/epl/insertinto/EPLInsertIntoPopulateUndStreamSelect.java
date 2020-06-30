@@ -186,7 +186,7 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         // mismatch in type
         env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE1.class) + "create schema E1 as (myint long)", path);
         String message = !rep.isAvroEvent() ?
-            "Type by name 'E1' in property 'myint' expected java.lang.Integer but receives java.lang.Long" :
+            "Type by name 'E1' in property 'myint' expected Integer but receives Long" :
             "Type by name 'E1' in property 'myint' expected schema '\"long\"' but received schema '\"int\"'";
         SupportMessageAssertUtil.tryInvalidCompile(env, path, "insert into E1 select mysrc.* from Src as mysrc", message);
 

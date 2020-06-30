@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.firstoflastof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,8 +26,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
@@ -34,9 +36,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EnumLastOfScalar extends ThreeFormScalar {
 
-    protected final EPType resultType;
+    protected final EPChainableType resultType;
 
-    public EnumLastOfScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, EPType resultType) {
+    public EnumLastOfScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, EPChainableType resultType) {
         super(lambda, fieldEventType, numParameters);
         this.resultType = resultType;
     }
@@ -70,8 +72,8 @@ public class EnumLastOfScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
-        return JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
+    public EPTypeClass returnTypeOfMethod() {
+        return JavaClassHelper.getBoxedType(EPChainableTypeHelper.getCodegenReturnType(resultType));
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -79,15 +81,15 @@ public class EnumLastOfScalar extends ThreeFormScalar {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Object.class, "result", constantNull());
+        block.declareVar(EPTypePremade.OBJECT.getEPType(), "result", constantNull());
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));
+        CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, scope, codegenClassScope));
         block.assignRef("result", ref("next"));
     }
 
     public void returnResult(CodegenBlock block) {
-        block.methodReturn(cast(returnType(), ref("result")));
+        block.methodReturn(cast(returnTypeOfMethod(), ref("result")));
     }
 }

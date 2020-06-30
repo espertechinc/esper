@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class XYWHRectangle {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(XYWHRectangle.class);
+
     protected final double x;
     protected final double y;
     protected final double w;

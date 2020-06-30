@@ -27,7 +27,7 @@ public class AggregationAgentDefaultWFilterForge implements AggregationAgentForg
     }
 
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(AggregationAgentDefaultWFilter.class, ExprNodeUtilityCodegen.codegenEvaluator(filterEval, method, this.getClass(), classScope));
+        return newInstance(AggregationAgentDefaultWFilter.EPTYPE, ExprNodeUtilityCodegen.codegenEvaluator(filterEval, method, this.getClass(), classScope));
     }
 
     public ExprForge getFilterEval() {

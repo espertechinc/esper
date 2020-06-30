@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.subselect;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.activator.ViewableActivator;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirementSubquery;
@@ -17,6 +18,8 @@ import com.espertech.esper.common.internal.context.module.StatementReadyCallback
 import com.espertech.esper.common.internal.context.util.StatementContext;
 
 public class SubSelectFactory implements StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubSelectFactory.class);
+
     private int subqueryNumber;
     private ViewableActivator activator;
     private SubSelectStrategyFactory strategyFactory;

@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,15 +25,15 @@ public class ExprDotStaticMethodWrapCollection implements ExprDotStaticMethodWra
     private static final Logger log = LoggerFactory.getLogger(ExprDotStaticMethodWrapArrayScalar.class);
 
     private final String methodName;
-    private final Class componentType;
+    private final EPTypeClass componentType;
 
-    public ExprDotStaticMethodWrapCollection(String methodName, Class componentType) {
+    public ExprDotStaticMethodWrapCollection(String methodName, EPTypeClass componentType) {
         this.methodName = methodName;
         this.componentType = componentType;
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.collectionOfSingleValue(componentType);
+    public EPChainableType getTypeInfo() {
+        return EPChainableTypeHelper.collectionOfSingleValue(componentType);
     }
 
     public Collection convertNonNull(Object result) {

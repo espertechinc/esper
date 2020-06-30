@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.condition;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -24,6 +25,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
 public class OutputConditionExpressionFactory implements OutputConditionFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionExpressionFactory.class);
 
     private ExprEvaluator whenExpressionNodeEval;
     private ExprEvaluator andWhenTerminatedExpressionNodeEval;

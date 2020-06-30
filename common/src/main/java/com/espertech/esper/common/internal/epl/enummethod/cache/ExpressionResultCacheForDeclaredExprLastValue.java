@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.cache;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * On the level of expression declaration:
@@ -20,6 +21,7 @@ import com.espertech.esper.common.client.EventBean;
  * NOTE: ExpressionResultCacheForDeclaredExprLastValue should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForDeclaredExprLastValue {
+    EPTypeClass EPTYPE = new EPTypeClass(ExpressionResultCacheForDeclaredExprLastValue.class);
 
     boolean cacheEnabled();
 

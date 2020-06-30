@@ -14,12 +14,10 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParam;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
-import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDesc;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeDescFactory;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeLambdaDesc;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.rettype.EPType;
 
 import java.util.List;
 
@@ -30,17 +28,15 @@ public class TwoLambdaThreeFormEventPlusFactory implements EnumForgeDescFactory 
     private final ObjectArrayEventType typeKey;
     private final ObjectArrayEventType typeValue;
     private final int numParams;
-    private final EPType returnType;
     private final TwoLambdaThreeFormEventPlusFactory.ForgeFunction function;
 
-    public TwoLambdaThreeFormEventPlusFactory(EventType inputEventType, String streamNameFirst, String streamNameSecond, ObjectArrayEventType typeKey, ObjectArrayEventType typeValue, int numParams, EPType returnType, ForgeFunction function) {
+    public TwoLambdaThreeFormEventPlusFactory(EventType inputEventType, String streamNameFirst, String streamNameSecond, ObjectArrayEventType typeKey, ObjectArrayEventType typeValue, int numParams, ForgeFunction function) {
         this.inputEventType = inputEventType;
         this.streamNameFirst = streamNameFirst;
         this.streamNameSecond = streamNameSecond;
         this.typeKey = typeKey;
         this.typeValue = typeValue;
         this.numParams = numParams;
-        this.returnType = returnType;
         this.function = function;
     }
 
@@ -51,8 +47,7 @@ public class TwoLambdaThreeFormEventPlusFactory implements EnumForgeDescFactory 
     public EnumForgeDesc makeEnumForgeDesc(List<ExprDotEvalParam> bodiesAndParameters, int streamCountIncoming, StatementCompileTimeServices services) {
         ExprDotEvalParamLambda key = (ExprDotEvalParamLambda) bodiesAndParameters.get(0);
         ExprDotEvalParamLambda value = (ExprDotEvalParamLambda) bodiesAndParameters.get(1);
-        EnumForge forge = function.apply(key, value, streamCountIncoming, typeKey, typeValue, numParams, returnType, services);
-        return new EnumForgeDesc(returnType, forge);
+        return function.apply(key, value, streamCountIncoming, typeKey, typeValue, numParams, services);
     }
 
     private EnumForgeLambdaDesc makeDesc(ObjectArrayEventType type, String streamName) {
@@ -61,6 +56,6 @@ public class TwoLambdaThreeFormEventPlusFactory implements EnumForgeDescFactory 
 
     @FunctionalInterface
     public interface ForgeFunction {
-        EnumForge apply(ExprDotEvalParamLambda first, ExprDotEvalParamLambda second, int streamCountIncoming, ObjectArrayEventType firstType, ObjectArrayEventType secondType, int numParameters, EPType typeInfo, StatementCompileTimeServices services);
+        EnumForgeDesc apply(ExprDotEvalParamLambda first, ExprDotEvalParamLambda second, int streamCountIncoming, ObjectArrayEventType firstType, ObjectArrayEventType secondType, int numParameters, StatementCompileTimeServices services);
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
@@ -19,7 +20,7 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumCountOf {
 
@@ -39,7 +40,7 @@ public class ExprEnumCountOf {
             builder.expression(fields[2], "contained.countof((x, i) => x.p00 + i = 10)");
             builder.expression(fields[3], "contained.countof((x, i, s) => x.p00 + i + s = 100)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.INTEGERBOXED.getEPType()));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E2,9")).expect(fields, 3, 2, 1, 0);
 
@@ -68,7 +69,7 @@ public class ExprEnumCountOf {
             builder.expression(fields[2], "strvals.countof((x, i) => x = 'E1' and i >= 1)");
             builder.expression(fields[3], "strvals.countof((x, i, s) => x = 'E1' and i >= 1 and s > 2)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.INTEGERBOXED.getEPType()));
 
             builder.assertion(SupportCollection.makeString("E1,E2")).expect(fields, 2, 1, 0, 0);
 

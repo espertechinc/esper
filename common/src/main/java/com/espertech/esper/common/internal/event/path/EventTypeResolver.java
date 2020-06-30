@@ -12,17 +12,20 @@ package com.espertech.esper.common.internal.event.path;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactory;
 
 public interface EventTypeResolver {
+    EPTypeClass EPTYPE = new EPTypeClass(EventTypeResolver.class);
+
     String RESOLVE_METHOD = "resolve";
     String RESOLVE_PRIVATE_BEAN_METHOD = "resolvePrivateBean";
     String GETEVENTSERDEFACTORY = "getEventSerdeFactory";
 
     EventType resolve(EventTypeMetadata metadata);
 
-    BeanEventType resolvePrivateBean(Class clazz, boolean publicFields);
+    BeanEventType resolvePrivateBean(EPTypeClass clazz, boolean publicFields);
 
     EventSerdeFactory getEventSerdeFactory();
 }

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.historical.common;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyForge;
@@ -94,8 +96,8 @@ public class HistoricalStreamIndexListForge {
                 QueryGraphValuePairHashKeyIndexForge hashKeyProps = queryGraphValue.getHashKeyProps();
                 String[] indexProperties = hashKeyProps.getIndexed();
 
-                Class[] keyTypes = getPropertyTypes(hashKeyProps.getKeys());
-                Class[] indexTypes = getPropertyTypes(typesPerStream[historicalStreamNum], indexProperties);
+                EPType[] keyTypes = getPropertyTypes(hashKeyProps.getKeys());
+                EPTypeClass[] indexTypes = getPropertyTypes(typesPerStream[historicalStreamNum], indexProperties);
 
                 HistoricalStreamIndexDesc desc = new HistoricalStreamIndexDesc(indexProperties, indexTypes, keyTypes);
                 List<Integer> usedByStreams = indexesUsedByStreams.get(desc);
@@ -154,16 +156,16 @@ public class HistoricalStreamIndexListForge {
         return new JoinSetComposerPrototypeHistoricalDesc(lookupStrategy, masterIndexingStrategy, additionalForgeables);
     }
 
-    private Class[] getPropertyTypes(EventType eventType, String[] properties) {
-        Class[] types = new Class[properties.length];
+    private EPTypeClass[] getPropertyTypes(EventType eventType, String[] properties) {
+        EPTypeClass[] types = new EPTypeClass[properties.length];
         for (int i = 0; i < properties.length; i++) {
-            types[i] = JavaClassHelper.getBoxedType(eventType.getPropertyType(properties[i]));
+            types[i] = (EPTypeClass) JavaClassHelper.getBoxedType(eventType.getPropertyEPType(properties[i]));
         }
         return types;
     }
 
-    private Class[] getPropertyTypes(List<QueryGraphValueEntryHashKeyedForge> hashKeys) {
-        Class[] types = new Class[hashKeys.size()];
+    private EPType[] getPropertyTypes(List<QueryGraphValueEntryHashKeyedForge> hashKeys) {
+        EPType[] types = new EPType[hashKeys.size()];
         for (int i = 0; i < hashKeys.size(); i++) {
             types[i] = JavaClassHelper.getBoxedType(hashKeys.get(i).getKeyExpr().getForge().getEvaluationType());
         }

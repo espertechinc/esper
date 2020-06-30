@@ -10,12 +10,18 @@
  */
 package com.espertech.esper.common.client;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Interface for event representation. All events have an {@link EventType}. Events also
  * usually have one or more event properties. This interface allows the querying of event type,
  * event property values and the underlying event object.
  */
 public interface EventBean {
+    EPTypeClass EPTYPE = new EPTypeClass(EventBean.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(EventBean[].class);
+    EPTypeClass EPTYPEARRAYARRAY = new EPTypeClass(EventBean[][].class);
+
     /**
      * Return the {@link EventType} instance that describes the set of properties available for this event.
      *

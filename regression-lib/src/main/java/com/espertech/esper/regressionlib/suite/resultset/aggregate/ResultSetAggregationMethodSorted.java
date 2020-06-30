@@ -13,6 +13,9 @@ package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -90,7 +93,7 @@ public class ResultSetAggregationMethodSorted {
             tryInvalidCompile(env, path, "select MyTable.sortcol.floorKey() from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.floorKey()': Parameters mismatch for aggregation method 'floorKey', the method requires an expression providing the key value");
             tryInvalidCompile(env, path, "select MyTable.sortcol.floorKey('a') from SupportBean_S0",
-                "Failed to validate select-clause expression 'MyTable.sortcol.floorKey(\"a\")': Method 'floorKey' for parameter 0 requires a key of type 'java.lang.Integer' but receives 'java.lang.String'");
+                "Failed to validate select-clause expression 'MyTable.sortcol.floorKey(\"a\")': Method 'floorKey' for parameter 0 requires a key of type 'Integer' but receives 'String'");
 
             tryInvalidCompile(env, path, "select MyTable.sortcol.firstKey(id) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.firstKey(id)': Parameters mismatch for aggregation method 'firstKey', the method requires no parameters");
@@ -98,10 +101,10 @@ public class ResultSetAggregationMethodSorted {
             tryInvalidCompile(env, path, "select MyTable.sortcol.submap(1, 2, 3, true) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.submap(1,2,3,true)': Failed to validate aggregation method 'submap', expected a boolean-type result for expression parameter 1 but received int");
             tryInvalidCompile(env, path, "select MyTable.sortcol.submap('a', true, 3, true) from SupportBean_S0",
-                "Failed to validate select-clause expression 'MyTable.sortcol.submap(\"a\",true,3,true)': Method 'submap' for parameter 0 requires a key of type 'java.lang.Integer' but receives 'java.lang.String'");
+                "Failed to validate select-clause expression 'MyTable.sortcol.submap(\"a\",true,3,true)': Method 'submap' for parameter 0 requires a key of type 'Integer' but receives 'String'");
 
             tryInvalidCompile(env, path, "select MyTable.sortcol.submap(1, true, 'a', true) from SupportBean_S0",
-                "Failed to validate select-clause expression 'MyTable.sortcol.submap(1,true,\"a\",true)': Method 'submap' for parameter 2 requires a key of type 'java.lang.Integer' but receives 'java.lang.String'");
+                "Failed to validate select-clause expression 'MyTable.sortcol.submap(1,true,\"a\",true)': Method 'submap' for parameter 2 requires a key of type 'Integer' but receives 'String'");
 
             env.undeployAll();
         }
@@ -154,7 +157,7 @@ public class ResultSetAggregationMethodSorted {
                 " from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, HashableMultiKey.class, "firstkey,lastkey,lowerkey");
+            assertType(env, HashableMultiKey.EPTYPE, "firstkey,lastkey,lowerkey");
 
             prepareTestData(env, new TreeMap<>()); // 1, 1, 4, 6, 6, 8, 9
 
@@ -181,9 +184,9 @@ public class ResultSetAggregationMethodSorted {
                 " from MySubmapEvent";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, SupportBean[].class, "eb");
-            assertType(env, NavigableMap.class, "sm");
-            assertType(env, SupportBean.class, "eblastof");
+            assertType(env, new EPTypeClass(SupportBean[].class), "eb");
+            assertType(env, new EPTypeClassParameterized(NavigableMap.class, new EPTypeClass[] {EPTypeClassParameterized.from(Collection.class, EventBean.class)}), "sm");
+            assertType(env, new EPTypeClass(SupportBean.class), "eblastof");
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
@@ -218,7 +221,7 @@ public class ResultSetAggregationMethodSorted {
                 " from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, NavigableMap.class, "nmr");
+            assertType(env, new EPTypeClassParameterized(NavigableMap.class, new EPTypeClass[] {EPTypeClassParameterized.from(Collection.class, EventBean.class)}), "nmr");
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
@@ -247,11 +250,11 @@ public class ResultSetAggregationMethodSorted {
                 " from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, SupportBean.class, "ge,gefo,geslo");
-            assertType(env, SupportBean[].class, "ges");
-            assertType(env, Integer.class, "cnte,cntk");
-            assertType(env, Boolean.class, "ck");
-            assertType(env, String.class, "geid");
+            assertType(env, new EPTypeClass(SupportBean.class), "ge,gefo,geslo");
+            assertType(env, new EPTypeClass(SupportBean[].class), "ges");
+            assertType(env, EPTypePremade.INTEGERBOXED.getEPType(), "cnte,cntk");
+            assertType(env, EPTypePremade.BOOLEANBOXED.getEPType(), "ck");
+            assertType(env, EPTypePremade.STRING.getEPType(), "geid");
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
@@ -288,8 +291,8 @@ public class ResultSetAggregationMethodSorted {
                 " from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, String.class, "feid,leid");
-            assertType(env, SupportBean.class, "fefo,feslo,lefo,leslo");
+            assertType(env, new EPTypeClass(String.class), "feid,leid");
+            assertType(env, new EPTypeClass(SupportBean.class), "fefo,feslo,lefo,leslo");
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
@@ -323,9 +326,9 @@ public class ResultSetAggregationMethodSorted {
                 " from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, SupportBean.class, "fe,le,minb,maxb");
-            assertType(env, SupportBean[].class, "fes,les");
-            assertType(env, Integer.class, "fk,lk");
+            assertType(env, new EPTypeClass(SupportBean.class), "fe,le,minb,maxb");
+            assertType(env, new EPTypeClass(SupportBean[].class), "fes,les");
+            assertType(env, new EPTypeClass(Integer.class), "fk,lk");
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
@@ -365,8 +368,8 @@ public class ResultSetAggregationMethodSorted {
                 " from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, String.class, "ceid,feid,heid,leid");
-            assertType(env, SupportBean.class, "cefo,fefo,hefo,lefo,ceslo,feslo,heslo,leslo");
+            assertType(env, new EPTypeClass(String.class), "ceid,feid,heid,leid");
+            assertType(env, new EPTypeClass(SupportBean.class), "cefo,fefo,hefo,lefo,ceslo,feslo,heslo,leslo");
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
@@ -417,9 +420,9 @@ public class ResultSetAggregationMethodSorted {
                 " from SupportBean_S0";
             env.eplToModelCompileDeploy(select, path).addListener("s0");
 
-            assertType(env, SupportBean.class, "ce,fe,he,le");
-            assertType(env, SupportBean[].class, "ces,fes,hes,les");
-            assertType(env, Integer.class, "ck,fk,hk,lk");
+            assertType(env, new EPTypeClass(SupportBean.class), "ce,fe,he,le");
+            assertType(env, new EPTypeClass(SupportBean[].class), "ces,fes,hes,les");
+            assertType(env, new EPTypeClass(Integer.class), "ck,fk,hk,lk");
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
@@ -580,11 +583,11 @@ public class ResultSetAggregationMethodSorted {
         makeSendBean(env, treemap, "E9", 9);
     }
 
-    static void assertType(RegressionEnvironment env, Class expected, String csvProps) {
+    static void assertType(RegressionEnvironment env, EPTypeClass expected, String csvProps) {
         String[] props = csvProps.split(",");
         EventType eventType = env.statement("s0").getEventType();
         for (String prop : props) {
-            assertEquals("failed for prop '" + prop + "'", expected, eventType.getPropertyType(prop));
+            assertEquals("failed for prop '" + prop + "'", expected, eventType.getPropertyEPType(prop));
         }
     }
 

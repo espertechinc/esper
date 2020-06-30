@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.median.AggregationForgeFactoryMedian;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -34,7 +35,7 @@ public class ExprMedianNode extends ExprAggregateNodeBase {
         if (hasFilter) {
             optionalFilter = positionalParams[1];
         }
-        Class childType = super.validateNumericChildAllowFilter(hasFilter);
+        EPTypeClass childType = super.validateNumericChildAllowFilter(hasFilter);
         DataInputOutputSerdeForge distinctSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo()) : null;
         return new AggregationForgeFactoryMedian(this, childType, distinctSerde);
     }

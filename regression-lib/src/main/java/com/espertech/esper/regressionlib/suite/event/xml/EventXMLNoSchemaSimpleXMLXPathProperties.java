@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -81,16 +81,15 @@ public class EventXMLNoSchemaSimpleXMLXPathProperties {
         EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured(eventTypeName);
         assertEquals(EventTypeApplicationType.XML, type.getMetadata().getApplicationType());
 
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("xpathElement1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("xpathCountE21", Double.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("xpathAttrString", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("xpathAttrNum", Double.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("xpathAttrBool", Boolean.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("stringCastLong", Long.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("stringCastDouble", Double.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("numCastInt", Integer.class, null, false, false, false, false, false),
-        }, type.getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+            new SupportEventPropDesc("xpathElement1", String.class),
+            new SupportEventPropDesc("xpathCountE21", Double.class),
+            new SupportEventPropDesc("xpathAttrString", String.class),
+            new SupportEventPropDesc("xpathAttrNum", Double.class),
+            new SupportEventPropDesc("xpathAttrBool", Boolean.class),
+            new SupportEventPropDesc("stringCastLong", Long.class),
+            new SupportEventPropDesc("stringCastDouble", Double.class),
+            new SupportEventPropDesc("numCastInt", Integer.class));
 
         String stmt = "@name('s0') select xpathElement1, xpathCountE21, xpathAttrString, xpathAttrNum, xpathAttrBool," +
             "stringCastLong," +

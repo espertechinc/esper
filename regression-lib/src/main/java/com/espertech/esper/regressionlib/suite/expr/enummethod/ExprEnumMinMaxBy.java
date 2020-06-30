@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
@@ -20,8 +22,11 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypes;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.client.type.EPTypePremade.INTEGERBOXED;
+import static com.espertech.esper.common.client.type.EPTypePremade.STRING;
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumMinMaxBy {
 
@@ -29,6 +34,7 @@ public class ExprEnumMinMaxBy {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumMinMaxByEvents());
         execs.add(new ExprEnumMinMaxByScalar());
+        execs.add(new ExprEnumMinMaxByInvalid());
         return execs;
     }
 
@@ -46,8 +52,8 @@ public class ExprEnumMinMaxBy {
             builder.expression(fields[7], "contained.maxBy( (x, i, s) => case when i < 1 and s > 2 then p00 else p00*10 end).p00");
 
             builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields,
-                new Class[]{SupportBean_ST0.class, SupportBean_ST0.class, String.class, Integer.class,
-                    Integer.class, Integer.class, Integer.class, Integer.class}));
+                new EPTypeClass[]{SupportBean_ST0.EPTYPE, SupportBean_ST0.EPTYPE, STRING.getEPType(), INTEGERBOXED.getEPType(),
+                    INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()}));
 
             SupportBean_ST0_Container beanOne = SupportBean_ST0_Container.make2Value("E1,12", "E2,11", "E2,2");
             builder.assertion(beanOne).expect(fields, beanOne.getContained().get(2), beanOne.getContained().get(0), "E2", 12, 12, 11, 12, 11);
@@ -55,7 +61,7 @@ public class ExprEnumMinMaxBy {
             SupportBean_ST0_Container beanTwo = SupportBean_ST0_Container.make2Value("E1,12");
             builder.assertion(beanTwo).expect(fields, beanTwo.getContained().get(0), beanTwo.getContained().get(0), "E1", 12, 12, 12, 12, 12);
 
-            builder.assertion(SupportBean_ST0_Container.make2Value(null)).expect(fields, null, null, null, null, null, null, null, null);
+            builder.assertion(SupportBean_ST0_Container.make2ValueNull()).expect(fields, null, null, null, null, null, null, null, null);
 
             builder.assertion(SupportBean_ST0_Container.make2Value()).expect(fields, null, null, null, null, null, null, null, null);
 
@@ -77,7 +83,7 @@ public class ExprEnumMinMaxBy {
             builder.expression(fields[4], "strvals.minBy( (v, i, s) => extractNum(v) + (case when s > 2 then i*10 else 0 end))");
             builder.expression(fields[5], "strvals.maxBy( (v, i, s) => extractNum(v) + (case when s > 2 then i*10 else 0 end))");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.STRING.getEPType()));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, "E1", "E5", "E2", "E4", "E2", "E4");
 
@@ -90,6 +96,15 @@ public class ExprEnumMinMaxBy {
             builder.assertion(SupportCollection.makeString("E8,E2")).expect(fields, "E2", "E8", "E8", "E2", "E2", "E8");
 
             builder.run(env);
+        }
+    }
+
+    private static class ExprEnumMinMaxByInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl;
+
+            epl = "select contained.minBy(x => null) from SupportBean_ST0_Container";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.minBy()': Null-type is not allowed");
         }
     }
 }

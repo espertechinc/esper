@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 
-import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Locale;
@@ -66,74 +67,70 @@ public class SQLTypeMapUtil {
      * @param classForNameProvider class-for-classname lookup
      * @return Java class for JDBC sql types
      */
-    public static Class sqlTypeToClass(int sqlType, String className, ClassForNameProvider classForNameProvider) {
+    public static EPTypeClass sqlTypeToClass(int sqlType, String className, ClassForNameProvider classForNameProvider) {
         if ((sqlType == Types.BOOLEAN) ||
                 (sqlType == Types.BIT)) {
-            return Boolean.class;
+            return EPTypePremade.BOOLEANBOXED.getEPType();
         }
         if ((sqlType == Types.CHAR) ||
                 (sqlType == Types.VARCHAR) ||
                 (sqlType == Types.LONGVARCHAR)) {
-            return String.class;
-        }
-        if ((sqlType == Types.CHAR) ||
-                (sqlType == Types.VARCHAR)) {
-            return String.class;
+            return EPTypePremade.STRING.getEPType();
         }
         if ((sqlType == Types.DOUBLE) ||
                 (sqlType == Types.FLOAT)) {
-            return Double.class;
+            return EPTypePremade.DOUBLEBOXED.getEPType();
         }
         if (sqlType == Types.REAL) {
-            return Float.class;
+            return EPTypePremade.FLOATBOXED.getEPType();
         }
         if (sqlType == Types.INTEGER) {
-            return Integer.class;
+            return EPTypePremade.INTEGERBOXED.getEPType();
         }
         if (sqlType == Types.BIGINT) {
-            return Long.class;
+            return EPTypePremade.LONGBOXED.getEPType();
         }
         if (sqlType == Types.TINYINT) {
-            return Byte.class;
+            return EPTypePremade.BYTEBOXED.getEPType();
         }
         if (sqlType == Types.SMALLINT) {
-            return Short.class;
+            return EPTypePremade.SHORTBOXED.getEPType();
         }
         if ((sqlType == Types.NUMERIC) ||
                 (sqlType == Types.DECIMAL)) {
-            return BigDecimal.class;
+            return EPTypePremade.BIGDECIMAL.getEPType();
         }
         if ((sqlType == Types.BINARY) ||
                 (sqlType == Types.VARBINARY) ||
                 (sqlType == Types.LONGVARBINARY)) {
-            return byte[].class;
+            return EPTypePremade.BYTEPRIMITIVEARRAY.getEPType();
         }
         if (sqlType == Types.DATE) {
-            return java.sql.Date.class;
+            return EPTypePremade.SQLDATE.getEPType();
         }
         if (sqlType == Types.TIME) {
-            return java.sql.Time.class;
+            return EPTypePremade.SQLTIME.getEPType();
         }
         if (sqlType == Types.TIMESTAMP) {
-            return java.sql.Timestamp.class;
+            return EPTypePremade.SQLTIMESTAMP.getEPType();
         }
         if (sqlType == Types.CLOB) {
-            return java.sql.Clob.class;
+            return EPTypePremade.SQLCLOB.getEPType();
         }
         if (sqlType == Types.BLOB) {
-            return java.sql.Blob.class;
+            return EPTypePremade.SQLBLOB.getEPType();
         }
         if (sqlType == Types.ARRAY) {
-            return java.sql.Array.class;
+            return EPTypePremade.SQLARRAY.getEPType();
         }
         if (sqlType == Types.STRUCT) {
-            return java.sql.Struct.class;
+            return EPTypePremade.SQLSTRUCT.getEPType();
         }
         if (sqlType == Types.REF) {
-            return java.sql.Ref.class;
+            return EPTypePremade.SQLREF.getEPType();
         }
         if (sqlType == Types.DATALINK) {
-            return java.net.URL.class;
+            return EPTypePremade.NETURL.getEPType();
         }
         if ((sqlType == Types.JAVA_OBJECT) ||
                 (sqlType == Types.DISTINCT)) {
@@ -141,7 +138,8 @@ public class SQLTypeMapUtil {
                 throw new IllegalArgumentException("No class supplied for sql type " + sqlType);
             }
             try {
-                return classForNameProvider.classForName(className);
+                Class clazz = classForNameProvider.classForName(className);
+                return ClassHelperGenericType.getClassEPType(clazz);
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Cannot load class for sql type " + sqlType + " and class " + className);
             }

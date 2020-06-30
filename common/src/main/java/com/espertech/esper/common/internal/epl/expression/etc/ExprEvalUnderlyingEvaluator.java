@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,9 +26,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprEvalUnderlyingEvaluator implements ExprEvaluator, ExprForge {
     private final int streamNum;
-    private final Class resultType;
+    private final EPTypeClass resultType;
 
-    public ExprEvalUnderlyingEvaluator(int streamNum, Class resultType) {
+    public ExprEvalUnderlyingEvaluator(int streamNum, EPTypeClass resultType) {
         this.streamNum = streamNum;
         this.resultType = resultType;
     }
@@ -51,17 +52,17 @@ public class ExprEvalUnderlyingEvaluator implements ExprEvaluator, ExprForge {
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(resultType, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock().ifNullReturnNull(refEPS)
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(cast(requiredType, exprDotMethod(ref("event"), "getUnderlying")));
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return resultType;
     }
 

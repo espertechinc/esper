@@ -11,6 +11,7 @@
 package com.espertech.esperio.csv;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public abstract class AbstractTypeCoercer {
             try {
                 constructor = clazz.getConstructor(parameterTypes);
             } catch (NoSuchMethodException e) {
-                throw new EPException("Failed to find constructure for class " + clazz.getName() + " taking " + JavaClassHelper.getParameterAsString(parameterTypes));
+                throw new EPException("Failed to find constructure for class " + clazz.getName() + " taking " + ClassHelperPrint.getParameterAsString(parameterTypes));
             }
             constructors.put(property, constructor);
         }

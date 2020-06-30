@@ -11,11 +11,13 @@
 package com.espertech.esper.common.internal.event.json.compiletime;
 
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.bean.core.PropertyStem;
 import com.espertech.esper.common.internal.event.bean.introspect.PropertyListBuilderPublic;
 import com.espertech.esper.common.internal.event.json.parser.forge.JsonForgeFactoryBuiltinClassTyped;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.ConstructorHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -26,20 +28,20 @@ import java.util.*;
 
 public class JsonEventTypeUtilityReflective {
 
-    public static LinkedHashMap<Class, JsonApplicationClassDelegateDesc> computeClassesDeep(Class clazz, String eventTypeName, Annotation[] annotations, StatementCompileTimeServices services)
+    public static LinkedHashMap<EPTypeClass, JsonApplicationClassDelegateDesc> computeClassesDeep(EPTypeClass clazz, String eventTypeName, Annotation[] annotations, StatementCompileTimeServices services)
         throws ExprValidationException {
-        LinkedHashMap<Class, List<Field>> deepClassesWFields = new LinkedHashMap<>();
+        LinkedHashMap<EPTypeClass, List<Field>> deepClassesWFields = new LinkedHashMap<>();
         computeClassesDeep(clazz, deepClassesWFields, new ArrayDeque<>(), annotations, services);
         return assignDelegateClassNames(eventTypeName, deepClassesWFields);
     }
 
 
-    public static LinkedHashMap<Class, JsonApplicationClassDelegateDesc> computeClassesDeep(Map<String, Object> fields, String eventTypeName, Annotation[] annotations, StatementCompileTimeServices services)
+    public static LinkedHashMap<EPTypeClass, JsonApplicationClassDelegateDesc> computeClassesDeep(Map<String, Object> fields, String eventTypeName, Annotation[] annotations, StatementCompileTimeServices services)
         throws ExprValidationException {
-        LinkedHashMap<Class, List<Field>> deepClassesWFields = new LinkedHashMap<>();
+        LinkedHashMap<EPTypeClass, List<Field>> deepClassesWFields = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : fields.entrySet()) {
-            if (entry.getValue() instanceof Class) {
-                Class clazz = (Class) entry.getValue();
+            if (entry.getValue() instanceof EPTypeClass) {
+                EPTypeClass clazz = (EPTypeClass) entry.getValue();
                 if (isDeepClassEligibleType(clazz, entry.getKey(), null, annotations, services)) {
                     computeClassesDeep(clazz, deepClassesWFields, new ArrayDeque<>(), annotations, services);
                 }
@@ -48,10 +50,10 @@ public class JsonEventTypeUtilityReflective {
         return assignDelegateClassNames(eventTypeName, deepClassesWFields);
     }
 
-    private static LinkedHashMap<Class, JsonApplicationClassDelegateDesc> assignDelegateClassNames(String eventTypeName, LinkedHashMap<Class, List<Field>> deepClassesWFields) {
-        LinkedHashMap<Class, JsonApplicationClassDelegateDesc> classes = new LinkedHashMap<>();
-        for (Map.Entry<Class, List<Field>> classEntry : deepClassesWFields.entrySet()) {
-            String replaced = classEntry.getKey().getName().replaceAll("\\.", "_").replaceAll("\\$", "_");
+    private static LinkedHashMap<EPTypeClass, JsonApplicationClassDelegateDesc> assignDelegateClassNames(String eventTypeName, LinkedHashMap<EPTypeClass, List<Field>> deepClassesWFields) {
+        LinkedHashMap<EPTypeClass, JsonApplicationClassDelegateDesc> classes = new LinkedHashMap<>();
+        for (Map.Entry<EPTypeClass, List<Field>> classEntry : deepClassesWFields.entrySet()) {
+            String replaced = classEntry.getKey().getTypeName().replaceAll("\\.", "_").replaceAll("\\$", "_");
             String delegateClassName = eventTypeName + "_Delegate_" + replaced;
             String delegateFactoryClassName = eventTypeName + "_Factory_" + replaced;
             classes.put(classEntry.getKey(), new JsonApplicationClassDelegateDesc(delegateClassName, delegateFactoryClassName, classEntry.getValue()));
@@ -59,7 +61,7 @@ public class JsonEventTypeUtilityReflective {
         return classes;
     }
 
-    private static void computeClassesDeep(Class clazz, Map<Class, List<Field>> deepClasses, Deque<Class> stack, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
+    private static void computeClassesDeep(EPTypeClass clazz, Map<EPTypeClass, List<Field>> deepClasses, Deque<EPTypeClass> stack, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
         if (deepClasses.containsKey(clazz)) {
             return;
         }
@@ -68,19 +70,21 @@ public class JsonEventTypeUtilityReflective {
 
         // we go deep first
         for (Field field : fields) {
-            if (JavaClassHelper.isImplementsInterface(field.getType(), Collection.class)) {
-                Class genericType = JavaClassHelper.getGenericFieldType(field, true);
-                if (genericType != null && !stack.contains(genericType) && isDeepClassEligibleType(genericType, field.getName(), field, annotations, services) && genericType != Object.class) {
-                    stack.add(genericType);
-                    computeClassesDeep(genericType, deepClasses, stack, annotations, services);
+            EPTypeClass fieldType = ClassHelperGenericType.getFieldEPType(field);
+
+            if (JavaClassHelper.isImplementsInterface(fieldType, Collection.class)) {
+                EPTypeClass parameter = JavaClassHelper.getSingleParameterTypeOrObject(fieldType);
+                if (parameter != null && !stack.contains(parameter) && isDeepClassEligibleType(parameter, field.getName(), field, annotations, services) && parameter.getType() != Object.class) {
+                    stack.add(parameter);
+                    computeClassesDeep(parameter, deepClasses, stack, annotations, services);
                     stack.removeLast();
                 }
                 continue;
             }
 
             if (field.getType().isArray()) {
-                Class arrayType = JavaClassHelper.getArrayComponentTypeInnermost(field.getType());
-                if (!stack.contains(arrayType) && isDeepClassEligibleType(arrayType, field.getName(), field, annotations, services) && arrayType != Object.class) {
+                EPTypeClass arrayType = JavaClassHelper.getArrayComponentTypeInnermost(fieldType);
+                if (!stack.contains(arrayType) && isDeepClassEligibleType(arrayType, field.getName(), field, annotations, services) && arrayType.getType() != Object.class) {
                     stack.add(arrayType);
                     computeClassesDeep(arrayType, deepClasses, stack, annotations, services);
                     stack.removeLast();
@@ -88,9 +92,9 @@ public class JsonEventTypeUtilityReflective {
                 continue;
             }
 
-            if (!stack.contains(field.getType()) && isDeepClassEligibleType(field.getType(), field.getName(), field, annotations, services)) {
-                stack.add(field.getType());
-                computeClassesDeep(field.getType(), deepClasses, stack, annotations, services);
+            if (!stack.contains(fieldType) && isDeepClassEligibleType(fieldType, field.getName(), field, annotations, services)) {
+                stack.add(fieldType);
+                computeClassesDeep(fieldType, deepClasses, stack, annotations, services);
                 stack.removeLast();
             }
         }
@@ -98,8 +102,8 @@ public class JsonEventTypeUtilityReflective {
         deepClasses.put(clazz, fields);
     }
 
-    private static boolean isDeepClassEligibleType(Class genericType, String fieldName, Field optionalField, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
-        if (!ConstructorHelper.hasDefaultConstructor(genericType)) {
+    private static boolean isDeepClassEligibleType(EPTypeClass genericType, String fieldName, Field optionalField, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
+        if (!ConstructorHelper.hasDefaultConstructor(genericType.getType())) {
             return false;
         }
         try {
@@ -110,9 +114,9 @@ public class JsonEventTypeUtilityReflective {
         }
     }
 
-    private static List<Field> resolveFields(Class clazz) {
+    private static List<Field> resolveFields(EPTypeClass clazz) {
         PropertyListBuilderPublic propertyListBuilder = new PropertyListBuilderPublic(new ConfigurationCommonEventTypeBean());
-        List<PropertyStem> properties = propertyListBuilder.assessProperties(clazz);
+        List<PropertyStem> properties = propertyListBuilder.assessProperties(clazz.getType());
         List<Field> props = new ArrayList<>();
         for (PropertyStem stem : properties) {
             Field field = stem.getAccessorField();

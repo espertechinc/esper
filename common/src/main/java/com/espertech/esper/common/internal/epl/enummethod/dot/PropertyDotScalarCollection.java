@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -38,9 +40,9 @@ public class PropertyDotScalarCollection implements ExprEnumerationEval, ExprEnu
     private final String propertyName;
     private final int streamId;
     private final EventPropertyGetterSPI getter;
-    private final Class componentType;
+    private final EPTypeClass componentType;
 
-    public PropertyDotScalarCollection(String propertyName, int streamId, EventPropertyGetterSPI getter, Class componentType) {
+    public PropertyDotScalarCollection(String propertyName, int streamId, EventPropertyGetterSPI getter, EPTypeClass componentType) {
         this.propertyName = propertyName;
         this.streamId = streamId;
         this.getter = getter;
@@ -56,15 +58,15 @@ public class PropertyDotScalarCollection implements ExprEnumerationEval, ExprEnu
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarCollection.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotScalarCollection.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock().methodReturn(codegenEvaluateInternal(arrayAtIndex(refEPS, constant(streamId)), codegenClassScope, methodNode));
         return localMethod(methodNode);
     }
 
     public CodegenExpression evaluateEventGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprEnumerationGivenEventSymbol symbols, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarCollection.class, codegenClassScope);
-        methodNode.getBlock().methodReturn(CodegenLegoCast.castSafeFromObjectType(Collection.class, getter.eventBeanGetCodegen(symbols.getAddEvent(methodNode), codegenMethodScope, codegenClassScope)));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotScalarCollection.class, codegenClassScope);
+        methodNode.getBlock().methodReturn(CodegenLegoCast.castSafeFromObjectType(EPTypePremade.COLLECTION.getEPType(), getter.eventBeanGetCodegen(symbols.getAddEvent(methodNode), codegenMethodScope, codegenClassScope)));
         return localMethod(methodNode);
     }
 
@@ -72,7 +74,7 @@ public class PropertyDotScalarCollection implements ExprEnumerationEval, ExprEnu
         return evaluateInternal(event);
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return componentType;
     }
 
@@ -137,8 +139,8 @@ public class PropertyDotScalarCollection implements ExprEnumerationEval, ExprEnu
     }
 
     private CodegenExpression codegenEvaluateInternal(CodegenExpression event, CodegenClassScope codegenClassScope, CodegenMethodScope codegenMethodScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarCollection.class, codegenClassScope).addParam(EventBean.class, "event").getBlock()
-                .methodReturn(CodegenLegoCast.castSafeFromObjectType(Collection.class, getter.eventBeanGetCodegen(ref("event"), codegenMethodScope, codegenClassScope)));
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotScalarCollection.class, codegenClassScope).addParam(EventBean.EPTYPE, "event").getBlock()
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(EPTypePremade.COLLECTION.getEPType(), getter.eventBeanGetCodegen(ref("event"), codegenMethodScope, codegenClassScope)));
         return localMethodBuild(method).pass(event).call();
     }
 }

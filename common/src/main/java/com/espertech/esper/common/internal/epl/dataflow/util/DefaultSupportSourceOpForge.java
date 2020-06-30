@@ -33,7 +33,7 @@ public class DefaultSupportSourceOpForge implements DataFlowOperatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(DefaultSupportSourceOpFactory.class, this.getClass(), "so", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(DefaultSupportSourceOpFactory.EPTYPE, this.getClass(), "so", parent, symbols, classScope)
                 .constant("name", name)
                 .build();
     }

@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.context.activator;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalEventViewable;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalEventViewableFactory;
 
 public class ViewableActivatorHistorical implements ViewableActivator {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ViewableActivatorHistorical.class);
+
     private HistoricalEventViewableFactory factory;
 
     public void setFactory(HistoricalEventViewableFactory factory) {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.filter;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage1.spec.FilterSpecRaw;
@@ -147,8 +148,8 @@ public class EvalFilterForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.ATOM;
     }
 
-    protected Class typeOfFactory() {
-        return EvalFilterFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalFilterFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {

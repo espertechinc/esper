@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -21,9 +22,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypes;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumSumOf {
 
@@ -33,7 +35,7 @@ public class ExprEnumSumOf {
         execs.add(new ExprEnumSumEventsPlus());
         execs.add(new ExprEnumSumScalar());
         execs.add(new ExprEnumSumScalarStringValue());
-        execs.add(new ExprEnumInvalid());
+        execs.add(new ExprEnumSumInvalid());
         execs.add(new ExprEnumSumArray());
         return execs;
     }
@@ -63,7 +65,7 @@ public class ExprEnumSumOf {
             builder.expression(fields[3], "beans.sumOf(x => bigDecimal)");
             builder.expression(fields[4], "beans.sumOf(x => bigInteger)");
 
-            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, Double.class, Long.class, BigDecimal.class, BigInteger.class}));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), DOUBLEBOXED.getEPType(), LONGBOXED.getEPType(), BIGDECIMAL.getEPType(), BIGINTEGER.getEPType()}));
 
             builder.assertion(new SupportBean_Container(null)).expect(fields, null, null, null, null, null);
 
@@ -81,23 +83,24 @@ public class ExprEnumSumOf {
 
     private static class ExprEnumSumEventsPlus implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "c0,c1,c2".split(",");
+            String[] fields = "c0,c1,c2,c3".split(",");
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_Container");
             builder.expression(fields[0], "beans.sumOf(x => intBoxed)");
             builder.expression(fields[1], "beans.sumOf( (x, i) => intBoxed + i*10)");
             builder.expression(fields[2], "beans.sumOf( (x, i, s) => intBoxed + i*10 + s*100)");
+            builder.expression(fields[3], "beans.sumOf( (x, i) => case when i = 1 then null else 1 end)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, INTEGERBOXED.getEPType()));
 
-            builder.assertion(new SupportBean_Container(null)).expect(fields, null, null, null);
+            builder.assertion(new SupportBean_Container(null)).expect(fields, null, null, null, null);
 
-            builder.assertion(new SupportBean_Container(Collections.emptyList())).expect(fields, null, null, null);
+            builder.assertion(new SupportBean_Container(Collections.emptyList())).expect(fields, null, null, null, null);
 
             List<SupportBean> listOne = new ArrayList<>(Arrays.asList(makeSB("E1", 10)));
-            builder.assertion(new SupportBean_Container(listOne)).expect(fields, 10, 10, 110);
+            builder.assertion(new SupportBean_Container(listOne)).expect(fields, 10, 10, 110, 1);
 
             List<SupportBean> listTwo = new ArrayList<>(Arrays.asList(makeSB("E1", 10), makeSB("E2", 11)));
-            builder.assertion(new SupportBean_Container(listTwo)).expect(fields, 21, 31, 431);
+            builder.assertion(new SupportBean_Container(listTwo)).expect(fields, 21, 31, 431, 1);
 
             builder.run(env);
         }
@@ -116,7 +119,7 @@ public class ExprEnumSumOf {
             builder.expression(fields[0], "intvals.sumOf()");
             builder.expression(fields[1], "bdvals.sumOf()");
 
-            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, BigDecimal.class}));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), BIGDECIMAL.getEPType()}));
 
             builder.assertion(SupportCollection.makeNumeric("1,4,5")).expect(fields, 1 + 4 + 5, new BigDecimal(1 + 4 + 5));
 
@@ -141,7 +144,7 @@ public class ExprEnumSumOf {
             builder.expression(fields[2], "strvals.sumOf( (v, i) => extractNum(v) + i*10)");
             builder.expression(fields[3], "strvals.sumOf( (v, i, s) => extractNum(v) + i*10 + s*100)");
 
-            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, BigDecimal.class, Integer.class, Integer.class}));
+            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), BIGDECIMAL.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()}));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, 2 + 1 + 5 + 4, new BigDecimal(2 + 1 + 5 + 4), 2 + 11 + 25 + 34, 402 + 411 + 425 + 434);
 
@@ -155,12 +158,15 @@ public class ExprEnumSumOf {
         }
     }
 
-    private static class ExprEnumInvalid implements RegressionExecution {
+    private static class ExprEnumSumInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl;
 
             epl = "select beans.sumof() from SupportBean_Container";
             tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'beans.sumof()': Invalid input for built-in enumeration method 'sumof' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '");
+
+            epl = "select strvals.sumOf(v => null) from SupportCollection";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.sumOf()': Failed to validate enumeration method 'sumOf', expected a non-null result for expression parameter 0 but received a null-typed expression");
         }
     }
 

@@ -10,14 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class PopulateFieldWValueDescriptor {
     private final String propertyName;
-    private final Class fieldType;
-    private final Class containerType;
+    private final EPTypeClass fieldType;
+    private final EPTypeClass containerType;
     private final PopulateFieldValueSetter setter;
     private final boolean forceNumeric;
 
-    public PopulateFieldWValueDescriptor(String propertyName, Class fieldType, Class containerType, PopulateFieldValueSetter setter, boolean forceNumeric) {
+    public PopulateFieldWValueDescriptor(String propertyName, EPTypeClass fieldType, EPTypeClass containerType, PopulateFieldValueSetter setter, boolean forceNumeric) {
         this.propertyName = propertyName;
         this.fieldType = fieldType;
         this.containerType = containerType;
@@ -29,11 +31,11 @@ public class PopulateFieldWValueDescriptor {
         return propertyName;
     }
 
-    public Class getFieldType() {
+    public EPTypeClass getFieldType() {
         return fieldType;
     }
 
-    public Class getContainerType() {
+    public EPTypeClass getContainerType() {
         return containerType;
     }
 

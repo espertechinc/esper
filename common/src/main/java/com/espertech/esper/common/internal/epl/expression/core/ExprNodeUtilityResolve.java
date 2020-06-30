@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.epl.expression.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodResolver;
@@ -27,7 +29,7 @@ import java.util.List;
 
 public class ExprNodeUtilityResolve {
     public static ExprNodeUtilMethodDesc resolveMethodAllowWildcardAndStream(String className,
-                                                                             Class optionalClass,
+                                                                             EPTypeClass optionalClass,
                                                                              String methodName,
                                                                              List<ExprNode> parameters,
                                                                              boolean allowWildcard,
@@ -36,7 +38,7 @@ public class ExprNodeUtilityResolve {
                                                                              String functionName,
                                                                              StatementRawInfo statementRawInfo,
                                                                              StatementCompileTimeServices services) throws ExprValidationException {
-        Class[] paramTypes = new Class[parameters.size()];
+        EPType[] paramTypes = new EPType[parameters.size()];
         ExprForge[] childForges = new ExprForge[parameters.size()];
         int count = 0;
         boolean[] allowEventBeanType = new boolean[parameters.size()];
@@ -51,9 +53,9 @@ public class ExprNodeUtilityResolve {
                 if (wildcardType == null || !allowWildcard) {
                     throw new ExprValidationException("Failed to resolve wildcard parameter to a given event type");
                 }
-                childForges[count] = new ExprEvalStreamNumUnd(0, wildcardType.getUnderlyingType());
+                childForges[count] = new ExprEvalStreamNumUnd(0, wildcardType.getUnderlyingEPType());
                 childEvalsEventBeanReturnTypesForges[count] = new ExprEvalStreamNumEvent(0);
-                paramTypes[count] = wildcardType.getUnderlyingType();
+                paramTypes[count] = wildcardType.getUnderlyingEPType();
                 allowEventBeanType[count] = true;
                 allConstants = false;
                 count++;
@@ -66,7 +68,7 @@ public class ExprNodeUtilityResolve {
                     childForges[count] = childNode.getForge();
                     childEvalsEventBeanReturnTypesForges[count] = new ExprEvalStreamNumEvent(und.getStreamId());
                 } else {
-                    childForges[count] = new ExprEvalStreamTable(und.getStreamId(), und.getEventType().getUnderlyingType(), tableMetadata);
+                    childForges[count] = new ExprEvalStreamTable(und.getStreamId(), und.getEventType().getUnderlyingEPType(), tableMetadata);
                     childEvalsEventBeanReturnTypesForges[count] = new ExprEvalStreamNumEventTable(und.getStreamId(), tableMetadata);
                 }
                 paramTypes[count] = childForges[count].getEvaluationType();
@@ -108,7 +110,7 @@ public class ExprNodeUtilityResolve {
         Method method;
         try {
             if (optionalClass != null) {
-                method = services.getClasspathImportServiceCompileTime().resolveMethod(optionalClass, methodName, paramTypes, allowEventBeanType);
+                method = services.getClasspathImportServiceCompileTime().resolveMethod(optionalClass.getType(), methodName, paramTypes, allowEventBeanType);
             } else {
                 method = services.getClasspathImportServiceCompileTime().resolveMethodOverloadChecked(className, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType, services.getClassProvidedClasspathExtension());
             }
@@ -158,6 +160,6 @@ public class ExprNodeUtilityResolve {
         }
 
         boolean localInlinedClass = services.getClassProvidedClasspathExtension().isLocalInlinedClass(method.getDeclaringClass());
-        return new ExprNodeUtilMethodDesc(allConstants, childForges, method, localInlinedClass);
+        return new ExprNodeUtilMethodDesc(allConstants, childForges, method, optionalClass, localInlinedClass);
     }
 }

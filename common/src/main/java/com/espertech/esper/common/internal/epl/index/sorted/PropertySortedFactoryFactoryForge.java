@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.index.sorted;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -42,15 +44,15 @@ public class PropertySortedFactoryFactoryForge extends EventTableFactoryFactoryF
         this.serde = serde;
     }
 
-    protected Class typeOf() {
-        return PropertySortedFactoryFactory.class;
+    protected EPTypeClass typeOf() {
+        return PropertySortedFactoryFactory.EPTYPE;
     }
 
     protected List<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         List<CodegenExpression> params = new ArrayList<>();
         params.add(constant(indexedProp));
         params.add(constant(coercionDesc.getCoercionTypes()[0]));
-        Class propertyType = eventType.getPropertyType(indexedProp);
+        EPType propertyType = eventType.getPropertyEPType(indexedProp);
         EventPropertyGetterSPI getterSPI = ((EventTypeSPI) eventType).getGetterSPI(indexedProp);
         CodegenExpression getter = EventTypeUtility.codegenGetterWCoerce(getterSPI, propertyType, coercionDesc.getCoercionTypes()[0], method, this.getClass(), classScope);
         params.add(getter);

@@ -10,7 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public interface AggregationResultFutureAssignableWEval extends ExprEvaluator, AggregationResultFutureAssignable {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationResultFutureAssignableWEval.class);
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.serde.compiletime.eventtype;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -33,10 +34,9 @@ import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -64,19 +64,19 @@ public class StmtClassForgeableBaseNestableEventTypeSerde implements StmtClassFo
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
 
-        CodegenMethod writeMethod = CodegenMethod.makeParentNode(void.class, StmtClassForgeableBaseNestableEventTypeSerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(Object.class, OBJECT_NAME)
-            .addParam(DataOutput.class, OUTPUT_NAME)
-            .addParam(byte[].class, UNITKEY_NAME)
-            .addParam(EventBeanCollatedWriter.class, WRITER_NAME)
-            .addThrown(IOException.class);
+        CodegenMethod writeMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableBaseNestableEventTypeSerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.OBJECT.getEPType(), OBJECT_NAME)
+                .addParam(EPTypePremade.DATAOUTPUT.getEPType(), OUTPUT_NAME)
+                .addParam(EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), UNITKEY_NAME)
+                .addParam(EventBeanCollatedWriter.EPTYPE, WRITER_NAME)
+                .addThrown(EPTypePremade.IOEXCEPTION.getEPType());
         makeWriteMethod(writeMethod);
         CodegenStackGenerator.recursiveBuildStack(writeMethod, "write", methods);
 
-        CodegenMethod readMethod = CodegenMethod.makeParentNode(Object.class, StmtClassForgeableBaseNestableEventTypeSerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(DataInput.class, INPUT_NAME)
-            .addParam(byte[].class, UNITKEY_NAME)
-            .addThrown(IOException.class);
+        CodegenMethod readMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), StmtClassForgeableBaseNestableEventTypeSerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.DATAINPUT.getEPType(), INPUT_NAME)
+                .addParam(EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), UNITKEY_NAME)
+                .addThrown(EPTypePremade.IOEXCEPTION.getEPType());
         makeReadMethod(readMethod);
         CodegenStackGenerator.recursiveBuildStack(readMethod, "read", methods);
 
@@ -85,13 +85,13 @@ public class StmtClassForgeableBaseNestableEventTypeSerde implements StmtClassFo
             members.add(new CodegenTypedParam(forges[i].forgeClassName(), "s" + i));
         }
 
-        List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(EventTypeResolver.class, "resolver", false));
+        List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(EventTypeResolver.EPTYPE, "resolver", false));
         CodegenCtor providerCtor = new CodegenCtor(this.getClass(), includeDebugSymbols, ctorParams);
         for (int i = 0; i < forges.length; i++) {
             providerCtor.getBlock().assignRef("s" + i, forges[i].codegen(providerCtor, classScope, ref("resolver")));
         }
 
-        return new CodegenClass(CodegenClassType.EVENTSERDE, DataInputOutputSerde.class, className, classScope, members, providerCtor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.EVENTSERDE, DataInputOutputSerde.EPTYPE, className, classScope, members, providerCtor, methods, Collections.emptyList());
     }
 
     public String getClassName() {
@@ -106,12 +106,12 @@ public class StmtClassForgeableBaseNestableEventTypeSerde implements StmtClassFo
         String[] propertyNames = eventType.getPropertyNames();
 
         if (eventType instanceof MapEventType) {
-            writeMethod.getBlock().declareVar(Map.class, "map", cast(Map.class, ref(OBJECT_NAME)));
+            writeMethod.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", cast(EPTypePremade.MAP.getEPType(), ref(OBJECT_NAME)));
         } else if (eventType instanceof ObjectArrayEventType) {
-            writeMethod.getBlock().declareVar(Object[].class, "oa", cast(Object[].class, ref(OBJECT_NAME)));
+            writeMethod.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oa", cast(EPTypePremade.OBJECTARRAY.getEPType(), ref(OBJECT_NAME)));
         } else if (eventType instanceof JsonEventType) {
             JsonEventType jsonEventType = (JsonEventType) eventType;
-            writeMethod.getBlock().declareVar(jsonEventType.getUnderlyingType(), "json", cast(jsonEventType.getUnderlyingType(), ref(OBJECT_NAME)));
+            writeMethod.getBlock().declareVar(jsonEventType.getUnderlyingEPType(), "json", cast(jsonEventType.getUnderlyingEPType(), ref(OBJECT_NAME)));
         } else {
             throw new IllegalStateException("Unrecognized event type " + eventType);
         }
@@ -151,14 +151,14 @@ public class StmtClassForgeableBaseNestableEventTypeSerde implements StmtClassFo
         CodegenExpressionRef underlyingRef;
 
         if (eventType instanceof MapEventType) {
-            readMethod.getBlock().declareVar(Map.class, "map", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(forges.length))));
+            readMethod.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(forges.length))));
             underlyingRef = ref("map");
         } else if (eventType instanceof ObjectArrayEventType) {
-            readMethod.getBlock().declareVar(Object[].class, "oa", newArrayByLength(Object.class, constant(forges.length)));
+            readMethod.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oa", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forges.length)));
             underlyingRef = ref("oa");
         } else if (eventType instanceof JsonEventType) {
             JsonEventType jsonEventType = (JsonEventType) eventType;
-            readMethod.getBlock().declareVar(jsonEventType.getUnderlyingType(), "json", newInstance(jsonEventType.getUnderlyingType()));
+            readMethod.getBlock().declareVar(jsonEventType.getUnderlyingEPType(), "json", newInstance(jsonEventType.getUnderlyingEPType()));
             underlyingRef = ref("json");
         } else {
             throw new IllegalStateException("Unrecognized event type " + eventType);

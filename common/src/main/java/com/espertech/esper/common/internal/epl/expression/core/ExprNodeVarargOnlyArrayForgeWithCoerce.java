@@ -24,7 +24,7 @@ class ExprNodeVarargOnlyArrayForgeWithCoerce implements ExprEvaluator {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Object array = Array.newInstance(forge.varargClass, evals.length);
+        Object array = Array.newInstance(forge.varargClass.getType(), evals.length);
         for (int i = 0; i < evals.length; i++) {
             Object value = evals[i].evaluate(eventsPerStream, isNewData, context);
             if (forge.optionalCoercers[i] != null) {

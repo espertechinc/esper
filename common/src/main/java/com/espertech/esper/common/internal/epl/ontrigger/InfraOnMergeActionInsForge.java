@@ -43,9 +43,9 @@ public class InfraOnMergeActionInsForge extends InfraOnMergeActionForge {
     }
 
     protected CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InfraOnMergeActionIns.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(InfraOnMergeActionIns.EPTYPE, this.getClass(), classScope);
         CodegenExpressionNewAnonymousClass anonymousSelect = SelectExprProcessorUtil.makeAnonymous(insertHelper, method, symbols.getAddInitSvc(method), classScope);
-        method.getBlock().methodReturn(newInstance(InfraOnMergeActionIns.class,
+        method.getBlock().methodReturn(newInstance(InfraOnMergeActionIns.EPTYPE,
                 makeFilter(method, classScope), anonymousSelect,
                 insertIntoTable == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(insertIntoTable, symbols.getAddInitSvc(method)), constant(audit), constant(route)));
         return localMethod(method);

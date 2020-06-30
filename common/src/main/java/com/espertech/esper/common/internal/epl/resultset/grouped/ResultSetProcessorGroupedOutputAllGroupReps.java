@@ -11,12 +11,14 @@
 package com.espertech.esper.common.internal.epl.resultset.grouped;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputHelper;
 
 import java.util.Iterator;
 import java.util.Map;
 
 public interface ResultSetProcessorGroupedOutputAllGroupReps extends ResultSetProcessorOutputHelper {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorGroupedOutputAllGroupReps.class);
 
     Object put(Object mk, EventBean[] array);
 

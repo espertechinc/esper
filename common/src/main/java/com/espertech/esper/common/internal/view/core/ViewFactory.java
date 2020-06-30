@@ -11,9 +11,14 @@
 package com.espertech.esper.common.internal.view.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 
 public interface ViewFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(ViewFactory.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(ViewFactory[].class);
+    EPTypeClass EPTYPEARRAYARRAY = new EPTypeClass(ViewFactory[][].class);
+
     void setEventType(EventType eventType);
 
     EventType getEventType();

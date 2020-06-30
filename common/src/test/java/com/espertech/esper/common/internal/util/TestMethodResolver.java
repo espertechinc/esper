@@ -10,67 +10,73 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
+
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 
 public class TestMethodResolver extends TestCase {
     public void testResolveMethodStaticOnly() throws Exception {
         Class declClass = Math.class;
         String methodName = "max";
         Class[] args = new Class[]{int.class, int.class};
+        EPTypeClass[] ptypes = new EPTypeClass[]{INTEGERPRIMITIVE.getEPType(), INTEGERPRIMITIVE.getEPType()};
         Method expected = Math.class.getMethod(methodName, args);
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, false, null, null));
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null));
 
         args = new Class[]{long.class, long.class};
         expected = Math.class.getMethod(methodName, args);
-        args = new Class[]{int.class, long.class};
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, false, null, null));
+        ptypes = new EPTypeClass[]{INTEGERPRIMITIVE.getEPType(), LONGPRIMITIVE.getEPType()};
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null));
 
         args = new Class[]{int.class, int.class};
         expected = Math.class.getMethod(methodName, args);
-        args = new Class[]{Integer.class, Integer.class};
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, false, null, null));
+        ptypes = new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()};
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null));
 
         args = new Class[]{long.class, long.class};
         expected = Math.class.getMethod(methodName, args);
-        args = new Class[]{Integer.class, Long.class};
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, false, null, null));
+        ptypes = new EPTypeClass[]{INTEGERBOXED.getEPType(), LONGBOXED.getEPType()};
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null));
 
         args = new Class[]{float.class, float.class};
         expected = Math.class.getMethod(methodName, args);
-        args = new Class[]{Integer.class, Float.class};
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, false, null, null));
+        ptypes = new EPTypeClass[]{INTEGERBOXED.getEPType(), FLOATBOXED.getEPType()};
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null));
 
         declClass = System.class;
         methodName = "currentTimeMillis";
         args = new Class[0];
         expected = System.class.getMethod(methodName, args);
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, false, null, null));
+        ptypes = new EPTypeClass[0];
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null));
     }
 
     public void testResolveMethodStaticAndInstance() throws Exception {
-        boolean[] allowEventBeanType = new boolean[10];
         Class declClass = Math.class;
         String methodName = "max";
         Class[] args = new Class[]{int.class, int.class};
+        EPTypeClass[] ptypes = new EPTypeClass[]{INTEGERPRIMITIVE.getEPType(), INTEGERPRIMITIVE.getEPType()};
         Method expected = Math.class.getMethod(methodName, args);
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, true, null, null));
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, true, null, null));
 
         declClass = String.class;
         methodName = "trim";
         args = new Class[0];
         expected = String.class.getMethod(methodName, args);
-        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, args, true, null, null));
+        ptypes = new EPTypeClass[0];
+        assertEquals(expected, MethodResolver.resolveMethod(declClass, methodName, ptypes, true, null, null));
     }
 
     public void testResolveMethodNotFound() throws Exception {
         boolean[] allowEventBeanType = new boolean[10];
         Class declClass = String.class;
         String methodName = "trim";
-        Class[] args = null;
+        EPTypeClass[] ptypes = null;
         try {
-            MethodResolver.resolveMethod(declClass, methodName, args, false, null, null);
+            MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null);
             fail();
         } catch (MethodResolverNoSuchMethodException e) {
             // Expected
@@ -78,27 +84,27 @@ public class TestMethodResolver extends TestCase {
 
         declClass = Math.class;
         methodName = "moox";
-        args = new Class[]{int.class, int.class};
+        ptypes = new EPTypeClass[]{INTEGERPRIMITIVE.getEPType(), INTEGERPRIMITIVE.getEPType()};
         try {
-            MethodResolver.resolveMethod(declClass, methodName, args, false, null, null);
+            MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null);
             fail();
         } catch (MethodResolverNoSuchMethodException e) {
             // Expected
         }
 
         methodName = "max";
-        args = new Class[]{boolean.class, boolean.class};
+        ptypes = new EPTypeClass[]{BOOLEANPRIMITIVE.getEPType(), BOOLEANPRIMITIVE.getEPType()};
         try {
-            MethodResolver.resolveMethod(declClass, methodName, args, false, null, null);
+            MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null);
             fail();
         } catch (MethodResolverNoSuchMethodException e) {
             // Expected
         }
 
         methodName = "max";
-        args = new Class[]{int.class, int.class, boolean.class};
+        ptypes = new EPTypeClass[]{INTEGERPRIMITIVE.getEPType(), INTEGERPRIMITIVE.getEPType(), BOOLEANPRIMITIVE.getEPType()};
         try {
-            MethodResolver.resolveMethod(declClass, methodName, args, false, null, null);
+            MethodResolver.resolveMethod(declClass, methodName, ptypes, false, null, null);
             fail();
         } catch (MethodResolverNoSuchMethodException e) {
             // Expected

@@ -2292,6 +2292,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitPatternFilterAnnotation(EsperEPL2GrammarParser.PatternFilterAnnotationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#classIdentifierNoDimensions}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassIdentifierNoDimensions(EsperEPL2GrammarParser.ClassIdentifierNoDimensionsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#classIdentifierNoDimensions}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassIdentifierNoDimensions(EsperEPL2GrammarParser.ClassIdentifierNoDimensionsContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#classIdentifierWithDimensions}.
 	 * @param ctx the parse tree
 	 */
@@ -2301,6 +2311,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitClassIdentifierWithDimensions(EsperEPL2GrammarParser.ClassIdentifierWithDimensionsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#typeParameters}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeParameters(EsperEPL2GrammarParser.TypeParametersContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#typeParameters}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeParameters(EsperEPL2GrammarParser.TypeParametersContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#dimensions}.
 	 * @param ctx the parse tree

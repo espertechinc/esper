@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProvider;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -32,9 +33,9 @@ public class ModuleIndexesInitializeSymbol implements CodegenSymbolProvider {
         return optionalInitServicesRef;
     }
 
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
         if (optionalInitServicesRef != null) {
-            symbols.put(optionalInitServicesRef.getRef(), EPModuleIndexInitServices.class);
+            symbols.put(optionalInitServicesRef.getRef(), EPModuleIndexInitServices.EPTYPE);
         }
     }
 }

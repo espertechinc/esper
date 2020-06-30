@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.compile.multikey;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -25,9 +29,6 @@ import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableType
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,11 +45,11 @@ public class StmtClassForgeableMultiKeySerde implements StmtClassForgeable {
 
     private final String className;
     private final CodegenPackageScope packageScope;
-    private final Class[] types;
+    private final EPType[] types;
     private final String classNameMK;
     private final DataInputOutputSerdeForge[] forges;
 
-    public StmtClassForgeableMultiKeySerde(String className, CodegenPackageScope packageScope, Class[] types, String classNameMK, DataInputOutputSerdeForge[] forges) {
+    public StmtClassForgeableMultiKeySerde(String className, CodegenPackageScope packageScope, EPType[] types, String classNameMK, DataInputOutputSerdeForge[] forges) {
         this.className = className;
         this.packageScope = packageScope;
         this.types = types;
@@ -60,21 +61,21 @@ public class StmtClassForgeableMultiKeySerde implements StmtClassForgeable {
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
 
-        CodegenMethod writeMethod = CodegenMethod.makeParentNode(void.class, StmtClassForgeableMultiKeySerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(Object.class, OBJECT_NAME)
-            .addParam(DataOutput.class, OUTPUT_NAME)
-            .addParam(byte[].class, UNITKEY_NAME)
-            .addParam(EventBeanCollatedWriter.class, WRITER_NAME)
-            .addThrown(IOException.class);
+        CodegenMethod writeMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableMultiKeySerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.OBJECT.getEPType(), OBJECT_NAME)
+                .addParam(EPTypePremade.DATAOUTPUT.getEPType(), OUTPUT_NAME)
+                .addParam(EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), UNITKEY_NAME)
+                .addParam(EventBeanCollatedWriter.EPTYPE, WRITER_NAME)
+                .addThrown(EPTypePremade.IOEXCEPTION.getEPType());
         if (!fireAndForget) {
             makeWriteMethod(writeMethod);
         }
         CodegenStackGenerator.recursiveBuildStack(writeMethod, "write", methods);
 
-        CodegenMethod readMethod = CodegenMethod.makeParentNode(Object.class, StmtClassForgeableMultiKeySerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-            .addParam(DataInput.class, INPUT_NAME)
-            .addParam(byte[].class, UNITKEY_NAME)
-            .addThrown(IOException.class);
+        CodegenMethod readMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), StmtClassForgeableMultiKeySerde.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(EPTypePremade.DATAINPUT.getEPType(), INPUT_NAME)
+                .addParam(EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), UNITKEY_NAME)
+                .addThrown(EPTypePremade.IOEXCEPTION.getEPType());
         if (!fireAndForget) {
             makeReadMethod(readMethod);
         } else {
@@ -92,7 +93,7 @@ public class StmtClassForgeableMultiKeySerde implements StmtClassForgeable {
             providerCtor.getBlock().assignRef("s" + i, forges[i].codegen(providerCtor, classScope, null));
         }
 
-        return new CodegenClass(CodegenClassType.KEYPROVISIONINGSERDE, DataInputOutputSerde.class, className, classScope, members, providerCtor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.KEYPROVISIONINGSERDE, DataInputOutputSerde.EPTYPE, className, classScope, members, providerCtor, methods, Collections.emptyList());
     }
 
     public String getClassName() {
@@ -116,7 +117,13 @@ public class StmtClassForgeableMultiKeySerde implements StmtClassForgeable {
         CodegenExpression[] params = new CodegenExpression[types.length];
         for (int i = 0; i < types.length; i++) {
             CodegenExpression serde = ref("s" + i);
-            params[i] = cast(JavaClassHelper.getBoxedType(types[i]), exprDotMethod(serde, "read", ref(INPUT_NAME), ref(UNITKEY_NAME)));
+            EPType boxed = JavaClassHelper.getBoxedType(types[i]);
+            CodegenExpression read = exprDotMethod(serde, "read", ref(INPUT_NAME), ref(UNITKEY_NAME));
+            if (boxed != EPTypeNull.INSTANCE) {
+                params[i] = cast((EPTypeClass) boxed, read);
+            } else {
+                params[i] = read;
+            }
         }
         readMethod.getBlock().methodReturn(newInstance(classNameMK, params));
     }

@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 
 public interface AggregationRow {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationRow.class);
+
     void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 
     void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);

@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,11 +29,11 @@ public class AggregationGroupByRollupLevelForge {
     private final int levelNumber;
     private final int levelOffset;
     private final int[] rollupKeys;
-    private final Class[] allGroupKeyTypes;
+    private final EPType[] allGroupKeyTypes;
     private final MultiKeyClassRef allKeysMultikey;
     private final MultiKeyClassRef subKeyMultikey;
 
-    public AggregationGroupByRollupLevelForge(int levelNumber, int levelOffset, int[] rollupKeys, Class[] allGroupKeyTypes, MultiKeyClassRef allKeysMultikey, MultiKeyClassRef subKeyMultikey) {
+    public AggregationGroupByRollupLevelForge(int levelNumber, int levelOffset, int[] rollupKeys, EPType[] allGroupKeyTypes, MultiKeyClassRef allKeysMultikey, MultiKeyClassRef subKeyMultikey) {
         this.levelNumber = levelNumber;
         this.levelOffset = levelOffset;
         this.rollupKeys = rollupKeys;
@@ -46,7 +50,7 @@ public class AggregationGroupByRollupLevelForge {
     }
 
     public CodegenExpression codegen(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationGroupByRollupLevel.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationGroupByRollupLevel.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression serde = constantNull();
         if (rollupKeys != null) {
@@ -57,10 +61,10 @@ public class AggregationGroupByRollupLevelForge {
             }
         }
 
-        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), AggregationGroupByRollupLevel.class,
+        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), AggregationGroupByRollupLevel.EPTYPE,
             Arrays.asList(constant(levelNumber), constant(levelOffset), constant(rollupKeys), serde));
 
-        CodegenMethod computeSubkey = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(Object.class, "groupKey");
+        CodegenMethod computeSubkey = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EPTypePremade.OBJECT.getEPType(), "groupKey");
         clazz.addMethod("computeSubkey", computeSubkey);
 
         if (isAggregationTop()) {
@@ -77,7 +81,8 @@ public class AggregationGroupByRollupLevelForge {
                 for (int i = 0; i < rollupKeys.length; i++) {
                     int index = rollupKeys[i];
                     CodegenExpression keyExpr = exprDotMethod(ref("mk"), "getKey", constant(index));
-                    expressions[i] = cast(allGroupKeyTypes[index], keyExpr);
+                    EPType type = allGroupKeyTypes[index];
+                    expressions[i] = type == null || type == EPTypeNull.INSTANCE ? constantNull() : cast((EPTypeClass) type, keyExpr);
                 }
                 computeSubkey.getBlock().methodReturn(newInstance(subKeyMultikey.getClassNameMK(), expressions));
             }

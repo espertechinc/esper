@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForgeInstrumentable;
 
 public abstract class ExprTypeofNodeForge implements ExprForgeInstrumentable {
-    public Class getEvaluationType() {
-        return String.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.STRING.getEPType();
     }
 }

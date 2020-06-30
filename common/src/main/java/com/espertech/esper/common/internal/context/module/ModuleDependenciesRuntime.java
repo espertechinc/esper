@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.script.core.NameParamNumAndModule;
 import com.espertech.esper.common.internal.type.NameAndModule;
 
 public class ModuleDependenciesRuntime {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ModuleDependenciesRuntime.class);
+
     private NameAndModule[] pathEventTypes;
     private NameAndModule[] pathNamedWindows;
     private NameAndModule[] pathTables;

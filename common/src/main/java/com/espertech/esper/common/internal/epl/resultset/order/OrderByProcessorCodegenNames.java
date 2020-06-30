@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.order;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -41,30 +42,30 @@ public class OrderByProcessorCodegenNames {
     final static CodegenExpressionRef REF_ORDERSECONDEVENT = ref("second");
     final static CodegenExpressionRef REF_ORDERSECONDSORTKEY = ref("secondSortKey");
 
-    final static List<CodegenNamedParam> SORTPLAIN_PARAMS = CodegenNamedParam.from(EventBean[].class, REF_OUTGOINGEVENTS.getRef(),
-            EventBean[][].class, REF_GENERATINGEVENTS.getRef(),
-            boolean.class, REF_ISNEWDATA.getRef(),
-            ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(),
-            AggregationService.class, MEMBER_AGGREGATIONSVC.getRef());
+    final static List<CodegenNamedParam> SORTPLAIN_PARAMS = CodegenNamedParam.from(EventBean.EPTYPEARRAY, REF_OUTGOINGEVENTS.getRef(),
+        EventBean.EPTYPEARRAYARRAY, REF_GENERATINGEVENTS.getRef(),
+        EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef(),
+        ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef(),
+        AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef());
 
     final static List<CodegenNamedParam> SORTWGROUPKEYS_PARAMS = CodegenNamedParam.from(
-            EventBean[].class, REF_OUTGOINGEVENTS.getRef(),
-            EventBean[][].class, REF_GENERATINGEVENTS.getRef(),
-            Object[].class, REF_ORDERGROUPBYKEYS.getRef(),
-            boolean.class, REF_ISNEWDATA.getRef(),
-            ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef(),
-            AggregationService.class, MEMBER_AGGREGATIONSVC.getRef());
+        EventBean.EPTYPEARRAY, REF_OUTGOINGEVENTS.getRef(),
+        EventBean.EPTYPEARRAYARRAY, REF_GENERATINGEVENTS.getRef(),
+        EPTypePremade.OBJECTARRAY.getEPType(), REF_ORDERGROUPBYKEYS.getRef(),
+        EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef(),
+        ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef(),
+        AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef());
 
     final static List<CodegenNamedParam> SORTROLLUP_PARAMS = CodegenNamedParam.from(
-            EventBean[].class, REF_OUTGOINGEVENTS.getRef(),
-            List.class, REF_ORDERCURRENTGENERATORS.getRef(),
-            boolean.class, REF_ISNEWDATA.getRef(),
-            AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef(),
-            AggregationService.class, MEMBER_AGGREGATIONSVC.getRef());
+        EventBean.EPTYPEARRAY, REF_OUTGOINGEVENTS.getRef(),
+        EPTypePremade.LIST.getEPType(), REF_ORDERCURRENTGENERATORS.getRef(),
+        EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef(),
+        AgentInstanceContext.EPTYPE, MEMBER_AGENTINSTANCECONTEXT.getRef(),
+        AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef());
 
     final static List<CodegenNamedParam> SORTTWOKEYS_PARAMS = CodegenNamedParam.from(
-            EventBean.class, REF_ORDERFIRSTEVENT.getRef(),
-            Object.class, REF_ORDERFIRSTSORTKEY.getRef(),
-            EventBean.class, REF_ORDERSECONDEVENT.getRef(),
-            Object.class, REF_ORDERSECONDSORTKEY.getRef());
+        EventBean.EPTYPE, REF_ORDERFIRSTEVENT.getRef(),
+        EPTypePremade.OBJECT.getEPType(), REF_ORDERFIRSTSORTKEY.getRef(),
+        EventBean.EPTYPE, REF_ORDERSECONDEVENT.getRef(),
+        EPTypePremade.OBJECT.getEPType(), REF_ORDERSECONDSORTKEY.getRef());
 }

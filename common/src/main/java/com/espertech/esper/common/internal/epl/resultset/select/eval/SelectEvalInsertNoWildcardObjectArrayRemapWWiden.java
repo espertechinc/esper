@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -49,16 +51,16 @@ public class SelectEvalInsertNoWildcardObjectArrayRemapWWiden implements SelectE
     }
 
     public static CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprForge[] forges, String[] propertyNames, int[] remapped, TypeWidenerSPI[] optionalWideners) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, SelectEvalInsertNoWildcardObjectArrayRemapWWiden.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, SelectEvalInsertNoWildcardObjectArrayRemapWWiden.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "result", newArrayByLength(Object.class, constant(propertyNames.length)));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "result", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(propertyNames.length)));
         for (int i = 0; i < forges.length; i++) {
             CodegenExpression value;
             if (optionalWideners != null && optionalWideners[i] != null) {
-                value = forges[i].evaluateCodegen(forges[i].getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
+                value = forges[i].evaluateCodegen((EPTypeClass) forges[i].getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
                 value = optionalWideners[i].widenCodegen(value, codegenMethodScope, codegenClassScope);
             } else {
-                value = forges[i].evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope);
+                value = forges[i].evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope);
             }
             block.assignArrayElement(ref("result"), constant(remapped[i]), value);
         }

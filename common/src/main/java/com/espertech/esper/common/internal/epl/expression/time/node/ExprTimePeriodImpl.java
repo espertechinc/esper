@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.time.node;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.util.TimePeriod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,7 +26,6 @@ import com.espertech.esper.common.internal.epl.expression.time.adder.*;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodComputeForge;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodEval;
 import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNode;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.ArrayDeque;
@@ -33,6 +33,7 @@ import java.util.ArrayDeque;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newAnonymousClass;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 /**
  * Expression representing a time period.
@@ -95,12 +96,12 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     }
 
     public CodegenExpression makeTimePeriodAnonymous(CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass timeClass = newAnonymousClass(method.getBlock(), TimePeriodEval.class);
-        CodegenMethod evalMethod = CodegenMethod.makeParentNode(TimePeriod.class, this.getClass(), classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenExpressionNewAnonymousClass timeClass = newAnonymousClass(method.getBlock(), TimePeriodEval.EPTYPE);
+        CodegenMethod evalMethod = CodegenMethod.makeParentNode(TimePeriod.EPTYPE, this.getClass(), classScope).addParam(ExprForgeCodegenNames.PARAMS);
         timeClass.addMethod("timePeriodEval", evalMethod);
 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, true);
-        CodegenMethod exprMethod = evalMethod.makeChildWithScope(TimePeriod.class, this.getClass(), exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod exprMethod = evalMethod.makeChildWithScope(TimePeriod.EPTYPE, this.getClass(), exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression expression = forge.evaluateGetTimePeriodCodegen(exprMethod, exprSymbol, classScope);
         exprSymbol.derivedSymbolsCodegen(evalMethod, exprMethod.getBlock(), classScope);
         exprMethod.getBlock().methodReturn(expression);
@@ -365,12 +366,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         if (expression == null) {
             return false;
         }
-        Class returnType = expression.getForge().getEvaluationType();
-        if (!JavaClassHelper.isNumeric(returnType)) {
-            throw new ExprValidationException("Time period expression requires a numeric parameter type");
-        }
-        if ((hasMonth || hasYear) && (JavaClassHelper.getBoxedType(returnType) != Integer.class)) {
-            throw new ExprValidationException("Time period expressions with month or year component require integer values, received a " + returnType.getSimpleName() + " value");
+        EPType returnType = expression.getForge().getEvaluationType();
+        ExprNodeUtilityValidate.validateReturnsNumeric(expression.getForge(), () -> "Time period expression requires a numeric parameter type");
+        if ((hasMonth || hasYear) && !isTypeInteger(returnType)) {
+            throw new ExprValidationException("Time period expressions with month or year component require integer values, received a " + returnType.getTypeName() + " value");
         }
         return expression instanceof ExprVariableNode;
     }

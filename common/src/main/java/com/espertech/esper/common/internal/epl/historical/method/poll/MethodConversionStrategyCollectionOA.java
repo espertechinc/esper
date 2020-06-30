@@ -11,9 +11,11 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 
 public class MethodConversionStrategyCollectionOA extends MethodConversionStrategyCollection {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MethodConversionStrategyCollectionOA.class);
 
     protected EventBean getEventBean(Object value, AgentInstanceContext agentInstanceContext) {
         return agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedObjectArray((Object[]) value, eventType);

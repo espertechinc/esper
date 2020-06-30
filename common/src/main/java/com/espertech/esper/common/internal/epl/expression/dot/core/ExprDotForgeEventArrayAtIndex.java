@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,20 +23,20 @@ import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotForgeProper
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprDotForgeEventArrayAtIndex implements ExprDotForge {
-    private final EPType returnType;
+    private final EPChainableType returnType;
     private final ExprNode indexExpression;
 
-    public ExprDotForgeEventArrayAtIndex(EPType returnType, ExprNode indexExpression) {
+    public ExprDotForgeEventArrayAtIndex(EPChainableType returnType, ExprNode indexExpression) {
         this.returnType = returnType;
         this.indexExpression = indexExpression;
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return returnType;
     }
 
@@ -62,13 +64,13 @@ public class ExprDotForgeEventArrayAtIndex implements ExprDotForge {
         };
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(EventBean.class, ExprDotForgeProperty.class, classScope).addParam(EventBean[].class, "target").addParam(Integer.class, "index");
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod method = parent.makeChild(EventBean.EPTYPE, ExprDotForgeProperty.class, classScope).addParam(EventBean.EPTYPEARRAY, "target").addParam(EPTypePremade.INTEGERBOXED.getEPType(), "index");
         method.getBlock()
             .ifNullReturnNull(ref("target"))
             .ifCondition(relational(ref("index"), CodegenExpressionRelational.CodegenRelational.GE, arrayLength(ref("target"))))
-            .blockThrow(newInstance(EPException.class, concat(constant("Array length "), arrayLength(ref("target")), constant(" less than index "), ref("index"))))
-            .methodReturn(arrayAtIndex(ref("target"), cast(int.class, ref("index"))));
-        return localMethod(method, inner, indexExpression.getForge().evaluateCodegen(Integer.class, method, symbols, classScope));
+            .blockThrow(newInstance(EPException.EPTYPE, concat(constant("Array length "), arrayLength(ref("target")), constant(" less than index "), ref("index"))))
+            .methodReturn(arrayAtIndex(ref("target"), cast(EPTypePremade.INTEGERPRIMITIVE.getEPType(), ref("index"))));
+        return localMethod(method, inner, indexExpression.getForge().evaluateCodegen(EPTypePremade.INTEGERBOXED.getEPType(), method, symbols, classScope));
     }
 }

@@ -48,7 +48,7 @@ public class ViewableActivatorNamedWindowForge implements ViewableActivatorForge
         if (spec.getNamedWindowConsumerId() == -1) {
             throw new IllegalStateException("Unassigned named window consumer id");
         }
-        CodegenMethod method = parent.makeChild(ViewableActivatorNamedWindow.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ViewableActivatorNamedWindow.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression filter;
         if (filterEvaluator == null) {
@@ -58,7 +58,7 @@ public class ViewableActivatorNamedWindowForge implements ViewableActivatorForge
         }
 
         method.getBlock()
-                .declareVar(ViewableActivatorNamedWindow.class, "activator", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createNamedWindow"))
+                .declareVar(ViewableActivatorNamedWindow.EPTYPE, "activator", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createNamedWindow"))
                 .exprDotMethod(ref("activator"), "setNamedWindow", NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("activator"), "setNamedWindowConsumerId", constant(spec.getNamedWindowConsumerId()))
                 .exprDotMethod(ref("activator"), "setFilterEvaluator", filter)

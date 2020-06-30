@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -24,10 +25,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprBitWiseNodeForge implements ExprForgeInstrumentable {
     private final ExprBitWiseNode parent;
-    private final Class resultType;
+    private final EPTypeClass resultType;
     private final BitWiseOpEnum.Computer computer;
 
-    public ExprBitWiseNodeForge(ExprBitWiseNode parent, Class resultType, BitWiseOpEnum.Computer computer) {
+    public ExprBitWiseNodeForge(ExprBitWiseNode parent, EPTypeClass resultType, BitWiseOpEnum.Computer computer) {
         this.parent = parent;
         this.resultType = resultType;
         this.computer = computer;
@@ -41,7 +42,7 @@ public class ExprBitWiseNodeForge implements ExprForgeInstrumentable {
         return computer;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return resultType;
     }
 
@@ -53,13 +54,13 @@ public class ExprBitWiseNodeForge implements ExprForgeInstrumentable {
         return new ExprBitWiseNodeForgeEval(this, parent.getChildNodes()[0].getForge().getExprEvaluator(), parent.getChildNodes()[1].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprBitwise", requiredType, codegenMethodScope, exprSymbol, codegenClassScope)
                 .qparam(constant(parent.getBitWiseOpEnum()))
                 .build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprBitWiseNodeForgeEval.codegen(ExprBitWiseNodeForge.this, requiredType, codegenMethodScope, exprSymbol, codegenClassScope, parent.getChildNodes()[0], parent.getChildNodes()[1]);
     }
 }

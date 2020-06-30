@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerExpression;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionForge;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.TimePeriod;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerSetAssignment;
@@ -47,11 +50,40 @@ import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.event.propertyparser.PropertyParserNoDep.parseMappedProperty;
 
 public class ExprNodeUtilityValidate {
     private static final Logger log = LoggerFactory.getLogger(ExprNodeUtilityValidate.class);
+
+    public static EPTypeClass validateLHSTypeAnyAllSomeIn(EPType type) throws ExprValidationException {
+        // collections, array or map not supported
+        String message = "Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords";
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException(message);
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        if (typeClass.getType().isArray() || JavaClassHelper.isImplementsInterface(typeClass, Collection.class) || JavaClassHelper.isImplementsInterface(typeClass, Map.class)) {
+            throw new ExprValidationException(message);
+        }
+        return typeClass;
+    }
+
+    public static EPTypeClass validateReturnsNumeric(ExprForge forge) throws ExprValidationException {
+        EPType type = forge.getEvaluationType();
+        validateReturnsNumeric(forge, () -> "Implicit conversion from datatype '" +
+            (type == null || type == EPTypeNull.INSTANCE ? "null" : type.getTypeName()) +
+            "' to numeric is not allowed");
+        return (EPTypeClass) type;
+    }
+
+    public static void validateReturnsNumeric(ExprForge forge, Supplier<String> msg) throws ExprValidationException {
+        EPType type = forge.getEvaluationType();
+        if (!JavaClassHelper.isNumeric(type)) {
+            throw new ExprValidationException(msg.get());
+        }
+    }
 
     public static void validatePlainExpression(ExprNodeOrigin origin, ExprNode[] expressions) throws ExprValidationException {
         ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
@@ -158,7 +190,7 @@ public class ExprNodeUtilityValidate {
         }
 
         ExprNode childNode = namedParameterNode.getChildNodes()[0];
-        Class returnType = JavaClassHelper.getBoxedType(childNode.getForge().getEvaluationType());
+        EPType type = JavaClassHelper.getBoxedType(childNode.getForge().getEvaluationType());
 
         boolean found = false;
         for (Class expectedType : expectedTypes) {
@@ -166,9 +198,18 @@ public class ExprNodeUtilityValidate {
                 found = true;
                 break;
             }
-            if (returnType == JavaClassHelper.getBoxedType(expectedType)) {
-                found = true;
-                break;
+            Class expectedBoxedTypeMayNull = JavaClassHelper.getBoxedType(expectedType);
+            if (type == null || type == EPTypeNull.INSTANCE) {
+                if (expectedBoxedTypeMayNull == null) {
+                    found = true;
+                    break;
+                }
+            } else {
+                EPTypeClass typeClass = (EPTypeClass) type;
+                if (typeClass.getType() == expectedType) {
+                    found = true;
+                    break;
+                }
             }
         }
 
@@ -323,7 +364,7 @@ public class ExprNodeUtilityValidate {
     // this method tries to resolve the mapped property as a static method.
     // Assumes that this is an ExprIdentNode.
     private static ExprNode resolveStaticMethodOrField(ExprIdentNode identNode, ExprValidationException propertyException, ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Reconstruct the original string
         StringBuilder mappedProperty = new StringBuilder(identNode.getUnresolvedPropertyName());
         if (identNode.getStreamOrPropertyName() != null) {
@@ -407,7 +448,7 @@ public class ExprNodeUtilityValidate {
     }
 
     private static ExprNode resolveAsStreamName(ExprIdentNode identNode, ExprValidationException existingException, ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         ExprStreamUnderlyingNode exprStream = new ExprStreamUnderlyingNodeImpl(identNode.getUnresolvedPropertyName(), false);
 
         try {

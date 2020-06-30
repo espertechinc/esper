@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.view.access;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * Provides random-access into window contents by event and index as a combination.
  */
 public interface RelativeAccessByEventNIndexGetter {
+    EPTypeClass EPTYPE = new EPTypeClass(RelativeAccessByEventNIndexGetter.class);
+
     /**
      * Returns the access into window contents given an event.
      *

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -102,7 +103,7 @@ public class RowRecogDescForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(RowRecogDesc.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(RowRecogDesc.EPTYPE, this.getClass(), classScope);
         CodegenExpressionRef desc = ref("desc");
         CodegenExpression init = symbols.getAddInitSvc(method);
 
@@ -124,11 +125,11 @@ public class RowRecogDescForge {
                     initAggsSvcs[i] = localMethod(result.getInitMethod(), symbols.getAddInitSvc(parent));
                 }
             }
-            aggregationServiceFactories = newArrayWithInit(AggregationServiceFactory.class, initAggsSvcs);
+            aggregationServiceFactories = newArrayWithInit(AggregationServiceFactory.EPTYPE, initAggsSvcs);
         }
 
         method.getBlock()
-            .declareVar(RowRecogDesc.class, desc.getRef(), newInstance(RowRecogDesc.class))
+            .declareVarNewInstance(RowRecogDesc.EPTYPE, desc.getRef())
             .exprDotMethod(desc, "setParentEventType", EventTypeUtility.resolveTypeCodegen(parentEventType, init))
             .exprDotMethod(desc, "setRowEventType", EventTypeUtility.resolveTypeCodegen(rowEventType, init))
             .exprDotMethod(desc, "setCompositeEventType", EventTypeUtility.resolveTypeCodegen(compositeEventType, init))
@@ -163,17 +164,17 @@ public class RowRecogDescForge {
     }
 
     private CodegenExpression makeAggAssignables(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationResultFutureAssignable[].class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationResultFutureAssignable.EPTYPEARRAY, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationResultFutureAssignable[].class, "assignables", newArrayByLength(AggregationResultFutureAssignable.class, constant(aggregationServices.length)));
+            .declareVar(AggregationResultFutureAssignable.EPTYPEARRAY, "assignables", newArrayByLength(AggregationResultFutureAssignable.EPTYPE, constant(aggregationServices.length)));
 
         for (int i = 0; i < aggregationServices.length; i++) {
             if (aggregationServices[i] != null) {
-                CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), AggregationResultFutureAssignable.class);
-                CodegenMethod assign = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope).addParam(AggregationResultFuture.class, "future");
+                CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), AggregationResultFutureAssignable.EPTYPE);
+                CodegenMethod assign = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), classScope).addParam(AggregationResultFuture.EPTYPE, "future");
                 anonymousClass.addMethod("assign", assign);
 
-                CodegenExpression field = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameMatchRecognizeAgg(i), AggregationResultFuture.class);
+                CodegenExpression field = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameMatchRecognizeAgg(i), AggregationResultFuture.EPTYPE);
                 assign.getBlock().assignRef(field, ref("future"));
 
                 method.getBlock().assignArrayElement(ref("assignables"), constant(i), anonymousClass);
@@ -185,8 +186,8 @@ public class RowRecogDescForge {
     }
 
     private CodegenExpression makeStates(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(RowRecogNFAStateBase[].class, this.getClass(), classScope);
-        method.getBlock().declareVar(RowRecogNFAStateBase[].class, "states", newArrayByLength(RowRecogNFAStateBase.class, constant(allStates.length)));
+        CodegenMethod method = parent.makeChild(RowRecogNFAStateBase.EPTYPEARRAY, this.getClass(), classScope);
+        method.getBlock().declareVar(RowRecogNFAStateBase.EPTYPEARRAY, "states", newArrayByLength(RowRecogNFAStateBase.EPTYPE, constant(allStates.length)));
         for (int i = 0; i < allStates.length; i++) {
             method.getBlock().assignArrayElement("states", constant(i), allStates[i].make(method, symbols, classScope));
         }
@@ -204,22 +205,22 @@ public class RowRecogDescForge {
             nextStates.add(new Pair<>(state.getNodeNumFlat(), next));
         }
 
-        CodegenMethod method = parent.makeChild(List.class, this.getClass(), classScope);
-        method.getBlock().declareVar(List.class, "next", newInstance(ArrayList.class, constant(nextStates.size())));
+        CodegenMethod method = parent.makeChild(EPTypePremade.LIST.getEPType(), this.getClass(), classScope);
+        method.getBlock().declareVar(EPTypePremade.LIST.getEPType(), "next", newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(nextStates.size())));
         for (Pair<Integer, int[]> pair : nextStates) {
-            method.getBlock().exprDotMethod(ref("next"), "add", newInstance(Pair.class, constant(pair.getFirst()), constant(pair.getSecond())));
+            method.getBlock().exprDotMethod(ref("next"), "add", newInstance(Pair.EPTYPE, constant(pair.getFirst()), constant(pair.getSecond())));
         }
         method.getBlock().methodReturn(ref("next"));
         return localMethod(method);
     }
 
     private CodegenExpression makeVariableStreams(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(LinkedHashMap.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.LINKEDHASHMAP.getEPType(), this.getClass(), classScope);
         method.getBlock()
-            .declareVar(LinkedHashMap.class, "vars", newInstance(LinkedHashMap.class, constant(CollectionUtil.capacityHashMap(variableStreams.size()))));
+            .declareVar(EPTypePremade.LINKEDHASHMAP.getEPType(), "vars", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(variableStreams.size()))));
         for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet()) {
             method.getBlock().exprDotMethod(ref("vars"), "put", constant(entry.getKey()),
-                newInstance(Pair.class, constant(entry.getValue().getFirst()), constant(entry.getValue().getSecond())));
+                newInstance(Pair.EPTYPE, constant(entry.getValue().getFirst()), constant(entry.getValue().getSecond())));
         }
         method.getBlock().methodReturn(ref("vars"));
         return localMethod(method);

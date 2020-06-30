@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.output.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface OutputProcessViewFactoryProvider {
+    EPTypeClass EPTYPE = new EPTypeClass(OutputProcessViewFactoryProvider.class);
+
     OutputProcessViewFactory getOutputProcessViewFactory();
 }

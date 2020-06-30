@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,7 +26,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public abstract class ViewFactoryForgeBase implements ViewFactoryForge {
     protected EventType eventType;
 
-    protected abstract Class typeOfFactory();
+    protected abstract EPTypeClass typeOfFactory();
 
     protected abstract String factoryMethod();
 
@@ -40,7 +41,7 @@ public abstract class ViewFactoryForgeBase implements ViewFactoryForge {
             throw new IllegalStateException("Event type is unassigned");
         }
 
-        CodegenMethod method = parent.makeChild(ViewFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ViewFactory.EPTYPE, this.getClass(), classScope);
         CodegenExpressionRef factory = ref("factory");
         method.getBlock()
                 .declareVar(typeOfFactory(), factory.getRef(), exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWFACTORYSERVICE).add(factoryMethod()))

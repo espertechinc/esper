@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.calop;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -47,16 +49,17 @@ public class CalendarSetForgeOp implements CalendarOp {
 
     public static CodegenExpression codegenCalendar(CalendarSetForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression calField = constant(forge.fieldName.getCalendarField());
-        Class evaluationType = forge.valueExpr.getEvaluationType();
-        if (evaluationType.isPrimitive()) {
+        EPTypeClass evaluationType = (EPTypeClass) forge.valueExpr.getEvaluationType();
+        if (evaluationType.getType().isPrimitive()) {
             CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope);
             return exprDotMethod(cal, "set", calField, valueExpr);
         }
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(void.class, CalendarSetForgeOp.class, codegenClassScope).addParam(Calendar.class, "cal");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.VOID.getEPType(), CalendarSetForgeOp.class, codegenClassScope).addParam(EPTypePremade.CALENDAR.getEPType(), "cal");
         CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope);
+        CodegenExpression coercion = SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(valueExpr, evaluationType, methodNode, codegenClassScope);
         methodNode.getBlock()
-                .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(valueExpr, forge.valueExpr.getEvaluationType(), methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "value", coercion)
                 .ifRefNullReturnNull("value")
                 .expression(exprDotMethod(cal, "set", calField, ref("value")))
                 .methodEnd();
@@ -73,11 +76,13 @@ public class CalendarSetForgeOp implements CalendarOp {
 
     public static CodegenExpression codegenLDT(CalendarSetForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ChronoField chronoField = forge.fieldName.getChronoField();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarSetForgeOp.class, codegenClassScope).addParam(LocalDateTime.class, "ldt");
-        Class evaluationType = forge.valueExpr.getEvaluationType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.LOCALDATETIME.getEPType(), CalendarSetForgeOp.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "ldt");
+        EPTypeClass evaluationType = (EPTypeClass) forge.valueExpr.getEvaluationType();
 
+        CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope);
+        CodegenExpression coercion = SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(valueExpr, evaluationType, methodNode, codegenClassScope);
         methodNode.getBlock()
-                .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "value", coercion)
                 .ifRefNull("value").blockReturn(ref("ldt"))
                 .methodReturn(exprDotMethod(ref("ldt"), "with", enumValue(ChronoField.class, chronoField.name()), ref("value")));
         return localMethod(methodNode, ldt);
@@ -93,11 +98,13 @@ public class CalendarSetForgeOp implements CalendarOp {
 
     public static CodegenExpression codegenZDT(CalendarSetForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ChronoField chronoField = forge.fieldName.getChronoField();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarSetForgeOp.class, codegenClassScope).addParam(ZonedDateTime.class, "zdt");
-        Class evaluationType = forge.valueExpr.getEvaluationType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.ZONEDDATETIME.getEPType(), CalendarSetForgeOp.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "zdt");
+        EPTypeClass evaluationType = (EPTypeClass) forge.valueExpr.getEvaluationType();
 
+        CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope);
+        CodegenExpression coercion = SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(valueExpr, evaluationType, methodNode, codegenClassScope);
         methodNode.getBlock()
-                .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "value", coercion)
                 .ifRefNull("value").blockReturn(ref("zdt"))
                 .methodReturn(exprDotMethod(ref("zdt"), "with", enumValue(ChronoField.class, chronoField.name()), ref("value")));
         return localMethod(methodNode, zdt);

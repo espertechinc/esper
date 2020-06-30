@@ -32,10 +32,10 @@ public class InfraOnMergeMatchForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InfraOnMergeMatch.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(InfraOnMergeMatch.EPTYPE, this.getClass(), classScope);
         CodegenExpression evaluator = optionalCond == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(optionalCond.getForge(), method, this.getClass(), classScope);
         CodegenExpression actionsList = InfraOnMergeActionForge.makeActions(actions, method, symbols, classScope);
-        method.getBlock().methodReturn(newInstance(InfraOnMergeMatch.class, evaluator, actionsList));
+        method.getBlock().methodReturn(newInstance(InfraOnMergeMatch.EPTYPE, evaluator, actionsList));
         return localMethod(method);
     }
 }

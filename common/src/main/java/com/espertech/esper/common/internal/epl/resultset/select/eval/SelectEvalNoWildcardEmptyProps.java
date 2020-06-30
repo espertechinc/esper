@@ -37,7 +37,7 @@ public class SelectEvalNoWildcardEmptyProps implements SelectExprProcessorForge 
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedMap", staticMethod(Collections.class, "emptyMap"), resultEventType));
         return methodNode;
     }

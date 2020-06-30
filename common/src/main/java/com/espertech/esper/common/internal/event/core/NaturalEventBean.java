@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Map;
 
@@ -23,6 +24,8 @@ import java.util.Map;
  * subscriber objects via method call.
  */
 public class NaturalEventBean implements EventBean, DecoratingEventBean {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(NaturalEventBean.class);
+
     private final EventType eventBeanType;
     private final Object[] natural;
     private final EventBean optionalSynthetic;

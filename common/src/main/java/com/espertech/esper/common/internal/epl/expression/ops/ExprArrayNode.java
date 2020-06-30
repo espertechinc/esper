@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.*;
 
@@ -24,7 +28,7 @@ import java.util.List;
 public class ExprArrayNode extends ExprNodeBase {
 
     private transient ExprArrayNodeForge forge;
-    private Class optionalRequiredType;
+    private EPTypeClass optionalRequiredType;
 
     /**
      * Ctor.
@@ -47,7 +51,7 @@ public class ExprArrayNode extends ExprNodeBase {
         return forge;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         checkValidated(forge);
         return forge.getArrayReturnType();
     }
@@ -58,32 +62,34 @@ public class ExprArrayNode extends ExprNodeBase {
         // Can be an empty array with no content
         if (this.getChildNodes().length == 0) {
             if (optionalRequiredType == null) {
-                forge = new ExprArrayNodeForge(this, Object.class, CollectionUtil.OBJECTARRAY_EMPTY);
+                forge = new ExprArrayNodeForge(this, EPTypePremade.OBJECT.getEPType(), CollectionUtil.OBJECTARRAY_EMPTY);
             } else {
-                forge = new ExprArrayNodeForge(this, optionalRequiredType, Array.newInstance(optionalRequiredType, 0));
+                forge = new ExprArrayNodeForge(this, optionalRequiredType, Array.newInstance(optionalRequiredType.getType(), 0));
             }
             return null;
         }
 
-        List<Class> comparedTypes = new LinkedList<Class>();
+        List<EPType> comparedTypes = new LinkedList<>();
         for (int i = 0; i < length; i++) {
-            comparedTypes.add(this.getChildNodes()[i].getForge().getEvaluationType());
+            EPType evalType = this.getChildNodes()[i].getForge().getEvaluationType();
+            comparedTypes.add(evalType);
         }
 
         // Determine common denominator type
-        Class arrayReturnType = null;
+        EPTypeClass arrayReturnType = null;
         boolean mustCoerce = false;
         SimpleNumberCoercer coercer = null;
         try {
             if (optionalRequiredType == null) {
-                arrayReturnType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
+                EPType coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new EPType[comparedTypes.size()]));
+                arrayReturnType = coercionType == null || coercionType == EPTypeNull.INSTANCE ? null : (EPTypeClass) coercionType;
 
                 // Determine if we need to coerce numbers when one type doesn't match any other type
                 if (JavaClassHelper.isNumeric(arrayReturnType)) {
-                    mustCoerce = false;
-                    for (Class comparedType : comparedTypes) {
-                        if (comparedType != arrayReturnType) {
+                    for (EPType comparedType : comparedTypes) {
+                        if (!(comparedType.equals(arrayReturnType))) {
                             mustCoerce = true;
+                            break;
                         }
                     }
                     if (mustCoerce) {
@@ -92,10 +98,10 @@ public class ExprArrayNode extends ExprNodeBase {
                 }
             } else {
                 arrayReturnType = optionalRequiredType;
-                Class arrayBoxedType = JavaClassHelper.getBoxedType(arrayReturnType);
-                for (Class comparedType : comparedTypes) {
-                    if (!JavaClassHelper.isAssignmentCompatible(JavaClassHelper.getBoxedType(comparedType), arrayBoxedType)) {
-                        throw new ExprValidationException("Array element type mismatch: Expecting type " + JavaClassHelper.getClassNameFullyQualPretty(arrayReturnType) + " but received type " + JavaClassHelper.getClassNameFullyQualPretty(comparedType));
+                EPTypeClass arrayBoxedType = JavaClassHelper.getBoxedType(optionalRequiredType);
+                for (EPType comparedType : comparedTypes) {
+                    if (!JavaClassHelper.isAssignmentCompatible(JavaClassHelper.getBoxedType(comparedType), arrayBoxedType.getType())) {
+                        throw new ExprValidationException("Array element type mismatch: Expecting type " + ClassHelperPrint.getClassNameFullyQualPretty(arrayReturnType) + " but received type " + ClassHelperPrint.getClassNameFullyQualPretty(comparedType));
                     }
                 }
             }
@@ -105,7 +111,7 @@ public class ExprArrayNode extends ExprNodeBase {
             // use Object[] in such cases
         }
         if (arrayReturnType == null) {
-            arrayReturnType = Object.class;
+            arrayReturnType = EPTypePremade.OBJECT.getEPType();
         }
 
         // Determine if we are dealing with constants only
@@ -123,7 +129,7 @@ public class ExprArrayNode extends ExprNodeBase {
         // Copy constants into array and coerce, if required
         Object constantResult = null;
         if (results != null) {
-            constantResult = Array.newInstance(arrayReturnType, length);
+            constantResult = Array.newInstance(arrayReturnType.getType(), length);
             for (int i = 0; i < length; i++) {
                 if (mustCoerce) {
                     Number boxed = (Number) results[i];
@@ -132,13 +138,13 @@ public class ExprArrayNode extends ExprNodeBase {
                         Array.set(constantResult, i, coercedResult);
                     }
                 } else {
-                    if (arrayReturnType.isPrimitive() && results[i] == null) {
-                        throw new ExprValidationException("Array element type mismatch: Expecting type " + JavaClassHelper.getClassNameFullyQualPretty(arrayReturnType) + " but received null");
+                    if (arrayReturnType.getType().isPrimitive() && results[i] == null) {
+                        throw new ExprValidationException("Array element type mismatch: Expecting type " + ClassHelperPrint.getClassNameFullyQualPretty(arrayReturnType) + " but received null");
                     }
                     try {
                         Array.set(constantResult, i, results[i]);
                     } catch (IllegalArgumentException ex) {
-                        throw new ExprValidationException("Array element type mismatch: Expecting type " + JavaClassHelper.getClassNameFullyQualPretty(arrayReturnType) + " but received type " + JavaClassHelper.getClassNameFullyQualPretty(results[i].getClass()));
+                        throw new ExprValidationException("Array element type mismatch: Expecting type " + ClassHelperPrint.getClassNameFullyQualPretty(arrayReturnType) + " but received type " + ClassHelperPrint.getClassNameFullyQualPretty(results[i].getClass()));
                     }
                 }
             }
@@ -169,11 +175,11 @@ public class ExprArrayNode extends ExprNodeBase {
         return true;
     }
 
-    public void setOptionalRequiredType(Class optionalRequiredType) {
+    public void setOptionalRequiredType(EPTypeClass optionalRequiredType) {
         this.optionalRequiredType = optionalRequiredType;
     }
 
-    public Class getOptionalRequiredType() {
+    public EPTypeClass getOptionalRequiredType() {
         return optionalRequiredType;
     }
 }

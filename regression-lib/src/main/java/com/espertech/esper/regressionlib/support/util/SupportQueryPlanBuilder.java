@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.join.queryplan.*;
 import com.espertech.esper.common.internal.epl.join.queryplanouter.LookupInstructionPlanForge;
 
@@ -46,19 +48,19 @@ public class SupportQueryPlanBuilder {
 
     public SupportQueryPlanBuilder setIndexFullTableScan(int stream, String indexName) {
         QueryPlanIndexForge index = queryPlan.getIndexSpecs()[stream];
-        index.getItems().put(new TableLookupIndexReqKey(indexName, null), new QueryPlanIndexItemForge(new String[0], new Class[0], new String[0], new Class[0], false, null, null));
+        index.getItems().put(new TableLookupIndexReqKey(indexName, null), new QueryPlanIndexItemForge(new String[0], new EPTypeClass[0], new String[0], new EPTypeClass[0], false, null, null));
         return this;
     }
 
     public SupportQueryPlanBuilder addIndexHashSingleNonUnique(int stream, String indexName, String property) {
         QueryPlanIndexForge index = queryPlan.getIndexSpecs()[stream];
-        index.getItems().put(new TableLookupIndexReqKey(indexName, null), new QueryPlanIndexItemForge(new String[]{property}, new Class[]{String.class}, new String[0], new Class[0], false, null, null));
+        index.getItems().put(new TableLookupIndexReqKey(indexName, null), new QueryPlanIndexItemForge(new String[]{property}, new EPTypeClass[]{EPTypePremade.STRING.getEPType()}, new String[0], new EPTypeClass[0], false, null, null));
         return this;
     }
 
     public SupportQueryPlanBuilder addIndexBtreeSingle(int stream, String indexName, String property) {
         QueryPlanIndexForge index = queryPlan.getIndexSpecs()[stream];
-        index.getItems().put(new TableLookupIndexReqKey(indexName, null), new QueryPlanIndexItemForge(new String[0], new Class[0], new String[]{property}, new Class[]{String.class}, false, null, null));
+        index.getItems().put(new TableLookupIndexReqKey(indexName, null), new QueryPlanIndexItemForge(new String[0], new EPTypeClass[0], new String[]{property}, new EPTypeClass[]{EPTypePremade.STRING.getEPType()}, false, null, null));
         return this;
     }
 

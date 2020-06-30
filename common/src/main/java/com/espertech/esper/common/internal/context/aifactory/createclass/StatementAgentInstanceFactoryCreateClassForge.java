@@ -28,7 +28,7 @@ public class StatementAgentInstanceFactoryCreateClassForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(StatementAgentInstanceFactoryCreateClass.class, this.getClass(), "saiff", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(StatementAgentInstanceFactoryCreateClass.EPTYPE, this.getClass(), "saiff", parent, symbols, classScope)
             .eventtype("statementEventType", statementEventType)
             .constant("className", className)
             .buildMethod();

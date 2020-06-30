@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.epl.expression.time.eval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 
 public interface TimePeriodCompute {
+    EPTypeClass EPTYPE = new EPTypeClass(TimePeriodCompute.class);
+
     long deltaAdd(long fromTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     long deltaSubtract(long fromTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);

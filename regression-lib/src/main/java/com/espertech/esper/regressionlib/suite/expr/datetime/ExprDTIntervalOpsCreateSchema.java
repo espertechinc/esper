@@ -13,10 +13,10 @@ package com.espertech.esper.regressionlib.suite.expr.datetime;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;

@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface ResultSetProcessorOutputHelperVisitor {
+    EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorOutputHelperVisitor.class);
+
     void visit(ResultSetProcessorOutputHelper helper);
 }

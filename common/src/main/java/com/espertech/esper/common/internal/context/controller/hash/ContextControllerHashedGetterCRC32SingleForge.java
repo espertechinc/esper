@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.hash;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -58,11 +59,11 @@ public class ContextControllerHashedGetterCRC32SingleForge implements EventPrope
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(EventBean.class, "eventBean");
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "eventBean");
         CodegenMethod methodExpr = CodegenLegoMethodExpression.codegenExpression(eval.getForge(), method, classScope);
         method.getBlock()
-                .declareVar(EventBean[].class, "events", newArrayWithInit(EventBean.class, ref("eventBean")))
-                .declareVar(String.class, "code", cast(String.class, localMethod(methodExpr, ref("events"), constantTrue(), constantNull())))
+                .declareVar(EventBean.EPTYPEARRAY, "events", newArrayWithInit(EventBean.EPTYPE, ref("eventBean")))
+                .declareVar(EPTypePremade.STRING.getEPType(), "code", cast(EPTypePremade.STRING.getEPType(), localMethod(methodExpr, ref("events"), constantTrue(), constantNull())))
                 .methodReturn(staticMethod(ContextControllerHashedGetterCRC32SingleForge.class, "stringToCRC32Hash", ref("code"), constant(granularity)));
 
         return localMethod(method, beanExpression);

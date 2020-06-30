@@ -30,9 +30,9 @@ public class StatementAgentInstanceFactoryCreateDataflowForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateDataflow.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateDataflow.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateDataflow.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateDataflow.class))
+                .declareVarNewInstance(StatementAgentInstanceFactoryCreateDataflow.EPTYPE, "saiff")
                 .exprDotMethod(ref("saiff"), "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("saiff"), "setDataflow", dataflowForge.make(method, symbols, classScope))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add("addReadyCallback", ref("saiff")))

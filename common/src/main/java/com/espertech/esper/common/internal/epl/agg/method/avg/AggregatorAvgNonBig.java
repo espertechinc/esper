@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.avg;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -26,7 +28,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class AggregatorAvgNonBig extends AggregatorSumNonBig {
 
-    public AggregatorAvgNonBig(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, Class sumType) {
+    public AggregatorAvgNonBig(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, EPTypeClass sumType) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter, sumType);
     }
 
@@ -35,10 +37,10 @@ public class AggregatorAvgNonBig extends AggregatorSumNonBig {
         method.getBlock()
                 .ifCondition(equalsIdentity(cnt, constant(0)))
                 .blockReturn(constantNull());
-        if (sumType == double.class) {
+        if (sumType.getType() == double.class) {
             method.getBlock().methodReturn(op(sum, "/", cnt));
         } else {
-            method.getBlock().methodReturn(op(sum, "/", cast(double.class, cnt)));
+            method.getBlock().methodReturn(op(sum, "/", cast(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), cnt)));
         }
     }
 }

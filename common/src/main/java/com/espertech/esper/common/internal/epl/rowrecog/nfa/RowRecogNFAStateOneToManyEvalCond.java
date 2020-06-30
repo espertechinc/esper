@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.rowrecog.nfa;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
  * The '+' state in the regex NFA states.
  */
 public class RowRecogNFAStateOneToManyEvalCond extends RowRecogNFAStateBase implements RowRecogNFAState {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowRecogNFAStateOneToManyEvalCond.class);
+
     private ExprEvaluator expression;
 
     public boolean matches(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext) {

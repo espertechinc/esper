@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -44,12 +45,12 @@ public class FilterForEvalEventPropIndexedDoubleForge implements FilterSpecParam
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
         EventPropertyGetterSPI getterSPI = ((EventTypeSPI) eventType).getGetterSPI(resultEventProperty);
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
         method.getBlock()
-                .declareVar(EventBean[].class, "events", cast(EventBean[].class, exprDotMethod(ref("matchedEvents"), "getMatchingEventAsObjectByTag", CodegenExpressionBuilder.constant(resultEventAsName))))
-                .declareVar(Number.class, "value", constantNull())
+                .declareVar(EventBean.EPTYPEARRAY, "events", cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("matchedEvents"), "getMatchingEventAsObjectByTag", CodegenExpressionBuilder.constant(resultEventAsName))))
+                .declareVar(EPTypePremade.NUMBER.getEPType(), "value", constantNull())
                 .ifRefNotNull("events")
-                .assignRef("value", cast(Number.class, getterSPI.eventBeanGetCodegen(arrayAtIndex(ref("events"), CodegenExpressionBuilder.constant(resultEventIndex)), method, classScope)))
+                .assignRef("value", cast(EPTypePremade.NUMBER.getEPType(), getterSPI.eventBeanGetCodegen(arrayAtIndex(ref("events"), CodegenExpressionBuilder.constant(resultEventIndex)), method, classScope)))
                 .blockEnd()
                 .ifRefNullReturnNull("value")
                 .methodReturn(exprDotMethod(ref("value"), "doubleValue"));

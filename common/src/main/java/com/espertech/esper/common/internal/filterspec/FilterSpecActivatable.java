@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlan;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPath;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPathTriplet;
@@ -24,6 +25,8 @@ import java.io.StringWriter;
  * a set of parameters (attribute names, operators and constant/range values).
  */
 public final class FilterSpecActivatable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecActivatable.class);
+
     private final EventType filterForEventType;
     private final String filterForEventTypeName;
     private final FilterSpecPlan plan;

@@ -44,7 +44,7 @@ public final class SupportFilterSpecParamRange extends FilterSpecParam {
     public FilterValueSetParam getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
         ExprFilterSpecLookupable lookupable = this.lkupable.make(matchedEvents, exprEvaluatorContext);
         Object range;
-        if (lookupable.getReturnType() == String.class) {
+        if (lookupable.getReturnType().getType() == String.class) {
             String begin = (String) min.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
             String end = (String) max.getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
             range = new StringRange(begin, end);

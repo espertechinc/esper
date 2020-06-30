@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.prior;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,12 +29,13 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import java.io.StringWriter;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 /**
  * Represents the 'prior' prior event function in an expression node tree.
  */
 public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator, ExprForgeInstrumentable {
-    private Class resultType;
+    private EPType resultType;
     private int streamNumber;
     private int constantIndexNumber;
     private ExprForge innerForge;
@@ -59,7 +63,7 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator, ExprFo
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return resultType;
     }
 
@@ -79,8 +83,8 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator, ExprFo
         ExprNodeUtilityMake.setChildIdentNodesOptionalEvent(this);
 
         ExprNode constantNode = this.getChildNodes()[0];
-        Class constantNodeType = constantNode.getForge().getEvaluationType();
-        if (constantNodeType != Integer.class && constantNodeType != int.class) {
+        EPType constantNodeType = constantNode.getForge().getEvaluationType();
+        if (!isTypeInteger(constantNodeType)) {
             throw new ExprValidationException("Prior function requires an integer index parameter");
         }
 
@@ -118,27 +122,30 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator, ExprFo
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = parent.makeChild(resultType, this.getClass(), codegenClassScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        if (resultType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod method = parent.makeChild((EPTypeClass) resultType, this.getClass(), codegenClassScope);
 
         CodegenMethod innerEval = CodegenLegoMethodExpression.codegenExpression(innerForge, method, codegenClassScope);
         CodegenExpressionRef eps = exprSymbol.getAddEPS(method);
 
         // see ExprPriorEvalStrategyBase
-        CodegenExpression future = codegenClassScope.getPackageScope().addOrGetFieldWellKnown(priorStrategyFieldName, PriorEvalStrategy.class);
+        CodegenExpression future = codegenClassScope.getPackageScope().addOrGetFieldWellKnown(priorStrategyFieldName, PriorEvalStrategy.EPTYPE);
         method.getBlock()
-                .declareVar(EventBean.class, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
-                .declareVar(EventBean.class, "substituteEvent", exprDotMethod(future, "getSubstituteEvent", ref("originalEvent"), exprSymbol.getAddIsNewData(method),
-                        constant(constantIndexNumber), constant(relativeIndex), exprSymbol.getAddExprEvalCtx(method), constant(streamNumber)))
-                .assignArrayElement(eps, constant(streamNumber), ref("substituteEvent"))
-                .declareVar(resultType, "evalResult", localMethod(innerEval, eps, exprSymbol.getAddIsNewData(method), exprSymbol.getAddExprEvalCtx(method)))
-                .assignArrayElement(eps, constant(streamNumber), ref("originalEvent"))
-                .methodReturn(ref("evalResult"));
+            .declareVar(EventBean.EPTYPE, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
+            .declareVar(EventBean.EPTYPE, "substituteEvent", exprDotMethod(future, "getSubstituteEvent", ref("originalEvent"), exprSymbol.getAddIsNewData(method),
+                constant(constantIndexNumber), constant(relativeIndex), exprSymbol.getAddExprEvalCtx(method), constant(streamNumber)))
+            .assignArrayElement(eps, constant(streamNumber), ref("substituteEvent"))
+            .declareVar((EPTypeClass) resultType, "evalResult", localMethod(innerEval, eps, exprSymbol.getAddIsNewData(method), exprSymbol.getAddExprEvalCtx(method)))
+            .assignArrayElement(eps, constant(streamNumber), ref("originalEvent"))
+            .methodReturn(ref("evalResult"));
 
         return localMethod(method);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprPrior", requiredType, parent, exprSymbol, codegenClassScope).build();
     }
 

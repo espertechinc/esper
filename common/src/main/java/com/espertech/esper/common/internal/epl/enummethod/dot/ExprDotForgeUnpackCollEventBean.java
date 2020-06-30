@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,8 +24,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEval;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalVisitor;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.Collection;
 
@@ -31,10 +33,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprDotForgeUnpackCollEventBean implements ExprDotForge, ExprDotEval {
 
-    private final EPType typeInfo;
+    private final EPChainableType typeInfo;
 
     public ExprDotForgeUnpackCollEventBean(EventType type) {
-        typeInfo = EPTypeHelper.collectionOfSingleValue(type.getUnderlyingType());
+        typeInfo = EPChainableTypeHelper.collectionOfSingleValue(type.getUnderlyingEPType());
     }
 
     public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -45,16 +47,16 @@ public class ExprDotForgeUnpackCollEventBean implements ExprDotForge, ExprDotEva
         return new EventUnderlyingCollection(it);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod methodNode = parent.makeChild(Collection.class, ExprDotForgeUnpackCollEventBean.class, classScope).addParam(Collection.class, "target");
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod methodNode = parent.makeChild(EPTypePremade.COLLECTION.getEPType(), ExprDotForgeUnpackCollEventBean.class, classScope).addParam(EPTypePremade.COLLECTION.getEPType(), "target");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("target")
-                .methodReturn(newInstance(EventUnderlyingCollection.class, ref("target")));
+                .methodReturn(newInstance(EventUnderlyingCollection.EPTYPE, ref("target")));
         return localMethod(methodNode, inner);
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return typeInfo;
     }
 

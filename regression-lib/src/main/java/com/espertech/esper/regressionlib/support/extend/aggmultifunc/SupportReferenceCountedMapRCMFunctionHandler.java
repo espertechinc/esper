@@ -13,8 +13,8 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.hook.aggmultifunc.*;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 public class SupportReferenceCountedMapRCMFunctionHandler implements AggregationMultiFunctionHandler {
     private final AggregationMultiFunctionStateKey sharedStateKey;
@@ -25,8 +25,8 @@ public class SupportReferenceCountedMapRCMFunctionHandler implements Aggregation
         this.parameterExpressions = parameterExpressions;
     }
 
-    public EPType getReturnType() {
-        return EPTypeHelper.nullValue();
+    public EPChainableType getReturnType() {
+        return EPChainableTypeHelper.nullValue();
     }
 
     public AggregationMultiFunctionStateKey getAggregationStateUniqueKey() {
@@ -34,16 +34,16 @@ public class SupportReferenceCountedMapRCMFunctionHandler implements Aggregation
     }
 
     public AggregationMultiFunctionStateMode getStateMode() {
-        return new AggregationMultiFunctionStateModeManaged().setInjectionStrategyAggregationStateFactory(new InjectionStrategyClassNewInstance(SupportReferenceCountedMapStateFactory.class));
+        return new AggregationMultiFunctionStateModeManaged().setInjectionStrategyAggregationStateFactory(new InjectionStrategyClassNewInstance(SupportReferenceCountedMapStateFactory.EPTYPE));
     }
 
     public AggregationMultiFunctionAccessorMode getAccessorMode() {
-        return new AggregationMultiFunctionAccessorModeManaged().setInjectionStrategyAggregationAccessorFactory(new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAccessorFactory.class));
+        return new AggregationMultiFunctionAccessorModeManaged().setInjectionStrategyAggregationAccessorFactory(new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAccessorFactory.EPTYPE));
     }
 
     public AggregationMultiFunctionAgentMode getAgentMode() {
         return new AggregationMultiFunctionAgentModeManaged().setInjectionStrategyAggregationAgentFactory(
-            new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAgentFactory.class).addExpression("eval", parameterExpressions[0]));
+            new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAgentFactory.EPTYPE).addExpression("eval", parameterExpressions[0]));
     }
 
     public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {

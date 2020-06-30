@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,11 +28,15 @@ public class ExprEqualsNodeForgeCoercion extends ExprEqualsNodeForge {
 
     private final SimpleNumberCoercer numberCoercerLHS;
     private final SimpleNumberCoercer numberCoercerRHS;
+    private final EPTypeClass lhsTypeClass;
+    private final EPTypeClass rhsTypeClass;
 
-    public ExprEqualsNodeForgeCoercion(ExprEqualsNodeImpl parent, SimpleNumberCoercer numberCoercerLHS, SimpleNumberCoercer numberCoercerRHS) {
+    public ExprEqualsNodeForgeCoercion(ExprEqualsNodeImpl parent, SimpleNumberCoercer numberCoercerLHS, SimpleNumberCoercer numberCoercerRHS, EPTypeClass lhsTypeClass, EPTypeClass rhsTypeClass) {
         super(parent);
         this.numberCoercerLHS = numberCoercerLHS;
         this.numberCoercerRHS = numberCoercerRHS;
+        this.lhsTypeClass = lhsTypeClass;
+        this.rhsTypeClass = rhsTypeClass;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -44,14 +49,14 @@ public class ExprEqualsNodeForgeCoercion extends ExprEqualsNodeForge {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprNode lhs = getForgeRenderable().getChildNodes()[0];
         ExprNode rhs = getForgeRenderable().getChildNodes()[1];
         CodegenMethod method = ExprEqualsNodeForgeCoercionEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs);
         return localMethod(method);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, getForgeRenderable().isIs() ? "ExprIs" : "ExprEquals", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
@@ -61,5 +66,13 @@ public class ExprEqualsNodeForgeCoercion extends ExprEqualsNodeForge {
 
     public SimpleNumberCoercer getNumberCoercerRHS() {
         return numberCoercerRHS;
+    }
+
+    public EPTypeClass getLhsTypeClass() {
+        return lhsTypeClass;
+    }
+
+    public EPTypeClass getRhsTypeClass() {
+        return rhsTypeClass;
     }
 }

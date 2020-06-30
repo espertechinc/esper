@@ -16,23 +16,21 @@ import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLa
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeLambdaDesc;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.rettype.EPType;
-
-import java.util.function.Function;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public class ThreeFormScalarFactory extends ThreeFormBaseFactory {
     private final ObjectArrayEventType eventType;
     private final int numParams;
     private final ForgeFunction function;
 
-    public ThreeFormScalarFactory(Function<ExprDotEvalParamLambda, EPType> returnType, ObjectArrayEventType eventType, int numParams, ForgeFunction function) {
+    public ThreeFormScalarFactory(ThreeFormInitFunction returnType, ObjectArrayEventType eventType, int numParams, ForgeFunction function) {
         super(returnType);
         this.eventType = eventType;
         this.numParams = numParams;
         this.function = function;
     }
 
-    protected EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPType typeInfo, StatementCompileTimeServices services) {
+    protected EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPChainableType typeInfo, StatementCompileTimeServices services) {
         return function.apply(lambda, eventType, numParams, typeInfo, services);
     }
 
@@ -42,6 +40,6 @@ public class ThreeFormScalarFactory extends ThreeFormBaseFactory {
 
     @FunctionalInterface
     public interface ForgeFunction {
-        EnumForge apply(ExprDotEvalParamLambda lambda, ObjectArrayEventType eventType, int numParams, EPType typeInfo, StatementCompileTimeServices services);
+        EnumForge apply(ExprDotEvalParamLambda lambda, ObjectArrayEventType eventType, int numParams, EPChainableType typeInfo, StatementCompileTimeServices services);
     }
 }

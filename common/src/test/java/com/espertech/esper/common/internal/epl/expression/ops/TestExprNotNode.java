@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.core.MinMaxTypeEnum;
@@ -28,7 +29,7 @@ public class TestExprNotNode extends TestCase {
     }
 
     public void testGetType() {
-        assertEquals(Boolean.class, notNode.getEvaluationType());
+        assertEquals(EPTypePremade.BOOLEANBOXED.getEPType(), notNode.getEvaluationType());
     }
 
     public void testValidate() throws Exception {

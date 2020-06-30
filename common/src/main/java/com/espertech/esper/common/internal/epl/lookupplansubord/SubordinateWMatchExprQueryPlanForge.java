@@ -36,11 +36,11 @@ public class SubordinateWMatchExprQueryPlanForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordinateWMatchExprQueryPlan.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordinateWMatchExprQueryPlan.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(SubordWMatchExprLookupStrategyFactory.class, "strategy", strategy.make(parent, symbols, classScope))
-                .declareVar(SubordinateQueryIndexDesc[].class, "indexes", indexes == null ? constantNull() : newArrayByLength(SubordinateQueryIndexDesc.class, constant(indexes.length)));
+                .declareVar(SubordWMatchExprLookupStrategyFactory.EPTYPE, "strategy", strategy.make(parent, symbols, classScope))
+                .declareVar(SubordinateQueryIndexDesc.EPTYPEARRAY, "indexes", indexes == null ? constantNull() : newArrayByLength(SubordinateQueryIndexDesc.EPTYPE, constant(indexes.length)));
 
         if (indexes != null) {
             for (int i = 0; i < indexes.length; i++) {
@@ -48,7 +48,7 @@ public class SubordinateWMatchExprQueryPlanForge {
             }
         }
 
-        method.getBlock().methodReturn(newInstance(SubordinateWMatchExprQueryPlan.class, ref("strategy"), ref("indexes")));
+        method.getBlock().methodReturn(newInstance(SubordinateWMatchExprQueryPlan.EPTYPE, ref("strategy"), ref("indexes")));
         return localMethod(method);
     }
 }

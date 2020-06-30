@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.compile.stage1.specmapper;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateTableColumn;
@@ -73,14 +74,11 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.common.internal.type.CronOperatorEnum;
 import com.espertech.esper.common.internal.type.MathArithTypeEnum;
 import com.espertech.esper.common.internal.type.RelationalOpEnum;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.util.PlaceholderParseException;
-import com.espertech.esper.common.internal.util.PlaceholderParser;
-import com.espertech.esper.common.internal.util.StringValue;
+import com.espertech.esper.common.internal.util.*;
 
 import java.util.*;
 
@@ -1465,7 +1463,7 @@ public class StatementSpecMapper {
         if (createVariable.getOptionalAssignment() != null) {
             assignment = mapExpressionDeep(createVariable.getOptionalAssignment(), mapContext);
         }
-        ClassIdentifierWArray type = ClassIdentifierWArray.parseSODA(createVariable.getVariableType());
+        ClassDescriptor type = ClassDescriptor.parseTypeText(createVariable.getVariableType());
         raw.setCreateVariableDesc(new CreateVariableDesc(type, createVariable.getVariableName(), assignment, createVariable.isConstant()));
     }
 
@@ -1478,7 +1476,7 @@ public class StatementSpecMapper {
         for (com.espertech.esper.common.client.soda.CreateTableColumn desc : createTable.getColumns()) {
             ExprNode optNode = desc.getOptionalExpression() != null ? mapExpressionDeep(desc.getOptionalExpression(), mapContext) : null;
             List<AnnotationDesc> annotations = mapAnnotations(desc.getAnnotations());
-            ClassIdentifierWArray ident = desc.getOptionalTypeName() == null ? null : ClassIdentifierWArray.parseSODA(desc.getOptionalTypeName());
+            ClassDescriptor ident = desc.getOptionalTypeName() == null ? null : ClassDescriptor.parseTypeText(desc.getOptionalTypeName());
             cols.add(new CreateTableColumn(desc.getColumnName(), optNode, ident, annotations, desc.getPrimaryKey()));
         }
 
@@ -1794,7 +1792,7 @@ public class StatementSpecMapper {
                 }
             }
             if (!CodegenExpressionUtil.canRenderConstant(op.getConstant())) {
-                throw new EPException("Invalid constant of type '" + JavaClassHelper.getClassNameFullyQualPretty(op.getConstant().getClass()) + "' encountered as the class has no compiler representation, please use substitution parameters instead");
+                throw new EPException("Invalid constant of type '" + ClassHelperPrint.getClassNameFullyQualPretty(op.getConstant().getClass()) + "' encountered as the class has no compiler representation, please use substitution parameters instead");
             }
             return new ExprConstantNodeImpl(op.getConstant(), constantType);
         } else if (expr instanceof ConcatExpression) {
@@ -1907,7 +1905,7 @@ public class StatementSpecMapper {
             return new ExprTypeofNode();
         } else if (expr instanceof CastExpression) {
             CastExpression node = (CastExpression) expr;
-            return new ExprCastNode(ClassIdentifierWArray.parseSODA(node.getTypeName()));
+            return new ExprCastNode(ClassDescriptor.parseTypeText(node.getTypeName()));
         } else if (expr instanceof PropertyExistsExpression) {
             return new ExprPropertyExistsNode();
         } else if (expr instanceof CurrentTimestampExpression) {
@@ -1925,7 +1923,8 @@ public class StatementSpecMapper {
             return new ExprNewStructNode(noe.getColumnNames().toArray(new String[0]));
         } else if (expr instanceof NewInstanceOperatorExpression) {
             NewInstanceOperatorExpression noe = (NewInstanceOperatorExpression) expr;
-            return new ExprNewInstanceNode(noe.getClassName(), noe.getNumArrayDimensions());
+            ClassDescriptor type = ClassDescriptor.parseTypeText(noe.getClassName());
+            return new ExprNewInstanceNode(type, noe.getNumArrayDimensions());
         } else if (expr instanceof CompareListExpression) {
             CompareListExpression exp = (CompareListExpression) expr;
             if ((exp.getOperator().equals("=")) || (exp.getOperator().equals("!="))) {
@@ -1935,7 +1934,7 @@ public class StatementSpecMapper {
             }
         } else if (expr instanceof SubstitutionParameterExpression) {
             SubstitutionParameterExpression node = (SubstitutionParameterExpression) expr;
-            ClassIdentifierWArray ident = node.getOptionalType() == null ? null : ClassIdentifierWArray.parseSODA(node.getOptionalType());
+            ClassDescriptor ident = node.getOptionalType() == null ? null : ClassDescriptor.parseTypeText(node.getOptionalType());
             ExprSubstitutionNode substitutionNode = new ExprSubstitutionNode(node.getOptionalName(), ident);
             mapContext.getSubstitutionNodes().add(substitutionNode);
             return substitutionNode;
@@ -2164,8 +2163,8 @@ public class StatementSpecMapper {
         } else if (expr instanceof ExprConstantNodeImpl) {
             ExprConstantNodeImpl constNode = (ExprConstantNodeImpl) expr;
             String constantType = null;
-            if (constNode.getConstantType() != null) {
-                constantType = constNode.getConstantType().getName();
+            if (constNode.getConstantType() != null && constNode.getConstantType() != EPTypeNull.INSTANCE) {
+                constantType = constNode.getConstantType().getTypeName();
             }
             return new ConstantExpression(constNode.getConstantValue(), constantType);
         } else if (expr instanceof ExprConcatNode) {
@@ -2320,7 +2319,7 @@ public class StatementSpecMapper {
             return new CrontabParameterExpression(ScheduleItemType.WILDCARD);
         } else if (expr instanceof ExprNewInstanceNode) {
             ExprNewInstanceNode newNode = (ExprNewInstanceNode) expr;
-            return new NewInstanceOperatorExpression(newNode.getClassIdent(), newNode.getNumArrayDimensions());
+            return new NewInstanceOperatorExpression(newNode.getClassIdentNoDimensions().toEPL(), newNode.getNumArrayDimensions());
         } else if (expr instanceof ExprNewStructNode) {
             ExprNewStructNode newNode = (ExprNewStructNode) expr;
             return new NewOperatorExpression(new ArrayList<>(Arrays.asList(newNode.getColumnNames())));
@@ -2798,9 +2797,6 @@ public class StatementSpecMapper {
 
     private static ScriptExpression unmapScriptExpression(ExpressionScriptProvided script) {
         String returnType = script.getOptionalReturnTypeName();
-        if (returnType != null && script.isOptionalReturnTypeIsArray()) {
-            returnType = returnType + "[]";
-        }
         List<String> params = new ArrayList<>(Arrays.asList(script.getParameterNames()));
         return new ScriptExpression(script.getName(), params, script.getExpression(), returnType, script.getOptionalDialect(), script.getOptionalEventTypeName());
     }
@@ -2889,10 +2885,8 @@ public class StatementSpecMapper {
     }
 
     private static ExpressionScriptProvided mapScriptExpression(ScriptExpression decl, StatementSpecMapContext mapContext) {
-        String returnType = decl.getOptionalReturnType() != null ? decl.getOptionalReturnType().replace("[]", "") : null;
-        boolean isArray = decl.getOptionalReturnType() != null ? decl.getOptionalReturnType().contains("[]") : false;
         String[] params = decl.getParameterNames() == null ? new String[0] : decl.getParameterNames().toArray(new String[0]);
-        return new ExpressionScriptProvided(decl.getName(), decl.getExpressionText(), params, returnType, isArray, decl.getOptionalEventTypeName(), decl.getOptionalDialect());
+        return new ExpressionScriptProvided(decl.getName(), decl.getExpressionText(), params, decl.getOptionalReturnType(), decl.getOptionalEventTypeName(), decl.getOptionalDialect());
     }
 
     private static AnnotationDesc mapAnnotation(AnnotationPart part) {

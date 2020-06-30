@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.annotation;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Represents a attribute of an annotation.
  */
 public class AnnotationAttribute {
     private final String name;
-    private final Class type;
+    private final EPTypeClass type;
     private final Object defaultValue;
 
     /**
@@ -25,7 +27,7 @@ public class AnnotationAttribute {
      * @param type         attribute type
      * @param defaultValue default value, if any is specified
      */
-    public AnnotationAttribute(String name, Class type, Object defaultValue) {
+    public AnnotationAttribute(String name, EPTypeClass type, Object defaultValue) {
         this.name = name;
         this.type = type;
         this.defaultValue = defaultValue;
@@ -45,7 +47,7 @@ public class AnnotationAttribute {
      *
      * @return attribute type
      */
-    public Class getType() {
+    public EPTypeClass getType() {
         return type;
     }
 

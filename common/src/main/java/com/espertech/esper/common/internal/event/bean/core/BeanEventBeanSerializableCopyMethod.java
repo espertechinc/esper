@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
@@ -23,6 +24,7 @@ import java.io.IOException;
  * Copy method for bean events utilizing serializable.
  */
 public class BeanEventBeanSerializableCopyMethod implements EventBeanCopyMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(BeanEventBeanSerializableCopyMethod.class);
     private static final Logger log = LoggerFactory.getLogger(BeanEventBeanSerializableCopyMethod.class);
 
     private final BeanEventType beanEventType;

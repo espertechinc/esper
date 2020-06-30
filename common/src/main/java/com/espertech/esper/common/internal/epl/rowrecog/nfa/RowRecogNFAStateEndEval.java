@@ -11,12 +11,15 @@
 package com.espertech.esper.common.internal.epl.rowrecog.nfa;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 
 /**
  * End state in the regex NFA states.
  */
 public class RowRecogNFAStateEndEval extends RowRecogNFAStateBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowRecogNFAStateEndEval.class);
+
     private final static RowRecogNFAState[] EMPTY_ARRAY = new RowRecogNFAState[0];
 
     public RowRecogNFAStateEndEval() {

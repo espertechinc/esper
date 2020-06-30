@@ -11,7 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public interface ExprEventEvaluator {
+    EPTypeClass EPTYPE = new EPTypeClass(ExprEventEvaluator.class);
+
     Object eval(EventBean event, ExprEvaluatorContext ctx);
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.view;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessView;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactory;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
  * hand over events to child views, does not handle distinct.
  */
 public class OutputProcessViewDirectFactory implements OutputProcessViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputProcessViewDirectFactory.class);
+
     OutputStrategyPostProcessFactory postProcessFactory;
 
     public OutputProcessViewDirectFactory() {

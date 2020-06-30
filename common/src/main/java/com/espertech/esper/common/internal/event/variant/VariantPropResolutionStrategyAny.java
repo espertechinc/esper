@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.variant;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
 /**
@@ -28,6 +29,6 @@ public class VariantPropResolutionStrategyAny implements VariantPropResolutionSt
         VariantPropertyGetterCache propertyGetterCache = variantEventType.getVariantPropertyGetterCache();
         propertyGetterCache.addGetters(propertyName);
         EventPropertyGetterSPI getter = new VariantEventPropertyGetterAny(variantEventType, propertyName);
-        return new VariantPropertyDesc(Object.class, getter, true);
+        return new VariantPropertyDesc(EPTypePremade.OBJECT.getEPType(), getter, true);
     }
 }

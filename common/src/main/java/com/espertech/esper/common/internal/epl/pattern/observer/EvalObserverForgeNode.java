@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.observer;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage1.spec.PatternObserverSpec;
@@ -47,8 +48,8 @@ public class EvalObserverForgeNode extends EvalForgeNodeBase {
         this.patternObserverSpec = patternObserverSpec;
     }
 
-    protected Class typeOfFactory() {
-        return EvalObserverFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalObserverFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {

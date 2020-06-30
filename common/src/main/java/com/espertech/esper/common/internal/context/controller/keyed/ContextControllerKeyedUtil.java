@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
@@ -30,6 +31,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLoo
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.filterspec.*;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Map;
@@ -52,7 +54,7 @@ public class ContextControllerKeyedUtil {
         return new ContextControllerKeyedSvcLevelAny();
     }
 
-    protected static Class[] validateContextDesc(String contextName, ContextSpecKeyed partitionSpec) throws ExprValidationException {
+    protected static EPType[] validateContextDesc(String contextName, ContextSpecKeyed partitionSpec) throws ExprValidationException {
 
         if (partitionSpec.getItems().isEmpty()) {
             throw new ExprValidationException("Empty list of partition items");
@@ -125,18 +127,18 @@ public class ContextControllerKeyedUtil {
                     boolean right = JavaClassHelper.isSubclassOrImplementsInterface(typesBoxed[i], typeBoxed);
                     if (typeBoxed != typesBoxed[i] && !left && !right) {
                         throw new ExprValidationException("For context '" + contextName + "' for context '" + contextName + "' found mismatch of property types, property '" + names[i] +
-                            "' of type '" + JavaClassHelper.getClassNameFullyQualPretty(types[i]) +
+                            "' of type '" + ClassHelperPrint.getClassNameFullyQualPretty(types[i]) +
                             "' compared to property '" + property +
-                            "' of type '" + JavaClassHelper.getClassNameFullyQualPretty(typeBoxed) + "'");
+                            "' of type '" + ClassHelperPrint.getClassNameFullyQualPretty(typeBoxed) + "'");
                     }
                 }
             }
         }
 
-        Class[] propertyTypes = new Class[firstItem.getPropertyNames().size()];
+        EPType[] propertyTypes = new EPType[firstItem.getPropertyNames().size()];
         for (int i = 0; i < firstItem.getPropertyNames().size(); i++) {
             String property = firstItem.getPropertyNames().get(i);
-            propertyTypes[i] = firstItem.getFilterSpecCompiled().getFilterForEventType().getPropertyType(property);
+            propertyTypes[i] = firstItem.getFilterSpecCompiled().getFilterForEventType().getPropertyEPType(property);
         }
         return propertyTypes;
     }

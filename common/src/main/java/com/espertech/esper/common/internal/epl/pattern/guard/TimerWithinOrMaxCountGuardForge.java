@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.guard;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,6 +29,7 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 public class TimerWithinOrMaxCountGuardForge implements GuardForge, ScheduleHandleCallbackProvider {
 
@@ -53,8 +55,8 @@ public class TimerWithinOrMaxCountGuardForge implements GuardForge, ScheduleHand
             throw new GuardParameterException(message);
         }
 
-        Class paramOneType = parameters.get(1).getForge().getEvaluationType();
-        if (paramOneType != Integer.class && paramOneType != int.class) {
+        EPTypeClass paramOneType = (EPTypeClass) parameters.get(1).getForge().getEvaluationType();
+        if (!isTypeInteger(paramOneType)) {
             throw new GuardParameterException(message);
         }
 
@@ -77,7 +79,7 @@ public class TimerWithinOrMaxCountGuardForge implements GuardForge, ScheduleHand
             throw new IllegalStateException("Unassigned schedule callback id");
         }
 
-        CodegenMethod method = parent.makeChild(TimerWithinOrMaxCountGuardFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TimerWithinOrMaxCountGuardFactory.EPTYPE, this.getClass(), classScope);
         CodegenExpression patternDelta = PatternDeltaComputeUtil.makePatternDeltaAnonymous(timeExpr, convertor, timeAbacus, method, classScope);
 
         CodegenExpression convertorExpr;
@@ -88,7 +90,7 @@ public class TimerWithinOrMaxCountGuardForge implements GuardForge, ScheduleHand
         }
 
         method.getBlock()
-                .declareVar(TimerWithinOrMaxCountGuardFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("guardTimerWithinOrMax"))
+                .declareVar(TimerWithinOrMaxCountGuardFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("guardTimerWithinOrMax"))
                 .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
                 .exprDotMethod(ref("factory"), "setDeltaCompute", patternDelta)
                 .exprDotMethod(ref("factory"), "setOptionalConvertor", convertorExpr)

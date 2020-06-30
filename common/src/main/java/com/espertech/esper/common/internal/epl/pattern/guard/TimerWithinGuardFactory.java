@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.guard;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternDeltaCompute;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
  * Factory for {@link TimerWithinGuard} instances.
  */
 public class TimerWithinGuardFactory implements GuardFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimerWithinGuardFactory.class);
 
     private PatternDeltaCompute deltaCompute;
     private int scheduleCallbackId = -1;

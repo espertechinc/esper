@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -45,9 +46,9 @@ public class PropertyDotNonLambdaIndexedForgeEval implements ExprEvaluator {
         CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), PropertyDotNonLambdaIndexedForgeEval.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        Class evaluationType = forge.getParamForge().getEvaluationType();
+        EPTypeClass evaluationType = (EPTypeClass) forge.getParamForge().getEvaluationType();
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamId())))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(forge.getStreamId())))
                 .ifRefNullReturnNull("event")
                 .declareVar(evaluationType, "key", forge.getParamForge().evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(forge.getIndexedGetter().eventBeanGetIndexedCodegen(methodNode, codegenClassScope, ref("event"), ref("key")));

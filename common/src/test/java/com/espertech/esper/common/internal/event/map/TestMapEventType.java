@@ -17,6 +17,8 @@ import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -26,6 +28,7 @@ import com.espertech.esper.common.internal.supportunit.bean.SupportBean_B;
 import com.espertech.esper.common.internal.supportunit.bean.SupportBean_C;
 import com.espertech.esper.common.internal.supportunit.bean.SupportBean_D;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +44,13 @@ public class TestMapEventType extends TestCase {
         EventTypeMetadata metadata = new EventTypeMetadata("MyType", null, EventTypeTypeClass.STREAM, EventTypeApplicationType.MAP, NameAccessModifier.PROTECTED, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
 
         Map<String, Object> testTypesMap = new HashMap<String, Object>();
-        testTypesMap.put("myInt", Integer.class);
-        testTypesMap.put("myString", String.class);
-        testTypesMap.put("myNullableString", String.class);
-        testTypesMap.put("mySupportBean", SupportBean.class);
-        testTypesMap.put("myComplexBean", SupportBeanComplexProps.class);
-        testTypesMap.put("myNullableSupportBean", SupportBean.class);
-        testTypesMap.put("myNullType", null);
+        testTypesMap.put("myInt", EPTypePremade.INTEGERBOXED.getEPType());
+        testTypesMap.put("myString", EPTypePremade.STRING.getEPType());
+        testTypesMap.put("myNullableString", EPTypePremade.STRING.getEPType());
+        testTypesMap.put("mySupportBean", ClassHelperGenericType.getClassEPType(SupportBean.class));
+        testTypesMap.put("myComplexBean", ClassHelperGenericType.getClassEPType(SupportBeanComplexProps.class));
+        testTypesMap.put("myNullableSupportBean", ClassHelperGenericType.getClassEPType(SupportBean.class));
+        testTypesMap.put("myNullType", EPTypeNull.INSTANCE);
         eventType = new MapEventType(metadata, testTypesMap, null, null, null, null, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY);
     }
 
@@ -138,14 +141,14 @@ public class TestMapEventType extends TestCase {
         EventTypeMetadata metadata = new EventTypeMetadata("MyType", null, EventTypeTypeClass.STREAM, EventTypeApplicationType.MAP, NameAccessModifier.PROTECTED, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
 
         Map<String, Object> mapTwo = new LinkedHashMap<String, Object>();
-        mapTwo.put("myInt", int.class);
-        mapTwo.put("mySupportBean", SupportBean.class);
-        mapTwo.put("myNullableSupportBean", SupportBean.class);
-        mapTwo.put("myComplexBean", SupportBeanComplexProps.class);
+        mapTwo.put("myInt", EPTypePremade.INTEGERPRIMITIVE.getEPType());
+        mapTwo.put("mySupportBean", ClassHelperGenericType.getClassEPType(SupportBean.class));
+        mapTwo.put("myNullableSupportBean", ClassHelperGenericType.getClassEPType(SupportBean.class));
+        mapTwo.put("myComplexBean", ClassHelperGenericType.getClassEPType(SupportBeanComplexProps.class));
         assertFalse((new MapEventType(metadata, mapTwo, null, null, null, null, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY).equals(eventType)));
-        mapTwo.put("myString", String.class);
-        mapTwo.put("myNullableString", String.class);
-        mapTwo.put("myNullType", null);
+        mapTwo.put("myString", EPTypePremade.STRING.getEPType());
+        mapTwo.put("myNullableString", EPTypePremade.STRING.getEPType());
+        mapTwo.put("myNullType", EPTypeNull.INSTANCE);
 
         // compare, should equal
         assertNull(new MapEventType(metadata, mapTwo, null, null, null, null, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY).equalsCompareType(eventType));
@@ -153,9 +156,9 @@ public class TestMapEventType extends TestCase {
 
         // Test boxed and primitive compatible
         Map<String, Object> mapOne = new LinkedHashMap<String, Object>();
-        mapOne.put("myInt", int.class);
+        mapOne.put("myInt", EPTypePremade.INTEGERPRIMITIVE.getEPType());
         mapTwo = new LinkedHashMap<String, Object>();
-        mapTwo.put("myInt", Integer.class);
+        mapTwo.put("myInt", EPTypePremade.INTEGERBOXED.getEPType());
         assertNull(new MapEventType(metadata, mapOne, null, null, null, null, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY).equalsCompareType(new MapEventType(metadata, mapTwo, null, null, null, null, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY)));
     }
 
@@ -179,26 +182,26 @@ public class TestMapEventType extends TestCase {
 
     public void testNestedMap() {
         Map<String, Object> levelThree = new HashMap<String, Object>();
-        levelThree.put("simpleThree", long.class);
-        levelThree.put("objThree", SupportBean_D.class);
-        levelThree.put("nodefmapThree", Map.class);
+        levelThree.put("simpleThree", EPTypePremade.LONGPRIMITIVE.getEPType());
+        levelThree.put("objThree", ClassHelperGenericType.getClassEPType(SupportBean_D.class));
+        levelThree.put("nodefmapThree", EPTypePremade.MAP.getEPType());
 
         Map<String, Object> levelTwo = new HashMap<String, Object>();
-        levelTwo.put("simpleTwo", float.class);
-        levelTwo.put("objTwo", SupportBean_C.class);
-        levelTwo.put("nodefmapTwo", Map.class);
+        levelTwo.put("simpleTwo", EPTypePremade.FLOATPRIMITIVE.getEPType());
+        levelTwo.put("objTwo", ClassHelperGenericType.getClassEPType(SupportBean_C.class));
+        levelTwo.put("nodefmapTwo", EPTypePremade.MAP.getEPType());
         levelTwo.put("mapTwo", levelThree);
 
         Map<String, Object> levelOne = new HashMap<String, Object>();
-        levelOne.put("simpleOne", Integer.class);
-        levelOne.put("objOne", SupportBean_B.class);
-        levelOne.put("nodefmapOne", Map.class);
+        levelOne.put("simpleOne", EPTypePremade.INTEGERBOXED.getEPType());
+        levelOne.put("objOne", ClassHelperGenericType.getClassEPType(SupportBean_B.class));
+        levelOne.put("nodefmapOne", EPTypePremade.MAP.getEPType());
         levelOne.put("mapOne", levelTwo);
 
         Map<String, Object> levelZero = new HashMap<String, Object>();
-        levelZero.put("simple", Double.class);
-        levelZero.put("obj", SupportBean_A.class);
-        levelZero.put("nodefmap", Map.class);
+        levelZero.put("simple", EPTypePremade.DOUBLEBOXED.getEPType());
+        levelZero.put("obj", ClassHelperGenericType.getClassEPType(SupportBean_A.class));
+        levelZero.put("nodefmap", EPTypePremade.MAP.getEPType());
         levelZero.put("map", levelOne);
 
         EventTypeMetadata metadata = new EventTypeMetadata("MyType", null, EventTypeTypeClass.STREAM, EventTypeApplicationType.MAP, NameAccessModifier.PROTECTED, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());

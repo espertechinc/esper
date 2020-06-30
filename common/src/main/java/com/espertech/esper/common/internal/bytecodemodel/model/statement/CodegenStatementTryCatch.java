@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -39,7 +40,7 @@ public class CodegenStatementTryCatch extends CodegenStatementWBlockBase {
         tryBlock = block;
     }
 
-    public CodegenBlock addCatch(Class ex, String name) {
+    public CodegenBlock addCatch(EPTypeClass ex, String name) {
         CodegenBlock block = new CodegenBlock(this);
         catchBlocks.add(new CodegenStatementTryCatchCatchBlock(ex, name, block));
         return block;
@@ -63,7 +64,7 @@ public class CodegenStatementTryCatch extends CodegenStatementWBlockBase {
         for (CodegenStatementTryCatchCatchBlock pair : catchBlocks) {
             builder.append(delimiter);
             builder.append(" catch (");
-            appendClassName(builder, pair.getEx(), null, imports);
+            appendClassName(builder, pair.getEx(), imports);
             builder.append(' ');
             builder.append(pair.getName());
             builder.append(") {\n");

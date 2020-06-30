@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.extend.aggfunc;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
@@ -26,13 +28,13 @@ public class SupportConcatWCodegenAggregatorMethod implements AggregatorMethod {
     private final CodegenExpressionMember builder;
 
     public SupportConcatWCodegenAggregatorMethod(AggregatorMethodFactoryContext context) {
-        builder = context.getMembersColumnized().addMember(context.getCol(), StringBuilder.class, "buf");
-        context.getRowCtor().getBlock().assignRef(builder, newInstance(StringBuilder.class));
+        builder = context.getMembersColumnized().addMember(context.getCol(), EPTypePremade.STRINGBUILDER.getEPType(), "buf");
+        context.getRowCtor().getBlock().assignRef(builder, newInstance(EPTypePremade.STRINGBUILDER.getEPType()));
     }
 
     public void applyEvalEnterCodegen(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock()
-            .declareVar(String.class, "value", cast(String.class, forges[0].evaluateCodegen(String.class, method, symbols, classScope)))
+            .declareVar(EPTypePremade.STRING.getEPType(), "value", cast(EPTypePremade.STRING.getEPType(), forges[0].evaluateCodegen(EPTypePremade.STRING.getEPType(), method, symbols, classScope)))
             .exprDotMethod(builder, "append", ref("value"));
     }
 
@@ -40,16 +42,16 @@ public class SupportConcatWCodegenAggregatorMethod implements AggregatorMethod {
 
     }
 
-    public void applyTableEnterCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public void applyTableEnterCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
 
     }
 
-    public void applyTableLeaveCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public void applyTableLeaveCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
 
     }
 
     public void clearCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().assignRef(builder, newInstance(StringBuilder.class));
+        method.getBlock().assignRef(builder, newInstance(EPTypePremade.STRINGBUILDER.getEPType()));
     }
 
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope) {

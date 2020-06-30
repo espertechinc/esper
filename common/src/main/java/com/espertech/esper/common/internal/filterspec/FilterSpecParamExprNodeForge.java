@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.ThreadingProfile;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -140,20 +141,20 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
             throw new IllegalStateException("Unassigned filter boolean expression path num");
         }
 
-        CodegenMethod method = parent.makeChild(FilterSpecParamExprNode.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParamExprNode.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+                .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+                .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
         // getFilterValue-FilterSpecParamExprNode code
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParamExprNode.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParamExprNode.EPTYPE, Arrays.asList(ref("lookupable"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.EPTYPE, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
 
         if ((taggedEventTypes != null && !taggedEventTypes.isEmpty()) || (arrayEventTypes != null && !arrayEventTypes.isEmpty())) {
             int size = (taggedEventTypes != null) ? taggedEventTypes.size() : 0;
             size += (arrayEventTypes != null) ? arrayEventTypes.size() : 0;
-            getFilterValue.getBlock().declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(size + 1)));
+            getFilterValue.getBlock().declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, constant(size + 1)));
 
             int count = 1;
             if (taggedEventTypes != null) {
@@ -166,7 +167,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
             if (arrayEventTypes != null) {
                 for (Map.Entry<String, Pair<EventType, String>> entry : arrayEventTypes.entrySet()) {
                     EventType compositeEventType = entry.getValue().getFirst();
-                    CodegenExpressionField compositeEventTypeMember = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(compositeEventType, EPStatementInitServices.REF));
+                    CodegenExpressionField compositeEventTypeMember = classScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(compositeEventType, EPStatementInitServices.REF));
                     CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
                     CodegenExpression matchingAsMap = exprDotMethod(REF_MATCHEDEVENTMAP, "getMatchingEventsAsMap");
                     CodegenExpression mapBean = exprDotMethod(factory, "adapterForTypedMap", matchingAsMap, compositeEventTypeMember);
@@ -175,11 +176,11 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
                 }
             }
         } else {
-            getFilterValue.getBlock().declareVar(EventBean[].class, "events", constantNull());
+            getFilterValue.getBlock().declareVar(EventBean.EPTYPEARRAY, "events", constantNull());
         }
 
         getFilterValue.getBlock()
-                .declareVar(Object.class, "value", exprDotMethod(ref("filterBooleanExpressionFactory"), "make",
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("filterBooleanExpressionFactory"), "make",
                     ref("this"), // FilterSpecParamExprNode filterSpecParamExprNode
                     ref("events"), // EventBean[] events
                     REF_EXPREVALCONTEXT, // ExprEvaluatorContext exprEvaluatorContext
@@ -192,7 +193,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
 
         // setter calls
         method.getBlock()
-                .declareVar(FilterSpecParamExprNode.class, "node", param)
+                .declareVar(FilterSpecParamExprNode.EPTYPE, "node", param)
                 .exprDotMethod(ref("node"), "setExprText", constant(StringValue.stringDelimitedTo60Char(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(exprNode))))
                 .exprDotMethod(ref("node"), "setExprNode", evaluator)
                 .exprDotMethod(ref("node"), "setHasVariable", constant(hasVariable))
@@ -205,7 +206,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
         if ((taggedEventTypes != null && !taggedEventTypes.isEmpty()) || (arrayEventTypes != null && !arrayEventTypes.isEmpty())) {
             int size = (taggedEventTypes != null) ? taggedEventTypes.size() : 0;
             size += (arrayEventTypes != null) ? arrayEventTypes.size() : 0;
-            method.getBlock().declareVar(EventType[].class, "providedTypes", newArrayByLength(EventType.class, constant(size + 1)));
+            method.getBlock().declareVar(EventType.EPTYPEARRAY, "providedTypes", newArrayByLength(EventType.EPTYPE, constant(size + 1)));
             for (int i = 1; i < streamTypeService.getStreamNames().length; i++) {
                 String tag = streamTypeService.getStreamNames()[i];
                 EventType eventType = findMayNull(tag, taggedEventTypes);

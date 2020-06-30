@@ -11,20 +11,26 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
 public class ExprFilterSpecLookupable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExprFilterSpecLookupable.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ExprFilterSpecLookupable[].class);
+    public final static EPTypeClass EPTYPE_FILTEROPERATOR = new EPTypeClass(FilterOperator.class);
+
     private final String expression;
     private transient final ExprEventEvaluator eval;
-    private final Class returnType;
+    private final EPTypeClass returnType;
     private final boolean isNonPropertyEval;
     private final DataInputOutputSerde<Object> valueSerde;
     private transient final ExprEvaluator expr;
 
-    public ExprFilterSpecLookupable(String expression, ExprEventEvaluator eval, ExprEvaluator expr, Class returnType, boolean isNonPropertyEval, DataInputOutputSerde<Object> valueSerde) {
+    public ExprFilterSpecLookupable(String expression, ExprEventEvaluator eval, ExprEvaluator expr, EPTypeClass returnType, boolean isNonPropertyEval, DataInputOutputSerde<Object> valueSerde) {
         this.expression = expression;
         this.eval = eval;
         this.expr = expr;
@@ -41,7 +47,7 @@ public class ExprFilterSpecLookupable {
         return eval;
     }
 
-    public Class getReturnType() {
+    public EPTypeClass getReturnType() {
         return returnType;
     }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,7 +21,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMa
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
 
 public class ExprDotNodeForgeVariable extends ExprDotNodeForge {
 
@@ -40,19 +41,19 @@ public class ExprDotNodeForgeVariable extends ExprDotNodeForge {
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprDotNodeForgeVariableEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprDot", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         if (chainForge.length == 0) {
             return variable.getType();
         } else {
-            return EPTypeHelper.getClassSingleValued(chainForge[chainForge.length - 1].getTypeInfo());
+            return EPChainableTypeClass.fromInputOrNull(chainForge[chainForge.length - 1].getTypeInfo());
         }
     }
 

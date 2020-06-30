@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -52,24 +54,24 @@ public class QueryGraphValueEntryRangeRelOpForge extends QueryGraphValueEntryRan
         return new ExprNode[]{expression};
     }
 
-    protected Class getResultType() {
+    protected EPType getResultType() {
         return expression.getForge().getEvaluationType();
     }
 
-    public CodegenExpression make(Class optCoercionType, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryGraphValueEntryRange.class, this.getClass(), classScope);
+    public CodegenExpression make(EPTypeClass optCoercionType, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod method = parent.makeChild(QueryGraphValueEntryRange.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprEvaluator.class, "expression", ExprNodeUtilityCodegen.codegenEvaluatorWCoerce(expression.getForge(), optCoercionType, method, this.getClass(), classScope))
-                .methodReturn(newInstance(QueryGraphValueEntryRangeRelOp.class, enumValue(QueryGraphRangeEnum.class, type.name()),
+                .declareVar(ExprEvaluator.EPTYPE, "expression", ExprNodeUtilityCodegen.codegenEvaluatorWCoerce(expression.getForge(), optCoercionType, method, this.getClass(), classScope))
+                .methodReturn(newInstance(QueryGraphValueEntryRangeRelOp.EPTYPE, enumValue(QueryGraphRangeEnum.class, type.name()),
                         ref("expression"), constant(isBetweenPart)));
         return localMethod(method);
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryGraphValueEntryRangeRelOp.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(QueryGraphValueEntryRangeRelOp.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprEvaluator.class, "expression", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(expression.getForge(), method, this.getClass(), classScope))
-                .methodReturn(newInstance(QueryGraphValueEntryRangeRelOp.class, enumValue(QueryGraphRangeEnum.class, type.name()),
+                .declareVar(ExprEvaluator.EPTYPE, "expression", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(expression.getForge(), method, this.getClass(), classScope))
+                .methodReturn(newInstance(QueryGraphValueEntryRangeRelOp.EPTYPE, enumValue(QueryGraphRangeEnum.class, type.name()),
                         ref("expression"), constant(isBetweenPart)));
         return localMethod(method);
     }

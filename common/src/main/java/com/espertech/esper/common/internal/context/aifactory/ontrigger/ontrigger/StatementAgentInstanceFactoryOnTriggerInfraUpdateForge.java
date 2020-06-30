@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -35,8 +36,8 @@ public class StatementAgentInstanceFactoryOnTriggerInfraUpdateForge extends Stat
         this.updateHelperForge = updateHelperForge;
     }
 
-    public Class typeOfSubclass() {
-        return StatementAgentInstanceFactoryOnTriggerInfraUpdate.class;
+    public EPTypeClass typeOfSubclass() {
+        return StatementAgentInstanceFactoryOnTriggerInfraUpdate.EPTYPE;
     }
 
     protected void inlineInitializeOnTriggerSpecific(CodegenExpressionRef saiff, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

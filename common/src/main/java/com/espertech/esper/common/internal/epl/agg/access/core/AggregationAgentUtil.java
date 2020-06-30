@@ -24,6 +24,6 @@ public class AggregationAgentUtil {
         for (int i = 0; i < inits.length; i++) {
             inits[i] = accessAgents[i].make(method, symbols, classScope);
         }
-        return newArrayWithInit(AggregationMultiFunctionAgent.class, inits);
+        return newArrayWithInit(AggregationMultiFunctionAgent.EPTYPE, inits);
     }
 }

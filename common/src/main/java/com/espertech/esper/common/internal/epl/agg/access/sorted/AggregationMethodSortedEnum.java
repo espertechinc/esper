@@ -10,8 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
+import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.NavigableMap;
 
@@ -76,15 +81,15 @@ public enum AggregationMethodSortedEnum {
         return footprint;
     }
 
-    public Class getResultType(Class underlyingType, Class keyType) {
+    public EPTypeClass getResultType(EPTypeClass underlyingType, EPTypeClass keyType) {
         if (this == CONTAINSKEY) {
-            return Boolean.class;
+            return EPTypePremade.BOOLEANPRIMITIVE.getEPType();
         }
         if (this == COUNTEVENTS || this == COUNTKEYS) {
-            return int.class;
+            return EPTypePremade.INTEGERPRIMITIVE.getEPType();
         }
         if (this == SUBMAP || this == NAVIGABLEMAPREFERENCE) {
-            return NavigableMap.class;
+            return new EPTypeClassParameterized(NavigableMap.class, new EPTypeClass[] {EPTypeClassParameterized.from(Collection.class, EventBean.class)});
         }
         if (!isReturnsSingleEvent() && !isReturnsCollectionOfEvents()) {
             return keyType;

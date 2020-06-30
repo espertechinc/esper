@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateKey;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -27,14 +29,14 @@ import com.espertech.esper.common.internal.settings.ClasspathImportService;
 public class AggregationForgeFactoryAccessSorted extends AggregationForgeFactoryAccessBase {
     private final ExprAggMultiFunctionSortedMinMaxByNode parent;
     private final AggregationAccessorForge accessor;
-    private final Class accessorResultType;
+    private final EPTypeClass accessorResultType;
     private final EventType containedEventType;
 
     private final AggregationMultiFunctionStateKey optionalStateKey;
     private final SortedAggregationStateDesc optionalSortedStateDesc;
     private final AggregationAgentForge optionalAgent;
 
-    public AggregationForgeFactoryAccessSorted(ExprAggMultiFunctionSortedMinMaxByNode parent, AggregationAccessorForge accessor, Class accessorResultType, EventType containedEventType, AggregationMultiFunctionStateKey optionalStateKey, SortedAggregationStateDesc optionalSortedStateDesc, AggregationAgentForge optionalAgent) {
+    public AggregationForgeFactoryAccessSorted(ExprAggMultiFunctionSortedMinMaxByNode parent, AggregationAccessorForge accessor, EPTypeClass accessorResultType, EventType containedEventType, AggregationMultiFunctionStateKey optionalStateKey, SortedAggregationStateDesc optionalSortedStateDesc, AggregationAgentForge optionalAgent) {
         this.parent = parent;
         this.accessor = accessor;
         this.accessorResultType = accessorResultType;
@@ -48,7 +50,7 @@ public class AggregationForgeFactoryAccessSorted extends AggregationForgeFactory
         throw new UnsupportedOperationException("Not supported");
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return accessorResultType;
     }
 

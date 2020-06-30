@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.avro.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.TypeWidenerCustomizer;
 import com.espertech.esper.common.internal.util.TypeWidenerSPI;
@@ -26,11 +29,16 @@ public class AvroTypeWidenerCustomizerDefault implements TypeWidenerCustomizer {
     private AvroTypeWidenerCustomizerDefault() {
     }
 
-    public TypeWidenerSPI widenerFor(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, String statementName) {
-        if (columnType == byte[].class && writeablePropertyType == ByteBuffer.class) {
+    public TypeWidenerSPI widenerFor(String columnName, EPType columnType, EPType writeablePropertyType, String writeablePropertyName, String statementName) {
+        if (columnType == EPTypeNull.INSTANCE || columnType == null || writeablePropertyType == null || writeablePropertyType == EPTypeNull.INSTANCE) {
+            return null;
+        }
+        EPTypeClass columnClass = (EPTypeClass) columnType;
+        EPTypeClass propertyClass = (EPTypeClass) writeablePropertyType;
+        if (columnClass.getType() == byte[].class && propertyClass.getType() == ByteBuffer.class) {
             return BYTE_ARRAY_TO_BYTE_BUFFER_COERCER;
-        } else if (columnType != null && columnType.isArray() && JavaClassHelper.isImplementsInterface(writeablePropertyType, Collection.class)) {
-            return getArrayToCollectionCoercer(columnType.getComponentType());
+        } else if (columnClass.getType().isArray() && JavaClassHelper.isImplementsInterface(propertyClass.getType(), Collection.class)) {
+            return getArrayToCollectionCoercer(columnClass.getType().getComponentType());
         }
         return null;
     }

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -58,20 +60,20 @@ public class ExprTypeofNodeForgeStreamEvent extends ExprTypeofNodeForge implemen
         return this;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeStreamEvent.class, codegenClassScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.STRING.getEPType(), ExprTypeofNodeForgeStreamEvent.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
-                .ifCondition(instanceOf(ref("event"), VariantEvent.class))
-                .blockReturn(exprDotMethodChain(cast(VariantEvent.class, ref("event"))).add("getUnderlyingEventBean").add("getEventType").add("getName"))
+                .ifCondition(instanceOf(ref("event"), VariantEvent.EPTYPE))
+                .blockReturn(exprDotMethodChain(cast(VariantEvent.EPTYPE, ref("event"))).add("getUnderlyingEventBean").add("getEventType").add("getName"))
                 .methodReturn(exprDotMethodChain(ref("event")).add("getEventType").add("getName"));
         return localMethod(methodNode);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprTypeof", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 

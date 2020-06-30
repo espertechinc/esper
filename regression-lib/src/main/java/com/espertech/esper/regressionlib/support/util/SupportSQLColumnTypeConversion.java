@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.hook.type.SQLColumnTypeContext;
 import com.espertech.esper.common.client.hook.type.SQLColumnTypeConversion;
 import com.espertech.esper.common.client.hook.type.SQLColumnValueContext;
 import com.espertech.esper.common.client.hook.type.SQLInputParameterContext;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +47,9 @@ public class SupportSQLColumnTypeConversion implements SQLColumnTypeConversion {
         return paramContexts;
     }
 
-    public Class getColumnType(SQLColumnTypeContext sqlColumnTypeContext) {
+    public EPType getColumnType(SQLColumnTypeContext sqlColumnTypeContext) {
         typeContexts.add(sqlColumnTypeContext);
-        return Boolean.class;
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 
     public Object getColumnValue(SQLColumnValueContext valueContext) {

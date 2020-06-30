@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,16 +42,16 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeSymbol> {
     private final String[] hashProps;
-    private Class[] hashTypes;
+    private EPTypeClass[] hashTypes;
     private MultiKeyClassRef hashMultiKeyClasses;
     private final String[] rangeProps;
-    private final Class[] rangeTypes;
+    private final EPTypeClass[] rangeTypes;
     private DataInputOutputSerdeForge[] rangeSerdes;
     private final boolean unique;
     private final EventAdvancedIndexProvisionCompileTime advancedIndexProvisionDesc;
     private final EventType eventType;
 
-    public QueryPlanIndexItemForge(String[] hashProps, Class[] hashTypes, String[] rangeProps, Class[] rangeTypes, boolean unique, EventAdvancedIndexProvisionCompileTime advancedIndexProvisionDesc, EventType eventType) {
+    public QueryPlanIndexItemForge(String[] hashProps, EPTypeClass[] hashTypes, String[] rangeProps, EPTypeClass[] rangeTypes, boolean unique, EventAdvancedIndexProvisionCompileTime advancedIndexProvisionDesc, EventType eventType) {
         if (advancedIndexProvisionDesc == null) {
             if (unique && hashProps.length == 0) {
                 throw new IllegalArgumentException("Invalid unique index planned without hash index props");
@@ -84,7 +86,7 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         return hashProps;
     }
 
-    public Class[] getHashTypes() {
+    public EPTypeClass[] getHashTypes() {
         return hashTypes;
     }
 
@@ -92,11 +94,11 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         return rangeProps;
     }
 
-    public Class[] getRangeTypes() {
+    public EPTypeClass[] getRangeTypes() {
         return rangeTypes;
     }
 
-    public void setHashTypes(Class[] hashTypes) {
+    public void setHashTypes(EPTypeClass[] hashTypes) {
         this.hashTypes = hashTypes;
     }
 
@@ -152,7 +154,7 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         return asList(rangeProps, rangeTypes);
     }
 
-    private List<IndexedPropDesc> asList(String[] props, Class[] types) {
+    private List<IndexedPropDesc> asList(String[] props, EPTypeClass[] types) {
         if (props == null || props.length == 0) {
             return Collections.emptyList();
         }
@@ -168,23 +170,23 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryPlanIndexItem.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(QueryPlanIndexItem.EPTYPE, this.getClass(), classScope);
 
         EventPropertyGetterSPI[] propertyGetters = EventTypeUtility.getGetters(eventType, hashProps);
-        Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, hashProps);
+        EPType[] propertyTypes = EventTypeUtility.getPropertyTypesEPType(eventType, hashProps);
 
         CodegenExpression valueGetter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, propertyGetters, propertyTypes, hashTypes, hashMultiKeyClasses, method, classScope);
 
         CodegenExpression rangeGetters;
         if (rangeProps.length == 0) {
-            rangeGetters = newArrayByLength(EventPropertyValueGetter.class, constant(0));
+            rangeGetters = newArrayByLength(EventPropertyValueGetter.EPTYPE, constant(0));
         } else {
-            CodegenMethod makeMethod = parent.makeChild(EventPropertyValueGetter[].class, this.getClass(), classScope);
-            makeMethod.getBlock().declareVar(EventPropertyValueGetter[].class, "getters", newArrayByLength(EventPropertyValueGetter.class, constant(rangeProps.length)));
+            CodegenMethod makeMethod = parent.makeChild(EventPropertyValueGetter.EPTYPEARRAY, this.getClass(), classScope);
+            makeMethod.getBlock().declareVar(EventPropertyValueGetter.EPTYPEARRAY, "getters", newArrayByLength(EventPropertyValueGetter.EPTYPE, constant(rangeProps.length)));
             for (int i = 0; i < rangeProps.length; i++) {
                 EventPropertyGetterSPI getter = ((EventTypeSPI) eventType).getGetterSPI(rangeProps[i]);
-                Class getterType = eventType.getPropertyType(rangeProps[i]);
-                Class coercionType = rangeTypes == null ? null : rangeTypes[i];
+                EPType getterType = eventType.getPropertyEPType(rangeProps[i]);
+                EPTypeClass coercionType = rangeTypes == null ? null : rangeTypes[i];
                 CodegenExpression eval = EventTypeUtility.codegenGetterWCoerce(getter, getterType, coercionType, method, this.getClass(), classScope);
                 makeMethod.getBlock().assignArrayElement(ref("getters"), constant(i), eval);
             }
@@ -194,7 +196,7 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
 
         CodegenExpression multiKeyTransform = MultiKeyCodegen.codegenMultiKeyFromArrayTransform(hashMultiKeyClasses, method, classScope);
 
-        method.getBlock().methodReturn(newInstance(QueryPlanIndexItem.class,
+        method.getBlock().methodReturn(newInstance(QueryPlanIndexItem.EPTYPE,
             constant(hashProps), constant(hashTypes), valueGetter, multiKeyTransform, hashMultiKeyClasses == null ? constantNull() : hashMultiKeyClasses.getExprMKSerde(method, classScope),
             constant(rangeProps), constant(rangeTypes), rangeGetters, DataInputOutputSerdeForge.codegenArray(rangeSerdes, method, classScope, null),
             constant(unique),
@@ -210,8 +212,8 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         return names;
     }
 
-    private static Class[] getTypes(List<IndexedPropDesc> props) {
-        Class[] types = new Class[props.size()];
+    private static EPTypeClass[] getTypes(List<IndexedPropDesc> props) {
+        EPTypeClass[] types = new EPTypeClass[props.size()];
         for (int i = 0; i < props.size(); i++) {
             types[i] = props.get(i).getCoercionType();
         }

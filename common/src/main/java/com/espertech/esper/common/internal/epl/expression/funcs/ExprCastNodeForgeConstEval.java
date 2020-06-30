@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
@@ -40,7 +41,7 @@ public class ExprCastNodeForgeConstEval implements ExprEvaluator {
             return constantNull();
         }
 
-        Class evaluationType = forge.getEvaluationType();
+        EPTypeClass evaluationType = forge.getEvaluationType();
         CodegenMethod initMethod = codegenClassScope.getPackageScope().getInitMethod().makeChildWithScope(evaluationType, ExprCastNodeForgeConstEval.class, CodegenSymbolProviderEmpty.INSTANCE, codegenClassScope);
 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);

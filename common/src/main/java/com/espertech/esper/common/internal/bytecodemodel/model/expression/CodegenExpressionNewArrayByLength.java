@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper;
 
 import java.util.Map;
@@ -20,19 +21,19 @@ import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClas
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClassUtil.getNumberOfDimensions;
 
 public class CodegenExpressionNewArrayByLength implements CodegenExpression {
-    private final Class component;
+    private final EPTypeClass component;
     private final CodegenExpression expression;
 
-    public CodegenExpressionNewArrayByLength(Class component, CodegenExpression expression) {
+    public CodegenExpressionNewArrayByLength(EPTypeClass component, CodegenExpression expression) {
         this.component = component;
         this.expression = expression;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        int numDimensions = getNumberOfDimensions(component);
-        Class outermostType = getComponentTypeOutermost(component);
+        int numDimensions = getNumberOfDimensions(component.getType());
+        Class outermostType = getComponentTypeOutermost(component.getType());
         builder.append("new ");
-        CodeGenerationHelper.appendClassName(builder, outermostType, null, imports);
+        CodeGenerationHelper.appendClassName(builder, outermostType, imports);
         builder.append("[");
         expression.render(builder, imports, isInnerClass);
         builder.append("]");
@@ -42,7 +43,7 @@ public class CodegenExpressionNewArrayByLength implements CodegenExpression {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(component);
+        component.traverseClasses(classes::add);
         expression.mergeClasses(classes);
     }
 

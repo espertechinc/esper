@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.indexlookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -50,8 +51,8 @@ public class FullTableScanLookupPlanForge extends TableLookupPlanForge {
                 super.toString();
     }
 
-    public Class typeOfPlanFactory() {
-        return FullTableScanLookupPlanFactory.class;
+    public EPTypeClass typeOfPlanFactory() {
+        return FullTableScanLookupPlanFactory.EPTYPE;
     }
 
     public Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

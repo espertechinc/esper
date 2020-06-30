@@ -79,24 +79,24 @@ public class FilterSpecPlanForge {
 
     public CodegenMethod codegenWithEventType(CodegenMethodScope parent, CodegenClassScope classScope) {
         SAIFFInitializeSymbolWEventType symbolsWithType = new SAIFFInitializeSymbolWEventType();
-        CodegenMethod method = parent.makeChildWithScope(FilterSpecPlan.class, FilterSpecParamForge.class, symbolsWithType, classScope).addParam(EventType.class, SAIFFInitializeSymbolWEventType.REF_EVENTTYPE.getRef()).addParam(EPStatementInitServices.class, SAIFFInitializeSymbolWEventType.REF_STMTINITSVC.getRef());
+        CodegenMethod method = parent.makeChildWithScope(FilterSpecPlan.EPTYPE, FilterSpecParamForge.class, symbolsWithType, classScope).addParam(EventType.EPTYPE, SAIFFInitializeSymbolWEventType.REF_EVENTTYPE.getRef()).addParam(EPStatementInitServices.EPTYPE, SAIFFInitializeSymbolWEventType.REF_STMTINITSVC.getRef());
         if (paths.length == 0) {
             method.getBlock().methodReturn(publicConstValue(FilterSpecPlan.class, "EMPTY_PLAN"));
             return method;
         }
 
-        method.getBlock().declareVar(FilterSpecPlanPath[].class, "paths", newArrayByLength(FilterSpecPlanPath.class, constant(paths.length)));
+        method.getBlock().declareVar(FilterSpecPlanPath.EPTYPEARRAY, "paths", newArrayByLength(FilterSpecPlanPath.EPTYPE, constant(paths.length)));
         for (int i = 0; i < paths.length; i++) {
             method.getBlock().assignArrayElement("paths", constant(i), localMethod(paths[i].codegen(method, symbolsWithType, classScope)));
         }
         method.getBlock()
-            .declareVar(FilterSpecPlan.class, "plan", newInstance(FilterSpecPlan.class))
-            .exprDotMethod(ref("plan"), "setPaths", ref("paths"))
-            .exprDotMethod(ref("plan"), "setFilterConfirm", optionalEvaluator(filterConfirm, method, classScope))
-            .exprDotMethod(ref("plan"), "setFilterNegate", optionalEvaluator(filterNegate, method, classScope))
-            .exprDotMethod(ref("plan"), "setConvertor", convertorForge == null ? constantNull() : convertorForge.makeAnonymous(method, classScope))
-            .exprDotMethod(ref("plan"), "initialize")
-            .methodReturn(ref("plan"));
+                .declareVarNewInstance(FilterSpecPlan.EPTYPE, "plan")
+                .exprDotMethod(ref("plan"), "setPaths", ref("paths"))
+                .exprDotMethod(ref("plan"), "setFilterConfirm", optionalEvaluator(filterConfirm, method, classScope))
+                .exprDotMethod(ref("plan"), "setFilterNegate", optionalEvaluator(filterNegate, method, classScope))
+                .exprDotMethod(ref("plan"), "setConvertor", convertorForge == null ? constantNull() : convertorForge.makeAnonymous(method, classScope))
+                .exprDotMethod(ref("plan"), "initialize")
+                .methodReturn(ref("plan"));
         return method;
     }
 

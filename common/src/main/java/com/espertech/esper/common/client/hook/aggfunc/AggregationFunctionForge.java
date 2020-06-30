@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.client.hook.aggfunc;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 /**
@@ -38,7 +39,7 @@ public interface AggregationFunctionForge {
      *
      * @return type of value returned by the aggregation methods
      */
-    Class getValueType();
+    EPTypeClass getValueType();
 
     /**
      * Describes to the compiler how it should manage code for the aggregation function.

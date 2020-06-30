@@ -13,8 +13,11 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAgent;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAgentFactory;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAgentFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class SupportAggMFEventsAsListAggregationAgentFactory implements AggregationMultiFunctionAgentFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportAggMFEventsAsListAggregationAgentFactory.class);
+
     public AggregationMultiFunctionAgent newAgent(AggregationMultiFunctionAgentFactoryContext ctx) {
         return new SupportAggMFEventsAsListAggregationAgent();
     }

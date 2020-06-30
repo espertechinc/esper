@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.compile.stage3;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
@@ -32,7 +34,7 @@ public abstract class StmtClassForgeableAIFactoryProviderBase implements StmtCla
     private final String className;
     private final CodegenPackageScope packageScope;
 
-    protected abstract Class typeOfFactory();
+    protected abstract EPTypeClass typeOfFactory();
 
     protected abstract CodegenMethod codegenConstructorInit(CodegenMethodScope parent, CodegenClassScope classScope);
 
@@ -43,7 +45,7 @@ public abstract class StmtClassForgeableAIFactoryProviderBase implements StmtCla
 
     public CodegenClass forge(boolean includeDebugSymbols, boolean fireAndForget) {
         List<CodegenTypedParam> ctorParms = new ArrayList<>();
-        ctorParms.add(new CodegenTypedParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef(), false));
+        ctorParms.add(new CodegenTypedParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef(), false));
         CodegenCtor codegenCtor = new CodegenCtor(this.getClass(), includeDebugSymbols, ctorParms);
         CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
 
@@ -55,20 +57,20 @@ public abstract class StmtClassForgeableAIFactoryProviderBase implements StmtCla
         }
         codegenCtor.getBlock().assignMember(MEMBERNAME_STATEMENTAIFACTORY, localMethod(codegenConstructorInit(codegenCtor, classScope), SAIFFInitializeSymbol.REF_STMTINITSVC));
 
-        CodegenMethod getFactoryMethod = CodegenMethod.makeParentNode(StatementAgentInstanceFactory.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getFactoryMethod = CodegenMethod.makeParentNode(StatementAgentInstanceFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_STATEMENTAIFACTORY));
 
-        CodegenMethod assignMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.class, "assignments");
+        CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments");
         if (packageScope.getFieldsClassNameOptional() != null) {
             assignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "assign", ref("assignments"));
         }
 
-        CodegenMethod unassignMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod unassignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         if (packageScope.getFieldsClassNameOptional() != null) {
             unassignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "unassign");
         }
 
-        CodegenMethod setValueMethod = CodegenMethod.makeParentNode(void.class, StmtClassForgeableStmtFields.class, classScope).addParam(int.class, "index").addParam(Object.class, "value");
+        CodegenMethod setValueMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtFields.class, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").addParam(EPTypePremade.OBJECT.getEPType(), "value");
         CodegenSubstitutionParamEntry.codegenSetterMethod(classScope, setValueMethod);
 
         CodegenClassMethods methods = new CodegenClassMethods();
@@ -78,7 +80,7 @@ public abstract class StmtClassForgeableAIFactoryProviderBase implements StmtCla
         CodegenStackGenerator.recursiveBuildStack(setValueMethod, "setValue", methods);
         CodegenStackGenerator.recursiveBuildStack(codegenCtor, "ctor", methods);
 
-        return new CodegenClass(CodegenClassType.STATEMENTAIFACTORYPROVIDER, StatementAIFactoryProvider.class, className, classScope, members, codegenCtor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.STATEMENTAIFACTORYPROVIDER, StatementAIFactoryProvider.EPTYPE, className, classScope, members, codegenCtor, methods, Collections.emptyList());
     }
 
     public String getClassName() {

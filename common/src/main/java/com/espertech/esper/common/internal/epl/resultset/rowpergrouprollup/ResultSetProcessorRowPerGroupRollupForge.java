@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -64,7 +67,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
     private final ResultSetProcessorOutputConditionType outputConditionType;
     private final OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory;
     private final EventType[] eventTypes;
-    private final Class[] groupKeyTypes;
+    private final EPType[] groupKeyTypes;
     private final boolean unbounded;
     private final MultiKeyClassRef multiKeyClassRef;
 
@@ -157,8 +160,8 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         return eventTypes;
     }
 
-    public Class getInterfaceClass() {
-        return ResultSetProcessorRowPerGroupRollup.class;
+    public EPTypeClass getInterfaceClass() {
+        return ResultSetProcessorRowPerGroupRollup.EPTYPE;
     }
 
     public OutputConditionPolledFactoryForge getOptionalOutputFirstConditionFactory() {
@@ -166,12 +169,12 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
     }
 
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
-        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGGREGATIONSVC));
-        instance.getMethods().addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGENTINSTANCECONTEXT));
-        instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
+        instance.getMethods().addMethod(AggregationService.EPTYPE, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGGREGATIONSVC));
+        instance.getMethods().addMethod(AgentInstanceContext.EPTYPE, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(MEMBER_AGENTINSTANCECONTEXT));
+        instance.getMethods().addMethod(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
 
-        CodegenExpressionField rollupDesc = classScope.addFieldUnshared(true, AggregationGroupByRollupDesc.class, groupByRollupDesc.codegen(classScope.getPackageScope().getInitMethod(), classScope));
-        instance.getMethods().addMethod(AggregationGroupByRollupDesc.class, "getGroupByRollupDesc", Collections.emptyList(), ResultSetProcessorRowPerGroupRollup.class, classScope, methodNode -> methodNode.getBlock().methodReturn(rollupDesc));
+        CodegenExpressionField rollupDesc = classScope.addFieldUnshared(true, AggregationGroupByRollupDesc.EPTYPE, groupByRollupDesc.codegen(classScope.getPackageScope().getInitMethod(), classScope));
+        instance.getMethods().addMethod(AggregationGroupByRollupDesc.EPTYPE, "getGroupByRollupDesc", Collections.emptyList(), ResultSetProcessorRowPerGroupRollup.class, classScope, methodNode -> methodNode.getBlock().methodReturn(rollupDesc));
 
         generateGroupKeySingle = generateGroupKeySingleCodegen(getGroupKeyNodeExpressions(), multiKeyClassRef, classScope, instance);
         ResultSetProcessorRowPerGroupRollupImpl.removedAggregationGroupKeyCodegen(classScope, instance);
@@ -181,11 +184,11 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         // generate having clauses
         ExprForge[] havingForges = perLevelForges.getOptionalHavingForges();
         if (havingForges != null) {
-            factoryMembers.add(new CodegenTypedParam(HavingClauseEvaluator[].class, NAME_HAVINGEVALUATOR_ARRAYNONMEMBER));
-            factoryCtor.getBlock().assignRef(NAME_HAVINGEVALUATOR_ARRAYNONMEMBER, newArrayByLength(HavingClauseEvaluator.class, constant(havingForges.length)));
+            factoryMembers.add(new CodegenTypedParam(HavingClauseEvaluator.EPTYPEARRAY, NAME_HAVINGEVALUATOR_ARRAYNONMEMBER));
+            factoryCtor.getBlock().assignRef(NAME_HAVINGEVALUATOR_ARRAYNONMEMBER, newArrayByLength(HavingClauseEvaluator.EPTYPE, constant(havingForges.length)));
             for (int i = 0; i < havingForges.length; i++) {
-                CodegenExpressionNewAnonymousClass impl = newAnonymousClass(factoryCtor.getBlock(), HavingClauseEvaluator.class);
-                CodegenMethod evaluateHaving = CodegenMethod.makeParentNode(boolean.class, this.getClass(), classScope).addParam(ExprForgeCodegenNames.PARAMS);
+                CodegenExpressionNewAnonymousClass impl = newAnonymousClass(factoryCtor.getBlock(), HavingClauseEvaluator.EPTYPE);
+                CodegenMethod evaluateHaving = CodegenMethod.makeParentNode(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), classScope).addParam(ExprForgeCodegenNames.PARAMS);
                 impl.addMethod("evaluateHaving", evaluateHaving);
                 evaluateHaving.getBlock().methodReturn(CodegenLegoMethodExpression.codegenBooleanExpressionReturnTrueFalse(havingForges[i], classScope, factoryCtor, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
                 factoryCtor.getBlock().assignArrayElement(NAME_HAVINGEVALUATOR_ARRAYNONMEMBER, constant(i), impl);
@@ -269,7 +272,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         ResultSetProcessorRowPerGroupRollupImpl.clearMethodCodegen(method);
     }
 
-    public Class[] getGroupKeyTypes() {
+    public EPType[] getGroupKeyTypes() {
         return groupKeyTypes;
     }
 

@@ -11,47 +11,46 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.average;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base.*;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.function.Function;
 
 public class ExprDotForgeAverage extends ExprDotForgeLambdaThreeForm {
 
-    protected EPType initAndNoParamsReturnType(EventType inputEventType, Class collectionComponentType) {
-        if (collectionComponentType == BigDecimal.class || collectionComponentType == BigInteger.class) {
-            return EPTypeHelper.singleValue(BigDecimal.class);
+    protected EPChainableType initAndNoParamsReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
+        if (collectionComponentType.getType() == BigDecimal.class || collectionComponentType.getType() == BigInteger.class) {
+            return EPChainableTypeHelper.singleValue(EPTypePremade.BIGDECIMAL.getEPType());
         }
-        return EPTypeHelper.singleValue(Double.class);
+        return EPChainableTypeHelper.singleValue(EPTypePremade.DOUBLEBOXED.getEPType());
     }
 
-    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPType type, StatementCompileTimeServices services) {
-        if (EPTypeHelper.getNormalizedClass(type) == Double.class) {
+    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPChainableType type, StatementCompileTimeServices services) {
+        if (EPChainableTypeHelper.getNormalizedEPType(type).equals(EPTypePremade.DOUBLEBOXED.getEPType())) {
             return streamCountIncoming -> new EnumAverageScalarNoParam(streamCountIncoming);
         }
         return streamCountIncoming -> new EnumAverageBigDecimalScalarNoParam(streamCountIncoming, services.getClasspathImportServiceCompileTime().getDefaultMathContext());
     }
 
-    protected Function<ExprDotEvalParamLambda, EPType> initAndSingleParamReturnType(EventType inputEventType, Class collectionComponentType) {
+    protected ThreeFormInitFunction initAndSingleParamReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
         return lambda -> {
-            Class returnType = lambda.getBodyForge().getEvaluationType();
-            if (returnType == BigDecimal.class || returnType == BigInteger.class) {
-                return EPTypeHelper.singleValue(BigDecimal.class);
+            EPTypeClass returnType = (EPTypeClass) lambda.getBodyForge().getEvaluationType();
+            if (returnType.getType() == BigDecimal.class || returnType.getType() == BigInteger.class) {
+                return EPChainableTypeHelper.singleValue(EPTypePremade.BIGDECIMAL.getEPType());
             }
-            return EPTypeHelper.singleValue(Double.class);
+            return EPChainableTypeHelper.singleValue(EPTypePremade.DOUBLEBOXED.getEPType());
         };
-
     }
 
     protected ThreeFormEventPlainFactory.ForgeFunction singleParamEventPlain(EnumMethodEnum enumMethod) {
         return (lambda, typeInfo, services) -> {
-            if (EPTypeHelper.getNormalizedClass(typeInfo) == Double.class) {
+            if (EPChainableTypeHelper.getNormalizedEPType(typeInfo).equals(EPTypePremade.DOUBLEBOXED.getEPType())) {
                 return new EnumAverageEvent(lambda);
             }
             return new EnumAverageBigDecimalEvent(lambda, services.getClasspathImportServiceCompileTime().getDefaultMathContext());
@@ -60,7 +59,7 @@ public class ExprDotForgeAverage extends ExprDotForgeLambdaThreeForm {
 
     protected ThreeFormEventPlusFactory.ForgeFunction singleParamEventPlus(EnumMethodEnum enumMethod) {
         return (lambda, fieldType, numParameters, typeInfo, services) -> {
-            if (EPTypeHelper.getNormalizedClass(typeInfo) == Double.class) {
+            if (EPChainableTypeHelper.getNormalizedEPType(typeInfo).equals(EPTypePremade.DOUBLEBOXED.getEPType())) {
                 return new EnumAverageEventPlus(lambda, fieldType, numParameters);
             }
             return new EnumAverageBigDecimalEventPlus(lambda, fieldType, numParameters, services.getClasspathImportServiceCompileTime().getDefaultMathContext());
@@ -69,7 +68,7 @@ public class ExprDotForgeAverage extends ExprDotForgeLambdaThreeForm {
 
     protected ThreeFormScalarFactory.ForgeFunction singleParamScalar(EnumMethodEnum enumMethod) {
         return (lambda, fieldType, numParams, typeInfo, services) -> {
-            if (EPTypeHelper.getNormalizedClass(typeInfo) == Double.class) {
+            if (EPChainableTypeHelper.getNormalizedEPType(typeInfo).equals(EPTypePremade.DOUBLEBOXED.getEPType())) {
                 return new EnumAverageScalar(lambda, fieldType, numParams);
             }
             return new EnumAverageBigDecimalScalar(lambda, fieldType, numParams, services.getClasspathImportServiceCompileTime().getDefaultMathContext());

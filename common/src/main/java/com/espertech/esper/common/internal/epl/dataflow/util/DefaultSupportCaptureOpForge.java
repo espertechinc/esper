@@ -30,7 +30,7 @@ public class DefaultSupportCaptureOpForge<T> implements DataFlowOperatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(DefaultSupportCaptureOpFactory.class, this.getClass(), "so", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(DefaultSupportCaptureOpFactory.EPTYPE, this.getClass(), "so", parent, symbols, classScope)
                 .constant("name", name)
                 .build();
     }

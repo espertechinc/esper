@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -34,12 +35,12 @@ public class SelectEvalInsertNoWildcardSingleColCoercionBeanWrapVariant extends 
         this.variantEventType = variantEventType;
     }
 
-    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+    protected CodegenExpression processFirstColCodegen(EPTypeClass evaluationType, CodegenExpression expression, CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField type = VariantEventTypeUtil.getField(variantEventType, codegenClassScope);
-        CodegenMethod method = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope).addParam(evaluationType, "result").getBlock()
-                .declareVar(EventType.class, "beanEventType", exprDotMethod(type, "eventTypeForNativeObject", ref("result")))
-                .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(eventBeanFactory, "adapterForTypedBean", ref("result"), ref("beanEventType")))
-                .declareVar(EventBean.class, "variant", exprDotMethod(type, "getValueAddEventBean", ref("wrappedEvent")))
+        CodegenMethod method = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope).addParam(evaluationType, "result").getBlock()
+                .declareVar(EventType.EPTYPE, "beanEventType", exprDotMethod(type, "eventTypeForNativeObject", ref("result")))
+                .declareVar(EventBean.EPTYPE, "wrappedEvent", exprDotMethod(eventBeanFactory, "adapterForTypedBean", ref("result"), ref("beanEventType")))
+                .declareVar(EventBean.EPTYPE, "variant", exprDotMethod(type, "getValueAddEventBean", ref("wrappedEvent")))
                 .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedWrapper", ref("variant"), staticMethod(Collections.class, "emptyMap"), resultEventType));
         return localMethodBuild(method).pass(expression).call();
     }

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,6 +26,7 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCodegenField;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Array;
@@ -38,15 +41,18 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI {
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final BeanEventTypeFactory beanEventTypeFactory;
+    protected final EPTypeClass returnType;
     private volatile BeanEventType fragmentEventType;
-    private final Class fragmentClassType;
+    private final EPTypeClass fragmentClassType;
     protected boolean isFragmentable;
     private final boolean isArray;
     private final boolean isIterable;
 
-    public abstract Class getTargetType();
+    public abstract EPTypeClass getTargetType();
 
-    public abstract Class getBeanPropType();
+    public EPTypeClass getBeanPropType() {
+        return returnType;
+    }
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
@@ -100,13 +106,14 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         BeanEventType fragmentEventType = null;
         boolean isArray = false;
         if (object.getClass().isArray()) {
-            if (JavaClassHelper.isFragmentableType(object.getClass().getComponentType())) {
+            Class componentType = object.getClass().getComponentType();
+            if (JavaClassHelper.isFragmentableType(componentType)) {
                 isArray = true;
-                fragmentEventType = beanEventTypeFactory.getCreateBeanType(object.getClass().getComponentType(), false);
+                fragmentEventType = beanEventTypeFactory.getCreateBeanType(ClassHelperGenericType.getClassEPType(componentType), false);
             }
         } else {
             if (JavaClassHelper.isFragmentableType(object.getClass())) {
-                fragmentEventType = beanEventTypeFactory.getCreateBeanType(object.getClass(), false);
+                fragmentEventType = beanEventTypeFactory.getCreateBeanType(ClassHelperGenericType.getClassEPType(object.getClass()), false);
             }
         }
 
@@ -174,19 +181,20 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         return events.toArray(new EventBean[events.size()]);
     }
 
-    public BaseNativePropertyGetter(EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class returnType, Class genericType) {
+    public BaseNativePropertyGetter(EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass type) {
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
         this.beanEventTypeFactory = beanEventTypeFactory;
-        if (returnType.isArray()) {
-            this.fragmentClassType = returnType.getComponentType();
+        this.returnType = type;
+        if (type.getType().isArray()) {
+            this.fragmentClassType = JavaClassHelper.getArrayComponentType(type);
             isArray = true;
             isIterable = false;
-        } else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class)) {
-            this.fragmentClassType = genericType;
+        } else if (JavaClassHelper.isImplementsInterface(type, Iterable.class)) {
+            this.fragmentClassType = JavaClassHelper.getSingleParameterTypeOrObject(type);
             isArray = false;
             isIterable = true;
         } else {
-            this.fragmentClassType = returnType;
+            this.fragmentClassType = type;
             isArray = false;
             isIterable = false;
         }
@@ -227,14 +235,14 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField msvc = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField mtype = codegenClassScope.addFieldUnshared(false, BeanEventType.class, cast(BeanEventType.class, EventTypeUtility.resolveTypeCodegen(fragmentEventType, EPStatementInitServices.REF)));
+        CodegenExpressionField mtype = codegenClassScope.addFieldUnshared(false, BeanEventType.EPTYPE, cast(BeanEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fragmentEventType, EPStatementInitServices.REF)));
 
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(getTargetType(), "underlying").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(getTargetType(), "underlying").getBlock()
                 .declareVar(getBeanPropType(), "object", underlyingGetCodegen(ref("underlying"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("object");
 
         if (isArray) {
-            return block.methodReturn(staticMethod(BaseNativePropertyGetter.class, "toFragmentArray", cast(Object[].class, ref("object")), mtype, msvc));
+            return block.methodReturn(staticMethod(BaseNativePropertyGetter.class, "toFragmentArray", cast(EPTypePremade.OBJECTARRAY.getEPType(), ref("object")), mtype, msvc));
         }
         if (isIterable) {
             return block.methodReturn(staticMethod(BaseNativePropertyGetter.class, "toFragmentIterable", ref("object"), mtype, msvc));

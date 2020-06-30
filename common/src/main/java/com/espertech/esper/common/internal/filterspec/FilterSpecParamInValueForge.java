@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPType;
+
 public interface FilterSpecParamInValueForge extends FilterSpecParamFilterForEvalForge {
-    Class getReturnType();
+    EPType getReturnType();
     boolean isConstant();
     void valueToString(StringBuilder out);
 }

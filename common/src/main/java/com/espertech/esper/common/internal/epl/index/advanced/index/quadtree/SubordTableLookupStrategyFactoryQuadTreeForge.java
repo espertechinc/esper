@@ -49,10 +49,10 @@ public class SubordTableLookupStrategyFactoryQuadTreeForge implements SubordTabl
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod methodNode = parent.makeChild(SubordTableLookupStrategyFactoryQuadTree.class, this.getClass(), classScope);
+        CodegenMethod methodNode = parent.makeChild(SubordTableLookupStrategyFactoryQuadTree.EPTYPE, this.getClass(), classScope);
         Function<ExprForge, CodegenExpression> toExpr = forge -> ExprNodeUtilityCodegen.codegenEvaluator(forge, methodNode, this.getClass(), classScope);
         methodNode.getBlock()
-                .declareVar(SubordTableLookupStrategyFactoryQuadTree.class, "sts", newInstance(SubordTableLookupStrategyFactoryQuadTree.class))
+                .declareVarNewInstance(SubordTableLookupStrategyFactoryQuadTree.EPTYPE, "sts")
                 .exprDotMethod(ref("sts"), "setX", toExpr.apply(x))
                 .exprDotMethod(ref("sts"), "setY", toExpr.apply(y))
                 .exprDotMethod(ref("sts"), "setWidth", toExpr.apply(width))

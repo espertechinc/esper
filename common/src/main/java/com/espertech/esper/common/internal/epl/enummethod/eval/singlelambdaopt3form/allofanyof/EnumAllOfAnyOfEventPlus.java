@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.allofanyof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -75,8 +77,8 @@ public class EnumAllOfAnyOfEventPlus extends ThreeFormEventPlus {
         };
     }
 
-    public Class returnType() {
-        return boolean.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.BOOLEANPRIMITIVE.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -87,7 +89,7 @@ public class EnumAllOfAnyOfEventPlus extends ThreeFormEventPlus {
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        CodegenLegoBooleanExpression.codegenReturnBoolIfNullOrBool(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope), all, all ? false : null, !all, !all);
+        CodegenLegoBooleanExpression.codegenReturnBoolIfNullOrBool(block, innerExpression.getEvaluationType(), innerExpression.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, scope, codegenClassScope), all, all ? false : null, !all, !all);
     }
 
     public void returnResult(CodegenBlock block) {

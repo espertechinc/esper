@@ -29,6 +29,6 @@ public class TestSuiteEventXMLWConfig extends TestCase {
 
         tryInvalidConfigurationCompileAndRuntime(SupportConfigFactory.getConfiguration(),
             config -> config.getCommon().addEventType("TypeXML", desc),
-            "Declared start timestamp property 'mystarttimestamp' is expected to return a Date, Calendar or long-typed value but returns 'java.lang.Double'");
+            "Declared start timestamp property 'mystarttimestamp' is expected to return a Date, Calendar or long-typed value but returns 'Double'");
     }
 }

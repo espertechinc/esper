@@ -38,7 +38,7 @@ public class TestCodegenExpressionUtil extends TestCase {
 
     private void tryRender(Object constant, String result) {
         StringBuilder builder = new StringBuilder();
-        renderConstant(builder, constant, Collections.emptyMap());
+        renderConstant(builder, constant, Collections.emptyMap(), false);
         assertEquals(result, builder.toString());
         assertTrue(canRenderConstant(constant));
     }

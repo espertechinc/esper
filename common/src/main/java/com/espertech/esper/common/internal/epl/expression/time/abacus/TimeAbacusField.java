@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.time.abacus;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -22,8 +23,8 @@ public class TimeAbacusField implements CodegenFieldSharable {
     private TimeAbacusField() {
     }
 
-    public Class type() {
-        return TimeAbacus.class;
+    public EPTypeClass type() {
+        return TimeAbacus.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

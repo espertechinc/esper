@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.contained;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -31,14 +32,14 @@ public class ContainedEventEvalGetterForge implements ContainedEventEvalForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContainedEventEvalGetter.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContainedEventEvalGetter.EPTYPE, this.getClass(), classScope);
 
-        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), EventPropertyFragmentGetter.class);
-        CodegenMethod getFragment = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(EventBean.class, "event");
+        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), EventPropertyFragmentGetter.EPTYPE);
+        CodegenMethod getFragment = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "event");
         anonymousClass.addMethod("getFragment", getFragment);
         getFragment.getBlock().methodReturn(getter.eventBeanFragmentCodegen(ref("event"), getFragment, classScope));
 
-        method.getBlock().methodReturn(newInstance(ContainedEventEvalGetter.class, anonymousClass));
+        method.getBlock().methodReturn(newInstance(ContainedEventEvalGetter.EPTYPE, anonymousClass));
         return localMethod(method);
     }
 }

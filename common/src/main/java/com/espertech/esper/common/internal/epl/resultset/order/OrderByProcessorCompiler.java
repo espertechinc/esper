@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.order;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
@@ -35,7 +36,7 @@ import static com.espertech.esper.common.internal.epl.resultset.order.OrderByPro
 public class OrderByProcessorCompiler {
 
     public static void makeOrderByProcessors(OrderByProcessorFactoryForge forge, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> providerExplicitMembers, CodegenCtor providerCtor, String providerClassName, String memberOrderByFactory) {
-        providerExplicitMembers.add(new CodegenTypedParam(OrderByProcessorFactory.class, memberOrderByFactory));
+        providerExplicitMembers.add(new CodegenTypedParam(OrderByProcessorFactory.EPTYPE, memberOrderByFactory));
         if (forge == null) {
             providerCtor.getBlock().assignRef(memberOrderByFactory, constantNull());
             return;
@@ -48,7 +49,7 @@ public class OrderByProcessorCompiler {
     }
 
     private static void makeFactory(OrderByProcessorFactoryForge forge, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, String providerClassName) {
-        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(OrderByProcessor.class, OrderByProcessorCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AgentInstanceContext.class, MEMBER_AGENTINSTANCECONTEXT.getRef());
+        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(OrderByProcessor.EPTYPE, OrderByProcessorCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AgentInstanceContext.EPTYPE, MEMBER_AGENTINSTANCECONTEXT.getRef());
         forge.instantiateCodegen(instantiateMethod, classScope);
 
         List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(providerClassName, "o"));
@@ -56,32 +57,32 @@ public class OrderByProcessorCompiler {
 
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(instantiateMethod, "instantiate", methods);
-        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_ORDERBYPROCESSORFACTORY, OrderByProcessorFactory.class, ctor, Collections.emptyList(), methods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_ORDERBYPROCESSORFACTORY, OrderByProcessorFactory.EPTYPE, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
     }
 
     private static void makeService(OrderByProcessorFactoryForge forge, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, String providerClassName) {
         CodegenNamedMethods namedMethods = new CodegenNamedMethods();
 
-        CodegenMethod sortPlainMethod = CodegenMethod.makeParentNode(EventBean[].class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTPLAIN_PARAMS);
+        CodegenMethod sortPlainMethod = CodegenMethod.makeParentNode(EventBean.EPTYPEARRAY, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTPLAIN_PARAMS);
         forge.sortPlainCodegen(sortPlainMethod, classScope, namedMethods);
 
-        CodegenMethod sortWGroupKeysMethod = CodegenMethod.makeParentNode(EventBean[].class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTWGROUPKEYS_PARAMS);
+        CodegenMethod sortWGroupKeysMethod = CodegenMethod.makeParentNode(EventBean.EPTYPEARRAY, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTWGROUPKEYS_PARAMS);
         forge.sortWGroupKeysCodegen(sortWGroupKeysMethod, classScope, namedMethods);
 
-        CodegenMethod sortRollupMethod = CodegenMethod.makeParentNode(EventBean[].class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTROLLUP_PARAMS);
+        CodegenMethod sortRollupMethod = CodegenMethod.makeParentNode(EventBean.EPTYPEARRAY, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTROLLUP_PARAMS);
         forge.sortRollupCodegen(sortRollupMethod, classScope, namedMethods);
 
-        CodegenMethod getSortKeyMethod = CodegenMethod.makeParentNode(Object.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean[].class, REF_EPS.getRef()).addParam(boolean.class, REF_ISNEWDATA.getRef()).addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef());
+        CodegenMethod getSortKeyMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.EPTYPEARRAY, REF_EPS.getRef()).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef()).addParam(ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef());
         forge.getSortKeyCodegen(getSortKeyMethod, classScope, namedMethods);
 
-        CodegenMethod getSortKeyRollupMethod = CodegenMethod.makeParentNode(Object.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean[].class, REF_EPS.getRef()).addParam(boolean.class, REF_ISNEWDATA.getRef()).addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef()).addParam(AggregationGroupByRollupLevel.class, REF_ORDERROLLUPLEVEL.getRef());
+        CodegenMethod getSortKeyRollupMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.EPTYPEARRAY, REF_EPS.getRef()).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef()).addParam(ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef()).addParam(AggregationGroupByRollupLevel.EPTYPE, REF_ORDERROLLUPLEVEL.getRef());
         forge.getSortKeyRollupCodegen(getSortKeyRollupMethod, classScope, namedMethods);
 
-        CodegenMethod sortWOrderKeysMethod = CodegenMethod.makeParentNode(EventBean[].class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean[].class, REF_OUTGOINGEVENTS.getRef()).addParam(Object[].class, REF_ORDERKEYS.getRef()).addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef());
+        CodegenMethod sortWOrderKeysMethod = CodegenMethod.makeParentNode(EventBean.EPTYPEARRAY, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.EPTYPEARRAY, REF_OUTGOINGEVENTS.getRef()).addParam(EPTypePremade.OBJECTARRAY.getEPType(), REF_ORDERKEYS.getRef()).addParam(ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef());
         forge.sortWOrderKeysCodegen(sortWOrderKeysMethod, classScope, namedMethods);
 
-        CodegenMethod sortTwoKeysMethod = CodegenMethod.makeParentNode(EventBean[].class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTTWOKEYS_PARAMS);
+        CodegenMethod sortTwoKeysMethod = CodegenMethod.makeParentNode(EventBean.EPTYPEARRAY, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTTWOKEYS_PARAMS);
         forge.sortTwoKeysCodegen(sortTwoKeysMethod, classScope, namedMethods);
 
         List<CodegenTypedParam> members = new ArrayList<>();
@@ -102,7 +103,7 @@ public class OrderByProcessorCompiler {
             CodegenStackGenerator.recursiveBuildStack(methodEntry.getValue(), methodEntry.getKey(), innerMethods);
         }
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(OrderByProcessorCodegenNames.CLASSNAME_ORDERBYPROCESSOR, OrderByProcessor.class, ctor, members, innerMethods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(OrderByProcessorCodegenNames.CLASSNAME_ORDERBYPROCESSOR, OrderByProcessor.EPTYPE, ctor, members, innerMethods);
         innerClasses.add(innerClass);
     }
 }

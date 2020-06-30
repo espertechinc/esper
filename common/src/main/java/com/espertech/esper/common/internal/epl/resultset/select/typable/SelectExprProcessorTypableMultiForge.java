@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.select.typable;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -50,14 +52,14 @@ public class SelectExprProcessorTypableMultiForge implements SelectExprProcessor
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, factory.make(codegenMethodScope, codegenClassScope));
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, factory.make(codegenMethodScope, codegenClassScope));
 
         if (firstRowOnly) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableMultiForge.class, codegenClassScope);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, SelectExprProcessorTypableMultiForge.class, codegenClassScope);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(Object[].class, "row", typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "row", typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("row");
             if (hasWideners) {
                 block.expression(SelectExprProcessorHelper.applyWidenersCodegen(ref("row"), wideners, methodNode, codegenClassScope));
@@ -66,17 +68,17 @@ public class SelectExprProcessorTypableMultiForge implements SelectExprProcessor
             return localMethod(methodNode);
         }
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorTypableMultiForge.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, SelectExprProcessorTypableMultiForge.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[][].class, "rows", typable.evaluateTypableMultiCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.OBJECTARRAYARRAY.getEPType(), "rows", typable.evaluateTypableMultiCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("rows")
                 .ifCondition(equalsIdentity(arrayLength(ref("rows")), constant(0)))
-                .blockReturn(newArrayByLength(EventBean.class, constant(0)));
+                .blockReturn(newArrayByLength(EventBean.EPTYPE, constant(0)));
         if (hasWideners) {
             block.expression(SelectExprProcessorHelper.applyWidenersCodegenMultirow(ref("rows"), wideners, methodNode, codegenClassScope));
         }
-        block.declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, arrayLength(ref("rows"))))
+        block.declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, arrayLength(ref("rows"))))
                 .forLoopIntSimple("i", arrayLength(ref("events")))
                 .assignArrayElement("events", ref("i"), exprDotMethod(manufacturer, "make", arrayAtIndex(ref("rows"), ref("i"))))
                 .blockEnd()
@@ -84,18 +86,18 @@ public class SelectExprProcessorTypableMultiForge implements SelectExprProcessor
         return localMethod(methodNode);
     }
 
-    public Class getUnderlyingEvaluationType() {
+    public EPTypeClass getUnderlyingEvaluationType() {
         if (firstRowOnly) {
-            return targetType.getUnderlyingType();
+            return targetType.getUnderlyingEPType();
         }
-        return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
+        return JavaClassHelper.getArrayType(targetType.getUnderlyingEPType());
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         if (firstRowOnly) {
-            return EventBean.class;
+            return EventBean.EPTYPE;
         }
-        return EventBean[].class;
+        return EventBean.EPTYPEARRAY;
     }
 
     public ExprNodeRenderable getForgeRenderable() {

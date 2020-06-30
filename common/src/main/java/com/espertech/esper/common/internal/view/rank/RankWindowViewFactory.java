@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.view.rank;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -25,12 +27,14 @@ import java.util.Comparator;
  * Factory for rank window views.
  */
 public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RankWindowViewFactory.class);
+
     protected boolean[] isDescendingValues;
     protected ExprEvaluator criteriaEval;
-    protected Class[] criteriaTypes;
+    protected EPType[] criteriaTypes;
     protected DataInputOutputSerde<Object> keySerde;
     protected ExprEvaluator[] sortCriteriaEvaluators;
-    protected Class[] sortCriteriaTypes;
+    protected EPType[] sortCriteriaTypes;
     protected ExprEvaluator size;
     protected boolean useCollatorSort;
     protected DataInputOutputSerde<Object>[] sortSerdes;
@@ -96,7 +100,7 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         this.sortCriteriaEvaluators = sortCriteriaEvaluators;
     }
 
-    public void setSortCriteriaTypes(Class[] sortCriteriaTypes) {
+    public void setSortCriteriaTypes(EPType[] sortCriteriaTypes) {
         this.sortCriteriaTypes = sortCriteriaTypes;
     }
 
@@ -108,7 +112,7 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         this.useCollatorSort = useCollatorSort;
     }
 
-    public void setCriteriaTypes(Class[] criteriaTypes) {
+    public void setCriteriaTypes(EPType[] criteriaTypes) {
         this.criteriaTypes = criteriaTypes;
     }
 

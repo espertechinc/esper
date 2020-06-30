@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.metrics.instrumentation;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -17,6 +21,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForgeInstrumentable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,13 +33,13 @@ public class InstrumentationBuilderExpr {
     private final Class generator;
     private final ExprForgeInstrumentable forge;
     private final String qname;
-    private final Class requiredType;
+    private final EPTypeClass requiredType;
     private final CodegenMethodScope codegenMethodScope;
     private final ExprForgeCodegenSymbol exprSymbol;
     private final CodegenClassScope codegenClassScope;
     private final List<CodegenExpression> qParams = new ArrayList<>();
 
-    public InstrumentationBuilderExpr(Class generator, ExprForgeInstrumentable forge, String qname, Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public InstrumentationBuilderExpr(Class generator, ExprForgeInstrumentable forge, String qname, EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         this.generator = generator;
         this.forge = forge;
         this.qname = qname;
@@ -52,31 +57,32 @@ public class InstrumentationBuilderExpr {
             return forge.evaluateCodegenUninstrumented(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
         }
 
-        Class evaluationType = forge.getEvaluationType();
-        if (evaluationType == void.class) {
+        EPType evaluationType = forge.getEvaluationType();
+        if (evaluationType != null && JavaClassHelper.isTypeVoid(evaluationType)) {
             return constantNull();
         }
 
-        if (evaluationType == null) {
-            CodegenMethod method = codegenMethodScope.makeChild(Object.class, generator, codegenClassScope);
+        if (evaluationType == null || evaluationType == EPTypeNull.INSTANCE) {
+            CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), generator, codegenClassScope);
             method.getBlock()
-                    .ifCondition(publicConstValue(InstrumentationCommon.RUNTIME_HELPER_CLASS, "ENABLED"))
-                    .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("q" + qname, qParams.toArray(new CodegenExpression[qParams.size()])))
-                    .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("a" + qname, constantNull()))
-                    .blockEnd()
-                    .methodReturn(constantNull());
+                .ifCondition(publicConstValue(InstrumentationCommon.RUNTIME_HELPER_CLASS, "ENABLED"))
+                .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("q" + qname, qParams.toArray(new CodegenExpression[qParams.size()])))
+                .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("a" + qname, constantNull()))
+                .blockEnd()
+                .methodReturn(constantNull());
             return localMethod(method);
         }
 
-        CodegenMethod method = codegenMethodScope.makeChild(evaluationType, generator, codegenClassScope);
-        CodegenExpression expr = forge.evaluateCodegenUninstrumented(evaluationType, method, exprSymbol, codegenClassScope);
+        EPTypeClass evalTypeClass = (EPTypeClass) evaluationType;
+        CodegenMethod method = codegenMethodScope.makeChild(evalTypeClass, generator, codegenClassScope);
+        CodegenExpression expr = forge.evaluateCodegenUninstrumented(evalTypeClass, method, exprSymbol, codegenClassScope);
         method.getBlock()
-                .ifCondition(publicConstValue(InstrumentationCommon.RUNTIME_HELPER_CLASS, "ENABLED"))
-                .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("q" + qname, qParams.toArray(new CodegenExpression[qParams.size()])))
-                .declareVar(evaluationType, "result", expr)
-                .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("a" + qname, ref("result")))
-                .blockReturn(ref("result"))
-                .methodReturn(expr);
+            .ifCondition(publicConstValue(InstrumentationCommon.RUNTIME_HELPER_CLASS, "ENABLED"))
+            .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("q" + qname, qParams.toArray(new CodegenExpression[qParams.size()])))
+            .declareVar((EPTypeClass) evaluationType, "result", expr)
+            .expression(exprDotMethodChain(staticMethod(InstrumentationCommon.RUNTIME_HELPER_CLASS, "get")).add("a" + qname, ref("result")))
+            .blockReturn(ref("result"))
+            .methodReturn(expr);
         return localMethod(method);
     }
 

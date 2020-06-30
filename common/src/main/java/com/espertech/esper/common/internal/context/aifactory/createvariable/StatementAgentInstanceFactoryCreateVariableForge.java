@@ -33,9 +33,9 @@ public class StatementAgentInstanceFactoryCreateVariableForge {
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateVariable.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateVariable.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateVariable.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateVariable.class))
+                .declareVarNewInstance(StatementAgentInstanceFactoryCreateVariable.EPTYPE, "saiff")
                 .exprDotMethod(ref("saiff"), "setVariableName", constant(variableName))
                 .exprDotMethod(ref("saiff"), "setResultSetProcessorFactoryProvider", CodegenExpressionBuilder.newInstance(resultSetProcessorProviderClassName, symbols.getAddInitSvc(method)));
         if (optionalInitialValue != null) {

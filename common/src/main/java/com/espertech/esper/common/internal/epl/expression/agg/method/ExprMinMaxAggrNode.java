@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.minmax.AggregationForgeFactoryMinMax;
@@ -64,7 +65,7 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
 
-        Class evaluationType = child.getForge().getEvaluationType();
+        EPTypeClass evaluationType = (EPTypeClass) child.getForge().getEvaluationType();
         DataInputOutputSerdeForge serde = validationContext.getSerdeResolver().serdeForAggregation(evaluationType, validationContext.getStatementRawInfo());
         DataInputOutputSerdeForge distinctSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(evaluationType, validationContext.getStatementRawInfo()) : null;
         return new AggregationForgeFactoryMinMax(this, evaluationType, hasDataWindows, serde, distinctSerde);

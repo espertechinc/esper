@@ -10,13 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.sumof;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 public interface ExprDotEvalSumMethodFactory {
     ExprDotEvalSumMethod getSumAggregator();
 
-    Class getValueType();
+    EPTypeClass getValueType();
 
     void codegenDeclare(CodegenBlock block);
 

@@ -42,6 +42,7 @@ public class InternalEventRouterEntry {
      * @param outputView          for indicating output
      * @param statementContext    statement context
      * @param hasSubselect        indicator whether there are subselects
+     * @param specialPropWriters special writers if any
      */
     public InternalEventRouterEntry(int priority, boolean drop, ExprEvaluator optionalWhereClause, ExprEvaluator[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalEventRouterWriter[] specialPropWriters, InternalRoutePreprocessView outputView, StatementContext statementContext, boolean hasSubselect) {
         this.priority = priority;

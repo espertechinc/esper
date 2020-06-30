@@ -42,7 +42,7 @@ public class MyFlushedSimpleViewForge implements ViewFactoryForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(MyFlushedSimpleViewFactory.class, this.getClass(), "factory", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(MyFlushedSimpleViewFactory.EPTYPE, this.getClass(), "factory", parent, symbols, classScope)
             .eventtype("eventType", eventType)
             .build();
     }

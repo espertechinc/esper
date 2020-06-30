@@ -130,6 +130,10 @@ public class TestSuiteInfraNWTable extends TestCase {
         RegressionRunner.run(session, InfraNWTableFAFSubquery.executions());
     }
 
+    public void testInfraNWTableCreate() {
+        RegressionRunner.run(session, InfraNWTableCreate.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class, SupportBean_A.class,
             SupportBean_B.class, SupportBeanRange.class, SupportSimpleBeanOne.class, SupportSimpleBeanTwo.class,

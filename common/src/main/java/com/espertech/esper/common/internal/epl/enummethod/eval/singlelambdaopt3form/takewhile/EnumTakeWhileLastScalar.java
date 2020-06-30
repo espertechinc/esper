@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.takewhile;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -88,8 +90,8 @@ public class EnumTakeWhileLastScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
-        return Collection.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.COLLECTION.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -97,11 +99,11 @@ public class EnumTakeWhileLastScalar extends ThreeFormScalar {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        innerValue = innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope);
+        innerValue = innerExpression.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, scope, codegenClassScope);
         EnumTakeWhileHelper.initBlockSizeOneScalar(numParameters, block, innerValue, innerExpression.getEvaluationType());
-        block.declareVar(Object[].class, "all", staticMethod(EnumTakeWhileHelper.class, "takeWhileLastScalarToArray", EnumForgeCodegenNames.REF_ENUMCOLL));
+        block.declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "all", staticMethod(EnumTakeWhileHelper.class, "takeWhileLastScalarToArray", EnumForgeCodegenNames.REF_ENUMCOLL));
 
-        CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrementRef("i"))
+        CodegenBlock forEach = block.forLoop(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrementRef("i"))
             .assignArrayElement("props", constant(0), arrayAtIndex(ref("all"), ref("i")));
         if (numParameters >= 2) {
             forEach.incrementRef("count")

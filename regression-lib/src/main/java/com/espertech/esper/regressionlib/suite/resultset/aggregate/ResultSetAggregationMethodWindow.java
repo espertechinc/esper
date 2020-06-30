@@ -12,6 +12,9 @@ package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -45,7 +48,7 @@ public class ResultSetAggregationMethodWindow {
                 "@name('s0') select MyTable.windowcol.listReference() as collref from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, List.class, "collref");
+            assertType(env, EPTypeClassParameterized.from(List.class, EventBean.EPTYPE), "collref");
 
             SupportBean sb1 = makeSendBean(env, "E1", 10);
             SupportBean sb2 = makeSendBean(env, "E1", 10);
@@ -65,7 +68,7 @@ public class ResultSetAggregationMethodWindow {
                 "@name('s0') select windowcol.first(intPrimitive) as c0, windowcol.last(intPrimitive) as c1, windowcol.countEvents() as c2 from SupportBean_S0, MyTable";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, Integer.class, "c0,c1,c2");
+            assertType(env, EPTypePremade.INTEGERBOXED.getEPType(), "c0,c1,c2");
 
             makeSendBean(env, "E1", 10);
             makeSendBean(env, "E2", 20);
@@ -85,7 +88,7 @@ public class ResultSetAggregationMethodWindow {
                 "@name('s0') select MyTable.windowcol.first() as c0, MyTable.windowcol.last() as c1 from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, SupportBean.class, "c0,c1");
+            assertType(env, new EPTypeClass(SupportBean.class), "c0,c1");
 
             sendAssert(env, null, null);
 
@@ -114,7 +117,7 @@ public class ResultSetAggregationMethodWindow {
             String epl = "@name('s0') select theString, window(*).first() as c0, window(*).last() as c1 from SupportBean#length(3) as sb group by theString";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, SupportBean.class, "c0,c1");
+            assertType(env, new EPTypeClass(SupportBean.class), "c0,c1");
 
             SupportBean sb1 = makeSendBean(env, "A", 1);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", sb1, sb1});

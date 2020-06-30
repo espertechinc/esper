@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.handthru;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -47,8 +48,8 @@ public class ResultSetProcessorHandThroughFactoryForge implements ResultSetProce
         return isSelectRStream;
     }
 
-    public Class getInterfaceClass() {
-        return ResultSetProcessor.class;
+    public EPTypeClass getInterfaceClass() {
+        return ResultSetProcessor.EPTYPE;
     }
 
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {

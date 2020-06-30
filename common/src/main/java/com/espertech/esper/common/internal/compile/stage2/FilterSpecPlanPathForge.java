@@ -64,14 +64,14 @@ public class FilterSpecPlanPathForge {
     }
 
     public CodegenMethod codegen(CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FilterSpecPlanPath.class, FilterSpecParamForge.class, classScope);
-        method.getBlock().declareVar(FilterSpecPlanPathTriplet[].class, "triplets", newArrayByLength(FilterSpecPlanPathTriplet.class, constant(triplets.length)));
+        CodegenMethod method = parent.makeChild(FilterSpecPlanPath.EPTYPE, FilterSpecParamForge.class, classScope);
+        method.getBlock().declareVar(FilterSpecPlanPathTriplet.EPTYPEARRAY, "triplets", newArrayByLength(FilterSpecPlanPathTriplet.EPTYPE, constant(triplets.length)));
         for (int i = 0; i < triplets.length; i++) {
             CodegenMethod triplet = triplets[i].codegen(method, symbols, classScope);
             method.getBlock().assignArrayElement("triplets", constant(i), localMethod(triplet));
         }
         method.getBlock()
-            .declareVar(FilterSpecPlanPath.class, "path", newInstance(FilterSpecPlanPath.class))
+            .declareVarNewInstance(FilterSpecPlanPath.EPTYPE, "path")
             .exprDotMethod(ref("path"), "setTriplets", ref("triplets"))
             .exprDotMethod(ref("path"), "setPathNegate", optionalEvaluator(pathNegate, method, classScope))
             .methodReturn(ref("path"));

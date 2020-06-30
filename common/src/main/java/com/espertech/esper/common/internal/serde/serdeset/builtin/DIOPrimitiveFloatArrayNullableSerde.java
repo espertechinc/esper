@@ -12,12 +12,15 @@ package com.espertech.esper.common.internal.serde.serdeset.builtin;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 public class DIOPrimitiveFloatArrayNullableSerde implements DataInputOutputSerde<float[]> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOPrimitiveFloatArrayNullableSerde.class);
+
     public final static DIOPrimitiveFloatArrayNullableSerde INSTANCE = new DIOPrimitiveFloatArrayNullableSerde();
 
     private DIOPrimitiveFloatArrayNullableSerde() {

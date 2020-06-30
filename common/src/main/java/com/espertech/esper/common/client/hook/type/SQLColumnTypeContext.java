@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.hook.type;
 
+import com.espertech.esper.common.client.type.EPType;
+
 /**
  * For use with {@link SQLColumnTypeConversion}, context of column conversion.
  */
@@ -17,7 +19,7 @@ public class SQLColumnTypeContext {
     private final String db;
     private final String sql;
     private final String columnName;
-    private final Class columnClassType;
+    private final EPType columnClassType;
     private final int columnSqlType;
     private final int columnNumber;
 
@@ -31,7 +33,7 @@ public class SQLColumnTypeContext {
      * @param columnSqlType   sql type
      * @param columnNumber    column number starting at 1
      */
-    public SQLColumnTypeContext(String db, String sql, String columnName, Class columnClassType, int columnSqlType, int columnNumber) {
+    public SQLColumnTypeContext(String db, String sql, String columnName, EPType columnClassType, int columnSqlType, int columnNumber) {
         this.db = db;
         this.sql = sql;
         this.columnName = columnName;
@@ -72,7 +74,7 @@ public class SQLColumnTypeContext {
      *
      * @return column type
      */
-    public Class getColumnClassType() {
+    public EPType getColumnClassType() {
         return columnClassType;
     }
 

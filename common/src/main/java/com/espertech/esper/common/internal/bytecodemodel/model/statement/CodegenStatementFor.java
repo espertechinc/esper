@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,14 +22,14 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenStatementFor extends CodegenStatementWBlockBase {
-    private final Class type;
+    private final EPTypeClass type;
     private final String name;
     private final CodegenExpression initialization;
     private final CodegenExpression termination;
     private final CodegenExpression increment;
     private CodegenBlock block;
 
-    public CodegenStatementFor(CodegenBlock parent, Class type, String name, CodegenExpression initialization, CodegenExpression termination, CodegenExpression increment) {
+    public CodegenStatementFor(CodegenBlock parent, EPTypeClass type, String name, CodegenExpression initialization, CodegenExpression termination, CodegenExpression increment) {
         super(parent);
         this.type = type;
         this.name = name;
@@ -43,7 +44,7 @@ public class CodegenStatementFor extends CodegenStatementWBlockBase {
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         builder.append("for (");
-        appendClassName(builder, type, null, imports);
+        appendClassName(builder, type, imports);
         builder.append(" ").append(name).append("=");
         initialization.render(builder, imports, isInnerClass);
         builder.append("; ");
@@ -61,6 +62,7 @@ public class CodegenStatementFor extends CodegenStatementWBlockBase {
         initialization.mergeClasses(classes);
         termination.mergeClasses(classes);
         increment.mergeClasses(classes);
+        type.traverseClasses(classes::add);
     }
 
     public void traverseExpressions(Consumer<CodegenExpression> consumer) {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.dataflow.realize;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
  * Models a pipe between two operators.
  */
 public class LogicalChannel {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(LogicalChannel.class);
+
     private int channelId;
     private String consumingOpName;
     private int consumingOpNum;
@@ -44,7 +47,7 @@ public class LogicalChannel {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(LogicalChannel.class, this.getClass(), "lc", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(LogicalChannel.EPTYPE, this.getClass(), "lc", parent, symbols, classScope)
                 .constant("channelId", channelId)
                 .constant("consumingOpName", consumingOpName)
                 .constant("consumingOpNum", consumingOpNum)

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.event.property;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetterAndMapped;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayMappedPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -24,6 +27,7 @@ import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.map.MapEventPropertyGetterAndMapped;
 import com.espertech.esper.common.internal.event.map.MapMappedPropertyGetter;
 import com.espertech.esper.common.internal.event.xml.*;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -84,7 +88,7 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
             return null;
         }
 
-        Class returnType = propertyDesc.getReturnType();
+        EPTypeClass returnType = propertyDesc.getReturnType(eventType.getUnderlyingEPType());
         if (!JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
             return null;
         }
@@ -98,10 +102,10 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
         }
     }
 
-    public Class getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
+    public EPTypeClass getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
         PropertyStem propertyDesc = eventType.getMappedProperty(propertyNameAtomic);
         if (propertyDesc != null) {
-            return propertyDesc.getReadMethod().getReturnType();
+            return ClassHelperGenericType.getMethodReturnEPType(propertyDesc.getReadMethod(), eventType.getUnderlyingEPType());
         }
 
         // Check if this is an method returning array which is a type of simple property
@@ -110,54 +114,21 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
             return null;
         }
 
-        Class returnType = descriptor.getReturnType();
+        EPTypeClass returnType = descriptor.getReturnType(eventType.getUnderlyingEPType());
         if (!JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
             return null;
         }
-        if (descriptor.getReadMethod() != null) {
-            return JavaClassHelper.getGenericReturnTypeMap(descriptor.getReadMethod(), false);
-        } else if (descriptor.getAccessorField() != null) {
-            return JavaClassHelper.getGenericFieldTypeMap(descriptor.getAccessorField(), false);
-        } else {
-            return null;
-        }
+        return JavaClassHelper.getSecondParameterTypeOrObject(returnType);
     }
 
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
-        PropertyStem propertyDesc = eventType.getMappedProperty(propertyNameAtomic);
-        if (propertyDesc != null) {
-            return new GenericPropertyDesc(propertyDesc.getReadMethod().getReturnType());
-        }
-
-        // Check if this is an method returning array which is a type of simple property
-        PropertyStem descriptor = eventType.getSimpleProperty(propertyNameAtomic);
-        if (descriptor == null) {
-            return null;
-        }
-
-        Class returnType = descriptor.getReturnType();
-        if (!JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
-            return null;
-        }
-        if (descriptor.getReadMethod() != null) {
-            Class genericType = JavaClassHelper.getGenericReturnTypeMap(descriptor.getReadMethod(), false);
-            return new GenericPropertyDesc(genericType);
-        } else if (descriptor.getAccessorField() != null) {
-            Class genericType = JavaClassHelper.getGenericFieldTypeMap(descriptor.getAccessorField(), false);
-            return new GenericPropertyDesc(genericType);
-        } else {
-            return null;
-        }
-    }
-
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
+    public EPType getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
         Object type = optionalMapPropTypes.get(this.getPropertyNameAtomic());
         if (type == null) {
             return null;
         }
-        if (type instanceof Class) {
-            if (JavaClassHelper.isImplementsInterface((Class) type, Map.class)) {
-                return Object.class;
+        if (type instanceof EPTypeClass) {
+            if (JavaClassHelper.isImplementsInterface((EPTypeClass) type, Map.class)) {
+                return EPTypePremade.OBJECT.getEPType();
             }
         }
         return null;  // Mapped properties are not allowed in non-dynamic form in a map
@@ -168,8 +139,8 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
         if (type == null) {
             return null;
         }
-        if (type instanceof Class) {
-            if (JavaClassHelper.isImplementsInterface((Class) type, Map.class)) {
+        if (type instanceof EPTypeClass) {
+            if (JavaClassHelper.isImplementsInterface((EPTypeClass) type, Map.class)) {
                 return new MapMappedPropertyGetter(getPropertyNameAtomic(), this.getKey());
             }
         }
@@ -230,8 +201,8 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
             return null;
         }
         Object type = nestableTypes.get(getPropertyNameAtomic());
-        if (type instanceof Class) {
-            if (JavaClassHelper.isImplementsInterface((Class) type, Map.class)) {
+        if (type instanceof EPTypeClass) {
+            if (JavaClassHelper.isImplementsInterface((EPTypeClass) type, Map.class)) {
                 return new ObjectArrayMappedPropertyGetter(index, this.getKey());
             }
         }

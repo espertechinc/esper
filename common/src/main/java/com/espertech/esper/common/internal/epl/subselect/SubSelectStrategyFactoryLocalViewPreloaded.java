@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.subselect;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
@@ -39,8 +40,6 @@ import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
 import com.espertech.esper.common.internal.view.util.BufferView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,8 +47,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStrategyFactory {
-    private final static Logger log = LoggerFactory.getLogger(SubSelectStrategyFactoryLocalViewPreloaded.class);
-    // private final static SubordTableLookupStrategyNullRow NULL_ROW_STRATEGY = new SubordTableLookupStrategyNullRow();
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubSelectStrategyFactoryLocalViewPreloaded.class);
 
     private int subqueryNumber;
     private ViewFactory[] viewFactories;

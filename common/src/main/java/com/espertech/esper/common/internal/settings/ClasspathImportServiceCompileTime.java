@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionForge;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.AdvancedIndexFactoryProvider;
@@ -23,20 +24,33 @@ public interface ClasspathImportServiceCompileTime extends ClasspathImportServic
     String EXT_SINGLEROW_FUNCTION_TRANSPOSE = "transpose";
 
     AdvancedIndexFactoryProvider resolveAdvancedIndexProvider(String indexTypeName) throws ClasspathImportException;
+
     Method resolveMethodOverloadChecked(Class clazz, String methodName) throws ClasspathImportException;
+
     Method resolveMethodOverloadChecked(String className, String methodName, ClasspathExtensionClass classpathExtension) throws ClasspathImportException;
+
     Class resolveAnnotation(String className) throws ClasspathImportException;
+
     Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name, ClasspathExtensionSingleRow classpathExtensionSingleRow) throws ClasspathImportException, ClasspathImportUndefinedException;
+
     Method resolveNonStaticMethodOverloadChecked(Class clazz, String methodName) throws ClasspathImportException;
-    Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType) throws ClasspathImportException;
+
+    Method resolveMethod(Class clazz, String methodName, EPType[] paramTypes, boolean[] allowEventBeanType) throws ClasspathImportException;
+
     Class resolveEnumMethod(String name) throws ClasspathImportException;
+
     AggregationFunctionForge resolveAggregationFunction(String functionName, ClasspathExtensionAggregationFunction extension) throws ClasspathImportUndefinedException, ClasspathImportException;
+
     Pair<ConfigurationCompilerPlugInAggregationMultiFunction, Class> resolveAggregationMultiFunction(String name, ClasspathExtensionAggregationMultiFunction classpathExtensionAggregationMultiFunction);
+
     ExprNode resolveAggExtendedBuiltin(String name, boolean isDistinct);
+
     Class resolveDateTimeMethod(String name) throws ClasspathImportException;
+
     ExprNode resolveSingleRowExtendedBuiltin(String name);
 
     boolean isSortUsingCollator();
+
     MathContext getDefaultMathContext();
 
     void addImport(String importName) throws ClasspathImportException;

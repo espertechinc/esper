@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldName;
@@ -26,7 +28,7 @@ public class CodegenPackageScope {
     private final String packageName;
     private final String fieldsClassNameOptional;
     private final boolean instrumented;
-    private final CodegenMethod initMethod = CodegenMethod.makeParentNode(void.class, CodegenPackageScope.class, new CodegenClassScope(true, this, null)).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef()).setStatic(true);
+    private final CodegenMethod initMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), CodegenPackageScope.class, new CodegenClassScope(true, this, null)).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef()).setStatic(true);
 
     private int currentMemberNumber;
     private int currentSubstitutionParamNumber;
@@ -50,7 +52,7 @@ public class CodegenPackageScope {
         this.instrumented = instrumented;
     }
 
-    public <T> CodegenExpressionField addFieldUnshared(boolean isFinal, Class<? extends T> clazz, CodegenExpression initCtorScoped) {
+    public CodegenExpressionField addFieldUnshared(boolean isFinal, EPTypeClass clazz, CodegenExpression initCtorScoped) {
         if (fieldsClassNameOptional == null) {
             throw new IllegalStateException("No fields class name");
         }
@@ -67,15 +69,15 @@ public class CodegenPackageScope {
         return field(member);
     }
 
-    public CodegenExpressionField addOrGetFieldWellKnown(CodegenFieldName fieldName, Class type) {
+    public CodegenExpressionField addOrGetFieldWellKnown(CodegenFieldName fieldName, EPTypeClass type) {
         CodegenField existing = fieldsNamed.get(fieldName);
         if (existing != null) {
-            if (existing.getType() != type) {
-                throw new IllegalStateException("Field '" + fieldName + "' already registered with a different type, registered with " + existing.getType().getSimpleName() + " but provided " + type.getSimpleName());
+            if (!existing.getType().equals(type)) {
+                throw new IllegalStateException("Field '" + fieldName + "' already registered with a different type, registered with " + existing.getType().toFullName() + " but provided " + type.toFullName());
             }
             return field(existing);
         }
-        CodegenField field = new CodegenField(fieldsClassNameOptional, fieldName.getName(), type, null, false);
+        CodegenField field = new CodegenField(fieldsClassNameOptional, fieldName.getName(), type, false);
         fieldsNamed.put(fieldName, field);
         return field(field);
     }
@@ -108,15 +110,15 @@ public class CodegenPackageScope {
         return substitutionParamsByName;
     }
 
-    private <T> CodegenField addFieldUnsharedInternal(boolean isFinal, Class<? extends T> clazz, CodegenExpression initCtorScoped) {
+    private CodegenField addFieldUnsharedInternal(boolean isFinal, EPTypeClass type, CodegenExpression initCtorScoped) {
         int memberNumber = currentMemberNumber++;
         String name = CodegenPackageScopeNames.anyField(memberNumber);
-        CodegenField member = new CodegenField(fieldsClassNameOptional, name, clazz, null, isFinal);
+        CodegenField member = new CodegenField(fieldsClassNameOptional, name, type, isFinal);
         fieldsUnshared.put(member, initCtorScoped);
         return member;
     }
 
-    public CodegenField addSubstitutionParameter(String name, Class type) {
+    public CodegenField addSubstitutionParameter(String name, EPTypeClass type) {
         boolean mixed = false;
         if (name == null) {
             if (!substitutionParamsByName.isEmpty()) {
@@ -140,14 +142,14 @@ public class CodegenPackageScope {
         if (name == null) {
             int assigned = ++currentSubstitutionParamNumber;
             String fieldName = CodegenPackageScopeNames.anySubstitutionParam(assigned);
-            member = new CodegenField(fieldsClassNameOptional, fieldName, type, null, false);
+            member = new CodegenField(fieldsClassNameOptional, fieldName, type, false);
             substitutionParamsByNumber.add(new CodegenSubstitutionParamEntry(member, name, type));
         } else {
             CodegenSubstitutionParamEntry existing = substitutionParamsByName.get(name);
             if (existing == null) {
                 int assigned = ++currentSubstitutionParamNumber;
                 String fieldName = CodegenPackageScopeNames.anySubstitutionParam(assigned);
-                member = new CodegenField(fieldsClassNameOptional, fieldName, type, null, false);
+                member = new CodegenField(fieldsClassNameOptional, fieldName, type, false);
                 substitutionParamsByName.put(name, new CodegenSubstitutionParamEntry(member, name, type));
             } else {
                 member = existing.getField();

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -36,6 +37,6 @@ public class TypeWidenerBoxedNumeric implements TypeWidenerSPI {
     }
 
     public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return coercer.coerceCodegen(cast(Number.class, expression), Number.class);
+        return coercer.coerceCodegen(cast(EPTypePremade.NUMBER.getEPType(), expression), EPTypePremade.NUMBER.getEPType());
     }
 }

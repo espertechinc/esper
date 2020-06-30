@@ -21,6 +21,7 @@ import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -52,7 +53,7 @@ public class ClientRuntimeItself {
 
     private static class ClientRuntimeSPIBeanAnonymousType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            BeanEventType beanEventType = new EPRuntimeBeanAnonymousTypeService().makeBeanEventTypeAnonymous(MyBeanAnonymousType.class);
+            BeanEventType beanEventType = new EPRuntimeBeanAnonymousTypeService().makeBeanEventTypeAnonymous(ClassHelperGenericType.getClassEPType(MyBeanAnonymousType.class));
             assertEquals(int.class, beanEventType.getPropertyType("prop"));
         }
     }

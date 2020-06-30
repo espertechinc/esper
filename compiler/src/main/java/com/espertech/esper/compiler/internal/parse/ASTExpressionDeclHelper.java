@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclIte
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapper;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.Tree;
@@ -54,12 +55,12 @@ public class ASTExpressionDeclHelper {
         if (ctx.expressionDef().stringconstant() != null) {
             String expressionText = scriptBodies.remove(0);
             List<String> parameters = ASTUtil.getIdentList(ctx.columnList());
-            String optionalReturnType = ctx.classIdentifier() == null ? null : ASTUtil.unescapeClassIdent(ctx.classIdentifier());
-            boolean optionalReturnTypeArray = ctx.array != null;
+            ClassDescriptor classIdent = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
+            String classIdentText = classIdent == null ? null : classIdent.toEPL();
             String optionalDialect = ctx.expressionDialect() == null ? null : ctx.expressionDialect().d.getText();
             String optionalEventTypeName = ASTTypeExpressionAnnoHelper.expectMayTypeAnno(ctx.typeExpressionAnnotation(), tokenStream);
             ExpressionScriptProvided script = new ExpressionScriptProvided(name, expressionText, parameters.toArray(new String[parameters.size()]),
-                    optionalReturnType, optionalReturnTypeArray, optionalEventTypeName, optionalDialect);
+                classIdentText, optionalEventTypeName, optionalDialect);
             return new Pair<>(null, script);
         }
 

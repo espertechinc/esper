@@ -66,11 +66,11 @@ public class TimerWithinGuardForge implements GuardForge, ScheduleHandleCallback
             throw new IllegalStateException("Unassigned schedule callback id");
         }
 
-        CodegenMethod method = parent.makeChild(TimerWithinGuardFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(TimerWithinGuardFactory.EPTYPE, this.getClass(), classScope);
         CodegenExpression patternDelta = PatternDeltaComputeUtil.makePatternDeltaAnonymous(timeExpr, convertor, timeAbacus, method, classScope);
 
         method.getBlock()
-                .declareVar(TimerWithinGuardFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("guardTimerWithin"))
+                .declareVar(TimerWithinGuardFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("guardTimerWithin"))
                 .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
                 .exprDotMethod(ref("factory"), "setDeltaCompute", patternDelta)
                 .methodReturn(ref("factory"));

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -43,10 +44,10 @@ class DTLocalLDTIntervalEval extends DTLocalEvaluatorIntervalBase {
 
     public static CodegenExpression codegen(DTLocalLDTIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLDTIntervalEval.class, codegenClassScope).addParam(LocalDateTime.class, "target");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalLDTIntervalEval.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "target");
 
         methodNode.getBlock()
-                .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("target"), timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("target"), timeZoneField))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
@@ -59,11 +60,11 @@ class DTLocalLDTIntervalEval extends DTLocalEvaluatorIntervalBase {
 
     public static CodegenExpression codegen(DTLocalLDTIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression timeZoneField = codegenClassScope.addOrGetFieldSharable(RuntimeSettingsTimeZoneField.INSTANCE);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLDTIntervalEval.class, codegenClassScope).addParam(LocalDateTime.class, "startTimestamp").addParam(LocalDateTime.class, "endTimestamp");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalLDTIntervalEval.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "startTimestamp").addParam(EPTypePremade.LOCALDATETIME.getEPType(), "endTimestamp");
 
         methodNode.getBlock()
-                .declareVar(long.class, "start", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("startTimestamp"), timeZoneField))
-                .declareVar(long.class, "end", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("endTimestamp"), timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "start", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("startTimestamp"), timeZoneField))
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "end", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("endTimestamp"), timeZoneField))
                 .methodReturn(forge.intervalForge.codegen(ref("start"), ref("end"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);
     }

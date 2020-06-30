@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
@@ -26,12 +27,12 @@ public class OutputConditionExpressionTypeUtil {
     public final static LinkedHashMap<String, Object> TYPEINFO;
 
     static {
-        TYPEINFO = new LinkedHashMap<String, Object>();
-        TYPEINFO.put("count_insert", Integer.class);
-        TYPEINFO.put("count_remove", Integer.class);
-        TYPEINFO.put("count_insert_total", Integer.class);
-        TYPEINFO.put("count_remove_total", Integer.class);
-        TYPEINFO.put("last_output_timestamp", Long.class);
+        TYPEINFO = new LinkedHashMap<>();
+        TYPEINFO.put("count_insert", EPTypePremade.INTEGERBOXED.getEPType());
+        TYPEINFO.put("count_remove", EPTypePremade.INTEGERBOXED.getEPType());
+        TYPEINFO.put("count_insert_total", EPTypePremade.INTEGERBOXED.getEPType());
+        TYPEINFO.put("count_remove_total", EPTypePremade.INTEGERBOXED.getEPType());
+        TYPEINFO.put("last_output_timestamp", EPTypePremade.LONGBOXED.getEPType());
     }
 
     public static Object[] getOAPrototype() {

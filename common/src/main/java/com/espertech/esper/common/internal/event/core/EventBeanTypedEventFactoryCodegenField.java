@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -22,8 +23,8 @@ public class EventBeanTypedEventFactoryCodegenField implements CodegenFieldShara
     private EventBeanTypedEventFactoryCodegenField() {
     }
 
-    public Class type() {
-        return EventBeanTypedEventFactory.class;
+    public EPTypeClass type() {
+        return EventBeanTypedEventFactory.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

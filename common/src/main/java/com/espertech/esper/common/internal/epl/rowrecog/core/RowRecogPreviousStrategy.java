@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.rowrecog.state.RowRecogStateRandomAccess;
 
 public interface RowRecogPreviousStrategy {
+    EPTypeClass EPTYPE = new EPTypeClass(RowRecogPreviousStrategy.class);
+
     RowRecogStateRandomAccess getAccess(ExprEvaluatorContext exprEvaluatorContext);
 }

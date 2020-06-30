@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.client.hook.aggfunc;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 import java.util.LinkedHashMap;
@@ -22,7 +23,7 @@ import java.util.List;
  * as information compiled from the parameter expressions for your convenience.
  */
 public class AggregationFunctionValidationContext {
-    private final Class[] parameterTypes;
+    private final EPType[] parameterTypes;
     private final boolean[] isConstantValue;
     private final Object[] constantValues;
     private final boolean distinct;
@@ -41,7 +42,7 @@ public class AggregationFunctionValidationContext {
      * @param expressions     the parameter expressions themselves (positional parameters only)
      * @param namedParameters provided when there are named parameters, such as the "filter:expression" parameter
      */
-    public AggregationFunctionValidationContext(Class[] parameterTypes, boolean[] constantValue, Object[] constantValues, boolean distinct, boolean windowed, ExprNode[] expressions, LinkedHashMap<String, List<ExprNode>> namedParameters) {
+    public AggregationFunctionValidationContext(EPType[] parameterTypes, boolean[] constantValue, Object[] constantValues, boolean distinct, boolean windowed, ExprNode[] expressions, LinkedHashMap<String, List<ExprNode>> namedParameters) {
         this.parameterTypes = parameterTypes;
         this.isConstantValue = constantValue;
         this.constantValues = constantValues;
@@ -58,7 +59,7 @@ public class AggregationFunctionValidationContext {
      *
      * @return array providing result type of each parameter expression
      */
-    public Class[] getParameterTypes() {
+    public EPType[] getParameterTypes() {
         return parameterTypes;
     }
 

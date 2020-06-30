@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import org.w3c.dom.Node;
@@ -27,35 +28,83 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 /**
- * Helper for questions about Java classes such as
- * <p> what is the boxed type for a primitive type
- * <p> is this a numeric type.
+ * Helper for questions about EPType and Classes.
  */
 public class JavaClassHelper {
 
     public final static String APACHE_AVRO_GENERIC_RECORD_CLASSNAME = "org.apache.avro.generic.GenericData$Record";
 
-    public static boolean isImplementsCharSequence(Class type) {
-        if (type == String.class || type == CharSequence.class) {
+    public static boolean isImplementsCharSequence(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        if (typeClass.getType() == String.class || typeClass.getType() == CharSequence.class) {
             return true;
         }
-        return isSubclassOrImplementsInterface(type, CharSequence.class);
+        return isSubclassOrImplementsInterface(typeClass, EPTypePremade.CHARSEQUENCE.getEPType());
     }
 
-    public static boolean isArrayTypeCompatible(Class target, Class provided) {
+    public static boolean isArrayTypeCompatible(Class<?> target, Class<?> provided) {
         if (target == provided || target == Object.class) {
             return true;
         }
-        Class targetBoxed = getBoxedType(target);
-        Class providedBoxed = getBoxedType(provided);
+        Class<?> targetBoxed = getBoxedType(target);
+        Class<?> providedBoxed = getBoxedType(provided);
         return targetBoxed == providedBoxed || isSubclassOrImplementsInterface(providedBoxed, targetBoxed);
     }
 
-    public static boolean isCollectionMapOrArray(Class returnType) {
-        return returnType != null && (isImplementsInterface(returnType, Collection.class) || isImplementsInterface(returnType, Map.class) || returnType.isArray());
+    public static boolean isCollectionMapOrArray(EPType returnType) {
+        if (returnType == null || returnType == EPTypeNull.INSTANCE) {
+            return false;
+        }
+        EPTypeClass rt = (EPTypeClass) returnType;
+        return isImplementsInterface(rt, Collection.class) || isImplementsInterface(rt, Map.class) || rt.getType().isArray();
+    }
+
+    public static EPType getBoxedType(EPType type) {
+        if (type == EPTypeNull.INSTANCE) {
+            return type;
+        }
+        return getBoxedType((EPTypeClass) type);
+    }
+
+    public static EPTypeClass getBoxedType(EPTypeClass clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        if (!clazz.getType().isPrimitive()) {
+            return clazz;
+        }
+        if (clazz.getType() == boolean.class) {
+            return BOOLEANBOXED.getEPType();
+        }
+        if (clazz.getType() == char.class) {
+            return CHARBOXED.getEPType();
+        }
+        if (clazz.getType() == double.class) {
+            return DOUBLEBOXED.getEPType();
+        }
+        if (clazz.getType() == float.class) {
+            return FLOATBOXED.getEPType();
+        }
+        if (clazz.getType() == byte.class) {
+            return BYTEBOXED.getEPType();
+        }
+        if (clazz.getType() == short.class) {
+            return SHORTBOXED.getEPType();
+        }
+        if (clazz.getType() == int.class) {
+            return INTEGERBOXED.getEPType();
+        }
+        if (clazz.getType() == long.class) {
+            return LONGBOXED.getEPType();
+        }
+        return clazz;
     }
 
     /**
@@ -66,7 +115,7 @@ public class JavaClassHelper {
      * @param clazz is the class to return the boxed class for
      * @return boxed variant of the same class
      */
-    public static Class getBoxedType(Class clazz) {
+    public static Class<?> getBoxedType(Class<?> clazz) {
         if (clazz == null) {
             return null;
         }
@@ -97,40 +146,10 @@ public class JavaClassHelper {
         if (clazz == long.class) {
             return Long.class;
         }
+        if (clazz == void.class) {
+            return Void.class;
+        }
         return clazz;
-    }
-
-    /**
-     * Returns a comma-separated parameter type list in readable form,
-     * considering arrays and null-type parameters.
-     *
-     * @param parameters is the parameter types to render
-     * @return rendered list of parameters
-     */
-    public static String getParameterAsString(Class[] parameters) {
-        StringBuilder builder = new StringBuilder();
-        String delimiterComma = ", ";
-        String delimiter = "";
-        for (Class param : parameters) {
-            builder.append(delimiter);
-            builder.append(getParameterAsString(param));
-            delimiter = delimiterComma;
-        }
-        return builder.toString();
-    }
-
-    /**
-     * Returns a parameter as a string text, allowing null values to represent a null
-     * select expression type.
-     *
-     * @param param is the parameter type
-     * @return string representation of parameter
-     */
-    public static String getParameterAsString(Class param) {
-        if (param == null) {
-            return "null (any type)";
-        }
-        return param.getSimpleName();
     }
 
     /**
@@ -141,32 +160,75 @@ public class JavaClassHelper {
      * @param clazz is the class to return the unboxed (or primitive) class for
      * @return primitive variant of the same class
      */
-    public static Class getPrimitiveType(Class clazz) {
+    public static EPTypeClass getPrimitiveType(Class<?> clazz) {
         if (clazz == Boolean.class) {
-            return boolean.class;
+            return BOOLEANPRIMITIVE.getEPType();
         }
         if (clazz == Character.class) {
-            return char.class;
+            return CHARPRIMITIVE.getEPType();
         }
         if (clazz == Double.class) {
-            return double.class;
+            return DOUBLEPRIMITIVE.getEPType();
         }
         if (clazz == Float.class) {
-            return float.class;
+            return FLOATPRIMITIVE.getEPType();
         }
         if (clazz == Byte.class) {
-            return byte.class;
+            return BYTEPRIMITIVE.getEPType();
         }
         if (clazz == Short.class) {
-            return short.class;
+            return SHORTPRIMITIVE.getEPType();
         }
         if (clazz == Integer.class) {
-            return int.class;
+            return INTEGERPRIMITIVE.getEPType();
         }
         if (clazz == Long.class) {
-            return long.class;
+            return LONGPRIMITIVE.getEPType();
+        }
+        return EPTypePremade.getOrCreate(clazz);
+    }
+
+    /**
+     * Returns the un-boxed class for the given class, or the class itself if already un-boxed or not a primitive type.
+     * For primitive boxed types returns the unboxed primitive type, e.g. returns int.class for passing Integer.class.
+     * For any other class, returns the class passed.
+     *
+     * @param clazz is the class to return the unboxed (or primitive) class for
+     * @return primitive variant of the same class
+     */
+    public static EPTypeClass getPrimitiveType(EPTypeClass clazz) {
+        if (clazz.getType() == Boolean.class) {
+            return EPTypePremade.BOOLEANPRIMITIVE.getEPType();
+        }
+        if (clazz.getType() == Character.class) {
+            return EPTypePremade.CHARPRIMITIVE.getEPType();
+        }
+        if (clazz.getType() == Double.class) {
+            return EPTypePremade.DOUBLEPRIMITIVE.getEPType();
+        }
+        if (clazz.getType() == Float.class) {
+            return EPTypePremade.FLOATPRIMITIVE.getEPType();
+        }
+        if (clazz.getType() == Byte.class) {
+            return EPTypePremade.BYTEPRIMITIVE.getEPType();
+        }
+        if (clazz.getType() == Short.class) {
+            return EPTypePremade.SHORTPRIMITIVE.getEPType();
+        }
+        if (clazz.getType() == Integer.class) {
+            return EPTypePremade.INTEGERPRIMITIVE.getEPType();
+        }
+        if (clazz.getType() == Long.class) {
+            return EPTypePremade.LONGPRIMITIVE.getEPType();
         }
         return clazz;
+    }
+
+    public static boolean isNumeric(EPType clazz) {
+        if (clazz == null || clazz == EPTypeNull.INSTANCE) {
+            return false;
+        }
+        return isNumeric(((EPTypeClass) clazz).getType());
     }
 
     /**
@@ -175,25 +237,34 @@ public class JavaClassHelper {
      * @param clazz to check
      * @return true if numeric, false if not
      */
-    public static boolean isNumeric(Class clazz) {
-        if ((clazz == Double.class) ||
-                (clazz == double.class) ||
-                (clazz == BigDecimal.class) ||
-                (clazz == BigInteger.class) ||
-                (clazz == Float.class) ||
-                (clazz == float.class) ||
-                (clazz == Short.class) ||
-                (clazz == short.class) ||
-                (clazz == Integer.class) ||
-                (clazz == int.class) ||
-                (clazz == Long.class) ||
-                (clazz == long.class) ||
-                (clazz == Byte.class) ||
-                (clazz == byte.class)) {
-            return true;
-        }
+    public static boolean isNumeric(Class<?> clazz) {
+        return (clazz == Double.class) ||
+            (clazz == double.class) ||
+            (clazz == BigDecimal.class) ||
+            (clazz == BigInteger.class) ||
+            (clazz == Float.class) ||
+            (clazz == float.class) ||
+            (clazz == Short.class) ||
+            (clazz == short.class) ||
+            (clazz == Integer.class) ||
+            (clazz == int.class) ||
+            (clazz == Long.class) ||
+            (clazz == long.class) ||
+            (clazz == Byte.class) ||
+            (clazz == byte.class);
+    }
 
-        return false;
+    /**
+     * Determines if the type passed in is one of the numeric classes and not a floating point.
+     *
+     * @param type to check
+     * @return true if numeric and not a floating point, false if not
+     */
+    public static boolean isNumericNonFP(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        return isNumericNonFP(((EPTypeClass) type).getType());
     }
 
     /**
@@ -202,19 +273,22 @@ public class JavaClassHelper {
      * @param clazz to check
      * @return true if numeric and not a floating point, false if not
      */
-    public static boolean isNumericNonFP(Class clazz) {
-        if ((clazz == Short.class) ||
-                (clazz == short.class) ||
-                (clazz == Integer.class) ||
-                (clazz == int.class) ||
-                (clazz == Long.class) ||
-                (clazz == long.class) ||
-                (clazz == Byte.class) ||
-                (clazz == byte.class)) {
-            return true;
-        }
+    public static boolean isNumericNonFP(Class<?> clazz) {
+        return (clazz == Short.class) ||
+            (clazz == short.class) ||
+            (clazz == Integer.class) ||
+            (clazz == int.class) ||
+            (clazz == Long.class) ||
+            (clazz == long.class) ||
+            (clazz == Byte.class) ||
+            (clazz == byte.class);
+    }
 
-        return false;
+    public static boolean isAssignmentCompatible(EPType invocationType, Class<?> declarationType) {
+        if (invocationType == null || invocationType == EPTypeNull.INSTANCE) {
+            return declarationType == null || !declarationType.isPrimitive();
+        }
+        return isAssignmentCompatible(((EPTypeClass) invocationType).getType(), declarationType);
     }
 
     /**
@@ -224,16 +298,16 @@ public class JavaClassHelper {
      * @param declarationType type to assign to
      * @return true if assignment compatible, false if not
      */
-    public static boolean isAssignmentCompatible(Class invocationType, Class declarationType) {
+    public static boolean isAssignmentCompatible(Class<?> invocationType, Class<?> declarationType) {
         if (invocationType == null) {
-            return true;
+            return declarationType == null || !declarationType.isPrimitive();
         }
         if (declarationType.isAssignableFrom(invocationType)) {
             return true;
         }
 
         if (declarationType.isPrimitive()) {
-            Class parameterWrapperClazz = getBoxedType(declarationType);
+            Class<?> parameterWrapperClazz = getBoxedType(declarationType);
             if (parameterWrapperClazz != null) {
                 if (parameterWrapperClazz.equals(invocationType)) {
                     return true;
@@ -262,15 +336,121 @@ public class JavaClassHelper {
     /**
      * Determines if the class passed in is a boolean boxed or unboxed type.
      *
+     * @param type to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeBoolean(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        return isTypeBoolean(((EPTypeClass) type).getType());
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
+     * @param type to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeInteger(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        return isTypeInteger(((EPTypeClass) type).getType());
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
+     * @param type to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeLong(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        return isTypeLong(((EPTypeClass) type).getType());
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
+     * @param type to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeDouble(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        return isTypeDouble(((EPTypeClass) type).getType());
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
+     * @param type to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeString(EPType type) {
+        return isType(type, String.class);
+    }
+
+    public static boolean isTypePrimitive(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        return ((EPTypeClass) type).getType().isPrimitive();
+    }
+
+    public static boolean isType(EPType type, Class<?> clazz) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        return ((EPTypeClass) type).getType() == clazz;
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
      * @param clazz to check
      * @return true if boolean, false if not
      */
-    public static boolean isBoolean(Class clazz) {
-        if ((clazz == Boolean.class) ||
-                (clazz == boolean.class)) {
-            return true;
-        }
-        return false;
+    public static boolean isTypeBoolean(Class<?> clazz) {
+        return (clazz == Boolean.class) ||
+            (clazz == boolean.class);
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
+     * @param clazz to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeInteger(Class<?> clazz) {
+        return (clazz == Integer.class) ||
+            (clazz == int.class);
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
+     * @param clazz to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeLong(Class<?> clazz) {
+        return (clazz == Long.class) ||
+            (clazz == long.class);
+    }
+
+    /**
+     * Determines if the class passed in is a boolean boxed or unboxed type.
+     *
+     * @param clazz to check
+     * @return true if boolean, false if not
+     */
+    public static boolean isTypeDouble(Class<?> clazz) {
+        return (clazz == Double.class) ||
+            (clazz == double.class);
     }
 
     /**
@@ -282,10 +462,57 @@ public class JavaClassHelper {
      * @return coerced type
      * @throws CoercionException if types don't allow coercion
      */
-    public static Class getArithmaticCoercionType(Class typeOne, Class typeTwo)
+    public static EPTypeClass getArithmaticCoercionType(EPTypeClass typeOne, EPTypeClass typeTwo)
             throws CoercionException {
-        Class boxedOne = getBoxedType(typeOne);
-        Class boxedTwo = getBoxedType(typeTwo);
+        EPTypeClass boxedOneType = getBoxedType(typeOne);
+        EPTypeClass boxedTwoType = getBoxedType(typeTwo);
+        Class<?> boxedOne = boxedOneType.getType();
+        Class<?> boxedTwo = boxedTwoType.getType();
+
+        if (!isNumeric(boxedOneType) || !isNumeric(boxedTwoType)) {
+            throw new CoercionException("Cannot coerce types " + typeOne.getTypeName() + " and " + typeTwo.getTypeName());
+        }
+        if (boxedOne == boxedTwo) {
+            return boxedOneType;
+        }
+        if ((boxedOne == BigDecimal.class) || (boxedTwo == BigDecimal.class)) {
+            return BIGDECIMAL.getEPType();
+        }
+        if (((boxedOne == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedTwo)) ||
+                ((boxedTwo == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedOne))) {
+            return BIGDECIMAL.getEPType();
+        }
+        if ((boxedOne == BigInteger.class) || (boxedTwo == BigInteger.class)) {
+            return BIGINTEGER.getEPType();
+        }
+        if ((boxedOne == Double.class) || (boxedTwo == Double.class)) {
+            return DOUBLEBOXED.getEPType();
+        }
+        if ((boxedOne == Float.class) && (!isFloatingPointClass(typeTwo))) {
+            return DOUBLEBOXED.getEPType();
+        }
+        if ((boxedTwo == Float.class) && (!isFloatingPointClass(typeOne))) {
+            return DOUBLEBOXED.getEPType();
+        }
+        if ((boxedOne == Long.class) || (boxedTwo == Long.class)) {
+            return LONGBOXED.getEPType();
+        }
+        return INTEGERBOXED.getEPType();
+    }
+
+    /**
+     * Returns the coercion type for the 2 numeric types for use in arithmatic.
+     * Note: byte and short types always result in integer.
+     *
+     * @param typeOne is the first type
+     * @param typeTwo is the second type
+     * @return coerced type
+     * @throws CoercionException if types don't allow coercion
+     */
+    public static Class<?> getArithmaticCoercionType(Class<?> typeOne, Class<?> typeTwo)
+            throws CoercionException {
+        Class<?> boxedOne = getBoxedType(typeOne);
+        Class<?> boxedTwo = getBoxedType(typeTwo);
 
         if (!isNumeric(boxedOne) || !isNumeric(boxedTwo)) {
             throw new CoercionException("Cannot coerce types " + typeOne.getName() + " and " + typeTwo.getName());
@@ -328,7 +555,7 @@ public class JavaClassHelper {
      * @param resultBoxedType is the boxed result type to return
      * @return the numToCoerce as a value in the given result type
      */
-    public static Number coerceBoxed(Number numToCoerce, Class resultBoxedType) {
+    public static Number coerceBoxed(Number numToCoerce, Class<?> resultBoxedType) {
         if (numToCoerce.getClass() == resultBoxedType) {
             return numToCoerce;
         }
@@ -362,79 +589,79 @@ public class JavaClassHelper {
         throw new IllegalArgumentException("Cannot coerce to number subtype " + resultBoxedType.getName());
     }
 
-    public static CodegenExpression coerceNumberBoxedToBoxedCodegen(CodegenExpression exprReturningBoxed, Class fromTypeBoxed, Class targetTypeBoxed) {
-        if (fromTypeBoxed == targetTypeBoxed) {
+    public static CodegenExpression coerceNumberBoxedToBoxedCodegen(CodegenExpression exprReturningBoxed, EPTypeClass fromTypeBoxed, EPTypeClass targetTypeBoxed) {
+        if (fromTypeBoxed.equals(targetTypeBoxed)) {
             return exprReturningBoxed;
         }
-        if (targetTypeBoxed == Double.class) {
+        if (targetTypeBoxed.getType() == Double.class) {
             return exprDotMethod(exprReturningBoxed, "doubleValue");
         }
-        if (targetTypeBoxed == Long.class) {
+        if (targetTypeBoxed.getType() == Long.class) {
             return exprDotMethod(exprReturningBoxed, "longValue");
         }
-        if (targetTypeBoxed == BigInteger.class) {
+        if (targetTypeBoxed.getType() == BigInteger.class) {
             return staticMethod(BigInteger.class, "valueOf", exprDotMethod(exprReturningBoxed, "longValue"));
         }
-        if (targetTypeBoxed == BigDecimal.class) {
+        if (targetTypeBoxed.getType() == BigDecimal.class) {
             if (JavaClassHelper.isFloatingPointClass(fromTypeBoxed)) {
-                return newInstance(BigDecimal.class, exprDotMethod(exprReturningBoxed, "doubleValue"));
+                return newInstance(BIGDECIMAL.getEPType(), exprDotMethod(exprReturningBoxed, "doubleValue"));
             }
-            return newInstance(BigDecimal.class, exprDotMethod(exprReturningBoxed, "longValue"));
+            return newInstance(BIGDECIMAL.getEPType(), exprDotMethod(exprReturningBoxed, "longValue"));
         }
-        if (targetTypeBoxed == Float.class) {
+        if (targetTypeBoxed.getType() == Float.class) {
             return exprDotMethod(exprReturningBoxed, "floatValue");
         }
-        if (targetTypeBoxed == Integer.class) {
+        if (targetTypeBoxed.getType() == Integer.class) {
             return exprDotMethod(exprReturningBoxed, "intValue");
         }
-        if (targetTypeBoxed == Short.class) {
+        if (targetTypeBoxed.getType() == Short.class) {
             return exprDotMethod(exprReturningBoxed, "shortValue");
         }
-        if (targetTypeBoxed == Byte.class) {
+        if (targetTypeBoxed.getType() == Byte.class) {
             return exprDotMethod(exprReturningBoxed, "byteValue");
         }
-        throw new IllegalArgumentException("Cannot coerce to number subtype " + fromTypeBoxed.getName());
+        throw new IllegalArgumentException("Cannot coerce to number subtype " + fromTypeBoxed.getType().getName());
     }
 
-    public static CodegenExpression coerceNumberToBoxedCodegen(CodegenExpression expr, Class fromType, Class targetTypeBoxed) {
-        if (!fromType.isPrimitive()) {
+    public static CodegenExpression coerceNumberToBoxedCodegen(CodegenExpression expr, EPTypeClass fromType, EPTypeClass targetTypeBoxed) {
+        if (!fromType.getType().isPrimitive()) {
             return coerceNumberBoxedToBoxedCodegen(expr, fromType, targetTypeBoxed);
         }
-        if (targetTypeBoxed == Double.class) {
-            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Double.class, double.class);
+        if (targetTypeBoxed.getType() == Double.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, DOUBLEBOXED.getEPType(), DOUBLEPRIMITIVE.getEPType());
         }
-        if (targetTypeBoxed == Long.class) {
-            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Long.class, long.class);
+        if (targetTypeBoxed.getType() == Long.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, LONGBOXED.getEPType(), LONGPRIMITIVE.getEPType());
         }
-        if (targetTypeBoxed == BigInteger.class) {
-            return staticMethod(BigInteger.class, "valueOf", coerceAnyToBoxedCodegenValueOf(expr, fromType, Long.class, long.class));
+        if (targetTypeBoxed.getType() == BigInteger.class) {
+            return staticMethod(BigInteger.class, "valueOf", coerceAnyToBoxedCodegenValueOf(expr, fromType, LONGBOXED.getEPType(), LONGPRIMITIVE.getEPType()));
         }
-        if (targetTypeBoxed == BigDecimal.class) {
+        if (targetTypeBoxed.getType() == BigDecimal.class) {
             if (JavaClassHelper.isFloatingPointClass(fromType)) {
-                return newInstance(BigDecimal.class, exprDotMethod(coerceAnyToBoxedCodegenValueOf(expr, fromType, Double.class, double.class), "doubleValue"));
+                return newInstance(BIGDECIMAL.getEPType(), exprDotMethod(coerceAnyToBoxedCodegenValueOf(expr, fromType, DOUBLEBOXED.getEPType(), DOUBLEPRIMITIVE.getEPType()), "doubleValue"));
             }
-            return newInstance(BigDecimal.class, exprDotMethod(coerceAnyToBoxedCodegenValueOf(expr, fromType, Long.class, long.class), "longValue"));
+            return newInstance(BIGDECIMAL.getEPType(), exprDotMethod(coerceAnyToBoxedCodegenValueOf(expr, fromType, LONGBOXED.getEPType(), LONGPRIMITIVE.getEPType()), "longValue"));
         }
-        if (targetTypeBoxed == Float.class) {
-            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Byte.class, byte.class);
+        if (targetTypeBoxed.getType() == Float.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, BYTEBOXED.getEPType(), BYTEPRIMITIVE.getEPType());
         }
-        if (targetTypeBoxed == Integer.class) {
-            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Integer.class, int.class);
+        if (targetTypeBoxed.getType() == Integer.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, INTEGERBOXED.getEPType(), INTEGERPRIMITIVE.getEPType());
         }
-        if (targetTypeBoxed == Short.class) {
-            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Short.class, short.class);
+        if (targetTypeBoxed.getType() == Short.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, SHORTBOXED.getEPType(), SHORTPRIMITIVE.getEPType());
         }
-        if (targetTypeBoxed == Byte.class) {
-            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Byte.class, byte.class);
+        if (targetTypeBoxed.getType() == Byte.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, BYTEBOXED.getEPType(), BYTEPRIMITIVE.getEPType());
         }
         throw new IllegalArgumentException("Cannot coerce to number subtype " + targetTypeBoxed);
     }
 
-    private static CodegenExpression coerceAnyToBoxedCodegenValueOf(CodegenExpression expr, Class from, Class boxed, Class cast) {
+    private static CodegenExpression coerceAnyToBoxedCodegenValueOf(CodegenExpression expr, EPTypeClass from, EPTypeClass boxed, EPTypeClass cast) {
         if (from == cast) {
-            return staticMethod(boxed, "valueOf", expr);
+            return staticMethod(boxed.getType(), "valueOf", expr);
         }
-        return staticMethod(boxed, "valueOf", cast(cast, expr));
+        return staticMethod(boxed.getType(), "valueOf", cast(cast, expr));
     }
 
     /**
@@ -444,11 +671,21 @@ public class JavaClassHelper {
      * @return true if number is Float or Double type
      */
     public static boolean isFloatingPointNumber(Number number) {
-        if ((number instanceof Float) ||
-                (number instanceof Double)) {
-            return true;
+        return (number instanceof Float) ||
+            (number instanceof Double);
+    }
+
+    /**
+     * Returns true if the supplied type is a floating point number.
+     *
+     * @param type to check
+     * @return true if primitive or boxed float or double
+     */
+    public static boolean isFloatingPointClass(EPType type) {
+        if (isNullTypeSafe(type)) {
+            return false;
         }
-        return false;
+        return isFloatingPointClass(((EPTypeClass) type).getType());
     }
 
     /**
@@ -457,7 +694,7 @@ public class JavaClassHelper {
      * @param clazz to check
      * @return true if primitive or boxed float or double
      */
-    public static boolean isFloatingPointClass(Class clazz) {
+    public static boolean isFloatingPointClass(Class<?> clazz) {
         return (clazz == Float.class) ||
                 (clazz == Double.class) ||
                 (clazz == float.class) ||
@@ -475,32 +712,45 @@ public class JavaClassHelper {
      * @return One of Long.class, Double.class or String.class
      * @throws CoercionException if the types cannot be compared
      */
-    public static Class getCompareToCoercionType(Class typeOne, Class typeTwo) throws CoercionException {
-        if ((typeOne == String.class) && (typeTwo == String.class)) {
-            return String.class;
-        }
-        if (((typeOne == boolean.class) || ((typeOne == Boolean.class))) &&
-                ((typeTwo == boolean.class) || ((typeTwo == Boolean.class)))) {
-            return Boolean.class;
-        }
-        if (!isJavaBuiltinDataType(typeOne) && (!isJavaBuiltinDataType(typeTwo))) {
-            if (typeOne != typeTwo) {
-                return Object.class;
+    public static EPTypeClass getCompareToCoercionType(EPType typeOne, EPType typeTwo) throws CoercionException {
+        if (typeOne == null || typeOne == EPTypeNull.INSTANCE) {
+            if (typeTwo == null || typeTwo == EPTypeNull.INSTANCE) {
+                return null;
             }
-            return typeOne;
+            return (EPTypeClass) typeTwo;
         }
-        if (typeOne == null) {
-            return typeTwo;
+        if (typeTwo == null || typeTwo == EPTypeNull.INSTANCE) {
+            return (EPTypeClass) typeOne;
         }
-        if (typeTwo == null) {
-            return typeOne;
+        EPTypeClass typeClassOne = (EPTypeClass) typeOne;
+        EPTypeClass typeClassTwo = (EPTypeClass) typeTwo;
+        Class<?> classOne = typeClassOne.getType();
+        Class<?> classTwo = typeClassTwo.getType();
+        if ((classOne == String.class) && (classTwo == String.class)) {
+            return STRING.getEPType();
         }
-        if (!isNumeric(typeOne) || !isNumeric(typeTwo)) {
-            String typeOneName = typeOne.getName();
-            String typeTwoName = typeTwo.getName();
-            throw new CoercionException("Types cannot be compared: " + typeOneName + " and " + typeTwoName);
+        if (((classOne == boolean.class) || ((classOne == Boolean.class))) &&
+                ((classTwo == boolean.class) || ((classTwo == Boolean.class)))) {
+            return BOOLEANBOXED.getEPType();
         }
-        return getArithmaticCoercionType(typeOne, typeTwo);
+        if (!isJavaBuiltinDataType(classOne) && (!isJavaBuiltinDataType(classTwo))) {
+            if (classOne != classTwo) {
+                return OBJECT.getEPType();
+            }
+            return typeClassOne;
+        }
+        if (classOne == null) {
+            return typeClassTwo;
+        }
+        if (classTwo == null) {
+            return typeClassOne;
+        }
+        if (!isNumeric(classOne) || !isNumeric(classTwo)) {
+            String classOneName = classOne.getName();
+            String classTwoName = classTwo.getName();
+            throw new CoercionException("Types cannot be compared: " + classOneName + " and " + classTwoName);
+        }
+        return getArithmaticCoercionType(typeClassOne, typeClassTwo);
     }
 
     /**
@@ -509,7 +759,7 @@ public class JavaClassHelper {
      * @param clazz to check
      * @return true for big number
      */
-    static boolean isBigNumberType(Class clazz) {
+    static boolean isBigNumberType(Class<?> clazz) {
         return (clazz == BigInteger.class) || (clazz == BigDecimal.class);
     }
 
@@ -526,9 +776,9 @@ public class JavaClassHelper {
      * @param numberClassToCoerceTo  the number class to coerce to
      * @return true if numbers can be coerced without loss, false if not
      */
-    public static boolean canCoerce(Class numberClassToBeCoerced, Class numberClassToCoerceTo) {
-        Class boxedFrom = getBoxedType(numberClassToBeCoerced);
-        Class boxedTo = getBoxedType(numberClassToCoerceTo);
+    public static boolean canCoerce(Class<?> numberClassToBeCoerced, Class<?> numberClassToCoerceTo) {
+        Class<?> boxedFrom = getBoxedType(numberClassToBeCoerced);
+        Class<?> boxedTo = getBoxedType(numberClassToCoerceTo);
 
         if (!isNumeric(numberClassToBeCoerced)) {
             throw new IllegalArgumentException("Class '" + numberClassToBeCoerced + "' is not a numeric type'");
@@ -616,21 +866,34 @@ public class JavaClassHelper {
     /**
      * Returns true if the class passed in is a Java built-in data type (primitive or wrapper) including String and 'null'.
      *
+     * @param type to check
+     * @return true if built-in data type, or false if not
+     */
+    public static boolean isJavaBuiltinDataType(EPType type) {
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            return true;
+        }
+        return isJavaBuiltinDataType(((EPTypeClass) type).getType());
+    }
+
+    /**
+     * Returns true if the class passed in is a Java built-in data type (primitive or wrapper) including String and 'null'.
+     *
      * @param clazz to check
      * @return true if built-in data type, or false if not
      */
-    public static boolean isJavaBuiltinDataType(Class clazz) {
+    public static boolean isJavaBuiltinDataType(Class<?> clazz) {
         if (clazz == null) {
             return true;
         }
         if (clazz.isArray()) {
             return isJavaBuiltinDataType(clazz.getComponentType());
         }
-        Class clazzBoxed = getBoxedType(clazz);
+        Class<?> clazzBoxed = getBoxedType(clazz);
         if (isNumeric(clazzBoxed)) {
             return true;
         }
-        if (isBoolean(clazzBoxed)) {
+        if (isTypeBoolean(clazzBoxed)) {
             return true;
         }
         if (clazzBoxed.equals(String.class)) {
@@ -643,10 +906,7 @@ public class JavaClassHelper {
                 (clazzBoxed.equals(Character.class))) {
             return true;
         }
-        if (clazzBoxed.equals(void.class)) {
-            return true;
-        }
-        return false;
+        return clazzBoxed.equals(void.class);
     }
 
     /**
@@ -667,7 +927,7 @@ public class JavaClassHelper {
      * @return common denominator type if any can be found, for use in comparison
      * @throws CoercionException when no coercion type could be determined
      */
-    public static Class getCommonCoercionType(Class[] types)
+    public static EPType getCommonCoercionType(EPType[] types)
             throws CoercionException {
         if (types.length < 1) {
             throw new IllegalArgumentException("Unexpected zero length array");
@@ -677,110 +937,128 @@ public class JavaClassHelper {
         }
 
         // Reduce to non-null types
-        List<Class> nonNullTypes = new ArrayList<Class>();
-        for (int i = 0; i < types.length; i++) {
-            if (types[i] != null) {
-                nonNullTypes.add(types[i]);
+        List<EPTypeClass> nonNullTypes = new ArrayList<>();
+        for (EPType type : types) {
+            if (type != null && type != EPTypeNull.INSTANCE) {
+                nonNullTypes.add((EPTypeClass) type);
             }
         }
-        types = nonNullTypes.toArray(new Class[nonNullTypes.size()]);
+        EPTypeClass[] classes = nonNullTypes.toArray(new EPTypeClass[0]);
 
-        if (types.length == 0) {
-            return null;    // only null types, result is null
+        if (classes.length == 0) {
+            return EPTypeNull.INSTANCE;    // only null types, result is null
         }
-        if (types.length == 1) {
-            return getBoxedType(types[0]);
+        if (classes.length == 1) {
+            return getBoxedType(classes[0]);
         }
 
         // Check if all String
-        if (types[0] == String.class) {
-            for (int i = 0; i < types.length; i++) {
-                if (types[i] != String.class) {
-                    throw new CoercionException("Cannot coerce to String type " + types[i].getName());
+        if (classes[0].getType() == String.class) {
+            for (EPTypeClass clazz : classes) {
+                if (clazz.getType() != String.class) {
+                    throw new CoercionException("Cannot coerce to String type " + clazz.getTypeName());
                 }
             }
-            return String.class;
+            return EPTypePremade.STRING.getEPType();
         }
 
-        // Convert to boxed types
-        for (int i = 0; i < types.length; i++) {
-            types[i] = getBoxedType(types[i]);
+        // Convert to boxed classes
+        for (int i = 0; i < classes.length; i++) {
+            classes[i] = getBoxedType(classes[i]);
         }
 
         // Check if all boolean
-        if (types[0] == Boolean.class) {
-            for (int i = 0; i < types.length; i++) {
-                if (types[i] != Boolean.class) {
-                    throw new CoercionException("Cannot coerce to Boolean type " + types[i].getName());
+        if (classes[0].getType() == Boolean.class) {
+            for (EPTypeClass clazz : classes) {
+                if (clazz.getType() != Boolean.class) {
+                    throw new CoercionException("Cannot coerce to Boolean type " + clazz.getTypeName());
                 }
             }
-            return Boolean.class;
+            return EPTypePremade.BOOLEANBOXED.getEPType();
         }
 
         // Check if all char
-        if (types[0] == Character.class) {
-            for (Class type : types) {
-                if (type != Character.class) {
-                    throw new CoercionException("Cannot coerce to Boolean type " + type.getName());
+        if (classes[0].getType() == Character.class) {
+            for (EPTypeClass type : classes) {
+                if (type.getType() != Character.class) {
+                    throw new CoercionException("Cannot coerce to Boolean type " + type.getTypeName());
                 }
             }
-            return Character.class;
+            return EPTypePremade.CHARBOXED.getEPType();
         }
 
         // handle arrays
-        if (types[0].isArray()) {
-            Class componentType = types[0].getComponentType();
+        if (classes[0].getType().isArray()) {
+            EPTypeClass componentType = getArrayComponentType(classes[0]);
             boolean sameComponentType = true;
-            for (int i = 1; i < types.length; i++) {
-                if (!types[i].isArray()) {
-                    throw getCoercionException(types[0], types[i]);
+            for (int i = 1; i < classes.length; i++) {
+                if (!classes[i].getType().isArray()) {
+                    throw getCoercionException(classes[0], classes[i]);
                 }
-                Class otherComponentType = types[i].getComponentType();
-                if (componentType != otherComponentType) {
-                    if (componentType.isPrimitive() || otherComponentType.isPrimitive()) {
-                        throw getCoercionException(types[0], types[i]);
+                EPTypeClass otherComponentType = getArrayComponentType(classes[i]);
+                if (!(componentType.equals(otherComponentType))) {
+                    if (componentType.getType().isPrimitive() || otherComponentType.getType().isPrimitive()) {
+                        throw getCoercionException(classes[0], classes[i]);
                     }
                     sameComponentType = false;
                 }
             }
             if (sameComponentType) {
-                return types[0];
+                return classes[0];
             }
-            return Object[].class;
+            return EPTypePremade.OBJECTARRAY.getEPType();
         }
 
         // Check if all the same non-Java builtin type, i.e. Java beans etc.
         boolean isAllBuiltinTypes = true;
-        for (Class type : types) {
-            if (!isNumeric(type) && (!isJavaBuiltinDataType(type))) {
+        for (EPTypeClass type : classes) {
+            if (!isNumeric(type) && (!isJavaBuiltinDataType(type.getType()))) {
                 isAllBuiltinTypes = false;
             }
         }
 
-        // handle all built-in types
-        if (!isAllBuiltinTypes) {
-            for (Class type : types) {
-                if (types[0] == type) {
-                    continue;
-                }
-                if (isJavaBuiltinDataType(type)) {
-                    throw getCoercionException(types[0], type);
-                }
-                if (type != types[0]) {
-                    return Object.class;
-                }
+        if (isAllBuiltinTypes) {
+            // Use arithmatic coercion type as the final authority, considering all classes
+            EPTypeClass result = getArithmaticCoercionType(classes[0], classes[1]);
+            int count = 2;
+            while (count < classes.length) {
+                result = getArithmaticCoercionType(result, classes[count]);
+                count++;
             }
-            return types[0];
+            return result;
         }
 
-        // Use arithmatic coercion type as the final authority, considering all types
-        Class result = getArithmaticCoercionType(types[0], types[1]);
-        int count = 2;
-        while (count < types.length) {
-            result = getArithmaticCoercionType(result, types[count]);
-            count++;
+        // handle all non-built-in types
+
+        // first we check if all types are the same or are built-in
+        boolean allSame = true;
+        for (EPTypeClass type : classes) {
+            if (classes[0].equals(type)) {
+                continue;
+            }
+            if (isJavaBuiltinDataType(type.getType())) {
+                throw getCoercionException(classes[0], type);
+            }
+            allSame = false;
         }
-        return result;
+        if (allSame) {
+            return classes[0];
+        }
+
+        // next we check if the unparameterized types are the same
+        Class<?> unparameterized = classes[0].getType();
+        boolean unparameterizedSame = true;
+        for (EPTypeClass type : classes) {
+            if (type.getType() == unparameterized) {
+                continue;
+            }
+            unparameterizedSame = false;
+        }
+        if (unparameterizedSame) {
+            return EPTypePremade.getOrCreate(unparameterized);
+        }
+
+        return EPTypePremade.OBJECT.getEPType();
     }
 
     /**
@@ -791,7 +1069,7 @@ public class JavaClassHelper {
      * @return class for name
      * @throws ClassNotFoundException if the class cannot be found
      */
-    public static Class getClassForName(String className, ClassForNameProvider classForNameProvider) throws ClassNotFoundException {
+    public static Class<?> getClassForName(String className, ClassForNameProvider classForNameProvider) throws ClassNotFoundException {
         if (className.equals(boolean.class.getName())) {
             return boolean.class;
         }
@@ -829,7 +1107,7 @@ public class JavaClassHelper {
      * @param classForNameProvider lookup of class for class name
      * @return class
      */
-    public static Class getClassForSimpleName(String className, ClassForNameProvider classForNameProvider) {
+    public static Class<?> getClassForSimpleName(String className, ClassForNameProvider classForNameProvider) {
         if (("string".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
                 ("varchar".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
                 ("varchar2".equals(className.toLowerCase(Locale.ENGLISH).trim()))) {
@@ -866,14 +1144,21 @@ public class JavaClassHelper {
         }
     }
 
-    public static String getSimpleNameForClass(Class clazz) {
+    public static String getSimpleNameForClass(EPTypeClass clazz) {
+        if (clazz == null) {
+            return "(null)";
+        }
+        return getSimpleNameForClass(clazz.getType());
+    }
+
+    public static String getSimpleNameForClass(Class<?> clazz) {
         if (clazz == null) {
             return "(null)";
         }
         if (JavaClassHelper.isImplementsInterface(clazz, CharSequence.class)) {
             return "string";
         }
-        Class boxed = JavaClassHelper.getBoxedType(clazz);
+        Class<?> boxed = JavaClassHelper.getBoxedType(clazz);
         if (boxed == Integer.class) {
             return "int";
         }
@@ -907,7 +1192,7 @@ public class JavaClassHelper {
      * @param typeName is a potential primitive Java type, or some other type name
      * @return class for primitive type name, or null if not a primitive type.
      */
-    public static Class getPrimitiveClassForName(String typeName) {
+    public static Class<?> getPrimitiveClassForName(String typeName) {
         typeName = typeName.toLowerCase(Locale.ENGLISH);
         if (typeName.equals("boolean")) {
             return boolean.class;
@@ -946,8 +1231,8 @@ public class JavaClassHelper {
      * @param text  is the text to parse
      * @return value matching the type passed in
      */
-    public static Object parse(Class clazz, String text) {
-        Class classBoxed = JavaClassHelper.getBoxedType(clazz);
+    public static Object parse(Class<?> clazz, String text) {
+        Class<?> classBoxed = JavaClassHelper.getBoxedType(clazz);
 
         if (classBoxed == String.class) {
             return text;
@@ -982,12 +1267,27 @@ public class JavaClassHelper {
     /**
      * Method to check if a given class, and its superclasses and interfaces (deep), implement a given interface.
      *
+     * @param type           to check, including all its superclasses and their interfaces and extends
+     * @param interfaceClass is the interface class to look for
+     * @return true if such interface is implemented by any of the clazz or its superclasses or
+     * extends by any interface and superclasses (deep check)
+     */
+    public static boolean isImplementsInterface(EPType type, Class<?> interfaceClass) {
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            return false;
+        }
+        return isImplementsInterface(((EPTypeClass) type).getType(), interfaceClass);
+    }
+
+    /**
+     * Method to check if a given class, and its superclasses and interfaces (deep), implement a given interface.
+     *
      * @param clazz          to check, including all its superclasses and their interfaces and extends
      * @param interfaceClass is the interface class to look for
      * @return true if such interface is implemented by any of the clazz or its superclasses or
      * extends by any interface and superclasses (deep check)
      */
-    public static boolean isImplementsInterface(Class clazz, Class interfaceClass) {
+    public static boolean isImplementsInterface(Class<?> clazz, Class<?> interfaceClass) {
         if (!(interfaceClass.isInterface())) {
             throw new IllegalArgumentException("Interface class passed in is not an interface");
         }
@@ -998,15 +1298,32 @@ public class JavaClassHelper {
         return recursiveSuperclassImplementsInterface(clazz, interfaceClass);
     }
 
+    public static boolean isSubclassOrImplementsInterface(EPType extendorOrImplementor, EPTypeClass extendedOrImplemented) {
+        if (isNullTypeSafe(extendorOrImplementor)) {
+            return false;
+        }
+        return isSubclassOrImplementsInterface(((EPTypeClass) extendorOrImplementor).getType(), extendedOrImplemented.getType());
+    }
+
+    public static boolean isSubclassOrImplementsInterface(EPType extendorOrImplementor, Class<?> extendedOrImplemented) {
+        if (isNullTypeSafe(extendorOrImplementor)) {
+            return false;
+        }
+        return isSubclassOrImplementsInterface(((EPTypeClass) extendorOrImplementor).getType(), extendedOrImplemented);
+    }
+
     /**
      * Method to check if a given class, and its superclasses and interfaces (deep), implement a given interface or extend a given class.
      *
-     * @param extendorOrImplementor is the class to inspects its extends and implements clauses
+     * @param extendorOrImplementor is the class to inspect its extends and implements clauses
      * @param extendedOrImplemented is the potential interface, or superclass, to check
      * @return true if such interface is implemented by any of the clazz or its superclasses or
      * extends by any interface and superclasses (deep check)
      */
-    public static boolean isSubclassOrImplementsInterface(Class extendorOrImplementor, Class extendedOrImplemented) {
+    public static boolean isSubclassOrImplementsInterface(Class<?> extendorOrImplementor, Class<?> extendedOrImplemented) {
+        if (extendorOrImplementor == null) {
+            return false;
+        }
         if (extendorOrImplementor.equals(extendedOrImplemented)) {
             return true;
         }
@@ -1021,8 +1338,8 @@ public class JavaClassHelper {
                 return true;
             }
 
-            Class extendorComponentType = getArrayComponentTypeInnermost(extendorOrImplementor);
-            Class extendedComponentType = getArrayComponentTypeInnermost(extendedOrImplemented);
+            Class<?> extendorComponentType = getArrayComponentTypeInnermost(extendorOrImplementor);
+            Class<?> extendedComponentType = getArrayComponentTypeInnermost(extendedOrImplemented);
             boolean subclass = isSubclassOrImplementsInterface(extendorComponentType, extendedComponentType);
             if (!subclass) {
                 return false;
@@ -1044,7 +1361,7 @@ public class JavaClassHelper {
         return recursiveIsSuperClass(extendorOrImplementor, extendedOrImplemented);
     }
 
-    private static boolean recursiveIsSuperClass(Class clazz, Class superClass) {
+    private static boolean recursiveIsSuperClass(Class<?> clazz, Class<?> superClass) {
         if (clazz == null) {
             return false;
         }
@@ -1054,7 +1371,7 @@ public class JavaClassHelper {
         if (superClass == java.lang.Object.class) {
             return true;
         }
-        Class mySuperClass = clazz.getSuperclass();
+        Class<?> mySuperClass = clazz.getSuperclass();
         if (mySuperClass == superClass) {
             return true;
         }
@@ -1064,8 +1381,8 @@ public class JavaClassHelper {
         return recursiveIsSuperClass(mySuperClass, superClass);
     }
 
-    private static boolean recursiveSuperclassImplementsInterface(Class clazz, Class interfaceClass) {
-        Class superClass = clazz.getSuperclass();
+    private static boolean recursiveSuperclassImplementsInterface(Class<?> clazz, Class<?> interfaceClass) {
+        Class<?> superClass = clazz.getSuperclass();
         if ((superClass == null) || (superClass == Object.class)) {
             return false;
         }
@@ -1076,15 +1393,15 @@ public class JavaClassHelper {
         return recursiveSuperclassImplementsInterface(superClass, interfaceClass);
     }
 
-    private static boolean recursiveIsImplementsInterface(Class clazz, Class interfaceClass) {
+    private static boolean recursiveIsImplementsInterface(Class<?> clazz, Class<?> interfaceClass) {
         if (clazz == interfaceClass) {
             return true;
         }
-        Class[] interfaces = clazz.getInterfaces();
+        Class<?>[] interfaces = clazz.getInterfaces();
         if (interfaces == null) {
             return false;
         }
-        for (Class implementedInterface : interfaces) {
+        for (Class<?> implementedInterface : interfaces) {
             if (implementedInterface == interfaceClass) {
                 return true;
             }
@@ -1106,8 +1423,8 @@ public class JavaClassHelper {
      * @return instance of given class, via newInstance
      * @throws ClassInstantiationException if the type does not match or the class cannot be loaded or an object instantiated
      */
-    public static Object instantiate(Class implementedOrExtendedClass, String className, ClassForNameProvider classForNameProvider) throws ClassInstantiationException {
-        Class clazz;
+    public static Object instantiate(Class<?> implementedOrExtendedClass, String className, ClassForNameProvider classForNameProvider) throws ClassInstantiationException {
+        Class<?> clazz;
         try {
             clazz = classForNameProvider.classForName(className);
         } catch (ClassNotFoundException ex) {
@@ -1126,7 +1443,7 @@ public class JavaClassHelper {
      * @return instance of given class, via newInstance
      * @throws ClassInstantiationException if the type does not match or the class cannot be loaded or an object instantiated
      */
-    public static Object instantiate(Class implementedOrExtendedClass, Class clazz) throws ClassInstantiationException {
+    public static Object instantiate(Class<?> implementedOrExtendedClass, Class<?> clazz) throws ClassInstantiationException {
         if (!JavaClassHelper.isSubclassOrImplementsInterface(clazz, implementedOrExtendedClass)) {
             if (implementedOrExtendedClass.isInterface()) {
                 throw new ClassInstantiationException("Class '" + clazz.getName() + "' does not implement interface '" + implementedOrExtendedClass.getName() + "'");
@@ -1152,7 +1469,7 @@ public class JavaClassHelper {
      * @param clazz  to reflect upon
      * @param result set of classes to populate
      */
-    public static void getSuper(Class clazz, Set<Class> result) {
+    public static void getSuper(Class<?> clazz, Set<Class> result) {
         getSuperInterfaces(clazz, result);
         getSuperClasses(clazz, result);
     }
@@ -1167,10 +1484,21 @@ public class JavaClassHelper {
      * @return true if simple class name of the fully qualified class name, false if not
      */
     public static boolean isSimpleNameFullyQualfied(String simpleClassName, String fullyQualifiedClassname) {
-        if ((fullyQualifiedClassname.endsWith("." + simpleClassName)) || (fullyQualifiedClassname.equals(simpleClassName))) {
-            return true;
+        return (fullyQualifiedClassname.endsWith("." + simpleClassName)) || (fullyQualifiedClassname.equals(simpleClassName));
+    }
+
+    /**
+     * Returns true if the Class is a fragmentable type, i.e. not a primitive or boxed type or
+     * any of the common built-in types or does not implement Map.
+     *
+     * @param type type to check
+     * @return true if fragmentable
+     */
+    public static boolean isFragmentableType(EPType type) {
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            return false;
         }
-        return false;
+        return isFragmentableType(((EPTypeClass) type).getType());
     }
 
     /**
@@ -1180,7 +1508,7 @@ public class JavaClassHelper {
      * @param propertyType type to check
      * @return true if fragmentable
      */
-    public static boolean isFragmentableType(Class propertyType) {
+    public static boolean isFragmentableType(Class<?> propertyType) {
         if (propertyType == null) {
             return false;
         }
@@ -1241,8 +1569,8 @@ public class JavaClassHelper {
         return true;
     }
 
-    public static Class[] getSuperInterfaces(Class clazz) {
-        Set<Class> interfaces = new HashSet<Class>();
+    public static Class[] getSuperInterfaces(Class<?> clazz) {
+        Set<Class> interfaces = new HashSet<>();
         Class[] declaredInterfaces = clazz.getInterfaces();
 
         for (int i = 0; i < declaredInterfaces.length; i++) {
@@ -1250,9 +1578,9 @@ public class JavaClassHelper {
             getSuperInterfaces(declaredInterfaces[i], interfaces);
         }
 
-        Set<Class> superClasses = new HashSet<Class>();
+        Set<Class> superClasses = new HashSet<>();
         getSuperClasses(clazz, superClasses);
-        for (Class superClass : superClasses) {
+        for (Class<?> superClass : superClasses) {
             declaredInterfaces = superClass.getInterfaces();
 
             for (int i = 0; i < declaredInterfaces.length; i++) {
@@ -1264,7 +1592,7 @@ public class JavaClassHelper {
         return interfaces.toArray(new Class[declaredInterfaces.length]);
     }
 
-    public static void getSuperInterfaces(Class clazz, Set<Class> result) {
+    public static void getSuperInterfaces(Class<?> clazz, Set<Class> result) {
         Class[] interfaces = clazz.getInterfaces();
 
         for (int i = 0; i < interfaces.length; i++) {
@@ -1273,8 +1601,8 @@ public class JavaClassHelper {
         }
     }
 
-    private static void getSuperClasses(Class clazz, Set<Class> result) {
-        Class superClass = clazz.getSuperclass();
+    private static void getSuperClasses(Class<?> clazz, Set<Class> result) {
+        Class<?> superClass = clazz.getSuperclass();
         if (superClass == null) {
             return;
         }
@@ -1284,79 +1612,15 @@ public class JavaClassHelper {
     }
 
     /**
-     * Returns the generic type parameter of a return value by a field or method.
-     *
-     * @param method      method or null if field
-     * @param field       field or null if method
-     * @param isAllowNull whether null is allowed as a return value or expected Object.class
-     * @return generic type parameter
-     */
-    public static Class getGenericReturnType(Method method, Field field, boolean isAllowNull) {
-        if (method == null) {
-            return getGenericFieldType(field, isAllowNull);
-        } else {
-            return getGenericReturnType(method, isAllowNull);
-        }
-    }
-
-    /**
-     * Returns the second generic type parameter of a return value by a field or method.
-     *
-     * @param method      method or null if field
-     * @param field       field or null if method
-     * @param isAllowNull whether null is allowed as a return value or expected Object.class
-     * @return generic type parameter
-     */
-    public static Class getGenericReturnTypeMap(Method method, Field field, boolean isAllowNull) {
-        if (method == null) {
-            return getGenericFieldTypeMap(field, isAllowNull);
-        } else {
-            return getGenericReturnTypeMap(method, isAllowNull);
-        }
-    }
-
-    /**
-     * Returns the generic type parameter of a return value by a method.
-     *
-     * @param method      method or null if field
-     * @param isAllowNull whether null is allowed as a return value or expected Object.class
-     * @return generic type parameter
-     */
-    public static Class getGenericReturnType(Method method, boolean isAllowNull) {
-        Type t = method.getGenericReturnType();
-        Class result = getGenericType(t, 0);
-        if (!isAllowNull && result == null) {
-            return Object.class;
-        }
-        return result;
-    }
-
-    /**
-     * Returns the second generic type parameter of a return value by a field or method.
-     *
-     * @param method      method or null if field
-     * @param isAllowNull whether null is allowed as a return value or expected Object.class
-     * @return generic type parameter
-     */
-    public static Class getGenericReturnTypeMap(Method method, boolean isAllowNull) {
-        Type t = method.getGenericReturnType();
-        Class result = getGenericType(t, 1);
-        if (!isAllowNull && result == null) {
-            return Object.class;
-        }
-        return result;
-    }
-
-    /**
      * Returns the generic type parameter of a return value by a field.
      *
      * @param field       field or null if method
      * @param isAllowNull whether null is allowed as a return value or expected Object.class
      * @return generic type parameter
      */
-    public static Class getGenericFieldType(Field field, boolean isAllowNull) {
+    public static Class<?> getGenericFieldType(Field field, boolean isAllowNull) {
         Type t = field.getGenericType();
-        Class result = getGenericType(t, 0);
+        Class<?> result = getGenericType(t, 0);
         if (!isAllowNull && result == null) {
             return Object.class;
         }
@@ -1370,16 +1634,16 @@ public class JavaClassHelper {
      * @param isAllowNull whether null is allowed as a return value or expected Object.class
      * @return generic type parameter
      */
-    public static Class getGenericFieldTypeMap(Field field, boolean isAllowNull) {
+    public static Class<?> getGenericFieldTypeMap(Field field, boolean isAllowNull) {
         Type t = field.getGenericType();
-        Class result = getGenericType(t, 1);
+        Class<?> result = getGenericType(t, 1);
         if (!isAllowNull && result == null) {
             return Object.class;
         }
         return result;
     }
 
-    public static Class getGenericType(Type t, int index) {
+    public static Class<?> getGenericType(Type t, int index) {
         if (t == null) {
             return null;
         }
@@ -1394,68 +1658,45 @@ public class JavaClassHelper {
         if (typeParam instanceof GenericArrayType) {
             GenericArrayType genericArrayType = (GenericArrayType) typeParam;
             if (genericArrayType.getGenericComponentType() instanceof Class) {
-                return JavaClassHelper.getArrayType((Class) genericArrayType.getGenericComponentType());
+                return JavaClassHelper.getArrayType((Class<?>) genericArrayType.getGenericComponentType());
             }
         }
         if (!(typeParam instanceof Class)) {
             return Object.class;
         }
-        return (Class) typeParam;
+        return (Class<?>) typeParam;
     }
 
-    public static Class getArrayType(Class resultType) {
+    public static Class<?> getArrayType(Class<?> resultType) {
         if (resultType == null) {
             return null;
         }
         return Array.newInstance(resultType, 0).getClass();
     }
 
-    public static int getArrayDimensions(Class clazz) {
+    public static int getArrayDimensions(Class<?> clazz) {
         return clazz.isArray() ? getArrayDimensions(clazz.getComponentType()) + 1 : 0;
     }
 
-    public static Class getArrayComponentTypeInnermost(Class clazz) {
+    public static Class<?> getArrayComponentTypeInnermost(Class<?> clazz) {
         return clazz.isArray() ? getArrayComponentTypeInnermost(clazz.getComponentType()) : clazz;
     }
 
-    public static Class getArrayType(Class resultType, int numberOfDimensions) {
+    public static Class<?> getArrayType(Class<?> resultType, int numberOfDimensions) {
         if (resultType == null) {
             return null;
         }
         if (numberOfDimensions == 0) {
             return resultType;
         }
-        Class inner = getArrayType(resultType);
+        Class<?> inner = getArrayType(resultType);
         if (numberOfDimensions == 1) {
             return inner;
         }
         return getArrayType(inner, numberOfDimensions - 1);
     }
 
-    public static String getClassNameFullyQualPretty(Class clazz) {
-        if (clazz == null) {
-            return "null";
-        }
-        if (clazz.isArray()) {
-            return clazz.getComponentType().getName() + "(Array)";
-        }
-        return clazz.getName();
-    }
-
-    public static String getClassNameFullyQualPrettyWithClassloader(Class clazz) {
-        String name = getClassNameFullyQualPretty(clazz);
-        String classloader = getClassLoaderId(clazz.getClassLoader());
-        return name + "(loaded by " + classloader + ")";
-    }
-
-    public static String getClassLoaderId(ClassLoader classLoader) {
-        if (classLoader == null) {
-            return "(classloader is null)";
-        }
-        return classLoader.getClass().getName() + "@" + System.identityHashCode(classLoader);
-    }
-
-    public static Method getMethodByName(Class clazz, String methodName) {
+    public static Method getMethodByName(Class<?> clazz, String methodName) {
         for (Method m : clazz.getMethods()) {
             if (m.getName().equals(methodName)) {
                 return m;
@@ -1525,7 +1766,14 @@ public class JavaClassHelper {
                 " for statement '" + statementName + "': " + targetException.getClass().getSimpleName() + " : " + targetException.getMessage();
     }
 
-    public static boolean isDatetimeClass(Class inputType) {
+    public static boolean isDatetimeClass(EPType inputType) {
+        if (inputType == null || inputType == EPTypeNull.INSTANCE) {
+            return false;
+        }
+        return isDatetimeClass(((EPTypeClass) inputType).getType());
+    }
+
+    public static boolean isDatetimeClass(Class<?> inputType) {
         if (inputType == null) {
             return false;
         }
@@ -1551,17 +1799,16 @@ public class JavaClassHelper {
             // use the boxed type for primitives
             String boxedClassName = JavaClassHelper.getBoxedClassName(className);
 
-            Class clazz = classForNameProvider.classForName(boxedClassName);
+            Class<?> clazz = classForNameProvider.classForName(boxedClassName);
 
             propertyTypes.put((String) entry.getKey(), clazz);
         }
         return propertyTypes;
     }
 
-    public static Class getClassInClasspath(String classname, ClassForNameProvider classForNameProvider) {
+    public static Class<?> getClassInClasspath(String classname, ClassForNameProvider classForNameProvider) {
         try {
-            Class clazz = classForNameProvider.classForName(classname);
-            return clazz;
+            return classForNameProvider.classForName(classname);
         } catch (ClassNotFoundException ex) {
             return null;
         }
@@ -1575,8 +1822,8 @@ public class JavaClassHelper {
             return false;
         }
         for (int i = 0; i < one.length; i++) {
-            Class oneClass = one[i];
-            Class twoClass = two[i];
+            Class<?> oneClass = one[i];
+            Class<?> twoClass = two[i];
             if (!JavaClassHelper.isAssignmentCompatible(oneClass, twoClass)) {
                 return false;
             }
@@ -1584,7 +1831,7 @@ public class JavaClassHelper {
         return true;
     }
 
-    public static Method findRequiredMethod(Class clazz, String methodName) {
+    public static Method findRequiredMethod(Class<?> clazz, String methodName) {
         Method found = null;
         for (Method m : clazz.getMethods()) {
             if (m.getName().equals(methodName)) {
@@ -1618,12 +1865,12 @@ public class JavaClassHelper {
         return !getAnnotations(annotationClass, annotations).isEmpty();
     }
 
-    public static Set<Field> findAnnotatedFields(Class targetClass, Class<? extends Annotation> annotation) {
+    public static Set<Field> findAnnotatedFields(Class<?> targetClass, Class<? extends Annotation> annotation) {
         Set<Field> fields = new LinkedHashSet<Field>();
         findFieldInternal(targetClass, annotation, fields);
 
         // superclass fields
-        Class clazz = targetClass;
+        Class<?> clazz = targetClass;
         while (true) {
             clazz = clazz.getSuperclass();
             if (clazz == Object.class || clazz == null) {
@@ -1634,7 +1881,7 @@ public class JavaClassHelper {
         return fields;
     }
 
-    private static void findFieldInternal(Class currentClass, Class<? extends Annotation> annotation, Set<Field> fields) {
+    private static void findFieldInternal(Class<?> currentClass, Class<? extends Annotation> annotation, Set<Field> fields) {
         for (Field field : currentClass.getDeclaredFields()) {
             if (isAnnotationListed(annotation, field.getDeclaredAnnotations())) {
                 fields.add(field);
@@ -1642,12 +1889,12 @@ public class JavaClassHelper {
         }
     }
 
-    public static Set<Method> findAnnotatedMethods(Class targetClass, Class<? extends Annotation> annotation) {
+    public static Set<Method> findAnnotatedMethods(Class<?> targetClass, Class<? extends Annotation> annotation) {
         Set<Method> methods = new LinkedHashSet<Method>();
         findAnnotatedMethodsInternal(targetClass, annotation, methods);
 
         // superclass fields
-        Class clazz = targetClass;
+        Class<?> clazz = targetClass;
         while (true) {
             clazz = clazz.getSuperclass();
             if (clazz == Object.class || clazz == null) {
@@ -1658,7 +1905,7 @@ public class JavaClassHelper {
         return methods;
     }
 
-    private static void findAnnotatedMethodsInternal(Class currentClass, Class<? extends Annotation> annotation, Set<Method> methods) {
+    private static void findAnnotatedMethodsInternal(Class<?> currentClass, Class<? extends Annotation> annotation, Set<Method> methods) {
         for (Method method : currentClass.getDeclaredMethods()) {
             Annotation[] methodAnnotations = method.getDeclaredAnnotations();
             if (isAnnotationListed(annotation, methodAnnotations)) {
@@ -1671,7 +1918,7 @@ public class JavaClassHelper {
         boolean found = setFieldForAnnotation(target, annotation, value, target.getClass());
         if (!found) {
 
-            Class superClass = target.getClass().getSuperclass();
+            Class<?> superClass = target.getClass().getSuperclass();
             while (!found) {
                 found = setFieldForAnnotation(target, annotation, value, superClass);
                 if (!found) {
@@ -1684,7 +1931,7 @@ public class JavaClassHelper {
         }
     }
 
-    private static boolean setFieldForAnnotation(Object target, Class<? extends Annotation> annotation, Object value, Class currentClass) {
+    private static boolean setFieldForAnnotation(Object target, Class<? extends Annotation> annotation, Object value, Class<?> currentClass) {
         boolean found = false;
         for (Field field : currentClass.getDeclaredFields()) {
             if (isAnnotationListed(annotation, field.getDeclaredAnnotations())) {
@@ -1700,8 +1947,8 @@ public class JavaClassHelper {
         return false;
     }
 
-    static Class[] takeFirstN(Class[] classes, int numToTake) {
-        Class[] shrunk = new Class[numToTake];
+    static Class<?>[] takeFirstN(Class<?>[] classes, int numToTake) {
+        Class<?>[] shrunk = new Class[numToTake];
         System.arraycopy(classes, 0, shrunk, 0, shrunk.length);
         return shrunk;
     }
@@ -1712,8 +1959,8 @@ public class JavaClassHelper {
         return shrunk;
     }
 
-    private static CoercionException getCoercionException(Class type, Class other) {
-        throw new CoercionException("Cannot coerce to " + getClassNameFullyQualPretty(type) + " type " + getClassNameFullyQualPretty(other));
+    private static CoercionException getCoercionException(EPTypeClass type, EPTypeClass other) {
+        throw new CoercionException("Cannot coerce to " + type + " type " + other);
     }
 
     public static void getObjectValuePretty(Object value, StringWriter writer) {
@@ -1736,6 +1983,25 @@ public class JavaClassHelper {
         writer.append("]");
     }
 
+    public static boolean isTypeVoid(EPType type) {
+        return isTypeEither(type, void.class, Void.class);
+    }
+
+    public static boolean isTypeVoid(Class<?> clazz) {
+        return clazz == void.class || clazz == Void.class;
+    }
+
+    public static boolean isTypeOrNull(EPType type, Class<?> expected) {
+        if (isNullTypeSafe(type)) {
+            return true;
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        if (typeClass.getType() == expected) {
+            return true;
+        }
+        return JavaClassHelper.getBoxedType(typeClass.getType()) == expected;
+    }
+
     public static <T> void traverseAnnotations(List<Class> classes, Class<T> annotationClass, BiConsumer<Class, T> consumer) {
         walkAnnotations(classes, (annotation, clazz) -> {
             if (annotation.annotationType() == annotationClass) {
@@ -1744,18 +2010,97 @@ public class JavaClassHelper {
         });
     }
 
+    private static boolean isNullTypeSafe(EPType type) {
+        return type == null || type == EPTypeNull.INSTANCE;
+    }
+
     private static void walkAnnotations(List<Class> classes, AnnotationConsumer consumer) {
         if (classes == null) {
             return;
         }
-        for (Class clazz : classes) {
+        for (Class<?> clazz : classes) {
             for (Annotation annotation : clazz.getDeclaredAnnotations()) {
                 consumer.accept(annotation, clazz);
             }
         }
     }
 
+    private static boolean isTypeEither(EPType type, Class<?> one, Class<?> two) {
+        if (isNullTypeSafe(type)) {
+            return false;
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        return typeClass.getType() == one || typeClass.getType() == two;
+    }
+
+    public static EPTypeClass getArrayComponentType(EPTypeClass type) {
+        if (!type.getType().isArray()) {
+            throw new IllegalArgumentException("Not an array");
+        }
+        if (type instanceof EPTypeClassParameterized) {
+            EPTypeClassParameterized parameterized = (EPTypeClassParameterized) type;
+            return new EPTypeClassParameterized(parameterized.getType().getComponentType(), parameterized.getParameters());
+        }
+        return getOrCreate(type.getType().getComponentType());
+    }
+
+    public static EPTypeClass getArrayComponentTypeInnermost(EPTypeClass type) {
+        if (!type.getType().isArray()) {
+            throw new IllegalArgumentException("Not an array");
+        }
+        EPTypeClass component = getArrayComponentType(type);
+        if (!component.getType().isArray()) {
+            return component;
+        }
+        return getArrayComponentTypeInnermost(component);
+    }
+
+    public static EPTypeClass getSingleParameterTypeOrObject(EPTypeClass returnType) {
+        if (!(returnType instanceof EPTypeClassParameterized)) {
+            return OBJECT.getEPType();
+        }
+        EPTypeClassParameterized parameterized = (EPTypeClassParameterized) returnType;
+        if (parameterized.getParameters().length != 1) {
+            return OBJECT.getEPType();
+        }
+        return parameterized.getParameters()[0];
+    }
+
+    public static EPTypeClass getSecondParameterTypeOrObject(EPTypeClass returnType) {
+        if (!(returnType instanceof EPTypeClassParameterized)) {
+            return OBJECT.getEPType();
+        }
+        EPTypeClassParameterized parameterized = (EPTypeClassParameterized) returnType;
+        if (parameterized.getParameters().length != 2) {
+            return OBJECT.getEPType();
+        }
+        return parameterized.getParameters()[1];
+    }
+
+    public static EPTypeClass getTypeClassOrObjectType(EPType evaluationType) {
+        if (evaluationType == null || evaluationType == EPTypeNull.INSTANCE) {
+            return OBJECT.getEPType();
+        }
+        return (EPTypeClass) evaluationType;
+    }
+
+    public static EPTypeClass getArrayType(EPTypeClass type) {
+        return getArrayType(type, 1);
+    }
+
+    public static EPTypeClass getArrayType(EPTypeClass type, int numDimensions) {
+        if (numDimensions == 0) {
+            return type;
+        }
+        Class inner = getArrayType(type.getType(), numDimensions);
+        if (type instanceof EPTypeClassParameterized) {
+            EPTypeClassParameterized parameterized = (EPTypeClassParameterized) type;
+            return new EPTypeClassParameterized(inner, parameterized.getParameters());
+        }
+        return EPTypePremade.getOrCreate(inner);
+    }
+
     public interface AnnotationConsumer {
-        void accept(Annotation annotation, Class clazz);
+        void accept(Annotation annotation, Class<?> clazz);
     }
 }

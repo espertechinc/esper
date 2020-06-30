@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.epl.table.strategy;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationGivenEvent;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 
 public class ExprTableEvalStrategyFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExprTableEvalStrategyFactory.class);
+
     private ExprTableEvalStrategyEnum strategyEnum;
     private Table table;
     private ExprEvaluator groupKeyEval;

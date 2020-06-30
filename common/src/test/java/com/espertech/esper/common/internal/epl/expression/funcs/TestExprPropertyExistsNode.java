@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprEqualsNodeImpl;
@@ -36,7 +37,7 @@ public class TestExprPropertyExistsNode extends TestCase {
     public void testGetType() throws Exception {
         for (int i = 0; i < existsNodes.length; i++) {
             existsNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
-            assertEquals(Boolean.class, existsNodes[i].getEvaluationType());
+            assertEquals(EPTypePremade.BOOLEANBOXED.getEPType(), existsNodes[i].getEvaluationType());
         }
     }
 

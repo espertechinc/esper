@@ -11,8 +11,11 @@
 package com.espertech.esper.common.internal.context.controller.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class ContextDefinition {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextDefinition.class);
+
     private String contextName;
     private ContextControllerFactory[] controllerFactories;
     private EventType eventTypeContextProperties;

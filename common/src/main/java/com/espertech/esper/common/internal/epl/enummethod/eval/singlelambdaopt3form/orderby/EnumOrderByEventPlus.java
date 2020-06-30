@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.orderby;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -35,12 +37,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class EnumOrderByEventPlus extends ThreeFormEventPlus {
 
     protected final boolean descending;
-    private final Class innerBoxedType;
+    private final EPTypeClass innerBoxedType;
 
     public EnumOrderByEventPlus(ExprDotEvalParamLambda lambda, ObjectArrayEventType indexEventType, int numParameters, boolean descending) {
         super(lambda, indexEventType, numParameters);
         this.descending = descending;
-        this.innerBoxedType = JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
+        this.innerBoxedType = JavaClassHelper.getBoxedType((EPTypeClass) innerExpression.getEvaluationType());
     }
 
     public EnumEval getEnumEvaluator() {
@@ -86,8 +88,8 @@ public class EnumOrderByEventPlus extends ThreeFormEventPlus {
         };
     }
 
-    public Class returnType() {
-        return Collection.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.COLLECTION.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -95,8 +97,8 @@ public class EnumOrderByEventPlus extends ThreeFormEventPlus {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(TreeMap.class, "sort", newInstance(TreeMap.class))
-            .declareVar(boolean.class, "hasColl", constantFalse());
+        block.declareVar(EPTypePremade.TREEMAP.getEPType(), "sort", newInstance(EPTypePremade.TREEMAP.getEPType()))
+            .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "hasColl", constantFalse());
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {

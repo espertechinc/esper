@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -30,10 +31,10 @@ public class ExprEventIdentityEqualsNodeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression evaluateCodegen(ExprEventIdentityEqualsNodeForge forge, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Boolean.class, ExprEventIdentityEqualsNodeEval.class, classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprEventIdentityEqualsNodeEval.class, classScope);
         method.getBlock()
-            .declareVar(EventBean.class, "left", arrayAtIndex(symbols.getAddEPS(method), constant(forge.getUndLeft().getStreamId())))
-            .declareVar(EventBean.class, "right", arrayAtIndex(symbols.getAddEPS(method), constant(forge.getUndRight().getStreamId())))
+            .declareVar(EventBean.EPTYPE, "left", arrayAtIndex(symbols.getAddEPS(method), constant(forge.getUndLeft().getStreamId())))
+            .declareVar(EventBean.EPTYPE, "right", arrayAtIndex(symbols.getAddEPS(method), constant(forge.getUndRight().getStreamId())))
             .ifCondition(or(equalsNull(ref("left")), equalsNull(ref("right"))))
                 .blockReturn(constantNull())
             .methodReturn(exprDotMethod(ref("left"), "equals", ref("right")));

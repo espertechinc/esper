@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.script.mvel;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.script.core.ExpressionScriptCompiled;
 
 public class ExpressionScriptCompiledMVEL implements ExpressionScriptCompiled {
@@ -24,7 +25,7 @@ public class ExpressionScriptCompiledMVEL implements ExpressionScriptCompiled {
         return compiled;
     }
 
-    public Class getKnownReturnType() {
+    public EPTypeClass getKnownReturnType() {
         return MVELInvoker.getExecutableStatementKnownReturnType(compiled);
     }
 }

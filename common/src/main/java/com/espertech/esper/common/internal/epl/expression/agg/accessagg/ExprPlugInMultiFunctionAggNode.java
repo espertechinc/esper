@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.configuration.compiler.ConfigurationCom
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionHandler;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionValidationContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -73,7 +74,7 @@ public class ExprPlugInMultiFunctionAggNode extends ExprAggregateNodeBase implem
         return false;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return factory.getComponentTypeCollection();
     }
 

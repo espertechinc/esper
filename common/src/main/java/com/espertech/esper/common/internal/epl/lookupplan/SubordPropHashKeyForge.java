@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForge;
 
 /**
@@ -18,9 +19,9 @@ import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEn
 public class SubordPropHashKeyForge {
     private final QueryGraphValueEntryHashKeyedForge hashKey;
     private final Integer optionalKeyStreamNum;
-    private final Class coercionType;
+    private final EPTypeClass coercionType;
 
-    public SubordPropHashKeyForge(QueryGraphValueEntryHashKeyedForge hashKey, Integer optionalKeyStreamNum, Class coercionType) {
+    public SubordPropHashKeyForge(QueryGraphValueEntryHashKeyedForge hashKey, Integer optionalKeyStreamNum, EPTypeClass coercionType) {
         this.hashKey = hashKey;
         this.optionalKeyStreamNum = optionalKeyStreamNum;
         this.coercionType = coercionType;
@@ -34,7 +35,7 @@ public class SubordPropHashKeyForge {
         return hashKey;
     }
 
-    public Class getCoercionType() {
+    public EPTypeClass getCoercionType() {
         return coercionType;
     }
 }

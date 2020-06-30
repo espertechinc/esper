@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.pattern.observer;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertor;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.schedule.ScheduleParameterException;
  * Factory for ISO8601 repeating interval observers that indicate truth when a time point was reached.
  */
 public class TimerScheduleObserverFactory implements ObserverFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimerScheduleObserverFactory.class);
+
     private boolean isAllConstant;
     private TimerScheduleSpecCompute scheduleComputer;
     private MatchedEventConvertor optionalConvertor;

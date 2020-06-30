@@ -50,9 +50,9 @@ public class InternalEventRouterDescForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InternalEventRouterDesc.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(InternalEventRouterDesc.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(InternalEventRouterDesc.class, "ire", newInstance(InternalEventRouterDesc.class))
+                .declareVarNewInstance(InternalEventRouterDesc.EPTYPE, "ire")
                 .exprDotMethod(ref("ire"), "setWideners", makeWideners(wideners, method, classScope))
                 .exprDotMethod(ref("ire"), "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("ire"), "setOptionalWhereClauseEval", optionalWhereClause == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(optionalWhereClause.getForge(), method, this.getClass(), classScope))
@@ -72,7 +72,7 @@ public class InternalEventRouterDescForge {
                 init[i] = constantNull();
             }
         }
-        return newArrayWithInit(TypeWidener.class, init);
+        return newArrayWithInit(TypeWidener.EPTYPE, init);
     }
 
     private CodegenExpression makeWriters(InternalEventRouterWriterForge[] writers, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -84,6 +84,6 @@ public class InternalEventRouterDescForge {
                 init[i] = constantNull();
             }
         }
-        return newArrayWithInit(InternalEventRouterWriter.class, init);
+        return newArrayWithInit(InternalEventRouterWriter.EPTYPE, init);
     }
 }

@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class SubordinateWMatchExprQueryPlan {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordinateWMatchExprQueryPlan.class);
+
     private final SubordWMatchExprLookupStrategyFactory factory;
     private final SubordinateQueryIndexDesc[] indexDescs;
 

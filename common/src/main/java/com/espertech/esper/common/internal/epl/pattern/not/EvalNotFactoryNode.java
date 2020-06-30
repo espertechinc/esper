@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.not;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
 
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents an 'not' operator in the evaluation tree representing any event expressions.
  */
 public class EvalNotFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalNotFactoryNode.class);
 
     protected EvalFactoryNode childNode;
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.statement;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Map;
@@ -20,24 +21,24 @@ import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerat
 
 public class CodegenStatementDeclareVarWCast extends CodegenStatementBase {
     private final String var;
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final String rhsName;
 
-    public CodegenStatementDeclareVarWCast(Class clazz, String var, String rhsName) {
+    public CodegenStatementDeclareVarWCast(EPTypeClass clazz, String var, String rhsName) {
         this.var = var;
         this.clazz = clazz;
         this.rhsName = rhsName;
     }
 
     public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        appendClassName(builder, clazz, null, imports);
+        appendClassName(builder, clazz, imports);
         builder.append(" ").append(var).append("=").append("(");
-        appendClassName(builder, clazz, null, imports);
+        appendClassName(builder, clazz, imports);
         builder.append(")").append(rhsName);
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(clazz);
+        clazz.traverseClasses(classes::add);
     }
 
     public void traverseExpressions(Consumer<CodegenExpression> consumer) {

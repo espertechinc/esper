@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.ontrigger;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
@@ -31,6 +32,8 @@ import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelpe
 import java.util.Collections;
 
 public class InfraOnMergeActionUpd extends InfraOnMergeAction implements TableUpdateStrategyRedoCallback, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InfraOnMergeActionUpd.class);
+
     private final EventBeanUpdateHelperWCopy namedWindowUpdate;
     private final EventBeanUpdateHelperNoCopy tableUpdate;
     private Table table;

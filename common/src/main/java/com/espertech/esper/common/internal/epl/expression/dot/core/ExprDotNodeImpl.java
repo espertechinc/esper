@@ -13,6 +13,11 @@ package com.espertech.esper.common.internal.epl.expression.dot.core;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidationBase;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
@@ -44,11 +49,14 @@ import com.espertech.esper.common.internal.rettype.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportCompileTimeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.SettingsApplicationDotMethod;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 
 import java.io.StringWriter;
 import java.util.*;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 /**
  * Represents an Dot-operator expression, for use when "(expression).method(...).method(...)"
@@ -131,9 +139,11 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             // Determine collection-type and evaluator if any for root node
             ExprDotEnumerationSourceForge enumSrc = ExprDotNodeUtility.getEnumerationSource(rootNode, validationContext.getStreamTypeService(), hasEnumerationMethod, validationContext.isDisablePropertyExpressionEventCollCache(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
-            EPType typeInfo;
+            EPChainableType typeInfo;
             if (enumSrc.getReturnType() == null) {
-                typeInfo = EPTypeHelper.singleValue(rootNode.getForge().getEvaluationType());    // not a collection type, treat as scalar
+                EPType type = rootNode.getForge().getEvaluationType();
+                EPTypeClass typeClassOrNull = type == null || type == EPTypeNull.INSTANCE ? null : (EPTypeClass) type;
+                typeInfo = EPChainableTypeHelper.singleValue(typeClassOrNull);    // not a collection type, treat as scalar
             } else {
                 typeInfo = enumSrc.getReturnType();
             }
@@ -212,36 +222,38 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 return null;
             }
 
-            // Attempt to resolve as event-underlying object instance method
             EventType eventType = validationContext.getStreamTypeService().getEventTypes()[prefixedStreamNumber];
-            Class type = eventType.getUnderlyingType();
-
             List<Chainable> remainderChain = new ArrayList<Chainable>(chainSpec);
             remainderChain.remove(0);
 
-            ExprValidationException methodEx = null;
+            // Attempt to resolve as event-underlying object instance method (but not on tables)
             ExprDotForge[] underlyingMethodChain = null;
-            try {
-                EPType typeInfo = EPTypeHelper.singleValue(type);
-                if (validationContext.getTableCompileTimeResolver().resolveTableFromEventType(eventType) != null) {
-                    typeInfo = new ClassEPType(Object[].class);
+            ExprValidationException underlyingMethodChainEx = null;
+            if (eventType.getMetadata().getTypeClass() != EventTypeTypeClass.TABLE_PUBLIC && eventType.getMetadata().getTypeClass() != EventTypeTypeClass.TABLE_INTERNAL) {
+                EPTypeClass type = eventType.getUnderlyingEPType();
+                try {
+                    EPChainableTypeClass typeInfo = new EPChainableTypeClass(type);
+                    if (validationContext.getTableCompileTimeResolver().resolveTableFromEventType(eventType) != null) {
+                        typeInfo = new EPChainableTypeClass(EPTypePremade.OBJECTARRAY.getEPType());
+                    }
+                    underlyingMethodChain = ExprDotNodeUtility.getChainEvaluators(prefixedStreamNumber, typeInfo, remainderChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStream(prefixedStreamNumber)).getChainWithUnpack();
+                } catch (ExprValidationException ex) {
+                    underlyingMethodChainEx = ex;
+                    // expected - may not be able to find the methods on the underlying
                 }
-                underlyingMethodChain = ExprDotNodeUtility.getChainEvaluators(prefixedStreamNumber, typeInfo, remainderChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStream(prefixedStreamNumber)).getChainWithUnpack();
-            } catch (ExprValidationException ex) {
-                methodEx = ex;
-                // expected - may not be able to find the methods on the underlying
             }
 
+            // Attempt to resolve as eventbean-method
             ExprDotForge[] eventTypeMethodChain = null;
-            ExprValidationException enumDatetimeEx = null;
+            ExprValidationException eventTypeMethodChainEx = null;
             FilterExprAnalyzerAffector filterExprAnalyzerAffector = null;
             try {
-                EPType typeInfo = EPTypeHelper.singleEvent(eventType);
+                EPChainableType typeInfo = EPChainableTypeHelper.singleEvent(eventType);
                 ExprDotNodeRealizedChain chain = ExprDotNodeUtility.getChainEvaluators(prefixedStreamNumber, typeInfo, remainderChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStream(prefixedStreamNumber));
                 eventTypeMethodChain = chain.getChainWithUnpack();
                 filterExprAnalyzerAffector = chain.getFilterAnalyzerDesc();
             } catch (ExprValidationException ex) {
-                enumDatetimeEx = ex;
+                eventTypeMethodChainEx = ex;
                 // expected - may not be able to find the methods on the underlying
             }
 
@@ -256,9 +268,13 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             } else {
                 String remainerName = remainderChain.get(0).getRootNameOrEmptyString();
                 if (ExprDotNodeUtility.isDatetimeOrEnumMethod(remainerName, validationContext.getClasspathImportService())) {
-                    prefixedStreamNumException = enumDatetimeEx;
+                    prefixedStreamNumException = eventTypeMethodChainEx;
                 } else {
-                    prefixedStreamNumException = new ExprValidationException("Failed to solve '" + remainerName + "' to either an date-time or enumeration method, an event property or a method on the event underlying object: " + methodEx.getMessage(), methodEx);
+                    String message = "Failed to solve '" + remainerName + "' to either an date-time or enumeration method, an event property or a method on the event underlying object";
+                    if (underlyingMethodChainEx != null) {
+                        message += ": " + underlyingMethodChainEx.getMessage();
+                    }
+                    prefixedStreamNumException = new ExprValidationException(message, underlyingMethodChainEx);
                 }
             }
         }
@@ -290,16 +306,17 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             if (variable.getOptionalContextName() != null) {
                 throw new ExprValidationException("Method invocation on context-specific variable is not supported");
             }
-            EPType typeInfo;
+            EPChainableType typeInfo;
             ExprDotStaticMethodWrap wrap;
-            if (variable.getType().isArray()) {
-                typeInfo = EPTypeHelper.collectionOfSingleValue(variable.getType().getComponentType());
+            EPTypeClass variableType = variable.getType();
+            if (variableType.getType().isArray()) {
+                typeInfo = EPChainableTypeHelper.collectionOfSingleValue(JavaClassHelper.getArrayComponentType(variable.getType()));
                 wrap = new ExprDotStaticMethodWrapArrayScalar(variable.getVariableName(), variable.getType());
             } else if (variable.getEventType() != null) {
-                typeInfo = EPTypeHelper.singleEvent(variable.getEventType());
+                typeInfo = EPChainableTypeHelper.singleEvent(variable.getEventType());
                 wrap = null;
             } else {
-                typeInfo = EPTypeHelper.singleValue(variable.getType());
+                typeInfo = EPChainableTypeHelper.singleValue(variableType);
                 wrap = null;
             }
 
@@ -321,13 +338,15 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 }
             };
             EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(enumconstantDesc.getValue().getClass().getName(), enumconstantDesc.getValue().getClass(), methodSpec.getName(),
+            EPTypeClass enumTypeClass = ClassHelperGenericType.getClassEPType(enumconstantDesc.getValue().getClass());
+            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(enumTypeClass.getType().getName(), enumTypeClass, methodSpec.getName(),
                 methodSpec.getParameters(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
             // method resolved, hook up
             modifiedChain.remove(0);    // we identified this piece
             ExprDotStaticMethodWrap optionalLambdaWrap = ExprDotStaticMethodWrapFactory.make(methodDesc.getReflectionMethod(), modifiedChain, null, validationContext);
-            EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(methodDesc.getReflectionMethod().getReturnType());
+            EPTypeClass returnClass = ClassHelperGenericType.getMethodReturnEPType(methodDesc.getReflectionMethod());
+            EPChainableType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPChainableTypeHelper.singleValue(returnClass);
 
             ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
             forge = new ExprDotNodeForgeStaticMethod(this, false, firstItemName, methodDesc.getReflectionMethod(),
@@ -357,7 +376,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
         // this may return a pair of null if there is no lambda or the result cannot be wrapped for lambda-function use
         ExprDotStaticMethodWrap optionalLambdaWrap = ExprDotStaticMethodWrapFactory.make(method.getReflectionMethod(), modifiedChain, null, validationContext);
-        EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(method.getReflectionMethod().getReturnType());
+        EPTypeClass returnClass = ClassHelperGenericType.getMethodReturnEPType(method.getReflectionMethod());
+        EPChainableType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPChainableTypeHelper.singleValue(returnClass);
 
         ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
         forge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, firstItemName, method.getReflectionMethod(), method.getChildForges(), isConstantParameters, evals.getChainWithUnpack(), optionalLambdaWrap, false, null, validationContext.getStatementName(), method.isLocalInlinedClass());
@@ -371,7 +391,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         int streamId = propertyInfoPair.getFirst().getStreamNum();
         EventTypeSPI streamType = (EventTypeSPI) streamTypeService.getEventTypes()[streamId];
         ExprEnumerationForge enumerationForge = null;
-        EPType inputType;
+        EPChainableType inputType;
         ExprForge rootNodeForge = null;
         EventPropertyGetterSPI getter;
         boolean rootIsEventBean = false;
@@ -384,23 +404,27 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 ExprDotEnumerationSourceForgeForProps propertyEval = ExprDotNodeUtility.getPropertyEnumerationSource(propertyName, streamId, streamType, allowEnum, validationContext.isDisablePropertyExpressionEventCollCache());
                 enumerationForge = propertyEval.getEnumeration();
                 inputType = propertyEval.getReturnType();
-                rootNodeForge = new PropertyDotNonLambdaForge(streamId, getter, JavaClassHelper.getBoxedType(propertyInfoPair.getFirst().getPropertyType()));
+                EPType propertyType = propertyInfoPair.getFirst().getPropertyType();
+                EPTypeClass propertyTypeBoxed = boxedAndCheckNull(propertyType, propertyName);
+                rootNodeForge = new PropertyDotNonLambdaForge(streamId, getter, propertyTypeBoxed);
             } else {
                 // first-chainable is an array, use array-of-fragments or array-of-type
                 ChainableArray array = (ChainableArray) chain.get(0);
                 ExprNode indexExpression = ChainableArray.validateSingleIndexExpr(array.getIndexes(), () -> "property '" + propertyName + "'");
-                Class propertyType = streamType.getPropertyType(propertyName);
+                EPType propertyType = streamType.getPropertyEPType(propertyName);
                 FragmentEventType fragmentEventType = streamType.getFragmentType(propertyName);
                 if (fragmentEventType != null && fragmentEventType.isIndexed()) {
                     // handle array-of-fragment by including the array operation in the root
-                    inputType = EPTypeHelper.singleEvent(fragmentEventType.getFragmentType());
+                    inputType = EPChainableTypeHelper.singleEvent(fragmentEventType.getFragmentType());
                     chain = chain.subList(1, chain.size()); // we remove the array operation from the chain as its handled by the forge
                     rootNodeForge = new PropertyDotNonLambdaFragmentIndexedForge(streamId, getter, indexExpression, propertyName);
                     rootIsEventBean = true;
-                } else if (propertyType.isArray()) {
+                } else if (propertyType instanceof EPTypeClass && ((EPTypeClass) propertyType).getType().isArray()) {
                     // handle array-of-type by simple property and array operation as part of chain
-                    inputType = EPTypeHelper.singleValue(propertyType);
-                    rootNodeForge = new PropertyDotNonLambdaForge(streamId, getter, JavaClassHelper.getBoxedType(propertyInfoPair.getFirst().getPropertyType()));
+                    inputType = EPChainableTypeHelper.singleValue(propertyType);
+                    EPType propertyTypePair = propertyInfoPair.getFirst().getPropertyType();
+                    EPTypeClass propertyTypeBoxed = boxedAndCheckNull(propertyTypePair, propertyName);
+                    rootNodeForge = new PropertyDotNonLambdaForge(streamId, getter, propertyTypeBoxed);
                 } else {
                     throw new ExprValidationException("Invalid array operation for property '" + propertyName + "'");
                 }
@@ -414,26 +438,26 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 throw new ExprValidationException("Property '" + call.getName() + "' may not be accessed passing 2 or more parameters");
             }
             ExprForge paramEval = call.getParameters().get(0).getForge();
-            inputType = EPTypeHelper.singleValue(desc.getPropertyComponentType());
+            inputType = new EPChainableTypeClass(desc.getPropertyComponentType());
             if (desc.isMapped()) {
-                if (paramEval.getEvaluationType() != String.class) {
-                    throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a string-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(paramEval.getEvaluationType()));
+                if (!JavaClassHelper.isTypeString(paramEval.getEvaluationType())) {
+                    throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a string-type value but returns " + paramEval.getEvaluationType().getTypeName());
                 }
                 EventPropertyGetterMappedSPI mappedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterMappedSPI(propertyName);
                 if (mappedGetter == null) {
                     throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
                 }
-                rootNodeForge = new PropertyDotNonLambdaMappedForge(streamId, mappedGetter, paramEval, desc.getPropertyComponentType());
+                rootNodeForge = new PropertyDotNonLambdaMappedForge(streamId, mappedGetter, paramEval, desc.getPropertyComponentEPType());
             }
             if (desc.isIndexed()) {
-                if (JavaClassHelper.getBoxedType(paramEval.getEvaluationType()) != Integer.class) {
-                    throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a Integer-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(paramEval.getEvaluationType()));
+                if (!isTypeInteger(paramEval.getEvaluationType())) {
+                    throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a Integer-type value but returns " + paramEval.getEvaluationType().getTypeName());
                 }
                 EventPropertyGetterIndexedSPI indexedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterIndexedSPI(propertyName);
                 if (indexedGetter == null) {
                     throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
                 }
-                rootNodeForge = new PropertyDotNonLambdaIndexedForge(streamId, indexedGetter, paramEval, desc.getPropertyComponentType());
+                rootNodeForge = new PropertyDotNonLambdaIndexedForge(streamId, indexedGetter, paramEval, desc.getPropertyComponentEPType());
             }
         }
 
@@ -443,7 +467,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         try {
             evals = ExprDotNodeUtility.getChainEvaluators(streamId, inputType, chain, validationContext, myself.isDuckTyping, filterAnalyzerInputProp);
         } catch (ExprValidationException ex) {
-            if (inputType instanceof EventEPType || inputType instanceof EventMultiValuedEPType) {
+            if (inputType instanceof EPChainableTypeEventSingle || inputType instanceof EPChainableTypeEventMulti) {
                 throw ex;
             }
 
@@ -454,14 +478,14 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             }
 
             rootIsEventBean = true;
-            EPType fragmentTypeInfo;
+            EPChainableType fragmentTypeInfo;
             if (!fragment.isIndexed()) {
                 if (chain.get(0) instanceof ChainableArray) {
                     throw new ExprValidationException("Cannot perform array operation as property '" + propertyName + "' does not return an array");
                 }
-                fragmentTypeInfo = EPTypeHelper.singleEvent(fragment.getFragmentType());
+                fragmentTypeInfo = EPChainableTypeHelper.singleEvent(fragment.getFragmentType());
             } else {
-                fragmentTypeInfo = EPTypeHelper.arrayOfEvents(fragment.getFragmentType());
+                fragmentTypeInfo = EPChainableTypeHelper.arrayOfEvents(fragment.getFragmentType());
             }
             inputType = fragmentTypeInfo;
             rootNodeForge = new PropertyDotNonLambdaFragmentForge(streamId, getter, fragment.isIndexed());
@@ -472,6 +496,13 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         int streamNumReferenced = propertyInfoPair.getFirst().getStreamNum();
         ExprDotNodeForgeRootChild forge = new ExprDotNodeForgeRootChild(myself, filterExprAnalyzerAffector, streamNumReferenced, propertyName, hasEnumerationMethod, rootNodeForge, enumerationForge, inputType, evals.getChain(), evals.getChainWithUnpack(), !rootIsEventBean);
         return new PropertyInfoPairDesc(forge);
+    }
+
+    private static EPTypeClass boxedAndCheckNull(EPType propertyType, String propertyName) throws ExprValidationException {
+        if (propertyType == null || propertyType == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Property '" + propertyName + "' returns a null-type value");
+        }
+        return JavaClassHelper.getBoxedType((EPTypeClass) propertyType);
     }
 
     private Pair<ExprDotNodeAggregationMethodRootNode, List<Chainable>> handleAggregationMethod(ExprValidationContext validationContext) throws ExprValidationException {
@@ -569,18 +600,18 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         EventPropertyGetterMappedSPI mappedGetter = null;
         EventPropertyGetterIndexedSPI indexedGetter = null;
 
-        Class propertyType = Object.class;
+        EPType propertyType = EPTypePremade.OBJECT.getEPType();
         if (propertyDesc.isMapped()) {
-            if (parameterForge.getEvaluationType() != String.class) {
-                throw new ExprValidationException("Parameter expression to mapped property '" + propertyDesc.getPropertyName() + "' is expected to return a string-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(parameterForge.getEvaluationType()));
+            if (!JavaClassHelper.isTypeString(parameterForge.getEvaluationType())) {
+                throw new ExprValidationException("Parameter expression to mapped property '" + propertyDesc.getPropertyName() + "' is expected to return a string-type value but returns " + parameterForge.getEvaluationType().getTypeName());
             }
             mappedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterMappedSPI(propertyInfoPair.getFirst().getPropertyName());
             if (mappedGetter == null) {
                 throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
             }
         } else {
-            if (JavaClassHelper.getBoxedType(parameterForge.getEvaluationType()) != Integer.class) {
-                throw new ExprValidationException("Parameter expression to indexed property '" + propertyDesc.getPropertyName() + "' is expected to return a Integer-type value but returns " + JavaClassHelper.getClassNameFullyQualPretty(parameterForge.getEvaluationType()));
+            if (!isTypeInteger(parameterForge.getEvaluationType())) {
+                throw new ExprValidationException("Parameter expression to indexed property '" + propertyDesc.getPropertyName() + "' is expected to return a Integer-type value but returns " + parameterForge.getEvaluationType().getTypeName());
             }
             indexedGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterIndexedSPI(propertyInfoPair.getFirst().getPropertyName());
             if (indexedGetter == null) {
@@ -588,10 +619,10 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             }
         }
         if (propertyDesc.getPropertyComponentType() != null) {
-            propertyType = JavaClassHelper.getBoxedType(propertyDesc.getPropertyComponentType());
+            propertyType = JavaClassHelper.getBoxedType(propertyDesc.getPropertyComponentEPType());
         }
 
-        return new ExprDotNodeForgePropertyExpr(this, validationContext.getStatementName(), propertyDesc.getPropertyName(), streamNum, parameterForge, propertyType, indexedGetter, mappedGetter);
+        return new ExprDotNodeForgePropertyExpr(this, validationContext.getStatementName(), propertyDesc.getPropertyName(), streamNum, parameterForge, (EPTypeClass) propertyType, indexedGetter, mappedGetter);
     }
 
     private int prefixedStreamName(List<Chainable> chainSpec, StreamTypeService streamTypeService) {

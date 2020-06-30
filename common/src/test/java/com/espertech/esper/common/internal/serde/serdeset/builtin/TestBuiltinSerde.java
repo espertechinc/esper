@@ -11,9 +11,11 @@
 package com.espertech.esper.common.internal.serde.serdeset.builtin;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import junit.framework.TestCase;
 
 import java.io.DataInputStream;
@@ -22,10 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 public class TestBuiltinSerde extends TestCase {
     public void testSerde() throws IOException {
@@ -110,6 +109,20 @@ public class TestBuiltinSerde extends TestCase {
         assertSerdeWNull(new DIONullableObjectArraySerde(SupportBean.class, DIOSerializableObjectSerde.INSTANCE), new SupportBean[] {new SupportBean(), null});
         assertSerde(new DIOSetSerde(DIOIntegerSerde.INSTANCE), new HashSet<>(Arrays.asList(1, 2)));
 
+        assertSerdeWNull(DIOCollectionIntegerNullableSerde.INSTANCE, Arrays.asList(1, 2));
+        assertSerdeWNull(DIOCollectionFloatNullableSerde.INSTANCE, Arrays.asList(1f, 2f));
+        assertSerdeWNull(DIOCollectionDoubleNullableSerde.INSTANCE, Arrays.asList(1d, 2d));
+        assertSerdeWNull(DIOCollectionLongNullableSerde.INSTANCE, Arrays.asList(1L, 2L));
+        assertSerdeWNull(DIOCollectionByteNullableSerde.INSTANCE, Arrays.asList((byte) 1, (byte) 2));
+        assertSerdeWNull(DIOCollectionShortNullableSerde.INSTANCE, Arrays.asList((short) 1, (short) 2));
+        assertSerdeWNull(DIOCollectionCharacterNullableSerde.INSTANCE, Arrays.asList('a', 'b'));
+        assertSerdeWNull(DIOCollectionStringNullableSerde.INSTANCE, Arrays.asList("a", "b"));
+        assertSerdeWNull(DIOCollectionBooleanNullableSerde.INSTANCE, Arrays.asList(true, false));
+        assertSerdeWNull(DIOCollectionBigDecimalNullableSerde.INSTANCE, Arrays.asList(new BigDecimal(10), new BigDecimal(20)));
+        assertSerdeWNull(DIOCollectionBigIntegerNullableSerde.INSTANCE, Arrays.asList(new BigInteger("10"), new BigInteger("20")));
+        assertSerdeWNull(DIOCollectionDateNullableSerde.INSTANCE, Arrays.asList(new Date(), new Date()));
+        assertSerdeWNull(DIOCollectionSqlDateNullableSerde.INSTANCE, Arrays.asList(new java.sql.Date(1), new java.sql.Date(1)));
+        assertSerdeWNull(DIOCollectionCalendarNullableSerde.INSTANCE, Arrays.asList(GregorianCalendar.getInstance(), GregorianCalendar.getInstance()));
     }
 
     public static <T> void assertSerdeWNull(DataInputOutputSerde<T> serde, T serialized) throws IOException  {
@@ -145,8 +158,8 @@ public class TestBuiltinSerde extends TestCase {
     }
 
     private static MultiKeyArrayWrap getWrapped(Object array) {
-        Class mkclzz = MultiKeyPlanner.getMKClassForComponentType(array.getClass().getComponentType());
-        Constructor[] ctors = mkclzz.getConstructors();
+        EPTypeClass mkclzz = MultiKeyPlanner.getMKClassForComponentType(ClassHelperGenericType.getClassEPType(array.getClass().getComponentType()));
+        Constructor[] ctors = mkclzz.getType().getConstructors();
         try {
             return (MultiKeyArrayWrap) ctors[0].newInstance(array);
         } catch (Exception e) {

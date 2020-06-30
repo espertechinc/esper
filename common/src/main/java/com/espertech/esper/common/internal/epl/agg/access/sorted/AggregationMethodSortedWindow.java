@@ -12,12 +12,15 @@ package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 
 public class AggregationMethodSortedWindow implements AggregationMultiFunctionAggregationMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationMethodSortedWindow.class);
+
     public Object getValue(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return null;
     }

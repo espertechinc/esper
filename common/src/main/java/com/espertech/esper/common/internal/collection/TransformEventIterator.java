@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Iterator;
 
@@ -20,6 +21,8 @@ import java.util.Iterator;
  * Works with a {@link TransformEventMethod} as the transformation method.
  */
 public class TransformEventIterator implements Iterator<EventBean> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TransformEventIterator.class);
+
     private Iterator<EventBean> sourceIterator;
     private TransformEventMethod transformEventMethod;
 

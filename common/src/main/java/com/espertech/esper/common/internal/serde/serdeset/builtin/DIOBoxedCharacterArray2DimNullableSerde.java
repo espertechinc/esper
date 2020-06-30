@@ -12,12 +12,15 @@ package com.espertech.esper.common.internal.serde.serdeset.builtin;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 public class DIOBoxedCharacterArray2DimNullableSerde implements DataInputOutputSerde<Character[][]> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOBoxedCharacterArray2DimNullableSerde.class);
+
     public final static DIOBoxedCharacterArray2DimNullableSerde INSTANCE = new DIOBoxedCharacterArray2DimNullableSerde();
 
     private DIOBoxedCharacterArray2DimNullableSerde() {

@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -19,7 +21,7 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumAllOfAnyOf {
 
@@ -27,7 +29,22 @@ public class ExprEnumAllOfAnyOf {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ExprEnumAllOfAnyOfEvents());
         execs.add(new ExprEnumAllOfAnyOfScalar());
+        execs.add(new ExprEnumAllOfAnyOfInvalid());
         return execs;
+    }
+
+    private static class ExprEnumAllOfAnyOfInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl;
+            epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Failed to validate enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int");
+
+            epl = "select contained.anyOf(x => 1) from SupportBean_ST0_Container";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.anyOf()': Failed to validate enumeration method 'anyOf', expected a boolean-type result for expression parameter 0 but received int");
+
+            epl = "select contained.anyOf(x => null) from SupportBean_ST0_Container";
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.anyOf()': Failed to validate enumeration method 'anyOf', expected a non-null result for expression parameter 0 but received a null-typed expression");
+        }
     }
 
     private static class ExprEnumAllOfAnyOfEvents implements RegressionExecution {
@@ -41,7 +58,7 @@ public class ExprEnumAllOfAnyOf {
             builder.expression(fields[4], "contained.allof((v, i, s) => p00 = (7 + i*10 + s*100))");
             builder.expression(fields[5], "contained.anyof((v, i, s) => p00 = (7 + i*10 + s*100))");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Boolean.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType()));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,7", "E3,2"))
                 .expect(fields, false, true, false, false, false, false);
@@ -79,7 +96,7 @@ public class ExprEnumAllOfAnyOf {
             builder.expression(fields[4], "strvals.allof((v, i, s) => (v='A' and i < s - 2) or (v='C' and i >= s - 2))");
             builder.expression(fields[5], "strvals.anyof((v, i, s) => (v='A' and i < s - 2) or (v='C' and i >= s - 2))");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Boolean.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType()));
 
             builder.assertion(SupportCollection.makeString("B,A,C"))
                 .expect(fields, false, true, false, true, false, true);

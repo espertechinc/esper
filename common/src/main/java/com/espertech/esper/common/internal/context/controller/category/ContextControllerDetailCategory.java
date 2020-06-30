@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.common.internal.context.controller.category;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerDetail;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 
 public class ContextControllerDetailCategory implements ContextControllerDetail {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerDetailCategory.class);
 
     private ContextControllerDetailCategoryItem[] items;
     private FilterSpecActivatable filterSpecActivatable;

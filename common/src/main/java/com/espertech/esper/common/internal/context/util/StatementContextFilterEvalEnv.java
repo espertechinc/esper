@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.variable.core.VariableManagementService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
@@ -17,6 +18,8 @@ import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntim
 import java.lang.annotation.Annotation;
 
 public class StatementContextFilterEvalEnv {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementContextFilterEvalEnv.class);
+
     private final ClasspathImportServiceRuntime classpathImportServiceRuntime;
     private final Annotation[] annotations;
     private final VariableManagementService variableManagementService;

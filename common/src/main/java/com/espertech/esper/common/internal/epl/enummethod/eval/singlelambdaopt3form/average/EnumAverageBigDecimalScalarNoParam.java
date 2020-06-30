@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.average;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,7 +23,6 @@ import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeBasePlai
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.type.MathContextCodegenField;
 
-import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Collection;
 
@@ -58,9 +58,9 @@ public class EnumAverageBigDecimalScalarNoParam extends EnumForgeBasePlain imple
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpression math = codegenClassScope.addOrGetFieldSharable(new MathContextCodegenField(optionalMathContext));
-        CodegenMethod method = codegenMethodScope.makeChild(BigDecimal.class, EnumAverageScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
-                .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, math))
-                .forEach(Number.class, "num", EnumForgeCodegenNames.REF_ENUMCOLL)
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), EnumAverageScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+                .declareVar(AggregatorAvgBigDecimal.EPTYPE, "agg", newInstance(AggregatorAvgBigDecimal.EPTYPE, math))
+                .forEach(EPTypePremade.NUMBER.getEPType(), "num", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifRefNull("num").blockContinue()
                 .expression(exprDotMethod(ref("agg"), "enter", ref("num")))
                 .blockEnd()

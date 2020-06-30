@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.json.getter.fromschema;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -73,31 +74,31 @@ public final class JsonGetterDynamicNestedChain implements JsonEventPropertyGett
     }
 
     private CodegenMethod handleGetterTrailingChainCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "result");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "result");
         for (int i = 1; i < getters.length; i++) {
             JsonEventPropertyGetter getter = getters[i];
             method.getBlock()
                 .ifRefNullReturnNull("result")
-                .ifNotInstanceOf("result", Map.class).blockReturn(constantNull())
-                .assignRef("result", getter.underlyingGetCodegen(castRef(Map.class, "result"), codegenMethodScope, codegenClassScope));
+                .ifNotInstanceOf("result", EPTypePremade.MAP.getEPType()).blockReturn(constantNull())
+                .assignRef("result", getter.underlyingGetCodegen(castRef(EPTypePremade.MAP.getEPType(), "result"), codegenMethodScope, codegenClassScope));
         }
         method.getBlock().methodReturn(ref("result"));
         return method;
     }
 
     private CodegenMethod handleGetterTrailingExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object.class, "result");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "result");
         for (int i = 1; i < getters.length - 1; i++) {
             JsonEventPropertyGetter getter = getters[i];
             method.getBlock()
                 .ifRefNull("result").blockReturn(constantFalse())
-                .ifNotInstanceOf("result", Map.class).blockReturn(constantFalse())
-                .assignRef("result", getter.underlyingGetCodegen(castRef(Map.class, "result"), codegenMethodScope, codegenClassScope));
+                .ifNotInstanceOf("result", EPTypePremade.MAP.getEPType()).blockReturn(constantFalse())
+                .assignRef("result", getter.underlyingGetCodegen(castRef(EPTypePremade.MAP.getEPType(), "result"), codegenMethodScope, codegenClassScope));
         }
         method.getBlock()
             .ifRefNull("result").blockReturn(constantFalse())
-            .ifNotInstanceOf("result", Map.class).blockReturn(constantFalse())
-            .methodReturn(getters[getters.length - 1].underlyingExistsCodegen(castRef(Map.class, "result"), codegenMethodScope, codegenClassScope));
+            .ifNotInstanceOf("result", EPTypePremade.MAP.getEPType()).blockReturn(constantFalse())
+            .methodReturn(getters[getters.length - 1].underlyingExistsCodegen(castRef(EPTypePremade.MAP.getEPType(), "result"), codegenMethodScope, codegenClassScope));
         return method;
     }
 

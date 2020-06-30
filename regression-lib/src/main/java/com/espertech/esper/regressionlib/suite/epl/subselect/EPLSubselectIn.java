@@ -466,7 +466,7 @@ public class EPLSubselectIn {
     private static class EPLSubselectInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryInvalidCompile(env, "@name('s0') select intArr in (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap",
-                "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
+                "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
         }
     }
 

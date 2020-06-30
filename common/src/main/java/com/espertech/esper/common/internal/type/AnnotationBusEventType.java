@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.type;
 
 import com.espertech.esper.common.client.annotation.BusEventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.lang.annotation.Annotation;
 
 public class AnnotationBusEventType implements BusEventType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AnnotationBusEventType.class);
+
     public Class<? extends Annotation> annotationType() {
         return BusEventType.class;
     }

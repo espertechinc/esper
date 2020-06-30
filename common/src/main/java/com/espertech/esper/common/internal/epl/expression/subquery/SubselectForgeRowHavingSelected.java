@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -30,12 +33,15 @@ public class SubselectForgeRowHavingSelected implements SubselectForgeRow {
     }
 
     public CodegenExpression evaluateCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(subselect.getEvaluationType(), this.getClass(), classScope);
+        if (subselect.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod method = parent.makeChild((EPTypeClass) subselect.getEvaluationType(), this.getClass(), classScope);
         CodegenMethod havingMethod = CodegenLegoMethodExpression.codegenExpression(subselect.havingExpr, method, classScope);
         CodegenExpression having = localMethod(havingMethod, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method));
 
         method.getBlock().applyTri(DECLARE_EVENTS_SHIFTED, method, symbols);
-        CodegenLegoBooleanExpression.codegenReturnValueIfNotNullAndNotPass(method.getBlock(), Boolean.class, having, constantNull());
+        CodegenLegoBooleanExpression.codegenReturnValueIfNotNullAndNotPass(method.getBlock(), EPTypePremade.BOOLEANBOXED.getEPType(), having, constantNull());
 
         if (subselect.selectClause.length == 1) {
             CodegenMethod eval = CodegenLegoMethodExpression.codegenExpression(subselect.selectClause[0].getForge(), method, classScope);

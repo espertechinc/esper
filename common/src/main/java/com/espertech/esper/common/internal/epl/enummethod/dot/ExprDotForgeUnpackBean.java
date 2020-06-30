@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,17 +22,17 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEval;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalVisitor;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprDotForgeUnpackBean implements ExprDotForge, ExprDotEval {
 
-    private final EPType returnType;
+    private final EPChainableType returnType;
 
     public ExprDotForgeUnpackBean(EventType lambdaType) {
-        returnType = EPTypeHelper.singleValue(lambdaType.getUnderlyingType());
+        returnType = EPChainableTypeHelper.singleValue(lambdaType.getUnderlyingEPType());
     }
 
     public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -42,17 +43,17 @@ public class ExprDotForgeUnpackBean implements ExprDotForge, ExprDotEval {
         return theEvent.getUnderlying();
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        Class resultType = EPTypeHelper.getCodegenReturnType(returnType);
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        EPTypeClass resultType = EPChainableTypeHelper.getCodegenReturnType(returnType);
         CodegenMethod methodNode = parent.makeChild(resultType, ExprDotForgeUnpackBean.class, classScope).addParam(innerType, "target");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("target")
-                .methodReturn(cast(resultType, exprDotUnderlying(cast(EventBean.class, ref("target")))));
+                .methodReturn(cast(resultType, exprDotUnderlying(cast(EventBean.EPTYPE, ref("target")))));
         return localMethod(methodNode, inner);
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return returnType;
     }
 

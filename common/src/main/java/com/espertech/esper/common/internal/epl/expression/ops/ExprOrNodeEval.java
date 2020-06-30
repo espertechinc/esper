@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -49,20 +51,20 @@ public class ExprOrNodeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprOrNode parent, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprOrNodeEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprOrNodeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Boolean.class, "result", constantFalse());
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "result", constantFalse());
 
         int count = -1;
         for (ExprNode child : parent.getChildNodes()) {
             count++;
-            Class childType = child.getForge().getEvaluationType();
-            if (childType.isPrimitive()) {
-                block.ifCondition(child.getForge().evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope)).blockReturn(constantTrue());
+            EPTypeClass childType = (EPTypeClass) child.getForge().getEvaluationType();
+            if (childType.getType().isPrimitive()) {
+                block.ifCondition(child.getForge().evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, exprSymbol, codegenClassScope)).blockReturn(constantTrue());
             } else {
                 String refname = "r" + count;
-                block.declareVar(Boolean.class, refname, child.getForge().evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope))
+                block.declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), refname, child.getForge().evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), methodNode, exprSymbol, codegenClassScope))
                         .ifCondition(equalsNull(ref(refname)))
                         .assignRef("result", constantNull())
                         .ifElse()

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.dot.inner;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,11 +44,11 @@ public class InnerDotArrObjectToCollEval implements ExprDotEvalRootChildInnerEva
     }
 
     public static CodegenExpression codegenEvaluate(InnerDotArrObjectToCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, InnerDotArrObjectToCollEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), InnerDotArrObjectToCollEval.class, codegenClassScope);
 
-        Class evalType = forge.rootForge.getEvaluationType();
+        EPTypeClass evalType = (EPTypeClass) forge.rootForge.getEvaluationType();
         methodNode.getBlock()
-                .declareVar(forge.rootForge.getEvaluationType(), "array", forge.rootForge.evaluateCodegen(evalType, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(evalType, "array", forge.rootForge.evaluateCodegen(evalType, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("array")
                 .methodReturn(staticMethod(Arrays.class, "asList", ref("array")));
         return localMethod(methodNode);

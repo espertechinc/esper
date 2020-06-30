@@ -38,10 +38,10 @@ public class QueryGraphValueEntryInKeywordSingleIdxForge implements QueryGraphVa
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryGraphValueEntryInKeywordSingleIdx.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(QueryGraphValueEntryInKeywordSingleIdx.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ExprEvaluator[].class, "expressions", ExprNodeUtilityCodegen.codegenEvaluators(keyExprs, method, this.getClass(), classScope))
-            .methodReturn(newInstance(QueryGraphValueEntryInKeywordSingleIdx.class, ref("expressions")));
+            .declareVar(ExprEvaluator.EPTYPEARRAY, "expressions", ExprNodeUtilityCodegen.codegenEvaluators(keyExprs, method, this.getClass(), classScope))
+            .methodReturn(newInstance(QueryGraphValueEntryInKeywordSingleIdx.EPTYPE, ref("expressions")));
         return localMethod(method);
     }
 }

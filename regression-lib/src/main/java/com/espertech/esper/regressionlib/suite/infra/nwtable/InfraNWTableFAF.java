@@ -201,9 +201,9 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             epl = "insert into MyInfra(intPrimitive) select 'a'";
             if (namedWindow) {
-                tryInvalidFAFCompile(env, path, epl, "Invalid assignment of column 'intPrimitive' of type 'java.lang.String' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [insert into MyInfra(intPrimitive) select 'a']");
+                tryInvalidFAFCompile(env, path, epl, "Invalid assignment of column 'intPrimitive' of type 'String' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [insert into MyInfra(intPrimitive) select 'a']");
             } else {
-                tryInvalidFAFCompile(env, path, epl, "Invalid assignment of column 'intPrimitive' of type 'java.lang.String' to event property 'intPrimitive' typed as 'java.lang.Integer', column and parameter types mismatch [insert into MyInfra(intPrimitive) select 'a']");
+                tryInvalidFAFCompile(env, path, epl, "Invalid assignment of column 'intPrimitive' of type 'String' to event property 'intPrimitive' typed as 'Integer', column and parameter types mismatch [insert into MyInfra(intPrimitive) select 'a']");
             }
 
             epl = "insert into MyInfra(intPrimitive, theString) select 1";

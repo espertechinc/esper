@@ -96,10 +96,10 @@ public class OutputConditionExpressionForge implements OutputConditionFactoryFor
         if (scheduleCallbackId == -1) {
             throw new IllegalStateException("Schedule callback id not provided");
         }
-        CodegenMethod method = parent.makeChild(OutputConditionFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OutputConditionFactory.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
-            .declareVar(OutputConditionExpressionFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY).add("makeOutputConditionExpression"))
+            .declareVar(OutputConditionExpressionFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY).add("makeOutputConditionExpression"))
             .exprDotMethod(ref("factory"), "setWhenExpressionNodeEval", ExprNodeUtilityCodegen.codegenEvaluator(whenExpressionNodeEval.getForge(), method, this.getClass(), classScope))
             .exprDotMethod(ref("factory"), "setAndWhenTerminatedExpressionNodeEval", andWhenTerminatedExpressionNodeEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(andWhenTerminatedExpressionNodeEval.getForge(), method, this.getClass(), classScope))
             .exprDotMethod(ref("factory"), "setUsingBuiltinProperties", constant(isUsingBuiltinProperties))

@@ -11,12 +11,13 @@
 package com.espertech.esper.common.internal.context.aifactory.createwindow;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
 
 /**
  * Selected properties for a create-window expression in the model-after syntax.
  */
 public class NamedWindowSelectedProps {
-    private Class selectExpressionType;
+    private EPType selectExpressionType;
     private String assignedName;
     private EventType fragmentType;
 
@@ -27,7 +28,7 @@ public class NamedWindowSelectedProps {
      * @param assignedName         name of column
      * @param fragmentType         null if not a fragment, or event type of fragment if one was selected
      */
-    public NamedWindowSelectedProps(Class selectExpressionType, String assignedName, EventType fragmentType) {
+    public NamedWindowSelectedProps(EPType selectExpressionType, String assignedName, EventType fragmentType) {
         this.selectExpressionType = selectExpressionType;
         this.assignedName = assignedName;
         this.fragmentType = fragmentType;
@@ -38,7 +39,7 @@ public class NamedWindowSelectedProps {
      *
      * @return type
      */
-    public Class getSelectExpressionType() {
+    public EPType getSelectExpressionType() {
         return selectExpressionType;
     }
 

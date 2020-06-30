@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -65,9 +66,9 @@ public class DynamicIndexedPropertyGetterByField extends DynamicPropertyGetterBy
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenExpression memberCache = codegenClassScope.addOrGetFieldSharable(sharableCode);
-        CodegenMethod method = parent.makeChild(boolean.class, DynamicPropertyGetterByMethodBase.class, codegenClassScope).addParam(Object.class, "object");
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), DynamicPropertyGetterByMethodBase.class, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "object");
         method.getBlock()
-            .declareVar(DynamicPropertyDescriptorByField.class, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
+            .declareVar(DynamicPropertyDescriptorByField.EPTYPE, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
             .ifCondition(equalsNull(exprDotMethod(ref("desc"), "getField"))).blockReturn(constantFalse())
             .methodReturn(staticMethod(DynamicIndexedPropertyGetterByField.class, "dynamicIndexedPropertyExists", ref("desc"), ref("object"), constant(index)));
         return localMethod(method, underlyingExpression);

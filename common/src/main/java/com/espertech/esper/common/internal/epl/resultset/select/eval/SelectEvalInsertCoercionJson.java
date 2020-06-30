@@ -42,11 +42,11 @@ public class SelectEvalInsertCoercionJson implements SelectExprProcessorForge {
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-            .declareVar(source.getDetail().getUnderlyingClassName(), "src", castUnderlying(source.getDetail().getUnderlyingClassName(), arrayAtIndex(refEPS, constant(0))))
-            .declareVar(target.getDetail().getUnderlyingClassName(), "und", newInstance(target.getDetail().getUnderlyingClassName()));
+                .declareVar(source.getDetail().getUnderlyingClassName(), "src", castUnderlying(source.getDetail().getUnderlyingClassName(), arrayAtIndex(refEPS, constant(0))))
+                .declareVar(target.getDetail().getUnderlyingClassName(), "und", newInstance(target.getDetail().getUnderlyingClassName()));
         for (Map.Entry<String, JsonUnderlyingField> entryTarget : target.getDetail().getFieldDescriptors().entrySet()) {
             JsonUnderlyingField src = source.getDetail().getFieldDescriptors().get(entryTarget.getKey());
             if (src == null) {

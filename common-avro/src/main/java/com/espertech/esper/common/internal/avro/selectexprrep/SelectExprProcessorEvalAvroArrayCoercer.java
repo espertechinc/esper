@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.avro.selectexprrep;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,10 +24,10 @@ import java.io.StringWriter;
 public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator, ExprForge, ExprNodeRenderable {
     private final ExprForge forge;
     private final TypeWidenerSPI widener;
-    private final Class resultType;
+    private final EPTypeClass resultType;
     private ExprEvaluator eval;
 
-    public SelectExprProcessorEvalAvroArrayCoercer(ExprForge forge, TypeWidenerSPI widener, Class resultType) {
+    public SelectExprProcessorEvalAvroArrayCoercer(ExprForge forge, TypeWidenerSPI widener, EPTypeClass resultType) {
         this.forge = forge;
         this.widener = widener;
         this.resultType = resultType;
@@ -37,7 +38,7 @@ public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator, E
         return widener.widen(result);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return widener.widenCodegen(forge.evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope), codegenMethodScope, codegenClassScope);
     }
 
@@ -46,7 +47,7 @@ public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator, E
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return resultType;
     }
 

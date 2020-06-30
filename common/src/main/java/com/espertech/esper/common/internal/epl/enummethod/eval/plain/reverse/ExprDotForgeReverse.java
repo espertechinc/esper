@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.reverse;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParam;
@@ -22,27 +23,27 @@ import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeLambdaDe
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.List;
 
 public class ExprDotForgeReverse extends ExprDotForgeEnumMethodBase {
 
-    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext) {
-        EPType type;
+    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, ExprValidationContext validationContext) {
+        EPChainableType type;
         if (inputEventType != null) {
-            type = EPTypeHelper.collectionOfEvents(inputEventType);
+            type = EPChainableTypeHelper.collectionOfEvents(inputEventType);
         } else {
-            type = EPTypeHelper.collectionOfSingleValue(collectionComponentType);
+            type = EPChainableTypeHelper.collectionOfSingleValue(collectionComponentType);
         }
         return new EnumForgeDescFactoryReverse(type);
     }
 
     private static class EnumForgeDescFactoryReverse implements EnumForgeDescFactory {
-        private final EPType type;
+        private final EPChainableType type;
 
-        public EnumForgeDescFactoryReverse(EPType type) {
+        public EnumForgeDescFactoryReverse(EPChainableType type) {
             this.type = type;
         }
 

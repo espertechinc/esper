@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.json.serde;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.io.DataInput;
@@ -24,6 +25,8 @@ import static com.espertech.esper.common.internal.event.json.serde.DIOJsonSerdeH
 import static com.espertech.esper.common.internal.event.json.serde.DIOJsonSerdeHelper.writeValue;
 
 public class DIOJsonObjectSerde implements DataInputOutputSerde<Map<String, Object>> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOJsonObjectSerde.class);
+
     private final static byte NULL_TYPE = 0;
     private final static byte INT_TYPE = 1;
     private final static byte DOUBLE_TYPE = 2;

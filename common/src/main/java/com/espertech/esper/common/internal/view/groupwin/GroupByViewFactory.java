@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -20,11 +22,12 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link GroupByView} instances.
  */
 public class GroupByViewFactory implements ViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(GroupByViewFactory.class);
 
     protected ViewFactory[] groupeds;
     protected ExprEvaluator criteriaEval;
     protected String[] propertyNames;
-    protected Class[] criteriaTypes;
+    protected EPType[] criteriaTypes;
     protected DataInputOutputSerde<Object> keySerde;
     protected EventType eventType;
     protected boolean addingProperties;  // when adding properties to the grouped-views output
@@ -104,11 +107,11 @@ public class GroupByViewFactory implements ViewFactory {
         return addingProperties;
     }
 
-    public Class[] getCriteriaTypes() {
+    public EPType[] getCriteriaTypes() {
         return criteriaTypes;
     }
 
-    public void setCriteriaTypes(Class[] criteriaTypes) {
+    public void setCriteriaTypes(EPType[] criteriaTypes) {
         this.criteriaTypes = criteriaTypes;
     }
 

@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.util;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +145,7 @@ public class MethodResolver {
      * @return - the Method object for this method
      * @throws MethodResolverNoSuchMethodException if the method could not be found
      */
-    public static Method resolveMethod(Class declaringClass, String methodName, Class[] paramTypes, boolean allowInstance, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
+    public static Method resolveMethod(Class declaringClass, String methodName, EPType[] paramTypes, boolean allowInstance, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
             throws MethodResolverNoSuchMethodException {
         // Get all the methods for this class
         Method[] methods = declaringClass.getMethods();
@@ -203,6 +206,23 @@ public class MethodResolver {
         throw new MethodResolverNoSuchMethodException("Unknown method " + declaringClass.getSimpleName() + '.' + methodName + '(' + parametersPretty + ')', conversionFailedMethod);
     }
 
+    private static String getParametersPretty(EPType[] paramTypes) {
+        StringBuilder parameters = new StringBuilder();
+        if (paramTypes != null && paramTypes.length != 0) {
+            String appendString = "";
+            for (Object param : paramTypes) {
+                parameters.append(appendString);
+                if (param == null) {
+                    parameters.append("(null)");
+                } else {
+                    parameters.append(param.toString());
+                }
+                appendString = ", ";
+            }
+        }
+        return parameters.toString();
+    }
+
     private static String getParametersPretty(Class[] paramTypes) {
         StringBuilder parameters = new StringBuilder();
         if (paramTypes != null && paramTypes.length != 0) {
@@ -220,20 +240,22 @@ public class MethodResolver {
         return parameters.toString();
     }
 
-    private static void logWarnBoxedToPrimitiveType(Class declaringClass, String methodName, Method bestMatch, Class[] paramTypes) {
+    private static void logWarnBoxedToPrimitiveType(Class declaringClass, String methodName, Method bestMatch, EPType[] paramTypes) {
         Class[] parametersMethod = bestMatch.getParameterTypes();
         for (int i = 0; i < parametersMethod.length; i++) {
-            if (!parametersMethod[i].isPrimitive()) {
+            Class paramMethod = parametersMethod[i];
+            if (!paramMethod.isPrimitive()) {
                 continue;
             }
+            EPType paramType = paramTypes[i];
+            boolean paramNull = paramType == null || paramType == EPTypeNull.INSTANCE;
             // if null-type parameter, or non-JDK class and boxed type matches
-            if (paramTypes[i] == null ||
-                    (!declaringClass.getClass().getName().startsWith("java") &&
-                            (JavaClassHelper.getBoxedType(parametersMethod[i])) == paramTypes[i])) {
-                String paramTypeStr = paramTypes[i] == null ? "null" : paramTypes[i].getSimpleName();
+            if (paramNull ||
+                (!declaringClass.getClass().getName().startsWith("java") && JavaClassHelper.getBoxedType(paramMethod) == ((EPTypeClass) paramType).getType())) {
+                String paramTypeStr = paramNull ? "null" : ((EPTypeClass) paramType).toSimpleName();
                 log.info("Method '" + methodName + "' in class '" + declaringClass.getName() + "' expects primitive type '" + parametersMethod[i] +
-                        "' as parameter " + i + ", but receives a nullable (boxed) type " + paramTypeStr +
-                        ". This may cause null pointer exception at runtime if the actual value is null, please consider using boxed types for method parameters.");
+                    "' as parameter " + i + ", but receives a nullable (boxed) type " + paramTypeStr +
+                    ". This may cause null pointer exception at runtime if the actual value is null, please consider using boxed types for method parameters.");
                 return;
             }
         }
@@ -257,7 +279,7 @@ public class MethodResolver {
     }
 
     private static int compareParameterTypesAllowContext(Class[] declarationParameters,
-                                                         Class[] invocationParameters,
+                                                         EPType[] invocationParameters,
                                                          boolean[] optionalAllowEventBeanType,
                                                          boolean[] optionalAllowEventBeanCollType,
                                                          Type[] genericParameterTypes,
@@ -287,7 +309,7 @@ public class MethodResolver {
     // to the method. Otherwise returns the number of parameters
     // that have to be converted
     private static int compareParameterTypesNoContext(Class[] declarationParameters,
-                                                      Class[] invocationParameters,
+                                                      EPType[] invocationParameters,
                                                       boolean[] optionalAllowEventBeanType,
                                                       boolean[] optionalAllowEventBeanCollType,
                                                       Type[] genericParameterTypes,
@@ -324,12 +346,13 @@ public class MethodResolver {
 
             // handle array of compatible type passed into vararg
             if (invocationParameters.length == declarationParameters.length) {
-                Class providedType = invocationParameters[invocationParameters.length - 1];
-                if (providedType != null && providedType.isArray()) {
-                    if (providedType.getComponentType() == varargDeclarationParameter) {
+                EPType last = invocationParameters[invocationParameters.length - 1];
+                if (last != null && last != EPTypeNull.INSTANCE && (((EPTypeClass) last)).getType().isArray()) {
+                    EPTypeClass lastClass = (EPTypeClass) last;
+                    if (lastClass.getType().getComponentType() == varargDeclarationParameter) {
                         return conversionCount.get();
                     }
-                    if (JavaClassHelper.isSubclassOrImplementsInterface(providedType.getComponentType(), varargDeclarationParameter)) {
+                    if (JavaClassHelper.isSubclassOrImplementsInterface(lastClass.getType().getComponentType(), varargDeclarationParameter)) {
                         conversionCount.incrementAndGet();
                         return conversionCount.get();
                     }
@@ -372,13 +395,13 @@ public class MethodResolver {
         return conversionCount.get();
     }
 
-    private static boolean compareParameterTypeCompatible(Class invocationParameter,
+    private static boolean compareParameterTypeCompatible(EPType invocationParameter,
                                                           Class declarationParameter,
                                                           Boolean optionalAllowEventBeanType,
                                                           Boolean optionalAllowEventBeanCollType,
                                                           Type genericParameterType,
                                                           AtomicInteger conversionCount) {
-        if (invocationParameter == null) {
+        if (invocationParameter == null || invocationParameter == EPTypeNull.INSTANCE) {
             return !declarationParameter.isPrimitive();
         }
         if (optionalAllowEventBeanType != null && declarationParameter == EventBean.class && optionalAllowEventBeanType) {
@@ -390,9 +413,10 @@ public class MethodResolver {
                 JavaClassHelper.getGenericType(genericParameterType, 0) == EventBean.class) {
             return true;
         }
-        if (!isIdentityConversion(declarationParameter, invocationParameter)) {
+        EPTypeClass typeClass = (EPTypeClass) invocationParameter;
+        if (!isIdentityConversion(declarationParameter, typeClass.getType())) {
             conversionCount.incrementAndGet();
-            if (!isWideningConversion(declarationParameter, invocationParameter) && declarationParameter != Object.class) {
+            if (!isWideningConversion(declarationParameter, typeClass.getType()) && declarationParameter != Object.class) {
                 return false;
             }
         }
@@ -416,7 +440,7 @@ public class MethodResolver {
 
     }
 
-    public static Constructor resolveCtor(Class declaringClass, Class[] paramTypes) throws MethodResolverNoSuchCtorException {
+    public static Constructor resolveCtor(Class declaringClass, EPType[] paramTypes) throws MethodResolverNoSuchCtorException {
         // Get all the methods for this class
         Constructor[] ctors = declaringClass.getConstructors();
 
@@ -508,5 +532,4 @@ public class MethodResolver {
             throw new EPException("Failed to resolve static method " + declaringClass.getSimpleName() + '.' + methodName + '(' + parametersPretty + ": " + ex.getMessage(), ex);
         }
     }
-
 }

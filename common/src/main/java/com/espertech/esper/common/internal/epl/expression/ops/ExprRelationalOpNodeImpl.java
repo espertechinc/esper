@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.type.RelationalOpEnum;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -63,24 +66,25 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprRelati
         }
 
         // Must be either numeric or string
-        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
-        Class typeTwo = JavaClassHelper.getBoxedType(getChildNodes()[1].getForge().getEvaluationType());
+        ExprForge lhsForge = getChildNodes()[0].getForge();
+        ExprForge rhsForge = getChildNodes()[1].getForge();
 
-        if ((typeOne != String.class) || (typeTwo != String.class)) {
-            if (!JavaClassHelper.isNumeric(typeOne)) {
+        EPTypeClass lhsClass = validateStringOrNumeric(lhsForge);
+        EPTypeClass rhsClass = validateStringOrNumeric(rhsForge);
+
+        if ((lhsClass.getType() != String.class) || (rhsClass.getType() != String.class)) {
+            if (!JavaClassHelper.isNumeric(lhsClass)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
-                        (typeOne == null ? "null" : typeOne.getSimpleName()) +
-                        "' to numeric is not allowed");
+                    lhsClass + "' to numeric is not allowed");
             }
-            if (!JavaClassHelper.isNumeric(typeTwo)) {
+            if (!JavaClassHelper.isNumeric(rhsClass)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
-                        (typeTwo == null ? "null" : typeTwo.getSimpleName()) +
-                        "' to numeric is not allowed");
+                    rhsClass + "' to numeric is not allowed");
             }
         }
 
-        Class compareType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
-        RelationalOpEnum.Computer computer = relationalOpEnum.getComputer(compareType, typeOne, typeTwo);
+        EPTypeClass compareType = JavaClassHelper.getCompareToCoercionType(lhsClass, rhsClass);
+        RelationalOpEnum.Computer computer = relationalOpEnum.getComputer(compareType, lhsClass, rhsClass);
         forge = new ExprRelationalOpNodeForge(this, computer);
         return null;
     }
@@ -107,5 +111,17 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprRelati
         }
 
         return true;
+    }
+
+    private EPTypeClass validateStringOrNumeric(ExprForge forge) throws ExprValidationException {
+        EPType type = forge.getEvaluationType();
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Null-type value is not allow for relational operator");
+        }
+        EPTypeClass typeClass = (EPTypeClass) type;
+        if (typeClass.getType() == String.class) {
+            return typeClass;
+        }
+        return JavaClassHelper.getBoxedType(ExprNodeUtilityValidate.validateReturnsNumeric(forge));
     }
 }

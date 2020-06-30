@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -71,7 +72,7 @@ public class StreamSpecCompiler {
                                                  int streamNum,
                                                  StatementRawInfo statementRawInfo,
                                                  StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (spec instanceof DBStatementStreamSpec) {
             return new StreamSpecCompiledDesc((DBStatementStreamSpec) spec, Collections.emptyList());
         } else if (spec instanceof FilterStreamSpecRaw) {
@@ -85,7 +86,7 @@ public class StreamSpecCompiler {
     }
 
     public static StreamSpecCompiledDesc compileFilter(FilterStreamSpecRaw streamSpec, String optionalStreamName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Determine the event type
         FilterSpecRaw rawFilterSpec = streamSpec.getRawFilterSpec();
         String eventTypeName = rawFilterSpec.getEventTypeName();
@@ -139,7 +140,7 @@ public class StreamSpecCompiler {
                                                         int streamNum,
                                                         StatementRawInfo statementRawInfo,
                                                         StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         return compilePatternWTags(streamSpecRaw, null, null, isJoin, isContextDeclaration, isOnTrigger, streamNum, statementRawInfo, services);
     }
 
@@ -152,7 +153,7 @@ public class StreamSpecCompiler {
                                                              int streamNum,
                                                              StatementRawInfo statementRawInfo,
                                                              StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // validate
         if ((streamSpecRaw.isSuppressSameEventMatches() || streamSpecRaw.isDiscardPartialsOnMatch()) && (isJoin || isContextDeclaration || isOnTrigger)) {
             throw new ExprValidationException("Discard-partials and suppress-matches is not supported in a joins, context declaration and on-action");
@@ -232,12 +233,12 @@ public class StreamSpecCompiler {
                     }
                     if (pair != null) {
                         throw new ExprValidationException("Tag '" + optionalTag + "' for event '" + eventName +
-                                "' used in the repeat-until operator cannot also appear in other filter expressions");
+                            "' used in the repeat-until operator cannot also appear in other filter expressions");
                     }
                 }
                 if ((existingType != null) && (existingType != finalEventType)) {
                     throw new ExprValidationException("Tag '" + optionalTag + "' for event '" + eventName +
-                            "' has already been declared for events of type " + existingType.getUnderlyingType().getName());
+                        "' has already been declared for events of type " + existingType.getUnderlyingEPType().getTypeName());
                 }
                 pair = new Pair<>(finalEventType, eventName);
 
@@ -473,8 +474,8 @@ public class StreamSpecCompiler {
 
                         ExprNode validatedExpr = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.FOLLOWEDBYMAX, maxExpr, validationContext);
                         validated.add(validatedExpr);
-                        Class returnType = validatedExpr.getForge().getEvaluationType();
-                        if ((returnType == null) || (!JavaClassHelper.isNumeric(returnType))) {
+                        EPType returnType = validatedExpr.getForge().getEvaluationType();
+                        if (!JavaClassHelper.isNumeric(returnType)) {
                             String message = "Invalid maximum expression in followed-by, the expression must return an integer value";
                             throw new ExprValidationException(message);
                         }
@@ -496,8 +497,8 @@ public class StreamSpecCompiler {
         String message = "Match-until bounds value expressions must return a numeric value";
         if (bounds != null) {
             ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.PATTERNMATCHUNTILBOUNDS, bounds, validationContext);
-            Class returnType = validated.getForge().getEvaluationType();
-            if ((returnType == null) || (!JavaClassHelper.isNumeric(returnType))) {
+            EPType returnType = validated.getForge().getEvaluationType();
+            if (!JavaClassHelper.isNumeric(returnType)) {
                 throw new ExprValidationException(message);
             }
             return validated;
@@ -609,7 +610,7 @@ public class StreamSpecCompiler {
     }
 
     private static List<ExprNode> validateExpressions(ExprNodeOrigin exprNodeOrigin, List<ExprNode> objectParameters, ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (objectParameters == null) {
             return objectParameters;
         }
@@ -688,7 +689,7 @@ public class StreamSpecCompiler {
             Integer upper = ((Number) constantUpper).intValue();
             if (lower > upper) {
                 throw new ExprValidationException("Incorrect range specification, lower bounds value '" + lower +
-                        "' is higher then higher bounds '" + upper + "'");
+                    "' is higher then higher bounds '" + upper + "'");
             }
         }
         verifyMatchUntilConstant(constantLower, isAllowLowerZero);

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.compile.multikey;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -23,10 +24,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class MultiKeyClassRefUUIDBased implements MultiKeyClassRef {
     private final String uuid;
-    private final Class[] mkTypes;
+    private final EPType[] mkTypes;
     private String classPostfix;
 
-    public MultiKeyClassRefUUIDBased(Class[] mkTypes) {
+    public MultiKeyClassRefUUIDBased(EPType[] mkTypes) {
         uuid = CodeGenerationIDGenerator.generateClassNameUUID();
         this.mkTypes = mkTypes;
     }
@@ -50,7 +51,7 @@ public class MultiKeyClassRefUUIDBased implements MultiKeyClassRef {
         return newInstance(getClassNameMKSerde(classPostfix));
     }
 
-    public Class[] getMKTypes() {
+    public EPType[] getMKTypes() {
         return mkTypes;
     }
 

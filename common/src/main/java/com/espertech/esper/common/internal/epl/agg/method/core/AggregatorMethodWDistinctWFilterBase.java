@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,15 +28,16 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 public abstract class AggregatorMethodWDistinctWFilterBase implements AggregatorMethod {
     protected final CodegenExpressionMember distinct;
-    protected final Class optionalDistinctValueType;
+    protected final EPType optionalDistinctValueType;
     protected final boolean hasFilter; // this flag can be true and "optionalFilter" can still be null when declaring a table column
     protected final ExprNode optionalFilter;
     private final CodegenExpressionField distinctSerde;
@@ -41,9 +46,9 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
 
     protected abstract void applyEvalLeaveFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope);
 
-    protected abstract void applyTableEnterFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
+    protected abstract void applyTableEnterFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
 
-    protected abstract void applyTableLeaveFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
+    protected abstract void applyTableLeaveFiltered(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope);
 
     protected abstract void clearWODistinct(CodegenMethod method, CodegenClassScope classScope);
 
@@ -56,7 +61,7 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
                                                 CodegenCtor rowCtor,
                                                 CodegenMemberCol membersColumnized,
                                                 CodegenClassScope classScope,
-                                                Class optionalDistinctValueType,
+                                                EPType optionalDistinctValueType,
                                                 DataInputOutputSerdeForge optionalDistinctSerde,
                                                 boolean hasFilter,
                                                 ExprNode optionalFilter) {
@@ -65,8 +70,8 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
         this.hasFilter = hasFilter;
 
         if (optionalDistinctValueType != null) {
-            distinct = membersColumnized.addMember(col, RefCountedSet.class, "distinctSet");
-            rowCtor.getBlock().assignRef(distinct, newInstance(RefCountedSet.class));
+            distinct = membersColumnized.addMember(col, RefCountedSet.EPTYPE, "distinctSet");
+            rowCtor.getBlock().assignRef(distinct, newInstance(RefCountedSet.EPTYPE));
             distinctSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.REFCOUNTEDSET, optionalDistinctValueType, optionalDistinctSerde, classScope));
         } else {
             distinct = null;
@@ -81,13 +86,13 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
         applyEvalEnterFiltered(method, symbols, forges, classScope);
     }
 
-    public final void applyTableEnterCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public final void applyTableEnterCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (hasFilter) {
             method.getBlock()
-                .declareVar(Object[].class, "in", cast(Object[].class, value))
-                .declareVar(boolean.class, "pass", cast(Boolean.class, arrayAtIndex(ref("in"), constant(1))))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "in", cast(EPTypePremade.OBJECTARRAY.getEPType(), value))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "pass", cast(EPTypePremade.BOOLEANBOXED.getEPType(), arrayAtIndex(ref("in"), constant(1))))
                 .ifCondition(not(ref("pass"))).blockReturnNoValue()
-                .declareVar(Object.class, "filtered", arrayAtIndex(ref("in"), constant(0)));
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "filtered", arrayAtIndex(ref("in"), constant(0)));
             applyTableEnterFiltered(ref("filtered"), evaluationTypes, method, classScope);
         } else {
             applyTableEnterFiltered(value, evaluationTypes, method, classScope);
@@ -101,13 +106,13 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
         applyEvalLeaveFiltered(method, symbols, forges, classScope);
     }
 
-    public void applyTableLeaveCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public void applyTableLeaveCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (hasFilter) {
             method.getBlock()
-                .declareVar(Object[].class, "in", cast(Object[].class, value))
-                .declareVar(boolean.class, "pass", cast(Boolean.class, arrayAtIndex(ref("in"), constant(1))))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "in", cast(EPTypePremade.OBJECTARRAY.getEPType(), value))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "pass", cast(EPTypePremade.BOOLEANBOXED.getEPType(), arrayAtIndex(ref("in"), constant(1))))
                 .ifCondition(not(ref("pass"))).blockReturnNoValue()
-                .declareVar(Object.class, "filtered", arrayAtIndex(ref("in"), constant(0)));
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "filtered", arrayAtIndex(ref("in"), constant(0)));
             applyTableLeaveFiltered(ref("filtered"), evaluationTypes, method, classScope);
         } else {
             applyTableLeaveFiltered(value, evaluationTypes, method, classScope);
@@ -130,16 +135,21 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
 
     public final void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
-            method.getBlock().assignRef(rowDotMember(row, distinct), cast(RefCountedSet.class, exprDotMethod(distinctSerde, "read", input, unitKey)));
+            method.getBlock().assignRef(rowDotMember(row, distinct), cast(RefCountedSet.EPTYPE, exprDotMethod(distinctSerde, "read", input, unitKey)));
         }
         readWODistinct(row, col, input, unitKey, method, classScope);
     }
 
     protected CodegenExpression toDistinctValueKey(CodegenExpression distinctValue) {
-        if (!optionalDistinctValueType.isArray()) {
+        if (optionalDistinctValueType == null || optionalDistinctValueType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass inner = (EPTypeClass) optionalDistinctValueType;
+        if (!inner.getType().isArray()) {
             return distinctValue;
         }
-        Class mktype = MultiKeyPlanner.getMKClassForComponentType(optionalDistinctValueType.getComponentType());
-        return newInstance(mktype, cast(optionalDistinctValueType, distinctValue));
+        EPTypeClass component = JavaClassHelper.getArrayComponentType(inner);
+        EPTypeClass mktype = MultiKeyPlanner.getMKClassForComponentType(component);
+        return newInstance(mktype, cast((EPTypeClass) optionalDistinctValueType, distinctValue));
     }
 }

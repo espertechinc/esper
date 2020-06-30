@@ -11,32 +11,35 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.distinctof;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
-import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base.*;
-import com.espertech.esper.common.internal.rettype.ClassMultiValuedEPType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
-
-import java.util.function.Function;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 public class ExprDotForgeDistinctOf extends ExprDotForgeLambdaThreeForm {
 
-    protected EPType initAndNoParamsReturnType(EventType inputEventType, Class collectionComponentType) {
-        return EPTypeHelper.collectionOfSingleValue(collectionComponentType);
+    protected EPChainableType initAndNoParamsReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
+        return EPChainableTypeHelper.collectionOfSingleValue(collectionComponentType);
     }
 
-    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPType type, StatementCompileTimeServices services) {
-        return streamCountIncoming -> new EnumDistinctOfScalarNoParams(streamCountIncoming, ((ClassMultiValuedEPType) type).getComponent());
+    protected ThreeFormNoParamFactory.ForgeFunction noParamsForge(EnumMethodEnum enumMethod, EPChainableType type, StatementCompileTimeServices services) {
+        return streamCountIncoming -> {
+            EPChainableTypeClass classInfo = (EPChainableTypeClass) type;
+            EPTypeClass component = JavaClassHelper.getSingleParameterTypeOrObject(classInfo.getType());
+            return new EnumDistinctOfScalarNoParams(streamCountIncoming, component);
+        };
     }
 
-    protected Function<ExprDotEvalParamLambda, EPType> initAndSingleParamReturnType(EventType inputEventType, Class collectionComponentType) {
+    protected ThreeFormInitFunction initAndSingleParamReturnType(EventType inputEventType, EPTypeClass collectionComponentType) {
         return lambda -> {
             if (inputEventType == null) {
-                return EPTypeHelper.collectionOfSingleValue(collectionComponentType);
+                return EPChainableTypeHelper.collectionOfSingleValue(collectionComponentType);
             }
-            return EPTypeHelper.collectionOfEvents(inputEventType);
+            return EPChainableTypeHelper.collectionOfEvents(inputEventType);
         };
     }
 

@@ -38,7 +38,6 @@ package com.espertech.esper.common.client.json.minimaljson;
 
 import java.io.IOException;
 
-
 @SuppressWarnings("serial")
     // use default serial UID
 public class JsonString extends JsonValue {

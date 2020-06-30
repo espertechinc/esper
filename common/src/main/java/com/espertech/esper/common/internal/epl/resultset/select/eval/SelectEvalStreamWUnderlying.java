@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -31,7 +32,6 @@ import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolve
 import com.espertech.esper.common.internal.event.core.*;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -72,8 +72,8 @@ public class SelectEvalStreamWUnderlying extends SelectEvalStreamBaseMap impleme
     }
 
     protected CodegenExpression processSpecificCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenExpression props, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, SelectEvalStreamWUnderlying.class, codegenClassScope).addParam(Map.class, "props");
-        CodegenExpressionField wrapperUndType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(wrapperEventType.getUnderlyingEventType(), EPStatementInitServices.REF));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, SelectEvalStreamWUnderlying.class, codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "props");
+        CodegenExpressionField wrapperUndType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(wrapperEventType.getUnderlyingEventType(), EPStatementInitServices.REF));
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
@@ -81,7 +81,7 @@ public class SelectEvalStreamWUnderlying extends SelectEvalStreamBaseMap impleme
 
         CodegenBlock block = methodNode.getBlock();
         if (singleStreamWrapper) {
-            block.declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, arrayAtIndex(refEPS, constant(0))))
+            block.declareVar(DecoratingEventBean.EPTYPE, "wrapper", cast(DecoratingEventBean.EPTYPE, arrayAtIndex(refEPS, constant(0))))
                     .ifRefNotNull("wrapper")
                     .exprDotMethod(props, "putAll", exprDotMethod(ref("wrapper"), "getDecoratingProperties"))
                     .blockEnd();
@@ -89,22 +89,22 @@ public class SelectEvalStreamWUnderlying extends SelectEvalStreamBaseMap impleme
 
         if (underlyingIsFragmentEvent) {
             CodegenExpression fragment = ((EventTypeSPI) eventTypes[underlyingStreamNumber]).getGetterSPI(unnamedStreams.get(0).getStreamSelected().getStreamName()).eventBeanFragmentCodegen(ref("eventBean"), methodNode, codegenClassScope);
-            block.declareVar(EventBean.class, "eventBean", arrayAtIndex(refEPS, constant(underlyingStreamNumber)))
-                    .declareVar(EventBean.class, "theEvent", cast(EventBean.class, fragment));
+            block.declareVar(EventBean.EPTYPE, "eventBean", arrayAtIndex(refEPS, constant(underlyingStreamNumber)))
+                    .declareVar(EventBean.EPTYPE, "theEvent", cast(EventBean.EPTYPE, fragment));
         } else if (underlyingPropertyEventGetter != null) {
-            block.declareVar(EventBean.class, "theEvent", constantNull())
-                    .declareVar(Object.class, "value", underlyingPropertyEventGetter.eventBeanGetCodegen(arrayAtIndex(refEPS, constant(underlyingStreamNumber)), methodNode, codegenClassScope))
+            block.declareVar(EventBean.EPTYPE, "theEvent", constantNull())
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "value", underlyingPropertyEventGetter.eventBeanGetCodegen(arrayAtIndex(refEPS, constant(underlyingStreamNumber)), methodNode, codegenClassScope))
                     .ifRefNotNull("value")
                     .assignRef("theEvent", exprDotMethod(eventBeanFactory, "adapterForTypedBean", ref("value"), wrapperUndType))
                     .blockEnd();
         } else if (underlyingExprForge != null) {
-            block.declareVar(EventBean.class, "theEvent", constantNull())
-                    .declareVar(Object.class, "value", underlyingExprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
+            block.declareVar(EventBean.EPTYPE, "theEvent", constantNull())
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "value", underlyingExprForge.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
                     .ifRefNotNull("value")
                     .assignRef("theEvent", exprDotMethod(eventBeanFactory, "adapterForTypedBean", ref("value"), wrapperUndType))
                     .blockEnd();
         } else {
-            block.declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(underlyingStreamNumber)));
+            block.declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(refEPS, constant(underlyingStreamNumber)));
             if (tableMetadata != null) {
                 CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(tableMetadata, codegenClassScope, this.getClass());
                 block.ifRefNotNull("theEvent")

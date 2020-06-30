@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.lookup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
@@ -20,6 +21,8 @@ import java.util.Collection;
  * events properties, and returning a set of matched events.
  */
 public interface SubordTableLookupStrategy {
+    EPTypeClass EPTYPE = new EPTypeClass(SubordTableLookupStrategy.class);
+
     /**
      * Returns matched events for a set of events to look up for. Never returns an empty result set,
      * always returns null to indicate no results.

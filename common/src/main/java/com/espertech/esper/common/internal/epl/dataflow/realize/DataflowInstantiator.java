@@ -40,6 +40,8 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
+
 public class DataflowInstantiator {
     public static EPDataFlowInstance instantiate(int agentInstanceId,
                                                  DataflowDesc dataflow,
@@ -202,7 +204,7 @@ public class DataflowInstantiator {
                 if (numParams == 1 && JavaClassHelper.isSubclassOrImplementsInterface(paramTypes[0], expectedUnderlying)) {
                     return new LogicalChannelBindingMethodDesc(method, LogicalChannelBindingTypePassAlong.INSTANCE);
                 }
-                if (numParams == 2 && JavaClassHelper.getBoxedType(paramTypes[0]) == Integer.class && JavaClassHelper.isSubclassOrImplementsInterface(paramTypes[1], expectedUnderlying)) {
+                if (numParams == 2 && isTypeInteger(paramTypes[0]) && JavaClassHelper.isSubclassOrImplementsInterface(paramTypes[1], expectedUnderlying)) {
                     return new LogicalChannelBindingMethodDesc(method, new LogicalChannelBindingTypePassAlongWStream(channelDesc.getConsumingOpStreamNum()));
                 }
             }

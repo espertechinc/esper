@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.time.eval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
@@ -23,6 +24,7 @@ import java.math.BigInteger;
 import static com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriodForge.makeTimePeriodParamNullException;
 
 public class TimePeriodComputeNCGivenTPNonCalEval implements TimePeriodCompute {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimePeriodComputeNCGivenTPNonCalEval.class);
 
     private ExprEvaluator[] evaluators;
     private TimePeriodAdder[] adders;

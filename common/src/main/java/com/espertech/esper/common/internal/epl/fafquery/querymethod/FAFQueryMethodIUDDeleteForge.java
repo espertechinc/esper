@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -34,8 +35,8 @@ public class FAFQueryMethodIUDDeleteForge extends FAFQueryMethodIUDBaseForge {
     protected void initExec(String aliasName, StatementSpecCompiled spec, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
     }
 
-    protected Class typeOfMethod() {
-        return FAFQueryMethodIUDDelete.class;
+    protected EPTypeClass typeOfMethod() {
+        return FAFQueryMethodIUDDelete.EPTYPE;
     }
 
     protected void makeInlineSpecificSetter(CodegenExpressionRef queryMethod, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

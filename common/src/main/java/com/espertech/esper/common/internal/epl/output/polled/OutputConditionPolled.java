@@ -11,7 +11,11 @@
 package com.espertech.esper.common.internal.epl.output.polled;
 
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface OutputConditionPolled {
+    EPTypeClass EPTYPE = new EPTypeClass(OutputConditionPolled.class);
+
     public OutputConditionPolledState getState();
 
     /**

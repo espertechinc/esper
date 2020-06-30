@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.updatehelper;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,10 +28,10 @@ public class EventBeanUpdateItemArray {
 
     private final String propertyName;
     private final ExprNode indexExpression;
-    private final Class arrayType;
+    private final EPTypeClass arrayType;
     private final EventPropertyGetterSPI getter;
 
-    public EventBeanUpdateItemArray(String propertyName, ExprNode indexExpression, Class arrayType, EventPropertyGetterSPI getter) {
+    public EventBeanUpdateItemArray(String propertyName, ExprNode indexExpression, EPTypeClass arrayType, EventPropertyGetterSPI getter) {
         this.propertyName = propertyName;
         this.indexExpression = indexExpression;
         this.arrayType = arrayType;
@@ -40,12 +42,12 @@ public class EventBeanUpdateItemArray {
         return propertyName;
     }
 
-    public Class getArrayType() {
+    public EPTypeClass getArrayType() {
         return arrayType;
     }
 
     public EventBeanUpdateItemArrayExpressions getArrayExpressions(CodegenMethodScope parentScope, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenExpression index = indexExpression.getForge().evaluateCodegen(Integer.class, parentScope, symbols, classScope);
+        CodegenExpression index = indexExpression.getForge().evaluateCodegen(EPTypePremade.INTEGERBOXED.getEPType(), parentScope, symbols, classScope);
         CodegenExpression arrayGet = evaluateArrayCodegen(parentScope, symbols, classScope);
         return new EventBeanUpdateItemArrayExpressions(index, arrayGet);
     }
@@ -53,7 +55,7 @@ public class EventBeanUpdateItemArray {
     private CodegenExpression evaluateArrayCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(arrayType, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(EventBean.class, "event", arrayAtIndex(symbols.getAddEPS(method), constant(0)))
+            .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(symbols.getAddEPS(method), constant(0)))
             .ifRefNullReturnNull("event")
             .methodReturn(CodegenLegoCast.castSafeFromObjectType(arrayType, getter.eventBeanGetCodegen(ref("event"), method, classScope)));
         return localMethod(method);

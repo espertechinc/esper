@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
@@ -30,6 +31,7 @@ import static com.espertech.esper.common.internal.context.util.StatementCPCacheS
  * A convenience class for dealing with reading and updating multiple variable values.
  */
 public class VariableReadWritePackage {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableReadWritePackage.class);
 
     private Map<EventTypeSPI, EventBeanCopyMethod> copyMethods;
     private VariableTriggerSetDesc[] assignments;
@@ -149,7 +151,7 @@ public class VariableReadWritePackage {
                 } else {
                     Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, agentInstanceContext);
                     if ((value != null) && (mustCoerce[count])) {
-                        value = JavaClassHelper.coerceBoxed((Number) value, variableMetaData.getType());
+                        value = JavaClassHelper.coerceBoxed((Number) value, variableMetaData.getType().getType());
                     }
                     variableService.write(variableNumber, agentInstanceId, value);
                     written = value;

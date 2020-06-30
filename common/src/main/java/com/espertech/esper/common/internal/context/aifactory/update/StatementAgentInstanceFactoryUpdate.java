@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.update;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StatementAgentInstanceFactoryUpdate implements StatementAgentInstanceFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryUpdate.class);
 
     private InternalEventRouterDesc desc;
     private InternalRoutePreprocessView viewable;

@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.agg.method.avg;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -31,13 +34,13 @@ import java.math.MathContext;
 
 public class AggregationForgeFactoryAvg extends AggregationForgeFactoryBase {
     protected final ExprAvgNode parent;
-    protected final Class childType;
+    protected final EPTypeClass childType;
     protected final DataInputOutputSerdeForge distinctSerde;
-    protected final Class resultType;
+    protected final EPTypeClass resultType;
     protected final MathContext optionalMathContext;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryAvg(ExprAvgNode parent, Class childType, DataInputOutputSerdeForge distinctSerde, MathContext optionalMathContext) {
+    public AggregationForgeFactoryAvg(ExprAvgNode parent, EPTypeClass childType, DataInputOutputSerdeForge distinctSerde, MathContext optionalMathContext) {
         this.parent = parent;
         this.childType = childType;
         this.distinctSerde = distinctSerde;
@@ -45,7 +48,7 @@ public class AggregationForgeFactoryAvg extends AggregationForgeFactoryBase {
         this.optionalMathContext = optionalMathContext;
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return resultType;
     }
 
@@ -54,12 +57,12 @@ public class AggregationForgeFactoryAvg extends AggregationForgeFactoryBase {
     }
 
     public AggregationPortableValidation getAggregationPortableValidation() {
-        return new AggregationPortableValidationAvg(parent.isDistinct(), parent.isHasFilter(), parent.getChildNodes()[0].getForge().getEvaluationType());
+        return new AggregationPortableValidationAvg(parent.isDistinct(), parent.isHasFilter(), (EPTypeClass) parent.getChildNodes()[0].getForge().getEvaluationType());
     }
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        Class distinctValueType = !parent.isDistinct() ? null : childType;
-        if (resultType == BigInteger.class || resultType == BigDecimal.class) {
+        EPTypeClass distinctValueType = !parent.isDistinct() ? null : childType;
+        if (resultType.getType() == BigInteger.class || resultType.getType() == BigDecimal.class) {
             aggregator = new AggregatorAvgBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
         } else {
             aggregator = new AggregatorAvgNonBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), JavaClassHelper.getBoxedType(childType));
@@ -74,10 +77,10 @@ public class AggregationForgeFactoryAvg extends AggregationForgeFactoryBase {
         return ExprMethodAggUtil.getDefaultForges(parent.getPositionalParams(), join, typesPerStream);
     }
 
-    private Class getAvgAggregatorType(Class type) {
-        if ((type == BigDecimal.class) || (type == BigInteger.class)) {
-            return BigDecimal.class;
+    private EPTypeClass getAvgAggregatorType(EPTypeClass type) {
+        if ((type.getType() == BigDecimal.class) || (type.getType() == BigInteger.class)) {
+            return EPTypePremade.BIGDECIMAL.getEPType();
         }
-        return Double.class;
+        return EPTypePremade.DOUBLEBOXED.getEPType();
     }
 }

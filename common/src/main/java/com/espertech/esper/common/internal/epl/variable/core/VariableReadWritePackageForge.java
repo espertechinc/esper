@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,10 +28,7 @@ import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableN
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVariableVisitor;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.*;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.util.TypeWidenerException;
-import com.espertech.esper.common.internal.util.TypeWidenerFactory;
-import com.espertech.esper.common.internal.util.TypeWidenerSPI;
+import com.espertech.esper.common.internal.util.*;
 
 import java.util.*;
 
@@ -74,33 +72,33 @@ public class VariableReadWritePackageForge {
                     }
 
                     variables[count] = variableMetadata;
-                    Class expressionType = assignment.getRhs().getForge().getEvaluationType();
+                    EPType expressionType = assignment.getRhs().getForge().getEvaluationType();
 
                     if (assignment.getLhs() instanceof ExprAssignmentLHSIdent) {
                         // determine types
                         if (variableMetadata.getEventType() != null) {
-                            if ((expressionType != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(expressionType, variableMetadata.getEventType().getUnderlyingType()))) {
+                            if (expressionType != EPTypeNull.INSTANCE && (!JavaClassHelper.isSubclassOrImplementsInterface(expressionType, variableMetadata.getEventType().getUnderlyingEPType()))) {
                                 throw new ExprValidationException("Variable '" + variableName
-                                    + "' of declared event type '" + variableMetadata.getEventType().getName() + "' underlying type '" + variableMetadata.getEventType().getUnderlyingType().getName() +
-                                    "' cannot be assigned a value of type '" + expressionType.getName() + "'");
+                                    + "' of declared event type '" + variableMetadata.getEventType().getName() + "' underlying type '" + variableMetadata.getEventType().getUnderlyingEPType().getTypeName() +
+                                    "' cannot be assigned a value of type '" + expressionType.getTypeName() + "'");
                             }
-                            variableTypes.put(variableName, variableMetadata.getEventType().getUnderlyingType());
+                            variableTypes.put(variableName, variableMetadata.getEventType().getUnderlyingEPType());
                         } else {
 
-                            Class variableType = variableMetadata.getType();
-                            variableTypes.put(variableName, variableType);
+                            EPTypeClass variableType = variableMetadata.getType();
+                            variableTypes.put(variableName, variableMetadata.getType());
 
                             // determine if the expression type can be assigned
-                            if (variableType != Object.class) {
-                                if ((JavaClassHelper.getBoxedType(expressionType) != variableType) &&
-                                    (expressionType != null)) {
+                            if (variableType.getType() != Object.class) {
+                                if (expressionType != null && expressionType != EPTypeNull.INSTANCE && (!variableType.equals(JavaClassHelper.getBoxedType(expressionType)))) {
+                                    EPTypeClass expressionClass = (EPTypeClass) expressionType;
                                     if ((!JavaClassHelper.isNumeric(variableType)) ||
                                         (!JavaClassHelper.isNumeric(expressionType))) {
-                                        throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionType));
+                                        throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionClass));
                                     }
 
-                                    if (!(JavaClassHelper.canCoerce(expressionType, variableType))) {
-                                        throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionType));
+                                    if (!(JavaClassHelper.canCoerce(expressionClass.getType(), variableType.getType()))) {
+                                        throw new ExprValidationException(VariableUtil.getAssigmentExMessage(variableName, variableType, expressionClass));
                                     }
 
                                     mustCoerce[count] = true;
@@ -120,13 +118,13 @@ public class VariableReadWritePackageForge {
                         EventTypeSPI spi = (EventTypeSPI) type;
                         EventPropertyWriterSPI writer = spi.getWriter(subPropertyName);
                         EventPropertyGetterSPI getter = spi.getGetterSPI(subPropertyName);
-                        Class getterType = spi.getPropertyType(subPropertyName);
+                        EPType getterType = spi.getPropertyEPType(subPropertyName);
                         if (writer == null) {
                             throw new ExprValidationException("Variable by name '" + variableName + "' the property '" + subPropertyName + "' is not writable");
                         }
 
                         String fullVariableName = variableName + "." + subPropertyName;
-                        variableTypes.put(fullVariableName, spi.getPropertyType(subPropertyName));
+                        variableTypes.put(fullVariableName, spi.getPropertyEPType(subPropertyName));
                         CopyMethodDesc writtenProps = eventTypeWrittenProps.get(spi);
                         if (writtenProps == null) {
                             writtenProps = new CopyMethodDesc(variableName, new ArrayList<String>());
@@ -137,14 +135,14 @@ public class VariableReadWritePackageForge {
                         writers[count] = new VariableTriggerWriteDescForge(spi, variableName, writer, getter, getterType, assignment.getRhs().getForge().getEvaluationType());
                     } else if (assignment.getLhs() instanceof ExprAssignmentLHSArrayElement) {
                         ExprAssignmentLHSArrayElement arrayAssign = (ExprAssignmentLHSArrayElement) assignment.getLhs();
-                        Class variableType = variableMetadata.getType();
-                        if (!variableType.isArray()) {
+                        EPTypeClass variableType = variableMetadata.getType();
+                        if (!variableType.getType().isArray()) {
                             throw new ExprValidationException("Variable '" + variableMetadata.getVariableName() + "' is not an array");
                         }
                         TypeWidenerSPI widener;
                         try {
                             widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getRhs()), expressionType,
-                                variableType.getComponentType(), variableMetadata.getVariableName(), false, null, statementName);
+                                JavaClassHelper.getArrayComponentType(variableType), variableMetadata.getVariableName(), false, null, statementName);
                         } catch (TypeWidenerException ex) {
                             throw new ExprValidationException(ex.getMessage(), ex);
                         }
@@ -194,7 +192,7 @@ public class VariableReadWritePackageForge {
             EventBeanCopyMethodForge copyMethod = entry.getKey().getCopyMethodForge(props);
             if (copyMethod == null) {
                 throw new ExprValidationException("Variable '" + entry.getValue().getVariableName()
-                    + "' of declared type " + JavaClassHelper.getClassNameFullyQualPretty(entry.getKey().getUnderlyingType()) +
+                    + "' of declared type " + ClassHelperPrint.getClassNameFullyQualPretty(entry.getKey().getUnderlyingType()) +
                     "' cannot be assigned to");
             }
             copyMethods.put(entry.getKey(), copyMethod);
@@ -211,10 +209,10 @@ public class VariableReadWritePackageForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(VariableReadWritePackage.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(VariableReadWritePackage.EPTYPE, this.getClass(), classScope);
         CodegenExpressionRef ref = ref("rw");
         method.getBlock()
-            .declareVar(VariableReadWritePackage.class, ref.getRef(), newInstance(VariableReadWritePackage.class))
+            .declareVarNewInstance(VariableReadWritePackage.EPTYPE, ref.getRef())
             .exprDotMethod(ref, "setCopyMethods", makeCopyMethods(copyMethods, method, symbols, classScope))
             .exprDotMethod(ref, "setAssignments", makeAssignments(assignments, variables, method, symbols, classScope))
             .exprDotMethod(ref, "setVariables", makeVariables(variables, method, symbols, classScope))
@@ -226,8 +224,8 @@ public class VariableReadWritePackageForge {
     }
 
     private static CodegenExpression makeReadersForGlobalVars(VariableMetaData[] variables, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(VariableReader[].class, VariableReadWritePackageForge.class, classScope);
-        method.getBlock().declareVar(VariableReader[].class, "readers", newArrayByLength(VariableReader.class, constant(variables.length)));
+        CodegenMethod method = parent.makeChild(VariableReader.EPTYPEARRAY, VariableReadWritePackageForge.class, classScope);
+        method.getBlock().declareVar(VariableReader.EPTYPEARRAY, "readers", newArrayByLength(VariableReader.EPTYPE, constant(variables.length)));
         for (int i = 0; i < variables.length; i++) {
             if (variables[i].getOptionalContextName() == null) {
                 CodegenExpression resolve = staticMethod(VariableDeployTimeResolver.class, "resolveVariableReader",
@@ -243,8 +241,8 @@ public class VariableReadWritePackageForge {
     }
 
     private static CodegenExpression makeWriters(VariableTriggerWriteForge[] writers, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(VariableTriggerWrite[].class, VariableReadWritePackageForge.class, classScope);
-        method.getBlock().declareVar(VariableTriggerWrite[].class, "writers", newArrayByLength(VariableTriggerWrite.class, constant(writers.length)));
+        CodegenMethod method = parent.makeChild(VariableTriggerWrite.EPTYPEARRAY, VariableReadWritePackageForge.class, classScope);
+        method.getBlock().declareVar(VariableTriggerWrite.EPTYPEARRAY, "writers", newArrayByLength(VariableTriggerWrite.EPTYPE, constant(writers.length)));
         for (int i = 0; i < writers.length; i++) {
             CodegenExpression writer = writers[i] == null ? constantNull() : writers[i].make(method, symbols, classScope);
             method.getBlock().assignArrayElement("writers", constant(i), writer);
@@ -254,8 +252,8 @@ public class VariableReadWritePackageForge {
     }
 
     private static CodegenExpression makeVariables(VariableMetaData[] variables, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Variable[].class, VariableReadWritePackageForge.class, classScope);
-        method.getBlock().declareVar(Variable[].class, "vars", newArrayByLength(Variable.class, constant(variables.length)));
+        CodegenMethod method = parent.makeChild(Variable.EPTYPEARRAY, VariableReadWritePackageForge.class, classScope);
+        method.getBlock().declareVar(Variable.EPTYPEARRAY, "vars", newArrayByLength(Variable.EPTYPE, constant(variables.length)));
         for (int i = 0; i < variables.length; i++) {
             CodegenExpression resolve = VariableDeployTimeResolver.makeResolveVariable(variables[i], symbols.getAddInitSvc(method));
             method.getBlock().assignArrayElement("vars", constant(i), resolve);
@@ -265,16 +263,16 @@ public class VariableReadWritePackageForge {
     }
 
     private static CodegenExpression makeAssignments(ExprAssignment[] assignments, VariableMetaData[] variables, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(VariableTriggerSetDesc[].class, VariableReadWritePackageForge.class, classScope);
-        method.getBlock().declareVar(VariableTriggerSetDesc[].class, "sets", newArrayByLength(VariableTriggerSetDesc.class, constant(assignments.length)));
+        CodegenMethod method = parent.makeChild(VariableTriggerSetDesc.EPTYPEARRAY, VariableReadWritePackageForge.class, classScope);
+        method.getBlock().declareVar(VariableTriggerSetDesc.EPTYPEARRAY, "sets", newArrayByLength(VariableTriggerSetDesc.EPTYPE, constant(assignments.length)));
         for (int i = 0; i < assignments.length; i++) {
             CodegenExpression set;
             if (assignments[i] instanceof ExprAssignmentStraight) {
                 ExprAssignmentStraight straightAssignment = (ExprAssignmentStraight) assignments[i];
-                set = newInstance(VariableTriggerSetDesc.class, constant(straightAssignment.getLhs().getFullIdentifier()),
+                set = newInstance(VariableTriggerSetDesc.EPTYPE, constant(straightAssignment.getLhs().getFullIdentifier()),
                     ExprNodeUtilityCodegen.codegenEvaluator(straightAssignment.getRhs().getForge(), method, VariableReadWritePackageForge.class, classScope));
             } else {
-                set = newInstance(VariableTriggerSetDesc.class, constant(variables[i].getVariableName()), constantNull());
+                set = newInstance(VariableTriggerSetDesc.EPTYPE, constant(variables[i].getVariableName()), constantNull());
             }
             method.getBlock().assignArrayElement("sets", constant(i), set);
         }
@@ -286,8 +284,8 @@ public class VariableReadWritePackageForge {
         if (copyMethods.isEmpty()) {
             return staticMethod(Collections.class, "emptyMap");
         }
-        CodegenMethod method = parent.makeChild(Map.class, VariableReadWritePackageForge.class, classScope);
-        method.getBlock().declareVar(Map.class, "methods", newInstance(HashMap.class, constant(copyMethods.size())));
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), VariableReadWritePackageForge.class, classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "methods", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(copyMethods.size())));
         for (Map.Entry<EventTypeSPI, EventBeanCopyMethodForge> entry : copyMethods.entrySet()) {
             CodegenExpression type = EventTypeUtility.resolveTypeCodegen(entry.getKey(), symbols.getAddInitSvc(method));
             CodegenExpression copyMethod = entry.getValue().makeCopyMethodClassScoped(classScope);

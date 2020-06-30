@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
 
 public class SubordinateQueryIndexDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordinateQueryIndexDesc.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(SubordinateQueryIndexDesc[].class);
+
     private final IndexKeyInfo optionalIndexKeyInfo;
     private final String indexName;
     private final IndexMultiKey indexMultiKey;

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.serde.serdeset.additional;
 
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -18,6 +19,8 @@ import java.io.IOException;
 import java.util.TreeMap;
 
 public interface DIOSerdeTreeMapEventsMayDeque {
+    EPTypeClass EPTYPE = new EPTypeClass(DIOSerdeTreeMapEventsMayDeque.class);
+
     void write(TreeMap<Object, Object> object, DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer) throws IOException;
 
     void read(TreeMap<Object, Object> object, DataInput input, byte[] unitKey) throws IOException;

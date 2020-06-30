@@ -10,30 +10,31 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.util;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
-
-import java.util.Comparator;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class CodegenFieldSharableComparator implements CodegenFieldSharable {
     private final CodegenSharableSerdeName name;
-    private final Class[] types;
+    private final EPType[] types;
     private final boolean isSortUsingCollator;
     private final boolean[] descending;
 
-    public CodegenFieldSharableComparator(CodegenSharableSerdeName name, Class[] types, boolean isSortUsingCollator, boolean[] descending) {
+    public CodegenFieldSharableComparator(CodegenSharableSerdeName name, EPType[] types, boolean isSortUsingCollator, boolean[] descending) {
         this.name = name;
         this.types = types;
         this.isSortUsingCollator = isSortUsingCollator;
         this.descending = descending;
     }
 
-    public Class type() {
-        return Comparator.class;
+    public EPTypeClass type() {
+        return EPTypePremade.COMPARATOR.getEPType();
     }
 
     public CodegenExpression initCtorScoped() {

@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.event.json.parser.core;
 
 import com.espertech.esper.common.client.json.minimaljson.JsonWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.IOException;
 
 public interface JsonDelegateFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateFactory.class);
+
     JsonDelegateBase make(JsonHandlerDelegator handler, JsonDelegateBase optionalParent);
     void write(JsonWriter writer, Object und) throws IOException;
     Object newUnderlying();

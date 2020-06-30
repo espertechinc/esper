@@ -10,18 +10,18 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval;
 
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public class EnumForgeDesc {
-    private final EPType type;
+    private final EPChainableType type;
     private final EnumForge forge;
 
-    public EnumForgeDesc(EPType type, EnumForge forge) {
+    public EnumForgeDesc(EPChainableType type, EnumForge forge) {
         this.type = type;
         this.forge = forge;
     }
 
-    public EPType getType() {
+    public EPChainableType getType() {
         return type;
     }
 

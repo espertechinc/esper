@@ -13,27 +13,30 @@ package com.espertech.esper.regressionlib.suite.client.extension;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.enummethod.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFPInputEnum;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFPParam;
 import com.espertech.esper.common.internal.epl.util.EPLExpressionParamType;
-import com.espertech.esper.common.internal.rettype.ClassEPType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
-import com.espertech.esper.common.internal.rettype.EventEPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeEventSingle;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 import static org.junit.Assert.assertEquals;
 
 public class ClientExtendEnumMethod {
@@ -58,7 +61,7 @@ public class ClientExtendEnumMethod {
             String epl = "@name('s0') select strvals.enumPlugInLambdaScalarWStateAndValue('X', (r, v) => r || v) as c0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            assertEquals(EPTypePremade.STRING.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             sendAssert(env, "Xa", "a");
             sendAssert(env, "Xab", "a,b");
@@ -77,7 +80,7 @@ public class ClientExtendEnumMethod {
             String epl = "@name('s0') select intvals.enumPlugInLambdaScalarWPredicateAndIndex((v, ind) => v > 0 and ind < 3) as c0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             sendAssert(env, 0, "-1,-2");
             sendAssert(env, 1, "-1,2");
@@ -100,7 +103,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInLambdaEventWPredicateAndIndex((v, ind) => v.intPrimitive > 0 and ind < 3) as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             sendAssert(env, null);
 
@@ -131,7 +134,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInTwoLambda(l1 -> 2*intPrimitive, l2 -> 3*intPrimitive) as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             sendAssert(env, null);
 
@@ -159,7 +162,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInReturnSingleEvent(v => intPrimitive > 0).theString as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            assertEquals(EPTypePremade.STRING.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             sendAssert(env, null);
 
@@ -190,7 +193,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInReturnEvents(v => intPrimitive > 0).lastOf().theString as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            assertEquals(EPTypePremade.STRING.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             sendAssert(env, null);
 
@@ -222,7 +225,7 @@ public class ClientExtendEnumMethod {
                 "intvals.enumPlugInEarlyExit() as val0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()});
 
             sendAssert(env, fields, 12, "12,1,1");
             sendAssert(env, fields, 10, "5,5,5");
@@ -243,7 +246,7 @@ public class ClientExtendEnumMethod {
                 "intvals.enumPlugInOne(10, 20) as val0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()});
 
             sendAssert(env, fields, 11, "1,2,11,3");
             sendAssert(env, fields, 0, "");
@@ -267,7 +270,7 @@ public class ClientExtendEnumMethod {
                 "strvals.enumPlugInMedian((v, i, s) => extractNum(v) + i*10+s*100) as c2 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class, Double.class, Double.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType()});
 
             sendAssert(env, fields, 3d, 18d, 418d, "E2,E1,E5,E4");
             sendAssert(env, fields, null, null, null, "E1");
@@ -291,7 +294,7 @@ public class ClientExtendEnumMethod {
                 "from SupportBean_ST0_Container";
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()});
 
             sendAssert(env, fields, 11d, "E1,12", "E2,11", "E3,2");
             sendAssert(env, fields, null, null);
@@ -313,7 +316,7 @@ public class ClientExtendEnumMethod {
             String eplFragment = "@name('s0') select intvals.enumPlugInMedian() as val0 from SupportCollection";
             env.compileDeploy(eplFragment).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Double.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()});
 
             sendAssert(env, fields, 2d, "1,2,2,4");
             sendAssert(env, fields, 2d, "1,2,2,10");
@@ -356,10 +359,10 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            Class stateClass = MyLocalEnumMethodMedianState.class; // the class providing state
+            EPTypeClass stateClass = MyLocalEnumMethodMedianState.EPTYPE; // the class providing state
             Class serviceClass = MyLocalEnumMethodMedianService.class; // the class providing the processing method
             String methodName = "next"; // the name of the method for processing an item of input values
-            EPType returnType = new ClassEPType(Double.class); // indicate that we are returning a Double-type value
+            EPChainableType returnType = new EPChainableTypeClass(DOUBLEBOXED.getEPType()); // indicate that we are returning a Double-type value
             boolean earlyExit = false;
 
             EnumMethodModeStaticMethod mode = new EnumMethodModeStaticMethod(stateClass, serviceClass, methodName, returnType, earlyExit);
@@ -380,6 +383,8 @@ public class ClientExtendEnumMethod {
     }
 
     public static class MyLocalEnumMethodMedianState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodMedianState.class);
+
         private List<Integer> list = new ArrayList<>();
 
         public Object state() {
@@ -425,11 +430,13 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeOneState.class, MyLocalEnumMethodForgeOneState.class, "next", new ClassEPType(Integer.class), false);
+            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeOneState.EPTYPE, MyLocalEnumMethodForgeOneState.class, "next", new EPChainableTypeClass(INTEGERBOXED.getEPType()), false);
         }
     }
 
     public static class MyLocalEnumMethodForgeOneState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodForgeOneState.class);
+
         private int from;
         private int to;
         private int sum;
@@ -468,11 +475,13 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeEarlyExitState.class, MyLocalEnumMethodForgeEarlyExitState.class, "next", new ClassEPType(Integer.class), true);
+            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeEarlyExitState.EPTYPE, MyLocalEnumMethodForgeEarlyExitState.class, "next", new EPChainableTypeClass(INTEGERBOXED.getEPType()), true);
         }
     }
 
     public static class MyLocalEnumMethodForgeEarlyExitState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodForgeEarlyExitState.class);
+
         private int sum;
 
         public static void next(MyLocalEnumMethodForgeEarlyExitState state, Object num) {
@@ -497,8 +506,8 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            EPType type = EPTypeHelper.collectionOfEvents(context.getInputEventType());
-            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgePredicateReturnEventsState.class, MyLocalEnumMethodForgePredicateReturnEvents.class, "next", type, false);
+            EPChainableType type = EPChainableTypeHelper.collectionOfEvents(context.getInputEventType());
+            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgePredicateReturnEventsState.EPTYPE, MyLocalEnumMethodForgePredicateReturnEvents.class, "next", type, false);
         }
 
         public static void next(MyLocalEnumMethodForgePredicateReturnEventsState state, EventBean event, boolean pass) {
@@ -509,6 +518,8 @@ public class ClientExtendEnumMethod {
     }
 
     public static class MyLocalEnumMethodForgePredicateReturnEventsState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodForgePredicateReturnEventsState.class);
+
         List<EventBean> events = new ArrayList<>();
 
         public Object state() {
@@ -529,8 +540,8 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            EventEPType type = new EventEPType(context.getInputEventType());
-            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgePredicateReturnSingleEventState.class, MyLocalEnumMethodForgePredicateReturnSingleEvent.class, "next", type, true);
+            EPChainableTypeEventSingle type = new EPChainableTypeEventSingle(context.getInputEventType());
+            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgePredicateReturnSingleEventState.EPTYPE, MyLocalEnumMethodForgePredicateReturnSingleEvent.class, "next", type, true);
         }
 
         public static void next(MyLocalEnumMethodForgePredicateReturnSingleEventState state, EventBean event, Boolean pass) {
@@ -541,6 +552,8 @@ public class ClientExtendEnumMethod {
     }
 
     public static class MyLocalEnumMethodForgePredicateReturnSingleEventState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodForgePredicateReturnSingleEventState.class);
+
         EventBean event;
 
         public Object state() {
@@ -565,11 +578,13 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeTwoLambdaState.class, MyLocalEnumMethodForgeTwoLambdaState.class, "next", new ClassEPType(Integer.class), false);
+            return new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeTwoLambdaState.EPTYPE, MyLocalEnumMethodForgeTwoLambdaState.class, "next", new EPChainableTypeClass(INTEGERBOXED.getEPType()), false);
         }
     }
 
     public static class MyLocalEnumMethodForgeTwoLambdaState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodForgeTwoLambdaState.class);
+
         private Integer sum;
 
         public Object state() {
@@ -599,7 +614,7 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            EnumMethodModeStaticMethod mode = new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeThreeState.class, MyLocalEnumMethodForgeThree.class, "next", new ClassEPType(Integer.class), false);
+            EnumMethodModeStaticMethod mode = new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeThreeState.EPTYPE, MyLocalEnumMethodForgeThree.class, "next", new EPChainableTypeClass(INTEGERBOXED.getEPType()), false);
             mode.setLambdaParameters(descriptor -> {
                 if (descriptor.getLambdaParameterNumber() == 0) {
                     return EnumMethodLambdaParameterTypeValue.INSTANCE;
@@ -623,6 +638,8 @@ public class ClientExtendEnumMethod {
     }
 
     public static class MyLocalEnumMethodForgeThreeState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodForgeThreeState.class);
+
         int count;
 
         public void increment() {
@@ -645,10 +662,10 @@ public class ClientExtendEnumMethod {
         }
 
         public EnumMethodModeStaticMethod validate(EnumMethodValidateContext context) {
-            EnumMethodModeStaticMethod mode = new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeStateWValueState.class, MyLocalEnumMethodForgeStateWValueState.class, "next", new ClassEPType(String.class), false);
+            EnumMethodModeStaticMethod mode = new EnumMethodModeStaticMethod(MyLocalEnumMethodForgeStateWValueState.EPTYPE, MyLocalEnumMethodForgeStateWValueState.class, "next", new EPChainableTypeClass(String.class), false);
             mode.setLambdaParameters(descriptor -> {
                 if (descriptor.getLambdaParameterNumber() == 0) {
-                    return new EnumMethodLambdaParameterTypeStateGetter(String.class, "getResult");
+                    return new EnumMethodLambdaParameterTypeStateGetter(STRING.getEPType(), "getResult");
                 }
                 return EnumMethodLambdaParameterTypeValue.INSTANCE;
             });
@@ -657,6 +674,7 @@ public class ClientExtendEnumMethod {
     }
 
     public static class MyLocalEnumMethodForgeStateWValueState implements EnumMethodState {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyLocalEnumMethodForgeStateWValueState.class);
 
         private String result;
 

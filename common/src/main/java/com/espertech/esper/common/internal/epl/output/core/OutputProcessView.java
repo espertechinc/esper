@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.join.base.JoinExecutionStrategy;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetIndicator;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.view.core.View;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 public abstract class OutputProcessView implements View, JoinSetIndicator, AgentInstanceMgmtCallback, OutputProcessViewTerminable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputProcessView.class);
+
     protected Viewable parentView;
     protected UpdateDispatchView child;
     protected JoinExecutionStrategy joinExecutionStrategy;

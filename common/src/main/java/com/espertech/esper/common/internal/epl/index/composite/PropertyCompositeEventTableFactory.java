@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.composite;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -39,15 +40,15 @@ import java.util.List;
 public class PropertyCompositeEventTableFactory implements EventTableFactory {
     protected final int streamNum;
     protected final String[] optionalKeyedProps;
-    protected final Class[] optKeyCoercedTypes;
+    protected final EPTypeClass[] optKeyCoercedTypes;
     protected final EventPropertyValueGetter hashGetter;
     protected final MultiKeyFromObjectArray transformFireAndForget;
     protected final String[] rangeProps;
-    protected final Class[] optRangeCoercedTypes;
+    protected final EPTypeClass[] optRangeCoercedTypes;
     protected final EventPropertyValueGetter[] rangeGetters;
     protected final CompositeIndexEnterRemove chain;
 
-    public PropertyCompositeEventTableFactory(int streamNum, String[] optionalKeyedProps, Class[] optKeyCoercedTypes, EventPropertyValueGetter hashGetter, MultiKeyFromObjectArray transformFireAndForget, String[] rangeProps, Class[] optRangeCoercedTypes, EventPropertyValueGetter[] rangeGetters) {
+    public PropertyCompositeEventTableFactory(int streamNum, String[] optionalKeyedProps, EPTypeClass[] optKeyCoercedTypes, EventPropertyValueGetter hashGetter, MultiKeyFromObjectArray transformFireAndForget, String[] rangeProps, EPTypeClass[] optRangeCoercedTypes, EventPropertyValueGetter[] rangeGetters) {
         this.streamNum = streamNum;
         this.optionalKeyedProps = optionalKeyedProps;
         this.optKeyCoercedTypes = optKeyCoercedTypes;

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.script.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -29,10 +31,10 @@ public class ScriptDescriptorCompileTime {
     private final String expression;
     private final String[] parameterNames;
     private final ExprNode[] parameters;
-    private final Class returnType;
+    private final EPTypeClass returnType;
     private final String defaultDialect;
 
-    public ScriptDescriptorCompileTime(String optionalDialect, String scriptName, String expression, String[] parameterNames, ExprNode[] parameters, Class returnType, String defaultDialect) {
+    public ScriptDescriptorCompileTime(String optionalDialect, String scriptName, String expression, String[] parameterNames, ExprNode[] parameters, EPTypeClass returnType, String defaultDialect) {
         this.optionalDialect = optionalDialect;
         this.scriptName = scriptName;
         this.expression = expression;
@@ -43,9 +45,9 @@ public class ScriptDescriptorCompileTime {
     }
 
     public CodegenExpression make(CodegenMethodScope parentInitMethod, CodegenClassScope classScope) {
-        CodegenMethod method = parentInitMethod.makeChild(ScriptDescriptorRuntime.class, this.getClass(), classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+        CodegenMethod method = parentInitMethod.makeChild(ScriptDescriptorRuntime.EPTYPE, this.getClass(), classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
         method.getBlock()
-            .declareVar(ScriptDescriptorRuntime.class, "sd", newInstance(ScriptDescriptorRuntime.class))
+            .declareVarNewInstance(ScriptDescriptorRuntime.EPTYPE, "sd")
             .exprDotMethod(ref("sd"), "setOptionalDialect", constant(optionalDialect))
             .exprDotMethod(ref("sd"), "setScriptName", constant(scriptName))
             .exprDotMethod(ref("sd"), "setExpression", constant(expression))
@@ -54,7 +56,7 @@ public class ScriptDescriptorCompileTime {
             .exprDotMethod(ref("sd"), "setParameters", ExprNodeUtilityCodegen.codegenEvaluators(parameters, method, this.getClass(), classScope))
             .exprDotMethod(ref("sd"), "setDefaultDialect", constant(defaultDialect))
             .exprDotMethod(ref("sd"), "setClasspathImportService", exprDotMethodChain(EPStatementInitServices.REF).add(EPStatementInitServices.GETCLASSPATHIMPORTSERVICERUNTIME))
-            .exprDotMethod(ref("sd"), "setCoercer", JavaClassHelper.isNumeric(returnType) ? staticMethod(SimpleNumberCoercerFactory.class, "getCoercer", constant(Number.class),
+            .exprDotMethod(ref("sd"), "setCoercer", JavaClassHelper.isNumeric(returnType) ? staticMethod(SimpleNumberCoercerFactory.class, "getCoercer", constant(EPTypePremade.NUMBER.getEPType()),
                 constant(JavaClassHelper.getBoxedType(returnType))) : constantNull())
             .methodReturn(ref("sd"));
         return localMethod(method, EPStatementInitServices.REF);
@@ -80,7 +82,7 @@ public class ScriptDescriptorCompileTime {
         return parameters;
     }
 
-    public Class getReturnType() {
+    public EPTypeClass getReturnType() {
         return returnType;
     }
 }

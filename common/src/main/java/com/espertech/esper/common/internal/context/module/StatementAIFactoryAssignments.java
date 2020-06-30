@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.prior.PriorEvalStrategy;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategy;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrat
 import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
 
 public interface StatementAIFactoryAssignments {
+    EPTypeClass EPTYPE = new EPTypeClass(StatementAIFactoryAssignments.class);
+
     AggregationService getAggregationResultFuture();
 
     PriorEvalStrategy[] getPriorStrategies();

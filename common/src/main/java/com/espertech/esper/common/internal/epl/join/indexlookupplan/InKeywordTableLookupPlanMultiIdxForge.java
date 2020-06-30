@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.indexlookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -53,8 +54,8 @@ public class InKeywordTableLookupPlanMultiIdxForge extends TableLookupPlanForge 
                 " keyProperties=" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(keyExpr);
     }
 
-    public Class typeOfPlanFactory() {
-        return InKeywordTableLookupPlanMultiIdxFactory.class;
+    public EPTypeClass typeOfPlanFactory() {
+        return InKeywordTableLookupPlanMultiIdxFactory.EPTYPE;
     }
 
     public Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -19,16 +22,25 @@ import java.util.Locale;
 
 public class AggregationValidationUtil {
 
-    public static void validateAggregationInputType(Class requiredParam,
-                                                    Class providedParam) throws ExprValidationException {
-        Class boxedRequired = JavaClassHelper.getBoxedType(requiredParam);
-        Class boxedProvided = JavaClassHelper.getBoxedType(providedParam);
-        if (boxedRequired != boxedProvided &&
-                !JavaClassHelper.isSubclassOrImplementsInterface(boxedProvided, boxedRequired)) {
+    public static void validateAggregationInputType(EPType requiredParam,
+                                                    EPType providedParam) throws ExprValidationException {
+        boolean matches;
+        if (requiredParam == EPTypeNull.INSTANCE) {
+            matches = providedParam == EPTypeNull.INSTANCE;
+        } else if (providedParam == EPTypeNull.INSTANCE) {
+            matches = false;
+        } else {
+            EPTypeClass boxedRequired = JavaClassHelper.getBoxedType((EPTypeClass) requiredParam);
+            EPTypeClass boxedProvided = JavaClassHelper.getBoxedType((EPTypeClass) providedParam);
+            matches = boxedRequired.getType() == boxedProvided.getType() ||
+                JavaClassHelper.isSubclassOrImplementsInterface(boxedProvided, boxedRequired);
+        }
+
+        if (!matches) {
             throw new ExprValidationException("The required parameter type is " +
-                    JavaClassHelper.getClassNameFullyQualPretty(requiredParam) +
-                    " and provided is " +
-                    JavaClassHelper.getClassNameFullyQualPretty(providedParam));
+                requiredParam.getTypeName() +
+                " and provided is " +
+                providedParam.getTypeName());
         }
     }
 

@@ -12,6 +12,9 @@ package com.espertech.esper.regressionlib.support.bean;
 
 import com.espertech.esper.common.client.EventBean;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum SupportEnumTwo {
     ENUM_VALUE_1(100, new String[]{"1", "0", "0"}),
     ENUM_VALUE_2(200, new String[]{"2", "0", "0"}),
@@ -46,18 +49,32 @@ public enum SupportEnumTwo {
     }
 
     public Nested getNested() {
-        return new Nested(associatedValue);
+        return new Nested(associatedValue, mystrings);
+    }
+
+    public List<String> getMyStringsAsList() {
+        return Arrays.asList(mystrings);
     }
 
     public static class Nested {
         private final int value;
+        private final String[] mystrings;
 
-        public Nested(int value) {
+        public Nested(int value, String[] mystrings) {
             this.value = value;
+            this.mystrings = mystrings;
         }
 
         public int getValue() {
             return value;
+        }
+
+        public String[] getMystrings() {
+            return mystrings;
+        }
+
+        public List<String> getMyStringsNestedAsList() {
+            return Arrays.asList(mystrings);
         }
     }
 }

@@ -10,19 +10,20 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.lookupplan.SubordPropHashKeyForge;
 import com.espertech.esper.common.internal.epl.lookupplan.SubordPropRangeKeyForge;
 
 public class SubordinateQueryPlannerIndexPropDesc {
     private final String[] hashIndexPropsProvided;
-    private final Class[] hashIndexCoercionType;
+    private final EPTypeClass[] hashIndexCoercionType;
     private final String[] rangeIndexPropsProvided;
-    private final Class[] rangeIndexCoercionType;
+    private final EPTypeClass[] rangeIndexCoercionType;
     private final SubordinateQueryPlannerIndexPropListPair listPair;
     private final SubordPropHashKeyForge[] hashJoinedProps;
     private final SubordPropRangeKeyForge[] rangeJoinedProps;
 
-    public SubordinateQueryPlannerIndexPropDesc(String[] hashIndexPropsProvided, Class[] hashIndexCoercionType, String[] rangeIndexPropsProvided, Class[] rangeIndexCoercionType, SubordinateQueryPlannerIndexPropListPair listPair, SubordPropHashKeyForge[] hashJoinedProps, SubordPropRangeKeyForge[] rangeJoinedProps) {
+    public SubordinateQueryPlannerIndexPropDesc(String[] hashIndexPropsProvided, EPTypeClass[] hashIndexCoercionType, String[] rangeIndexPropsProvided, EPTypeClass[] rangeIndexCoercionType, SubordinateQueryPlannerIndexPropListPair listPair, SubordPropHashKeyForge[] hashJoinedProps, SubordPropRangeKeyForge[] rangeJoinedProps) {
         this.hashIndexPropsProvided = hashIndexPropsProvided;
         this.hashIndexCoercionType = hashIndexCoercionType;
         this.rangeIndexPropsProvided = rangeIndexPropsProvided;
@@ -36,7 +37,7 @@ public class SubordinateQueryPlannerIndexPropDesc {
         return hashIndexPropsProvided;
     }
 
-    public Class[] getHashIndexCoercionType() {
+    public EPTypeClass[] getHashIndexCoercionType() {
         return hashIndexCoercionType;
     }
 
@@ -44,7 +45,7 @@ public class SubordinateQueryPlannerIndexPropDesc {
         return rangeIndexPropsProvided;
     }
 
-    public Class[] getRangeIndexCoercionType() {
+    public EPTypeClass[] getRangeIndexCoercionType() {
         return rangeIndexCoercionType;
     }
 

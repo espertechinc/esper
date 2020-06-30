@@ -14,11 +14,14 @@ import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
 import com.espertech.esper.common.internal.event.bean.core.PropertyStem;
 import com.espertech.esper.common.internal.event.core.EventPropertyType;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 /**
  * Introspector that considers explicitly configured event properties only.
@@ -70,7 +73,7 @@ public class PropertyListBuilderExplicit implements PropertyListBuilder {
             if (!methods[i].getName().equals(methodDesc.getAccessorMethodName())) {
                 continue;
             }
-            if (methods[i].getReturnType() == void.class) {
+            if (JavaClassHelper.isTypeVoid(methods[i].getReturnType())) {
                 continue;
             }
             if (methods[i].getParameterTypes().length >= 2) {
@@ -82,8 +85,7 @@ public class PropertyListBuilderExplicit implements PropertyListBuilder {
             }
 
             Class parameterType = methods[i].getParameterTypes()[0];
-            if ((parameterType != int.class) && ((parameterType != Integer.class)) &&
-                    (parameterType != String.class)) {
+            if (!isTypeInteger(parameterType) && parameterType != String.class) {
                 continue;
             }
 

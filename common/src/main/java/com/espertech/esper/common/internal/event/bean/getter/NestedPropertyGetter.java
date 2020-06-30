@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.event.bean.getter;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -33,8 +35,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class NestedPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter {
     private final BeanEventPropertyGetter[] getterChain;
 
-    public NestedPropertyGetter(List<EventPropertyGetter> getterChain, EventBeanTypedEventFactory eventBeanTypedEventFactory, Class finalPropertyType, Class finalGenericType, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, finalPropertyType, finalGenericType);
+    public NestedPropertyGetter(List<EventPropertyGetter> getterChain, EventBeanTypedEventFactory eventBeanTypedEventFactory, EPTypeClass type, BeanEventTypeFactory beanEventTypeFactory) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, type);
         this.getterChain = new BeanEventPropertyGetter[getterChain.size()];
 
         for (int i = 0; i < getterChain.size(); i++) {
@@ -85,11 +87,7 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         return isBeanExistsProperty(eventBean.getUnderlying());
     }
 
-    public Class getBeanPropType() {
-        return getterChain[getterChain.length - 1].getBeanPropType();
-    }
-
-    public Class getTargetType() {
+    public EPTypeClass getTargetType() {
         return getterChain[0].getTargetType();
     }
 
@@ -110,7 +108,10 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
     }
 
     private CodegenMethod getBeanPropCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, boolean exists) {
-        CodegenBlock block = codegenMethodScope.makeChild(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), this.getClass(), codegenClassScope).addParam(getterChain[0].getTargetType(), "value").getBlock();
+        EPTypeClass typeClass = getterChain[getterChain.length - 1].getBeanPropType();
+        EPTypeClass typeClassBoxed = JavaClassHelper.getBoxedType(typeClass);
+        EPTypeClass targetType = getterChain[0].getTargetType();
+        CodegenBlock block = codegenMethodScope.makeChild(exists ? EPTypePremade.BOOLEANPRIMITIVE.getEPType() : typeClassBoxed, this.getClass(), codegenClassScope).addParam(targetType, "value").getBlock();
         if (!exists) {
             block.ifRefNullReturnNull("value");
         } else {

@@ -10,17 +10,20 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
 public class JsonDelegateEventObjectArray extends JsonDelegateBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateEventObjectArray.class);
     private final JsonDelegateFactory factory;
-    private final Class componentType;
+    private final EPTypeClass componentType;
     private final ArrayList events = new ArrayList(4);
 
-    public JsonDelegateEventObjectArray(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, JsonDelegateFactory factory, Class componentType) {
+    public JsonDelegateEventObjectArray(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, JsonDelegateFactory factory, EPTypeClass componentType) {
         super(baseHandler, parent);
         this.factory = factory;
         this.componentType = componentType;
@@ -44,7 +47,7 @@ public class JsonDelegateEventObjectArray extends JsonDelegateBase {
     }
 
     public Object getResult() {
-        return collectionToTypedArray(events, componentType);
+        return collectionToTypedArray(events, componentType.getType());
     }
 
     public static Object collectionToTypedArray(Collection events, Class componentType) {

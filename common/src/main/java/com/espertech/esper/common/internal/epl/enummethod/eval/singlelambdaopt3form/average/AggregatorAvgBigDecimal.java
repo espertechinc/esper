@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.average;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -17,6 +19,8 @@ import java.math.MathContext;
 import static com.espertech.esper.common.internal.epl.agg.method.avg.AggregatorAvgBig.getValueBigDecimalDivide;
 
 public class AggregatorAvgBigDecimal {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregatorAvgBigDecimal.class);
+
     private BigDecimal sum;
     private long cnt;
     private MathContext optionalMathContext;

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.lookup;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -22,8 +23,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Holds property information for joined properties in a lookup.
  */
 public class IndexedPropDesc implements Comparable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(IndexedPropDesc.class);
+
     private final String indexPropName;
-    private final Class coercionType;
+    private final EPTypeClass coercionType;
 
     /**
      * Ctor.
@@ -31,13 +34,13 @@ public class IndexedPropDesc implements Comparable {
      * @param indexPropName is the property name of the indexed field
      * @param coercionType  is the type to coerce to
      */
-    public IndexedPropDesc(String indexPropName, Class coercionType) {
+    public IndexedPropDesc(String indexPropName, EPTypeClass coercionType) {
         this.indexPropName = indexPropName;
         this.coercionType = coercionType;
     }
 
     public CodegenExpression make() {
-        return newInstance(IndexedPropDesc.class, constant(indexPropName), constant(coercionType));
+        return newInstance(IndexedPropDesc.EPTYPE, constant(indexPropName), constant(coercionType));
     }
 
     /**
@@ -54,7 +57,7 @@ public class IndexedPropDesc implements Comparable {
      *
      * @return type to coerce to
      */
-    public Class getCoercionType() {
+    public EPTypeClass getCoercionType() {
         return coercionType;
     }
 
@@ -97,8 +100,8 @@ public class IndexedPropDesc implements Comparable {
      * @param descList a list of descriptors
      * @return key coercion types
      */
-    public static Class[] getCoercionTypes(IndexedPropDesc[] descList) {
-        Class[] result = new Class[descList.length];
+    public static EPTypeClass[] getCoercionTypes(IndexedPropDesc[] descList) {
+        EPTypeClass[] result = new EPTypeClass[descList.length];
         int count = 0;
         for (IndexedPropDesc desc : descList) {
             result[count++] = desc.getCoercionType();
@@ -179,6 +182,6 @@ public class IndexedPropDesc implements Comparable {
         for (int i = 0; i < items.length; i++) {
             expressions[i] = items[i].make();
         }
-        return newArrayWithInit(IndexedPropDesc.class, expressions);
+        return newArrayWithInit(IndexedPropDesc.EPTYPE, expressions);
     }
 }

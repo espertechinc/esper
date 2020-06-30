@@ -42,7 +42,7 @@ public class JsonGetterSimpleSchemaWFragment extends JsonGetterSimpleSchemaBase 
             return constantNull();
         }
         CodegenExpression factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpression eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(fragmentType, EPStatementInitServices.REF));
+        CodegenExpression eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fragmentType, EPStatementInitServices.REF));
         return staticMethod(JsonFieldGetterHelperSchema.class, "handleJsonCreateFragmentSimple", underlyingExpression, constant(field.getPropertyNumber()), eventType, factory);
     }
 

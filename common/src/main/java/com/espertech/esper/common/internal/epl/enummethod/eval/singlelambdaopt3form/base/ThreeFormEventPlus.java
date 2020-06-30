@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -34,7 +36,7 @@ public abstract class ThreeFormEventPlus extends EnumForgeBaseWFields {
 
     protected final int numParameters;
 
-    public abstract Class returnType();
+    public abstract EPTypeClass returnTypeOfMethod();
 
     public abstract CodegenExpression returnIfEmptyOptional();
 
@@ -54,10 +56,10 @@ public abstract class ThreeFormEventPlus extends EnumForgeBaseWFields {
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField indexTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(fieldEventType, EPStatementInitServices.REF)));
+        CodegenExpressionField indexTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fieldEventType, EPStatementInitServices.REF)));
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnTypeOfMethod(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
         CodegenBlock block = methodNode.getBlock();
 
         CodegenExpression returnEmpty = returnIfEmptyOptional();
@@ -66,17 +68,17 @@ public abstract class ThreeFormEventPlus extends EnumForgeBaseWFields {
                 .blockReturn(returnEmpty);
         }
 
-        block.declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(numParameters - 1)), indexTypeMember))
+        block.declareVar(ObjectArrayEventBean.EPTYPE, "indexEvent", newInstance(ObjectArrayEventBean.EPTYPE, newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(numParameters - 1)), indexTypeMember))
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda() + 1), ref("indexEvent"))
-            .declareVar(Object[].class, "props", exprDotMethod(ref("indexEvent"), "getProperties"));
-        block.declareVar(int.class, "count", constant(-1));
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", exprDotMethod(ref("indexEvent"), "getProperties"));
+        block.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(-1));
         if (numParameters == 3) {
             block.assignArrayElement(ref("props"), constant(1), exprDotMethod(REF_ENUMCOLL, "size"));
         }
         initBlock(block, methodNode, scope, codegenClassScope);
 
         if (hasForEachLoop()) {
-            CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+            CodegenBlock forEach = block.forEach(EventBean.EPTYPE, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .incrementRef("count")
                 .assignArrayElement("props", constant(0), ref("count"))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("next"));

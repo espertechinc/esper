@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.union;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -49,8 +50,8 @@ public class UnionViewFactoryForge extends ViewFactoryForgeBase implements DataW
         this.eventType = parentEventType;
     }
 
-    protected Class typeOfFactory() {
-        return UnionViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return UnionViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

@@ -10,11 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import static com.espertech.esper.common.internal.epl.agg.access.sorted.AggregationMethodSortedKeyedFactory.*;
 
 public class AggregationMethodSortedNoParamFactory {
 
-    public static AggregationMethodSortedNoParamEval makeSortedAggregationNoParam(AggregationMethodSortedEnum method, Class underlyingClass) {
+    public static AggregationMethodSortedNoParamEval makeSortedAggregationNoParam(AggregationMethodSortedEnum method, EPTypeClass underlyingClass) {
         if (method.getFootprint() != AggregationMethodSortedFootprintEnum.NOPARAM) {
             throw new IllegalStateException("Unrecognized aggregation method " + method);
         }

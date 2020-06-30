@@ -17,7 +17,6 @@ import java.io.StringWriter;
  */
 public class ContextDescriptorConditionPattern implements ContextDescriptorCondition {
 
-    private static final long serialVersionUID = -481920039587982117L;
     private PatternExpr pattern;
     private boolean inclusive;  // statements declaring the context are inclusive of the events matching the pattern
     private boolean now;        // statements declaring the context initiate now and matching the pattern
@@ -96,10 +95,6 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
      */
     public void setNow(boolean now) {
         this.now = now;
-    }
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
     }
 
     /**

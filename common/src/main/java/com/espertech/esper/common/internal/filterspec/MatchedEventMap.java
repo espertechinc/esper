@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Map;
 
@@ -21,6 +22,8 @@ import java.util.Map;
  * matching event objects into this collection.
  */
 public interface MatchedEventMap extends MatchedEventMapMinimal {
+    EPTypeClass EPTYPE = new EPTypeClass(MatchedEventMap.class);
+
     /**
      * Add an event to the collection identified by the given tag.
      *

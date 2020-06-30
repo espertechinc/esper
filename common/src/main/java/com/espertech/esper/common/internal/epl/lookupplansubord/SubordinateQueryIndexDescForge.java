@@ -57,11 +57,11 @@ public class SubordinateQueryIndexDescForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordinateQueryIndexDesc.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordinateQueryIndexDesc.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(IndexMultiKey.class, "indexMultiKey", indexMultiKey.make(method, classScope))
-                .declareVar(QueryPlanIndexItem.class, "queryPlanIndexItem", optionalQueryPlanIndexItem == null ? constantNull() : optionalQueryPlanIndexItem.make(method, classScope));
-        method.getBlock().methodReturn(newInstance(SubordinateQueryIndexDesc.class,
+                .declareVar(IndexMultiKey.EPTYPE, "indexMultiKey", indexMultiKey.make(method, classScope))
+                .declareVar(QueryPlanIndexItem.EPTYPE, "queryPlanIndexItem", optionalQueryPlanIndexItem == null ? constantNull() : optionalQueryPlanIndexItem.make(method, classScope));
+        method.getBlock().methodReturn(newInstance(SubordinateQueryIndexDesc.EPTYPE,
                 constantNull(), constant(indexName), ref("indexMultiKey"), ref("queryPlanIndexItem")));
         return localMethod(method);
     }

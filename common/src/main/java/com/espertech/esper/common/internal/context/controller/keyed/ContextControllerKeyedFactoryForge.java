@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.keyed;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,7 +43,7 @@ public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBa
     }
 
     public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
-        Class[] propertyTypes = ContextControllerKeyedUtil.validateContextDesc(contextName, detail);
+        EPType[] propertyTypes = ContextControllerKeyedUtil.validateContextDesc(contextName, detail);
 
         for (int i = 0; i < detail.getItems().get(0).getPropertyNames().size(); i++) {
             String propertyName = ContextPropertyEventType.PROP_CTX_KEY_PREFIX + (i + 1);
@@ -68,9 +69,9 @@ public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBa
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(ContextControllerKeyedFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextControllerKeyedFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ContextControllerKeyedFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("keyedFactory"))
+            .declareVar(ContextControllerKeyedFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("keyedFactory"))
             .exprDotMethod(ref("factory"), "setKeyedSpec", detail.makeCodegen(method, symbols, classScope))
             .methodReturn(ref("factory"));
         return method;

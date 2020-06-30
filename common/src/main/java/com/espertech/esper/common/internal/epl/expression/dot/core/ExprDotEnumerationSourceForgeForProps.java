@@ -12,12 +12,12 @@ package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationGivenEventForge;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public class ExprDotEnumerationSourceForgeForProps extends ExprDotEnumerationSourceForge {
     private final ExprEnumerationGivenEventForge enumerationGivenEvent;
 
-    public ExprDotEnumerationSourceForgeForProps(ExprEnumerationForge enumeration, EPType returnType, Integer streamOfProviderIfApplicable, ExprEnumerationGivenEventForge enumerationGivenEvent) {
+    public ExprDotEnumerationSourceForgeForProps(ExprEnumerationForge enumeration, EPChainableType returnType, Integer streamOfProviderIfApplicable, ExprEnumerationGivenEventForge enumerationGivenEvent) {
         super(returnType, streamOfProviderIfApplicable, enumeration);
         this.enumerationGivenEvent = enumerationGivenEvent;
     }

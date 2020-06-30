@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -37,12 +39,12 @@ public abstract class DynamicPropertyGetterByFieldBase implements BeanEventPrope
     protected final BeanEventTypeFactory beanEventTypeFactory;
     protected final CopyOnWriteArrayList<DynamicPropertyDescriptorByField> cache;
     protected final CodegenFieldSharable sharableCode = new CodegenFieldSharable() {
-        public Class type() {
-            return CopyOnWriteArrayList.class;
+        public EPTypeClass type() {
+            return EPTypePremade.COPYONWRITEARRAYLIST.getEPType();
         }
 
         public CodegenExpression initCtorScoped() {
-            return newInstance(CopyOnWriteArrayList.class);
+            return newInstance(EPTypePremade.COPYONWRITEARRAYLIST.getEPType());
         }
     };
 
@@ -87,9 +89,9 @@ public abstract class DynamicPropertyGetterByFieldBase implements BeanEventPrope
 
     private CodegenExpression cacheAndCallCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenExpression memberCache = codegenClassScope.addOrGetFieldSharable(sharableCode);
-        CodegenMethod method = parent.makeChild(Object.class, DynamicPropertyGetterByFieldBase.class, codegenClassScope).addParam(Object.class, "object");
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), DynamicPropertyGetterByFieldBase.class, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "object");
         method.getBlock()
-            .declareVar(DynamicPropertyDescriptorByField.class, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
+            .declareVar(DynamicPropertyDescriptorByField.EPTYPE, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
             .ifCondition(equalsNull(exprDotMethod(ref("desc"), "getField"))).blockReturn(constantNull())
             .methodReturn(callCodegen(ref("desc"), ref("object"), method, codegenClassScope));
         return localMethod(method, underlyingExpression);
@@ -114,9 +116,9 @@ public abstract class DynamicPropertyGetterByFieldBase implements BeanEventPrope
 
     protected CodegenExpression cacheAndExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
         CodegenExpression memberCache = codegenClassScope.addOrGetFieldSharable(sharableCode);
-        CodegenMethod method = parent.makeChild(boolean.class, DynamicPropertyGetterByFieldBase.class, codegenClassScope).addParam(Object.class, "object");
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), DynamicPropertyGetterByFieldBase.class, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "object");
         method.getBlock()
-            .declareVar(DynamicPropertyDescriptorByField.class, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
+            .declareVar(DynamicPropertyDescriptorByField.EPTYPE, "desc", getPopulateCacheCodegen(memberCache, ref("object"), method, codegenClassScope))
             .ifCondition(equalsNull(exprDotMethod(ref("desc"), "getField"))).blockReturn(constantFalse())
             .methodReturn(constant(true));
         return localMethod(method, underlyingExpression);
@@ -132,8 +134,8 @@ public abstract class DynamicPropertyGetterByFieldBase implements BeanEventPrope
         return cacheAndCall(cache, this, object, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
-    public Class getTargetType() {
-        return Object.class;
+    public EPTypeClass getTargetType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -144,8 +146,8 @@ public abstract class DynamicPropertyGetterByFieldBase implements BeanEventPrope
         return cacheAndCall(cache, this, event.getUnderlying(), eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
-    public Class getBeanPropType() {
-        return Object.class;
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -196,12 +198,12 @@ public abstract class DynamicPropertyGetterByFieldBase implements BeanEventPrope
     }
 
     protected CodegenExpression getPopulateCacheCodegen(CodegenExpression memberCache, CodegenExpressionRef object, CodegenMethodScope parent, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = parent.makeChild(DynamicPropertyDescriptorByField.class, DynamicPropertyGetterByFieldBase.class, codegenClassScope).addParam(CopyOnWriteArrayList.class, "cache").addParam(Object.class, "obj");
+        CodegenMethod method = parent.makeChild(DynamicPropertyDescriptorByField.EPTYPE, DynamicPropertyGetterByFieldBase.class, codegenClassScope).addParam(EPTypePremade.COPYONWRITEARRAYLIST.getEPType(), "cache").addParam(EPTypePremade.OBJECT.getEPType(), "obj");
         method.getBlock()
-            .declareVar(DynamicPropertyDescriptorByField.class, "desc", staticMethod(DynamicPropertyGetterByFieldBase.class, "dynamicPropertyCacheCheck", ref("cache"), ref("obj")))
+            .declareVar(DynamicPropertyDescriptorByField.EPTYPE, "desc", staticMethod(DynamicPropertyGetterByFieldBase.class, "dynamicPropertyCacheCheck", ref("cache"), ref("obj")))
             .ifRefNotNull("desc").blockReturn(ref("desc"))
-            .declareVar(Class.class, "clazz", exprDotMethod(ref("obj"), "getClass"))
-            .declareVar(Field.class, "field", determineFieldCodegen(ref("clazz"), method, codegenClassScope))
+            .declareVar(EPTypePremade.CLASS.getEPType(), "clazz", exprDotMethod(ref("obj"), "getClass"))
+            .declareVar(EPTypePremade.FIELD.getEPType(), "field", determineFieldCodegen(ref("clazz"), method, codegenClassScope))
             .assignRef("desc", staticMethod(DynamicPropertyGetterByFieldBase.class, "dynamicPropertyCacheAdd", ref("clazz"), ref("field"), ref("cache")))
             .methodReturn(ref("desc"));
         return localMethod(method, memberCache, object);

@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.epl.updatehelper;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerSetAssignment;
 import com.espertech.esper.common.internal.epl.expression.assign.*;
@@ -27,7 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.espertech.esper.common.internal.util.JavaClassHelper.getClassNameFullyQualPretty;
+import static com.espertech.esper.common.internal.util.ClassHelperPrint.getClassNameFullyQualPretty;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypePrimitive;
 
 public class EventBeanUpdateHelperForgeFactory {
     public static EventBeanUpdateHelperForge make(String updatedWindowOrTableName,
@@ -38,7 +42,7 @@ public class EventBeanUpdateHelperForgeFactory {
                                                   boolean isCopyOnWrite,
                                                   String statementName,
                                                   EventTypeAvroHandler avroHandler)
-        throws ExprValidationException {
+            throws ExprValidationException {
         List<EventBeanUpdateItemForge> updateItems = new ArrayList<EventBeanUpdateItemForge>();
         List<String> properties = new ArrayList<String>();
 
@@ -69,16 +73,18 @@ public class EventBeanUpdateHelperForgeFactory {
                             writableProperty = nameWriteablePair.getSecond();
                         }
 
+                        EPType type = writableProperty.getPropertyEPType();
                         ExprNode rhsExpr = straight.getRhs();
                         ExprForge rhsForge = rhsExpr.getForge();
                         EventPropertyWriterSPI writer = eventTypeSPI.getWriter(propertyName);
-                        boolean notNullableField = writableProperty.getPropertyType().isPrimitive();
+                        boolean notNullableField = isTypePrimitive(type);
 
                         properties.add(propertyName);
                         TypeWidenerSPI widener;
+                        EPType evalType = rhsForge.getEvaluationType();
                         try {
-                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(rhsExpr), rhsForge.getEvaluationType(),
-                                writableProperty.getPropertyType(), propertyName, false, typeWidenerCustomizer, statementName);
+                            widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(rhsExpr), evalType == null ? EPTypeNull.INSTANCE : evalType,
+                                    writableProperty.getPropertyEPType(), propertyName, false, typeWidenerCustomizer, statementName);
                         } catch (TypeWidenerException ex) {
                             throw new ExprValidationException(ex.getMessage(), ex);
                         }
@@ -125,31 +131,36 @@ public class EventBeanUpdateHelperForgeFactory {
                         ExprAssignmentLHSArrayElement arrayElementLHS = (ExprAssignmentLHSArrayElement) straight.getLhs();
                         String arrayPropertyName = arrayElementLHS.getIdent();
                         ExprNode rhs = straight.getRhs();
-                        Class evaluationType = rhs.getForge().getEvaluationType();
-                        Class propertyType = eventTypeSPI.getPropertyType(arrayPropertyName);
+                        EPType evaluationType = rhs.getForge().getEvaluationType();
+                        EPType propertyType = eventTypeSPI.getPropertyEPType(arrayPropertyName);
                         if (!eventTypeSPI.isProperty(arrayPropertyName)) {
                             throw new ExprValidationException("Property '" + arrayPropertyName + "' could not be found");
                         }
-                        if (propertyType == null || !propertyType.isArray()) {
+                        if (propertyType == null || propertyType == EPTypeNull.INSTANCE || !((EPTypeClass) propertyType).getType().isArray()) {
                             throw new ExprValidationException("Property '" + arrayPropertyName + "' is not an array");
                         }
+                        if (evaluationType == null || evaluationType == EPTypeNull.INSTANCE) {
+                            throw new ExprValidationException("Right-hand-side evaluation returns null-typed value for '" + arrayPropertyName + "'");
+                        }
+                        EPTypeClass evaluationClass = (EPTypeClass) evaluationType;
+                        EPTypeClass propertyClass = (EPTypeClass) propertyType;
                         EventPropertyGetterSPI getter = eventTypeSPI.getGetterSPI(arrayPropertyName);
-                        Class componentType = propertyType.getComponentType();
-                        if (!JavaClassHelper.isAssignmentCompatible(evaluationType, componentType)) {
+                        EPTypeClass componentType = JavaClassHelper.getArrayComponentType(propertyClass);
+                        if (!JavaClassHelper.isAssignmentCompatible(evaluationClass, componentType.getType())) {
                             throw new ExprValidationException("Invalid assignment to property '" +
-                                arrayPropertyName + "' component type '" + getClassNameFullyQualPretty(componentType) +
-                                "' from expression returning '" + getClassNameFullyQualPretty(evaluationType) + "'");
+                                    arrayPropertyName + "' component type '" + getClassNameFullyQualPretty(componentType) +
+                                    "' from expression returning '" + evaluationType.getTypeName() + "'");
                         }
 
                         TypeWidenerSPI widener;
                         try {
                             widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(straight.getRhs()), evaluationType,
-                                componentType, arrayPropertyName, false, typeWidenerCustomizer, statementName);
+                                    componentType, arrayPropertyName, false, typeWidenerCustomizer, statementName);
                         } catch (TypeWidenerException ex) {
                             throw new ExprValidationException(ex.getMessage(), ex);
                         }
 
-                        EventBeanUpdateItemArray arrayInfo = new EventBeanUpdateItemArray(arrayPropertyName, arrayElementLHS.getIndexExpression(), propertyType, getter);
+                        EventBeanUpdateItemArray arrayInfo = new EventBeanUpdateItemArray(arrayPropertyName, arrayElementLHS.getIndexExpression(), propertyClass, getter);
                         updateItem = new EventBeanUpdateItemForge(rhs.getForge(), arrayPropertyName, null, false, widener, false, false, arrayInfo);
                     } else {
                         throw new IllegalStateException("Unrecognized LHS assignment " + straight);
@@ -165,7 +176,7 @@ public class EventBeanUpdateHelperForgeFactory {
                 updateItems.add(updateItem);
             } catch (ExprValidationException ex) {
                 throw new ExprValidationException("Failed to validate assignment expression '" +
-                    ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getOriginalExpression()) + "': " +
+                        ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(assignment.getOriginalExpression()) + "': " +
                         ex.getMessage(), ex);
             }
         }
@@ -197,8 +208,8 @@ public class EventBeanUpdateHelperForgeFactory {
 
     private static ExprValidationException makeEventTypeMismatch(String propertyName, EventType lhs, EventType rhs) {
         return new ExprValidationException("Invalid assignment to property '" +
-            propertyName + "' event type '" + lhs.getName() +
-            "' from event type '" + rhs.getName() + "'");
+                propertyName + "' event type '" + lhs.getName() +
+                "' from event type '" + rhs.getName() + "'");
     }
 
     private static Set<String> determinePropertiesInitialValue(List<OnTriggerSetAssignment> assignments) {

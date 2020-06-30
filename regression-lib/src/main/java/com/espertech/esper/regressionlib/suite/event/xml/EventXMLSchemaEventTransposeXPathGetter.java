@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -61,9 +61,8 @@ public class EventXMLSchemaEventTransposeXPathGetter {
 
         // note class not a fragment
         env.compileDeploy("@name('s0') insert into MyNestedStream select nested1 from " + eventTypeName + "#lastevent", path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, false),
-        }, env.statement("s0").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("nested1", Node.class));
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
 
         EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured(eventTypeName);

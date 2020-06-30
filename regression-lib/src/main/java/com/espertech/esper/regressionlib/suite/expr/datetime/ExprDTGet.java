@@ -11,15 +11,18 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithJustGet;
 import com.espertech.esper.regressionlib.support.bean.SupportTimeStartEndA;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.espertech.esper.common.client.type.EPTypePremade.INTEGERBOXED;
 
 public class ExprDTGet {
 
@@ -42,7 +45,7 @@ public class ExprDTGet {
                 "zoneddate.get('month') as val4 " +
                 " from SupportDateTime";
             env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class, Integer.class, Integer.class, Integer.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             String startTime = "2002-05-30T09:00:00.000";
             env.sendEventBean(SupportDateTime.make(startTime));
@@ -84,7 +87,7 @@ public class ExprDTGet {
                 "utildate.get('week') as val7" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));

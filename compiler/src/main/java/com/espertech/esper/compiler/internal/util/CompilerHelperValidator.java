@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprSubstitutionNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -24,18 +25,18 @@ public class CompilerHelperValidator {
         if (substitutionParameters.isEmpty()) {
             return;
         }
-        Map<String, Class> named = new HashMap<>();
-        List<Class> unnamed = new ArrayList<>();
+        Map<String, EPTypeClass> named = new HashMap<>();
+        List<EPTypeClass> unnamed = new ArrayList<>();
 
         for (ExprSubstitutionNode node : substitutionParameters) {
             if (node.getOptionalName() != null) {
                 String name = node.getOptionalName();
-                Class existing = named.get(name);
+                EPTypeClass existing = named.get(name);
                 if (existing == null) {
                     named.put(name, node.getResolvedType());
                 } else {
                     if (!JavaClassHelper.isSubclassOrImplementsInterface(node.getResolvedType(), existing)) {
-                        throw new ExprValidationException("Substitution parameter '" + name + "' incompatible type assignment between types '" + existing.getName() + "' and '" + node.getResolvedType().getName() + "'");
+                        throw new ExprValidationException("Substitution parameter '" + name + "' incompatible type assignment between types '" + existing + "' and '" + node.getResolvedType() + "'");
                     }
                 }
             } else {

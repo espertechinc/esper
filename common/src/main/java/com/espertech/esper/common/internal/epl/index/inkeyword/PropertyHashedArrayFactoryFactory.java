@@ -13,20 +13,23 @@ package com.espertech.esper.common.internal.epl.index.inkeyword;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyHashedArrayFactoryFactory.class);
+
     protected final int streamNum;
     protected final String[] propertyNames;
-    protected final Class[] propertyTypes;
+    protected final EPTypeClass[] propertyTypes;
     protected final DataInputOutputSerde<Object>[] propertySerdes;
     protected final boolean unique;
     protected final EventPropertyValueGetter[] propertyGetters;
     protected final boolean isFireAndForget;
 
-    public PropertyHashedArrayFactoryFactory(int streamNum, String[] propertyNames, Class[] propertyTypes, DataInputOutputSerde<Object>[] propertySerdes, boolean unique, EventPropertyValueGetter[] propertyGetters, boolean isFireAndForget) {
+    public PropertyHashedArrayFactoryFactory(int streamNum, String[] propertyNames, EPTypeClass[] propertyTypes, DataInputOutputSerde<Object>[] propertySerdes, boolean unique, EventPropertyValueGetter[] propertyGetters, boolean isFireAndForget) {
         this.streamNum = streamNum;
         this.propertyNames = propertyNames;
         this.propertyTypes = propertyTypes;

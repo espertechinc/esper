@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,8 +41,8 @@ public class PropertyDotNonLambdaFragmentForge implements ExprForge, ExprEvaluat
         return this;
     }
 
-    public Class getEvaluationType() {
-        return array ? EventBean[].class : EventBean.class;
+    public EPTypeClass getEvaluationType() {
+        return array ? EventBean.EPTYPEARRAY : EventBean.EPTYPE;
     }
 
     public ExprForgeConstantType getForgeConstantType() {
@@ -56,14 +57,15 @@ public class PropertyDotNonLambdaFragmentForge implements ExprForge, ExprEvaluat
         return getter.getFragment(event);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(array ? EventBean[].class : EventBean.class, PropertyDotNonLambdaFragmentForge.class, codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPTypeClass target = array ? EventBean.EPTYPEARRAY : EventBean.EPTYPE;
+        CodegenMethod methodNode = codegenMethodScope.makeChild(target, PropertyDotNonLambdaFragmentForge.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(cast(array ? EventBean[].class : EventBean.class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
+                .methodReturn(cast(target, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
         return localMethod(methodNode);
     }
 

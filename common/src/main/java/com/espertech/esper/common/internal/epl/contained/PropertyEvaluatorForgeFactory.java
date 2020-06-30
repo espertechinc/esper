@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.epl.contained;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseElementCompiled;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompiledSpec;
@@ -27,6 +30,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 
@@ -41,7 +45,8 @@ public class PropertyEvaluatorForgeFactory {
                                                        String optionalSourceStreamName,
                                                        StatementRawInfo rawInfo,
                                                        StatementCompileTimeServices services)
-        throws ExprValidationException {
+                        throws ExprValidationException {
+
         int length = spec.getAtoms().size();
         ContainedEventEvalForge[] containedEventForges = new ContainedEventEvalForge[length];
         FragmentEventType[] fragmentEventTypes = new FragmentEventType[length];
@@ -101,13 +106,17 @@ public class PropertyEvaluatorForgeFactory {
                 if (streamEventType == null) {
                     throw new ExprValidationException("Event type by name '" + atom.getOptionalResultEventType() + "' could not be found");
                 }
-                Class returnType = validatedExprNode.getForge().getEvaluationType();
+                EPType returnType = validatedExprNode.getForge().getEvaluationType();
+                if (returnType == null || returnType == EPTypeNull.INSTANCE) {
+                    throw new ExprValidationException("Expression returns a null-typed value");
+                }
+                EPTypeClass returnClass = (EPTypeClass) returnType;
 
                 // when the expression returns an array, allow array values to become the column of the single-column event type
-                if (returnType.isArray() &&
+                if (returnClass.getType().isArray() &&
                     streamEventType.getPropertyNames().length == 1 &&
                     !(streamEventType instanceof JsonEventType) && // since json string-array should not become itself the property
-                    JavaClassHelper.isSubclassOrImplementsInterface(JavaClassHelper.getBoxedType(returnType.getComponentType()), JavaClassHelper.getBoxedType(streamEventType.getPropertyType(streamEventType.getPropertyNames()[0])))) {
+                    JavaClassHelper.isSubclassOrImplementsInterface(JavaClassHelper.getBoxedType(returnClass.getType().getComponentType()), JavaClassHelper.getBoxedType(streamEventType.getPropertyType(streamEventType.getPropertyNames()[0])))) {
                     Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(streamEventType, false, false);
                     if (writables != null && !writables.isEmpty()) {
                         try {
@@ -119,26 +128,26 @@ public class PropertyEvaluatorForgeFactory {
                     } else {
                         throw new ExprValidationException("Event type '" + streamEventType.getName() + "' cannot be written to");
                     }
-                } else if (returnType.isArray() &&
-                    returnType.getComponentType() == EventBean.class) {
+                } else if (returnClass.getType().isArray() &&
+                        returnClass.getType().getComponentType() == EventBean.class) {
                     containedEventEval = new ContainedEventEvalEventBeanArrayForge(validatedExprNode.getForge());
                 } else {
                     // check expression result type against eventtype expected underlying type
-                    if (returnType.isArray()) {
+                    if (returnClass.getType().isArray()) {
                         if (!(streamEventType instanceof JsonEventType)) {
-                            if (!JavaClassHelper.isSubclassOrImplementsInterface(returnType.getComponentType(), streamEventType.getUnderlyingType())) {
-                                throw new ExprValidationException("Event type '" + streamEventType.getName() + "' underlying type " + streamEventType.getUnderlyingType().getName() +
-                                    " cannot be assigned a value of type " + JavaClassHelper.getClassNameFullyQualPretty(returnType));
+                            if (!JavaClassHelper.isSubclassOrImplementsInterface(returnClass.getType().getComponentType(), streamEventType.getUnderlyingEPType().getType())) {
+                                throw new ExprValidationException("Event type '" + streamEventType.getName() + "' underlying type " + streamEventType.getUnderlyingEPType().getTypeName() +
+                                    " cannot be assigned a value of type " + ClassHelperPrint.getClassNameFullyQualPretty(returnClass));
                             }
                         } else {
-                            if (returnType.getComponentType() != String.class) {
-                                throw new ExprValidationException("Event type '" + streamEventType.getName() + "' requires string-type array and cannot be assigned from value of type " + JavaClassHelper.getClassNameFullyQualPretty(returnType));
+                            if (returnClass.getType().getComponentType() != String.class) {
+                                throw new ExprValidationException("Event type '" + streamEventType.getName() + "' requires string-type array and cannot be assigned from value of type " + ClassHelperPrint.getClassNameFullyQualPretty(returnClass));
                             }
                         }
-                    } else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class)) {
+                    } else if (JavaClassHelper.isImplementsInterface(returnClass, Iterable.class)) {
                         // fine, assumed to return the right type
                     } else {
-                        throw new ExprValidationException("Return type of expression '" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "' is '" + returnType.getName() + "', expected an Iterable or array result");
+                        throw new ExprValidationException("Return type of expression '" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "' is '" + returnType.getTypeName() + "', expected an Iterable or array result");
                     }
                     containedEventEval = new ContainedEventEvalExprNodeForge(validatedExprNode.getForge(), streamEventType);
                 }

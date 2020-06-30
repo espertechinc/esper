@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenMethodWGraph;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -22,7 +23,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public class CodegenMethod implements CodegenMethodScope {
-    private final Class returnType;
+    private final EPTypeClass returnType;
     private final String returnTypeName;
     private final CodegenBlock block;
     private final String additionalDebugInfo;
@@ -32,17 +33,21 @@ public class CodegenMethod implements CodegenMethodScope {
     private List<CodegenMethod> children = Collections.emptyList();
     private List<CodegenExpressionRef> environment = Collections.emptyList();
     private List<CodegenNamedParam> localParams = Collections.emptyList();
-    private List<Class> thrown = Collections.emptyList();
+    private List<EPTypeClass> thrown = Collections.emptyList();
 
     private Set<String> deepParameters;
     private CodegenMethodWGraph assignedMethod;
     private String assignedProviderClassName;
 
-    protected CodegenMethod(Class returnType, String returnTypeName, Class generator, CodegenSymbolProvider optionalSymbolProvider, CodegenScope env) {
+    protected CodegenMethod(EPTypeClass returnPType, String returnTypeName, Class generator, CodegenSymbolProvider optionalSymbolProvider, CodegenScope env) {
         if (generator == null) {
             throw new IllegalArgumentException("Invalid null generator");
         }
-        this.returnType = returnType;
+        if (returnPType != null) {
+            this.returnType = returnPType;
+        } else {
+            this.returnType = null;
+        }
         this.returnTypeName = returnTypeName;
         this.optionalSymbolProvider = optionalSymbolProvider;
         this.block = new CodegenBlock(this);
@@ -53,14 +58,14 @@ public class CodegenMethod implements CodegenMethodScope {
         }
     }
 
-    public static CodegenMethod makeParentNode(Class returnType, Class generator, CodegenScope env) {
+    public static CodegenMethod makeParentNode(EPTypeClass returnType, Class generator, CodegenScope env) {
         if (returnType == null) {
             throw new IllegalArgumentException("Invalid null return type");
         }
         return new CodegenMethod(returnType, null, generator, CodegenSymbolProviderEmpty.INSTANCE, env);
     }
 
-    public static CodegenMethod makeParentNode(Class returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenScope env) {
+    public static CodegenMethod makeParentNode(EPTypeClass returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenScope env) {
         if (returnType == null) {
             throw new IllegalArgumentException("Invalid null return type");
         }
@@ -80,7 +85,7 @@ public class CodegenMethod implements CodegenMethodScope {
         return new CodegenMethod(null, returnTypeName, generator, symbolProvider, env);
     }
 
-    public CodegenMethod makeChild(Class returnType, Class generator, CodegenScope env) {
+    public CodegenMethod makeChild(EPTypeClass returnType, Class generator, CodegenScope env) {
         if (returnType == null) {
             throw new IllegalArgumentException("Invalid null return type");
         }
@@ -94,7 +99,7 @@ public class CodegenMethod implements CodegenMethodScope {
         return addChild(new CodegenMethod(null, returnType, generator, null, env));
     }
 
-    public CodegenMethod makeChildWithScope(Class returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenScope env) {
+    public CodegenMethod makeChildWithScope(EPTypeClass returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenScope env) {
         if (returnType == null) {
             throw new IllegalArgumentException("Invalid null return type");
         }
@@ -118,9 +123,11 @@ public class CodegenMethod implements CodegenMethodScope {
 
     public void mergeClasses(Set<Class> classes) {
         block.mergeClasses(classes);
-        classes.add(returnType);
-        for (Class ex : thrown) {
-            classes.add(ex);
+        if (returnType != null) {
+            returnType.traverseClasses(classes::add);
+        }
+        for (EPTypeClass ex : thrown) {
+            ex.traverseClasses(classes::add);
         }
         for (CodegenNamedParam param : localParams) {
             param.mergeClasses(classes);
@@ -143,7 +150,7 @@ public class CodegenMethod implements CodegenMethodScope {
         return environment;
     }
 
-    public Class getReturnType() {
+    public EPTypeClass getReturnType() {
         return returnType;
     }
 
@@ -163,7 +170,7 @@ public class CodegenMethod implements CodegenMethodScope {
         return localParams;
     }
 
-    public CodegenMethod addParam(Class type, String name) {
+    public CodegenMethod addParam(EPTypeClass type, String name) {
         if (localParams.isEmpty()) {
             localParams = new ArrayList<>(4);
         }
@@ -187,7 +194,7 @@ public class CodegenMethod implements CodegenMethodScope {
         return this;
     }
 
-    public CodegenMethod addThrown(Class throwableClass) {
+    public CodegenMethod addThrown(EPTypeClass throwableClass) {
         if (thrown.isEmpty()) {
             thrown = new ArrayList<>();
         }
@@ -195,7 +202,7 @@ public class CodegenMethod implements CodegenMethodScope {
         return this;
     }
 
-    public List<Class> getThrown() {
+    public List<EPTypeClass> getThrown() {
         return thrown;
     }
 

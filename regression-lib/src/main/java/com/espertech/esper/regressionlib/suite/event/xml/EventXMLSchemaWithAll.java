@@ -11,9 +11,9 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -77,12 +77,11 @@ public class EventXMLSchemaWithAll {
         assertFalse(env.listener("s0").isInvoked());
 
         EventType type = env.compileDeploy("@name('s1') select * from " + eventTypeName, path).statement("s1").getEventType();
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("sessionId", Node.class, null, false, false, false, false, true),
-            new EventPropertyDescriptor("customerId", Node.class, null, false, false, false, false, true),
-            new EventPropertyDescriptor("url", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("method", Node.class, null, false, false, false, false, true),
-        }, type.getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+            new SupportEventPropDesc("sessionId", Node.class).fragment(),
+            new SupportEventPropDesc("customerId", Node.class).fragment(),
+            new SupportEventPropDesc("url", String.class),
+            new SupportEventPropDesc("method", Node.class).fragment());
 
         env.undeployAll();
     }

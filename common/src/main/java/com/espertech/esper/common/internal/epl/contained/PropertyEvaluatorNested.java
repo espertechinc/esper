@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.contained;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
@@ -27,6 +28,8 @@ import java.util.Collection;
  * but does not consider select-clauses.
  */
 public class PropertyEvaluatorNested implements PropertyEvaluator {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyEvaluatorNested.class);
+
     private ContainedEventEval[] containedEventEvals;
     private boolean[] fragmentEventTypeIsIndexed;
     private ExprEvaluator[] whereClauses;

@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,13 +28,13 @@ import static com.espertech.esper.common.internal.epl.expression.declared.compil
 
 public class ExprDeclaredForgeConstant implements ExprForgeInstrumentable, ExprEvaluator {
     private final ExprDeclaredNodeImpl parent;
-    private final Class returnType;
+    private final EPType returnType;
     private final ExpressionDeclItem prototype;
     private final Object value;
     private final boolean audit;
     private final String statementName;
 
-    public ExprDeclaredForgeConstant(ExprDeclaredNodeImpl parent, Class returnType, ExpressionDeclItem prototype, Object value, boolean audit, String statementName) {
+    public ExprDeclaredForgeConstant(ExprDeclaredNodeImpl parent, EPType returnType, ExpressionDeclItem prototype, Object value, boolean audit, String statementName) {
         this.parent = parent;
         this.returnType = returnType;
         this.prototype = prototype;
@@ -48,23 +51,27 @@ public class ExprDeclaredForgeConstant implements ExprForgeInstrumentable, ExprE
         return this;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!audit) {
             return constant(value);
         }
-        CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, ExprDeclaredForgeConstant.class, codegenClassScope);
+
+        if (returnType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) returnType, ExprDeclaredForgeConstant.class, codegenClassScope);
 
         methodNode.getBlock()
-                .expression(exprDotMethodChain(exprSymbol.getAddExprEvalCtx(methodNode)).add("getAuditProvider").add("exprdef", constant(parent.getPrototype().getName()), constant(value), exprSymbol.getAddExprEvalCtx(methodNode)))
-                .methodReturn(constant(value));
+            .expression(exprDotMethodChain(exprSymbol.getAddExprEvalCtx(methodNode)).add("getAuditProvider").add("exprdef", constant(parent.getPrototype().getName()), constant(value), exprSymbol.getAddExprEvalCtx(methodNode)))
+            .methodReturn(constant(value));
         return localMethod(methodNode);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprDeclared", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).qparams(getInstrumentationQParams(parent, codegenClassScope)).build();
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return returnType;
     }
 

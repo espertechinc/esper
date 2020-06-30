@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,8 +41,8 @@ public class DTLocalBeanIntervalNoEndTSEval implements DTLocalEvaluator {
         return inner.evaluate(timestamp, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalBeanIntervalNoEndTSForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.returnType, DTLocalBeanIntervalNoEndTSEval.class, codegenClassScope).addParam(EventBean.class, "target");
+    public static CodegenExpression codegen(DTLocalBeanIntervalNoEndTSForge forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(forge.returnType, DTLocalBeanIntervalNoEndTSEval.class, codegenClassScope).addParam(EventBean.EPTYPE, "target");
 
         methodNode.getBlock()
                 .declareVar(forge.getterResultType, "timestamp", CodegenLegoCast.castSafeFromObjectType(forge.getterResultType, forge.getter.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)))

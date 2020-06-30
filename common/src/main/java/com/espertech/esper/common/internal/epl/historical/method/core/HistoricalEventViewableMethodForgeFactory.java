@@ -16,6 +16,8 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -33,7 +35,12 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.settings.*;
+import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
+import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Method;
@@ -46,7 +53,7 @@ import java.util.function.Function;
 
 public class HistoricalEventViewableMethodForgeFactory {
     public static HistoricalEventViewableMethodForge createMethodStatementView(int stream, MethodStreamSpec methodStreamSpec, StatementBaseInfo base, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         VariableMetaData variableMetaData = services.getVariableCompileTimeResolver().resolve(methodStreamSpec.getClassName());
         MethodPollingExecStrategyEnum strategy;
         Method methodReflection = null;
@@ -82,7 +89,7 @@ public class HistoricalEventViewableMethodForgeFactory {
                         strategy = MethodPollingExecStrategyEnum.TARGET_VAR;
                     }
                 }
-                methodReflection = classpathImportService.resolveNonStaticMethodOverloadChecked(variableMetaData.getType(), methodStreamSpec.getMethodName());
+                methodReflection = classpathImportService.resolveNonStaticMethodOverloadChecked(variableMetaData.getType().getType(), methodStreamSpec.getMethodName());
             } else if (methodStreamSpec.getClassName() == null) { // must be either UDF or script
                 Pair<Class, ClasspathImportSingleRowDesc> udf;
                 try {
@@ -104,7 +111,7 @@ public class HistoricalEventViewableMethodForgeFactory {
         }
 
         Class methodProviderClass = null;
-        Class beanClass;
+        EPTypeClass beanClass;
         LinkedHashMap<String, Object> oaType = null;
         Map<String, Object> mapType = null;
         boolean isCollection = false;
@@ -118,58 +125,57 @@ public class HistoricalEventViewableMethodForgeFactory {
             isStaticMethod = variableMetaData == null;
 
             // Determine object type returned by method
-            beanClass = methodReflection.getReturnType();
-            if ((beanClass == void.class) || (beanClass == Void.class) || (JavaClassHelper.isJavaBuiltinDataType(beanClass))) {
+            EPTypeClass methodReturnClass = ClassHelperGenericType.getMethodReturnEPType(methodReflection);
+            beanClass = methodReturnClass;
+            if (JavaClassHelper.isTypeVoid(beanClass) || JavaClassHelper.isJavaBuiltinDataType(beanClass)) {
                 throw new ExprValidationException("Invalid return type for static method '" + methodReflection.getName() + "' of class '" + methodStreamSpec.getClassName() + "', expecting a Java class");
             }
             if (methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() != EventBean.class) {
-                beanClass = methodReflection.getReturnType().getComponentType();
+                beanClass = JavaClassHelper.getArrayComponentType(beanClass);
             }
 
             isCollection = JavaClassHelper.isImplementsInterface(beanClass, Collection.class);
-            Class collectionClass = null;
+            EPTypeClass collectionClass = null;
             if (isCollection) {
-                collectionClass = JavaClassHelper.getGenericReturnType(methodReflection, true);
+                EPTypeClass genericType = ClassHelperGenericType.getMethodReturnEPType(methodReflection);
+                collectionClass = JavaClassHelper.getSingleParameterTypeOrObject(genericType);
                 beanClass = collectionClass;
             }
 
             isIterator = JavaClassHelper.isImplementsInterface(beanClass, Iterator.class);
-            Class iteratorClass = null;
+            EPTypeClass iteratorClass = null;
             if (isIterator) {
-                iteratorClass = JavaClassHelper.getGenericReturnType(methodReflection, true);
+                EPTypeClass genericType = ClassHelperGenericType.getMethodReturnEPType(methodReflection);
+                iteratorClass = JavaClassHelper.getSingleParameterTypeOrObject(genericType);
                 beanClass = iteratorClass;
             }
 
             // If the method returns a Map, look up the map type
-            String mapTypeName = null;
-            if ((JavaClassHelper.isImplementsInterface(methodReflection.getReturnType(), Map.class)) ||
-                    (methodReflection.getReturnType().isArray() && JavaClassHelper.isImplementsInterface(methodReflection.getReturnType().getComponentType(), Map.class)) ||
-                    (isCollection && JavaClassHelper.isImplementsInterface(collectionClass, Map.class)) ||
-                    (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass, Map.class))) {
+            if ((JavaClassHelper.isImplementsInterface(methodReturnClass, Map.class)) ||
+                (methodReturnClass.getType().isArray() && JavaClassHelper.isImplementsInterface(methodReturnClass.getType().getComponentType(), Map.class)) ||
+                (isCollection && JavaClassHelper.isImplementsInterface(collectionClass.getType(), Map.class)) ||
+                (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass.getType(), Map.class))) {
                 MethodMetadataDesc metadata;
                 if (variableMetaData != null) {
                     metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, classpathImportService, Map.class);
                 } else {
                     metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), classpathImportService, Map.class);
                 }
-                mapTypeName = metadata.getTypeName();
-                mapType = (Map<String, Object>) metadata.getTypeMetadata();
+                mapType = toEPType((Map<String, Object>) metadata.getTypeMetadata());
             }
 
             // If the method returns an Object[] or Object[][], look up the type information
-            String oaTypeName = null;
-            if (methodReflection.getReturnType() == Object[].class ||
-                    methodReflection.getReturnType() == Object[][].class ||
-                    (isCollection && collectionClass == Object[].class) ||
-                    (isIterator && iteratorClass == Object[].class)) {
+            if (methodReturnClass.getType() == Object[].class ||
+                methodReturnClass.getType() == Object[][].class ||
+                (isCollection && collectionClass.getType() == Object[].class) ||
+                (isIterator && iteratorClass.getType() == Object[].class)) {
                 MethodMetadataDesc metadata;
                 if (variableMetaData != null) {
                     metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, classpathImportService, LinkedHashMap.class);
                 } else {
                     metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), classpathImportService, LinkedHashMap.class);
                 }
-                oaTypeName = metadata.getTypeName();
-                oaType = (LinkedHashMap<String, Object>) metadata.getTypeMetadata();
+                oaType = toEPType((Map<String, Object>) metadata.getTypeMetadata());
             }
 
             // Determine event type from class and method name
@@ -178,9 +184,9 @@ public class HistoricalEventViewableMethodForgeFactory {
                 String eventTypeName = services.getEventTypeNameGeneratorStatement().getAnonymousMethodHistorical(stream);
                 return new EventTypeMetadata(eventTypeName, base.getModuleName(), EventTypeTypeClass.METHODPOLLDERIVED, apptype, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
             };
-            if ((methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() == EventBean.class) ||
-                    (isCollection && collectionClass == EventBean.class) ||
-                    (isIterator && iteratorClass == EventBean.class)) {
+            if ((methodReturnClass.getType().isArray() && methodReturnClass.getType().getComponentType() == EventBean.class) ||
+                (isCollection && collectionClass.getType() == EventBean.class) ||
+                (isIterator && iteratorClass.getType() == EventBean.class)) {
                 String typeName = methodStreamSpec.getEventTypeName() == null ? eventTypeNameProvidedUDFOrScript : methodStreamSpec.getEventTypeName();
                 eventType = EventTypeUtility.requireEventType("Method", methodReflection.getName(), typeName, services.getEventTypeCompileTimeResolver());
                 eventTypeWhenMethodReturnsEventBeans = eventType;
@@ -210,9 +216,24 @@ public class HistoricalEventViewableMethodForgeFactory {
         return new HistoricalEventViewableMethodForge(stream, eventType, methodStreamSpec, meta);
     }
 
+    private static LinkedHashMap<String, Object> toEPType(Map<String, Object> typeMetadata) {
+        LinkedHashMap<String, Object> epTypes = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> type : typeMetadata.entrySet()) {
+            if (type.getValue() == null) {
+                epTypes.put(type.getKey(), EPTypeNull.INSTANCE);
+            } else if (type.getValue() instanceof Class) {
+                EPTypeClass typeClass = ClassHelperGenericType.getClassEPType((Class) type.getValue());
+                epTypes.put(type.getKey(), typeClass);
+            } else {
+                epTypes.put(type.getKey(), type.getValue());
+            }
+        }
+        return epTypes;
+    }
+
     private static MethodMetadataDesc getCheckMetadataVariable(String methodName, VariableMetaData variableMetaData, ClasspathImportServiceCompileTime classpathImportService, Class metadataClass)
-            throws ExprValidationException {
-        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, null, variableMetaData.getType(), classpathImportService, metadataClass);
+        throws ExprValidationException {
+        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, null, variableMetaData.getType().getType(), classpathImportService, metadataClass);
 
         if (Modifier.isStatic(typeGetterMethod.getModifiers())) {
             return invokeMetadataMethod(null, variableMetaData.getClass().getSimpleName(), typeGetterMethod);
@@ -237,14 +258,14 @@ public class HistoricalEventViewableMethodForgeFactory {
     }
 
     private static Method getRequiredTypeGetterMethodCanNonStatic(String methodName, String classNameWhenNoClass, Class clazzWhenAvailable, ClasspathImportServiceCompileTime classpathImportService, Class metadataClass)
-            throws ExprValidationException {
+        throws ExprValidationException {
         Method typeGetterMethod;
         String getterMethodName = methodName + "Metadata";
         try {
             if (clazzWhenAvailable != null) {
-                typeGetterMethod = classpathImportService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0]);
+                typeGetterMethod = classpathImportService.resolveMethod(clazzWhenAvailable, getterMethodName, new EPTypeClass[0], new boolean[0]);
             } else {
-                typeGetterMethod = classpathImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0], ClasspathExtensionClassEmpty.INSTANCE);
+                typeGetterMethod = classpathImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new EPTypeClass[0], new boolean[0], new boolean[0], ClasspathExtensionClassEmpty.INSTANCE);
             }
         } catch (Exception e) {
             throw new ExprValidationException("Could not find getter method for method invocation, expected a method by name '" + getterMethodName + "' accepting no parameters");
@@ -257,14 +278,14 @@ public class HistoricalEventViewableMethodForgeFactory {
             fail = typeGetterMethod.getReturnType() != metadataClass;
         }
         if (fail) {
-            throw new ExprValidationException("Getter method '" + typeGetterMethod.getName() + "' does not return " + JavaClassHelper.getClassNameFullyQualPretty(metadataClass));
+            throw new ExprValidationException("Getter method '" + typeGetterMethod.getName() + "' does not return " + ClassHelperPrint.getClassNameFullyQualPretty(metadataClass));
         }
 
         return typeGetterMethod;
     }
 
     private static MethodMetadataDesc invokeMetadataMethod(Object target, String className, Method typeGetterMethod)
-            throws ExprValidationException {
+        throws ExprValidationException {
         Object resultType;
         try {
             resultType = typeGetterMethod.invoke(target);

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.Collection;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class NameAndModule {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(NameAndModule.class);
     public final static NameAndModule[] EMPTY_ARRAY = new NameAndModule[0];
 
     private final String name;
@@ -60,11 +62,11 @@ public class NameAndModule {
         for (NameAndModule entry : names) {
             expressions[count++] = entry.make();
         }
-        return newArrayWithInit(NameAndModule.class, expressions);
+        return newArrayWithInit(NameAndModule.EPTYPE, expressions);
     }
 
     private CodegenExpression make() {
-        return newInstance(NameAndModule.class, constant(name), constant(moduleName));
+        return newInstance(NameAndModule.EPTYPE, constant(name), constant(moduleName));
     }
 
     public static NameAndModule findName(String searchForName, NameAndModule[] names) {

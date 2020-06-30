@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.epl.agg.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -31,10 +34,10 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPr
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -46,14 +49,14 @@ import static com.espertech.esper.common.internal.metrics.instrumentation.Instru
 
 public class AggregationServiceFactoryCompiler {
 
-    private final static List<CodegenNamedParam> UPDPARAMS = CodegenNamedParam.from(EventBean[].class, NAME_EPS, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
-    private final static List<CodegenNamedParam> GETPARAMS = CodegenNamedParam.from(int.class, AggregationServiceCodegenNames.NAME_COLUMN, EventBean[].class, NAME_EPS, boolean.class, ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
-    private final static List<CodegenNamedParam> MAKESERVICEPARAMS = CodegenNamedParam.from(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT, ClasspathImportServiceRuntime.class, AggregationServiceCodegenNames.NAME_ENGINEIMPORTSVC, boolean.class, AggregationServiceCodegenNames.NAME_ISSUBQUERY, Integer.class, AggregationServiceCodegenNames.NAME_SUBQUERYNUMBER, int[].class, NAME_GROUPID);
+    private final static List<CodegenNamedParam> UPDPARAMS = CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
+    private final static List<CodegenNamedParam> GETPARAMS = CodegenNamedParam.from(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_COLUMN, EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
+    private final static List<CodegenNamedParam> MAKESERVICEPARAMS = CodegenNamedParam.from(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT, ClasspathImportServiceRuntime.EPTYPE, AggregationServiceCodegenNames.NAME_ENGINEIMPORTSVC, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_ISSUBQUERY, EPTypePremade.INTEGERBOXED.getEPType(), AggregationServiceCodegenNames.NAME_SUBQUERYNUMBER, EPTypePremade.INTEGERPRIMITIVEARRAY.getEPType(), NAME_GROUPID);
 
     public static AggregationServiceFactoryMakeResult makeInnerClassesAndInit(boolean join, AggregationServiceFactoryForge forge, CodegenMethodScope parent, CodegenClassScope classScope, String providerClassName, AggregationClassNames classNames) {
 
         if (forge instanceof AggregationServiceFactoryForgeWMethodGen) {
-            CodegenMethod initMethod = parent.makeChild(AggregationServiceFactory.class, AggregationServiceFactoryCompiler.class, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+            CodegenMethod initMethod = parent.makeChild(AggregationServiceFactory.EPTYPE, AggregationServiceFactoryCompiler.class, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
             AggregationServiceFactoryForgeWMethodGen generator = (AggregationServiceFactoryForgeWMethodGen) forge;
             generator.providerCodegen(initMethod, classScope, classNames);
 
@@ -76,7 +79,7 @@ public class AggregationServiceFactoryCompiler {
         }
 
         SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
-        CodegenMethod initMethod = parent.makeChildWithScope(AggregationServiceFactory.class, AggregationServiceFactoryCompiler.class, symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+        CodegenMethod initMethod = parent.makeChildWithScope(AggregationServiceFactory.EPTYPE, AggregationServiceFactoryCompiler.class, symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
         AggregationServiceFactoryForgeWProviderGen generator = (AggregationServiceFactoryForgeWProviderGen) forge;
         initMethod.getBlock().methodReturn(generator.makeProvider(initMethod, symbols, classScope));
         return new AggregationServiceFactoryMakeResult(initMethod, Collections.emptyList());
@@ -110,7 +113,7 @@ public class AggregationServiceFactoryCompiler {
     }
 
     private static void makeRowFactoryForLevel(String classNameRow, String classNameFactory, Class forgeClass, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, String providerClassName) {
-        CodegenMethod makeMethod = CodegenMethod.makeParentNode(AggregationRow.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod makeMethod = CodegenMethod.makeParentNode(AggregationRow.EPTYPE, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
 
         List<CodegenTypedParam> rowCtorParams = new ArrayList<>();
         rowCtorParams.add(new CodegenTypedParam(providerClassName, "o"));
@@ -124,7 +127,7 @@ public class AggregationServiceFactoryCompiler {
 
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(makeMethod, "make", methods);
-        CodegenInnerClass innerClass = new CodegenInnerClass(classNameFactory, AggregationRowFactory.class, ctor, Collections.emptyList(), methods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(classNameFactory, AggregationRowFactory.EPTYPE, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
     }
 
@@ -162,12 +165,12 @@ public class AggregationServiceFactoryCompiler {
         CodegenExpressionRef output = ref("output");
         CodegenExpressionRef unitKey = ref("unitKey");
         CodegenExpressionRef writer = ref("writer");
-        CodegenMethod writeMethod = CodegenMethod.makeParentNode(void.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(CodegenNamedParam.from(Object.class, "object", DataOutput.class, output.getRef(), byte[].class, unitKey.getRef(), EventBeanCollatedWriter.class, writer.getRef()))
-                .addThrown(IOException.class);
+        CodegenMethod writeMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(CodegenNamedParam.from(EPTypePremade.OBJECT.getEPType(), "object", EPTypePremade.DATAOUTPUT.getEPType(), output.getRef(), EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), unitKey.getRef(), EventBeanCollatedWriter.EPTYPE, writer.getRef()))
+                .addThrown(EPTypePremade.IOEXCEPTION.getEPType());
 
-        CodegenMethod readMethod = CodegenMethod.makeParentNode(Object.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(CodegenNamedParam.from(DataInput.class, input.getRef(), byte[].class, unitKey.getRef())).addThrown(IOException.class);
+        CodegenMethod readMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(CodegenNamedParam.from(EPTypePremade.DATAINPUT.getEPType(), input.getRef(), EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), unitKey.getRef())).addThrown(EPTypePremade.IOEXCEPTION.getEPType());
 
         if (forgeClass == AggregationServiceNullFactory.INSTANCE.getClass()) {
             readMethod.getBlock().methodReturn(constantNull());
@@ -207,7 +210,7 @@ public class AggregationServiceFactoryCompiler {
         CodegenStackGenerator.recursiveBuildStack(writeMethod, "write", methods);
         CodegenStackGenerator.recursiveBuildStack(readMethod, "read", methods);
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(classNameSerde, DataInputOutputSerde.class, ctor, Collections.emptyList(), methods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(classNameSerde, DataInputOutputSerde.EPTYPE, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
     }
 
@@ -279,16 +282,16 @@ public class AggregationServiceFactoryCompiler {
             CodegenStackGenerator.recursiveBuildStack(methodEntry.getValue(), methodEntry.getKey(), innerMethods);
         }
 
-        for (Map.Entry<CodegenExpressionMemberWCol, Class> entry : membersColumnized.getMembers().entrySet()) {
+        for (Map.Entry<CodegenExpressionMemberWCol, EPTypeClass> entry : membersColumnized.getMembers().entrySet()) {
             rowMembers.add(new CodegenTypedParam(entry.getValue(), entry.getKey().getRef(), false, true));
         }
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(className, AggregationRow.class, rowCtor, rowMembers, innerMethods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(className, AggregationRow.EPTYPE, rowCtor, rowMembers, innerMethods);
         innerClasses.add(innerClass);
     }
 
     private static CodegenMethod makeTableMethod(boolean isGenerateTableEnter, AggregationCodegenTableUpdateType type, AggregationForgeFactory[] methodFactories, CodegenClassScope classScope) {
-        CodegenMethod method = CodegenMethod.makeParentNode(void.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "column").addParam(Object.class, "value");
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "column").addParam(EPTypePremade.OBJECT.getEPType(), "value");
         if (!isGenerateTableEnter) {
             method.getBlock().methodThrowUnsupported();
             return method;
@@ -298,8 +301,8 @@ public class AggregationServiceFactoryCompiler {
         CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("column"), methodFactories.length, true);
         for (int i = 0; i < methodFactories.length; i++) {
             AggregationForgeFactory factory = methodFactories[i];
-            Class[] evaluationTypes = ExprNodeUtilityQuery.getExprResultTypes(factory.getAggregationExpression().getPositionalParams());
-            CodegenMethod updateMethod = method.makeChild(void.class, factory.getAggregator().getClass(), classScope).addParam(Object.class, "value");
+            EPType[] evaluationTypes = ExprNodeUtilityQuery.getExprResultTypes(factory.getAggregationExpression().getPositionalParams());
+            CodegenMethod updateMethod = method.makeChild(EPTypePremade.VOID.getEPType(), factory.getAggregator().getClass(), classScope).addParam(EPTypePremade.OBJECT.getEPType(), "value");
             if (type == AggregationCodegenTableUpdateType.ENTER) {
                 factory.getAggregator().applyTableEnterCodegen(value, evaluationTypes, updateMethod, classScope);
             } else {
@@ -312,7 +315,7 @@ public class AggregationServiceFactoryCompiler {
     }
 
     private static CodegenMethod makeTableResetMethod(boolean isGenerateTableEnter, AggregationForgeFactory[] methodFactories, AggregationStateFactoryForge[] accessFactories, CodegenClassScope classScope) {
-        CodegenMethod method = CodegenMethod.makeParentNode(void.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "column");
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "column");
         if (!isGenerateTableEnter) {
             method.getBlock().methodThrowUnsupported();
             return method;
@@ -322,7 +325,7 @@ public class AggregationServiceFactoryCompiler {
 
         if (methodFactories != null) {
             for (AggregationForgeFactory factory : methodFactories) {
-                CodegenMethod resetMethod = method.makeChild(void.class, factory.getAggregator().getClass(), classScope);
+                CodegenMethod resetMethod = method.makeChild(EPTypePremade.VOID.getEPType(), factory.getAggregator().getClass(), classScope);
                 factory.getAggregator().clearCodegen(resetMethod, classScope);
                 methods.add(resetMethod);
             }
@@ -330,7 +333,7 @@ public class AggregationServiceFactoryCompiler {
 
         if (accessFactories != null) {
             for (AggregationStateFactoryForge accessFactory: accessFactories) {
-                CodegenMethod resetMethod = method.makeChild(void.class, accessFactory.getAggregator().getClass(), classScope);
+                CodegenMethod resetMethod = method.makeChild(EPTypePremade.VOID.getEPType(), accessFactory.getAggregator().getClass(), classScope);
                 accessFactory.getAggregator().clearCodegen(resetMethod, classScope);
                 methods.add(resetMethod);
             }
@@ -346,7 +349,7 @@ public class AggregationServiceFactoryCompiler {
     }
 
     private static CodegenMethod makeTableAccess(boolean isGenerateTableEnter, AggregationCodegenTableUpdateType type, int offset, AggregationStateFactoryForge[] accessStateFactories, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        CodegenMethod method = CodegenMethod.makeParentNode(void.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "column").addParam(EventBean[].class, NAME_EPS).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "column").addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         if (!isGenerateTableEnter) {
             method.getBlock().methodThrowUnsupported();
             return method;
@@ -363,7 +366,7 @@ public class AggregationServiceFactoryCompiler {
             AggregatorAccess aggregator = stateFactoryForge.getAggregator();
 
             ExprForgeCodegenSymbol symbols = new ExprForgeCodegenSymbol(false, null);
-            CodegenMethod updateMethod = method.makeChildWithScope(void.class, stateFactoryForge.getClass(), symbols, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+            CodegenMethod updateMethod = method.makeChildWithScope(EPTypePremade.VOID.getEPType(), stateFactoryForge.getClass(), symbols, classScope).addParam(ExprForgeCodegenNames.PARAMS);
             if (type == AggregationCodegenTableUpdateType.ENTER) {
                 aggregator.applyEnterCodegen(updateMethod, symbols, classScope, namedMethods);
                 blocks[i].localMethod(updateMethod, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT);
@@ -378,7 +381,7 @@ public class AggregationServiceFactoryCompiler {
     }
 
     private static CodegenMethod makeGetAccessState(int offset, AggregationStateFactoryForge[] accessStateFactories, CodegenClassScope classScope) {
-        CodegenMethod method = CodegenMethod.makeParentNode(Object.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "column");
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "column");
 
         int[] colums = new int[accessStateFactories == null ? 0 : accessStateFactories.length];
         for (int i = 0; i < colums.length; i++) {
@@ -410,7 +413,7 @@ public class AggregationServiceFactoryCompiler {
         int numMethodStates = 0;
         if (methodFactories != null) {
             for (AggregationForgeFactory factory : methodFactories) {
-                CodegenMethod method = parent.makeChild(getType.getReturnType(), factory.getClass(), classScope).addParam(CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT));
+                CodegenMethod method = parent.makeChild(getType.getReturnType(), factory.getClass(), classScope).addParam(CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT));
                 methods.add(method);
 
                 if (getType == AggregationCodegenGetType.GETVALUE) {
@@ -425,7 +428,7 @@ public class AggregationServiceFactoryCompiler {
 
         if (accessAccessors != null) {
             for (AggregationAccessorSlotPairForge accessorSlotPair : accessAccessors) {
-                CodegenMethod method = parent.makeChild(getType.getReturnType(), accessorSlotPair.getAccessorForge().getClass(), classScope).addParam(CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT));
+                CodegenMethod method = parent.makeChild(getType.getReturnType(), accessorSlotPair.getAccessorForge().getClass(), classScope).addParam(CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT));
                 int stateNumber = numMethodStates + accessorSlotPair.getSlot();
 
                 AggregationAccessorForgeGetCodegenContext ctx = new AggregationAccessorForgeGetCodegenContext(stateNumber, classScope, accessFactories[accessorSlotPair.getSlot()], method, namedMethods);
@@ -459,7 +462,7 @@ public class AggregationServiceFactoryCompiler {
 
     private static CodegenMethod makeStateUpdate(boolean isGenerate, AggregationCodegenUpdateType updateType, ExprForge[][] methodForges, AggregationForgeFactory[] methodFactories, AggregationStateFactoryForge[] accessFactories, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         ExprForgeCodegenSymbol symbols = new ExprForgeCodegenSymbol(true, updateType == AggregationCodegenUpdateType.APPLYENTER);
-        CodegenMethod parent = CodegenMethod.makeParentNode(void.class, AggregationServiceFactoryCompiler.class, symbols, classScope).addParam(updateType.getParams());
+        CodegenMethod parent = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), AggregationServiceFactoryCompiler.class, symbols, classScope).addParam(updateType.getParams());
 
         int count = 0;
         List<CodegenMethod> methods = new ArrayList<>();
@@ -473,7 +476,7 @@ public class AggregationServiceFactoryCompiler {
                     getValue = exprDotMethod(ref("this"), "getValue", constant(count), constantNull(), constantTrue(), constantNull());
                 }
 
-                CodegenMethod method = parent.makeChild(void.class, factory.getClass(), classScope);
+                CodegenMethod method = parent.makeChild(EPTypePremade.VOID.getEPType(), factory.getClass(), classScope);
                 methods.add(method);
                 switch (updateType) {
                     case APPLYENTER:
@@ -501,7 +504,7 @@ public class AggregationServiceFactoryCompiler {
                     exprText = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(factory.getExpression());
                 }
 
-                CodegenMethod method = parent.makeChild(void.class, factory.getClass(), classScope);
+                CodegenMethod method = parent.makeChild(EPTypePremade.VOID.getEPType(), factory.getClass(), classScope);
                 methods.add(method);
                 switch (updateType) {
                     case APPLYENTER:
@@ -551,55 +554,55 @@ public class AggregationServiceFactoryCompiler {
     private static void makeService(AggregationServiceFactoryForgeWMethodGen forge, List<CodegenInnerClass> innerClasses, CodegenClassScope classScope, String providerClassName, AggregationClassNames classNames) {
         CodegenNamedMethods namedMethods = new CodegenNamedMethods();
 
-        CodegenMethod applyEnterMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean[].class, NAME_EPS).addParam(Object.class, AggregationServiceCodegenNames.NAME_GROUPKEY).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod applyEnterMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.OBJECT.getEPType(), AggregationServiceCodegenNames.NAME_GROUPKEY).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.applyEnterCodegen(applyEnterMethod, classScope, namedMethods, classNames);
 
-        CodegenMethod applyLeaveMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean[].class, NAME_EPS).addParam(Object.class, AggregationServiceCodegenNames.NAME_GROUPKEY).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod applyLeaveMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.OBJECT.getEPType(), AggregationServiceCodegenNames.NAME_GROUPKEY).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.applyLeaveCodegen(applyLeaveMethod, classScope, namedMethods, classNames);
 
-        CodegenMethod setCurrentAccessMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(Object.class, AggregationServiceCodegenNames.NAME_GROUPKEY).addParam(int.class, AggregationServiceCodegenNames.NAME_AGENTINSTANCEID).addParam(AggregationGroupByRollupLevel.class, AggregationServiceCodegenNames.NAME_ROLLUPLEVEL);
+        CodegenMethod setCurrentAccessMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.OBJECT.getEPType(), AggregationServiceCodegenNames.NAME_GROUPKEY).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_AGENTINSTANCEID).addParam(AggregationGroupByRollupLevel.EPTYPE, AggregationServiceCodegenNames.NAME_ROLLUPLEVEL);
         forge.setCurrentAccessCodegen(setCurrentAccessMethod, classScope, classNames);
 
-        CodegenMethod clearResultsMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod clearResultsMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.clearResultsCodegen(clearResultsMethod, classScope);
 
-        CodegenMethod setRemovedCallbackMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationRowRemovedCallback.class, AggregationServiceCodegenNames.NAME_CALLBACK);
+        CodegenMethod setRemovedCallbackMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationRowRemovedCallback.EPTYPE, AggregationServiceCodegenNames.NAME_CALLBACK);
         forge.setRemovedCallbackCodegen(setRemovedCallbackMethod);
 
-        CodegenMethod acceptMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationServiceVisitor.class, AggregationServiceCodegenNames.NAME_AGGVISITOR);
+        CodegenMethod acceptMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationServiceVisitor.EPTYPE, AggregationServiceCodegenNames.NAME_AGGVISITOR);
         forge.acceptCodegen(acceptMethod, classScope);
 
-        CodegenMethod acceptGroupDetailMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationServiceVisitorWGroupDetail.class, AggregationServiceCodegenNames.NAME_AGGVISITOR);
+        CodegenMethod acceptGroupDetailMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationServiceVisitorWGroupDetail.EPTYPE, AggregationServiceCodegenNames.NAME_AGGVISITOR);
         forge.acceptGroupDetailCodegen(acceptGroupDetailMethod, classScope);
 
-        CodegenMethod isGroupedMethod = CodegenMethod.makeParentNode(boolean.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod isGroupedMethod = CodegenMethod.makeParentNode(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         forge.isGroupedCodegen(isGroupedMethod, classScope);
 
-        CodegenMethod getContextPartitionAggregationServiceMethod = CodegenMethod.makeParentNode(AggregationService.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_AGENTINSTANCEID);
+        CodegenMethod getContextPartitionAggregationServiceMethod = CodegenMethod.makeParentNode(AggregationService.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_AGENTINSTANCEID);
         getContextPartitionAggregationServiceMethod.getBlock().methodReturn(ref("this"));
 
-        CodegenMethod getValueMethod = CodegenMethod.makeParentNode(Object.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_COLUMN).addParam(int.class, AggregationServiceCodegenNames.NAME_AGENTINSTANCEID).addParam(EventBean[].class, NAME_EPS).addParam(boolean.class, NAME_ISNEWDATA).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod getValueMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_COLUMN).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_AGENTINSTANCEID).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.getValueCodegen(getValueMethod, classScope, namedMethods);
 
-        CodegenMethod getCollectionOfEventsMethod = CodegenMethod.makeParentNode(Collection.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_COLUMN).addParam(EventBean[].class, NAME_EPS).addParam(boolean.class, NAME_ISNEWDATA).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod getCollectionOfEventsMethod = CodegenMethod.makeParentNode(EPTypePremade.COLLECTION.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_COLUMN).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.getCollectionOfEventsCodegen(getCollectionOfEventsMethod, classScope, namedMethods);
 
-        CodegenMethod getEventBeanMethod = CodegenMethod.makeParentNode(EventBean.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_COLUMN).addParam(EventBean[].class, NAME_EPS).addParam(boolean.class, NAME_ISNEWDATA).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod getEventBeanMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_COLUMN).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.getEventBeanCodegen(getEventBeanMethod, classScope, namedMethods);
 
-        CodegenMethod getRowMethod = CodegenMethod.makeParentNode(AggregationRow.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_AGENTINSTANCEID).addParam(EventBean[].class, NAME_EPS).addParam(boolean.class, NAME_ISNEWDATA).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod getRowMethod = CodegenMethod.makeParentNode(AggregationRow.EPTYPE, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_AGENTINSTANCEID).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.getRowCodegen(getRowMethod, classScope, namedMethods);
 
-        CodegenMethod getGroupKeyMethod = CodegenMethod.makeParentNode(Object.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_AGENTINSTANCEID);
+        CodegenMethod getGroupKeyMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_AGENTINSTANCEID);
         forge.getGroupKeyCodegen(getGroupKeyMethod, classScope);
 
-        CodegenMethod getGroupKeysMethod = CodegenMethod.makeParentNode(Collection.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod getGroupKeysMethod = CodegenMethod.makeParentNode(EPTypePremade.COLLECTION.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.getGroupKeysCodegen(getGroupKeysMethod, classScope);
 
-        CodegenMethod getCollectionScalarMethod = CodegenMethod.makeParentNode(Collection.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_COLUMN).addParam(EventBean[].class, NAME_EPS).addParam(boolean.class, NAME_ISNEWDATA).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod getCollectionScalarMethod = CodegenMethod.makeParentNode(EPTypePremade.COLLECTION.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_COLUMN).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         forge.getCollectionScalarCodegen(getCollectionScalarMethod, classScope, namedMethods);
 
-        CodegenMethod stopMethod = CodegenMethod.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod stopMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         forge.stopMethodCodegen(forge, stopMethod);
 
         List<CodegenTypedParam> members = new ArrayList<>();
@@ -631,12 +634,12 @@ public class AggregationServiceFactoryCompiler {
             CodegenStackGenerator.recursiveBuildStack(methodEntry.getValue(), methodEntry.getKey(), innerMethods);
         }
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(classNames.getService(), AggregationService.class, ctor, members, innerMethods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(classNames.getService(), AggregationService.EPTYPE, ctor, members, innerMethods);
         innerClasses.add(innerClass);
     }
 
     private static void makeFactory(AggregationServiceFactoryForgeWMethodGen forge, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, String providerClassName, AggregationClassNames classNames) {
-        CodegenMethod makeServiceMethod = CodegenMethod.makeParentNode(AggregationService.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(MAKESERVICEPARAMS);
+        CodegenMethod makeServiceMethod = CodegenMethod.makeParentNode(AggregationService.EPTYPE, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(MAKESERVICEPARAMS);
         forge.makeServiceCodegen(makeServiceMethod, classScope, classNames);
 
         List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(providerClassName, "o"));
@@ -644,7 +647,7 @@ public class AggregationServiceFactoryCompiler {
 
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(makeServiceMethod, "makeService", methods);
-        CodegenInnerClass innerClass = new CodegenInnerClass(classNames.getServiceFactory(), AggregationServiceFactory.class, ctor, Collections.emptyList(), methods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(classNames.getServiceFactory(), AggregationServiceFactory.EPTYPE, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
     }
 
@@ -672,20 +675,20 @@ public class AggregationServiceFactoryCompiler {
 
     private enum AggregationCodegenGetType {
 
-        GETVALUE("getValue", Object.class),
-        GETEVENTBEAN("getEnumerableEvent", EventBean.class),
-        GETCOLLECTIONSCALAR("getEnumerableScalar", Collection.class),
-        GETCOLLECTIONOFEVENTS("getEnumerableEvents", Collection.class);
+        GETVALUE("getValue", EPTypePremade.OBJECT.getEPType()),
+        GETEVENTBEAN("getEnumerableEvent", EventBean.EPTYPE),
+        GETCOLLECTIONSCALAR("getEnumerableScalar", EPTypePremade.COLLECTION.getEPType()),
+        GETCOLLECTIONOFEVENTS("getEnumerableEvents", EPTypePremade.COLLECTION.getEPType());
 
         private final String accessorMethodName;
-        private final Class returnType;
+        private final EPTypeClass returnType;
 
-        AggregationCodegenGetType(String accessorMethodName, Class returnType) {
+        AggregationCodegenGetType(String accessorMethodName, EPTypeClass returnType) {
             this.accessorMethodName = accessorMethodName;
             this.returnType = returnType;
         }
 
-        public Class getReturnType() {
+        public EPTypeClass getReturnType() {
             return returnType;
         }
 

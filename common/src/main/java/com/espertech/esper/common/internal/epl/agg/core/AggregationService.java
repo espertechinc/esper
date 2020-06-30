@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.util.StopCallback;
 
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.util.StopCallback;
  * events leaving. Answers questions about current aggregation state for a given row.
  */
 public interface AggregationService extends AggregationResultFuture, StopCallback {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationService.class);
+
     /**
      * Apply events as entering a window (new events).
      *

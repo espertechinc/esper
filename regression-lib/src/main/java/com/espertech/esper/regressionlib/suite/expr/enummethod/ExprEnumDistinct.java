@@ -12,9 +12,12 @@ package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
@@ -87,38 +90,45 @@ public class ExprEnumDistinct {
 
     private static class ExprEnumDistinctEvents implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "c0,c1,c2".split(",");
+            String[] fields = "c0,c1,c2,c3".split(",");
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
             builder.expression(fields[0], "contained.distinctOf(x => p00)");
             builder.expression(fields[1], "contained.distinctOf( (x, i) => case when i<2 then p00 else -1*p00 end)");
             builder.expression(fields[2], "contained.distinctOf( (x, i, s) => case when s<=2 then p00 else 0 end)");
+            builder.expression(fields[3], "contained.distinctOf(x => null)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt ->
+                SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,2", "E3,1"))
                 .verify("c0", val -> assertST0Id(val, "E1,E2"))
                 .verify("c1", val -> assertST0Id(val, "E1,E2,E3"))
-                .verify("c2", val -> assertST0Id(val, "E1"));
+                .verify("c2", val -> assertST0Id(val, "E1"))
+                .verify("c3", val -> assertST0Id(val, "E1"));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E3,1", "E2,2", "E4,1", "E1,2"))
                 .verify("c0", val -> assertST0Id(val, "E3,E2"))
                 .verify("c1", val -> assertST0Id(val, "E3,E2,E4,E1"))
-                .verify("c2", val -> assertST0Id(val, "E3"));
+                .verify("c2", val -> assertST0Id(val, "E3"))
+                .verify("c3", val -> assertST0Id(val, "E3"));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E3,1", "E2,2"))
                 .verify("c0", val -> assertST0Id(val, "E3,E2"))
                 .verify("c1", val -> assertST0Id(val, "E3,E2"))
-                .verify("c2", val -> assertST0Id(val, "E3,E2"));
+                .verify("c2", val -> assertST0Id(val, "E3,E2"))
+                .verify("c3", val -> assertST0Id(val, "E3"));
 
             builder.assertion(SupportBean_ST0_Container.make2ValueNull())
                 .verify("c0", val -> assertST0Id(val, null))
                 .verify("c1", val -> assertST0Id(val, null))
-                .verify("c2", val -> assertST0Id(val, null));
+                .verify("c2", val -> assertST0Id(val, null))
+                .verify("c3", val -> assertST0Id(val, null));
 
             builder.assertion(SupportBean_ST0_Container.make2Value())
                 .verify("c0", val -> assertST0Id(val, ""))
                 .verify("c1", val -> assertST0Id(val, ""))
-                .verify("c2", val -> assertST0Id(val, ""));
+                .verify("c2", val -> assertST0Id(val, ""))
+                .verify("c3", val -> assertST0Id(val, ""));
 
             builder.run(env);
         }
@@ -126,20 +136,22 @@ public class ExprEnumDistinct {
 
     private static class ExprEnumDistinctScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "c0,c1,c2,c3".split(",");
+            String[] fields = "c0,c1,c2,c3,c4".split(",");
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
             builder.expression(fields[0], "strvals.distinctOf()");
             builder.expression(fields[1], "strvals.distinctOf(v => extractNum(v))");
             builder.expression(fields[2], "strvals.distinctOf((v, i) => case when i<2 then extractNum(v) else 0 end)");
             builder.expression(fields[3], "strvals.distinctOf((v, i, s) => case when s<=2 then extractNum(v) else 0 end)");
+            builder.expression(fields[4], "strvals.distinctOf(v => null)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E2,E2"))
                 .verify("c0", val -> assertValuesArrayScalar(val, "E2", "E1"))
                 .verify("c1", val -> assertValuesArrayScalar(val, "E2", "E1"))
                 .verify("c2", val -> assertValuesArrayScalar(val, "E2", "E1", "E2"))
-                .verify("c3", val -> assertValuesArrayScalar(val, "E2"));
+                .verify("c3", val -> assertValuesArrayScalar(val, "E2"))
+                .verify("c4", val -> assertValuesArrayScalar(val, "E2"));
 
             LambdaAssertionUtil.assertSingleAndEmptySupportColl(builder, fields);
 

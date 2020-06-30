@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlan;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPath;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanPathTriplet;
@@ -59,7 +60,7 @@ public class SupportFilterSpecBuilder {
 
     private static ExprFilterSpecLookupable makeLookupable(EventType eventType, String fieldName) {
         SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter(fieldName));
-        return new ExprFilterSpecLookupable(fieldName, eval, null, eventType.getPropertyType(fieldName), false, null);
+        return new ExprFilterSpecLookupable(fieldName, eval, null, (EPTypeClass) eventType.getPropertyEPType(fieldName), false, null);
     }
 }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookup;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.sorted.PropertySortedEventTable;
@@ -22,6 +23,8 @@ import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
  * Index lookup strategy for subqueries.
  */
 public class SubordSortedTableLookupStrategyFactory implements SubordTableLookupStrategyFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordSortedTableLookupStrategyFactory.class);
+
     private final String expression;
     protected final SortedAccessStrategy strategy;
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -30,7 +31,7 @@ public class FilterForEvalConstRuntimeExprForge implements FilterSpecParamFilter
     }
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(double.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), this.getClass(), classScope);
         CodegenMethod result = CodegenLegoMethodExpression.codegenExpression(runtimeConstant.getForge(), method, classScope);
         method.getBlock().methodReturn(localMethod(result, constantNull(), constantTrue(), constantNull()));
         return localMethod(method);

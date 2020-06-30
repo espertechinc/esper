@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.grouped;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -111,7 +112,7 @@ public class ResultSetProcessorGroupedUtil {
             if (optionalMultiKeyClasses != null && optionalMultiKeyClasses.getClassNameMK() != null) {
                 CodegenMethod method = MultiKeyCodegen.codegenMethod(groupKeyExpressions, optionalMultiKeyClasses, methodNode, classScope);
                 methodNode.getBlock()
-                    .declareVar(Object.class, "key", localMethod(method, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "key", localMethod(method, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
                     .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
                     .methodReturn(ref("key"));
                 return;
@@ -123,19 +124,19 @@ public class ResultSetProcessorGroupedUtil {
 
             CodegenMethod expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[0].getForge(), methodNode, classScope);
             methodNode.getBlock()
-                    .declareVar(Object.class, "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
                     .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
                     .methodReturn(ref("key"));
         };
 
-        return instance.getMethods().addMethod(Object.class, "generateGroupKeySingle", CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA), ResultSetProcessorUtil.class, classScope, code);
+        return instance.getMethods().addMethod(EPTypePremade.OBJECT.getEPType(), "generateGroupKeySingle", CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA), ResultSetProcessorUtil.class, classScope, code);
     }
 
     public static CodegenMethod generateGroupKeyArrayViewCodegen(CodegenMethod generateGroupKeySingle, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = method -> {
             method.getBlock().ifRefNullReturnNull("events")
-                    .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
-                    .declareVar(Object[].class, "keys", newArrayByLength(Object.class, arrayLength(ref("events"))));
+                    .declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)))
+                    .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "keys", newArrayByLength(EPTypePremade.OBJECT.getEPType(), arrayLength(ref("events"))));
             {
                 CodegenBlock forLoop = method.getBlock().forLoopIntSimple("i", arrayLength(ref("events")));
                 forLoop.assignArrayElement("eventsPerStream", constant(0), arrayAtIndex(ref("events"), ref("i")))
@@ -143,20 +144,20 @@ public class ResultSetProcessorGroupedUtil {
             }
             method.getBlock().methodReturn(ref("keys"));
         };
-        return instance.getMethods().addMethod(Object[].class, "generateGroupKeyArrayView", CodegenNamedParam.from(EventBean[].class, "events", boolean.class, NAME_ISNEWDATA), ResultSetProcessorRowPerGroup.class, classScope, code);
+        return instance.getMethods().addMethod(EPTypePremade.OBJECTARRAY.getEPType(), "generateGroupKeyArrayView", CodegenNamedParam.from(EventBean.EPTYPEARRAY, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA), ResultSetProcessorRowPerGroup.class, classScope, code);
     }
 
     public static CodegenMethod generateGroupKeyArrayJoinCodegen(CodegenMethod generateGroupKeySingle, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = method -> {
             method.getBlock().ifCondition(exprDotMethod(ref("resultSet"), "isEmpty")).blockReturn(constantNull())
-                    .declareVar(Object[].class, "keys", newArrayByLength(Object.class, exprDotMethod(ref("resultSet"), "size")))
-                    .declareVar(int.class, "count", constant(0))
-                    .forEach(MultiKeyArrayOfKeys.class, "eventsPerStream", ref("resultSet"))
-                    .assignArrayElement("keys", ref("count"), localMethod(generateGroupKeySingle, cast(EventBean[].class, exprDotMethod(ref("eventsPerStream"), "getArray")), REF_ISNEWDATA))
+                    .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "keys", newArrayByLength(EPTypePremade.OBJECT.getEPType(), exprDotMethod(ref("resultSet"), "size")))
+                    .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(0))
+                    .forEach(MultiKeyArrayOfKeys.EPTYPE, "eventsPerStream", ref("resultSet"))
+                    .assignArrayElement("keys", ref("count"), localMethod(generateGroupKeySingle, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("eventsPerStream"), "getArray")), REF_ISNEWDATA))
                     .incrementRef("count")
                     .blockEnd()
                     .methodReturn(ref("keys"));
         };
-        return instance.getMethods().addMethod(Object[].class, "generateGroupKeyArrayJoin", CodegenNamedParam.from(Set.class, "resultSet", boolean.class, "isNewData"), ResultSetProcessorRowPerEventImpl.class, classScope, code);
+        return instance.getMethods().addMethod(EPTypePremade.OBJECTARRAY.getEPType(), "generateGroupKeyArrayJoin", CodegenNamedParam.from(EPTypePremade.SET.getEPType(), "resultSet", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "isNewData"), ResultSetProcessorRowPerEventImpl.class, classScope, code);
     }
 }

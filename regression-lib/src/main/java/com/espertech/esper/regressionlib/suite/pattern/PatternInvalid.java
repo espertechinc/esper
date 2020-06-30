@@ -15,6 +15,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_N;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +96,7 @@ public class PatternInvalid {
 
             // property not a primitive type
             exception = getStatementExceptionPattern(env, "SupportBeanComplexProps(nested=1)");
-            SupportMessageAssertUtil.assertMessage(exception, "Failed to validate filter expression 'nested=1': Implicit conversion from datatype 'Integer' to 'SupportBeanSpecialGetterNested' is not allowed [");
+            SupportMessageAssertUtil.assertMessage(exception, "Failed to validate filter expression 'nested=1': Implicit conversion from datatype 'Integer' to '" + SupportBeanComplexProps.SupportBeanSpecialGetterNested.class.getName() + "' is not allowed [");
 
             // no tag matches prior use
             exception = getStatementExceptionPattern(env, "SupportBean_N(doublePrimitive=x.abc)");

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.view;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.table.core.Table;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.epl.table.core.TableInstance;
  * An output strategy that handles routing (insert-into) and stream selection.
  */
 public class OutputStrategyPostProcessFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputStrategyPostProcessFactory.class);
+
     private final boolean isRoute;
     private final SelectClauseStreamSelectorEnum insertIntoStreamSelector;
     private final SelectClauseStreamSelectorEnum selectStreamDirEnum;

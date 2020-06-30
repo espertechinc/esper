@@ -13,11 +13,14 @@ package com.espertech.esper.common.internal.event.bean.introspect;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
 import com.espertech.esper.common.internal.event.bean.core.PropertyHelper;
 import com.espertech.esper.common.internal.event.bean.core.PropertyStem;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 /**
  * Implementation for a property list builder that considers any public method
@@ -49,7 +52,7 @@ public class PropertyListBuilderPublic implements PropertyListBuilder {
     private static void addPublicMethods(List<PropertyStem> result, Class clazz) {
         Method[] methods = clazz.getMethods();
         for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getReturnType() == void.class) {
+            if (JavaClassHelper.isTypeVoid(methods[i].getReturnType())) {
                 continue;
             }
             if (methods[i].getParameterTypes().length >= 2) {
@@ -57,8 +60,7 @@ public class PropertyListBuilderPublic implements PropertyListBuilder {
             }
             if (methods[i].getParameterTypes().length == 1) {
                 Class parameterType = methods[i].getParameterTypes()[0];
-                if ((parameterType != int.class) && ((parameterType != Integer.class)) &&
-                        (parameterType != String.class)) {
+                if (!isTypeInteger(parameterType) && parameterType != String.class) {
                     continue;
                 }
             }

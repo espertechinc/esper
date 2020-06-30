@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.map;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,7 +29,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class MapEventBeanArrayPropertyGetter implements MapEventPropertyGetter {
     private final String propertyName;
-    private final Class underlyingType;
+    private final EPTypeClass underlyingType;
 
     /**
      * Ctor.
@@ -35,7 +37,7 @@ public class MapEventBeanArrayPropertyGetter implements MapEventPropertyGetter {
      * @param propertyName   property to get
      * @param underlyingType type of property
      */
-    public MapEventBeanArrayPropertyGetter(String propertyName, Class underlyingType) {
+    public MapEventBeanArrayPropertyGetter(String propertyName, EPTypeClass underlyingType) {
         this.propertyName = propertyName;
         this.underlyingType = underlyingType;
     }
@@ -46,9 +48,9 @@ public class MapEventBeanArrayPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenMethod getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
-                .declareVar(Object.class, "mapValue", exprDotMethod(ref("map"), "get", constant(propertyName)))
-                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope, codegenClassScope), cast(EventBean[].class, ref("mapValue"))));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "map").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "mapValue", exprDotMethod(ref("map"), "get", constant(propertyName)))
+                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope, codegenClassScope), cast(EventBean.EPTYPEARRAY, ref("mapValue"))));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -69,7 +71,7 @@ public class MapEventBeanArrayPropertyGetter implements MapEventPropertyGetter {
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -77,7 +79,7 @@ public class MapEventBeanArrayPropertyGetter implements MapEventPropertyGetter {
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

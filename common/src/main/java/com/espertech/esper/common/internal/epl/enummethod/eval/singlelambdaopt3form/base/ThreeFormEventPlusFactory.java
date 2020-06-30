@@ -16,9 +16,7 @@ import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLa
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeLambdaDesc;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.rettype.EPType;
-
-import java.util.function.Function;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public class ThreeFormEventPlusFactory extends ThreeFormBaseFactory {
     private final EventType eventType;
@@ -27,7 +25,7 @@ public class ThreeFormEventPlusFactory extends ThreeFormBaseFactory {
     private final int numParameters;
     private final ForgeFunction function;
 
-    public ThreeFormEventPlusFactory(Function<ExprDotEvalParamLambda, EPType> returnType, EventType eventType, String streamName, ObjectArrayEventType fieldType, int numParameters, ForgeFunction function) {
+    public ThreeFormEventPlusFactory(ThreeFormInitFunction returnType, EventType eventType, String streamName, ObjectArrayEventType fieldType, int numParameters, ForgeFunction function) {
         super(returnType);
         this.eventType = eventType;
         this.streamName = streamName;
@@ -40,12 +38,12 @@ public class ThreeFormEventPlusFactory extends ThreeFormBaseFactory {
         return new EnumForgeLambdaDesc(new EventType[]{eventType, fieldType}, new String[]{streamName, fieldType.getName()});
     }
 
-    protected EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPType typeInfo, StatementCompileTimeServices services) {
+    protected EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPChainableType typeInfo, StatementCompileTimeServices services) {
         return function.apply(lambda, fieldType, numParameters, typeInfo, services);
     }
 
     @FunctionalInterface
     public interface ForgeFunction {
-        EnumForge apply(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldType, int numParameters, EPType typeInfo, StatementCompileTimeServices services);
+        EnumForge apply(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldType, int numParameters, EPChainableType typeInfo, StatementCompileTimeServices services);
     }
 }

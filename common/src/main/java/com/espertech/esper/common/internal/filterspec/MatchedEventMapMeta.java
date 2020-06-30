@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,6 +25,8 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public final class MatchedEventMapMeta {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MatchedEventMapMeta.class);
+
     private final static int MIN_MAP_LOOKUP = 3;
 
     private final String[] tagsPerIndex;
@@ -80,10 +84,10 @@ public final class MatchedEventMapMeta {
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(MatchedEventMapMeta.class, this.getClass(), classScope);
-        method.getBlock().declareVar(String[].class, "tagsPerIndex", constant(tagsPerIndex))
-                .declareVar(EventType[].class, "eventTypes", EventTypeUtility.resolveTypeArrayCodegen(eventTypes, symbols.getAddInitSvc(method)))
-                .methodReturn(newInstance(MatchedEventMapMeta.class, ref("tagsPerIndex"), ref("eventTypes"), constant(arrayTags)));
+        CodegenMethod method = parent.makeChild(MatchedEventMapMeta.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVar(EPTypePremade.STRINGARRAY.getEPType(), "tagsPerIndex", constant(tagsPerIndex))
+                .declareVar(EventType.EPTYPEARRAY, "eventTypes", EventTypeUtility.resolveTypeArrayCodegen(eventTypes, symbols.getAddInitSvc(method)))
+                .methodReturn(newInstance(MatchedEventMapMeta.EPTYPE, ref("tagsPerIndex"), ref("eventTypes"), constant(arrayTags)));
         return method;
     }
 

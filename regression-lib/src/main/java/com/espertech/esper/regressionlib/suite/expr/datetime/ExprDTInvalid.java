@@ -47,7 +47,7 @@ public class ExprDTInvalid implements RegressionExecution {
 
         // invalid wrong parameter
         epl = "select utildate.between('a', 'b') from SupportDateTime";
-        tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'utildate.between(\"a\",\"b\")': Failed to validate date-time method 'between', expected a long-typed, Date-typed or Calendar-typed result for expression parameter 0 but received java.lang.String");
+        tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'utildate.between(\"a\",\"b\")': Failed to validate date-time method 'between', expected a long-typed, Date-typed or Calendar-typed result for expression parameter 0 but received String");
 
         // invalid wrong parameter
         epl = "select utildate.between(utildate, utildate, 1, true) from SupportDateTime";
@@ -61,6 +61,6 @@ public class ExprDTInvalid implements RegressionExecution {
 
         // invalid date format null
         epl = "select utildate.format(null) from SupportDateTime";
-        tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'utildate.format(null)': Failed to validate date-time method 'format', expected any of [String, DateFormat, DateTimeFormatter]-type result for expression parameter 0 but received null");
+        tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'utildate.format(null)': Failed to validate date-time method 'format', expected a non-null result for expression parameter 0 but received a null-typed expression");
     }
 }

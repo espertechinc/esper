@@ -10,12 +10,17 @@
  */
 package com.espertech.esper.common.client.dataflow.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 
 /**
  * Data flow runtime for instantiating data flows.
  */
 public interface EPDataFlowService {
+    /**
+     * Type information
+     */
+    EPTypeClass EPTYPE_DATAFLOWSTATE = new EPTypeClass(EPDataFlowState.class);
 
     /**
      * Returns a descriptor for the given data flow, or null if the data flow has not been declared.

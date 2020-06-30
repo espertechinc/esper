@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.firstoflastof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,8 +22,8 @@ import com.espertech.esper.common.internal.epl.enummethod.eval.EnumEval;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeBasePlain;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.Collection;
 
@@ -30,9 +31,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EnumFirstOf extends EnumForgeBasePlain implements EnumForge, EnumEval {
 
-    private final EPType resultType;
+    private final EPChainableType resultType;
 
-    public EnumFirstOf(int streamCountIncoming, EPType resultType) {
+    public EnumFirstOf(int streamCountIncoming, EPChainableType resultType) {
         super(streamCountIncoming);
         this.resultType = resultType;
     }
@@ -49,7 +50,7 @@ public class EnumFirstOf extends EnumForgeBasePlain implements EnumForge, EnumEv
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        Class type = EPTypeHelper.getCodegenReturnType(resultType);
+        EPTypeClass type = EPChainableTypeHelper.getCodegenReturnType(resultType);
         CodegenMethod method = codegenMethodScope.makeChild(type, EnumFirstOf.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(or(equalsNull(EnumForgeCodegenNames.REF_ENUMCOLL), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty")))
                 .blockReturn(constantNull())

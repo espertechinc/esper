@@ -11,16 +11,19 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class MethodTargetStrategyStaticMethod implements MethodTargetStrategy, MethodTargetStrategyFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MethodTargetStrategyStaticMethod.class);
+
     private Class clazz;
     private String methodName;
     private Class[] methodParameters;
@@ -83,7 +86,7 @@ public class MethodTargetStrategyStaticMethod implements MethodTargetStrategy, M
             method = clazz.getMethod(methodName, methodParameters);
         } catch (NoSuchMethodException ex) {
             throw new EPException("Failed to find method '" + methodName + "' of class '" + clazz.getName() + "' with parameters " +
-                JavaClassHelper.getParameterAsString(methodParameters));
+                ClassHelperPrint.getParameterAsString(methodParameters));
         }
         return method;
     }

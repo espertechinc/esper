@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProvider;
@@ -35,31 +37,31 @@ import static com.espertech.esper.common.internal.metrics.instrumentation.Instru
 
 public class SelectExprProcessorUtil {
     public static CodegenExpressionNewAnonymousClass makeAnonymous(SelectExprProcessorForge insertHelper, CodegenMethod method, CodegenExpressionRef initSvc, CodegenClassScope classScope) {
-        CodegenExpressionField resultType = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(insertHelper.getResultEventType(), initSvc));
+        CodegenExpressionField resultType = classScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(insertHelper.getResultEventType(), initSvc));
         CodegenExpressionField eventBeanFactory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, true);
         SelectExprProcessorCodegenSymbol selectEnv = new SelectExprProcessorCodegenSymbol();
         CodegenSymbolProvider symbolProvider = new CodegenSymbolProvider() {
-            public void provide(Map<String, Class> symbols) {
+            public void provide(Map<String, EPTypeClass> symbols) {
                 exprSymbol.provide(symbols);
                 selectEnv.provide(symbols);
             }
         };
 
-        CodegenExpressionNewAnonymousClass anonymousSelect = newAnonymousClass(method.getBlock(), SelectExprProcessor.class);
-        CodegenMethod processMethod = CodegenMethod.makeParentNode(EventBean.class, SelectExprProcessorUtil.class, symbolProvider, classScope)
-                .addParam(EventBean[].class, ExprForgeCodegenNames.NAME_EPS)
-                .addParam(boolean.class, ExprForgeCodegenNames.NAME_ISNEWDATA)
-                .addParam(boolean.class, SelectExprProcessorCodegenSymbol.NAME_ISSYNTHESIZE)
-                .addParam(ExprEvaluatorContext.class, ExprForgeCodegenNames.NAME_EXPREVALCONTEXT);
+        CodegenExpressionNewAnonymousClass anonymousSelect = newAnonymousClass(method.getBlock(), SelectExprProcessor.EPTYPE);
+        CodegenMethod processMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, SelectExprProcessorUtil.class, symbolProvider, classScope)
+                .addParam(EventBean.EPTYPEARRAY, ExprForgeCodegenNames.NAME_EPS)
+                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA)
+                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), SelectExprProcessorCodegenSymbol.NAME_ISSYNTHESIZE)
+                .addParam(ExprEvaluatorContext.EPTYPE, ExprForgeCodegenNames.NAME_EXPREVALCONTEXT);
         anonymousSelect.addMethod("process", processMethod);
         processMethod.getBlock().apply(instblock(classScope, "qSelectClause", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT));
 
         CodegenMethod performMethod = insertHelper.processCodegen(resultType, eventBeanFactory, processMethod, selectEnv, exprSymbol, classScope);
         exprSymbol.derivedSymbolsCodegen(processMethod, processMethod.getBlock(), classScope);
         processMethod.getBlock()
-                .declareVar(EventBean.class, "result", localMethod(performMethod))
+                .declareVar(EventBean.EPTYPE, "result", localMethod(performMethod))
                 .apply(instblock(classScope, "aSelectClause", REF_ISNEWDATA, ref("result"), constantNull()))
                 .methodReturn(ref("result"));
 

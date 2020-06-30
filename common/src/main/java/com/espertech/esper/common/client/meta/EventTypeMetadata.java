@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.client.meta;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,6 +21,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Provides metadata for an event type.
  */
 public class EventTypeMetadata {
+    /**
+     * Type information.
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventTypeMetadata.class);
+
     private final String name;
     private final String moduleName;
     private final EventTypeTypeClass typeClass;
@@ -141,14 +147,14 @@ public class EventTypeMetadata {
      * @return exppression
      */
     public CodegenExpression toExpressionWPublicId(CodegenExpression expressionEventTypeIdPublic) {
-        return newInstance(EventTypeMetadata.class,
+        return newInstance(EventTypeMetadata.EPTYPE,
                 constant(name), constant(moduleName),
                 enumValue(EventTypeTypeClass.class, typeClass.name()),
                 enumValue(EventTypeApplicationType.class, applicationType.name()),
                 enumValue(NameAccessModifier.class, accessModifier.name()),
                 enumValue(EventTypeBusModifier.class, busModifier.name()),
                 constant(isPropertyAgnostic),
-                newInstance(EventTypeIdPair.class, expressionEventTypeIdPublic, constant(eventTypeIdPair.getProtectedId())));
+                newInstance(EventTypeIdPair.EPTYPE, expressionEventTypeIdPublic, constant(eventTypeIdPair.getProtectedId())));
     }
 
     /**

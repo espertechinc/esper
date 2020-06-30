@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -58,21 +59,17 @@ public class ExprMinMaxRowNode extends ExprNodeBase {
         }
 
         for (ExprNode child : getChildNodes()) {
-            Class childType = child.getForge().getEvaluationType();
-            if (!JavaClassHelper.isNumeric(childType)) {
-                throw new ExprValidationException("Implicit conversion from datatype '" +
-                        childType.getSimpleName() +
-                        "' to numeric is not allowed");
-            }
+            ExprNodeUtilityValidate.validateReturnsNumeric(child.getForge());
         }
 
         // Determine result type, set up compute function
-        Class childTypeOne = getChildNodes()[0].getForge().getEvaluationType();
-        Class childTypeTwo = getChildNodes()[1].getForge().getEvaluationType();
-        Class resultType = JavaClassHelper.getArithmaticCoercionType(childTypeOne, childTypeTwo);
+        EPTypeClass childTypeOne = (EPTypeClass) getChildNodes()[0].getForge().getEvaluationType();
+        EPTypeClass childTypeTwo = (EPTypeClass) getChildNodes()[1].getForge().getEvaluationType();
+        EPTypeClass resultType = JavaClassHelper.getArithmaticCoercionType(childTypeOne, childTypeTwo);
 
         for (int i = 2; i < this.getChildNodes().length; i++) {
-            resultType = JavaClassHelper.getArithmaticCoercionType(resultType, getChildNodes()[i].getForge().getEvaluationType());
+            EPTypeClass childTypeMore = (EPTypeClass) getChildNodes()[i].getForge().getEvaluationType();
+            resultType = JavaClassHelper.getArithmaticCoercionType(resultType, childTypeMore);
         }
         forge = new ExprMinMaxRowNodeForge(this, resultType);
 

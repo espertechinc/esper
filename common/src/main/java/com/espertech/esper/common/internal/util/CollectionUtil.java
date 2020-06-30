@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.util;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -581,20 +583,20 @@ public class CollectionUtil {
         return map.containsKey(key);
     }
 
-    public static CodegenExpression arrayToCollectionAllowNullCodegen(CodegenMethodScope codegenMethodScope, Class arrayType, CodegenExpression array, CodegenClassScope codegenClassScope) {
-        if (!arrayType.isArray()) {
+    public static CodegenExpression arrayToCollectionAllowNullCodegen(CodegenMethodScope codegenMethodScope, EPTypeClass arrayType, CodegenExpression array, CodegenClassScope codegenClassScope) {
+        if (!arrayType.getType().isArray()) {
             throw new IllegalArgumentException("Expected array type and received " + arrayType);
         }
-        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, CollectionUtil.class, codegenClassScope).addParam(arrayType, "array").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), CollectionUtil.class, codegenClassScope).addParam(arrayType, "array").getBlock()
             .ifRefNullReturnNull("array");
-        if (!arrayType.getComponentType().isPrimitive()) {
+        if (!arrayType.getType().getComponentType().isPrimitive()) {
             return localMethodBuild(block.methodReturn(staticMethod(Arrays.class, "asList", ref("array")))).pass(array).call();
         }
         CodegenMethod method = block.ifCondition(equalsIdentity(arrayLength(ref("array")), constant(0)))
             .blockReturn(staticMethod(Collections.class, "emptyList"))
             .ifCondition(equalsIdentity(arrayLength(ref("array")), constant(1)))
             .blockReturn(staticMethod(Collections.class, "singletonList", arrayAtIndex(ref("array"), constant(0))))
-            .declareVar(ArrayDeque.class, "dq", newInstance(ArrayDeque.class, arrayLength(ref("array"))))
+            .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "dq", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), arrayLength(ref("array"))))
             .forLoopIntSimple("i", arrayLength(ref("array")))
             .expression(exprDotMethod(ref("dq"), "add", arrayAtIndex(ref("array"), ref("i"))))
             .blockEnd()

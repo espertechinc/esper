@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Interface for a type widener.
  */
 public interface TypeWidener {
+    EPTypeClass EPTYPE = new EPTypeClass(TypeWidener.class);
+
     /**
      * Widen input value.
      *

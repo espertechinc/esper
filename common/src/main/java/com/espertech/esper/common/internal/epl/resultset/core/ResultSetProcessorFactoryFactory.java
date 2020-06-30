@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.annotation.IterableUnbound;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
@@ -170,7 +171,7 @@ public class ResultSetProcessorFactoryFactory {
             int streamNum = Integer.MIN_VALUE;
             boolean isFragmentEvent = false;
             boolean isProperty = false;
-            Class propertyType = null;
+            EPType propertyType = null;
             isUsingStreamSelect = true;
             for (int i = 0; i < typeService.getStreamNames().length; i++) {
                 String streamName = streamSelectSpec.getStreamName();
@@ -613,7 +614,7 @@ public class ResultSetProcessorFactoryFactory {
         List<AggregationGroupByRollupLevelForge> levels = new ArrayList<>();
         int countOffset = 0;
         int countNumber = -1;
-        Class[] allGroupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(validated);
+        EPType[] allGroupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(validated);
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(groupByMKPLan.getMultiKeyForgeables());
         for (int[] mki : groupBy.getGroupByRollupLevels()) {
             countNumber++;

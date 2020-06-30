@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.epl.other;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
@@ -37,6 +36,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanSourceEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
+import com.espertech.esper.regressionlib.support.events.SupportGenericColUtil;
 import com.espertech.esper.runtime.client.EPStatement;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
@@ -47,7 +47,9 @@ import org.junit.Assert;
 import java.io.Serializable;
 import java.util.*;
 
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertPropEquals;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static com.espertech.esper.regressionlib.support.events.SupportGenericColUtil.assertPropertyEPTypes;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
 
@@ -72,7 +74,45 @@ public class EPLOtherCreateSchema {
         execs.add(new EPLOtherCreateSchemaSameCRC());
         execs.add(new EPLOtherCreateSchemaBeanImport());
         execs.add(new EPLOtherCreateSchemaCopyFromDeepWithValueObject());
+        execs.add(new EPLOtherCreateSchemaTypeParameterized());
         return execs;
+    }
+
+    private static class EPLOtherCreateSchemaTypeParameterized implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            tryAssertionTypeParameterized(env, getSchema(EventRepresentationChoice.OBJECTARRAY), "MyEvent");
+            tryAssertionTypeParameterized(env, getSchema(EventRepresentationChoice.MAP), "MyEvent");
+
+            String beanSchema = "@name('schema') create schema MyEvent as " + MyLocalSchemaTypeParamEvent.class.getName() + ";\n";
+            tryAssertionTypeParameterized(env, beanSchema, "MyEvent");
+
+            tryAssertionTypeParameterized(env, null, "MyPreconfiguredParameterizeTypeMap");
+        }
+
+        private String getSchema(EventRepresentationChoice rep) {
+            StringBuilder buf = new StringBuilder();
+            buf.append("@name('schema') ").append(rep.getAnnotationText()).append("create schema MyEvent(");
+            String delimiter = "";
+            for (SupportGenericColUtil.PairOfNameAndType pair : SupportGenericColUtil.NAMESANDTYPES) {
+                buf.append(delimiter).append(pair.getName()).append(" ").append(pair.getType());
+                delimiter = ",";
+            }
+            buf.append(");\n");
+            return buf.toString();
+        }
+
+        private void tryAssertionTypeParameterized(RegressionEnvironment env, String schemaEPL, String eventTypeName) {
+            String epl = schemaEPL == null ? "" : schemaEPL;
+            epl += "@name('s0') select " + SupportGenericColUtil.allNames() + " from " + eventTypeName + ";\n";
+            env.compileDeploy(epl);
+
+            if (schemaEPL != null) {
+                assertPropertyEPTypes(env.statement("schema").getEventType());
+            }
+            assertPropertyEPTypes(env.statement("s0").getEventType());
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherCreateSchemaCopyFromDeepWithValueObject implements RegressionExecution {
@@ -172,6 +212,8 @@ public class EPLOtherCreateSchema {
                 "Type 'dummy' is not a primitive type [create schema Invalid (x dummy[primitive])]");
             tryInvalidCompile(env, "create schema Invalid (x int[dummy])",
                 "Invalid array keyword 'dummy', expected 'primitive'");
+            tryInvalidCompile(env, "create schema Invalid (x int<string>[primitive])",
+                "Cannot use the 'primitive' keyword with type parameters");
         }
 
         private static void tryAssertionSchemaArrayPrimitiveType(RegressionEnvironment env, boolean soda) {
@@ -189,8 +231,8 @@ public class EPLOtherCreateSchema {
             // test schema
             env.compileDeploy("@name('schema') create schema MySchema (bean SupportBean, beanarray SupportBean_S0[])");
             EventType stmtSchemaType = env.statement("schema").getEventType();
-            Assert.assertEquals(new EventPropertyDescriptor("bean", SupportBean.class, null, false, false, false, false, true), stmtSchemaType.getPropertyDescriptor("bean"));
-            Assert.assertEquals(new EventPropertyDescriptor("beanarray", SupportBean_S0[].class, SupportBean_S0.class, false, false, true, false, true), stmtSchemaType.getPropertyDescriptor("beanarray"));
+            assertPropEquals(new SupportEventPropDesc("bean", SupportBean.class).fragment(), stmtSchemaType.getPropertyDescriptor("bean"));
+            assertPropEquals(new SupportEventPropDesc("beanarray", SupportBean_S0[].class).indexed().fragment(), stmtSchemaType.getPropertyDescriptor("beanarray"));
 
             env.compileDeploy("@name('s0') insert into MySchema select sb as bean, s0Arr as beanarray from SupportBeanSourceEvent").addListener("s0");
             env.sendEventBean(theEvent);
@@ -201,8 +243,8 @@ public class EPLOtherCreateSchema {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('window') create window MyWindow#keepall as (bean SupportBean, beanarray SupportBean_S0[])", path).addListener("window");
             EventType stmtWindowType = env.statement("window").getEventType();
-            Assert.assertEquals(new EventPropertyDescriptor("bean", SupportBean.class, null, false, false, false, false, true), stmtWindowType.getPropertyDescriptor("bean"));
-            Assert.assertEquals(new EventPropertyDescriptor("beanarray", SupportBean_S0[].class, SupportBean_S0.class, false, false, true, false, true), stmtWindowType.getPropertyDescriptor("beanarray"));
+            assertPropEquals(new SupportEventPropDesc("bean", SupportBean.class).fragment(), stmtWindowType.getPropertyDescriptor("bean"));
+            assertPropEquals(new SupportEventPropDesc("beanarray", SupportBean_S0[].class).indexed().fragment(), stmtWindowType.getPropertyDescriptor("beanarray"));
 
             env.compileDeploy("@name('windowInsertOne') insert into MyWindow select sb as bean, s0Arr as beanarray from SupportBeanSourceEvent", path);
             env.sendEventBean(theEvent);
@@ -787,5 +829,48 @@ public class EPLOtherCreateSchema {
 
     public static class MyLocalValueObject {
 
+    }
+
+    public static class MyLocalSchemaTypeParamEvent<T>  {
+        private java.util.List<String> listOfString;
+        private java.util.List<Optional<Integer>> listOfOptionalInteger;
+        private Map<String, Integer> mapOfStringAndInteger;
+        private List<String>[] listArrayOfString;
+        List<String[]> listOfStringArray;
+        List<String>[][] listArray2DimOfString;
+        List<String[][]> listOfStringArray2Dim;
+        List<T> listOfT;
+
+        public List<String> getListOfString() {
+            return listOfString;
+        }
+
+        public List<Optional<Integer>> getListOfOptionalInteger() {
+            return listOfOptionalInteger;
+        }
+
+        public Map<String, Integer> getMapOfStringAndInteger() {
+            return mapOfStringAndInteger;
+        }
+
+        public List<String>[] getListArrayOfString() {
+            return listArrayOfString;
+        }
+
+        public List<String[]> getListOfStringArray() {
+            return listOfStringArray;
+        }
+
+        public List<String>[][] getListArray2DimOfString() {
+            return listArray2DimOfString;
+        }
+
+        public List<String[][]> getListOfStringArray2Dim() {
+            return listOfStringArray2Dim;
+        }
+
+        public List<T> getListOfT() {
+            return listOfT;
+        }
     }
 }

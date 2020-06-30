@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +21,8 @@ import java.util.Iterator;
  * Iterator for an iterator of events returning the underlying itself.
  */
 public class EventUnderlyingCollection implements Collection<Object> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventUnderlyingCollection.class);
+
     private final Collection<EventBean> events;
     private Collection<Object> buf;
 

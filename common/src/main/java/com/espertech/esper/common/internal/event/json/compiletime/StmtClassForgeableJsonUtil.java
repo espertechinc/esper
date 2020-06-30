@@ -10,18 +10,18 @@
  */
 package com.espertech.esper.common.internal.event.json.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.model.statement.CodegenStatementSwitch;
 
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class StmtClassForgeableJsonUtil {
     static void makeNoSuchElementDefault(CodegenStatementSwitch switchStmt, CodegenExpressionRef num) {
-        switchStmt.getDefaultBlock().blockThrow(newInstance(NoSuchElementException.class, concat(constant("Field at number "), num)));
+        switchStmt.getDefaultBlock().blockThrow(newInstance(EPTypePremade.NOSUCHELEMENTEXCEPTION.getEPType(), concat(constant("Field at number "), num)));
     }
 
     static CodegenExpression[] getCasesNumberNtoM(StmtClassForgeableJsonDesc desc) {

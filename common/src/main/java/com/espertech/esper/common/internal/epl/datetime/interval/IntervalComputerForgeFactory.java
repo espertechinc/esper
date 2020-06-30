@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.interval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -180,7 +182,7 @@ public class IntervalComputerForgeFactory {
                     }
 
                     public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-                        CodegenExpressionField field = codegenClassScope.addFieldUnshared(true, TimePeriodCompute.class, timePeriod.getTimePeriodComputeForge().makeEvaluator(codegenClassScope.getPackageScope().getInitMethod(), codegenClassScope));
+                        CodegenExpressionField field = codegenClassScope.addFieldUnshared(true, TimePeriodCompute.EPTYPE, timePeriod.getTimePeriodComputeForge().makeEvaluator(codegenClassScope.getPackageScope().getInitMethod(), codegenClassScope));
                         return exprDotMethod(field, "deltaAdd", reference, exprSymbol.getAddEPS(parent), exprSymbol.getAddIsNewData(parent), exprSymbol.getAddExprEvalCtx(parent));
                     }
                 };
@@ -203,7 +205,8 @@ public class IntervalComputerForgeFactory {
                 }
 
                 public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-                    return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.evaluateCodegen(forge.getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType());
+                    EPTypeClass type = (EPTypeClass) forge.getEvaluationType();
+                    return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.evaluateCodegen(type, codegenMethodScope, exprSymbol, codegenClassScope), type);
                 }
             };
             return new ExprOptionalConstantForge(eval, null);
@@ -277,11 +280,11 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerAfterWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerAfterWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), IntervalComputerAfterWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "rangeEndDelta", forge.finish.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(relational(ref("rangeStartDelta"), GT, ref("rangeEndDelta")))
                     .blockReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("rangeEndDelta"), ref("rangeStartDelta")));
             block.methodReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("rangeStartDelta"), ref("rangeEndDelta")));
@@ -379,11 +382,11 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerBeforeWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerBeforeWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), IntervalComputerBeforeWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_LEFTEND, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(IntervalForgeCodegenNames.REF_LEFTEND, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_LEFTEND, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "rangeEndDelta", forge.finish.codegen(IntervalForgeCodegenNames.REF_LEFTEND, methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(relational(ref("rangeStartDelta"), GT, ref("rangeEndDelta")))
                     .blockReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, ref("rangeEndDelta"), ref("rangeStartDelta")));
             block.methodReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, ref("rangeStartDelta"), ref("rangeEndDelta")));
@@ -496,11 +499,11 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerCoincidesWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerCoincidesWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalComputerCoincidesWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "startValue", forge.start.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "endValue", forge.finish.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startValue", forge.start.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endValue", forge.finish.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(or(relational(ref("startValue"), LT, constant(0)), relational(ref("endValue"), LT, constant(0))))
                     .staticMethod(IntervalComputerCoincidesWithDeltaExprEval.class, METHOD_WARNCOINCIDESTARTENDLESSZERO)
                     .blockReturn(constantNull());
@@ -617,20 +620,20 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerDuringAndIncludesThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), IntervalComputerDuringAndIncludesThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "thresholdValue", forge.threshold.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "thresholdValue", forge.threshold.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope));
 
             if (forge.during) {
-                block.declareVar(long.class, "deltaStart", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART))
+                block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "deltaStart", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART))
                         .ifConditionReturnConst(or(relational(ref("deltaStart"), LE, constant(0)), relational(ref("deltaStart"), GT, ref("thresholdValue"))), false)
-                        .declareVar(long.class, "deltaEnd", op(IntervalForgeCodegenNames.REF_RIGHTEND, "-", IntervalForgeCodegenNames.REF_LEFTEND))
+                        .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "deltaEnd", op(IntervalForgeCodegenNames.REF_RIGHTEND, "-", IntervalForgeCodegenNames.REF_LEFTEND))
                         .methodReturn(not(or(relational(ref("deltaEnd"), LE, constant(0)), relational(ref("deltaEnd"), GT, ref("thresholdValue")))));
             } else {
-                block.declareVar(long.class, "deltaStart", op(IntervalForgeCodegenNames.REF_RIGHTSTART, "-", IntervalForgeCodegenNames.REF_LEFTSTART))
+                block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "deltaStart", op(IntervalForgeCodegenNames.REF_RIGHTSTART, "-", IntervalForgeCodegenNames.REF_LEFTSTART))
                         .ifConditionReturnConst(or(relational(ref("deltaStart"), LE, constant(0)), relational(ref("deltaStart"), GT, ref("thresholdValue"))), false)
-                        .declareVar(long.class, "deltaEnd", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND))
+                        .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "deltaEnd", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND))
                         .methodReturn(not(or(relational(ref("deltaEnd"), LE, constant(0)), relational(ref("deltaEnd"), GT, ref("thresholdValue")))));
             }
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
@@ -681,11 +684,11 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerDuringAndIncludesMinMax forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesMinMaxEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), IntervalComputerDuringAndIncludesMinMaxEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "min", forge.minEval.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "max", forge.maxEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "min", forge.minEval.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "max", forge.maxEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
             block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
                     forge.during ? "computeIntervalDuring" : "computeIntervalIncludes",
                     IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("min"), ref("max"), ref("min"), ref("max")));
@@ -777,13 +780,13 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerDuringMinMaxStartEndForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringMinMaxStartEndEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), IntervalComputerDuringMinMaxStartEndEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "minStart", forge.minStartEval.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "maxStart", forge.maxStartEval.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "minEnd", forge.minEndEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "maxEnd", forge.maxEndEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "minStart", forge.minStartEval.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "maxStart", forge.maxStartEval.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "minEnd", forge.minEndEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "maxEnd", forge.maxEndEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
             block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
                     forge.during ? "computeIntervalDuring" : "computeIntervalIncludes",
                     IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("minStart"), ref("maxStart"), ref("minEnd"), ref("maxEnd")));
@@ -861,15 +864,15 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerFinishesThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishesThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalComputerFinishesThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .staticMethod(IntervalComputerFinishesThresholdEval.class, METHOD_LOGWARNINGINTERVALFINISHTHRESHOLD)
                     .blockReturn(constantNull())
                     .ifConditionReturnConst(relational(IntervalForgeCodegenNames.REF_RIGHTSTART, GE, IntervalForgeCodegenNames.REF_LEFTSTART), false)
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
@@ -941,15 +944,15 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerFinishedByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishedByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalComputerFinishedByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_RIGHTEND, IntervalForgeCodegenNames.REF_LEFTEND), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_RIGHTEND, IntervalForgeCodegenNames.REF_LEFTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .staticMethod(IntervalComputerFinishedByThresholdEval.class, METHOD_LOGWARNINGINTERVALFINISHEDBYTHRESHOLD)
                     .blockReturn(constantNull())
                     .ifConditionReturnConst(relational(IntervalForgeCodegenNames.REF_LEFTSTART, GE, IntervalForgeCodegenNames.REF_RIGHTSTART), false)
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
@@ -1020,14 +1023,14 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerMeetsThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMeetsThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalComputerMeetsThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .staticMethod(IntervalComputerMeetsThresholdEval.class, METHOD_LOGWARNINGINTERVALMEETSTHRESHOLD)
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_RIGHTSTART, "-", IntervalForgeCodegenNames.REF_LEFTEND)))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_RIGHTSTART, "-", IntervalForgeCodegenNames.REF_LEFTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
@@ -1099,14 +1102,14 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerMetByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMetByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalComputerMetByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .staticMethod(IntervalComputerMetByThresholdEval.class, METHOD_LOGWARNINGINTERVALMETBYTHRESHOLD)
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
@@ -1176,10 +1179,10 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerOverlapsAndByThreshold forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), IntervalComputerOverlapsAndByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "threshold", forge.thresholdExpr.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope));
             CodegenMethod method;
             if (forge.overlaps) {
                 block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
@@ -1261,11 +1264,11 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerOverlapsAndByMinMaxForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByMinMaxEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), IntervalComputerOverlapsAndByMinMaxEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(long.class, "minThreshold", forge.minEval.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
-                    .declareVar(long.class, "maxThreshold", forge.maxEval.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTEND : IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "minThreshold", forge.minEval.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "maxThreshold", forge.maxEval.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTEND : IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
             if (forge.overlaps) {
                 block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
                         IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("minThreshold"), ref("maxThreshold")));
@@ -1365,14 +1368,14 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerStartsThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartsThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalComputerStartsThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .staticMethod(IntervalComputerStartsThresholdEval.class, METHOD_LOGWARNINGINTERVALSTARTSTHRESHOLD)
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
                     .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(IntervalForgeCodegenNames.REF_LEFTEND, LT, IntervalForgeCodegenNames.REF_RIGHTEND)));
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
@@ -1444,14 +1447,14 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerStartedByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartedByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), IntervalComputerStartedByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .staticMethod(IntervalComputerStartedByThresholdEval.class, METHOD_LOGWARNINGINTERVALSTARTEDBYTHRESHOLD)
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
+                    .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
                     .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(IntervalForgeCodegenNames.REF_LEFTEND, GT, IntervalForgeCodegenNames.REF_RIGHTEND)));
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }

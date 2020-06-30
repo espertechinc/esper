@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -58,9 +59,9 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
     public AggregatorAccessSortedMinMaxByEver(AggregationStateMinMaxByEverForge forge, int col, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
         super(optionalFilter);
         this.forge = forge;
-        currentMinMaxBean = membersColumnized.addMember(col, EventBean.class, "currentMinMaxBean");
+        currentMinMaxBean = membersColumnized.addMember(col, EventBean.EPTYPE, "currentMinMaxBean");
         currentMinMaxBeanSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeEventTyped(NULLABLEEVENTMAYCOLLATE, forge.getSpec().getStreamEventType()));
-        currentMinMax = membersColumnized.addMember(col, Object.class, "currentMinMax");
+        currentMinMax = membersColumnized.addMember(col, EPTypePremade.OBJECT.getEPType(), "currentMinMax");
         if (forge.getSpec().getCriteria().length == 1) {
             currentMinMaxSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(VALUE_NULLABLE, forge.getSpec().getCriteriaTypes()[0], forge.getSpec().getCriteriaSerdes()[0], classScope));
         } else {
@@ -72,7 +73,7 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
     protected void applyEnterFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenExpression eps = symbols.getAddEPS(method);
         CodegenExpression ctx = symbols.getAddExprEvalCtx(method);
-        method.getBlock().declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
+        method.getBlock().declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
             .ifCondition(equalsNull(ref("theEvent"))).blockReturnNoValue()
             .localMethod(addEventCodegen(method, namedMethods, classScope), ref("theEvent"), eps, ctx);
     }
@@ -94,8 +95,8 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock()
-            .assignRef(rowDotMember(row, currentMinMax), cast(Object.class, exprDotMethod(currentMinMaxSerde, "read", input, unitKey)))
-            .assignRef(rowDotMember(row, currentMinMaxBean), cast(EventBean.class, exprDotMethod(currentMinMaxBeanSerde, "read", input, unitKey)));
+            .assignRef(rowDotMember(row, currentMinMax), cast(EPTypePremade.OBJECT.getEPType(), exprDotMethod(currentMinMaxSerde, "read", input, unitKey)))
+            .assignRef(rowDotMember(row, currentMinMaxBean), cast(EventBean.EPTYPE, exprDotMethod(currentMinMaxBeanSerde, "read", input, unitKey)));
     }
 
     public CodegenExpression getFirstValueCodegen(CodegenClassScope classScope, CodegenMethod method) {
@@ -131,13 +132,13 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
     private CodegenMethod addEventCodegen(CodegenMethod parent, CodegenNamedMethods namedMethods, CodegenClassScope classScope) {
         CodegenMethod comparable = getComparableWObjectArrayKeyCodegen(forge.getSpec().getCriteria(), currentMinMaxBean, namedMethods, classScope);
 
-        CodegenMethod methodNode = parent.makeChild(void.class, this.getClass(), classScope).addParam(EventBean.class, "theEvent").addParam(EventBean[].class, NAME_EPS).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
-        methodNode.getBlock().declareVar(Object.class, "comparable", localMethod(comparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
+        CodegenMethod methodNode = parent.makeChild(EPTypePremade.VOID.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "theEvent").addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
+        methodNode.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "comparable", localMethod(comparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
             .ifCondition(equalsNull(currentMinMax))
             .assignRef(currentMinMax, ref("comparable"))
             .assignRef(currentMinMaxBean, ref("theEvent"))
             .ifElse()
-            .declareVar(int.class, "compareResult", exprDotMethod(comparator, "compare", currentMinMax, ref("comparable")))
+            .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "compareResult", exprDotMethod(comparator, "compare", currentMinMax, ref("comparable")))
             .ifCondition(relational(ref("compareResult"), forge.getSpec().isMax() ? LT : GT, constant(0)))
             .assignRef(currentMinMax, ref("comparable"))
             .assignRef(currentMinMaxBean, ref("theEvent"));
@@ -153,22 +154,22 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
                 ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
                 CodegenExpression[] expressions = new CodegenExpression[criteria.length];
                 for (int i = 0; i < criteria.length; i++) {
-                    expressions[i] = criteria[i].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
+                    expressions[i] = criteria[i].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), method, exprSymbol, classScope);
                 }
                 exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
 
-                method.getBlock().declareVar(Object[].class, "result", newArrayByLength(Object.class, constant(criteria.length)));
+                method.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "result", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(criteria.length)));
                 for (int i = 0; i < criteria.length; i++) {
                     method.getBlock().assignArrayElement(ref("result"), constant(i), expressions[i]);
                 }
                 method.getBlock().methodReturn(ref("result"));
             }
         };
-        return namedMethods.addMethod(Object.class, methodName, CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), AggregatorAccessSortedImpl.class, classScope, code);
+        return namedMethods.addMethod(EPTypePremade.OBJECT.getEPType(), methodName, CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT), AggregatorAccessSortedImpl.class, classScope, code);
     }
 
     public static CodegenExpression codegenGetAccessTableState(int column, CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(EventBean.class, AggregatorAccessSortedMinMaxByEver.class, classScope);
+        CodegenMethod method = parent.makeChild(EventBean.EPTYPE, AggregatorAccessSortedMinMaxByEver.class, classScope);
         method.getBlock().methodReturn(memberCol("currentMinMaxBean", column));
         return localMethod(method);
     }

@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.client.extension;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -235,7 +236,7 @@ public class ClientExtendAggregationFunction {
             env.compileDeploy(soda, text).addListener("s0");
 
             AggregationFunctionValidationContext validContext = SupportLowerUpperCompareAggregationFunctionForge.getContexts().get(0);
-            EPAssertionUtil.assertEqualsExactOrder(new Class[]{int.class, int.class, Integer.class, SupportBean.class}, validContext.getParameterTypes());
+            EPAssertionUtil.assertEqualsExactOrder(new EPTypeClass[]{new EPTypeClass(int.class), new EPTypeClass(int.class), new EPTypeClass(Integer.class), new EPTypeClass(SupportBean.class)}, validContext.getParameterTypes());
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 10, null, null}, validContext.getConstantValues());
             EPAssertionUtil.assertEqualsExactOrder(new boolean[]{true, true, false, false}, validContext.getIsConstantValue());
 

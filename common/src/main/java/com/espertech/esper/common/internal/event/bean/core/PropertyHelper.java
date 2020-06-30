@@ -10,18 +10,21 @@
  */
 package com.espertech.esper.common.internal.event.bean.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.getter.ReflectionPropMethodGetter;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventPropertyType;
 import com.espertech.esper.common.internal.event.core.WriteablePropertyDescriptor;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.*;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -202,7 +205,9 @@ public class PropertyHelper {
                 continue;
             }
 
-            result.add(new WriteablePropertyDescriptor(propertyName, writeMethod.getParameterTypes()[0], writeMethod, false));
+            Parameter parameter = writeMethod.getParameters()[0];
+            EPTypeClass type = ClassHelperGenericType.getParameterType(parameter);
+            result.add(new WriteablePropertyDescriptor(propertyName, type, writeMethod, false));
         }
     }
 

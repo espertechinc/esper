@@ -10,23 +10,26 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.delegates.array2dim.JsonDelegateArray2DimBase;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 public class JsonDelegateEventObjectArray2Dim extends JsonDelegateArray2DimBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateEventObjectArray2Dim.class);
     private final JsonDelegateFactory factory;
-    private final Class componentType;
+    private final EPTypeClass componentType;
 
-    public JsonDelegateEventObjectArray2Dim(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, JsonDelegateFactory factory, Class componentType) {
+    public JsonDelegateEventObjectArray2Dim(JsonHandlerDelegator baseHandler, JsonDelegateBase parent, JsonDelegateFactory factory, EPTypeClass componentType) {
         super(baseHandler, parent);
         this.factory = factory;
         this.componentType = componentType;
     }
 
     public JsonDelegateBase startArrayInner() {
-        return new JsonDelegateEventObjectArray(baseHandler, this, factory, componentType.getComponentType());
+        return new JsonDelegateEventObjectArray(baseHandler, this, factory, JavaClassHelper.getArrayComponentType(componentType));
     }
 
     public Object getResult() {
-        return JsonDelegateEventObjectArray.collectionToTypedArray(collection, componentType);
+        return JsonDelegateEventObjectArray.collectionToTypedArray(collection, componentType.getType());
     }
 }

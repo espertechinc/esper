@@ -11,9 +11,10 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -64,10 +65,9 @@ public class EventXMLNoSchemaEventTransposeXPathConfigured {
         env.compileDeploy("@name('s0') select * from " + eventTypeName, path);
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("insert").getEventType());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nested1simple", Node.class, null, false, false, false, false, true),
-            new EventPropertyDescriptor("nested4array", Node[].class, Node.class, false, false, true, false, true),
-        }, env.statement("insert").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("nested1simple", Node.class).fragment(),
+            new SupportEventPropDesc("nested4array", Node[].class).indexed().fragment());
 
         FragmentEventType fragmentTypeNested1 = env.statement("insert").getEventType().getFragmentType("nested1simple");
         assertFalse(fragmentTypeNested1.isIndexed());

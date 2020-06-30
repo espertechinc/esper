@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.or;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
@@ -46,8 +47,8 @@ public class EvalOrForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.OR;
     }
 
-    protected Class typeOfFactory() {
-        return EvalOrFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalOrFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {
@@ -55,7 +56,7 @@ public class EvalOrForgeNode extends EvalForgeNodeBase {
     }
 
     protected void inlineCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        method.getBlock().declareVar(EvalFactoryNode[].class, "children", newArrayByLength(EvalFactoryNode.class, constant(getChildNodes().size())));
+        method.getBlock().declareVar(EvalFactoryNode.EPTYPEARRAY, "children", newArrayByLength(EvalFactoryNode.EPTYPE, constant(getChildNodes().size())));
         for (int i = 0; i < getChildNodes().size(); i++) {
             method.getBlock().assignArrayElement(ref("children"), constant(i), localMethod(getChildNodes().get(i).makeCodegen(method, symbols, classScope)));
         }

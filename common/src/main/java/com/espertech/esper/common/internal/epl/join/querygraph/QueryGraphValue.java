@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -19,6 +21,8 @@ import java.util.List;
  * Property lists stored as a value for each stream-to-stream relationship, for use by {@link QueryGraphForge}.
  */
 public class QueryGraphValue {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValue.class);
+
     private List<QueryGraphValueDesc> items;
 
     public QueryGraphValue(List<QueryGraphValueDesc> items) {

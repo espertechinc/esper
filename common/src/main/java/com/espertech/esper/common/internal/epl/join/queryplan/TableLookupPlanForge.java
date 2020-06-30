@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,7 +44,7 @@ public abstract class TableLookupPlanForge implements CodegenMakeable<SAIFFIniti
 
     public abstract TableLookupKeyDesc getKeyDescriptor();
 
-    public abstract Class typeOfPlanFactory();
+    public abstract EPTypeClass typeOfPlanFactory();
 
     public abstract Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -101,7 +103,7 @@ public abstract class TableLookupPlanForge implements CodegenMakeable<SAIFFIniti
         List<CodegenExpression> params = new ArrayList<>(6);
         params.add(constant(lookupStream));
         params.add(constant(indexedStream));
-        params.add(CodegenMakeableUtil.makeArray("reqIdxKeys", TableLookupIndexReqKey.class, indexNum, this.getClass(), method, symbols, classScope));
+        params.add(CodegenMakeableUtil.makeArray("reqIdxKeys", TableLookupIndexReqKey.EPTYPE, indexNum, this.getClass(), method, symbols, classScope));
         params.addAll(additionalParams(method, symbols, classScope));
         method.getBlock()
                 .declareVar(typeOfPlanFactory(), "plan", newInstance(typeOfPlanFactory(), params.toArray(new CodegenExpression[params.size()])));
@@ -111,7 +113,7 @@ public abstract class TableLookupPlanForge implements CodegenMakeable<SAIFFIniti
             TableLookupKeyDesc keyDesc = getKeyDescriptor();
             ExprNode[] hashes = keyDesc.getHashExpressions();
             QueryGraphValueEntryRangeForge[] ranges = keyDesc.getRanges().toArray(new QueryGraphValueEntryRangeForge[keyDesc.getRanges().size()]);
-            Class[] rangeResults = QueryGraphValueEntryRangeForge.getRangeResultTypes(ranges);
+            EPType[] rangeResults = QueryGraphValueEntryRangeForge.getRangeResultTypes(ranges);
             method.getBlock()
                     .exprDotMethod(ref("plan"), "setVirtualDWHashEvals", ExprNodeUtilityCodegen.codegenEvaluators(hashes, method, this.getClass(), classScope))
                     .exprDotMethod(ref("plan"), "setVirtualDWHashTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(hashes)))

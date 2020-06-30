@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.support.extend.pattern;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertor;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.epl.pattern.observer.ObserverFactory;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 public class MyFileExistsObserverFactory implements ObserverFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MyFileExistsObserverFactory.class);
     protected ExprEvaluator filenameExpression;
     protected MatchedEventConvertor convertor;
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.apachecommonstext.StringEscapeUtils;
 
@@ -23,7 +24,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerat
 public class CodegenExpressionUtil {
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
-    public static void renderConstant(StringBuilder builder, Object constant, Map<Class, String> imports) {
+    public static void renderConstant(StringBuilder builder, Object constant, Map<Class, String> imports, boolean isInnerClass) {
         if (constant instanceof String) {
             builder.append('"').append(StringEscapeUtils.escapeJava((String) constant)).append('"');
         } else if (constant instanceof CharSequence) {
@@ -61,21 +62,23 @@ public class CodegenExpressionUtil {
                 String hex = bytesToHex((byte[]) constant);
                 builder.append(CodegenExpressionUtil.class.getName()).append(".").append("hexStringToByteArray(\"").append(hex).append("\")");
             } else {
-                renderArray(constant, builder, imports);
+                renderArray(constant, builder, imports, isInnerClass);
             }
         } else if (constant.getClass().isArray()) {
-            renderArray(constant, builder, imports);
+            renderArray(constant, builder, imports, isInnerClass);
         } else if (constant.getClass().isEnum()) {
-            appendClassName(builder, constant.getClass(), null, imports);
+            appendClassName(builder, constant.getClass(), imports);
             builder.append(".").append(constant);
+        } else if (constant instanceof EPType) {
+            CodegenExpressionEPType.render((EPType) constant, builder, imports, isInnerClass);
         } else if (constant instanceof Class) {
             CodegenExpressionClass.renderClass((Class) constant, builder, imports);
         } else if (constant instanceof BigInteger) {
-            renderBigInteger((BigInteger) constant, builder, imports);
+            renderBigInteger((BigInteger) constant, builder, imports, isInnerClass);
         } else if (constant instanceof BigDecimal) {
             BigDecimal bigDecimal = (BigDecimal) constant;
             builder.append("new BigDecimal(");
-            renderBigInteger(bigDecimal.unscaledValue(), builder, imports);
+            renderBigInteger(bigDecimal.unscaledValue(), builder, imports, isInnerClass);
             builder.append(",").append(bigDecimal.scale()).append(")");
         } else {
             builder.append(constant);
@@ -92,9 +95,9 @@ public class CodegenExpressionUtil {
             constant instanceof BigDecimal;
     }
 
-    private static void renderBigInteger(BigInteger constant, StringBuilder builder, Map<Class, String> imports) {
+    private static void renderBigInteger(BigInteger constant, StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("new java.math.BigInteger(");
-        renderConstant(builder, constant.toByteArray(), imports);
+        renderConstant(builder, constant.toByteArray(), imports, isInnerClass);
         builder.append(")");
     }
 
@@ -120,19 +123,19 @@ public class CodegenExpressionUtil {
         return new String(hexChars);
     }
 
-    private static void renderArray(Object constant, StringBuilder builder, Map<Class, String> imports) {
+    private static void renderArray(Object constant, StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (Array.getLength(constant) == 0) {
             builder.append("new ");
-            appendClassName(builder, constant.getClass().getComponentType(), null, imports);
+            appendClassName(builder, constant.getClass().getComponentType(), imports);
             builder.append("[]{}");
         } else {
             builder.append("new ");
-            appendClassName(builder, constant.getClass().getComponentType(), null, imports);
+            appendClassName(builder, constant.getClass().getComponentType(), imports);
             builder.append("[] {");
             String delimiter = "";
             for (int i = 0; i < Array.getLength(constant); i++) {
                 builder.append(delimiter);
-                renderConstant(builder, Array.get(constant, i), imports);
+                renderConstant(builder, Array.get(constant, i), imports, isInnerClass);
                 delimiter = ",";
             }
             builder.append("}");

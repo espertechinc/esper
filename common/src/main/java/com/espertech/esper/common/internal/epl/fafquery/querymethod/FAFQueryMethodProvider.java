@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * FAF query execute.
  */
 public interface FAFQueryMethodProvider {
+    EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodProvider.class);
+
     FAFQueryInformationals getQueryInformationals();
 
     FAFQueryMethod getQueryMethod();

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.take;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParam;
@@ -23,28 +24,28 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.List;
 
 public class ExprDotForgeTakeAndTakeLast extends ExprDotForgeEnumMethodBase {
 
-    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext) {
-        EPType type;
+    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, ExprValidationContext validationContext) {
+        EPChainableType type;
         if (inputEventType != null) {
-            type = EPTypeHelper.collectionOfEvents(inputEventType);
+            type = EPChainableTypeHelper.collectionOfEvents(inputEventType);
         } else {
-            type = EPTypeHelper.collectionOfSingleValue(collectionComponentType);
+            type = EPChainableTypeHelper.collectionOfSingleValue(collectionComponentType);
         }
         return new EnumForgeDescFactoryTake(enumMethod, type);
     }
 
     private class EnumForgeDescFactoryTake implements EnumForgeDescFactory {
         private final EnumMethodEnum enumMethod;
-        private final EPType type;
+        private final EPChainableType type;
 
-        public EnumForgeDescFactoryTake(EnumMethodEnum enumMethod, EPType type) {
+        public EnumForgeDescFactoryTake(EnumMethodEnum enumMethod, EPChainableType type) {
             this.enumMethod = enumMethod;
             this.type = type;
         }

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -39,10 +41,10 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
     private final String propertyName;
     private final int streamId;
     private final EventPropertyGetterSPI getter;
-    private final Class componentType;
-    private final Class getterReturnType;
+    private final EPTypeClass componentType;
+    private final EPTypeClass getterReturnType;
 
-    public PropertyDotScalarIterable(String propertyName, int streamId, EventPropertyGetterSPI getter, Class componentType, Class getterReturnType) {
+    public PropertyDotScalarIterable(String propertyName, int streamId, EventPropertyGetterSPI getter, EPTypeClass componentType, EPTypeClass getterReturnType) {
         this.propertyName = propertyName;
         this.streamId = streamId;
         this.getter = getter;
@@ -67,8 +69,8 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         if (JavaClassHelper.isImplementsInterface(getterReturnType, Collection.class)) {
             return getter.eventBeanGetCodegen(symbols.getAddEvent(codegenMethodScope), codegenMethodScope, codegenClassScope);
         }
-        CodegenMethod method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarIterable.class, codegenClassScope);
-        method.getBlock().declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(Iterable.class, getter.eventBeanGetCodegen(symbols.getAddEvent(method), codegenMethodScope, codegenClassScope)))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotScalarIterable.class, codegenClassScope);
+        method.getBlock().declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(EPTypePremade.ITERABLE.getEPType(), getter.eventBeanGetCodegen(symbols.getAddEvent(method), codegenMethodScope, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(CollectionUtil.class, "iterableToCollection", ref("result")));
         return localMethod(method);
@@ -97,8 +99,8 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         if (JavaClassHelper.isImplementsInterface(getterReturnType, Collection.class)) {
             return getter.eventBeanGetCodegen(event, codegenMethodScope, codegenClassScope);
         }
-        CodegenMethod method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarIterable.class, codegenClassScope).addParam(EventBean.class, "event").getBlock()
-                .declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(Iterable.class, getter.eventBeanGetCodegen(ref("event"), codegenMethodScope, codegenClassScope)))
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), PropertyDotScalarIterable.class, codegenClassScope).addParam(EventBean.EPTYPE, "event").getBlock()
+                .declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(EPTypePremade.ITERABLE.getEPType(), getter.eventBeanGetCodegen(ref("event"), codegenMethodScope, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(CollectionUtil.class, "iterableToCollection", ref("result")));
         return localMethodBuild(method).pass(event).call();
@@ -108,7 +110,7 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         return null;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return componentType;
     }
 

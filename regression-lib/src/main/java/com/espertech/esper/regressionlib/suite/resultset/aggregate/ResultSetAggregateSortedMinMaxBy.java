@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -43,6 +44,8 @@ public class ResultSetAggregateSortedMinMaxBy {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select sorted(theString desc, intPrimitive desc) as c0 from SupportBean#keepall";
             env.compileDeploy(epl).addListener("s0");
+
+            assertEquals(new EPTypeClass(SupportBean[].class), env.statement("s0").getEventType().getPropertyEPType("c0"));
 
             env.sendEventBean(new SupportBean("C", 10));
             assertExpected(env, new Object[][]{{"C", 10}});

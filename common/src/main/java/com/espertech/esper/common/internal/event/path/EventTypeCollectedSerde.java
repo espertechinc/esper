@@ -12,13 +12,14 @@ package com.espertech.esper.common.internal.event.path;
 
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class EventTypeCollectedSerde {
     private final EventTypeMetadata metadata;
     private final DataInputOutputSerde<Object> underlyingSerde;
-    private final Class underlying;
+    private final EPTypeClass underlying;
 
-    public EventTypeCollectedSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, Class underlying) {
+    public EventTypeCollectedSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, EPTypeClass underlying) {
         this.metadata = metadata;
         this.underlyingSerde = underlyingSerde;
         this.underlying = underlying;
@@ -32,7 +33,7 @@ public class EventTypeCollectedSerde {
         return underlyingSerde;
     }
 
-    public Class getUnderlying() {
+    public EPTypeClass getUnderlying() {
         return underlying;
     }
 }

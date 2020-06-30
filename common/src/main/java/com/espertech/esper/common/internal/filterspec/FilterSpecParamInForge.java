@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -58,7 +62,7 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
         this.listOfValues = listofValues;
 
         for (FilterSpecParamInValueForge value : listofValues) {
-            Class returnType = value.getReturnType();
+            EPType returnType = value.getReturnType();
             if (JavaClassHelper.isCollectionMapOrArray(returnType)) {
                 hasCollMapOrArray = true;
                 break;
@@ -68,10 +72,10 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
         if (hasCollMapOrArray) {
             adders = new FilterSpecParamInAdder[listofValues.size()];
             for (int i = 0; i < listofValues.size(); i++) {
-                Class returnType = listofValues.get(i).getReturnType();
-                if (returnType == null) {
+                EPType returnType = listofValues.get(i).getReturnType();
+                if (returnType == null || returnType == EPTypeNull.INSTANCE) {
                     adders[i] = InValueAdderPlain.INSTANCE;
-                } else if (returnType.isArray()) {
+                } else if (((EPTypeClass) returnType).getType().isArray()) {
                     adders[i] = InValueAdderArray.INSTANCE;
                 } else if (JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
                     adders[i] = InValueAdderMap.INSTANCE;
@@ -144,41 +148,41 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
-        CodegenMethod method = parent.makeChild(FilterSpecParam.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-            .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+            .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+            .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.EPTYPE, Arrays.asList(ref("lookupable"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.EPTYPE, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
 
         CodegenExpression filterForValue;
         if (inListConstantsOnly != null) {
-            filterForValue = newInstance(HashableMultiKey.class, constant(inListConstantsOnly));
+            filterForValue = newInstance(HashableMultiKey.EPTYPE, constant(inListConstantsOnly));
         } else if (!hasCollMapOrArray) {
-            getFilterValue.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(listOfValues.size())));
+            getFilterValue.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "values", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(listOfValues.size())));
             for (int i = 0; i < listOfValues.size(); i++) {
                 FilterSpecParamInValueForge forge = listOfValues.get(i);
                 getFilterValue.getBlock().assignArrayElement(ref("values"), constant(i), forge.makeCodegen(classScope, method));
             }
-            filterForValue = newInstance(HashableMultiKey.class, ref("values"));
+            filterForValue = newInstance(HashableMultiKey.EPTYPE, ref("values"));
         } else {
-            getFilterValue.getBlock().declareVar(ArrayDeque.class, "values", newInstance(ArrayDeque.class, constant(listOfValues.size())));
+            getFilterValue.getBlock().declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "values", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), constant(listOfValues.size())));
             for (int i = 0; i < listOfValues.size(); i++) {
                 String valueName = "value" + i;
                 String adderName = "adder" + i;
                 getFilterValue.getBlock()
-                    .declareVar(Object.class, valueName, listOfValues.get(i).makeCodegen(classScope, parent))
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), valueName, listOfValues.get(i).makeCodegen(classScope, parent))
                     .ifRefNotNull(valueName)
-                    .declareVar(adders[i].getClass(), adderName, enumValue(adders[i].getClass(), "INSTANCE"))
+                    .declareVar(adders[i].getEPType(), adderName, enumValue(adders[i].getClass(), "INSTANCE"))
                     .exprDotMethod(ref(adderName), "add", ref("values"), ref(valueName))
                     .blockEnd();
             }
-            filterForValue = newInstance(HashableMultiKey.class, exprDotMethod(ref("values"), "toArray"));
+            filterForValue = newInstance(HashableMultiKey.EPTYPE, exprDotMethod(ref("values"), "toArray"));
         }
         getFilterValue.getBlock()
-            .declareVar(Object.class, "val", filterForValue)
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "val", filterForValue)
             .methodReturn(FilterValueSetParamImpl.codegenNew(ref("val")));
 
         method.getBlock()
@@ -209,6 +213,12 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
     }
 
     public static class InValueAdderArray implements FilterSpecParamInAdder {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(InValueAdderArray.class);
+
+        public EPTypeClass getEPType() {
+            return EPTYPE;
+        }
+
         public final static InValueAdderArray INSTANCE = new InValueAdderArray();
 
         private InValueAdderArray() {
@@ -227,6 +237,7 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
     }
 
     public static class InValueAdderMap implements FilterSpecParamInAdder {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(InValueAdderMap.class);
         public final static InValueAdderMap INSTANCE = new InValueAdderMap();
 
         private InValueAdderMap() {
@@ -240,9 +251,15 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
         public void valueToString(StringBuilder out) {
             out.append("map keys");
         }
+
+        public EPTypeClass getEPType() {
+            return EPTYPE;
+        }
     }
 
     public static class InValueAdderColl implements FilterSpecParamInAdder {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(InValueAdderColl.class);
+
         public final static InValueAdderColl INSTANCE = new InValueAdderColl();
 
         private InValueAdderColl() {
@@ -256,9 +273,15 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
         public void valueToString(StringBuilder out) {
             out.append("collection");
         }
+
+        public EPTypeClass getEPType() {
+            return EPTYPE;
+        }
     }
 
     public static class InValueAdderPlain implements FilterSpecParamInAdder {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(InValueAdderPlain.class);
+
         public final static InValueAdderPlain INSTANCE = new InValueAdderPlain();
 
         private InValueAdderPlain() {
@@ -270,6 +293,10 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
 
         public void valueToString(StringBuilder out) {
             out.append("collection");
+        }
+
+        public EPTypeClass getEPType() {
+            return EPTYPE;
         }
     }
 

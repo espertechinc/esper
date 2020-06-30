@@ -12,16 +12,17 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.*;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 public class SupportAggMFEventsAsListHandler implements AggregationMultiFunctionHandler {
     private final static AggregationMultiFunctionStateKey AGGREGATION_STATE_KEY = new AggregationMultiFunctionStateKey() {
     };
 
-    public EPType getReturnType() {
-        return EPTypeHelper.collectionOfSingleValue(SupportBean.class);
+    public EPChainableType getReturnType() {
+        return EPChainableTypeHelper.collectionOfSingleValue(ClassHelperGenericType.getClassEPType(SupportBean.class));
     }
 
     public AggregationMultiFunctionStateKey getAggregationStateUniqueKey() {
@@ -29,15 +30,15 @@ public class SupportAggMFEventsAsListHandler implements AggregationMultiFunction
     }
 
     public AggregationMultiFunctionStateMode getStateMode() {
-        return new AggregationMultiFunctionStateModeManaged().setInjectionStrategyAggregationStateFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListStateFactory.class));
+        return new AggregationMultiFunctionStateModeManaged().setInjectionStrategyAggregationStateFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListStateFactory.EPTYPE));
     }
 
     public AggregationMultiFunctionAccessorMode getAccessorMode() {
-        return new AggregationMultiFunctionAccessorModeManaged().setInjectionStrategyAggregationAccessorFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListAccessorFactory.class));
+        return new AggregationMultiFunctionAccessorModeManaged().setInjectionStrategyAggregationAccessorFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListAccessorFactory.EPTYPE));
     }
 
     public AggregationMultiFunctionAgentMode getAgentMode() {
-        return new AggregationMultiFunctionAgentModeManaged().setInjectionStrategyAggregationAgentFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListAggregationAgentFactory.class));
+        return new AggregationMultiFunctionAgentModeManaged().setInjectionStrategyAggregationAgentFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListAggregationAgentFactory.EPTYPE));
     }
 
     public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {

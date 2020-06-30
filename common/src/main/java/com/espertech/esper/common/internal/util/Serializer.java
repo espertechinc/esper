@@ -10,11 +10,15 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 public interface Serializer<T> {
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(Serializer[].class);
+
     public boolean accepts(Class c);
 
     public void serialize(T object, DataOutputStream stream) throws IOException;

@@ -35,10 +35,10 @@ public class HistoricalIndexLookupStrategyInKeywordSingleForge implements Histor
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyInKeywordSingle.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyInKeywordSingle.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(HistoricalIndexLookupStrategyInKeywordSingle.class, "strat", newInstance(HistoricalIndexLookupStrategyInKeywordSingle.class))
+                .declareVarNewInstance(HistoricalIndexLookupStrategyInKeywordSingle.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setLookupStream", constant(lookupStream))
                 .exprDotMethod(ref("strat"), "setEvaluators", ExprNodeUtilityCodegen.codegenEvaluators(evaluators, method, this.getClass(), classScope))
                 .methodReturn(ref("strat"));

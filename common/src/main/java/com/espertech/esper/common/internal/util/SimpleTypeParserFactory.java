@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -135,8 +136,8 @@ public class SimpleTypeParserFactory {
     }
 
     public static CodegenExpression codegenSimpleParser(SimpleTypeParserSPI parser, CodegenMethod method, Class originator, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), SimpleTypeParser.class);
-        CodegenMethod parse = CodegenMethod.makeParentNode(Object.class, originator, classScope).addParam(String.class, "value");
+        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), SimpleTypeParser.EPTYPE);
+        CodegenMethod parse = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), originator, classScope).addParam(EPTypePremade.STRING.getEPType(), "value");
         anonymousClass.addMethod("parse", parse);
         parse.getBlock().methodReturn(parser.codegen(ref("value")));
         return anonymousClass;

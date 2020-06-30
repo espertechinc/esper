@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.meta;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Pair of public and protected event type id.
  * <p>
@@ -22,6 +24,11 @@ package com.espertech.esper.common.client.meta;
  * </p>
  */
 public class EventTypeIdPair {
+    /**
+     * Type information.
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventTypeIdPair.class);
+
     private final long publicId;
     private final long protectedId;
     private final int hash;

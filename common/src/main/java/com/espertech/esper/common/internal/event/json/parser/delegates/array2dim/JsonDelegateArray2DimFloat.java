@@ -10,11 +10,13 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.delegates.array2dim;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonDelegateBase;
 import com.espertech.esper.common.internal.event.json.parser.core.JsonHandlerDelegator;
 import com.espertech.esper.common.internal.event.json.parser.delegates.array.JsonDelegateArrayFloat;
 
 public class JsonDelegateArray2DimFloat extends JsonDelegateArray2DimBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateArray2DimFloat.class);
     public JsonDelegateArray2DimFloat(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);
     }

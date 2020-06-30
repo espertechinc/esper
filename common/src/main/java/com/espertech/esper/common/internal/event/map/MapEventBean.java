@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.map;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanSPI;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 
@@ -25,6 +26,8 @@ import java.util.Map;
  * and values are reference-equal.
  */
 public class MapEventBean implements EventBeanSPI, MappedEventBean {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MapEventBean.class);
+
     private EventType eventType;
     private Map<String, Object> properties;
 

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -26,8 +27,8 @@ import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
 import com.espertech.esper.common.internal.epl.table.core.TableMetadataInternalEventToPublic;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -36,11 +37,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprDotForgeUnpackCollEventBeanTable implements ExprDotForge, ExprDotEval {
 
-    private final EPType typeInfo;
+    private final EPChainableType typeInfo;
     private final TableMetaData table;
 
     public ExprDotForgeUnpackCollEventBeanTable(EventType type, TableMetaData table) {
-        this.typeInfo = EPTypeHelper.collectionOfSingleValue(table.getPublicEventType().getUnderlyingType());
+        this.typeInfo = EPChainableTypeHelper.collectionOfSingleValue(table.getPublicEventType().getUnderlyingEPType());
         this.table = table;
     }
 
@@ -48,7 +49,7 @@ public class ExprDotForgeUnpackCollEventBeanTable implements ExprDotForge, ExprD
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(table, classScope, this.getClass());
         CodegenExpressionRef refEPS = symbols.getAddEPS(parent);
         CodegenExpression refIsNewData = symbols.getAddIsNewData(parent);
@@ -78,7 +79,7 @@ public class ExprDotForgeUnpackCollEventBeanTable implements ExprDotForge, ExprD
         return underlyings;
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return typeInfo;
     }
 

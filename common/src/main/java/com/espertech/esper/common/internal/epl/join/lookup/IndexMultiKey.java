@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.lookup;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,6 +24,7 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class IndexMultiKey {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(IndexMultiKey.class);
 
     private final boolean unique;
     private final IndexedPropDesc[] hashIndexedProps;
@@ -44,11 +46,11 @@ public class IndexMultiKey {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(IndexMultiKey.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(IndexMultiKey.EPTYPE, this.getClass(), classScope);
         CodegenExpression hashes = IndexedPropDesc.makeArray(hashIndexedProps);
         CodegenExpression ranges = IndexedPropDesc.makeArray(rangeIndexedProps);
         CodegenExpression advanced = advancedIndexDesc == null ? constantNull() : advancedIndexDesc.codegenMake(parent, classScope);
-        method.getBlock().methodReturn(newInstance(IndexMultiKey.class, constant(unique), hashes, ranges, advanced));
+        method.getBlock().methodReturn(newInstance(IndexMultiKey.EPTYPE, constant(unique), hashes, ranges, advanced));
         return localMethod(method);
     }
 

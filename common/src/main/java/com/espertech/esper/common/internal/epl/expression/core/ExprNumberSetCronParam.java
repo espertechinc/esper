@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -71,8 +72,8 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         return this;
     }
 
-    public Class getEvaluationType() {
-        return CronParameter.class;
+    public EPTypeClass getEvaluationType() {
+        return CronParameter.EPTYPE;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
@@ -128,24 +129,24 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         }
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpression enumValue = enumValue(CronOperatorEnum.class, cronOperator.name());
-        CodegenExpression defaultValue = newInstance(CronParameter.class, enumValue, constantNull());
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpression enumv = enumValue(CronOperatorEnum.class, cronOperator.name());
+        CodegenExpression defaultValue = newInstance(CronParameter.EPTYPE, enumv, constantNull());
         if (this.getChildNodes().length == 0) {
             return defaultValue;
         }
         ExprForge forge = this.getChildNodes()[0].getForge();
-        Class evaluationType = forge.getEvaluationType();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(CronParameter.class, ExprNumberSetCronParam.class, codegenClassScope);
+        EPTypeClass evaluationType = (EPTypeClass) forge.getEvaluationType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(CronParameter.EPTYPE, ExprNumberSetCronParam.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(evaluationType, "value", forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
-        if (!evaluationType.isPrimitive()) {
+            .declareVar(evaluationType, "value", forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
+        if (!evaluationType.getType().isPrimitive()) {
             block.ifRefNull("value")
-                    .staticMethod(ExprNumberSetCronParam.class, METHOD_HANDLENUMBERSETCRONPARAMNULLVALUE)
-                    .blockReturn(defaultValue);
+                .staticMethod(ExprNumberSetCronParam.class, METHOD_HANDLENUMBERSETCRONPARAMNULLVALUE)
+                .blockReturn(defaultValue);
         }
-        block.methodReturn(newInstance(CronParameter.class, enumValue, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
+        block.methodReturn(newInstance(CronParameter.EPTYPE, enumv, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
         return localMethod(methodNode);
     }
 

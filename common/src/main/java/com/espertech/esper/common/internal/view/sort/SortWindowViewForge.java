@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.sort;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -74,8 +75,8 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
         sortSerdes = viewForgeEnv.getSerdeResolver().serdeForDataWindowSortCriteria(ExprNodeUtilityQuery.getExprResultTypes(sortCriteriaExpressions), viewForgeEnv.getStatementRawInfo());
     }
 
-    protected Class typeOfFactory() {
-        return SortWindowViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return SortWindowViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

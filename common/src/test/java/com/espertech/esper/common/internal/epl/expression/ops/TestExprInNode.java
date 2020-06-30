@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -30,8 +32,9 @@ public class TestExprInNode extends TestCase {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(Boolean.class, inNodeNormal.getForge().getEvaluationType());
-        assertEquals(Boolean.class, inNodeNotIn.getForge().getEvaluationType());
+        EPType type = EPTypePremade.BOOLEANBOXED.getEPType();
+        assertEquals(type, inNodeNormal.getForge().getEvaluationType());
+        assertEquals(type, inNodeNotIn.getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {

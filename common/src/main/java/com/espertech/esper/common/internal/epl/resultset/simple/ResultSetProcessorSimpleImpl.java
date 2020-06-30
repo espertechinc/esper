@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.simple;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -49,41 +50,41 @@ public class ResultSetProcessorSimpleImpl {
     private final static String NAME_OUTPUTLASTHELPER = "outputLastHelper";
 
     public static void processJoinResultCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().declareVar(EventBean[].class, "selectOldEvents", constantNull())
-                .declareVarNoInit(EventBean[].class, "selectNewEvents");
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", constantNull())
+                .declareVarNoInit(EventBean.EPTYPEARRAY, "selectNewEvents");
         ResultSetProcessorUtil.processJoinResultCodegen(method, classScope, instance, forge.getOptionalHavingNode() != null, forge.isSelectRStream(), forge.isSorting(), false);
     }
 
     public static void processViewResultCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().declareVar(EventBean[].class, "selectOldEvents", constantNull())
-                .declareVarNoInit(EventBean[].class, "selectNewEvents");
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", constantNull())
+                .declareVarNoInit(EventBean.EPTYPEARRAY, "selectNewEvents");
         ResultSetProcessorUtil.processViewResultCodegen(method, classScope, instance, forge.getOptionalHavingNode() != null, forge.isSelectRStream(), forge.isSorting(), false);
     }
 
     public static void getIteratorViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         if (!forge.isSorting()) {
             // Return an iterator that gives row-by-row a result
-            method.getBlock().methodReturn(newInstance(TransformEventIterator.class, exprDotMethod(REF_VIEWABLE, "iterator"), newInstance(ResultSetProcessorHandtruTransform.class, ref("this"))));
+            method.getBlock().methodReturn(newInstance(TransformEventIterator.EPTYPE, exprDotMethod(REF_VIEWABLE, "iterator"), newInstance(ResultSetProcessorHandtruTransform.EPTYPE, ref("this"))));
             return;
         }
 
         // Pull all events, generate order keys
-        method.getBlock().declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
-                .declareVar(List.class, "events", newInstance(ArrayList.class))
-                .declareVar(List.class, "orderKeys", newInstance(ArrayList.class))
-                .declareVar(Iterator.class, "parentIterator", exprDotMethod(REF_VIEWABLE, "iterator"))
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)))
+                .declareVar(EPTypePremade.LIST.getEPType(), "events", newInstance(EPTypePremade.ARRAYLIST.getEPType()))
+                .declareVar(EPTypePremade.LIST.getEPType(), "orderKeys", newInstance(EPTypePremade.ARRAYLIST.getEPType()))
+                .declareVar(EPTypePremade.ITERATOR.getEPType(), "parentIterator", exprDotMethod(REF_VIEWABLE, "iterator"))
                 .ifCondition(equalsNull(ref("parentIterator"))).blockReturn(publicConstValue(CollectionUtil.class, "NULL_EVENT_ITERATOR"));
 
         {
-            CodegenBlock loop = method.getBlock().forEach(EventBean.class, "aParent", REF_VIEWABLE);
+            CodegenBlock loop = method.getBlock().forEach(EventBean.EPTYPE, "aParent", REF_VIEWABLE);
             loop.assignArrayElement("eventsPerStream", constant(0), ref("aParent"))
-                    .declareVar(Object.class, "orderKey", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "orderKey", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
 
             if (forge.getOptionalHavingNode() == null) {
-                loop.declareVar(EventBean[].class, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                loop.declareVar(EventBean.EPTYPEARRAY, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingCodegen(classScope, instance);
-                loop.declareVar(EventBean[].class, "result", localMethod(select, MEMBER_SELECTEXPRNONMEMBER, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                loop.declareVar(EventBean.EPTYPEARRAY, "result", localMethod(select, MEMBER_SELECTEXPRNONMEMBER, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
             }
 
             loop.ifCondition(and(notEqualsNull(ref("result")), not(equalsIdentity(arrayLength(ref("result")), constant(0)))))
@@ -91,17 +92,17 @@ public class ResultSetProcessorSimpleImpl {
                     .exprDotMethod(ref("orderKeys"), "add", ref("orderKey"));
         }
 
-        method.getBlock().declareVar(EventBean[].class, "outgoingEvents", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")))
-                .declareVar(Object[].class, "orderKeysArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYOBJECTS, ref("orderKeys")))
-                .declareVar(EventBean[].class, "orderedEvents", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("outgoingEvents"), ref("orderKeysArr"), MEMBER_AGENTINSTANCECONTEXT))
-                .methodReturn(newInstance(ArrayEventIterator.class, ref("orderedEvents")));
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "outgoingEvents", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "orderKeysArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYOBJECTS, ref("orderKeys")))
+                .declareVar(EventBean.EPTYPEARRAY, "orderedEvents", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("outgoingEvents"), ref("orderKeysArr"), MEMBER_AGENTINSTANCECONTEXT))
+                .methodReturn(newInstance(ArrayEventIterator.EPTYPE, ref("orderedEvents")));
     }
 
     public static void getIteratorJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().declareVar(UniformPair.class, "result", exprDotMethod(ref("this"), "processJoinResult", REF_JOINSET, staticMethod(Collections.class, "emptySet"), constantTrue()))
+        method.getBlock().declareVar(UniformPair.EPTYPE, "result", exprDotMethod(ref("this"), "processJoinResult", REF_JOINSET, staticMethod(Collections.class, "emptySet"), constantTrue()))
                 .ifRefNull("result")
                 .blockReturn(staticMethod(Collections.class, "emptyIterator"))
-                .methodReturn(newInstance(ArrayEventIterator.class, cast(EventBean[].class, exprDotMethod(ref("result"), "getFirst"))));
+                .methodReturn(newInstance(ArrayEventIterator.EPTYPE, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("result"), "getFirst"))));
     }
 
     public static void processOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
@@ -110,13 +111,13 @@ public class ResultSetProcessorSimpleImpl {
 
     private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorSimpleForge forge, String methodName, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
-        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType[].class, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
+        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType.EPTYPEARRAY, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
         if (forge.isOutputAll()) {
-            instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorSimpleOutputAllHelper.class);
+            instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorSimpleOutputAllHelper.EPTYPE);
             instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSSimpleOutputAll", ref("this"), MEMBER_AGENTINSTANCECONTEXT, eventTypes));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         } else if (forge.isOutputLast()) {
-            instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorSimpleOutputLastHelper.class);
+            instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorSimpleOutputLastHelper.EPTYPE);
             instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSSimpleOutputLast", ref("this"), MEMBER_AGENTINSTANCECONTEXT, eventTypes));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         }
@@ -166,9 +167,9 @@ public class ResultSetProcessorSimpleImpl {
 
     public static void processOutputLimitedJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenMethod method) {
         if (!forge.isOutputLast()) {
-            method.getBlock().declareVar(UniformPair.class, "pair", staticMethod(EventBeanUtility.class, METHOD_FLATTENBATCHJOIN, REF_JOINEVENTSSET))
+            method.getBlock().declareVar(UniformPair.EPTYPE, "pair", staticMethod(EventBeanUtility.class, METHOD_FLATTENBATCHJOIN, REF_JOINEVENTSSET))
                     .methodReturn(exprDotMethod(ref("this"), "processJoinResult",
-                            cast(Set.class, exprDotMethod(ref("pair"), "getFirst")), cast(Set.class, exprDotMethod(ref("pair"), "getSecond")), REF_ISSYNTHESIZE));
+                            cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")), cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")), REF_ISSYNTHESIZE));
             return;
         }
         method.getBlock().methodThrowUnsupported();
@@ -176,9 +177,9 @@ public class ResultSetProcessorSimpleImpl {
 
     public static void processOutputLimitedViewCodegen(ResultSetProcessorSimpleForge forge, CodegenMethod method) {
         if (!forge.isOutputLast()) {
-            method.getBlock().declareVar(UniformPair.class, "pair", staticMethod(EventBeanUtility.class, METHOD_FLATTENBATCHSTREAM, REF_VIEWEVENTSLIST))
+            method.getBlock().declareVar(UniformPair.EPTYPE, "pair", staticMethod(EventBeanUtility.class, METHOD_FLATTENBATCHSTREAM, REF_VIEWEVENTSLIST))
                     .methodReturn(exprDotMethod(ref("this"), "processViewResult",
-                            cast(EventBean[].class, exprDotMethod(ref("pair"), "getFirst")), cast(EventBean[].class, exprDotMethod(ref("pair"), "getSecond")), REF_ISSYNTHESIZE));
+                            cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getFirst")), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getSecond")), REF_ISSYNTHESIZE));
             return;
         }
         method.getBlock().methodThrowUnsupported();

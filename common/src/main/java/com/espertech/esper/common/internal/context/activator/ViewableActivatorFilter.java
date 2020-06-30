@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.activator;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackFilter;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.view.core.*;
 import java.util.Collection;
 
 public class ViewableActivatorFilter implements ViewableActivator {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ViewableActivatorFilter.class);
 
     protected FilterSpecActivatable filterSpec;
     protected boolean canIterate;

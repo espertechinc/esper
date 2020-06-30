@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.output.condition;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 
 public class OutputConditionTermFactory implements OutputConditionFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionTermFactory.class);
 
     public final static OutputConditionTermFactory INSTANCE = new OutputConditionTermFactory();
 

@@ -417,7 +417,7 @@ public class ContextKeySegmented {
 
             // incompatible property types
             epl = "create context SegmentedByAString partition by theString from SupportBean, id from SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "For context 'SegmentedByAString' for context 'SegmentedByAString' found mismatch of property types, property 'theString' of type 'java.lang.String' compared to property 'id' of type 'java.lang.Integer' [");
+            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "For context 'SegmentedByAString' for context 'SegmentedByAString' found mismatch of property types, property 'theString' of type 'String' compared to property 'id' of type 'Integer' [");
 
             // duplicate type specification
             epl = "create context SegmentedByAString partition by theString from SupportBean, theString from SupportBean";

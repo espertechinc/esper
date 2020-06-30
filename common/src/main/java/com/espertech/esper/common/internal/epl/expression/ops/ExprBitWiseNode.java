@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.type.BitWiseOpEnum;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -56,20 +59,22 @@ public class ExprBitWiseNode extends ExprNodeBase {
         if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("BitWise node must have 2 parameters");
         }
+        EPType lhsType = getChildNodes()[0].getForge().getEvaluationType();
+        EPType rhsType = getChildNodes()[1].getForge().getEvaluationType();
+        checkNumericOrBoolean(lhsType);
+        checkNumericOrBoolean(rhsType);
 
-        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
-        Class typeTwo = JavaClassHelper.getBoxedType(getChildNodes()[1].getForge().getEvaluationType());
-        checkNumericOrBoolean(typeOne);
-        checkNumericOrBoolean(typeTwo);
+        EPTypeClass lhsTypeClass = JavaClassHelper.getBoxedType((EPTypeClass) lhsType);
+        EPTypeClass rhsTypeClass = JavaClassHelper.getBoxedType((EPTypeClass) rhsType);
 
-        if ((JavaClassHelper.isFloatingPointClass(typeOne)) || (JavaClassHelper.isFloatingPointClass(typeTwo))) {
+        if ((JavaClassHelper.isFloatingPointClass(lhsTypeClass)) || (JavaClassHelper.isFloatingPointClass(rhsTypeClass))) {
             throw new ExprValidationException("Invalid type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
         }
-        if (typeOne != typeTwo) {
+        if (lhsTypeClass != rhsTypeClass) {
             throw new ExprValidationException("Bitwise expressions must be of the same type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
         }
-        BitWiseOpEnum.Computer computer = bitWiseOpEnum.getComputer(typeOne);
-        forge = new ExprBitWiseNodeForge(this, typeOne, computer);
+        BitWiseOpEnum.Computer computer = bitWiseOpEnum.getComputer(lhsTypeClass.getType());
+        forge = new ExprBitWiseNodeForge(this, lhsTypeClass, computer);
         return null;
     }
 
@@ -101,10 +106,10 @@ public class ExprBitWiseNode extends ExprNodeBase {
         return ExprPrecedenceEnum.BITWISE;
     }
 
-    private void checkNumericOrBoolean(Class childType) throws ExprValidationException {
-        if ((!JavaClassHelper.isBoolean(childType)) && (!JavaClassHelper.isNumeric(childType))) {
+    private void checkNumericOrBoolean(EPType childType) throws ExprValidationException {
+        if (childType == null || childType == EPTypeNull.INSTANCE || (!JavaClassHelper.isTypeBoolean(childType)) && (!JavaClassHelper.isNumeric(childType))) {
             throw new ExprValidationException("Invalid datatype for binary operator, " +
-                    childType.getName() + " is not allowed");
+                (childType == null ? "null" : childType.getTypeName()) + " is not allowed");
         }
     }
 }

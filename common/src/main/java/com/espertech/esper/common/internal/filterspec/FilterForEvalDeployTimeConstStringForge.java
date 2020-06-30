@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,9 +33,9 @@ public class FilterForEvalDeployTimeConstStringForge implements FilterSpecParamF
     }
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
         method.getBlock()
-                .methodReturn(cast(String.class, deployTimeConst.codegenGetDeployTimeConstValue(classScope)));
+                .methodReturn(cast(EPTypePremade.STRING.getEPType(), deployTimeConst.codegenGetDeployTimeConstValue(classScope)));
         return localMethod(method, GET_FILTER_VALUE_REFS);
     }
 

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.index.composite;
 
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -95,11 +96,11 @@ public abstract class PropertyCompositeEventTable implements EventTable {
         return factory.getOrganization();
     }
 
-    public Class[] getOptKeyCoercedTypes() {
+    public EPTypeClass[] getOptKeyCoercedTypes() {
         return factory.optKeyCoercedTypes;
     }
 
-    public Class[] getOptRangeCoercedTypes() {
+    public EPTypeClass[] getOptRangeCoercedTypes() {
         return factory.optRangeCoercedTypes;
     }
 

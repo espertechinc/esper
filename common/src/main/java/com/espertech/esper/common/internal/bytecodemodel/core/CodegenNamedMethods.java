@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProvider;
@@ -24,11 +25,11 @@ import java.util.function.Consumer;
 public class CodegenNamedMethods {
     private Map<String, CodegenMethod> methods;
 
-    public CodegenMethod addMethod(Class returnType, String methodName, List<CodegenNamedParam> params, Class generator, CodegenClassScope classScope, Consumer<CodegenMethod> code) {
+    public CodegenMethod addMethod(EPTypeClass returnType, String methodName, List<CodegenNamedParam> params, Class generator, CodegenClassScope classScope, Consumer<CodegenMethod> code) {
         return addMethodWithSymbols(returnType, methodName, params, generator, classScope, code, CodegenSymbolProviderEmpty.INSTANCE);
     }
 
-    public CodegenMethod addMethodWithSymbols(Class returnType, String methodName, List<CodegenNamedParam> params, Class generator, CodegenClassScope classScope, Consumer<CodegenMethod> code, CodegenSymbolProvider symbolProvider) {
+    public CodegenMethod addMethodWithSymbols(EPTypeClass returnType, String methodName, List<CodegenNamedParam> params, Class generator, CodegenClassScope classScope, Consumer<CodegenMethod> code, CodegenSymbolProvider symbolProvider) {
         if (methods == null) {
             methods = new HashMap<>();
         }

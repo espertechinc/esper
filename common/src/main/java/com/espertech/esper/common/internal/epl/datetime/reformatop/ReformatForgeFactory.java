@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class ReformatForgeFactory implements DatetimeMethodProviderForgeFactory 
 
     private final static ReformatForge FORMAT_STRING = new ReformatStringFormatForge();
 
-    public ReformatForge getForge(EPType inputType, TimeAbacus timeAbacus, DatetimeMethodDesc desc, String methodNameUsed, List<ExprNode> parameters) throws ExprValidationException {
+    public ReformatForge getForge(EPChainableType inputType, TimeAbacus timeAbacus, DatetimeMethodDesc desc, String methodNameUsed, List<ExprNode> parameters) throws ExprValidationException {
         DatetimeMethodEnum method = desc.getDatetimeMethod();
         if (method == DatetimeMethodEnum.GET) {
             CalendarFieldEnum fieldNum = CalendarOpUtil.getEnum(methodNameUsed, parameters.get(0));

@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.common.client.hook.enummethod;
 
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.security.InvalidParameterException;
 import java.util.function.Function;
@@ -19,10 +20,10 @@ import java.util.function.Function;
  * Provides information about the public static method that implements the logic for the enumeration method.
  */
 public class EnumMethodModeStaticMethod implements EnumMethodMode {
-    private Class stateClass;
+    private EPTypeClass stateClass;
     private Class serviceClass;
     private String methodName;
-    private EPType returnType;
+    private EPChainableType returnType;
     private boolean earlyExit;
     private Function<EnumMethodLambdaParameterDescriptor, EnumMethodLambdaParameterType> lambdaParameters = new Function<EnumMethodLambdaParameterDescriptor, EnumMethodLambdaParameterType>() {
         public EnumMethodLambdaParameterType apply(EnumMethodLambdaParameterDescriptor enumMethodLambdaParameterDescriptor) {
@@ -44,7 +45,7 @@ public class EnumMethodModeStaticMethod implements EnumMethodMode {
      * @param returnType return type
      * @param earlyExit early-exit indicator, when the compiler should generate code to check for early-exit by calling the "completed" method of the state
      */
-    public EnumMethodModeStaticMethod(Class stateClass, Class serviceClass, String methodName, EPType returnType, boolean earlyExit) {
+    public EnumMethodModeStaticMethod(EPTypeClass stateClass, Class serviceClass, String methodName, EPChainableType returnType, boolean earlyExit) {
         if (stateClass == null) {
             throw new InvalidParameterException("Required parameter state-class is not provided");
         }
@@ -76,7 +77,7 @@ public class EnumMethodModeStaticMethod implements EnumMethodMode {
      * Returns the class providing state
      * @return state class
      */
-    public Class getStateClass() {
+    public EPTypeClass getStateClass() {
         return stateClass;
     }
 
@@ -92,7 +93,7 @@ public class EnumMethodModeStaticMethod implements EnumMethodMode {
      * Returns the return type of the enumeration method.
      * @return type
      */
-    public EPType getReturnType() {
+    public EPChainableType getReturnType() {
         return returnType;
     }
 
@@ -128,7 +129,7 @@ public class EnumMethodModeStaticMethod implements EnumMethodMode {
      * Sets the class providing state
      * @param stateClass state class
      */
-    public void setStateClass(Class stateClass) {
+    public void setStateClass(EPTypeClass stateClass) {
         this.stateClass = stateClass;
     }
 
@@ -152,7 +153,7 @@ public class EnumMethodModeStaticMethod implements EnumMethodMode {
      * Sets the return type of the enumeration method.
      * @param returnType return type
      */
-    public void setReturnType(EPType returnType) {
+    public void setReturnType(EPChainableType returnType) {
         this.returnType = returnType;
     }
 

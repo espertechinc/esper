@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.sumof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -55,7 +56,7 @@ public class EnumSumScalarNoParams extends EnumForgeBasePlain implements EnumFor
 
         sumMethodFactory.codegenDeclare(block);
 
-        CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+        CodegenBlock forEach = block.forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifRefNull("next").blockContinue();
         sumMethodFactory.codegenEnterObjectTypedNonNull(forEach, ref("next"));
 

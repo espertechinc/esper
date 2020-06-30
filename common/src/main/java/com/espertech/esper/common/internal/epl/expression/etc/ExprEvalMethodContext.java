@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -57,8 +58,8 @@ public class ExprEvalMethodContext implements ExprForge, ExprEvaluator, ExprNode
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EPLMethodInvocationContext.class, ExprEvalMethodContext.class, codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPLMethodInvocationContext.EPTYPE, ExprEvalMethodContext.class, codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         CodegenExpression stmtName = exprDotMethod(refExprEvalCtx, "getStatementName");
@@ -68,13 +69,13 @@ public class ExprEvalMethodContext implements ExprForge, ExprEvaluator, ExprNode
         CodegenExpression eventBeanSvc = exprDotMethod(refExprEvalCtx, "getEventBeanService");
         methodNode.getBlock()
                 .ifCondition(equalsNull(refExprEvalCtx))
-                .blockReturn(newInstance(EPLMethodInvocationContext.class, constantNull(), constant(-1), constantNull(), constant(functionName), constantNull(), constantNull()))
-                .methodReturn(newInstance(EPLMethodInvocationContext.class, stmtName, cpid, runtimeURI, constant(functionName), userObject, eventBeanSvc));
+                .blockReturn(newInstance(EPLMethodInvocationContext.EPTYPE, constantNull(), constant(-1), constantNull(), constant(functionName), constantNull(), constantNull()))
+                .methodReturn(newInstance(EPLMethodInvocationContext.EPTYPE, stmtName, cpid, runtimeURI, constant(functionName), userObject, eventBeanSvc));
         return localMethod(methodNode);
     }
 
-    public Class getEvaluationType() {
-        return EPLMethodInvocationContext.class;
+    public EPTypeClass getEvaluationType() {
+        return EPLMethodInvocationContext.EPTYPE;
     }
 
     public ExprNodeRenderable getForgeRenderable() {

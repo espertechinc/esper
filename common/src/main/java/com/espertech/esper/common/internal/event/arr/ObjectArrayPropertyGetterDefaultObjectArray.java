@@ -44,7 +44,7 @@ public class ObjectArrayPropertyGetterDefaultObjectArray extends ObjectArrayProp
         }
 
         CodegenExpressionField mSvc = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(fragmentEventType, EPStatementInitServices.REF));
+        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(fragmentEventType, EPStatementInitServices.REF));
         return staticMethod(BaseNestableEventUtil.class, "handleBNCreateFragmentObjectArray", value, mType, mSvc);
     }
 }

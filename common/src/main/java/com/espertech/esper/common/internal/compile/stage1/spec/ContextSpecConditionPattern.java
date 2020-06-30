@@ -84,9 +84,9 @@ public class ContextSpecConditionPattern implements ContextSpecCondition {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextConditionDescriptorPattern.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextConditionDescriptorPattern.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextConditionDescriptorPattern.class, "condition", newInstance(ContextConditionDescriptorPattern.class))
+                .declareVarNewInstance(ContextConditionDescriptorPattern.EPTYPE, "condition")
                 .exprDotMethod(ref("condition"), "setPattern", localMethod(patternCompiled.getRoot().makeCodegen(method, symbols, classScope)))
                 .exprDotMethod(ref("condition"), "setPatternContext", patternContext.make(method, symbols, classScope))
                 .exprDotMethod(ref("condition"), "setTaggedEvents", constant(CollectionUtil.toArray(patternCompiled.getTaggedEventTypes().keySet())))

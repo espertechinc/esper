@@ -97,11 +97,11 @@ public class VirtualDWViewFactoryForge implements ViewFactoryForge, DataWindowVi
 
         VirtualDataWindowFactoryModeManaged managed = (VirtualDataWindowFactoryModeManaged) mode;
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) managed.getInjectionStrategyFactoryFactory();
-        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, VirtualDataWindowFactoryFactory.class, injectionStrategy.getInitializationExpression(classScope));
+        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, VirtualDataWindowFactoryFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
 
-        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(VirtualDWViewFactory.class, this.getClass(), "factory", parent, symbols, classScope);
+        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(VirtualDWViewFactory.EPTYPE, this.getClass(), "factory", parent, symbols, classScope);
         builder.eventtype("eventType", parentEventType)
-                .expression("factory", exprDotMethod(factoryField, "createFactory", newInstance(VirtualDataWindowFactoryFactoryContext.class)))
+                .expression("factory", exprDotMethod(factoryField, "createFactory", newInstance(VirtualDataWindowFactoryFactoryContext.EPTYPE)))
                 .constant("parameters", parameterValues)
                 .expression("parameterExpressions", ExprNodeUtilityCodegen.codegenEvaluators(validatedParameterExpressions, builder.getMethod(), this.getClass(), classScope))
                 .constant("namedWindowName", namedWindowName)

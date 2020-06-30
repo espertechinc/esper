@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,8 +19,9 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
-import com.espertech.esper.common.internal.rettype.ClassMultiValuedEPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 public class ExprDotNodeForgeStream extends ExprDotNodeForge {
@@ -29,7 +31,7 @@ public class ExprDotNodeForgeStream extends ExprDotNodeForge {
     private final EventType eventType;
     private final ExprDotForge[] evaluators;
     private final boolean method;
-    private final Class evaluationType;
+    private final EPTypeClass evaluationType;
 
     public ExprDotNodeForgeStream(ExprDotNodeImpl parent, FilterExprAnalyzerAffector filterExprAnalyzerAffector, int streamNumber, EventType eventType, ExprDotForge[] evaluators, boolean method) {
         this.parent = parent;
@@ -40,15 +42,14 @@ public class ExprDotNodeForgeStream extends ExprDotNodeForge {
         this.method = method;
 
         ExprDotForge last = evaluators[evaluators.length - 1];
+        EPChainableType lastType = last.getTypeInfo();
+        EPTypeClass evaluationTypeUnboxed;
         if (!method) {
-            if (last.getTypeInfo() instanceof ClassMultiValuedEPType) {
-                evaluationType = JavaClassHelper.getBoxedType(EPTypeHelper.getClassMultiValuedContainer(last.getTypeInfo()));
-            } else {
-                evaluationType = JavaClassHelper.getBoxedType(EPTypeHelper.getClassSingleValued(last.getTypeInfo()));
-            }
+            evaluationTypeUnboxed = ((EPChainableTypeClass) lastType).getType();
         } else {
-            evaluationType = JavaClassHelper.getBoxedType(EPTypeHelper.getNormalizedClass(last.getTypeInfo()));
+            evaluationTypeUnboxed = (EPTypeClass) EPChainableTypeHelper.getNormalizedEPType(lastType);
         }
+        evaluationType = JavaClassHelper.getBoxedType(evaluationTypeUnboxed);
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -58,18 +59,18 @@ public class ExprDotNodeForgeStream extends ExprDotNodeForge {
         return new ExprDotNodeForgeStreamEvalMethod(this, ExprDotNodeUtility.getEvaluators(evaluators));
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!method) {
             return ExprDotNodeForgeStreamEvalEventBean.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
         return ExprDotNodeForgeStreamEvalMethod.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprDot", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return evaluationType;
     }
 

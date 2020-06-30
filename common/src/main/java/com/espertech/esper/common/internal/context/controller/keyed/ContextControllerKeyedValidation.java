@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.keyed;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
@@ -22,6 +23,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class ContextControllerKeyedValidation implements ContextControllerPortableInfo {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerKeyedValidation.class);
+
     private final ContextControllerKeyedValidationItem[] items;
 
     public ContextControllerKeyedValidation(ContextControllerKeyedValidationItem[] items) {
@@ -37,7 +40,7 @@ public class ContextControllerKeyedValidation implements ContextControllerPortab
         for (int i = 0; i < init.length; i++) {
             init[i] = items[i].make(addInitSvc);
         }
-        return newInstance(ContextControllerKeyedValidation.class, newArrayWithInit(ContextControllerKeyedValidationItem.class, init));
+        return newInstance(ContextControllerKeyedValidation.EPTYPE, newArrayWithInit(ContextControllerKeyedValidationItem.EPTYPE, init));
     }
 
     public void validateStatement(String contextName, StatementSpecCompiled spec, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.sum;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -20,14 +21,16 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValid
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 public class AggregationPortableValidationSum extends AggregationPortableValidationWFilterWInputType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationSum.class);
+
     public AggregationPortableValidationSum() {
     }
 
-    public AggregationPortableValidationSum(boolean distinct, boolean hasFilter, Class inputValueType) {
+    public AggregationPortableValidationSum(boolean distinct, boolean hasFilter, EPTypeClass inputValueType) {
         super(distinct, hasFilter, inputValueType);
     }
 
-    public void setInputValueType(Class inputValueType) {
+    public void setInputValueType(EPTypeClass inputValueType) {
         this.inputValueType = inputValueType;
     }
 
@@ -35,8 +38,8 @@ public class AggregationPortableValidationSum extends AggregationPortableValidat
         this.hasFilter = hasFilter;
     }
 
-    protected Class typeOf() {
-        return AggregationPortableValidationSum.class;
+    protected EPTypeClass typeOf() {
+        return AggregationPortableValidationSum.EPTYPE;
     }
 
     protected void codegenInlineSetWFilterWInputType(CodegenExpressionRef ref, CodegenMethod method, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {

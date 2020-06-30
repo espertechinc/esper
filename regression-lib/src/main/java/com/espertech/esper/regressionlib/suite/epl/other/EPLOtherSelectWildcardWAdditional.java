@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.epl.other;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -57,11 +57,10 @@ public class EPLOtherSelectWildcardWAdditional {
 
             assertSimple(env);
 
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-                new EventPropertyDescriptor("myString", String.class, null, false, false, false, false, false),
-                new EventPropertyDescriptor("myInt", int.class, null, false, false, false, false, false),
-                new EventPropertyDescriptor("concat", String.class, null, false, false, false, false, false),
-            }, env.statement("s0").getEventType().getPropertyDescriptors());
+            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("myString", String.class),
+                new SupportEventPropDesc("myInt", int.class),
+                new SupportEventPropDesc("concat", String.class));
 
             env.undeployAll();
         }

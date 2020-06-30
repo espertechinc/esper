@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -24,14 +26,16 @@ import java.util.Map;
  * Abstract specification on how to perform a table lookup.
  */
 public abstract class TableLookupPlan {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TableLookupPlan.class);
+
     protected final int lookupStream;
     protected final int indexedStream;
     protected final TableLookupIndexReqKey[] indexNum;
 
     private ExprEvaluator[] virtualDWHashEvals;
-    private Class[] virtualDWHashTypes;
+    private EPType[] virtualDWHashTypes;
     private QueryGraphValueEntryRange[] virtualDWRangeEvals;
-    private Class[] virtualDWRangeTypes;
+    private EPType[] virtualDWRangeTypes;
 
     protected abstract JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTables, EventType[] eventTypes);
 
@@ -72,11 +76,11 @@ public abstract class TableLookupPlan {
         this.virtualDWHashEvals = virtualDWHashEvals;
     }
 
-    public Class[] getVirtualDWHashTypes() {
+    public EPType[] getVirtualDWHashTypes() {
         return virtualDWHashTypes;
     }
 
-    public void setVirtualDWHashTypes(Class[] virtualDWHashTypes) {
+    public void setVirtualDWHashTypes(EPType[] virtualDWHashTypes) {
         this.virtualDWHashTypes = virtualDWHashTypes;
     }
 
@@ -88,11 +92,11 @@ public abstract class TableLookupPlan {
         this.virtualDWRangeEvals = virtualDWRangeEvals;
     }
 
-    public Class[] getVirtualDWRangeTypes() {
+    public EPType[] getVirtualDWRangeTypes() {
         return virtualDWRangeTypes;
     }
 
-    public void setVirtualDWRangeTypes(Class[] virtualDWRangeTypes) {
+    public void setVirtualDWRangeTypes(EPType[] virtualDWRangeTypes) {
         this.virtualDWRangeTypes = virtualDWRangeTypes;
     }
 }

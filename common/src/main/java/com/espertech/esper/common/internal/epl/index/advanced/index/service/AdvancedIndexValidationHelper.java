@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.index.advanced.index.service;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.util.JavaClassHelper.isNumeric;
@@ -37,31 +40,31 @@ public class AdvancedIndexValidationHelper {
     }
 
     public static void validateColumnReturnTypeNumber(String indexTypeName, int colnum, ExprNode expr, String name) throws ExprValidationException {
-        Class receivedType = expr.getForge().getEvaluationType();
+        EPType receivedType = expr.getForge().getEvaluationType();
         if (!isNumeric(receivedType)) {
             throw makeEx(indexTypeName, true, colnum, name, Number.class, receivedType);
         }
     }
 
     public static void validateParameterReturnType(Class expectedReturnType, String indexTypeName, int paramnum, ExprNode expr, String name) throws ExprValidationException {
-        Class receivedType = JavaClassHelper.getBoxedType(expr.getForge().getEvaluationType());
-        if (!JavaClassHelper.isSubclassOrImplementsInterface(receivedType, expectedReturnType)) {
+        EPType receivedType = JavaClassHelper.getBoxedType(expr.getForge().getEvaluationType());
+        if (receivedType == EPTypeNull.INSTANCE || !JavaClassHelper.isSubclassOrImplementsInterface(receivedType, expectedReturnType)) {
             throw makeEx(indexTypeName, false, paramnum, name, expectedReturnType, receivedType);
         }
     }
 
     public static void validateParameterReturnTypeNumber(String indexTypeName, int paramnum, ExprNode expr, String name) throws ExprValidationException {
-        Class receivedType = expr.getForge().getEvaluationType();
+        EPType receivedType = expr.getForge().getEvaluationType();
         if (!isNumeric(receivedType)) {
             throw makeEx(indexTypeName, false, paramnum, name, Number.class, receivedType);
         }
     }
 
-    private static ExprValidationException makeEx(String indexTypeName, boolean isColumn, int num, String name, Class expectedType, Class receivedType) {
+    private static ExprValidationException makeEx(String indexTypeName, boolean isColumn, int num, String name, Class expectedType, EPType receivedType) {
         return new ExprValidationException("Index of type '" + indexTypeName + "' for " +
                 (isColumn ? "column " : "parameter ") +
                 +num + " that is providing " + name + "-values expecting type " +
-                JavaClassHelper.getClassNameFullyQualPretty(expectedType) +
-                " but received type " + JavaClassHelper.getClassNameFullyQualPretty(receivedType));
+                ClassHelperPrint.getClassNameFullyQualPretty(expectedType) +
+                " but received type " + ClassHelperPrint.getClassNameFullyQualPretty(receivedType));
     }
 }

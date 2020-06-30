@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.ArrayList;
 
 public class JsonDelegateCollection extends JsonDelegateBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateCollection.class);
     private final JsonDelegateFactory factory;
     private final ArrayList events = new ArrayList(4);
 

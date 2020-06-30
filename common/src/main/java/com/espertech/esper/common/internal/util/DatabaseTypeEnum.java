@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.math.BigDecimal;
@@ -175,8 +177,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getString(columnName);
         }
 
-        public Class getType() {
-            return String.class;
+        public EPType getType() {
+            return EPTypePremade.STRING.getEPType();
         }
 
         public CodegenExpression make() {
@@ -195,8 +197,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getBigDecimal(columnName);
         }
 
-        public Class getType() {
-            return BigDecimal.class;
+        public EPType getType() {
+            return EPTypePremade.BIGDECIMAL.getEPType();
         }
 
         public CodegenExpression make() {
@@ -215,8 +217,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getBoolean(columnName);
         }
 
-        public Class getType() {
-            return Boolean.class;
+        public EPType getType() {
+            return EPTypePremade.BOOLEANBOXED.getEPType();
         }
 
         public CodegenExpression make() {
@@ -235,8 +237,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getByte(columnName);
         }
 
-        public Class getType() {
-            return Byte.class;
+        public EPType getType() {
+            return EPTypePremade.BYTEBOXED.getEPType();
         }
 
         public CodegenExpression make() {
@@ -255,8 +257,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getBytes(columnName);
         }
 
-        public Class getType() {
-            return byte[].class;
+        public EPType getType() {
+            return EPTypePremade.BYTEPRIMITIVEARRAY.getEPType();
         }
 
         public CodegenExpression make() {
@@ -275,8 +277,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getDouble(columnName);
         }
 
-        public Class getType() {
-            return Double.class;
+        public EPType getType() {
+            return EPTypePremade.DOUBLEBOXED.getEPType();
         }
 
         public CodegenExpression make() {
@@ -295,8 +297,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getFloat(columnName);
         }
 
-        public Class getType() {
-            return Float.class;
+        public EPType getType() {
+            return EPTypePremade.FLOATBOXED.getEPType();
         }
 
         public CodegenExpression make() {
@@ -315,8 +317,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getInt(columnName);
         }
 
-        public Class getType() {
-            return Integer.class;
+        public EPType getType() {
+            return EPTypePremade.INTEGERBOXED.getEPType();
         }
 
         public CodegenExpression make() {
@@ -335,8 +337,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getLong(columnName);
         }
 
-        public Class getType() {
-            return Long.class;
+        public EPType getType() {
+            return EPTypePremade.LONGBOXED.getEPType();
         }
 
         public CodegenExpression make() {
@@ -355,8 +357,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getShort(columnName);
         }
 
-        public Class getType() {
-            return Short.class;
+        public EPType getType() {
+            return EPTypePremade.SHORTBOXED.getEPType();
         }
 
         public CodegenExpression make() {
@@ -375,8 +377,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getDate(columnName);
         }
 
-        public Class getType() {
-            return java.sql.Date.class;
+        public EPType getType() {
+            return EPTypePremade.SQLDATE.getEPType();
         }
 
         public CodegenExpression make() {
@@ -395,8 +397,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getTime(columnName);
         }
 
-        public Class getType() {
-            return java.sql.Time.class;
+        public EPType getType() {
+            return EPTypePremade.SQLTIME.getEPType();
         }
 
         public CodegenExpression make() {
@@ -415,8 +417,8 @@ public enum DatabaseTypeEnum {
             return resultSet.getTimestamp(columnName);
         }
 
-        public Class getType() {
-            return Timestamp.class;
+        public EPType getType() {
+            return EPTypePremade.SQLTIMESTAMP.getEPType();
         }
 
         public CodegenExpression make() {

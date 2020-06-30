@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.event.variant;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * A variant event is a type that can represent many event types.
  */
 public interface VariantEvent {
+    EPTypeClass EPTYPE = new EPTypeClass(VariantEvent.class);
+
     /**
      * Returns the underlying event.
      *

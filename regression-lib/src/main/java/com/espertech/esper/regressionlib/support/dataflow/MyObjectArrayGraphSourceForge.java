@@ -26,6 +26,6 @@ public class MyObjectArrayGraphSourceForge implements DataFlowOperatorForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return CodegenExpressionBuilder.newInstance(MyObjectArrayGraphSourceFactory.class);
+        return CodegenExpressionBuilder.newInstance(MyObjectArrayGraphSourceFactory.EPTYPE);
     }
 }

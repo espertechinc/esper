@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper;
 
 import java.util.Map;
@@ -21,19 +22,19 @@ import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClas
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenClassUtil.getNumberOfDimensions;
 
 public class CodegenExpressionNewArrayWithInit implements CodegenExpression {
-    private final Class component;
+    private final EPTypeClass component;
     private final CodegenExpression[] expressions;
 
-    public CodegenExpressionNewArrayWithInit(Class component, CodegenExpression[] expressions) {
+    public CodegenExpressionNewArrayWithInit(EPTypeClass component, CodegenExpression[] expressions) {
         this.component = component;
         this.expressions = expressions;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        int numDimensions = getNumberOfDimensions(component);
-        Class outermostType = getComponentTypeOutermost(component);
+        int numDimensions = getNumberOfDimensions(component.getType());
+        Class outermostType = getComponentTypeOutermost(component.getType());
         builder.append("new ");
-        CodeGenerationHelper.appendClassName(builder, outermostType, null, imports);
+        CodeGenerationHelper.appendClassName(builder, outermostType, imports);
         builder.append("[]");
         for (int i = 0; i < numDimensions; i++) {
             builder.append("[]");
@@ -44,7 +45,7 @@ public class CodegenExpressionNewArrayWithInit implements CodegenExpression {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(component);
+        component.traverseClasses(classes::add);
         for (CodegenExpression expression : expressions) {
             expression.mergeClasses(classes);
         }

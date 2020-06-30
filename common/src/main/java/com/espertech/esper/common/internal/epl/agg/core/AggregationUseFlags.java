@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class AggregationUseFlags {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationUseFlags.class);
+
     private final boolean isUnidirectional;
     private final boolean isFireAndForget;
     private final boolean isOnSelect;
@@ -39,6 +42,6 @@ public class AggregationUseFlags {
     }
 
     public CodegenExpression toExpression() {
-        return newInstance(AggregationUseFlags.class, constant(isUnidirectional), constant(isFireAndForget), constant(isOnSelect));
+        return newInstance(AggregationUseFlags.EPTYPE, constant(isUnidirectional), constant(isFireAndForget), constant(isOnSelect));
     }
 }

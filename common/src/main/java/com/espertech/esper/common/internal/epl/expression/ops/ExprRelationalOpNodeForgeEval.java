@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -49,29 +53,32 @@ public class ExprRelationalOpNodeForgeEval implements ExprEvaluator {
     public static CodegenExpression codegen(ExprRelationalOpNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge lhs = forge.getForgeRenderable().getChildNodes()[0].getForge();
         ExprForge rhs = forge.getForgeRenderable().getChildNodes()[1].getForge();
-        Class lhsType = lhs.getEvaluationType();
-        if (lhsType == null) {
-            return constantNull();
-        }
-        Class rhsType = rhs.getEvaluationType();
-        if (rhsType == null) {
-            return constantNull();
-        }
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRelationalOpNodeForgeEval.class, codegenClassScope);
+        EPType lhsType = lhs.getEvaluationType();
+        if (lhsType == null || lhsType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPType rhsType = rhs.getEvaluationType();
+        if (rhsType == null || rhsType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass lhsTypeClass = (EPTypeClass) lhsType;
+        EPTypeClass rhsTypeClass = (EPTypeClass) rhsType;
+
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprRelationalOpNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(lhsType, "left", lhs.evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope));
-        if (!lhsType.isPrimitive()) {
+                .declareVar(lhsTypeClass, "left", lhs.evaluateCodegen(lhsTypeClass, methodNode, exprSymbol, codegenClassScope));
+        if (!lhsTypeClass.getType().isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
 
-        block.declareVar(rhsType, "right", rhs.evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
-        if (!rhsType.isPrimitive()) {
+        block.declareVar(rhsTypeClass, "right", rhs.evaluateCodegen(rhsTypeClass, methodNode, exprSymbol, codegenClassScope));
+        if (!rhsTypeClass.getType().isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }
 
-        block.methodReturn(forge.getComputer().codegen(ref("left"), lhsType, ref("right"), rhsType));
+        block.methodReturn(forge.getComputer().codegen(ref("left"), lhsTypeClass, ref("right"), rhsTypeClass));
         return localMethod(methodNode);
     }
 }

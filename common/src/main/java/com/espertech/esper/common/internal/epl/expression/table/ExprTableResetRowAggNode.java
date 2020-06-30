@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.table;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -56,13 +58,13 @@ public class ExprTableResetRowAggNode extends ExprNodeBase implements ExprForgeI
         return null;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = parent.makeChild(void.class, this.getClass(), codegenClassScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
+        CodegenMethod method = parent.makeChild(EPTypePremade.VOID.getEPType(), this.getClass(), codegenClassScope);
         method.getBlock().expression(staticMethod(ExprTableResetRowAggNode.class, "tableAggReset", constant(streamNum), symbols.getAddEPS(method)));
         return localMethod(method);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope codegenClassScope) {
         return evaluateCodegenUninstrumented(requiredType, parent, symbols, codegenClassScope);
     }
 
@@ -78,8 +80,8 @@ public class ExprTableResetRowAggNode extends ExprNodeBase implements ExprForgeI
         };
     }
 
-    public Class getEvaluationType() {
-        return void.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.VOID.getEPType();
     }
 
     public ExprForge getForge() {

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.access.countminsketch;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateKey;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationForgeFactoryAccessBase;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
@@ -24,15 +26,15 @@ import com.espertech.esper.common.internal.settings.ClasspathImportService;
 public class AggregationForgeFactoryAccessCountMinSketchAdd extends AggregationForgeFactoryAccessBase {
     private final ExprAggMultiFunctionCountMinSketchNode parent;
     private final ExprForge addOrFrequencyEvaluator;
-    private final Class addOrFrequencyEvaluatorReturnType;
+    private final EPTypeClass addOrFrequencyEvaluatorReturnType;
 
-    public AggregationForgeFactoryAccessCountMinSketchAdd(ExprAggMultiFunctionCountMinSketchNode parent, ExprForge addOrFrequencyEvaluator, Class addOrFrequencyEvaluatorReturnType) {
+    public AggregationForgeFactoryAccessCountMinSketchAdd(ExprAggMultiFunctionCountMinSketchNode parent, ExprForge addOrFrequencyEvaluator, EPTypeClass addOrFrequencyEvaluatorReturnType) {
         this.parent = parent;
         this.addOrFrequencyEvaluator = addOrFrequencyEvaluator;
         this.addOrFrequencyEvaluatorReturnType = addOrFrequencyEvaluatorReturnType;
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return null;
     }
 
@@ -68,7 +70,7 @@ public class AggregationForgeFactoryAccessCountMinSketchAdd extends AggregationF
         return addOrFrequencyEvaluator;
     }
 
-    public Class getAddOrFrequencyEvaluatorReturnType() {
+    public EPTypeClass getAddOrFrequencyEvaluatorReturnType() {
         return addOrFrequencyEvaluatorReturnType;
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.pattern.filter.EvalFilterConsumptionHandler;
@@ -23,6 +24,8 @@ import java.util.function.Function;
  * Contains handles to implementations of services needed by evaluation nodes.
  */
 public class PatternAgentInstanceContext {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PatternAgentInstanceContext.class);
+
     protected final PatternContext patternContext;
     protected final AgentInstanceContext agentInstanceContext;
     protected final EvalFilterConsumptionHandler consumptionHandler;

@@ -13,7 +13,9 @@ package com.espertech.esper.regressionlib.support.util;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowConversion;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowTypeContext;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowValueContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +41,9 @@ public class SupportSQLOutputRowConversion implements SQLOutputRowConversion {
         return valueContexts;
     }
 
-    public Class getOutputRowType(SQLOutputRowTypeContext sqlOutputRowTypeContext) {
+    public EPTypeClass getOutputRowType(SQLOutputRowTypeContext sqlOutputRowTypeContext) {
         typeContexts.add(sqlOutputRowTypeContext);
-        return SupportBean.class;
+        return ClassHelperGenericType.getClassEPType(SupportBean.class);
     }
 
     public Object getOutputRow(SQLOutputRowValueContext rowContext) {

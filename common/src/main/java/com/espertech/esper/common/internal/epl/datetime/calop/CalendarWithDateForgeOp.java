@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.calop;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -48,7 +50,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenCalendar(CalendarWithDateForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(void.class, CalendarWithDateForgeOp.class, codegenClassScope).addParam(Calendar.class, "value");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.VOID.getEPType(), CalendarWithDateForgeOp.class, codegenClassScope).addParam(EPTypePremade.CALENDAR.getEPType(), "value");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -66,7 +68,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenLDT(CalendarWithDateForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithDateForgeOp.class, codegenClassScope).addParam(LocalDateTime.class, "value");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.LOCALDATETIME.getEPType(), CalendarWithDateForgeOp.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "value");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -83,7 +85,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenZDT(CalendarWithDateForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithDateForgeOp.class, codegenClassScope).addParam(ZonedDateTime.class, "value");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.ZONEDDATETIME.getEPType(), CalendarWithDateForgeOp.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "value");
 
         CodegenBlock block = methodNode.getBlock();
         codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
@@ -164,11 +166,11 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     private static void codegenDeclareInts(CodegenBlock block, CalendarWithDateForge forge, CodegenMethod methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class yearType = forge.year.getEvaluationType();
-        Class monthType = forge.month.getEvaluationType();
-        Class dayType = forge.day.getEvaluationType();
-        block.declareVar(Integer.class, "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(yearType, methodNode, exprSymbol, codegenClassScope), yearType, methodNode, codegenClassScope))
-                .declareVar(Integer.class, "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(monthType, methodNode, exprSymbol, codegenClassScope), monthType, methodNode, codegenClassScope))
-                .declareVar(Integer.class, "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(dayType, methodNode, exprSymbol, codegenClassScope), dayType, methodNode, codegenClassScope));
+        EPTypeClass yearType = (EPTypeClass) forge.year.getEvaluationType();
+        EPTypeClass monthType = (EPTypeClass) forge.month.getEvaluationType();
+        EPTypeClass dayType = (EPTypeClass) forge.day.getEvaluationType();
+        block.declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(yearType, methodNode, exprSymbol, codegenClassScope), yearType, methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(monthType, methodNode, exprSymbol, codegenClassScope), monthType, methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(dayType, methodNode, exprSymbol, codegenClassScope), dayType, methodNode, codegenClassScope));
     }
 }

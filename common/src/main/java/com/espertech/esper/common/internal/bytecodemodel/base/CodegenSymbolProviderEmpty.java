@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 
 public class CodegenSymbolProviderEmpty implements CodegenSymbolProvider {
@@ -18,6 +20,6 @@ public class CodegenSymbolProviderEmpty implements CodegenSymbolProvider {
     private CodegenSymbolProviderEmpty() {
     }
 
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
     }
 }

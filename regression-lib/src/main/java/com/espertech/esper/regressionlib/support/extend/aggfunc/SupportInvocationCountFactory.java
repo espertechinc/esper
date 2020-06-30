@@ -13,8 +13,11 @@ package com.espertech.esper.regressionlib.support.extend.aggfunc;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunction;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionFactory;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class SupportInvocationCountFactory implements AggregationFunctionFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportInvocationCountFactory.class);
+
     public AggregationFunction newAggregator(AggregationFunctionFactoryContext ctx) {
         return new SupportInvocationCountFunction();
     }

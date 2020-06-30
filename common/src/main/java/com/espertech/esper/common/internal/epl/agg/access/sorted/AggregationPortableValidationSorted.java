@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionMethodDesc;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,6 +28,7 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationValidationUti
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.methodbase.*;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
@@ -33,14 +37,16 @@ import java.util.Locale;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class AggregationPortableValidationSorted implements AggregationPortableValidation {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationSorted.class);
+
     private String aggFuncName;
     private EventType containedEventType;
-    private Class[] optionalCriteriaTypes;
+    private EPType[] optionalCriteriaTypes;
 
     public AggregationPortableValidationSorted() {
     }
 
-    public AggregationPortableValidationSorted(String aggFuncName, EventType containedEventType, Class[] optionalCriteriaTypes) {
+    public AggregationPortableValidationSorted(String aggFuncName, EventType containedEventType, EPType[] optionalCriteriaTypes) {
         this.aggFuncName = aggFuncName;
         this.containedEventType = containedEventType;
         this.optionalCriteriaTypes = optionalCriteriaTypes;
@@ -54,7 +60,7 @@ public class AggregationPortableValidationSorted implements AggregationPortableV
         this.containedEventType = containedEventType;
     }
 
-    public void setOptionalCriteriaTypes(Class[] optionalCriteriaTypes) {
+    public void setOptionalCriteriaTypes(EPType[] optionalCriteriaTypes) {
         this.optionalCriteriaTypes = optionalCriteriaTypes;
     }
 
@@ -66,9 +72,9 @@ public class AggregationPortableValidationSorted implements AggregationPortableV
     }
 
     public CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationPortableValidationSorted.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationPortableValidationSorted.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationPortableValidationSorted.class, "v", newInstance(AggregationPortableValidationSorted.class))
+            .declareVarNewInstance(AggregationPortableValidationSorted.EPTYPE, "v")
             .exprDotMethod(ref("v"), "setAggFuncName", constant(aggFuncName))
             .exprDotMethod(ref("v"), "setContainedEventType", EventTypeUtility.resolveTypeCodegen(containedEventType, symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("v"), "setOptionalCriteriaTypes", constant(optionalCriteriaTypes))
@@ -87,12 +93,13 @@ public class AggregationPortableValidationSorted implements AggregationPortableV
 
     public AggregationMultiFunctionMethodDesc validateAggregationMethod(ExprValidationContext validationContext, String aggMethodName, ExprNode[] params) throws ExprValidationException {
         String name = aggMethodName.toLowerCase(Locale.ENGLISH);
-        Class componentType = containedEventType.getUnderlyingType();
+        EPTypeClass componentType = containedEventType.getUnderlyingEPType();
         if (name.equals("maxby") || name.equals("minby")) {
             AggregationMethodSortedMinMaxByForge forge = new AggregationMethodSortedMinMaxByForge(componentType, name.equals("maxby"));
             return new AggregationMultiFunctionMethodDesc(forge, null, null, containedEventType);
         } else if (name.equals("sorted")) {
-            AggregationMethodSortedWindowForge forge = new AggregationMethodSortedWindowForge(JavaClassHelper.getArrayType(componentType));
+            EPTypeClass arrayType = JavaClassHelper.getArrayType(componentType);
+            AggregationMethodSortedWindowForge forge = new AggregationMethodSortedWindowForge(arrayType);
             return new AggregationMultiFunctionMethodDesc(forge, containedEventType, null, null);
         }
 
@@ -109,8 +116,18 @@ public class AggregationPortableValidationSorted implements AggregationPortableV
         DotMethodFP[] footprints = methodEnum.getFootprint().getFp();
         DotMethodUtil.validateParametersDetermineFootprint(footprints, DotMethodTypeEnum.AGGMETHOD, aggMethodName, footprintProvided, DotMethodInputTypeMatcher.DEFAULT_ALL);
 
-        Class keyType = optionalCriteriaTypes == null ? Comparable.class : (optionalCriteriaTypes.length == 1 ? optionalCriteriaTypes[0] : HashableMultiKey.class);
-        Class resultType = methodEnum.getResultType(containedEventType.getUnderlyingType(), keyType);
+        EPTypeClass keyType;
+        if (optionalCriteriaTypes == null) {
+            keyType = EPTypePremade.COMPARABLE.getEPType();
+        } else {
+            if (optionalCriteriaTypes.length == 1) {
+                keyType = (EPTypeClass) optionalCriteriaTypes[0];
+            } else {
+                keyType = HashableMultiKey.EPTYPE;
+            }
+        }
+        EPTypeClass underlyingType = containedEventType.getUnderlyingEPType();
+        EPTypeClass resultType = methodEnum.getResultType(underlyingType, keyType);
 
         AggregationMethodForge forge;
         if (methodEnum.getFootprint() == AggregationMethodSortedFootprintEnum.SUBMAP) {
@@ -129,11 +146,11 @@ public class AggregationPortableValidationSorted implements AggregationPortableV
         return new AggregationMultiFunctionMethodDesc(forge, eventTypeCollection, null, eventTypeSingle);
     }
 
-    private void validateKeyType(String aggMethodName, int parameterNumber, Class keyType, ExprNode validated) throws ExprValidationException {
-        Class keyBoxed = JavaClassHelper.getBoxedType(keyType);
-        Class providedBoxed = JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType());
-        if (keyBoxed != providedBoxed) {
-            throw new ExprValidationException("Method '" + aggMethodName + "' for parameter " + parameterNumber + " requires a key of type '" + JavaClassHelper.getClassNameFullyQualPretty(keyBoxed) + "' but receives '" + JavaClassHelper.getClassNameFullyQualPretty(providedBoxed) + "'");
+    private void validateKeyType(String aggMethodName, int parameterNumber, EPTypeClass keyType, ExprNode validated) throws ExprValidationException {
+        EPTypeClass keyBoxed = JavaClassHelper.getBoxedType(keyType);
+        EPType providedBoxed = JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType());
+        if (!(keyBoxed.equals(providedBoxed))) {
+            throw new ExprValidationException("Method '" + aggMethodName + "' for parameter " + parameterNumber + " requires a key of type '" + ClassHelperPrint.getClassNameFullyQualPretty(keyBoxed) + "' but receives '" + providedBoxed.getTypeName() + "'");
         }
     }
 }

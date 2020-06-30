@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,10 +24,10 @@ import com.espertech.esper.common.internal.event.bean.manufacturer.InstanceManuf
 public class ExprNewInstanceNodeNonArrayForge implements ExprForge {
 
     private final ExprNewInstanceNode parent;
-    private final Class targetClass;
+    private final EPTypeClass targetClass;
     private final InstanceManufacturerFactory manufacturerFactory;
 
-    public ExprNewInstanceNodeNonArrayForge(ExprNewInstanceNode parent, Class targetClass, InstanceManufacturerFactory manufacturerFactory) {
+    public ExprNewInstanceNodeNonArrayForge(ExprNewInstanceNode parent, EPTypeClass targetClass, InstanceManufacturerFactory manufacturerFactory) {
         this.parent = parent;
         this.targetClass = targetClass;
         this.manufacturerFactory = manufacturerFactory;
@@ -36,11 +37,11 @@ public class ExprNewInstanceNodeNonArrayForge implements ExprForge {
         return new ExprNewInstanceNodeNonArrayForgeEval(manufacturerFactory.makeEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return manufacturerFactory.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return targetClass;
     }
 

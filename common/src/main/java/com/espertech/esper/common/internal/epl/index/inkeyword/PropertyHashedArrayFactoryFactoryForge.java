@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.index.inkeyword;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,12 +33,12 @@ public class PropertyHashedArrayFactoryFactoryForge implements EventTableFactory
     protected final int streamNum;
     protected final EventType eventType;
     protected final String[] propertyNames;
-    protected final Class[] propertyTypes;
+    protected final EPType[] propertyTypes;
     protected final DataInputOutputSerdeForge[] serdes;
     protected final boolean unique;
     protected final boolean isFireAndForget;
 
-    public PropertyHashedArrayFactoryFactoryForge(int streamNum, EventType eventType, String[] propertyNames, Class[] propertyTypes, DataInputOutputSerdeForge[] serdes, boolean unique, boolean isFireAndForget) {
+    public PropertyHashedArrayFactoryFactoryForge(int streamNum, EventType eventType, String[] propertyNames, EPType[] propertyTypes, DataInputOutputSerdeForge[] serdes, boolean unique, boolean isFireAndForget) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.propertyNames = propertyNames;
@@ -52,16 +53,16 @@ public class PropertyHashedArrayFactoryFactoryForge implements EventTableFactory
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(PropertyHashedArrayFactoryFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(PropertyHashedArrayFactoryFactory.EPTYPE, this.getClass(), classScope);
 
-        method.getBlock().declareVar(EventPropertyValueGetter[].class, "getters", newArrayByLength(EventPropertyValueGetter.class, constant(propertyNames.length)));
+        method.getBlock().declareVar(EventPropertyValueGetter.EPTYPEARRAY, "getters", newArrayByLength(EventPropertyValueGetter.EPTYPE, constant(propertyNames.length)));
         for (int i = 0; i < propertyNames.length; i++) {
             EventPropertyGetterSPI getterSPI = ((EventTypeSPI) eventType).getGetterSPI(propertyNames[i]);
             CodegenExpression getter = EventTypeUtility.codegenGetterWCoerce(getterSPI, propertyTypes[i], propertyTypes[i], method, this.getClass(), classScope);
             method.getBlock().assignArrayElement(ref("getters"), constant(i), getter);
         }
 
-        method.getBlock().methodReturn(newInstance(PropertyHashedArrayFactoryFactory.class,
+        method.getBlock().methodReturn(newInstance(PropertyHashedArrayFactoryFactory.EPTYPE,
                 constant(streamNum), constant(propertyNames), constant(propertyTypes), DataInputOutputSerdeForge.codegenArray(serdes, method, classScope, null), constant(unique), ref("getters"),
                 constant(isFireAndForget)));
         return localMethod(method);

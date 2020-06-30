@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -67,11 +68,11 @@ public class ExprInstanceofNodeForgeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprInstanceofNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpression cache = codegenClassScope.addFieldUnshared(true, CopyOnWriteArrayList.class, newInstance(CopyOnWriteArrayList.class));
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInstanceofNodeForgeEval.class, codegenClassScope);
+        CodegenExpression cache = codegenClassScope.addFieldUnshared(true, EPTypePremade.COPYONWRITEARRAYLIST.getEPType(), newInstance(EPTypePremade.COPYONWRITEARRAYLIST.getEPType()));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprInstanceofNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object.class, "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnFalse("result");
         block.methodReturn(staticMethod(ExprInstanceofNodeForgeEval.class, "instanceofCacheCheckOrAdd", constant(forge.getClasses()), cache, ref("result")));
         return localMethod(methodNode);

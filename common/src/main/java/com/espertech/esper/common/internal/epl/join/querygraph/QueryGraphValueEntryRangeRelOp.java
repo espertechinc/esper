@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class QueryGraphValueEntryRangeRelOp extends QueryGraphValueEntryRange {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraphValueEntryRangeRelOp.class);
 
     private final ExprEvaluator expression;
     private final boolean isBetweenPart; // indicate that this is part of a between-clause or in-clause

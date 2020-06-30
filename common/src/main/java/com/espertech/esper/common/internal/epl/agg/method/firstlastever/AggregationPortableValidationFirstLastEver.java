@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.firstlastever;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -22,18 +23,20 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
 public class AggregationPortableValidationFirstLastEver extends AggregationPortableValidationWFilterWInputType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationFirstLastEver.class);
+
     private boolean isFirst;
 
     public AggregationPortableValidationFirstLastEver() {
     }
 
-    public AggregationPortableValidationFirstLastEver(boolean distinct, boolean hasFilter, Class inputValueType, boolean isFirst) {
+    public AggregationPortableValidationFirstLastEver(boolean distinct, boolean hasFilter, EPTypeClass inputValueType, boolean isFirst) {
         super(distinct, hasFilter, inputValueType);
         this.isFirst = isFirst;
     }
 
-    protected Class typeOf() {
-        return AggregationPortableValidationFirstLastEver.class;
+    protected EPTypeClass typeOf() {
+        return AggregationPortableValidationFirstLastEver.EPTYPE;
     }
 
     protected void codegenInlineSetWFilterWInputType(CodegenExpressionRef ref, CodegenMethod method, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {

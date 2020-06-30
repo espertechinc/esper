@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.stddev;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
@@ -41,27 +44,27 @@ public class AggregatorStddev extends AggregatorMethodWDistinctWFilterWValueBase
     private CodegenExpressionMember qn;
     private CodegenExpressionMember cnt;
 
-    public AggregatorStddev(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorStddev(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
-        mean = membersColumnized.addMember(col, double.class, "mean");
-        qn = membersColumnized.addMember(col, double.class, "qn");
-        cnt = membersColumnized.addMember(col, long.class, "cnt");
+        mean = membersColumnized.addMember(col, EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "mean");
+        qn = membersColumnized.addMember(col, EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "qn");
+        cnt = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         applyEvalEnterNonNull(method, SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(value, valueType));
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         applyEvalLeaveNonNull(method, SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(value, valueType));
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
-        applyEvalEnterNonNull(method, exprDotMethod(cast(Number.class, value), "doubleValue"));
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+        applyEvalEnterNonNull(method, exprDotMethod(cast(EPTypePremade.NUMBER.getEPType(), value), "doubleValue"));
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
-        applyEvalLeaveNonNull(method, exprDotMethod(cast(Number.class, value), "doubleValue"));
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+        applyEvalLeaveNonNull(method, exprDotMethod(cast(EPTypePremade.NUMBER.getEPType(), value), "doubleValue"));
     }
 
     protected void clearWODistinct(CodegenMethod method, CodegenClassScope classScope) {
@@ -87,25 +90,25 @@ public class AggregatorStddev extends AggregatorMethodWDistinctWFilterWValueBase
     }
 
     private void applyEvalEnterNonNull(CodegenMethod method, CodegenExpression doubleExpression) {
-        method.getBlock().declareVar(double.class, "p", doubleExpression)
+        method.getBlock().declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "p", doubleExpression)
                 .ifCondition(equalsIdentity(cnt, constant(0)))
                 .assignRef(mean, ref("p"))
                 .assignRef(qn, constant(0))
                 .assignRef(cnt, constant(1))
                 .ifElse()
                 .increment(cnt)
-                .declareVar(double.class, "oldmean", mean)
+                .declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "oldmean", mean)
                 .assignCompound(mean, "+", op(op(ref("p"), "-", mean), "/", cnt))
                 .assignCompound(qn, "+", op(op(ref("p"), "-", ref("oldmean")), "*", op(ref("p"), "-", mean)));
     }
 
     private void applyEvalLeaveNonNull(CodegenMethod method, CodegenExpression doubleExpression) {
-        method.getBlock().declareVar(double.class, "p", doubleExpression)
+        method.getBlock().declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "p", doubleExpression)
                 .ifCondition(relational(cnt, LE, constant(1)))
                 .apply(getClear())
                 .ifElse()
                 .decrement(cnt)
-                .declareVar(double.class, "oldmean", mean)
+                .declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "oldmean", mean)
                 .assignCompound(mean, "-", op(op(ref("p"), "-", mean), "/", cnt))
                 .assignCompound(qn, "-", op(op(ref("p"), "-", ref("oldmean")), "*", op(ref("p"), "-", mean)));
     }

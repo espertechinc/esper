@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.plain.sequenceequal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -48,9 +49,9 @@ public class EnumSequenceEqualForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumSequenceEqualForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumSequenceEqualForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), EnumSequenceEqualForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
-        methodNode.getBlock().methodReturn(staticMethod(EnumSequenceEqualForgeEval.class, "enumSequenceEqualsCompare", EnumForgeCodegenNames.REF_ENUMCOLL, forge.getInnerExpression().evaluateCodegen(Object.class, methodNode, scope, codegenClassScope)));
+        methodNode.getBlock().methodReturn(staticMethod(EnumSequenceEqualForgeEval.class, "enumSequenceEqualsCompare", EnumForgeCodegenNames.REF_ENUMCOLL, forge.getInnerExpression().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope)));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 

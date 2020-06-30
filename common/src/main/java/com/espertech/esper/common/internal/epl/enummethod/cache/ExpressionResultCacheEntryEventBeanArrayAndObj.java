@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.epl.enummethod.cache;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * Cache entry bean-to-collection-of-bean.
  */
 public class ExpressionResultCacheEntryEventBeanArrayAndObj {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExpressionResultCacheEntryEventBeanArrayAndObj.class);
+
     private EventBean[] reference;
     private Object result;
 

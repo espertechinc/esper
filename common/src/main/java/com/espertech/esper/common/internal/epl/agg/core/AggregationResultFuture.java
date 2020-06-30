@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
@@ -20,6 +21,8 @@ import java.util.Collection;
  * to obtain the current value for the function at time of expression evaluation.
  */
 public interface AggregationResultFuture {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationResultFuture.class);
+
     Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
     Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);

@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.event.property;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayArrayPOJOEntryIndexedPropertyGetter;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayArrayPropertyGetter;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetterAndIndexed;
@@ -87,8 +90,8 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
             return null;
         }
 
-        Class returnType = propertyDesc.getReturnType();
-        if (returnType.isArray()) {
+        EPTypeClass returnType = propertyDesc.getReturnType(eventType.getUnderlyingEPType());
+        if (returnType.getType().isArray()) {
             if (propertyDesc.getReadMethod() != null) {
                 Method method = propertyDesc.getReadMethod();
                 return new ArrayMethodPropertyGetter(method, index, eventBeanTypedEventFactory, beanEventTypeFactory);
@@ -117,10 +120,10 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
         return null;
     }
 
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
+    public EPTypeClass getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
         PropertyStem descriptor = eventType.getIndexedProperty(propertyNameAtomic);
         if (descriptor != null) {
-            return new GenericPropertyDesc(descriptor.getReturnType());
+            return descriptor.getReturnType(eventType.getUnderlyingEPType());
         }
 
         // Check if this is an method returning array which is a type of simple property
@@ -129,51 +132,16 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
             return null;
         }
 
-        Class returnType = descriptor.getReturnType();
-        if (returnType.isArray()) {
-            return new GenericPropertyDesc(returnType.getComponentType());
+        EPTypeClass returnType = descriptor.getReturnType(eventType.getUnderlyingEPType());
+        if (returnType.getType().isArray()) {
+            return JavaClassHelper.getArrayComponentType(returnType);
         } else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class)) {
-            if (descriptor.getReadMethod() != null) {
-                Class genericType = JavaClassHelper.getGenericReturnType(descriptor.getReadMethod(), false);
-                return new GenericPropertyDesc(genericType);
-            } else if (descriptor.getAccessorField() != null) {
-                Class genericType = JavaClassHelper.getGenericFieldType(descriptor.getAccessorField(), false);
-                return new GenericPropertyDesc(genericType);
-            } else {
-                return null;
-            }
+            return JavaClassHelper.getSingleParameterTypeOrObject(returnType);
         }
         return null;
     }
 
-    public Class getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
-        PropertyStem descriptor = eventType.getIndexedProperty(propertyNameAtomic);
-        if (descriptor != null) {
-            return descriptor.getReturnType();
-        }
-
-        // Check if this is an method returning array which is a type of simple property
-        descriptor = eventType.getSimpleProperty(propertyNameAtomic);
-        if (descriptor == null) {
-            return null;
-        }
-
-        Class returnType = descriptor.getReturnType();
-        if (returnType.isArray()) {
-            return returnType.getComponentType();
-        } else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class)) {
-            if (descriptor.getReadMethod() != null) {
-                return JavaClassHelper.getGenericReturnType(descriptor.getReadMethod(), false);
-            } else if (descriptor.getAccessorField() != null) {
-                return JavaClassHelper.getGenericFieldType(descriptor.getAccessorField(), false);
-            } else {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
+    public EPType getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
         Object type = optionalMapPropTypes.get(propertyNameAtomic);
         if (type == null) {
             return null;
@@ -183,15 +151,15 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
             if (!(innerType instanceof MapEventType)) {
                 return null;
             }
-            return Map[].class;
+            return EPTypePremade.MAPARRAY.getEPType();
+        } else if (type instanceof EPTypeClass) {
+            EPTypeClass typeClass = (EPTypeClass) type;
+            if (!typeClass.getType().isArray()) {
+                return null;
+            }
+            return JavaClassHelper.getArrayComponentType(typeClass);
         } else {
-            if (!(type instanceof Class)) {
-                return null;
-            }
-            if (!((Class) type).isArray()) {
-                return null;
-            }
-            return ((Class) type).getComponentType();
+            return null;
         }
     }
 
@@ -206,16 +174,15 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
                 return null;
             }
             return new MapArrayPropertyGetter(this.propertyNameAtomic, index, eventBeanTypedEventFactory, innerType);
-        } else {
-            if (!(type instanceof Class)) {
+        } else if (type instanceof EPTypeClass) {
+            if (!((EPTypeClass) type).getType().isArray()) {
                 return null;
             }
-            if (!((Class) type).isArray()) {
-                return null;
-            }
-            Class componentType = ((Class) type).getComponentType();
+            EPTypeClass componentType = JavaClassHelper.getArrayComponentType((EPTypeClass) type);
             // its an array
             return new MapArrayPOJOEntryIndexedPropertyGetter(propertyNameAtomic, index, eventBeanTypedEventFactory, beanEventTypeFactory, componentType);
+        } else {
+            return null;
         }
     }
 
@@ -310,16 +277,15 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
                 return null;
             }
             return new ObjectArrayArrayPropertyGetter(propertyIndex, index, eventBeanTypedEventFactory, innerType);
-        } else {
-            if (!(type instanceof Class)) {
+        } else if (type instanceof EPTypeClass) {
+            if (!((EPTypeClass) type).getType().isArray()) {
                 return null;
             }
-            if (!((Class) type).isArray()) {
-                return null;
-            }
-            Class componentType = ((Class) type).getComponentType();
+            EPTypeClass componentType = JavaClassHelper.getArrayComponentType((EPTypeClass) type);
             // its an array
             return new ObjectArrayArrayPOJOEntryIndexedPropertyGetter(propertyIndex, index, eventBeanTypedEventFactory, beanEventTypeFactory, componentType);
+        } else {
+            return null;
         }
     }
 }

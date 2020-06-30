@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
 
@@ -21,6 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * FAF query execute.
  */
 public interface FAFQueryMethod {
+    EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethod.class);
+
     void ready(StatementContextRuntimeServices services);
 
     EPPreparedQueryResult execute(AtomicBoolean serviceStatusProvider, FAFQueryMethodAssignerSetter assignerSetter, ContextPartitionSelector[] contextPartitionSelectors, ContextManagementService contextManagementService);

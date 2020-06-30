@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.event.property;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayPropertyGetterDefaultObjectArray;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -58,23 +61,15 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
         return eventType.getGetterSPI(propertyNameAtomic);
     }
 
-    public Class getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
+    public EPTypeClass getPropertyType(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
         PropertyStem propertyDesc = eventType.getSimpleProperty(propertyNameAtomic);
         if (propertyDesc == null) {
             return null;
         }
-        return propertyDesc.getReturnType();
+        return propertyDesc.getReturnType(eventType.getUnderlyingEPType());
     }
 
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, BeanEventTypeFactory beanEventTypeFactory) {
-        PropertyStem propertyDesc = eventType.getSimpleProperty(propertyNameAtomic);
-        if (propertyDesc == null) {
-            return null;
-        }
-        return propertyDesc.getReturnTypeGeneric();
-    }
-
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
+    public EPType getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
         // The simple, none-dynamic property needs a definition of the map contents else no property
         if (optionalMapPropTypes == null) {
             return null;
@@ -83,22 +78,22 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
         if (def == null) {
             return null;
         }
-        if (def instanceof Class) {
-            return (Class) def;
+        if (def instanceof EPType) {
+            return (EPType) def;
         } else if (def instanceof Map) {
-            return Map.class;
+            return EPTypePremade.MAP.getEPType();
         } else if (def instanceof TypeBeanOrUnderlying) {
             EventType eventType = ((TypeBeanOrUnderlying) def).getEventType();
-            return eventType.getUnderlyingType();
+            return eventType.getUnderlyingEPType();
         } else if (def instanceof TypeBeanOrUnderlying[]) {
             EventType eventType = ((TypeBeanOrUnderlying[]) def)[0].getEventType();
-            return JavaClassHelper.getArrayType(eventType.getUnderlyingType());
+            return JavaClassHelper.getArrayType(eventType.getUnderlyingEPType());
         } else if (def instanceof EventType) {
             EventType eventType = (EventType) def;
-            return eventType.getUnderlyingType();
+            return eventType.getUnderlyingEPType();
         } else if (def instanceof EventType[]) {
             EventType[] eventType = (EventType[]) def;
-            return JavaClassHelper.getArrayType(eventType[0].getUnderlyingType());
+            return JavaClassHelper.getArrayType(eventType[0].getUnderlyingEPType());
         }
         String message = "Nestable map type configuration encountered an unexpected value type of '"
                 + def.getClass() + "' for property '" + propertyNameAtomic + "', expected Map or Class";
@@ -115,7 +110,7 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
             return null;
         }
         if (def instanceof EventType) {
-            return new MapEventBeanPropertyGetter(propertyNameAtomic, ((EventType) def).getUnderlyingType());
+            return new MapEventBeanPropertyGetter(propertyNameAtomic, ((EventType) def).getUnderlyingEPType());
         }
         return new MapPropertyGetterDefaultNoFragment(propertyNameAtomic, eventBeanTypedEventFactory);
     }

@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.event.core;
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.property.IndexedProperty;
@@ -23,6 +25,8 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.StringValue;
 
 import java.util.*;
+
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
 
 /**
  * Implementation of the {@link com.espertech.esper.common.client.EventType} interface for handling name value pairs.
@@ -77,6 +81,8 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         this.startTimestampPropertyName = startTimestampPropertyName;
         this.endTimestampPropertyName = endTimestampPropertyName;
 
+        validateMapPropertyTypes(propertyTypes);
+
         this.optionalSuperTypes = optionalSuperTypes;
         if (optionalDeepSupertypes == null) {
             this.optionalDeepSupertypes = Collections.emptySet();
@@ -97,6 +103,22 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         this.endTimestampPropertyName = desc.getEnd();
     }
 
+    private void validateMapPropertyTypes(Map<String, Object> propertyTypes) {
+        for (Map.Entry<String, Object> entry : propertyTypes.entrySet()) {
+            if (!(entry.getValue() instanceof TypeBeanOrUnderlying) &&
+                !(entry.getValue() instanceof TypeBeanOrUnderlying[]) &&
+                !(entry.getValue() instanceof EventType) &&
+                !(entry.getValue() instanceof EventType[]) &&
+                !(entry.getValue() instanceof EPType) &&
+                !(entry.getValue() instanceof Map)) {
+                throw new IllegalStateException("Unrecognized nestable property type '" + entry.getValue() + "'");
+            }
+            if (entry.getValue() instanceof Map) {
+                validateMapPropertyTypes((Map) entry.getValue());
+            }
+        }
+    }
+
     public void setMetadataId(long publicId, long protectedId) {
         metadata = metadata.withIds(publicId, protectedId);
     }
@@ -114,6 +136,10 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     }
 
     public final Class getPropertyType(String propertyName) {
+        return getPropertyTypeAsClass(getPropertyEPType(propertyName));
+    }
+
+    public final EPType getPropertyEPType(String propertyName) {
         return EventTypeUtility.getNestablePropertyType(propertyName, propertyItems, nestableTypes, beanEventTypeFactory, publicFields);
     }
 
@@ -159,14 +185,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     }
 
     public boolean isProperty(String propertyName) {
-        Class propertyType = getPropertyType(propertyName);
-        if (propertyType == null) {
-            // Could be a native null type, such as "insert into A select null as field..."
-            if (propertyItems.containsKey(StringValue.unescapeDot(propertyName))) {
-                return true;
-            }
-
-        }
+        EPType propertyType = getPropertyEPType(propertyName);
         return propertyType != null;
     }
 
@@ -270,15 +289,17 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
                         return null;
                     }
                     return new FragmentEventType(innerType, false, false);  // false since an index is present
-                }
-                if (!(type instanceof Class)) {
+                } else if (type instanceof EPTypeClass) {
+                    EPTypeClass typeClass = (EPTypeClass) type;
+                    if (!typeClass.getType().isArray()) {
+                        return null;
+                    }
+                    // its an array
+                    EPType component = JavaClassHelper.getArrayComponentType(typeClass);
+                    return EventBeanUtility.createNativeFragmentType(component, beanEventTypeFactory, false);
+                } else {
                     return null;
                 }
-                if (!((Class) type).isArray()) {
-                    return null;
-                }
-                // its an array
-                return EventBeanUtility.createNativeFragmentType(((Class) type).getComponentType(), null, beanEventTypeFactory, false);
             } else if (property instanceof MappedProperty) {
                 // No type information available for the inner event
                 return null;
@@ -322,19 +343,18 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
                     // handle eventtype[] in map
                     EventType innerType = ((EventType[]) type)[0];
                     return innerType.getFragmentType(propertyNested);
-                } else {
-                    // handle array class in map case
-                    if (!(type instanceof Class)) {
+                } else if (type instanceof EPTypeClass) {
+                    EPTypeClass typeClass = (EPTypeClass) type;
+                    if (!typeClass.getType().isArray()) {
                         return null;
                     }
-                    if (!((Class) type).isArray()) {
-                        return null;
-                    }
-                    FragmentEventType fragmentParent = EventBeanUtility.createNativeFragmentType((Class) type, null, beanEventTypeFactory, false);
+                    FragmentEventType fragmentParent = EventBeanUtility.createNativeFragmentType(typeClass, beanEventTypeFactory, false);
                     if (fragmentParent == null) {
                         return null;
                     }
                     return fragmentParent.getFragmentType().getFragmentType(propertyNested);
+                } else {
+                    return null;
                 }
             } else if (property instanceof MappedProperty) {
                 // No type information available for the property's map value
@@ -345,12 +365,12 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         }
 
         // If there is a map value in the map, return the Object value if this is a dynamic property
-        if (nestedType == Map.class) {
+        if (nestedType instanceof EPTypeClass && ((EPTypeClass) nestedType).getType() == Map.class) {
             return null;
         } else if (nestedType instanceof Map) {
             return null;
-        } else if (nestedType instanceof Class) {
-            Class simpleClass = (Class) nestedType;
+        } else if (nestedType instanceof EPTypeClass) {
+            EPTypeClass simpleClass = (EPTypeClass) nestedType;
             if (!JavaClassHelper.isFragmentableType(simpleClass)) {
                 return null;
             }

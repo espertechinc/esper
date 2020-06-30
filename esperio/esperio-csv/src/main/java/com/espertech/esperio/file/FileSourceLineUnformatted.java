@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
+
 public class FileSourceLineUnformatted implements DataFlowSourceOperator {
 
     private static final Logger log = LoggerFactory.getLogger(FileSourceLineUnformatted.class);
@@ -101,7 +103,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
 
             if (propertyNameFile != null) {
                 WriteablePropertyDescriptor writeableFile = EventTypeUtility.findWritable(propertyNameFile, writeables);
-                if (writeableFile == null || writeableFile.getType() != String.class) {
+                if (writeableFile == null || !isTypeString(writeableFile.getType())) {
                     throw new EPException("Failed to find writable String-type property '" + propertyNameFile + "', is the property read-only?");
                 }
                 writeableList.add(writeableFile);
@@ -202,7 +204,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
         EventBeanManufacturer manufacturer;
         if (propertyNameFile != null) {
             WriteablePropertyDescriptor writeableFile = EventTypeUtility.findWritable(propertyNameFile, writeables);
-            if (writeableFile == null || writeableFile.getType() != String.class) {
+            if (writeableFile == null || !isTypeString(writeableFile.getType())) {
                 throw new EPException("Failed to find writable String-type property '" + propertyNameFile + "', is the property read-only?");
             }
             writeableList.add(writeableFile);

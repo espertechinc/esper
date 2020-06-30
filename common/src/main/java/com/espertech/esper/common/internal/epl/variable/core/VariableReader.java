@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 
 /**
@@ -18,6 +19,9 @@ import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMeta
  * Works closely with {@link VariableManagementService} in determining the version to read.
  */
 public class VariableReader {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableReader.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(VariableReader[].class);
+
     private final Variable variable;
     private final VariableVersionThreadLocal versionThreadLocal;
     private volatile VersionedValueList<Object> versionsHigh;

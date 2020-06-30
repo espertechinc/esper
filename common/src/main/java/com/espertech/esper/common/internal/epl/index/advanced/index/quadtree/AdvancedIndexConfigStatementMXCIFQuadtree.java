@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.index.advanced.index.quadtree;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.lookup.EventAdvancedIndexConfigStatement;
 
 public class AdvancedIndexConfigStatementMXCIFQuadtree implements EventAdvancedIndexConfigStatement {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AdvancedIndexConfigStatementMXCIFQuadtree.class);
+
     private ExprEvaluator xEval;
     private ExprEvaluator yEval;
     private ExprEvaluator widthEval;

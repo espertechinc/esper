@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,6 +21,7 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 
 import java.lang.reflect.Array;
@@ -31,12 +33,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprArrayNodeForge implements ExprForgeInstrumentable, ExprEnumerationForge {
     private final ExprArrayNode parent;
-    private final Class arrayReturnType;
+    private final EPTypeClass arrayReturnType;
     private final boolean mustCoerce;
     private final SimpleNumberCoercer coercer;
     private final Object constantResult;
 
-    public ExprArrayNodeForge(ExprArrayNode parent, Class arrayReturnType, Object constantResult) {
+    public ExprArrayNodeForge(ExprArrayNode parent, EPTypeClass arrayReturnType, Object constantResult) {
         this.parent = parent;
         this.arrayReturnType = arrayReturnType;
         this.constantResult = constantResult;
@@ -44,7 +46,7 @@ public class ExprArrayNodeForge implements ExprForgeInstrumentable, ExprEnumerat
         this.coercer = null;
     }
 
-    public ExprArrayNodeForge(ExprArrayNode parent, Class arrayReturnType, boolean mustCoerce, SimpleNumberCoercer coercer, Object constantResult) {
+    public ExprArrayNodeForge(ExprArrayNode parent, EPTypeClass arrayReturnType, boolean mustCoerce, SimpleNumberCoercer coercer, Object constantResult) {
         this.parent = parent;
         this.arrayReturnType = arrayReturnType;
         this.mustCoerce = mustCoerce;
@@ -71,14 +73,14 @@ public class ExprArrayNodeForge implements ExprForgeInstrumentable, ExprEnumerat
         return new ExprArrayNodeForgeEval(this, ExprNodeUtilityQuery.getEvaluatorsNoCompile(parent.getChildNodes()));
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (constantResult != null) {
             return constant(constantResult);
         }
         return ExprArrayNodeForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprArray", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
@@ -86,15 +88,15 @@ public class ExprArrayNodeForge implements ExprForgeInstrumentable, ExprEnumerat
         return ExprArrayNodeForgeEval.codegenEvaluateGetROCollectionScalar(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getEvaluationType() {
-        return Array.newInstance(arrayReturnType, 0).getClass();
+    public EPTypeClass getEvaluationType() {
+        return JavaClassHelper.getArrayType(arrayReturnType);
     }
 
     public ExprArrayNode getForgeRenderable() {
         return parent;
     }
 
-    public Class getArrayReturnType() {
+    public EPTypeClass getArrayReturnType() {
         return arrayReturnType;
     }
 
@@ -143,7 +145,7 @@ public class ExprArrayNodeForge implements ExprForgeInstrumentable, ExprEnumerat
         return null;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return parent.getComponentTypeCollection();
     }
 

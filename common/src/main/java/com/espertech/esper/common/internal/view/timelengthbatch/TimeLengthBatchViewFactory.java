@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timelengthbatch;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -24,6 +25,8 @@ import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
  * Factory for {@link TimeLengthBatchView}.
  */
 public class TimeLengthBatchViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimeLengthBatchViewFactory.class);
+
     /**
      * Number of events to collect before batch fires.
      */

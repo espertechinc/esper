@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenIndent;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.*;
@@ -87,15 +89,15 @@ public class CodegenBlock {
         return this;
     }
 
-    public CodegenBlock ifNotInstanceOf(String name, Class clazz) {
+    public CodegenBlock ifNotInstanceOf(String name, EPTypeClass clazz) {
         return ifInstanceOf(name, clazz, true);
     }
 
-    public CodegenBlock ifInstanceOf(String name, Class clazz) {
+    public CodegenBlock ifInstanceOf(String name, EPTypeClass clazz) {
         return ifInstanceOf(name, clazz, false);
     }
 
-    private CodegenBlock ifInstanceOf(String name, Class clazz, boolean not) {
+    private CodegenBlock ifInstanceOf(String name, EPTypeClass clazz, boolean not) {
         return ifCondition(!not ? instanceOf(ref(name), clazz) : notInstanceOf(ref(name), clazz));
     }
 
@@ -134,7 +136,7 @@ public class CodegenBlock {
         return block;
     }
 
-    public CodegenBlock forLoop(Class type, String name, CodegenExpression initialization, CodegenExpression termination, CodegenExpression increment) {
+    public CodegenBlock forLoop(EPTypeClass type, String name, CodegenExpression initialization, CodegenExpression termination, CodegenExpression increment) {
         checkClosed();
         CodegenStatementFor forStmt = new CodegenStatementFor(this, type, name, initialization, termination, increment);
         CodegenBlock block = new CodegenBlock(forStmt);
@@ -143,7 +145,7 @@ public class CodegenBlock {
         return block;
     }
 
-    public CodegenBlock forEach(Class type, String name, CodegenExpression target) {
+    public CodegenBlock forEach(EPTypeClass type, String name, CodegenExpression target) {
         checkClosed();
         CodegenStatementForEach forStmt = new CodegenStatementForEach(this, type, name, target);
         CodegenBlock block = new CodegenBlock(forStmt);
@@ -161,40 +163,40 @@ public class CodegenBlock {
         return block;
     }
 
-    public CodegenBlock declareVarWCast(Class clazz, String var, String rhsName) {
+    public CodegenBlock declareVarWCast(EPTypeClass clazz, String var, String rhsName) {
         checkClosed();
         statements.add(new CodegenStatementDeclareVarWCast(clazz, var, rhsName));
         return this;
     }
 
-    public CodegenBlock declareVar(Class clazz, String var, CodegenExpression initializer) {
+    public CodegenBlock declareVar(EPTypeClass clazz, String var, CodegenExpression initializer) {
         if (initializer == null) {
             throw new IllegalArgumentException();
         }
         checkClosed();
-        statements.add(new CodegenStatementDeclareVar(clazz, null, var, initializer));
+        statements.add(new CodegenStatementDeclareVar(clazz, var, initializer));
+        return this;
+    }
+
+    public CodegenBlock declareVarNewInstance(EPTypeClass clazz, String var) {
+        checkClosed();
+        statements.add(new CodegenStatementDeclareVar(clazz, var, newInstance(clazz)));
         return this;
     }
 
     public CodegenBlock declareVar(String typeName, String var, CodegenExpression initializer) {
         checkClosed();
-        statements.add(new CodegenStatementDeclareVar(typeName, null, var, initializer));
+        statements.add(new CodegenStatementDeclareVar(typeName, var, initializer));
         return this;
     }
 
-    public CodegenBlock declareVar(Class clazz, Class optionalTypeVariable, String var, CodegenExpression initializer) {
+    public CodegenBlock declareVarNoInit(EPTypeClass clazz, String var) {
         checkClosed();
-        statements.add(new CodegenStatementDeclareVar(clazz, optionalTypeVariable, var, initializer));
+        statements.add(new CodegenStatementDeclareVar(clazz, var, null));
         return this;
     }
 
-    public CodegenBlock declareVarNoInit(Class clazz, String var) {
-        checkClosed();
-        statements.add(new CodegenStatementDeclareVar(clazz, null, var, null));
-        return this;
-    }
-
-    public CodegenBlock declareVarNull(Class clazz, String var) {
+    public CodegenBlock declareVarNull(EPTypeClass clazz, String var) {
         checkClosed();
         statements.add(new CodegenStatementDeclareVarNull(clazz, var));
         return this;
@@ -272,7 +274,7 @@ public class CodegenBlock {
         return this;
     }
 
-    public CodegenBlock ifRefNotTypeReturnConst(String ref, Class type, Object constant) {
+    public CodegenBlock ifRefNotTypeReturnConst(String ref, EPTypeClass type, Object constant) {
         checkClosed();
         statements.add(new CodegenStatementIfRefNotTypeReturnConst(ref, type, constant));
         return this;
@@ -359,7 +361,7 @@ public class CodegenBlock {
         }
         checkClosed();
         closed = true;
-        statements.add(new CodegenStatementThrow(newInstance(UnsupportedOperationException.class)));
+        statements.add(new CodegenStatementThrow(newInstance(EPTypePremade.UNSUPPORTEDOPERATIONEXCEPTION.getEPType())));
         return parentMethodNode;
     }
 

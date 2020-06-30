@@ -12,11 +12,13 @@ package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.variable.VariableValueException;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.NullableObject;
@@ -488,26 +490,26 @@ public class VariableManagementServiceImpl implements VariableManagementService 
             return;
         }
 
-        Class valueType = newValue.getClass();
+        EPTypeClass valueType = ClassHelperGenericType.getClassEPType(newValue.getClass());
 
         if (variable.getMetaData().getEventType() != null) {
             if (!JavaClassHelper.isSubclassOrImplementsInterface(newValue.getClass(), variable.getMetaData().getEventType().getUnderlyingType())) {
                 throw new VariableValueException("Variable '" + variableName
                     + "' of declared event type '" + variable.getMetaData().getEventType().getName() + "' underlying type '" + variable.getMetaData().getEventType().getUnderlyingType().getName() +
-                    "' cannot be assigned a value of type '" + valueType.getName() + "'");
+                    "' cannot be assigned a value of type '" + valueType.getTypeName() + "'");
             }
             EventBean eventBean = eventBeanTypedEventFactory.adapterForTypedBean(newValue, variable.getMetaData().getEventType());
             write(variableNumber, agentInstanceId, eventBean);
             return;
         }
 
-        Class variableType = variable.getMetaData().getType();
-        if ((valueType.equals(variableType)) || (variableType == Object.class)) {
+        EPTypeClass variableType = variable.getMetaData().getType();
+        if ((valueType.equals(variableType)) || (variableType.getType() == Object.class)) {
             write(variableNumber, agentInstanceId, newValue);
             return;
         }
 
-        if (JavaClassHelper.isSubclassOrImplementsInterface(valueType, variableType)) {
+        if (JavaClassHelper.isSubclassOrImplementsInterface(valueType, variableType.getType())) {
             write(variableNumber, agentInstanceId, newValue);
             return;
         }
@@ -518,11 +520,11 @@ public class VariableManagementServiceImpl implements VariableManagementService 
         }
 
         // determine if the expression type can be assigned
-        if (!(JavaClassHelper.canCoerce(valueType, variableType))) {
+        if (!(JavaClassHelper.canCoerce(valueType.getType(), variableType.getType()))) {
             throw new VariableValueException(VariableUtil.getAssigmentExMessage(variableName, variableType, valueType));
         }
 
-        Object valueCoerced = JavaClassHelper.coerceBoxed((Number) newValue, variableType);
+        Object valueCoerced = JavaClassHelper.coerceBoxed((Number) newValue, variableType.getType());
         write(variableNumber, agentInstanceId, valueCoerced);
     }
 

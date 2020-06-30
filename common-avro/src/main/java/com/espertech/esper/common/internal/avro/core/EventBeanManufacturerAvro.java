@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.avro.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.avro.AvroSchemaEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanManufacturer;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
@@ -21,6 +22,7 @@ import org.apache.avro.generic.GenericData;
  * Factory for ObjectArray-underlying events.
  */
 public class EventBeanManufacturerAvro implements EventBeanManufacturer {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventBeanManufacturerAvro.class);
     private final AvroEventType eventType;
     private final Schema schema;
     private final EventBeanTypedEventFactory eventAdapterService;

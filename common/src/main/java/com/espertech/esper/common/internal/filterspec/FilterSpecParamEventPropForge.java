@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -39,7 +41,7 @@ public final class FilterSpecParamEventPropForge extends FilterSpecParamForge {
     private final ExprIdentNodeEvaluator exprIdentNodeEvaluator;
     private final boolean isMustCoerce;
     private transient final SimpleNumberCoercer numberCoercer;
-    private final Class coercionType;
+    private final EPTypeClass coercionType;
     private final String statementName;
 
     /**
@@ -58,7 +60,7 @@ public final class FilterSpecParamEventPropForge extends FilterSpecParamForge {
      */
     public FilterSpecParamEventPropForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String resultEventAsName,
                                          String resultEventProperty, ExprIdentNodeEvaluator exprIdentNodeEvaluator, boolean isMustCoerce,
-                                         SimpleNumberCoercer numberCoercer, Class coercionType,
+                                         SimpleNumberCoercer numberCoercer, EPTypeClass coercionType,
                                          String statementName)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
@@ -90,7 +92,7 @@ public final class FilterSpecParamEventPropForge extends FilterSpecParamForge {
      *
      * @return type to coerce to
      */
-    public Class getCoercionType() {
+    public EPTypeClass getCoercionType() {
         return coercionType;
     }
 
@@ -155,25 +157,25 @@ public final class FilterSpecParamEventPropForge extends FilterSpecParamForge {
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
 
-        CodegenMethod method = parent.makeChild(FilterSpecParam.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, this.getClass(), classScope);
         CodegenExpression get = exprIdentNodeEvaluator.getGetter().eventBeanGetCodegen(ref("event"), method, classScope);
 
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+                .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+                .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.EPTYPE, Arrays.asList(ref("lookupable"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.EPTYPE, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
         getFilterValue.getBlock()
-                .declareVar(EventBean.class, "event", exprDotMethod(ref("matchedEvents"), "getMatchingEventByTag", constant(resultEventAsName)))
-                .declareVar(Object.class, "value", constantNull())
+                .declareVar(EventBean.EPTYPE, "event", exprDotMethod(ref("matchedEvents"), "getMatchingEventByTag", constant(resultEventAsName)))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", constantNull())
                 .ifRefNotNull("event")
                 .assignRef("value", get)
                 .blockEnd();
 
         if (isMustCoerce) {
-            getFilterValue.getBlock().assignRef("value", numberCoercer.coerceCodegenMayNullBoxed(cast(Number.class, ref("value")), Number.class, method, classScope));
+            getFilterValue.getBlock().assignRef("value", numberCoercer.coerceCodegenMayNullBoxed(cast(EPTypePremade.NUMBER.getEPType(), ref("value")), EPTypePremade.NUMBER.getEPType(), method, classScope));
         }
         getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(ref("value")));
 

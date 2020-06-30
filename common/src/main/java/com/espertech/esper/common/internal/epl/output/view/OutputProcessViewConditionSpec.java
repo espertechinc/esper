@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactory;
@@ -21,6 +22,8 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
  * A view that handles the "output snapshot" keyword in output rate stabilizing.
  */
 public class OutputProcessViewConditionSpec {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputProcessViewConditionSpec.class);
+
     private EventType resultEventType;
     private OutputStrategyPostProcessFactory postProcessFactory;
     private OutputConditionFactory outputConditionFactory;

@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.serde.compiletime.resolve;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventType;
 
@@ -20,51 +22,51 @@ public class SerdeCompileTimeResolverNonHA implements SerdeCompileTimeResolver {
     private SerdeCompileTimeResolverNonHA() {
     }
 
-    public DataInputOutputSerdeForge serdeForFilter(Class evaluationType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForFilter(EPType evaluationType, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForKeyNonArray(Class paramType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForKeyNonArray(EPType paramType, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge[] serdeForMultiKey(Class[] types, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge[] serdeForMultiKey(EPType[] types, StatementRawInfo raw) {
         return noop(types);
     }
 
-    public DataInputOutputSerdeForge[] serdeForDataWindowSortCriteria(Class[] types, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge[] serdeForDataWindowSortCriteria(EPType[] types, StatementRawInfo raw) {
         return noop(types);
     }
 
-    public DataInputOutputSerdeForge serdeForDerivedViewAddProp(Class evalType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForDerivedViewAddProp(EPType evalType, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForBeanEventType(StatementRawInfo raw, Class underlyingType, String eventTypeName, EventType[] eventTypeSupertypes) {
+    public DataInputOutputSerdeForge serdeForBeanEventType(StatementRawInfo raw, EPTypeClass underlyingType, String eventTypeName, EventType[] eventTypeSupertypes) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForEventProperty(Class typedProperty, String eventTypeName, String propertyName, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForEventProperty(EPTypeClass typedProperty, String eventTypeName, String propertyName, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForIndexBtree(Class rangeType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForIndexBtree(EPTypeClass rangeType, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForAggregation(Class type, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForAggregation(EPType type, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForAggregationDistinct(Class type, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForAggregationDistinct(EPType type, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForIndexHashNonArray(Class propType, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForIndexHashNonArray(EPTypeClass propType, StatementRawInfo raw) {
         return noop();
     }
 
-    public DataInputOutputSerdeForge serdeForVariable(Class type, String variableName, StatementRawInfo raw) {
+    public DataInputOutputSerdeForge serdeForVariable(EPTypeClass type, String variableName, StatementRawInfo raw) {
         return noop();
     }
 
@@ -80,7 +82,7 @@ public class SerdeCompileTimeResolverNonHA implements SerdeCompileTimeResolver {
         return DataInputOutputSerdeForgeNotApplicable.INSTANCE;
     }
 
-    private DataInputOutputSerdeForge[] noop(Class[] types) {
+    private DataInputOutputSerdeForge[] noop(EPType[] types) {
         DataInputOutputSerdeForge[] forges = new DataInputOutputSerdeForge[types.length];
         for (int i = 0; i < forges.length; i++) {
             forges[i] = noop();

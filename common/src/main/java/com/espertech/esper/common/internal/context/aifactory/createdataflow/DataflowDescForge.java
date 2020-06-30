@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createdataflow;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -51,9 +52,9 @@ public class DataflowDescForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(DataflowDesc.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(DataflowDesc.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(DataflowDesc.class, "df", newInstance(DataflowDesc.class))
+                .declareVarNewInstance(DataflowDesc.EPTYPE, "df")
                 .exprDotMethod(ref("df"), "setDataflowName", constant(dataflowName))
                 .exprDotMethod(ref("df"), "setDeclaredTypes", makeTypes(declaredTypes, method, symbols, classScope))
                 .exprDotMethod(ref("df"), "setOperatorMetadata", makeOpMeta(operatorMetadata, method, symbols, classScope))
@@ -77,8 +78,8 @@ public class DataflowDescForge {
     }
 
     private static CodegenExpression makeOpChannels(List<LogicalChannel> logicalChannels, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(List.class, DataflowDescForge.class, classScope);
-        method.getBlock().declareVar(List.class, "chnl", newInstance(ArrayList.class, constant(logicalChannels.size())));
+        CodegenMethod method = parent.makeChild(EPTypePremade.LIST.getEPType(), DataflowDescForge.class, classScope);
+        method.getBlock().declareVar(EPTypePremade.LIST.getEPType(), "chnl", newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(logicalChannels.size())));
         for (LogicalChannel channel : logicalChannels) {
             method.getBlock().exprDotMethod(ref("chnl"), "add", channel.make(method, symbols, classScope));
         }
@@ -87,8 +88,8 @@ public class DataflowDescForge {
     }
 
     private static CodegenExpression makeOpBuildOrder(Set<Integer> operatorBuildOrder, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(LinkedHashSet.class, DataflowDescForge.class, classScope);
-        method.getBlock().declareVar(LinkedHashSet.class, "order", newInstance(LinkedHashSet.class, constant(CollectionUtil.capacityHashMap(operatorBuildOrder.size()))));
+        CodegenMethod method = parent.makeChild(EPTypePremade.LINKEDHASHSET.getEPType(), DataflowDescForge.class, classScope);
+        method.getBlock().declareVar(EPTypePremade.LINKEDHASHSET.getEPType(), "order", newInstance(EPTypePremade.LINKEDHASHSET.getEPType(), constant(CollectionUtil.capacityHashMap(operatorBuildOrder.size()))));
         for (Integer entry : operatorBuildOrder) {
             method.getBlock().exprDotMethod(ref("order"), "add", constant(entry));
         }
@@ -97,8 +98,8 @@ public class DataflowDescForge {
     }
 
     private static CodegenExpression makeOpFactories(Map<Integer, DataFlowOperatorForge> operatorFactories, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, DataflowDescForge.class, classScope);
-        method.getBlock().declareVar(Map.class, "fac", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(operatorFactories.size()))));
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), DataflowDescForge.class, classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "fac", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(operatorFactories.size()))));
         for (Map.Entry<Integer, DataFlowOperatorForge> entry : operatorFactories.entrySet()) {
             method.getBlock().exprDotMethod(ref("fac"), "put", constant(entry.getKey()), entry.getValue().make(method, symbols, classScope));
         }
@@ -107,8 +108,8 @@ public class DataflowDescForge {
     }
 
     private static CodegenExpression makeOpMeta(Map<Integer, OperatorMetadataDescriptor> operatorMetadata, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, DataflowDescForge.class, classScope);
-        method.getBlock().declareVar(Map.class, "op", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(operatorMetadata.size()))));
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), DataflowDescForge.class, classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "op", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(operatorMetadata.size()))));
         for (Map.Entry<Integer, OperatorMetadataDescriptor> entry : operatorMetadata.entrySet()) {
             method.getBlock().exprDotMethod(ref("op"), "put", constant(entry.getKey()), entry.getValue().make(method, symbols, classScope));
         }
@@ -117,8 +118,8 @@ public class DataflowDescForge {
     }
 
     private static CodegenExpression makeTypes(Map<String, EventType> declaredTypes, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, DataflowDescForge.class, classScope);
-        method.getBlock().declareVar(Map.class, "types", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(declaredTypes.size()))));
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), DataflowDescForge.class, classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "types", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(declaredTypes.size()))));
         for (Map.Entry<String, EventType> entry : declaredTypes.entrySet()) {
             method.getBlock().exprDotMethod(ref("types"), "put", constant(entry.getKey()), EventTypeUtility.resolveTypeCodegen(entry.getValue(), symbols.getAddInitSvc(method)));
         }

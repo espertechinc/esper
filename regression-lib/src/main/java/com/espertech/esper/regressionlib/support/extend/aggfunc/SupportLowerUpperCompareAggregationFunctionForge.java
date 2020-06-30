@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionMode;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeMultiParam;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +32,14 @@ public class SupportLowerUpperCompareAggregationFunctionForge implements Aggrega
         contexts.add(validationContext);
     }
 
-    public Class getValueType() {
-        return int.class;
+    public EPTypeClass getValueType() {
+        return EPTypePremade.INTEGERPRIMITIVE.getEPType();
     }
 
     public void setFunctionName(String functionName) {
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {
-        return new AggregationFunctionModeMultiParam().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportLowerUpperCompareAggregationFunctionFactory.class));
+        return new AggregationFunctionModeMultiParam().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportLowerUpperCompareAggregationFunctionFactory.EPTYPE));
     }
 }

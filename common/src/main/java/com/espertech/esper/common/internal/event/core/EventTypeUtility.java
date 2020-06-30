@@ -18,6 +18,10 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
@@ -60,19 +64,13 @@ import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.property.*;
 import com.espertech.esper.common.internal.event.xml.*;
-import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
-import com.espertech.esper.common.internal.settings.ClasspathImportException;
-import com.espertech.esper.common.internal.settings.ClasspathImportService;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.settings.*;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.common.internal.util.*;
 import org.w3c.dom.Node;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 
@@ -203,27 +201,27 @@ public class EventTypeUtility {
         }
         if (eventType instanceof BaseNestableEventType) {
             Map<String, Object> mapdef = ((BaseNestableEventType) eventType).getTypes();
-            Set<WriteablePropertyDescriptor> writables = new LinkedHashSet<WriteablePropertyDescriptor>();
+            Set<WriteablePropertyDescriptor> writables = new LinkedHashSet<>();
             for (Map.Entry<String, Object> types : mapdef.entrySet()) {
-                if (types.getValue() instanceof Class) {
-                    writables.add(new WriteablePropertyDescriptor(types.getKey(), (Class) types.getValue(), null, false));
+                if (types.getValue() instanceof EPTypeClass) {
+                    writables.add(new WriteablePropertyDescriptor(types.getKey(), (EPTypeClass) types.getValue(), null, false));
                 }
                 if (types.getValue() instanceof String) {
                     String typeName = types.getValue().toString();
                     Class clazz = JavaClassHelper.getPrimitiveClassForName(typeName);
                     if (clazz != null) {
-                        writables.add(new WriteablePropertyDescriptor(types.getKey(), clazz, null, false));
+                        writables.add(new WriteablePropertyDescriptor(types.getKey(), ClassHelperGenericType.getClassEPType(clazz), null, false));
                     } else if (allowFragmentType) {
-                        writables.add(new WriteablePropertyDescriptor(types.getKey(), clazz, null, true));
+                        writables.add(new WriteablePropertyDescriptor(types.getKey(), null, null, true));
                     }
                 }
                 if (allowFragmentType && types.getValue() instanceof TypeBeanOrUnderlying) {
                     TypeBeanOrUnderlying und = (TypeBeanOrUnderlying) types.getValue();
-                    writables.add(new WriteablePropertyDescriptor(types.getKey(), und.getEventType().getUnderlyingType(), null, true));
+                    writables.add(new WriteablePropertyDescriptor(types.getKey(), und.getEventType().getUnderlyingEPType(), null, true));
                 }
                 if (allowFragmentType && types.getValue() instanceof TypeBeanOrUnderlying[]) {
                     TypeBeanOrUnderlying[] und = (TypeBeanOrUnderlying[]) types.getValue();
-                    writables.add(new WriteablePropertyDescriptor(types.getKey(), und[0].getEventType().getUnderlyingType(), null, true));
+                    writables.add(new WriteablePropertyDescriptor(types.getKey(), und[0].getEventType().getUnderlyingEPType(), null, true));
                 }
             }
             return writables;
@@ -231,7 +229,7 @@ public class EventTypeUtility {
             Set<WriteablePropertyDescriptor> writables = new LinkedHashSet<WriteablePropertyDescriptor>();
             EventPropertyDescriptor[] desc = typeSPI.getWriteableProperties();
             for (EventPropertyDescriptor prop : desc) {
-                writables.add(new WriteablePropertyDescriptor(prop.getPropertyName(), prop.getPropertyType(), null, false));
+                writables.add(new WriteablePropertyDescriptor(prop.getPropertyName(), prop.getPropertyEPType(), null, false));
             }
             return writables;
         } else {
@@ -253,7 +251,7 @@ public class EventTypeUtility {
         if (eventType instanceof BeanEventType && eventType.getMetadata().getAccessModifier() == NameAccessModifier.TRANSIENT) {
             BeanEventType beanEventType = (BeanEventType) eventType;
             boolean publicFields = beanEventType.getStem().isPublicFields();
-            return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_PRIVATE_BEAN_METHOD, constant(eventType.getUnderlyingType()), constant(publicFields));
+            return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_PRIVATE_BEAN_METHOD, constant(eventType.getUnderlyingEPType()), constant(publicFields));
         }
         return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_METHOD, eventType.getMetadata().toExpression());
     }
@@ -263,7 +261,7 @@ public class EventTypeUtility {
         for (int i = 0; i < eventTypes.length; i++) {
             expressions[i] = resolveTypeCodegen(eventTypes[i], initServicesRef);
         }
-        return newArrayWithInit(EventType.class, expressions);
+        return newArrayWithInit(EventType.EPTYPE, expressions);
     }
 
     public static CodegenExpression resolveTypeArrayCodegenMayNull(EventType[] eventTypes, CodegenExpression initServicesRef) {
@@ -271,50 +269,53 @@ public class EventTypeUtility {
         for (int i = 0; i < eventTypes.length; i++) {
             expressions[i] = eventTypes[i] == null ? constantNull() : resolveTypeCodegen(eventTypes[i], initServicesRef);
         }
-        return newArrayWithInit(EventType.class, expressions);
+        return newArrayWithInit(EventType.EPTYPE, expressions);
     }
 
-    public static CodegenExpression codegenGetterWCoerce(EventPropertyGetterSPI getter, Class getterType, Class optionalCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+    public static CodegenExpression codegenGetterWCoerce(EventPropertyGetterSPI getter, EPType getterType, EPType optionalCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
         getterType = JavaClassHelper.getBoxedType(getterType);
-        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyValueGetter.class);
-        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(CodegenNamedParam.from(EventBean.class, "bean"));
+        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyValueGetter.EPTYPE);
+        CodegenMethod get = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), generator, classScope).addParam(CodegenNamedParam.from(EventBean.EPTYPE, "bean"));
         anonymous.addMethod("get", get);
 
         CodegenExpression result = getter.eventBeanGetCodegen(ref("bean"), method, classScope);
-        if (optionalCoercionType != null && getterType != optionalCoercionType && JavaClassHelper.isNumeric(getterType)) {
-            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(getterType, JavaClassHelper.getBoxedType(optionalCoercionType));
-            get.getBlock().declareVar(getterType, "prop", cast(getterType, result));
-            result = coercer.coerceCodegen(ref("prop"), getterType);
+        if (optionalCoercionType instanceof EPTypeClass && !getterType.equals(optionalCoercionType) && JavaClassHelper.isNumeric(getterType)) {
+            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(getterType, JavaClassHelper.getBoxedType((EPTypeClass) optionalCoercionType));
+            get.getBlock().declareVar((EPTypeClass) getterType, "prop", cast((EPTypeClass) getterType, result));
+            result = coercer.coerceCodegen(ref("prop"), (EPTypeClass) getterType);
         }
 
         get.getBlock().methodReturn(result);
         return anonymous;
     }
 
-    public static CodegenExpression codegenGetterWCoerceWArray(Class interfaceClass, EventPropertyGetterSPI getter, Class getterType, Class optionalCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
-        getterType = JavaClassHelper.getBoxedType(getterType);
+    public static CodegenExpression codegenGetterWCoerceWArray(EPTypeClass interfaceClass, EventPropertyGetterSPI getter, EPType getterTypeUnboxed, EPType optionalCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+        if (getterTypeUnboxed == EPTypeNull.INSTANCE || optionalCoercionType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass getterType = (EPTypeClass) JavaClassHelper.getBoxedType(getterTypeUnboxed);
         CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), interfaceClass);
 
         List<CodegenNamedParam> params;
-        if (interfaceClass == EventPropertyValueGetter.class) {
-            params = CodegenNamedParam.from(EventBean.class, "bean");
-        } else if (interfaceClass == ExprEventEvaluator.class) {
-            params = CodegenNamedParam.from(EventBean.class, "bean", ExprEvaluatorContext.class, "ctx");
+        if (interfaceClass.getType() == EventPropertyValueGetter.class) {
+            params = CodegenNamedParam.from(EventBean.EPTYPE, "bean");
+        } else if (interfaceClass.getType() == ExprEventEvaluator.class) {
+            params = CodegenNamedParam.from(EventBean.EPTYPE, "bean", ExprEvaluatorContext.EPTYPE, "ctx");
         } else {
-            throw new IllegalStateException("Unrecognized interface class " + interfaceClass.getSimpleName());
+            throw new IllegalStateException("Unrecognized interface class " + interfaceClass);
         }
-        CodegenMethod getOrEval = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(params);
-        anonymous.addMethod(interfaceClass == EventPropertyValueGetter.class ? "get" : "eval", getOrEval);
+        CodegenMethod getOrEval = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), generator, classScope).addParam(params);
+        anonymous.addMethod(interfaceClass.getType() == EventPropertyValueGetter.class ? "get" : "eval", getOrEval);
 
         CodegenExpression result = getter.eventBeanGetCodegen(ref("bean"), method, classScope);
         if (optionalCoercionType != null && getterType != optionalCoercionType && JavaClassHelper.isNumeric(getterType)) {
-            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(getterType, JavaClassHelper.getBoxedType(optionalCoercionType));
+            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(getterType, JavaClassHelper.getBoxedType((EPTypeClass) optionalCoercionType));
             getOrEval.getBlock().declareVar(getterType, "prop", cast(getterType, result));
             result = coercer.coerceCodegen(ref("prop"), getterType);
         }
 
-        if (getterType.isArray()) {
-            Class mkType = MultiKeyPlanner.getMKClassForComponentType(getterType.getComponentType());
+        if (getterType.getType().isArray()) {
+            EPTypeClass mkType = MultiKeyPlanner.getMKClassForComponentType(JavaClassHelper.getArrayComponentType(getterType));
             result = newInstance(mkType, cast(getterType, result));
         }
 
@@ -322,24 +323,29 @@ public class EventTypeUtility {
         return anonymous;
     }
 
-    public static CodegenExpression codegenWriter(EventType eventType, Class evaluationType, EventPropertyWriterSPI writer, CodegenMethod method, Class generator, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyWriter.class);
-        CodegenMethod write = CodegenMethod.makeParentNode(void.class, generator, classScope).addParam(CodegenNamedParam.from(Object.class, "value", EventBean.class, "bean"));
+    public static CodegenExpression codegenWriter(EventType eventType, EPType evaluationType, EventPropertyWriterSPI writer, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyWriter.EPTYPE);
+        CodegenMethod write = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), generator, classScope).addParam(CodegenNamedParam.from(EPTypePremade.OBJECT.getEPType(), "value", EventBean.EPTYPE, "bean"));
         anonymous.addMethod("write", write);
 
         evaluationType = JavaClassHelper.getBoxedType(evaluationType);
 
         write.getBlock()
-            .declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("bean"))))
-            .declareVar(evaluationType, "eval", cast(evaluationType, ref("value")))
-            .expression(writer.writeCodegen(ref("eval"), ref("und"), ref("bean"), write, classScope));
+            .declareVar(eventType.getUnderlyingEPType(), "und", cast(eventType.getUnderlyingEPType(), exprDotUnderlying(ref("bean"))));
+        CodegenExpression value = constantNull();
+        if (evaluationType != null && evaluationType != EPTypeNull.INSTANCE) {
+            EPTypeClass evalClass = (EPTypeClass) evaluationType;
+            write.getBlock().declareVar(evalClass, "eval", cast(evalClass, ref("value")));
+            value = ref("eval");
+        }
+        write.getBlock().expression(writer.writeCodegen(value, ref("und"), ref("bean"), write, classScope));
         return anonymous;
     }
 
     public static LinkedHashMap<String, Object> getPropertyTypesNonPrimitive(LinkedHashMap<String, Object> propertyTypesMayPrimitive) {
         boolean hasPrimitive = false;
         for (Map.Entry<String, Object> entry : propertyTypesMayPrimitive.entrySet()) {
-            if (entry.getValue() instanceof Class && ((Class) entry.getValue()).isPrimitive()) {
+            if (entry.getValue() instanceof EPTypeClass && ((EPTypeClass) entry.getValue()).getType().isPrimitive()) {
                 hasPrimitive = true;
                 break;
             }
@@ -351,14 +357,12 @@ public class EventTypeUtility {
 
         LinkedHashMap<String, Object> props = new LinkedHashMap<>(propertyTypesMayPrimitive);
         for (Map.Entry<String, Object> entry : propertyTypesMayPrimitive.entrySet()) {
-            if (!(entry.getValue() instanceof Class)) {
-                continue;
+            if (entry.getValue() instanceof EPTypeClass) {
+                EPTypeClass clazz = (EPTypeClass) entry.getValue();
+                if (clazz.getType().isPrimitive()) {
+                    props.put(entry.getKey(), JavaClassHelper.getBoxedType(clazz));
+                }
             }
-            Class clazz = (Class) entry.getValue();
-            if (!clazz.isPrimitive()) {
-                continue;
-            }
-            props.put(entry.getKey(), JavaClassHelper.getBoxedType(clazz));
         }
         return props;
     }
@@ -464,7 +468,7 @@ public class EventTypeUtility {
         return getNestablePropertyDescriptor(fragmentEventType.getFragmentType(), stack);
     }
 
-    public static LinkedHashMap<String, Object> buildType(List<ColumnDesc> columns, Set<String> copyFrom, ClasspathImportServiceCompileTime classpathImportService, EventTypeNameResolver eventTypeResolver) throws ExprValidationException {
+    public static LinkedHashMap<String, Object> buildType(List<ColumnDesc> columns, Set<String> copyFrom, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension, EventTypeNameResolver eventTypeResolver) throws ExprValidationException {
         LinkedHashMap<String, Object> typing = new LinkedHashMap<String, Object>();
         Set<String> columnNames = new HashSet<String>();
 
@@ -484,63 +488,23 @@ public class EventTypeUtility {
             if (!added) {
                 throw new ExprValidationException("Duplicate column name '" + column.getName() + "'");
             }
-            Object columnType = buildType(column, classpathImportService);
+            Object columnType = buildType(column, classpathImportService, classpathExtension);
             typing.put(column.getName(), columnType);
         }
 
         return typing;
     }
 
-    public static Object buildType(ColumnDesc column, ClasspathImportServiceCompileTime classpathImportService) throws ExprValidationException {
+    public static Object buildType(ColumnDesc column, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension) throws ExprValidationException {
 
         if (column.getType() == null) {
             return null;
         }
 
-        ClassIdentifierWArray classIdent = ClassIdentifierWArray.parseSODA(column.getType());
-        String typeName = classIdent.getClassIdentifier();
-
-        if (classIdent.isArrayOfPrimitive()) {
-            Class primitive = JavaClassHelper.getPrimitiveClassForName(typeName);
-            if (primitive != null) {
-                return JavaClassHelper.getArrayType(primitive, classIdent.getArrayDimensions());
-            }
-            throw new ExprValidationException("Type '" + typeName + "' is not a primitive type");
-        }
-
-        Class plain = JavaClassHelper.getClassForSimpleName(typeName, classpathImportService.getClassForNameProvider());
-        if (plain != null) {
-            return JavaClassHelper.getArrayType(plain, classIdent.getArrayDimensions());
-        }
-
-        // try imports first
-        Class resolved = null;
-        try {
-            resolved = classpathImportService.resolveClass(typeName, false, ClasspathExtensionClassEmpty.INSTANCE);
-        } catch (ClasspathImportException e) {
-            // expected
-        }
-
-        String lowercase = typeName.toLowerCase(Locale.ENGLISH);
-        if (lowercase.equals("biginteger")) {
-            return JavaClassHelper.getArrayType(BigInteger.class, classIdent.getArrayDimensions());
-        }
-        if (lowercase.equals("bigdecimal")) {
-            return JavaClassHelper.getArrayType(BigDecimal.class, classIdent.getArrayDimensions());
-        }
-
-        // resolve from classpath when not found
-        if (resolved == null) {
-            try {
-                resolved = JavaClassHelper.getClassForName(typeName, classpathImportService.getClassForNameProvider());
-            } catch (ClassNotFoundException e) {
-                // expected
-            }
-        }
-
-        // Handle resolved classes here
-        if (resolved != null) {
-            return JavaClassHelper.getArrayType(resolved, classIdent.getArrayDimensions());
+        ClassDescriptor classIdent = ClassDescriptor.parseTypeText(column.getType());
+        EPTypeClass type = ClasspathImportEPTypeUtil.resolveClassIdentifierToEPType(classIdent, false, classpathImportService, ClasspathExtensionClassEmpty.INSTANCE);
+        if (type != null) {
+            return type;
         }
 
         // Event types fall into here
@@ -564,8 +528,8 @@ public class EventTypeUtility {
                 if (existing != null && existing instanceof Class) {
                     if (JavaClassHelper.getBoxedType((Class) existing) != JavaClassHelper.getBoxedType(assigned)) {
                         throw new ExprValidationException("Type by name '" + typeToMerge.getName() + "' contributes property '" +
-                            prop.getPropertyName() + "' defined as '" + JavaClassHelper.getClassNameFullyQualPretty(assigned) +
-                            "' which overides the same property of type '" + JavaClassHelper.getClassNameFullyQualPretty((Class) existing) + "'");
+                            prop.getPropertyName() + "' defined as '" + ClassHelperPrint.getClassNameFullyQualPretty(assigned) +
+                            "' which overides the same property of type '" + ClassHelperPrint.getClassNameFullyQualPretty((Class) existing) + "'");
                     }
                 }
                 typing.put(prop.getPropertyName(), prop.getPropertyType());
@@ -601,9 +565,9 @@ public class EventTypeUtility {
             if (eventType.getGetter(startTimestampProperty) == null) {
                 throw new ConfigurationException("Declared start timestamp property name '" + startTimestampProperty + "' was not found");
             }
-            Class type = eventType.getPropertyType(startTimestampProperty);
-            if (!JavaClassHelper.isDatetimeClass(type)) {
-                throw new ConfigurationException("Declared start timestamp property '" + startTimestampProperty + "' is expected to return a Date, Calendar or long-typed value but returns '" + type.getName() + "'");
+            EPType type = eventType.getPropertyEPType(startTimestampProperty);
+            if (type == null || type == EPTypeNull.INSTANCE || !JavaClassHelper.isDatetimeClass(type)) {
+                throw new ConfigurationException("Declared start timestamp property '" + startTimestampProperty + "' is expected to return a Date, Calendar or long-typed value but returns '" + type + "'");
             }
         }
 
@@ -626,11 +590,9 @@ public class EventTypeUtility {
     }
 
     public static boolean isTypeOrSubTypeOf(EventType candidate, EventType superType) {
-
         if (candidate == superType) {
             return true;
         }
-
         if (candidate.getSuperTypes() != null) {
             for (Iterator<EventType> it = candidate.getDeepSuperTypes(); it.hasNext(); ) {
                 if (it.next() == superType) {
@@ -656,9 +618,25 @@ public class EventTypeUtility {
             Object typeSpec = specifiedEntry.getValue();
             String nameSpec = specifiedEntry.getKey();
 
-            if (typeSpec instanceof Class) {
-                compiled.put(nameSpec, JavaClassHelper.getBoxedType((Class) typeSpec));
+            if (typeSpec == null) {
+                compiled.put(nameSpec, EPTypeNull.INSTANCE);
                 continue;
+            }
+
+            if (typeSpec instanceof EPType) {
+                compiled.put(nameSpec, JavaClassHelper.getBoxedType((EPType) typeSpec));
+                continue;
+            }
+
+            if (typeSpec instanceof Class) {
+                EPTypeClass epTypeClass = ClassHelperGenericType.getClassEPType(JavaClassHelper.getBoxedType((Class) typeSpec));
+                compiled.put(nameSpec, epTypeClass);
+                continue;
+            }
+
+            if (typeSpec instanceof Map) {
+                LinkedHashMap<String, Object> inner = compileMapTypeProperties((Map<String, Object>) typeSpec, eventTypeResolver);
+                compiled.put(nameSpec, inner);
             }
 
             if (!(typeSpec instanceof String)) {
@@ -672,12 +650,12 @@ public class EventTypeUtility {
             }
 
             EventType eventType = eventTypeResolver.getTypeByName(typeNameSpec);
-            if (eventType == null || !(eventType instanceof BeanEventType)) {
+            if (!(eventType instanceof BeanEventType)) {
                 continue;
             }
 
             BeanEventType beanEventType = (BeanEventType) eventType;
-            Class underlyingType = beanEventType.getUnderlyingType();
+            EPTypeClass underlyingType = beanEventType.getUnderlyingEPType();
             if (isArray) {
                 underlyingType = JavaClassHelper.getArrayType(underlyingType);
             }
@@ -769,23 +747,16 @@ public class EventTypeUtility {
                 }
             }
 
-            if (entry.getValue() instanceof Class) {
-                Class classType = (Class) entry.getValue();
+            if (entry.getValue() instanceof EPTypeClass) {
+                EPTypeClass eptype = (EPTypeClass) entry.getValue();
 
-                boolean isArray = classType.isArray();
-                Class componentType = null;
-                if (isArray) {
-                    componentType = classType.getComponentType();
-                }
-                boolean isMapped = JavaClassHelper.isImplementsInterface(classType, Map.class);
-                if (isMapped) {
-                    componentType = Object.class; // Cannot determine the type at runtime
-                }
-                boolean isFragment = JavaClassHelper.isFragmentableType(classType);
+                boolean isIndexed = eptype.getType().isArray() || JavaClassHelper.isImplementsInterface(eptype, Iterable.class);
+                boolean isMapped = JavaClassHelper.isImplementsInterface(eptype, Map.class);
+                boolean isFragment = JavaClassHelper.isFragmentableType(eptype);
                 BeanEventType nativeFragmentType = null;
                 FragmentEventType fragmentType = null;
                 if (isFragment) {
-                    fragmentType = EventBeanUtility.createNativeFragmentType(classType, null, beanEventTypeFactory, publicFields);
+                    fragmentType = EventBeanUtility.createNativeFragmentType(eptype, beanEventTypeFactory, publicFields);
                     if (fragmentType != null) {
                         nativeFragmentType = (BeanEventType) fragmentType.getFragmentType();
                     } else {
@@ -793,8 +764,8 @@ public class EventTypeUtility {
                     }
                 }
                 EventPropertyGetterSPI getter = factory.getGetterProperty(name, nativeFragmentType, eventBeanTypedEventFactory);
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, classType, componentType, false, false, isArray, isMapped, isFragment);
-                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, classType, getter, fragmentType);
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, eptype, false, false, isIndexed, isMapped, isFragment);
+                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
                 propertyItems.put(name, item);
@@ -802,10 +773,10 @@ public class EventTypeUtility {
             }
 
             // A null-type is also allowed
-            if (entry.getValue() == null) {
+            if (entry.getValue() == EPTypeNull.INSTANCE || entry.getValue() == null) {
                 EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null);
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, null, null, false, false, false, false, false);
-                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, null, getter, null);
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, EPTypeNull.INSTANCE, false, false, false, false, false);
+                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, null);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
                 propertyItems.put(name, item);
@@ -815,8 +786,9 @@ public class EventTypeUtility {
             // Add Map itself as a property
             if (entry.getValue() instanceof Map) {
                 EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null);
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, Map.class, null, false, false, false, true, false);
-                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, Map.class, getter, null);
+                EPType epType = EPTypePremade.MAP.getEPType();
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, epType, false, false, false, true, false);
+                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, null);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
                 propertyItems.put(name, item);
@@ -826,10 +798,11 @@ public class EventTypeUtility {
             if (entry.getValue() instanceof EventType) {
                 // Add EventType itself as a property
                 EventType eventType = (EventType) entry.getValue();
-                EventPropertyGetterSPI getter = factory.getGetterEventBean(name, eventType.getUnderlyingType());
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, eventType.getUnderlyingType(), null, false, false, false, false, true);
+                EventPropertyGetterSPI getter = factory.getGetterEventBean(name, eventType.getUnderlyingEPType());
+                EPTypeClass epType = eventType.getUnderlyingEPType();
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, epType, false, false, false, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false);
-                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, eventType.getUnderlyingType(), getter, fragmentEventType);
+                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
                 propertyItems.put(name, item);
@@ -839,11 +812,12 @@ public class EventTypeUtility {
             if (entry.getValue() instanceof EventType[]) {
                 // Add EventType array itself as a property, type is expected to be first array element
                 EventType eventType = ((EventType[]) entry.getValue())[0];
-                Object prototypeArray = Array.newInstance(eventType.getUnderlyingType(), 0);
+                EPTypeClass underlyingType = eventType.getUnderlyingEPType();
+                EPTypeClass arrayType = JavaClassHelper.getArrayType(underlyingType);
                 EventPropertyGetterSPI getter = factory.getGetterEventBeanArray(name, eventType);
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, prototypeArray.getClass(), eventType.getUnderlyingType(), false, false, true, false, true);
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, arrayType, false, false, true, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, true, false);
-                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, prototypeArray.getClass(), getter, fragmentEventType);
+                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
                 propertyItems.put(name, item);
@@ -857,12 +831,11 @@ public class EventTypeUtility {
                         + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
                 }
 
-                Class underlyingType = eventType.getUnderlyingType();
-                Class propertyComponentType = null;
+                EPTypeClass underlyingType = eventType.getUnderlyingEPType();
                 EventPropertyGetterSPI getter = factory.getGetterBeanNested(name, eventType, eventBeanTypedEventFactory);
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, propertyComponentType, false, false, false, false, true);
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, false, false, false, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false);
-                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, underlyingType, getter, fragmentEventType);
+                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
                 propertyItems.put(name, item);
@@ -876,15 +849,14 @@ public class EventTypeUtility {
                         + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
                 }
 
-                Class underlyingType = eventType.getUnderlyingType();
-                Class propertyComponentType = underlyingType;
-                if (underlyingType != Object[].class) {
-                    underlyingType = Array.newInstance(underlyingType, 0).getClass();
+                EPTypeClass underlyingType = eventType.getUnderlyingEPType();
+                if (underlyingType.getType() != Object[].class) {
+                    underlyingType = JavaClassHelper.getArrayType(underlyingType);
                 }
                 EventPropertyGetterSPI getter = factory.getGetterBeanNestedArray(name, eventType, eventBeanTypedEventFactory);
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, propertyComponentType, false, false, true, false, true);
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, false, false, true, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, true, false);
-                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, underlyingType, getter, fragmentEventType);
+                PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
                 propertyItems.put(name, item);
@@ -903,14 +875,14 @@ public class EventTypeUtility {
             + clazzName + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
     }
 
-    public static Class getNestablePropertyType(String propertyName,
-                                                Map<String, PropertySetDescriptorItem> simplePropertyTypes,
-                                                Map<String, Object> nestableTypes,
-                                                BeanEventTypeFactory beanEventTypeFactory,
-                                                boolean publicFields) {
+    public static EPType getNestablePropertyType(String propertyName,
+                                                 Map<String, PropertySetDescriptorItem> simplePropertyTypes,
+                                                 Map<String, Object> nestableTypes,
+                                                 BeanEventTypeFactory beanEventTypeFactory,
+                                                 boolean publicFields) {
         PropertySetDescriptorItem item = simplePropertyTypes.get(StringValue.unescapeDot(propertyName));
         if (item != null) {
-            return item.getSimplePropertyType();
+            return item.getPropertyDescriptor().getPropertyEPType();
         }
 
         // see if this is a nested property
@@ -918,7 +890,7 @@ public class EventTypeUtility {
         if (index == -1) {
             // dynamic simple property
             if (propertyName.endsWith("?")) {
-                return Object.class;
+                return EPTypePremade.OBJECT.getEPType();
             }
 
             // parse, can be an indexed property
@@ -927,7 +899,7 @@ public class EventTypeUtility {
             if (property instanceof SimpleProperty) {
                 PropertySetDescriptorItem propitem = simplePropertyTypes.get(propertyName);
                 if (propitem != null) {
-                    return propitem.getSimplePropertyType();
+                    return propitem.getPropertyDescriptor().getPropertyEPType();
                 }
                 return null;
             }
@@ -938,28 +910,29 @@ public class EventTypeUtility {
                 if (type == null) {
                     return null;
                 } else if (type instanceof EventType[]) {
-                    return ((EventType[]) type)[0].getUnderlyingType();
+                    EventType eventType = ((EventType[]) type)[0];
+                    return eventType.getUnderlyingEPType();
                 } else if (type instanceof TypeBeanOrUnderlying[]) {
                     EventType innerType = ((TypeBeanOrUnderlying[]) type)[0].getEventType();
-                    return innerType.getUnderlyingType();
-                }
-                if (!(type instanceof Class)) {
+                    return innerType.getUnderlyingEPType();
+                } else if (type instanceof EPTypeClass) {
+                    EPTypeClass typeClass = (EPTypeClass) type;
+                    if (!typeClass.getType().isArray()) {
+                        return null;
+                    }
+                    return JavaClassHelper.getArrayComponentType(typeClass);
+                } else { // remove this
                     return null;
                 }
-                if (!((Class) type).isArray()) {
-                    return null;
-                }
-                // its an array
-                return ((Class) type).getComponentType();
             } else if (property instanceof MappedProperty) {
                 MappedProperty mappedProp = (MappedProperty) property;
                 Object type = nestableTypes.get(mappedProp.getPropertyNameAtomic());
                 if (type == null) {
                     return null;
                 }
-                if (type instanceof Class) {
-                    if (JavaClassHelper.isImplementsInterface((Class) type, Map.class)) {
-                        return Object.class;
+                if (type instanceof EPTypeClass) {
+                    if (JavaClassHelper.isImplementsInterface((EPTypeClass) type, Map.class)) {
+                        return EPTypePremade.OBJECT.getEPType();
                     }
                 }
                 return null;
@@ -1000,52 +973,50 @@ public class EventTypeUtility {
                     if (!(innerType instanceof BaseNestableEventType)) {
                         return null;
                     }
-                    return innerType.getPropertyType(propertyNested);
+                    return innerType.getPropertyEPType(propertyNested);
                 } else if (type instanceof EventType[]) {
                     // handle eventtype[] in map
                     EventType innerType = ((EventType[]) type)[0];
-                    return innerType.getPropertyType(propertyNested);
-                } else {
-                    // handle array class in map case
-                    if (!(type instanceof Class)) {
+                    return innerType.getPropertyEPType(propertyNested);
+                } else if (type instanceof EPTypeClass) {
+                    if (!((EPTypeClass) type).getType().isArray()) {
                         return null;
                     }
-                    if (!((Class) type).isArray()) {
-                        return null;
-                    }
-                    Class componentType = ((Class) type).getComponentType();
+                    EPTypeClass componentType = JavaClassHelper.getArrayComponentType((EPTypeClass) type);
                     BeanEventType beanEventType = beanEventTypeFactory.getCreateBeanType(componentType, publicFields);
-                    return beanEventType.getPropertyType(propertyNested);
+                    return beanEventType.getPropertyEPType(propertyNested);
+                } else {
+                    return null;
                 }
             } else if (property instanceof MappedProperty) {
                 return null;    // Since no type information is available for the property
             } else {
-                return isRootedDynamic ? Object.class : null;
+                return isRootedDynamic ? EPTypePremade.OBJECT.getEPType() : null;
             }
         }
 
         // If there is a map value in the map, return the Object value if this is a dynamic property
-        if (nestedType == Map.class) {
+        if (nestedType instanceof EPTypeClass && ((EPTypeClass) nestedType).getType() == Map.class) {
             Property prop = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
-            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(prop.getPropertyTypeMap(null, beanEventTypeFactory));   // we don't have a definition of the nested props
+            return isRootedDynamic ? EPTypePremade.OBJECT.getEPType() : JavaClassHelper.getBoxedType(prop.getPropertyTypeMap(null, beanEventTypeFactory));   // we don't have a definition of the nested props
         } else if (nestedType instanceof Map) {
             Property prop = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
             Map nestedTypes = (Map) nestedType;
-            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(prop.getPropertyTypeMap(nestedTypes, beanEventTypeFactory));
-        } else if (nestedType instanceof Class) {
-            Class simpleClass = (Class) nestedType;
+            return isRootedDynamic ? EPTypePremade.OBJECT.getEPType() : JavaClassHelper.getBoxedType(prop.getPropertyTypeMap(nestedTypes, beanEventTypeFactory));
+        } else if (nestedType instanceof EPTypeClass) {
+            EPTypeClass simpleClass = (EPTypeClass) nestedType;
             if (JavaClassHelper.isJavaBuiltinDataType(simpleClass)) {
                 return null;
             }
-            if (simpleClass.isArray() &&
-                (JavaClassHelper.isJavaBuiltinDataType(simpleClass.getComponentType()) || simpleClass.getComponentType() == Object.class)) {
+            if (simpleClass.getType().isArray() &&
+                (JavaClassHelper.isJavaBuiltinDataType(simpleClass.getType().getComponentType()) || simpleClass.getType().getComponentType() == Object.class)) {
                 return null;
             }
             EventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass, publicFields);
-            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(nestedEventType.getPropertyType(propertyNested));
+            return isRootedDynamic ? EPTypePremade.OBJECT.getEPType() : JavaClassHelper.getBoxedType(nestedEventType.getPropertyEPType(propertyNested));
         } else if (nestedType instanceof EventType) {
             EventType innerType = (EventType) nestedType;
-            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(innerType.getPropertyType(propertyNested));
+            return isRootedDynamic ? EPTypePremade.OBJECT.getEPType() : JavaClassHelper.getBoxedType(innerType.getPropertyEPType(propertyNested));
         } else if (nestedType instanceof EventType[]) {
             return null;    // requires indexed property
         } else if (nestedType instanceof TypeBeanOrUnderlying) {
@@ -1053,7 +1024,7 @@ public class EventTypeUtility {
             if (!(innerType instanceof BaseNestableEventType)) {
                 return null;
             }
-            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(innerType.getPropertyType(propertyNested));
+            return isRootedDynamic ? EPTypePremade.OBJECT.getEPType() : JavaClassHelper.getBoxedType(innerType.getPropertyEPType(propertyNested));
         } else if (nestedType instanceof TypeBeanOrUnderlying[]) {
             return null;
         } else {
@@ -1119,28 +1090,26 @@ public class EventTypeUtility {
                     EventPropertyGetterSPI typeGetter = factory.getGetterIndexedUnderlyingArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventBeanTypedEventFactory, innerType, beanEventTypeFactory);
                     propertyGetterCache.put(propertyName, typeGetter);
                     return typeGetter;
-                }
-                // handle map type name in map
-                if (!(type instanceof Class)) {
+                } else if (type instanceof EPTypeClass) {
+                    EPTypeClass eptype = (EPTypeClass) type;
+                    if (!eptype.getType().isArray()) {
+                        return null;
+                    }
+                    EPTypeClass componentType = JavaClassHelper.getArrayComponentType(eptype);
+                    EventPropertyGetterSPI indexedGetter = factory.getGetterIndexedClassArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventBeanTypedEventFactory, componentType, beanEventTypeFactory);
+                    propertyGetterCache.put(propertyName, indexedGetter);
+                    return indexedGetter;
+                } else {
                     return null;
                 }
-                if (!((Class) type).isArray()) {
-                    return null;
-                }
-
-                // its an array
-                Class componentType = ((Class) type).getComponentType();
-                EventPropertyGetterSPI indexedGetter = factory.getGetterIndexedClassArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventBeanTypedEventFactory, componentType, beanEventTypeFactory);
-                propertyGetterCache.put(propertyName, indexedGetter);
-                return indexedGetter;
             } else if (prop instanceof MappedProperty) {
                 MappedProperty mappedProp = (MappedProperty) prop;
                 Object type = nestableTypes.get(mappedProp.getPropertyNameAtomic());
                 if (type == null) {
                     return null;
                 }
-                if (type instanceof Class) {
-                    if (JavaClassHelper.isImplementsInterface((Class) type, Map.class)) {
+                if (type instanceof EPTypeClass) {
+                    if (JavaClassHelper.isImplementsInterface((EPTypeClass) type, Map.class)) {
                         return factory.getGetterMappedProperty(mappedProp.getPropertyNameAtomic(), mappedProp.getKey());
                     }
                 }
@@ -1192,24 +1161,23 @@ public class EventTypeUtility {
                     EventPropertyGetterSPI typeGetter = factory.getGetterIndexedEntryEventBeanArrayElement(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), nestedGetter);
                     propertyGetterCache.put(propertyName, typeGetter);
                     return typeGetter;
-                } else {
-                    if (!(type instanceof Class)) {
+                } else if (type instanceof EPTypeClass) {
+                    if (!((EPTypeClass) type).getType().isArray()) {
                         return null;
                     }
-                    if (!((Class) type).isArray()) {
-                        return null;
-                    }
-                    Class componentType = ((Class) type).getComponentType();
+                    EPTypeClass componentType = JavaClassHelper.getArrayComponentType((EPTypeClass) type);
                     BeanEventType nestedEventType = beanEventTypeFactory.getCreateBeanType(componentType, publicFields);
                     final BeanEventPropertyGetter nestedGetter = (BeanEventPropertyGetter) nestedEventType.getGetterSPI(propertyNested);
                     if (nestedGetter == null) {
                         return null;
                     }
-                    Class propertyTypeGetter = nestedEventType.getPropertyType(propertyNested);
+                    EPTypeClass propertyTypeGetter = (EPTypeClass) nestedEventType.getPropertyEPType(propertyNested);
                     // construct getter for nested property
                     EventPropertyGetterSPI indexGetter = factory.getGetterIndexedEntryPOJO(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), nestedGetter, eventBeanTypedEventFactory, beanEventTypeFactory, propertyTypeGetter);
                     propertyGetterCache.put(propertyName, indexGetter);
                     return indexGetter;
+                } else {
+                    return null;
                 }
             } else if (property instanceof MappedProperty) {
                 return null;    // Since no type information is available for the property
@@ -1229,7 +1197,7 @@ public class EventTypeUtility {
         }
 
         // The map contains another map, we resolve the property dynamically
-        if (nestedType == Map.class) {
+        if (nestedType instanceof EPTypeClass && ((EPTypeClass) nestedType).getType() == Map.class) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyNested);
             MapEventPropertyGetter getterNestedMap = prop.getGetterMap(null, eventBeanTypedEventFactory, beanEventTypeFactory);
             if (getterNestedMap == null) {
@@ -1248,10 +1216,10 @@ public class EventTypeUtility {
             EventPropertyGetterSPI mapGetter = factory.getGetterNestedMapProp(propertyMap, getterNestedMap);
             propertyGetterCache.put(propertyName, mapGetter);
             return mapGetter;
-        } else if (nestedType instanceof Class) {
+        } else if (nestedType instanceof EPTypeClass) {
             // ask the nested class to resolve the property
-            Class simpleClass = (Class) nestedType;
-            if (simpleClass.isArray()) {
+            EPTypeClass simpleClass = (EPTypeClass) nestedType;
+            if (simpleClass.getType().isArray()) {
                 return null;
             }
             BeanEventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass, publicFields);
@@ -1260,19 +1228,16 @@ public class EventTypeUtility {
                 return null;
             }
 
-            Class propertyType;
-            Class propertyComponentType;
+            EPTypeClass propertyType;
             EventPropertyDescriptor desc = nestedEventType.getPropertyDescriptor(propertyNested);
             if (desc == null) {
-                propertyType = nestedEventType.getPropertyType(propertyNested);
-                propertyComponentType = propertyType.isArray() ? propertyType.getComponentType() : JavaClassHelper.getGenericType(propertyType, 0);
+                propertyType = (EPTypeClass) nestedEventType.getPropertyEPType(propertyNested);
             } else {
-                propertyType = desc.getPropertyType();
-                propertyComponentType = desc.getPropertyComponentType();
+                propertyType = (EPTypeClass) desc.getPropertyEPType();
             }
 
             // construct getter for nested property
-            EventPropertyGetterSPI getter = factory.getGetterNestedPOJOProp(propertyMap, nestedGetter, eventBeanTypedEventFactory, beanEventTypeFactory, propertyType, propertyComponentType);
+            EventPropertyGetterSPI getter = factory.getGetterNestedPOJOProp(propertyMap, nestedGetter, eventBeanTypedEventFactory, beanEventTypeFactory, propertyType);
             propertyGetterCache.put(propertyName, getter);
             return getter;
         } else if (nestedType instanceof EventType) {
@@ -1413,10 +1378,10 @@ public class EventTypeUtility {
         return getters;
     }
 
-    public static Class[] getPropertyTypes(EventType eventType, String[] props) {
-        Class[] types = new Class[props.length];
+    public static EPType[] getPropertyTypesEPType(EventType eventType, String[] props) {
+        EPType[] types = new EPType[props.length];
         for (int i = 0; i < props.length; i++) {
-            types[i] = eventType.getPropertyType(props[i]);
+            types[i] = eventType.getPropertyEPType(props[i]);
         }
         return types;
     }
@@ -1452,6 +1417,13 @@ public class EventTypeUtility {
         throw new IllegalArgumentException("Unrecognized event type " + eventType);
     }
 
+    public static Class getPropertyTypeAsClass(EPType type) {
+        if (type == null || type == EPTypeNull.INSTANCE) {
+            return null;
+        }
+        return ((EPTypeClass) type).getType();
+    }
+
     public static class TimestampPropertyDesc {
         private final String start;
         private final String end;
@@ -1473,7 +1445,7 @@ public class EventTypeUtility {
     public static String getMessageExpecting(String eventTypeName, EventType existingType, String typeOfEventType) {
         String message = "Event type named '" + eventTypeName + "' has not been defined or is not a " + typeOfEventType + " event type";
         if (existingType != null) {
-            message += ", the name '" + eventTypeName + "' refers to a " + JavaClassHelper.getClassNameFullyQualPretty(existingType.getUnderlyingType()) + " event type";
+            message += ", the name '" + eventTypeName + "' refers to a " + ClassHelperPrint.getClassNameFullyQualPretty(existingType.getUnderlyingType()) + " event type";
         } else {
             message += ", the name '" + eventTypeName + "' has not been defined as an event type";
         }
@@ -1606,7 +1578,7 @@ public class EventTypeUtility {
         List<StmtClassForgeableFactory> additionalForgeables = Collections.emptyList();
         if (spec.getTypes().isEmpty() && spec.getAssignedType() != CreateSchemaDesc.AssignedType.XML) {
             EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(annotations, services.getConfiguration(), spec.getAssignedType());
-            Map<String, Object> typing = EventTypeUtility.buildType(spec.getColumns(), spec.getCopyFrom(), services.getClasspathImportServiceCompileTime(), services.getEventTypeCompileTimeResolver());
+            Map<String, Object> typing = EventTypeUtility.buildType(spec.getColumns(), spec.getCopyFrom(), services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension(), services.getEventTypeCompileTimeResolver());
             Map<String, Object> compiledTyping = EventTypeUtility.compileMapTypeProperties(typing, services.getEventTypeCompileTimeResolver());
 
             ConfigurationCommonEventTypeWithSupertype config;
@@ -1688,8 +1660,10 @@ public class EventTypeUtility {
             try {
                 // use the existing configuration, if any, possibly adding the start and end timestamps
                 String name = spec.getTypes().iterator().next();
-                Class clazz = services.getClasspathImportServiceCompileTime().resolveClassForBeanEventType(name);
-                BeanEventTypeStem stem = services.getBeanEventTypeStemService().getCreateStem(clazz, null);
+                ClassDescriptor descriptor = ClassDescriptor.parseTypeText(name);
+                Class clazz = services.getClasspathImportServiceCompileTime().resolveClassForBeanEventType(descriptor.getClassIdentifier());
+                EPTypeClass parameterized = ClasspathImportEPTypeUtil.parameterizeType(false, clazz, descriptor, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension());
+                BeanEventTypeStem stem = services.getBeanEventTypeStemService().getCreateStem(parameterized, null);
                 EventTypeMetadata metadata = new EventTypeMetadata(spec.getSchemaName(), base.getModuleName(), EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, visibility, eventBusVisibility, false, EventTypeIdPair.unassigned());
                 EventType[] superTypes = getSuperTypes(stem.getSuperTypes(), services);
                 Set<EventType> deepSuperTypes = getDeepSupertypes(stem.getDeepSuperTypes(), services);
@@ -1703,7 +1677,6 @@ public class EventTypeUtility {
         return new EventTypeForgablesPair(eventType, additionalForgeables);
     }
 
-
     private static boolean allowPopulate(EventTypeSPI typeSPI) {
         EventTypeMetadata metadata = typeSPI.getMetadata();
         if (metadata.getTypeClass() == EventTypeTypeClass.STREAM || metadata.getTypeClass() == EventTypeTypeClass.APPLICATION) {
@@ -1716,7 +1689,7 @@ public class EventTypeUtility {
         return true;
     }
 
-    private static EventType[] getSuperTypes(Class[] superTypes, StatementCompileTimeServices services) {
+    private static EventType[] getSuperTypes(EPTypeClass[] superTypes, StatementCompileTimeServices services) {
         if (superTypes == null || superTypes.length == 0) {
             return null;
         }
@@ -1727,18 +1700,18 @@ public class EventTypeUtility {
         return types;
     }
 
-    private static Set<EventType> getDeepSupertypes(Set<Class> superTypes, StatementCompileTimeServices services) {
+    private static Set<EventType> getDeepSupertypes(Set<EPTypeClass> superTypes, StatementCompileTimeServices services) {
         if (superTypes == null || superTypes.isEmpty()) {
             return Collections.emptySet();
         }
         LinkedHashSet<EventType> supers = new LinkedHashSet<>(4);
-        for (Class clazz : superTypes) {
+        for (EPTypeClass clazz : superTypes) {
             supers.add(resolveOrCreateType(clazz, services));
         }
         return supers;
     }
 
-    private static EventType resolveOrCreateType(Class clazz, StatementCompileTimeServices services) {
+    private static EventType resolveOrCreateType(EPTypeClass clazz, StatementCompileTimeServices services) {
         services.getEventTypeCompileTimeResolver();
 
         // find module-own type
@@ -1767,12 +1740,12 @@ public class EventTypeUtility {
         return services.getBeanEventTypeFactoryPrivate().getCreateBeanType(clazz, false);
     }
 
-    private static boolean matches(EventType eventType, Class clazz) {
+    private static boolean matches(EventType eventType, EPTypeClass clazz) {
         if (!(eventType instanceof BeanEventType)) {
             return false;
         }
         BeanEventType beanEventType = (BeanEventType) eventType;
-        return beanEventType.getStem().getClazz() == clazz;
+        return beanEventType.getStem().getClazz().getType() == clazz.getType();
     }
 
     public static EventBeanAdapterFactory getAdapterFactoryForType(EventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeAvroHandler eventTypeAvroHandler) {

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.index.base;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventAdvancedIndexProvisionRuntime;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventTableFactoryCustomIndex;
@@ -30,7 +31,7 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return true;
     }
 
-    public EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexTypes, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
+    public EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, EPTypeClass[] indexTypes, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
         return new PropertyHashedEventTableFactory(indexedStreamNum, indexProps, unique, optionalIndexName, getter, transformFireAndForget);
     }
 
@@ -38,15 +39,15 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return new UnindexedEventTableFactory(indexedStreamNum);
     }
 
-    public EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, Class indexType, EventPropertyValueGetter getter, DataInputOutputSerde<Object> serde, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
+    public EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, EPTypeClass indexType, EventPropertyValueGetter getter, DataInputOutputSerde<Object> serde, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
         return new PropertySortedEventTableFactory(indexedStreamNum, indexedProp, getter, indexType);
     }
 
-    public EventTableFactory createComposite(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes, EventPropertyValueGetter indexGetter, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde, String[] rangeProps, Class[] rangeCoercionTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeSerdes, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget) {
+    public EventTableFactory createComposite(int indexedStreamNum, EventType eventType, String[] indexProps, EPTypeClass[] indexCoercionTypes, EventPropertyValueGetter indexGetter, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde, String[] rangeProps, EPTypeClass[] rangeCoercionTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeSerdes, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget) {
         return new PropertyCompositeEventTableFactory(indexedStreamNum, indexProps, indexCoercionTypes, indexGetter, transformFireAndForget, rangeProps, rangeCoercionTypes, rangeGetters);
     }
 
-    public EventTableFactory createInArray(int streamNum, EventType eventType, String[] propertyNames, Class[] indexTypes, DataInputOutputSerde<Object>[] indexSerdes, boolean unique, EventPropertyValueGetter[] getters, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
+    public EventTableFactory createInArray(int streamNum, EventType eventType, String[] propertyNames, EPTypeClass[] indexTypes, DataInputOutputSerde<Object>[] indexSerdes, boolean unique, EventPropertyValueGetter[] getters, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
         return new PropertyHashedArrayFactory(streamNum, propertyNames, unique, null, getters);
     }
 

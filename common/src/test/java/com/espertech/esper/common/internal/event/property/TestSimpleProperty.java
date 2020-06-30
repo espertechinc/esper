@@ -12,10 +12,13 @@ package com.espertech.esper.common.internal.event.property;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
+
+import java.io.StringWriter;
 
 import static com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime.INSTANCE;
 import static com.espertech.esper.common.internal.supportunit.event.SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY;
@@ -47,7 +50,7 @@ public class TestSimpleProperty extends TestCase {
     }
 
     public void testGetPropertyType() {
-        assertEquals(String.class, prop.getPropertyType(eventType, BEAN_EVENT_TYPE_FACTORY));
+        assertEquals(new EPTypeClass(String.class), prop.getPropertyType(eventType, BEAN_EVENT_TYPE_FACTORY));
 
         assertNull(invalidDummy.getGetter(eventType, INSTANCE, BEAN_EVENT_TYPE_FACTORY));
         assertNull(invalidPropMap.getGetter(eventType, INSTANCE, BEAN_EVENT_TYPE_FACTORY));

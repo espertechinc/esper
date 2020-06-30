@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -27,12 +29,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEval;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -60,40 +61,40 @@ public class ExprDotForgeEnumMethodEval implements ExprDotEval {
         return enumEval.evaluateEnumMethod(eventsLambda, coll, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(ExprDotForgeEnumMethodBase forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class returnType = EPTypeHelper.getCodegenReturnType(forge.getTypeInfo());
+    public static CodegenExpression codegen(ExprDotForgeEnumMethodBase forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPTypeClass returnType = EPChainableTypeHelper.getCodegenReturnType(forge.getTypeInfo());
         CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, ExprDotForgeEnumMethodEval.class, codegenClassScope).addParam(innerType, "param");
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
-        CodegenExpressionField forgeMember = codegenClassScope.addFieldUnshared(true, Object.class, newInstance(Object.class));
+        CodegenExpressionField forgeMember = codegenClassScope.addFieldUnshared(true, EPTypePremade.OBJECT.getEPType(), newInstance(EPTypePremade.OBJECT.getEPType()));
         CodegenBlock block = methodNode.getBlock();
-        if (innerType == EventBean.class) {
-            block.declareVar(Collection.class, "coll", staticMethod(Collections.class, "singletonList", ref("param")));
+        if (innerType.getType() == EventBean.class) {
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "coll", staticMethod(Collections.class, "singletonList", ref("param")));
         } else {
-            block.declareVar(Collection.class, "coll", ref("param"));
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "coll", ref("param"));
         }
 
-        block.declareVar(ExpressionResultCacheForEnumerationMethod.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateEnumerationMethod"));
+        block.declareVar(ExpressionResultCacheForEnumerationMethod.EPTYPE, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateEnumerationMethod"));
         EnumForgeCodegenParams premade = new EnumForgeCodegenParams(ref("eventsLambda"), ref("coll"), refIsNewData, refExprEvalCtx);
         if (forge.cache) {
-            block.declareVar(ExpressionResultCacheEntryLongArrayAndObj.class, "cacheValue", exprDotMethod(ref("cache"), "getEnumerationMethodLastValue", forgeMember))
+            block.declareVar(ExpressionResultCacheEntryLongArrayAndObj.EPTYPE, "cacheValue", exprDotMethod(ref("cache"), "getEnumerationMethodLastValue", forgeMember))
                     .ifCondition(notEqualsNull(ref("cacheValue")))
                     .blockReturn(cast(returnType, exprDotMethod(ref("cacheValue"), "getResult")))
                     .ifRefNullReturnNull("coll")
-                    .declareVar(EventBean[].class, "eventsLambda", staticMethod(ExprDotForgeEnumMethodEval.class, "allocateCopyEventLambda", refEPS, constant(forge.enumEvalNumRequiredEvents)))
-                    .declareVar(EPTypeHelper.getCodegenReturnType(forge.getTypeInfo()), "result", forge.enumForge.codegen(premade, methodNode, codegenClassScope))
+                    .declareVar(EventBean.EPTYPEARRAY, "eventsLambda", staticMethod(ExprDotForgeEnumMethodEval.class, "allocateCopyEventLambda", refEPS, constant(forge.enumEvalNumRequiredEvents)))
+                    .declareVar(EPChainableTypeHelper.getCodegenReturnType(forge.getTypeInfo()), "result", forge.enumForge.codegen(premade, methodNode, codegenClassScope))
                     .expression(exprDotMethod(ref("cache"), "saveEnumerationMethodLastValue", forgeMember, ref("result")))
                     .methodReturn(ref("result"));
         } else {
-            CodegenExpressionField contextNumberMember = codegenClassScope.addFieldUnshared(true, AtomicLong.class, newInstance(AtomicLong.class));
-            block.declareVar(long.class, "contextNumber", exprDotMethod(contextNumberMember, "getAndIncrement"))
+            CodegenExpressionField contextNumberMember = codegenClassScope.addFieldUnshared(true, EPTypePremade.ATOMICLONG.getEPType(), newInstance(EPTypePremade.ATOMICLONG.getEPType()));
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "contextNumber", exprDotMethod(contextNumberMember, "getAndIncrement"))
                     .tryCatch()
                     .expression(exprDotMethod(ref("cache"), "pushContext", ref("contextNumber")))
                     .ifRefNullReturnNull("coll")
-                    .declareVar(EventBean[].class, "eventsLambda", staticMethod(ExprDotForgeEnumMethodEval.class, "allocateCopyEventLambda", refEPS, constant(forge.enumEvalNumRequiredEvents)))
+                    .declareVar(EventBean.EPTYPEARRAY, "eventsLambda", staticMethod(ExprDotForgeEnumMethodEval.class, "allocateCopyEventLambda", refEPS, constant(forge.enumEvalNumRequiredEvents)))
                     .tryReturn(forge.enumForge.codegen(premade, methodNode, codegenClassScope))
                     .tryFinally()
                     .expression(exprDotMethod(ref("cache"), "popContext"))
@@ -103,7 +104,7 @@ public class ExprDotForgeEnumMethodEval implements ExprDotEval {
         return localMethod(methodNode, inner);
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return forge.getTypeInfo();
     }
 

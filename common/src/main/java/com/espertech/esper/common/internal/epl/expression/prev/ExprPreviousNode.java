@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.expression.prev;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -30,7 +33,10 @@ import com.espertech.esper.common.internal.view.access.RelativeAccessByEventNInd
 import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
 
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -44,7 +50,7 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval, ExprForgeInstrumentable {
     private final ExprPreviousNodePreviousType previousType;
 
-    private Class resultType;
+    private EPTypeClass resultType;
     private int streamNumber;
     private Integer constantIndexNumber;
     private boolean isConstantIndex;
@@ -75,7 +81,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return isConstantIndex;
     }
 
-    public Class getResultType() {
+    public EPTypeClass getResultType() {
         return resultType;
     }
 
@@ -87,7 +93,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return getResultType();
     }
 
@@ -113,8 +119,9 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         }
 
         // Determine if the index is a constant value or an expression to evaluate
-        if (this.getChildNodes()[0].getForge().getForgeConstantType().isCompileTimeConstant()) {
-            ExprNode constantNode = this.getChildNodes()[0];
+        ExprNode index = this.getChildNodes()[0];
+        if (index.getForge().getForgeConstantType().isCompileTimeConstant()) {
+            ExprNode constantNode = index;
             Object value = constantNode.getForge().getExprEvaluator().evaluate(null, false, null);
             if (!(value instanceof Number)) {
                 throw new ExprValidationException("Previous function requires an integer index parameter or expression");
@@ -130,21 +137,22 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         }
 
         // Determine stream number
-        if (this.getChildNodes()[1] instanceof ExprIdentNode) {
+        ExprNode value = this.getChildNodes()[1];
+        if (value instanceof ExprIdentNode) {
             ExprIdentNode identNode = (ExprIdentNode) this.getChildNodes()[1];
             streamNumber = identNode.getStreamId();
-            resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getForge().getEvaluationType());
-        } else if (this.getChildNodes()[1] instanceof ExprStreamUnderlyingNode) {
-            ExprStreamUnderlyingNode streamNode = (ExprStreamUnderlyingNode) this.getChildNodes()[1];
+            resultType = JavaClassHelper.getBoxedType((EPTypeClass) value.getForge().getEvaluationType());
+        } else if (value instanceof ExprStreamUnderlyingNode) {
+            ExprStreamUnderlyingNode streamNode = (ExprStreamUnderlyingNode) value;
             streamNumber = streamNode.getStreamId();
-            resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getForge().getEvaluationType());
+            resultType = JavaClassHelper.getBoxedType((EPTypeClass) value.getForge().getEvaluationType());
             enumerationMethodType = validationContext.getStreamTypeService().getEventTypes()[streamNode.getStreamId()];
         } else {
             throw new ExprValidationException("Previous function requires an event property as parameter");
         }
 
         if (previousType == ExprPreviousNodePreviousType.PREVCOUNT) {
-            resultType = Long.class;
+            resultType = EPTypePremade.LONGBOXED.getEPType();
         }
         if (previousType == ExprPreviousNodePreviousType.PREVWINDOW) {
             resultType = JavaClassHelper.getArrayType(resultType);
@@ -188,23 +196,23 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
             throw new IllegalStateException("Unrecognized previous type " + previousType);
         }
 
-        CodegenMethod method = parent.makeChild(Collection.class, this.getClass(), codegenClassScope);
-        method.getBlock().declareVar(PreviousGetterStrategy.class, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)));
+        CodegenMethod method = parent.makeChild(EPTypePremade.COLLECTION.getEPType(), this.getClass(), codegenClassScope);
+        method.getBlock().declareVar(PreviousGetterStrategy.EPTYPE, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)));
 
         method.getBlock().ifCondition(not(exprSymbol.getAddIsNewData(method))).blockReturn(constantNull());
-        CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(ref("strategy"), RandomAccessByIndexGetter.class));
+        CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(ref("strategy"), RandomAccessByIndexGetter.EPTYPE));
         {
             randomAccess
-                    .declareVar(RandomAccessByIndexGetter.class, "getter", cast(RandomAccessByIndexGetter.class, ref("strategy")))
-                    .declareVar(RandomAccessByIndex.class, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"))
+                    .declareVar(RandomAccessByIndexGetter.EPTYPE, "getter", cast(RandomAccessByIndexGetter.EPTYPE, ref("strategy")))
+                    .declareVar(RandomAccessByIndex.EPTYPE, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"))
                     .blockReturn(exprDotMethod(ref("randomAccess"), "getWindowCollectionReadOnly"));
         }
         CodegenBlock relativeAccess = randomAccess.ifElse();
         {
             relativeAccess
-                    .declareVar(RelativeAccessByEventNIndexGetter.class, "getter", cast(RelativeAccessByEventNIndexGetter.class, ref("strategy")))
-                    .declareVar(EventBean.class, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
-                    .declareVar(RelativeAccessByEventNIndex.class, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
+                    .declareVar(RelativeAccessByEventNIndexGetter.EPTYPE, "getter", cast(RelativeAccessByEventNIndexGetter.EPTYPE, ref("strategy")))
+                    .declareVar(EventBean.EPTYPE, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
+                    .declareVar(RelativeAccessByEventNIndex.EPTYPE, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
                     .ifRefNullReturnNull("relativeAccess")
                     .blockReturn(exprDotMethod(ref("relativeAccess"), "getWindowToEventCollReadOnly"));
         }
@@ -215,7 +223,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         if (previousType == ExprPreviousNodePreviousType.PREVWINDOW || previousType == ExprPreviousNodePreviousType.PREVCOUNT) {
             return constantNull();
         }
-        CodegenMethod method = parent.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod method = parent.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         method.getBlock()
                 .ifCondition(not(exprSymbol.getAddIsNewData(method))).blockReturn(constantNull())
                 .methodReturn(localMethod(getSubstituteCodegen(method, exprSymbol, codegenClassScope), exprSymbol.getAddEPS(method), exprSymbol.getAddExprEvalCtx(method)));
@@ -228,19 +236,19 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         }
 
         if (previousType == ExprPreviousNodePreviousType.PREVWINDOW) {
-            CodegenMethod method = parent.makeChild(Collection.class, this.getClass(), codegenClassScope);
+            CodegenMethod method = parent.makeChild(EPTypePremade.COLLECTION.getEPType(), this.getClass(), codegenClassScope);
 
             method.getBlock()
-                    .declareVar(PreviousGetterStrategy.class, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)))
+                    .declareVar(PreviousGetterStrategy.EPTYPE, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)))
                     .apply(new PreviousBlockGetSizeAndIterator(method, exprSymbol, streamNumber, ref("strategy")));
 
             CodegenExpressionRef eps = exprSymbol.getAddEPS(method);
             CodegenMethod innerEval = CodegenLegoMethodExpression.codegenExpression(this.getChildNodes()[1].getForge(), method, codegenClassScope);
 
-            method.getBlock().declareVar(EventBean.class, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
-                    .declareVar(Collection.class, "result", newInstance(ArrayDeque.class, ref("size")))
+            method.getBlock().declareVar(EventBean.EPTYPE, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
+                    .declareVar(EPTypePremade.COLLECTION.getEPType(), "result", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), ref("size")))
                     .forLoopIntSimple("i", ref("size"))
-                    .assignArrayElement(eps, constant(streamNumber), cast(EventBean.class, exprDotMethod(ref("events"), "next")))
+                    .assignArrayElement(eps, constant(streamNumber), cast(EventBean.EPTYPE, exprDotMethod(ref("events"), "next")))
                     .exprDotMethod(ref("result"), "add", localMethod(innerEval, eps, constantTrue(), exprSymbol.getAddExprEvalCtx(method)))
                     .blockEnd()
                     .assignArrayElement(eps, constant(streamNumber), ref("originalEvent"))
@@ -248,8 +256,8 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
             return localMethod(method);
         }
 
-        CodegenMethod method = parent.makeChild(Collection.class, this.getClass(), codegenClassScope);
-        method.getBlock().declareVar(Object.class, "result", evaluateCodegenPrevAndTail(method, exprSymbol, codegenClassScope))
+        CodegenMethod method = parent.makeChild(EPTypePremade.COLLECTION.getEPType(), this.getClass(), codegenClassScope);
+        method.getBlock().declareVar(EPTypePremade.OBJECT.getEPType(), "result", evaluateCodegenPrevAndTail(method, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(Collections.class, "singletonList", ref("result")));
         return localMethod(method);
@@ -269,9 +277,9 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return null;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
-        if (resultType.isArray()) {
-            return resultType.getComponentType();
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
+        if (resultType.getType().isArray()) {
+            return JavaClassHelper.getArrayComponentType(resultType);
         }
         return resultType;
     }
@@ -280,7 +288,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         throw new UnsupportedOperationException();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (previousType == ExprPreviousNodePreviousType.PREV || previousType == ExprPreviousNodePreviousType.PREVTAIL) {
             return evaluateCodegenPrevAndTail(codegenMethodScope, exprSymbol, codegenClassScope);
         }
@@ -293,31 +301,31 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         throw new IllegalStateException("Unrecognized previous type " + previousType);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprPrev", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).qparam(exprSymbol.getAddIsNewData(codegenMethodScope)).build();
     }
 
-    private CodegenExpression evaluateCodegenPrevCount(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    private CodegenExpression evaluateCodegenPrevCount(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod method = parent.makeChild(resultType, this.getClass(), codegenClassScope);
 
         method.getBlock()
-                .declareVar(long.class, "size", constant(0))
-                .declareVar(PreviousGetterStrategy.class, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)));
+                .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "size", constant(0))
+                .declareVar(PreviousGetterStrategy.EPTYPE, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)));
 
-        CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(ref("strategy"), RandomAccessByIndexGetter.class));
+        CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(ref("strategy"), RandomAccessByIndexGetter.EPTYPE));
         {
             randomAccess
                     .ifCondition(not(exprSymbol.getAddIsNewData(method))).blockReturn(constantNull())
-                    .declareVar(RandomAccessByIndexGetter.class, "getter", cast(RandomAccessByIndexGetter.class, ref("strategy")))
-                    .declareVar(RandomAccessByIndex.class, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"))
+                    .declareVar(RandomAccessByIndexGetter.EPTYPE, "getter", cast(RandomAccessByIndexGetter.EPTYPE, ref("strategy")))
+                    .declareVar(RandomAccessByIndex.EPTYPE, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"))
                     .assignRef("size", exprDotMethod(ref("randomAccess"), "getWindowCount"));
         }
         CodegenBlock relativeAccess = randomAccess.ifElse();
         {
             relativeAccess
-                    .declareVar(RelativeAccessByEventNIndexGetter.class, "getter", cast(RelativeAccessByEventNIndexGetter.class, ref("strategy")))
-                    .declareVar(EventBean.class, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
-                    .declareVar(RelativeAccessByEventNIndex.class, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
+                    .declareVar(RelativeAccessByEventNIndexGetter.EPTYPE, "getter", cast(RelativeAccessByEventNIndexGetter.EPTYPE, ref("strategy")))
+                    .declareVar(EventBean.EPTYPE, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
+                    .declareVar(RelativeAccessByEventNIndex.EPTYPE, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
                     .ifRefNullReturnNull("relativeAccess")
                     .assignRef("size", exprDotMethod(ref("relativeAccess"), "getWindowToEventCount"));
         }
@@ -326,20 +334,21 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return localMethod(method);
     }
 
-    private CodegenExpression evaluateCodegenPrevWindow(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    private CodegenExpression evaluateCodegenPrevWindow(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod method = parent.makeChild(resultType, this.getClass(), codegenClassScope);
 
         method.getBlock()
-                .declareVar(PreviousGetterStrategy.class, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)))
+                .declareVar(PreviousGetterStrategy.EPTYPE, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)))
                 .apply(new PreviousBlockGetSizeAndIterator(method, exprSymbol, streamNumber, ref("strategy")));
 
         CodegenExpressionRef eps = exprSymbol.getAddEPS(method);
         CodegenMethod innerEval = CodegenLegoMethodExpression.codegenExpression(this.getChildNodes()[1].getForge(), method, codegenClassScope);
 
-        method.getBlock().declareVar(EventBean.class, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
-                .declareVar(resultType, "result", newArrayByLength(resultType.getComponentType(), ref("size")))
+        EPTypeClass componentType = JavaClassHelper.getArrayComponentType(resultType);
+        method.getBlock().declareVar(EventBean.EPTYPE, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
+                .declareVar(resultType, "result", newArrayByLength(componentType, ref("size")))
                 .forLoopIntSimple("i", ref("size"))
-                .assignArrayElement(eps, constant(streamNumber), cast(EventBean.class, exprDotMethod(ref("events"), "next")))
+                .assignArrayElement(eps, constant(streamNumber), cast(EventBean.EPTYPE, exprDotMethod(ref("events"), "next")))
                 .assignArrayElement("result", ref("i"), localMethod(innerEval, eps, constantTrue(), exprSymbol.getAddExprEvalCtx(method)))
                 .blockEnd()
                 .assignArrayElement(eps, constant(streamNumber), ref("originalEvent"))
@@ -355,9 +364,9 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
 
         method.getBlock()
                 .ifCondition(not(exprSymbol.getAddIsNewData(method))).blockReturn(constantNull())
-                .declareVar(EventBean.class, "substituteEvent", localMethod(getSubstituteCodegen(method, exprSymbol, codegenClassScope), eps, exprSymbol.getAddExprEvalCtx(method)))
+                .declareVar(EventBean.EPTYPE, "substituteEvent", localMethod(getSubstituteCodegen(method, exprSymbol, codegenClassScope), eps, exprSymbol.getAddExprEvalCtx(method)))
                 .ifRefNullReturnNull("substituteEvent")
-                .declareVar(EventBean.class, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
+                .declareVar(EventBean.EPTYPE, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
                 .assignArrayElement(eps, constant(streamNumber), ref("substituteEvent"))
                 .declareVar(resultType, "evalResult", localMethod(innerEval, eps, exprSymbol.getAddIsNewData(method), exprSymbol.getAddExprEvalCtx(method)))
                 .assignArrayElement(eps, constant(streamNumber), ref("originalEvent"))
@@ -367,27 +376,27 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
     }
 
     private CodegenMethod getSubstituteCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = parent.makeChildWithScope(EventBean.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, codegenClassScope)
-                .addParam(EventBean[].class, REF_EPS.getRef()).addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef());
+        CodegenMethod method = parent.makeChildWithScope(EventBean.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, codegenClassScope)
+                .addParam(EventBean.EPTYPEARRAY, REF_EPS.getRef()).addParam(ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef());
 
-        method.getBlock().declareVar(PreviousGetterStrategy.class, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)));
+        method.getBlock().declareVar(PreviousGetterStrategy.EPTYPE, "strategy", exprDotMethod(getterField(codegenClassScope), "getStrategy", exprSymbol.getAddExprEvalCtx(method)));
         if (isConstantIndex) {
-            method.getBlock().declareVar(int.class, "index", constant(constantIndexNumber));
+            method.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", constant(constantIndexNumber));
         } else {
             ExprForge index = this.getChildNodes()[0].getForge();
             CodegenMethod indexMethod = CodegenLegoMethodExpression.codegenExpression(index, method, codegenClassScope);
             CodegenExpression indexCall = localMethod(indexMethod, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT);
             method.getBlock()
-                    .declareVar(Object.class, "indexResult", indexCall)
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "indexResult", indexCall)
                     .ifRefNullReturnNull("indexResult")
-                    .declareVar(int.class, "index", exprDotMethod(cast(Number.class, ref("indexResult")), "intValue"));
+                    .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", exprDotMethod(cast(EPTypePremade.NUMBER.getEPType(), ref("indexResult")), "intValue"));
         }
 
-        CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(ref("strategy"), RandomAccessByIndexGetter.class));
+        CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(ref("strategy"), RandomAccessByIndexGetter.EPTYPE));
         {
             randomAccess
-                    .declareVar(RandomAccessByIndexGetter.class, "getter", cast(RandomAccessByIndexGetter.class, ref("strategy")))
-                    .declareVar(RandomAccessByIndex.class, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"));
+                    .declareVar(RandomAccessByIndexGetter.EPTYPE, "getter", cast(RandomAccessByIndexGetter.EPTYPE, ref("strategy")))
+                    .declareVar(RandomAccessByIndex.EPTYPE, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"));
             if (previousType == ExprPreviousNodePreviousType.PREV) {
                 randomAccess.blockReturn(exprDotMethod(ref("randomAccess"), "getNewData", ref("index")));
             } else if (previousType == ExprPreviousNodePreviousType.PREVTAIL) {
@@ -399,9 +408,9 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         CodegenBlock relativeAccess = randomAccess.ifElse();
         {
             relativeAccess
-                    .declareVar(RelativeAccessByEventNIndexGetter.class, "getter", cast(RelativeAccessByEventNIndexGetter.class, ref("strategy")))
-                    .declareVar(EventBean.class, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
-                    .declareVar(RelativeAccessByEventNIndex.class, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
+                    .declareVar(RelativeAccessByEventNIndexGetter.EPTYPE, "getter", cast(RelativeAccessByEventNIndexGetter.EPTYPE, ref("strategy")))
+                    .declareVar(EventBean.EPTYPE, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
+                    .declareVar(RelativeAccessByEventNIndex.EPTYPE, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
                     .ifRefNullReturnNull("relativeAccess");
             if (previousType == ExprPreviousNodePreviousType.PREV) {
                 relativeAccess.blockReturn(exprDotMethod(ref("relativeAccess"), "getRelativeToEvent", ref("evalEvent"), ref("index")));
@@ -452,7 +461,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
     }
 
     private CodegenExpression getterField(CodegenClassScope classScope) {
-        return classScope.getPackageScope().addOrGetFieldWellKnown(previousStrategyFieldName, PreviousGetterStrategy.class);
+        return classScope.getPackageScope().addOrGetFieldWellKnown(previousStrategyFieldName, PreviousGetterStrategy.EPTYPE);
     }
 
     private static class PreviousBlockGetSizeAndIterator implements Consumer<CodegenBlock> {
@@ -471,23 +480,23 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         public void accept(CodegenBlock block) {
             block
                     .ifCondition(not(exprSymbol.getAddIsNewData(method))).blockReturn(constantNull())
-                    .declareVar(Iterator.class, EventBean.class, "events", constantNull())
-                    .declareVar(int.class, "size", constant(0));
+                    .declareVar(EPTypeClassParameterized.from(Iterator.class, EventBean.class), "events", constantNull())
+                    .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "size", constant(0));
 
-            CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(getter, RandomAccessByIndexGetter.class));
+            CodegenBlock randomAccess = method.getBlock().ifCondition(instanceOf(getter, RandomAccessByIndexGetter.EPTYPE));
             {
                 randomAccess
-                        .declareVar(RandomAccessByIndexGetter.class, "getter", cast(RandomAccessByIndexGetter.class, getter))
-                        .declareVar(RandomAccessByIndex.class, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"))
+                        .declareVar(RandomAccessByIndexGetter.EPTYPE, "getter", cast(RandomAccessByIndexGetter.EPTYPE, getter))
+                        .declareVar(RandomAccessByIndex.EPTYPE, "randomAccess", exprDotMethod(ref("getter"), "getAccessor"))
                         .assignRef("events", exprDotMethod(ref("randomAccess"), "getWindowIterator"))
                         .assignRef("size", exprDotMethod(ref("randomAccess"), "getWindowCount"));
             }
             CodegenBlock relativeAccess = randomAccess.ifElse();
             {
                 relativeAccess
-                        .declareVar(RelativeAccessByEventNIndexGetter.class, "getter", cast(RelativeAccessByEventNIndexGetter.class, getter))
-                        .declareVar(EventBean.class, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
-                        .declareVar(RelativeAccessByEventNIndex.class, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
+                        .declareVar(RelativeAccessByEventNIndexGetter.EPTYPE, "getter", cast(RelativeAccessByEventNIndexGetter.EPTYPE, getter))
+                        .declareVar(EventBean.EPTYPE, "evalEvent", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamNumber)))
+                        .declareVar(RelativeAccessByEventNIndex.EPTYPE, "relativeAccess", exprDotMethod(ref("getter"), "getAccessor", ref("evalEvent")))
                         .ifRefNullReturnNull("relativeAccess")
                         .assignRef("events", exprDotMethod(ref("relativeAccess"), "getWindowToEvent"))
                         .assignRef("size", exprDotMethod(ref("relativeAccess"), "getWindowToEventCount"));

@@ -10,12 +10,13 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -30,13 +31,13 @@ public class CodegenSetterBuilder {
     private CodegenMethod method;
     private boolean closed;
 
-    public CodegenSetterBuilder(Class returnType, Class originator, String refName, CodegenMethodScope parent, CodegenClassScope classScope) {
+    public CodegenSetterBuilder(EPTypeClass returnType, Class originator, String refName, CodegenMethodScope parent, CodegenClassScope classScope) {
         this.originator = originator;
         this.refName = refName;
         this.classScope = classScope;
 
         method = parent.makeChild(returnType, originator, classScope);
-        method.getBlock().declareVar(returnType, refName, newInstance(returnType));
+        method.getBlock().declareVarNewInstance(returnType, refName);
     }
 
     public CodegenSetterBuilder constant(String name, Object value) {
@@ -88,13 +89,13 @@ public class CodegenSetterBuilder {
         if (map.isEmpty()) {
             return staticMethod(Collections.class, "emptyMap");
         }
-        CodegenMethod child = method.makeChild(Map.class, originator, classScope);
+        CodegenMethod child = method.makeChild(EPTypePremade.MAP.getEPType(), originator, classScope);
         if (map.size() == 1) {
             Map.Entry<String, V> single = map.entrySet().iterator().next();
             CodegenExpression value = buildMapValue(single.getValue(), valueConsumer, originator, child, classScope);
             child.getBlock().methodReturn(staticMethod(Collections.class, "singletonMap", CodegenExpressionBuilder.constant(single.getKey()), value));
         } else {
-            child.getBlock().declareVar(Map.class, "map", newInstance(LinkedHashMap.class, CodegenExpressionBuilder.constant(CollectionUtil.capacityHashMap(map.size()))));
+            child.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType(), CodegenExpressionBuilder.constant(CollectionUtil.capacityHashMap(map.size()))));
             for (Map.Entry<String, V> entry : map.entrySet()) {
                 CodegenExpression value = buildMapValue(entry.getValue(), valueConsumer, originator, child, classScope);
                 child.getBlock().exprDotMethod(ref("map"), "put", CodegenExpressionBuilder.constant(entry.getKey()), value);

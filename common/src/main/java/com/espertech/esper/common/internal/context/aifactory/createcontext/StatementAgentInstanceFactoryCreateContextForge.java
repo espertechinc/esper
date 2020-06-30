@@ -31,9 +31,9 @@ public class StatementAgentInstanceFactoryCreateContextForge implements Statemen
     }
 
     public CodegenMethod initializeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
-        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateContext.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateContext.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateContext.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateContext.class))
+                .declareVarNewInstance(StatementAgentInstanceFactoryCreateContext.EPTYPE, "saiff")
                 .exprDotMethod(ref("saiff"), "setContextName", constant(contextName))
                 .exprDotMethod(ref("saiff"), "setStatementEventType", EventTypeUtility.resolveTypeCodegen(statementEventType, symbols.getAddInitSvc(method)))
                 .exprDotMethod(symbols.getAddInitSvc(method), "addReadyCallback", ref("saiff"))

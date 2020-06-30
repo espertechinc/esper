@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.classprovided.core;
 
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,6 +26,7 @@ import java.util.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ClassProvided {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ClassProvided.class);
 
     private Map<String, byte[]> bytes;
     private String className;
@@ -53,11 +56,11 @@ public class ClassProvided {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ClassProvided.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ClassProvided.EPTYPE, this.getClass(), classScope);
         if (bytes.isEmpty()) {
-            method.getBlock().declareVar(Map.class, "bytes", staticMethod(Collections.class, "emptyMap"));
+            method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "bytes", staticMethod(Collections.class, "emptyMap"));
         } else {
-            method.getBlock().declareVar(Map.class, "bytes", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(bytes.size()))));
+            method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "bytes", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(bytes.size()))));
             for (Map.Entry<String, byte[]> entry : bytes.entrySet()) {
                 method.getBlock().exprDotMethod(ref("bytes"), "put",
                     constant(entry.getKey()), constant(entry.getValue()));
@@ -65,7 +68,7 @@ public class ClassProvided {
 
         }
         method.getBlock()
-            .declareVar(ClassProvided.class, "cp", newInstance(ClassProvided.class))
+            .declareVarNewInstance(ClassProvided.EPTYPE, "cp")
             .exprDotMethod(ref("cp"), "setBytes", ref("bytes"))
             .exprDotMethod(ref("cp"), "setClassName", constant(className))
             .exprDotMethod(ref("cp"), "setModuleName", constant(moduleName))

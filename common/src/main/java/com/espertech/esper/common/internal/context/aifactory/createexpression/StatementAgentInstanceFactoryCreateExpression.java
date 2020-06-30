@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createexpression;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirements;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.view.core.Viewable;
 import com.espertech.esper.common.internal.view.core.ViewableDefaultImpl;
 
 public class StatementAgentInstanceFactoryCreateExpression implements StatementAgentInstanceFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryCreateExpression.class);
 
     private String expressionName;
     private Viewable viewable;

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.access;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -19,6 +20,8 @@ import java.util.Iterator;
  * Random access interface to insert stream and remove stream data based on an index.
  */
 public interface RandomAccessByIndex {
+    EPTypeClass EPTYPE = new EPTypeClass(RandomAccessByIndex.class);
+
     /**
      * Returns an new data event given an index.
      *

@@ -11,18 +11,16 @@
 package com.espertech.esper.regressionlib.suite.event.variant;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportEnum;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 
 import java.util.*;
 
@@ -501,14 +499,13 @@ public class EventVariantStream {
             assertTrue(eventType.isProperty(expectedProp));
         }
 
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("theString", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("boolBoxed", Boolean.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("intPrimitive", Integer.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("longPrimitive", Long.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("doublePrimitive", Double.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("enumValue", SupportEnum.class, null, false, false, false, false, false),
-        }, eventType.getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(eventType.getPropertyDescriptors(),
+            new SupportEventPropDesc("theString", String.class),
+            new SupportEventPropDesc("boolBoxed", Boolean.class),
+            new SupportEventPropDesc("intPrimitive", Integer.class),
+            new SupportEventPropDesc("longPrimitive", Long.class),
+            new SupportEventPropDesc("doublePrimitive", Double.class),
+            new SupportEventPropDesc("enumValue", SupportEnum.class));
     }
 
     public static Object preProcessEvent(Object o) {

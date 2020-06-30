@@ -13,12 +13,12 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 import java.util.Collection;
 
 public interface ExprDotStaticMethodWrap {
-    EPType getTypeInfo();
+    EPChainableType getTypeInfo();
 
     Collection convertNonNull(Object result);
 

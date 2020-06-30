@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionMode;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeMultiParam;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 public class SupportInvocationCountForge implements AggregationFunctionForge {
@@ -26,11 +28,11 @@ public class SupportInvocationCountForge implements AggregationFunctionForge {
 
     }
 
-    public Class getValueType() {
-        return int.class;
+    public EPTypeClass getValueType() {
+        return EPTypePremade.INTEGERPRIMITIVE.getEPType();
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {
-        return new AggregationFunctionModeMultiParam().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportInvocationCountFactory.class));
+        return new AggregationFunctionModeMultiParam().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportInvocationCountFactory.EPTYPE));
     }
 }

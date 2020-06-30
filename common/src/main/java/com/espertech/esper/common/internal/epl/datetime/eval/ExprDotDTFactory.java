@@ -11,10 +11,12 @@
 package com.espertech.esper.common.internal.epl.datetime.eval;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodOps;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodOpsModify;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodOpsReformat;
 import com.espertech.esper.common.client.hook.datetimemethod.DateTimeMethodValidateContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.TimePeriod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,6 +44,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeResolver;
 import com.espertech.esper.common.internal.rettype.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.ArrayList;
@@ -50,22 +53,22 @@ import java.util.List;
 
 public class ExprDotDTFactory {
 
-    public static ExprDotDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<Chainable> chainSpecStack, DatetimeMethodDesc dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeAbacus timeAbacus, TableCompileTimeResolver tableCompileTimeResolver, ClasspathImportServiceCompileTime classpathImportService, StatementRawInfo statementRawInfo)
-        throws ExprValidationException {
+    public static ExprDotDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<Chainable> chainSpecStack, DatetimeMethodDesc dtMethod, String dtMethodName, EPChainableType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeAbacus timeAbacus, TableCompileTimeResolver tableCompileTimeResolver, ClasspathImportServiceCompileTime classpathImportService, StatementRawInfo statementRawInfo)
+            throws ExprValidationException {
         // verify input
         String message = "Date-time enumeration method '" + dtMethodName + "' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property";
-        if (inputType instanceof EventEPType) {
-            if (((EventEPType) inputType).getType().getStartTimestampPropertyName() == null) {
+        if (inputType instanceof EPChainableTypeEventSingle) {
+            if (((EPChainableTypeEventSingle) inputType).getType().getStartTimestampPropertyName() == null) {
                 throw new ExprValidationException(message);
             }
         } else {
-            if (!(inputType instanceof ClassEPType || inputType instanceof NullEPType)) {
-                throw new ExprValidationException(message + " but received " + EPTypeHelper.toTypeDescriptive(inputType));
+            if (!(inputType instanceof EPChainableTypeClass || inputType instanceof EPChainableTypeNull)) {
+                throw new ExprValidationException(message + " but received " + EPChainableTypeHelper.toTypeDescriptive(inputType));
             }
-            if (inputType instanceof ClassEPType) {
-                ClassEPType classEPType = (ClassEPType) inputType;
-                if (!JavaClassHelper.isDatetimeClass(classEPType.getType())) {
-                    throw new ExprValidationException(message + " but received " + JavaClassHelper.getClassNameFullyQualPretty(classEPType.getType()));
+            if (inputType instanceof EPChainableTypeClass) {
+                EPChainableTypeClass classEPType = (EPChainableTypeClass) inputType;
+                if (!JavaClassHelper.isDatetimeClass(classEPType.getType().getType())) {
+                    throw new ExprValidationException(message + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(classEPType.getType()));
                 }
             }
         }
@@ -119,7 +122,7 @@ public class ExprDotDTFactory {
                 if (ops == null) {
                     throw new ExprValidationException("Plug-in datetime method provider " + plugIn.getClass() + " returned a null-value for the operations");
                 }
-                Class input = EPTypeHelper.getClassSingleValued(inputType);
+                EPTypeClass input = EPChainableTypeClass.fromInputOrNull(inputType);
                 if (ops instanceof DateTimeMethodOpsModify) {
                     calendarForges.add(new DTMPluginValueChangeForge(input, (DateTimeMethodOpsModify) ops, usageDesc.getCurrentParameters()));
                 } else if (ops instanceof DateTimeMethodOpsReformat) {
@@ -149,9 +152,11 @@ public class ExprDotDTFactory {
         }
 
         ExprDotForge dotForge;
-        EPType returnType;
+        EPChainableType returnType;
 
-        dotForge = new ExprDotDTForge(calendarForges, timeAbacus, reformatForge, intervalForge, EPTypeHelper.getClassSingleValued(inputType), EPTypeHelper.getEventTypeSingleValued(inputType));
+        EPTypeClass inputTypeClass = EPChainableTypeClass.fromInputOrNull(inputType);
+        EventType inputEventType = EPChainableTypeEventSingle.fromInputOrNull(inputType);
+        dotForge = new ExprDotDTForge(calendarForges, timeAbacus, reformatForge, intervalForge, inputTypeClass, inputEventType);
         returnType = dotForge.getTypeInfo();
         return new ExprDotDTMethodDesc(dotForge, returnType, filterAnalyzerDesc);
     }
@@ -181,12 +186,12 @@ public class ExprDotDTFactory {
                         return ExprForgeConstantType.NONCONST;
                     }
 
-                    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+                    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
                         return timePeriod.evaluateGetTimePeriodCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
                     }
 
-                    public Class getEvaluationType() {
-                        return TimePeriod.class;
+                    public EPTypeClass getEvaluationType() {
+                        return TimePeriod.EPTYPE;
                     }
 
                     public ExprNode getForgeRenderable() {

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -20,10 +22,10 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterAndMapped;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -35,7 +37,7 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
     private final Object key;
 
     public KeyedMapFieldPropertyGetter(Field field, Object key, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getGenericFieldTypeMap(field, false), null);
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, JavaClassHelper.getSecondParameterTypeOrObject(ClassHelperGenericType.getFieldEPType(field)));
         this.key = key;
         this.field = field;
     }
@@ -49,10 +51,10 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
     }
 
     private CodegenMethod getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(getBeanPropType(), this.getClass(), codegenClassScope).addParam(getTargetType(), "object").addParam(Object.class, "key").getBlock()
-                .declareVar(Object.class, "result", exprDotName(ref("object"), field.getName()))
-                .ifRefNotTypeReturnConst("result", Map.class, null)
-                .declareVarWCast(Map.class, "map", "result")
+        return codegenMethodScope.makeChild(getBeanPropType(), this.getClass(), codegenClassScope).addParam(getTargetType(), "object").addParam(EPTypePremade.OBJECT.getEPType(), "key").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", exprDotName(ref("object"), field.getName()))
+                .ifRefNotTypeReturnConst("result", EPTypePremade.MAP.getEPType(), null)
+                .declareVarWCast(EPTypePremade.MAP.getEPType(), "map", "result")
                 .methodReturn(cast(getBeanPropType(), exprDotMethod(ref("map"), "get", ref("key"))));
     }
 
@@ -75,12 +77,8 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Class getBeanPropType() {
-        return JavaClassHelper.getGenericFieldTypeMap(field, false);
-    }
-
-    public Class getTargetType() {
-        return field.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(field.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

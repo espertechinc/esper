@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -35,5 +36,5 @@ public interface SimpleTypeCaster {
      */
     public boolean isNumericCast();
 
-    CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

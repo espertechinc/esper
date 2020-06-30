@@ -116,12 +116,12 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubSelectStrategyFactoryIndexShare.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubSelectStrategyFactoryIndexShare.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression groupKeyEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(groupKeys, null, groupByMultiKey, method, classScope);
 
         method.getBlock()
-            .declareVar(SubSelectStrategyFactoryIndexShare.class, "s", newInstance(SubSelectStrategyFactoryIndexShare.class))
+            .declareVarNewInstance(SubSelectStrategyFactoryIndexShare.EPTYPE, "s")
             .exprDotMethod(ref("s"), "setTable", table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("s"), "setNamedWindow", namedWindow == null ? constantNull() : NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("s"), "setAggregationServiceFactory", SubSelectStrategyFactoryLocalViewPreloadedForge.makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols))

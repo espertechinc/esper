@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.script.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationEval;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface ScriptEvaluator extends ExprEvaluator, ExprEnumerationEval {
+    EPTypeClass EPTYPE = new EPTypeClass(ScriptEvaluator.class);
+
     Object evaluate(Object lookupValues, ExprEvaluatorContext exprEvaluatorContext);
 }

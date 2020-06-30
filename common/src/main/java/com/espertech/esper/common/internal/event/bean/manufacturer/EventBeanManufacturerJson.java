@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanManufacturer;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.WriteablePropertyDescriptor;
@@ -24,6 +25,8 @@ import java.util.Map;
  * Factory for Json-underlying events.
  */
 public class EventBeanManufacturerJson implements EventBeanManufacturer {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventBeanManufacturerJson.class);
+
     private final JsonEventType jsonEventType;
     private final EventBeanTypedEventFactory eventAdapterService;
     private final int[] nativeNums;

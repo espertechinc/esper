@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -61,8 +62,8 @@ public class UnivariateStatisticsViewForge extends ViewFactoryForgeBase {
         return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
     }
 
-    public Class typeOfFactory() {
-        return UnivariateStatisticsViewFactory.class;
+    public EPTypeClass typeOfFactory() {
+        return UnivariateStatisticsViewFactory.EPTYPE;
     }
 
     public String factoryMethod() {

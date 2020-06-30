@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage1.spec.FilterStreamSpecRaw;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecRaw;
 import com.espertech.esper.common.internal.epl.expression.etc.ExprEvalUnderlyingEvaluator;
@@ -38,14 +41,14 @@ public class ExprNodeUtilityMake {
      * @param isDescendingValues  flags
      * @return comparator
      */
-    public static Comparator<Object> getComparatorHashableMultiKeys(Class[] sortCriteriaTypes, boolean isSortUsingCollator, boolean[] isDescendingValues) {
+    public static Comparator<Object> getComparatorHashableMultiKeys(EPType[] sortCriteriaTypes, boolean isSortUsingCollator, boolean[] isDescendingValues) {
         // determine string-type sorting
         boolean hasStringTypes = false;
         boolean[] stringTypes = new boolean[sortCriteriaTypes.length];
 
         int count = 0;
         for (int i = 0; i < sortCriteriaTypes.length; i++) {
-            if (sortCriteriaTypes[i] == String.class) {
+            if (JavaClassHelper.isTypeString(sortCriteriaTypes[i])) {
                 hasStringTypes = true;
                 stringTypes[count] = true;
             }
@@ -77,14 +80,14 @@ public class ExprNodeUtilityMake {
      * @param isDescendingValues  flags
      * @return comparator
      */
-    public static Comparator<Object> getComparatorObjectArrayNonHashable(Class[] sortCriteriaTypes, boolean isSortUsingCollator, boolean[] isDescendingValues) {
+    public static Comparator<Object> getComparatorObjectArrayNonHashable(EPType[] sortCriteriaTypes, boolean isSortUsingCollator, boolean[] isDescendingValues) {
         // determine string-type sorting
         boolean hasStringTypes = false;
         boolean[] stringTypes = new boolean[sortCriteriaTypes.length];
 
         int count = 0;
         for (int i = 0; i < sortCriteriaTypes.length; i++) {
-            if (sortCriteriaTypes[i] == String.class) {
+            if (JavaClassHelper.isTypeString(sortCriteriaTypes[i])) {
                 hasStringTypes = true;
                 stringTypes[count] = true;
             }
@@ -108,17 +111,18 @@ public class ExprNodeUtilityMake {
         }
     }
 
-    public static ExprForge makeUnderlyingForge(final int streamNum, final Class resultType, TableMetaData tableMetadata) {
+    public static ExprForge makeUnderlyingForge(final int streamNum, final EPTypeClass resultType, TableMetaData tableMetadata) {
         if (tableMetadata != null) {
             return new ExprEvalUnderlyingEvaluatorTable(streamNum, resultType, tableMetadata);
         }
         return new ExprEvalUnderlyingEvaluator(streamNum, resultType);
     }
 
-    static ExprForge[] makeVarargArrayForges(Method method, final ExprForge[] childForges) {
+    static ExprForge[] makeVarargArrayForges(Method method, final ExprForge[] childForges) throws ExprValidationException {
         ExprForge[] forges = new ExprForge[method.getParameterTypes().length];
-        Class varargClass = method.getParameterTypes()[method.getParameterTypes().length - 1].getComponentType();
-        Class varargClassBoxed = JavaClassHelper.getBoxedType(varargClass);
+        EPTypeClass parameterType = ClassHelperGenericType.getParameterType(method.getParameters()[method.getParameterTypes().length - 1]);
+        EPTypeClass varargClass = JavaClassHelper.getArrayComponentType(parameterType);
+        EPTypeClass varargClassBoxed = JavaClassHelper.getBoxedType(varargClass);
         if (method.getParameterTypes().length > 1) {
             System.arraycopy(childForges, 0, forges, 0, forges.length - 1);
         }
@@ -127,8 +131,8 @@ public class ExprNodeUtilityMake {
         // handle passing array along
         if (varargArrayLength == 1) {
             ExprForge lastForge = childForges[method.getParameterTypes().length - 1];
-            Class lastReturns = lastForge.getEvaluationType();
-            if (lastReturns != null && lastReturns.isArray()) {
+            EPType lastReturns = lastForge.getEvaluationType();
+            if (lastReturns != null && lastReturns != EPTypeNull.INSTANCE && ((EPTypeClass) lastReturns).getType().isArray()) {
                 forges[method.getParameterTypes().length - 1] = lastForge;
                 return forges;
             }
@@ -140,21 +144,25 @@ public class ExprNodeUtilityMake {
         boolean needCoercion = false;
         for (int i = 0; i < varargArrayLength; i++) {
             int childIndex = i + method.getParameterTypes().length - 1;
-            Class resultType = childForges[childIndex].getEvaluationType();
+            EPType resultType = childForges[childIndex].getEvaluationType();
             varargForges[i] = childForges[childIndex];
 
-            if (resultType == null && !varargClass.isPrimitive()) {
-                continue;
+            if (resultType == null || resultType == EPTypeNull.INSTANCE) {
+                if (!varargClass.getType().isPrimitive()) {
+                    continue;
+                }
+                throw new ExprValidationException("Expression returns null-typed value and varargs does not accept null values");
             }
 
-            if (JavaClassHelper.isSubclassOrImplementsInterface(resultType, varargClass)) {
+            EPTypeClass resultTypeClass = (EPTypeClass) resultType;
+            if (JavaClassHelper.isSubclassOrImplementsInterface(resultTypeClass, varargClass)) {
                 // no need to coerce
                 continue;
             }
 
-            if (JavaClassHelper.getBoxedType(resultType) != varargClassBoxed) {
+            if (JavaClassHelper.getBoxedType(resultTypeClass).getType() != varargClassBoxed.getType()) {
                 needCoercion = true;
-                coercers[i] = SimpleNumberCoercerFactory.getCoercer(resultType, varargClassBoxed);
+                coercers[i] = SimpleNumberCoercerFactory.getCoercer(resultTypeClass, varargClassBoxed);
             }
         }
 

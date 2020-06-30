@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumSequenceEqual {
 
@@ -38,7 +39,7 @@ public class ExprEnumSequenceEqual {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
             builder.expression(fields[0], "contained.selectFrom(x => key0).sequenceEqual(contained.selectFrom(y => id))");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Boolean.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType()));
 
             builder.assertion(SupportBean_ST0_Container.make3Value("I1,E1,0", "I2,E2,0")).expect(fields, false);
 
@@ -58,7 +59,7 @@ public class ExprEnumSequenceEqual {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
             builder.expression(fields[0], "strvals.sequenceEqual(strvalstwo)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Boolean.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType()));
 
             builder.assertion(SupportCollection.makeString("E1,E2,E3", "E1,E2,E3")).expect(fields, true);
 

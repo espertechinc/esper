@@ -11,13 +11,17 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.settings.ClasspathImportEPTypeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -30,11 +34,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, ExprNodeDeployTimeConst {
     private String optionalName;
-    private ClassIdentifierWArray optionalType;
-    private Class type = Object.class;
+    private ClassDescriptor optionalType;
+    private EPTypeClass type = EPTypePremade.OBJECT.getEPType();
     private CodegenExpressionField field;
 
-    public ExprSubstitutionNode(String optionalName, ClassIdentifierWArray optionalType) {
+    public ExprSubstitutionNode(String optionalName, ClassDescriptor optionalType) {
         this.optionalName = optionalName;
         this.optionalType = optionalType;
     }
@@ -51,22 +55,21 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
                 clazz = JavaClassHelper.getClassForSimpleName(optionalType.getClassIdentifier(), validationContext.getClasspathImportService().getClassForNameProvider());
             }
 
-            if (clazz != null) {
-                type = clazz;
-            } else {
+            if (clazz == null) {
                 try {
-                    type = validationContext.getClasspathImportService().resolveClass(optionalType.getClassIdentifier(), false, validationContext.getClassProvidedClasspathExtension());
+                    clazz = validationContext.getClasspathImportService().resolveClass(optionalType.getClassIdentifier(), false, validationContext.getClassProvidedClasspathExtension());
                 } catch (ClasspathImportException e) {
                     throw new ExprValidationException("Failed to resolve type '" + optionalType.getClassIdentifier() + "': " + e.getMessage(), e);
                 }
             }
-            if (type != null && optionalType.isArrayOfPrimitive() && !type.isPrimitive()) {
-                throw new ExprValidationException("Invalid use of the '" + ClassIdentifierWArray.PRIMITIVE_KEYWORD + "' keyword for non-primitive type '" + type.getName() + "'");
+            if (!getOptionalType().isArrayOfPrimitive()) {
+                clazz = JavaClassHelper.getBoxedType(clazz);
+            } else {
+                if (!clazz.isPrimitive()) {
+                    throw new ExprValidationException("Invalid use of the '" + ClassDescriptor.PRIMITIVE_KEYWORD + "' keyword for non-primitive type '" + ClassHelperPrint.getClassNameFullyQualPretty(clazz) + "'");
+                }
             }
-            if (!optionalType.isArrayOfPrimitive()) {
-                type = JavaClassHelper.getBoxedType(type);
-            }
-            type = JavaClassHelper.getArrayType(type, optionalType.getArrayDimensions());
+            type = ClasspathImportEPTypeUtil.parameterizeType(true, clazz, optionalType, validationContext.getClasspathImportService(), validationContext.getClassProvidedClasspathExtension());
         }
         return null;
     }
@@ -108,7 +111,7 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
         return true;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return asField(codegenClassScope);
     }
 
@@ -116,7 +119,7 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
         return asField(classScope);
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return type;
     }
 
@@ -132,11 +135,11 @@ public class ExprSubstitutionNode extends ExprNodeBase implements ExprForge, Exp
         };
     }
 
-    public ClassIdentifierWArray getOptionalType() {
+    public ClassDescriptor getOptionalType() {
         return optionalType;
     }
 
-    public Class getResolvedType() {
+    public EPTypeClass getResolvedType() {
         return type;
     }
 

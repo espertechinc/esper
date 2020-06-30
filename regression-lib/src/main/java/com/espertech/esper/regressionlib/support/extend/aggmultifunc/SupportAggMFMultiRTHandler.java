@@ -13,8 +13,9 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.hook.aggmultifunc.*;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategy;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,16 +66,16 @@ public class SupportAggMFMultiRTHandler implements AggregationMultiFunctionHandl
         InjectionStrategy injectionStrategy;
         String functionName = validationContext.getFunctionName();
         if (functionName.equals("ss")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTPlainScalarStateFactory.class)
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTPlainScalarStateFactory.EPTYPE)
                 .addExpression("param", validationContext.getAllParameterExpressions()[0]);
         } else if (functionName.equals("sa") || functionName.equals("sc")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTArrayCollScalarStateFactory.class)
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTArrayCollScalarStateFactory.EPTYPE)
                 .addExpression("evaluator", validationContext.getAllParameterExpressions()[0])
                 .addConstant("evaluationType", validationContext.getAllParameterExpressions()[0].getForge().getEvaluationType());
         } else if (functionName.equals("se1")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTSingleEventStateFactory.class);
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTSingleEventStateFactory.EPTYPE);
         } else if (functionName.equals("ee")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTEnumerableEventsStateFactory.class);
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTEnumerableEventsStateFactory.EPTYPE);
         } else {
             throw new UnsupportedOperationException("Unknown function '" + functionName + "'");
         }
@@ -87,15 +88,15 @@ public class SupportAggMFMultiRTHandler implements AggregationMultiFunctionHandl
         String functionName = validationContext.getFunctionName();
         InjectionStrategy injectionStrategy;
         if (functionName.equals("ss")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTPlainScalarAccessorFactory.class);
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTPlainScalarAccessorFactory.EPTYPE);
         } else if (functionName.equals("sa")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTArrayScalarAccessorFactory.class);
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTArrayScalarAccessorFactory.EPTYPE);
         } else if (functionName.equals("sc")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTCollScalarAccessorFactory.class);
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTCollScalarAccessorFactory.EPTYPE);
         } else if (functionName.equals("se1") || functionName.equals("se2")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTSingleEventAccessorFactory.class);
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTSingleEventAccessorFactory.EPTYPE);
         } else if (functionName.equals("ee")) {
-            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTEnumerableEventsAccessorFactory.class);
+            injectionStrategy = new InjectionStrategyClassNewInstance(SupportAggMFMultiRTEnumerableEventsAccessorFactory.EPTYPE);
         } else {
             throw new IllegalStateException("Unrecognized function name '" + functionName + "'");
         }
@@ -104,18 +105,18 @@ public class SupportAggMFMultiRTHandler implements AggregationMultiFunctionHandl
         return mode;
     }
 
-    public EPType getReturnType() {
+    public EPChainableType getReturnType() {
         String functionName = validationContext.getFunctionName();
         if (functionName.equals("ss")) {
-            return EPTypeHelper.singleValue(validationContext.getAllParameterExpressions()[0].getForge().getEvaluationType());
+            return EPChainableTypeHelper.singleValue(validationContext.getAllParameterExpressions()[0].getForge().getEvaluationType());
         } else if (functionName.equals("sa")) {
-            return EPTypeHelper.array(validationContext.getAllParameterExpressions()[0].getForge().getEvaluationType());
+            return EPChainableTypeHelper.array((EPTypeClass) validationContext.getAllParameterExpressions()[0].getForge().getEvaluationType());
         } else if (functionName.equals("sc")) {
-            return EPTypeHelper.collectionOfSingleValue(validationContext.getAllParameterExpressions()[0].getForge().getEvaluationType());
+            return EPChainableTypeHelper.collectionOfSingleValue((EPTypeClass) validationContext.getAllParameterExpressions()[0].getForge().getEvaluationType());
         } else if (functionName.equals("se1") || functionName.equals("se2")) {
-            return EPTypeHelper.singleEvent(validationContext.getEventTypes()[0]);
+            return EPChainableTypeHelper.singleEvent(validationContext.getEventTypes()[0]);
         } else if (functionName.equals("ee")) {
-            return EPTypeHelper.collectionOfEvents(validationContext.getEventTypes()[0]);
+            return EPChainableTypeHelper.collectionOfEvents(validationContext.getEventTypes()[0]);
         } else {
             throw new IllegalStateException("Unrecognized function name '" + functionName + "'");
         }

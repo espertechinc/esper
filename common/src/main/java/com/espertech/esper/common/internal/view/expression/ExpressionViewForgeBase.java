@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
@@ -45,7 +47,7 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableDeployTimeR
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
 
@@ -53,6 +55,7 @@ import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
 
 /**
  * Base factory for expression-based window and batch view.
@@ -90,9 +93,9 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
             throw new ViewParameterException("Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context");
         }
 
-        Class returnType = expiryExpression.getForge().getEvaluationType();
-        if (JavaClassHelper.getBoxedType(returnType) != Boolean.class) {
-            throw new ViewParameterException("Invalid return value for expiry expression, expected a boolean return value but received " + JavaClassHelper.getParameterAsString(returnType));
+        EPType returnType = expiryExpression.getForge().getEvaluationType();
+        if (!isTypeBoolean(returnType)) {
+            throw new ViewParameterException("Invalid return value for expiry expression, expected a boolean return value but received " + ClassHelperPrint.getParameterAsString(returnType));
         }
 
         // determine variables used, if any
@@ -106,10 +109,10 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         if (!aggregateNodes.isEmpty()) {
             try {
                 aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(Collections.emptyList(), Collections.emptyMap(),
-                        Collections.emptyList(), null, null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
-                        viewForgeEnv.getAnnotations(), viewForgeEnv.getVariableCompileTimeResolver(), false, null, null,
-                        streamTypeService.getEventTypes(), null, viewForgeEnv.getContextName(), null, null, false, false, false,
-                        viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver());
+                    Collections.emptyList(), null, null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
+                    viewForgeEnv.getAnnotations(), viewForgeEnv.getVariableCompileTimeResolver(), false, null, null,
+                    streamTypeService.getEventTypes(), null, viewForgeEnv.getContextName(), null, null, false, false, false,
+                    viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver());
             } catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);
             }
@@ -125,12 +128,12 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         classScope.addInnerClass(evalClass);
 
         method.getBlock()
-                .declareVar(evalClass.getClassName(), "eval", CodegenExpressionBuilder.newInstance(evalClass.getClassName()))
-                .exprDotMethod(factory, "setBuiltinMapType", EventTypeUtility.resolveTypeCodegen(builtinType, EPStatementInitServices.REF))
-                .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))
-                .exprDotMethod(factory, "setAggregationServiceFactory", makeAggregationService(classScope, method, symbols))
-                .exprDotMethod(factory, "setAggregationResultFutureAssignable", ref("eval"))
-                .exprDotMethod(factory, "setExpiryEval", ref("eval"));
+            .declareVar(evalClass.getClassName(), "eval", CodegenExpressionBuilder.newInstance(evalClass.getClassName()))
+            .exprDotMethod(factory, "setBuiltinMapType", EventTypeUtility.resolveTypeCodegen(builtinType, EPStatementInitServices.REF))
+            .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))
+            .exprDotMethod(factory, "setAggregationServiceFactory", makeAggregationService(classScope, method, symbols))
+            .exprDotMethod(factory, "setAggregationResultFutureAssignable", ref("eval"))
+            .exprDotMethod(factory, "setExpiryEval", ref("eval"));
         if (variableNames != null && !variableNames.isEmpty()) {
             method.getBlock().exprDotMethod(factory, "setVariables", VariableDeployTimeResolver.makeResolveVariables(variableNames.values(), symbols.getAddInitSvc(method)));
         }
@@ -155,12 +158,12 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
     private CodegenInnerClass makeExpiryEval(CodegenClassScope classScope) {
         String classNameExpressionEval = "exprview_eval_" + streamNumber;
 
-        CodegenMethod evalMethod = CodegenMethod.makeParentNode(Object.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod evalMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenMethod evalMethodCall = CodegenLegoMethodExpression.codegenExpression(expiryExpression.getForge(), evalMethod, classScope);
         evalMethod.getBlock().methodReturn(localMethod(evalMethodCall, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
 
-        CodegenMethod assignMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationResultFuture.class, "future");
-        CodegenExpression field = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameViewAgg(streamNumber), AggregationResultFuture.class);
+        CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AggregationResultFuture.EPTYPE, "future");
+        CodegenExpression field = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameViewAgg(streamNumber), AggregationResultFuture.EPTYPE);
         assignMethod.getBlock().assignRef(field, ref("future"));
 
         CodegenClassMethods innerMethods = new CodegenClassMethods();
@@ -169,6 +172,6 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
 
         CodegenCtor ctor = new CodegenCtor(StmtClassForgeableRSPFactoryProvider.class, classScope, Collections.emptyList());
 
-        return new CodegenInnerClass(classNameExpressionEval, AggregationResultFutureAssignableWEval.class, ctor, Collections.emptyList(), innerMethods);
+        return new CodegenInnerClass(classNameExpressionEval, AggregationResultFutureAssignableWEval.EPTYPE, ctor, Collections.emptyList(), innerMethods);
     }
 }

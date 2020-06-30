@@ -14,7 +14,22 @@ import com.espertech.esper.common.client.json.minimaljson.JsonWriter;
 
 import java.io.IOException;
 
+/**
+ * JSON field adapter for strings.
+ */
 public interface JsonFieldAdapterString<T> extends JsonFieldAdapter {
+    /**
+     * Parse
+     * @param value value to parse
+     * @return result
+     */
     T parse(String value);
+
+    /**
+     * Write
+     * @param value to write
+     * @param writer output
+     * @throws IOException in case of failure
+     */
     void write(T value, JsonWriter writer) throws IOException;
 }

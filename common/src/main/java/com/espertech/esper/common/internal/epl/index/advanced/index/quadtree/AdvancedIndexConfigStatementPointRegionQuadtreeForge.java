@@ -41,10 +41,10 @@ public class AdvancedIndexConfigStatementPointRegionQuadtreeForge implements Eve
     }
 
     public CodegenExpression codegenMake(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AdvancedIndexConfigStatementPointRegionQuadtree.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AdvancedIndexConfigStatementPointRegionQuadtree.EPTYPE, this.getClass(), classScope);
         Function<ExprForge, CodegenExpression> expr = forge -> ExprNodeUtilityCodegen.codegenEvaluator(forge, method, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AdvancedIndexConfigStatementPointRegionQuadtree.class, "factory", newInstance(AdvancedIndexConfigStatementPointRegionQuadtree.class))
+                .declareVarNewInstance(AdvancedIndexConfigStatementPointRegionQuadtree.EPTYPE, "factory")
                 .exprDotMethod(ref("factory"), "setxEval", expr.apply(xEval))
                 .exprDotMethod(ref("factory"), "setyEval", expr.apply(yEval))
                 .methodReturn(ref("factory"));

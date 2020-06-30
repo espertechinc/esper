@@ -11,15 +11,19 @@
 package com.espertech.esper.common.internal.serde.compiletime.resolve;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.*;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 
 public class VMExtendedBuiltinSerdeFactory {
-    public static DataInputOutputSerde getSerde(Class type) {
+    public static DataInputOutputSerde getSerde(EPTypeClass typeClass) {
+        Class type = typeClass.getType();
         if (type == BigInteger.class) {
             return DIOBigIntegerSerde.INSTANCE;
         }
@@ -102,6 +106,51 @@ public class VMExtendedBuiltinSerdeFactory {
             }
             if (componentType == Calendar.class) {
                 return DIOCalendarArrayNullableSerde.INSTANCE;
+            }
+        }
+        if (JavaClassHelper.isSubclassOrImplementsInterface(typeClass.getType(), Collection.class)) {
+            Class componentType = JavaClassHelper.getBoxedType(JavaClassHelper.getSingleParameterTypeOrObject(typeClass).getType());
+            if (componentType == String.class) {
+                return DIOCollectionStringNullableSerde.INSTANCE;
+            }
+            if (componentType == Character.class) {
+                return DIOCollectionCharacterNullableSerde.INSTANCE;
+            }
+            if (componentType == Boolean.class) {
+                return DIOCollectionBooleanNullableSerde.INSTANCE;
+            }
+            if (componentType == Byte.class) {
+                return DIOCollectionByteNullableSerde.INSTANCE;
+            }
+            if (componentType == Short.class) {
+                return DIOCollectionShortNullableSerde.INSTANCE;
+            }
+            if (componentType == Integer.class) {
+                return DIOCollectionIntegerNullableSerde.INSTANCE;
+            }
+            if (componentType == Long.class) {
+                return DIOCollectionLongNullableSerde.INSTANCE;
+            }
+            if (componentType == Float.class) {
+                return DIOCollectionFloatNullableSerde.INSTANCE;
+            }
+            if (componentType == Double.class) {
+                return DIOCollectionDoubleNullableSerde.INSTANCE;
+            }
+            if (componentType == BigDecimal.class) {
+                return DIOCollectionBigDecimalNullableSerde.INSTANCE;
+            }
+            if (componentType == BigInteger.class) {
+                return DIOCollectionBigIntegerNullableSerde.INSTANCE;
+            }
+            if (componentType == Date.class) {
+                return DIOCollectionDateNullableSerde.INSTANCE;
+            }
+            if (componentType == java.sql.Date.class) {
+                return DIOCollectionSqlDateNullableSerde.INSTANCE;
+            }
+            if (componentType == Calendar.class) {
+                return DIOCollectionCalendarNullableSerde.INSTANCE;
             }
         }
         return null;

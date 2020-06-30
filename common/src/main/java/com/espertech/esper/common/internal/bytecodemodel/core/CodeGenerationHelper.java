@@ -10,22 +10,42 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+
 import java.util.Map;
 
 public class CodeGenerationHelper {
 
-    public static StringBuilder appendClassName(StringBuilder builder, Class clazz, Class optionalTypeParam, Map<Class, String> imports) {
+    public static StringBuilder appendClassName(StringBuilder builder, Class clazz, Map<Class, String> imports) {
         if (!clazz.isArray()) {
             String assignedName = getAssignedName(clazz, imports);
             builder.append(assignedName);
-            if (optionalTypeParam != null) {
+            return builder;
+        }
+        appendClassName(builder, clazz.getComponentType(), imports);
+        builder.append("[]");
+        return builder;
+    }
+
+    public static StringBuilder appendClassName(StringBuilder builder, EPTypeClass clazz, Map<Class, String> imports) {
+        if (!clazz.getType().isArray()) {
+            String assignedName = getAssignedName(clazz.getType(), imports);
+            builder.append(assignedName);
+            if (clazz instanceof EPTypeClassParameterized) {
+                EPTypeClassParameterized parameterized = (EPTypeClassParameterized) clazz;
                 builder.append("<");
-                appendClassName(builder, optionalTypeParam, null, imports);
+                String delimiter = "";
+                for (EPTypeClass param : parameterized.getParameters()) {
+                    builder.append(delimiter);
+                    appendClassName(builder, param, imports);
+                    delimiter = ",";
+                }
                 builder.append(">");
             }
             return builder;
         }
-        appendClassName(builder, clazz.getComponentType(), null, imports);
+        appendClassName(builder, clazz.getType().getComponentType(), imports);
         builder.append("[]");
         return builder;
     }

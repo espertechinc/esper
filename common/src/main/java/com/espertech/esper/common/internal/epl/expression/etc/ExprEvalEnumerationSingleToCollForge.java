@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -36,13 +37,13 @@ public class ExprEvalEnumerationSingleToCollForge implements ExprForge, SelectEx
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean[].class, ExprEvalEnumerationSingleToCollForge.class, codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, ExprEvalEnumerationSingleToCollForge.class, codegenClassScope);
 
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", enumerationForge.evaluateGetEventBeanCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EventBean.EPTYPE, "event", enumerationForge.evaluateGetEventBeanCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("event")
-                .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))
+                .declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, constant(1)))
                 .assignArrayElement(ref("events"), constant(0), ref("event"))
                 .methodReturn(ref("events"));
         return localMethod(methodNode);
@@ -52,12 +53,12 @@ public class ExprEvalEnumerationSingleToCollForge implements ExprForge, SelectEx
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
-        return EventBean[].class;
+    public EPTypeClass getEvaluationType() {
+        return EventBean.EPTYPEARRAY;
     }
 
-    public Class getUnderlyingEvaluationType() {
-        return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
+    public EPTypeClass getUnderlyingEvaluationType() {
+        return JavaClassHelper.getArrayType(targetType.getUnderlyingEPType());
     }
 
     public ExprNodeRenderable getForgeRenderable() {

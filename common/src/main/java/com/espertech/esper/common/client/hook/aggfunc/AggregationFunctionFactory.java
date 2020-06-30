@@ -10,10 +10,16 @@
  */
 package com.espertech.esper.common.client.hook.aggfunc;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Interface to implement for factories of aggregation functions.
  */
 public interface AggregationFunctionFactory {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationFunctionFactory.class);
 
     /**
      * Make a new initalized aggregation state.

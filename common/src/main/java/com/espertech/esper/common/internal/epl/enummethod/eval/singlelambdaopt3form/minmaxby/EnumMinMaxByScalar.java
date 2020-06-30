@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.minmaxby;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -23,8 +24,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
@@ -36,16 +37,16 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class EnumMinMaxByScalar extends ThreeFormScalar {
 
     protected final boolean max;
-    protected final EPType resultType;
-    private final Class innerTypeBoxed;
-    private final Class resultTypeBoxed;
+    protected final EPChainableType resultType;
+    private final EPTypeClass innerTypeBoxed;
+    private final EPTypeClass resultTypeBoxed;
 
-    public EnumMinMaxByScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, boolean max, EPType resultType) {
+    public EnumMinMaxByScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, boolean max, EPChainableType resultType) {
         super(lambda, fieldEventType, numParameters);
         this.max = max;
         this.resultType = resultType;
-        this.innerTypeBoxed = JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
-        this.resultTypeBoxed = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
+        this.innerTypeBoxed = (EPTypeClass) JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
+        this.resultTypeBoxed = JavaClassHelper.getBoxedType(EPChainableTypeHelper.getCodegenReturnType(resultType));
     }
 
     public EnumEval getEnumEvaluator() {
@@ -94,7 +95,7 @@ public class EnumMinMaxByScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
+    public EPTypeClass returnTypeOfMethod() {
         return resultTypeBoxed;
     }
 

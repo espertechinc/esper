@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.SingleEventIterator;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
@@ -141,13 +142,13 @@ public class UnivariateStatisticsView extends ViewSupport implements DerivedValu
     }
 
     public static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env, int streamNum) {
-        LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<String, Object>();
-        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS.getName(), Long.class);
-        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__STDDEV.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__STDDEVPA.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__VARIANCE.getName(), Double.class);
-        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE.getName(), Double.class);
+        LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<>();
+        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS.getName(), EPTypePremade.LONGBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__STDDEV.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__STDDEVPA.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__VARIANCE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
+        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL,

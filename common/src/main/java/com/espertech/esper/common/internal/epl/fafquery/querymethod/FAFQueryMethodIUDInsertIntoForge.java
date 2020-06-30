@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
@@ -99,8 +100,8 @@ public class FAFQueryMethodIUDInsertIntoForge extends FAFQueryMethodIUDBaseForge
         insertHelper = SelectExprProcessorFactory.getProcessor(args, spec.getRaw().getInsertIntoDesc(), false).getForge();
     }
 
-    protected Class typeOfMethod() {
-        return FAFQueryMethodIUDInsertInto.class;
+    protected EPTypeClass typeOfMethod() {
+        return FAFQueryMethodIUDInsertInto.EPTYPE;
     }
 
     protected void makeInlineSpecificSetter(CodegenExpressionRef queryMethod, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

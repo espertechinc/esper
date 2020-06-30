@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.lookup;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -36,12 +37,12 @@ public class SubordCompositeTableLookupStrategyFactoryForge implements SubordTab
     private final boolean isNWOnTrigger;
     private final int numStreams;
     private final List<SubordPropHashKeyForge> hashKeys;
-    private final Class[] hashTypes;
+    private final EPTypeClass[] hashTypes;
     private final MultiKeyClassRef hashMultikeyClasses;
     private final List<SubordPropRangeKeyForge> rangeProps;
-    private final Class[] coercionRangeTypes;
+    private final EPTypeClass[] coercionRangeTypes;
 
-    public SubordCompositeTableLookupStrategyFactoryForge(boolean isNWOnTrigger, int numStreams, List<SubordPropHashKeyForge> keyExpr, Class[] coercionKeyTypes, MultiKeyClassRef hashMultikeyClasses, List<SubordPropRangeKeyForge> rangeProps, Class[] coercionRangeTypes) {
+    public SubordCompositeTableLookupStrategyFactoryForge(boolean isNWOnTrigger, int numStreams, List<SubordPropHashKeyForge> keyExpr, EPTypeClass[] coercionKeyTypes, MultiKeyClassRef hashMultikeyClasses, List<SubordPropRangeKeyForge> rangeProps, EPTypeClass[] coercionRangeTypes) {
         this.isNWOnTrigger = isNWOnTrigger;
         this.numStreams = numStreams;
         this.hashKeys = keyExpr;
@@ -56,7 +57,7 @@ public class SubordCompositeTableLookupStrategyFactoryForge implements SubordTab
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordCompositeTableLookupStrategyFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordCompositeTableLookupStrategyFactory.EPTYPE, this.getClass(), classScope);
 
         List<String> expressions = new ArrayList<>();
         CodegenExpression hashEval = constantNull();
@@ -69,13 +70,13 @@ public class SubordCompositeTableLookupStrategyFactoryForge implements SubordTab
             hashEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashTypes, hashMultikeyClasses, method, classScope);
         }
 
-        method.getBlock().declareVar(QueryGraphValueEntryRange[].class, "rangeEvals", newArrayByLength(QueryGraphValueEntryRange.class, constant(rangeProps.size())));
+        method.getBlock().declareVar(QueryGraphValueEntryRange.EPTYPEARRAY, "rangeEvals", newArrayByLength(QueryGraphValueEntryRange.EPTYPE, constant(rangeProps.size())));
         for (int i = 0; i < rangeProps.size(); i++) {
             CodegenExpression rangeEval = rangeProps.get(i).getRangeInfo().make(coercionRangeTypes[i], parent, symbols, classScope);
             method.getBlock().assignArrayElement(ref("rangeEvals"), constant(i), rangeEval);
         }
 
-        method.getBlock().methodReturn(newInstance(SubordCompositeTableLookupStrategyFactory.class,
+        method.getBlock().methodReturn(newInstance(SubordCompositeTableLookupStrategyFactory.EPTYPE,
             constant(isNWOnTrigger), constant(numStreams), constant(expressions.toArray(new String[0])),
             hashEval, ref("rangeEvals")));
         return localMethod(method);

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.access.linear;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -20,6 +21,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class AggregationMethodLinearFirstLastIndex implements AggregationMultiFunctionAggregationMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationMethodLinearFirstLastIndex.class);
+
     private AggregationAccessorLinearType accessType;
     private Integer optionalConstIndex;
     private ExprEvaluator optionalIndexEval;

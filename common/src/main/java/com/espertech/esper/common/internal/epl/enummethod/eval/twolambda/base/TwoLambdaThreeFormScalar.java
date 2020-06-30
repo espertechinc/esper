@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval.twolambda.base;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,8 +26,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenNames.REF_ENUMCOLL;
@@ -55,33 +54,33 @@ public abstract class TwoLambdaThreeFormScalar extends EnumForgeBasePlain {
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(resultEventType, EPStatementInitServices.REF)));
+        CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(resultEventType, EPStatementInitServices.REF)));
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Map.class, getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.MAP.getEPType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
         boolean hasIndex = numParameters >= 2;
         boolean hasSize = numParameters >= 3;
 
         CodegenExpression returnIfEmpty = returnIfEmptyOptional();
         if (returnIfEmpty != null) {
             methodNode.getBlock()
-                .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
-                .blockReturn(returnIfEmpty);
+                    .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
+                    .blockReturn(returnIfEmpty);
         }
 
         initBlock(methodNode.getBlock(), methodNode, scope, codegenClassScope);
-        methodNode.getBlock().declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(numParameters)), resultTypeMember))
-            .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("resultEvent"))
-            .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
+        methodNode.getBlock().declareVar(ObjectArrayEventBean.EPTYPE, "resultEvent", newInstance(ObjectArrayEventBean.EPTYPE, newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(numParameters)), resultTypeMember))
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("resultEvent"))
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", exprDotMethod(ref("resultEvent"), "getProperties"));
         if (hasIndex) {
-            methodNode.getBlock().declareVar(int.class, "count", constant(-1));
+            methodNode.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(-1));
         }
         if (hasSize) {
             methodNode.getBlock().assignArrayElement(ref("props"), constant(2), exprDotMethod(REF_ENUMCOLL, "size"));
         }
 
-        CodegenBlock forEach = methodNode.getBlock().forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-            .assignArrayElement("props", constant(0), ref("next"));
+        CodegenBlock forEach = methodNode.getBlock().forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .assignArrayElement("props", constant(0), ref("next"));
         if (hasIndex) {
             forEach.incrementRef("count").assignArrayElement("props", constant(1), ref("count"));
         }

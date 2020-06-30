@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.context.controller.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class ContextControllerFactoryEnv {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerFactoryEnv.class);
+
     private final String outermostContextName;
     private final String contextName;
     private final int nestingLevel;
@@ -45,7 +48,7 @@ public class ContextControllerFactoryEnv {
     }
 
     public CodegenExpression toExpression() {
-        return newInstance(this.getClass(), constant(outermostContextName), constant(contextName), constant(nestingLevel), constant(numNestingLevels));
+        return newInstance(EPTYPE, constant(outermostContextName), constant(contextName), constant(nestingLevel), constant(numNestingLevels));
     }
 
     public boolean isLeaf() {

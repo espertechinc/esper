@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.approx.countminsketch;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.CountMinSketchAgentForge;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CountMinSketchSpecForge {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CountMinSketchSpecForge.class);
 
     private CountMinSketchSpecHashes hashesSpec;
     private Integer topkSpec;
@@ -51,9 +53,9 @@ public class CountMinSketchSpecForge {
     }
 
     public CodegenExpression codegenMake(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(CountMinSketchSpec.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(CountMinSketchSpec.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(CountMinSketchSpec.class, "spec", newInstance(CountMinSketchSpec.class))
+                .declareVarNewInstance(CountMinSketchSpec.EPTYPE, "spec")
                 .exprDotMethod(ref("spec"), "setHashesSpec", hashesSpec.codegenMake(method, classScope))
                 .exprDotMethod(ref("spec"), "setTopkSpec", constant(topkSpec))
                 .exprDotMethod(ref("spec"), "setAgent", agent.codegenMake(method, classScope))

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.event.xml;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -30,8 +31,8 @@ public class XPathPropertyGetterCodegenFieldSharable implements CodegenFieldShar
         this.xPathPropertyGetter = xPathPropertyGetter;
     }
 
-    public Class type() {
-        return XPathPropertyGetter.class;
+    public EPTypeClass type() {
+        return XPathPropertyGetter.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

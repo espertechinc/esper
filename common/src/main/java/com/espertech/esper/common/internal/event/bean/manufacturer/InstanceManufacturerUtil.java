@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -31,23 +34,28 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class InstanceManufacturerUtil {
 
-    public static Pair<Constructor, ExprForge[]> getManufacturer(Class targetClass, ClasspathImportServiceCompileTime classpathImportService, ExprForge[] exprForges, Object[] expressionReturnTypes)
+    public static Pair<Constructor, ExprForge[]> getManufacturer(EPTypeClass targetClass, ClasspathImportServiceCompileTime classpathImportService, ExprForge[] exprForges, Object[] expressionReturnTypes)
             throws ExprValidationException {
-        Class[] ctorTypes = new Class[expressionReturnTypes.length];
+        EPType[] ctorTypes = new EPType[expressionReturnTypes.length];
         ExprForge[] forges = new ExprForge[exprForges.length];
 
         for (int i = 0; i < expressionReturnTypes.length; i++) {
             Object columnType = expressionReturnTypes[i];
 
-            if (columnType instanceof Class || columnType == null) {
-                ctorTypes[i] = (Class) expressionReturnTypes[i];
+            if (columnType == null) {
+                forges[i] = exprForges[i];
+                continue;
+            }
+
+            if (columnType instanceof EPType) {
+                ctorTypes[i] = (EPType) columnType;
                 forges[i] = exprForges[i];
                 continue;
             }
 
             if (columnType instanceof EventType) {
                 EventType columnEventType = (EventType) columnType;
-                final Class returnType = columnEventType.getUnderlyingType();
+                final EPTypeClass returnType = columnEventType.getUnderlyingEPType();
                 final ExprForge inner = exprForges[i];
                 forges[i] = new InstanceManufacturerForgeNonArray(returnType, inner);
                 ctorTypes[i] = returnType;
@@ -57,7 +65,7 @@ public class InstanceManufacturerUtil {
             // handle case where the select-clause contains an fragment array
             if (columnType instanceof EventType[]) {
                 EventType columnEventType = ((EventType[]) columnType)[0];
-                Class componentReturnType = columnEventType.getUnderlyingType();
+                EPTypeClass componentReturnType = columnEventType.getUnderlyingEPType();
                 ExprForge inner = exprForges[i];
                 forges[i] = new InstanceManufacturerForgeArray(componentReturnType, inner);
                 continue;
@@ -69,18 +77,18 @@ public class InstanceManufacturerUtil {
         }
 
         try {
-            Constructor ctor = classpathImportService.resolveCtor(targetClass, ctorTypes);
+            Constructor ctor = classpathImportService.resolveCtor(targetClass.getType(), ctorTypes);
             return new Pair<>(ctor, forges);
         } catch (ClasspathImportException ex) {
-            throw new ExprValidationException("Failed to find a suitable constructor for class '" + targetClass.getName() + "': " + ex.getMessage(), ex);
+            throw new ExprValidationException("Failed to find a suitable constructor for class '" + targetClass.getTypeName() + "': " + ex.getMessage(), ex);
         }
     }
 
     public static class InstanceManufacturerForgeNonArray implements ExprForge {
-        private final Class returnType;
+        private final EPTypeClass returnType;
         private final ExprForge innerForge;
 
-        InstanceManufacturerForgeNonArray(Class returnType, ExprForge innerForge) {
+        InstanceManufacturerForgeNonArray(EPTypeClass returnType, ExprForge innerForge) {
             this.returnType = returnType;
             this.innerForge = innerForge;
         }
@@ -102,18 +110,18 @@ public class InstanceManufacturerUtil {
             return ExprForgeConstantType.NONCONST;
         }
 
-        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, InstanceManufacturerForgeNonArray.class, codegenClassScope);
 
 
             methodNode.getBlock()
-                    .declareVar(EventBean.class, "event", cast(EventBean.class, innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
+                    .declareVar(EventBean.EPTYPE, "event", cast(EventBean.EPTYPE, innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
                     .ifRefNullReturnNull("event")
                     .methodReturn(cast(returnType, exprDotUnderlying(ref("event"))));
             return localMethod(methodNode);
         }
 
-        public Class getEvaluationType() {
+        public EPTypeClass getEvaluationType() {
             return returnType;
         }
 
@@ -123,10 +131,10 @@ public class InstanceManufacturerUtil {
     }
 
     public static class InstanceManufacturerForgeArray implements ExprForge, ExprNodeRenderable {
-        private final Class componentReturnType;
+        private final EPTypeClass componentReturnType;
         private final ExprForge innerForge;
 
-        InstanceManufacturerForgeArray(Class componentReturnType, ExprForge innerForge) {
+        InstanceManufacturerForgeArray(EPTypeClass componentReturnType, ExprForge innerForge) {
             this.componentReturnType = componentReturnType;
             this.innerForge = innerForge;
         }
@@ -140,7 +148,7 @@ public class InstanceManufacturerUtil {
                         return null;
                     }
                     EventBean[] events = (EventBean[]) result;
-                    Object values = Array.newInstance(componentReturnType, events.length);
+                    Object values = Array.newInstance(componentReturnType.getType(), events.length);
                     for (int i = 0; i < events.length; i++) {
                         Array.set(values, i, events[i].getUnderlying());
                     }
@@ -153,15 +161,15 @@ public class InstanceManufacturerUtil {
             return ExprForgeConstantType.NONCONST;
         }
 
-        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
+        public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            EPTypeClass arrayType = JavaClassHelper.getArrayType(componentReturnType);
             CodegenMethod methodNode = codegenMethodScope.makeChild(arrayType, InstanceManufacturerForgeArray.class, codegenClassScope);
 
             methodNode.getBlock()
-                    .declareVar(Object.class, "result", innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
-                    .ifCondition(not(instanceOf(ref("result"), EventBean[].class)))
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "result", innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
+                    .ifCondition(not(instanceOf(ref("result"), EventBean.EPTYPEARRAY)))
                     .blockReturn(constantNull())
-                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, ref("result")))
+                    .declareVar(EventBean.EPTYPEARRAY, "events", cast(EventBean.EPTYPEARRAY, ref("result")))
                     .declareVar(arrayType, "values", newArrayByLength(componentReturnType, arrayLength(ref("events"))))
                     .forLoopIntSimple("i", arrayLength(ref("events")))
                     .assignArrayElement("values", ref("i"), cast(componentReturnType, exprDotMethod(arrayAtIndex(ref("events"), ref("i")), "getUnderlying")))
@@ -170,7 +178,7 @@ public class InstanceManufacturerUtil {
             return localMethod(methodNode);
         }
 
-        public Class getEvaluationType() {
+        public EPTypeClass getEvaluationType() {
             return JavaClassHelper.getArrayType(componentReturnType);
         }
 

@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
@@ -139,8 +141,8 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
     private Map<String, Object> makeContextProperies(ContextControllerFactoryForge[] controllers, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
 
         LinkedHashMap<String, Object> props = new LinkedHashMap<>();
-        props.put(ContextPropertyEventType.PROP_CTX_NAME, String.class);
-        props.put(ContextPropertyEventType.PROP_CTX_ID, Integer.class);
+        props.put(ContextPropertyEventType.PROP_CTX_NAME, EPTypePremade.STRING.getEPType());
+        props.put(ContextPropertyEventType.PROP_CTX_ID, EPTypePremade.INTEGERBOXED.getEPType());
 
         if (controllers.length == 1) {
             controllers[0].validateGetContextProps(props, controllers[0].getFactoryEnv().getOutermostContextName(), statementRawInfo, services);
@@ -150,9 +152,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         for (int level = 0; level < controllers.length; level++) {
             String nestedContextName = controllers[level].getFactoryEnv().getContextName();
             LinkedHashMap<String, Object> propsPerLevel = new LinkedHashMap<>();
-            propsPerLevel.put(ContextPropertyEventType.PROP_CTX_NAME, String.class);
+            propsPerLevel.put(ContextPropertyEventType.PROP_CTX_NAME, EPTypePremade.STRING.getEPType());
             if (level == controllers.length - 1) {
-                propsPerLevel.put(ContextPropertyEventType.PROP_CTX_ID, Integer.class);
+                propsPerLevel.put(ContextPropertyEventType.PROP_CTX_ID, EPTypePremade.INTEGERBOXED.getEPType());
             }
             controllers[level].validateGetContextProps(propsPerLevel, nestedContextName, statementRawInfo, services);
             props.put(nestedContextName, propsPerLevel);
@@ -168,7 +170,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             ContextSpecKeyed segmented = (ContextSpecKeyed) contextSpec;
             Map<String, EventType> asNames = new HashMap<>();
             boolean partitionHasNameAssignment = false;
-            Class[] getterTypes = null;
+            EPType[] getterTypes = null;
             for (ContextSpecKeyedItem partition : segmented.getItems()) {
                 Pair<FilterSpecCompiled, List<StmtClassForgeableFactory>> pair = compilePartitonedFilterSpec(partition.getFilterSpecRaw(), validationEnv);
                 FilterSpecCompiled filterSpecCompiled = pair.getFirst();
@@ -178,7 +180,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 EventPropertyGetterSPI[] getters = new EventPropertyGetterSPI[partition.getPropertyNames().size()];
                 DataInputOutputSerdeForge[] serdes = new DataInputOutputSerdeForge[partition.getPropertyNames().size()];
                 EventTypeSPI eventType = (EventTypeSPI) filterSpecCompiled.getFilterForEventType();
-                getterTypes = new Class[partition.getPropertyNames().size()];
+                getterTypes = new EPType[partition.getPropertyNames().size()];
                 for (int i = 0; i < partition.getPropertyNames().size(); i++) {
                     String propertyName = partition.getPropertyNames().get(i);
                     EventPropertyGetterSPI getter = eventType.getGetterSPI(propertyName);
@@ -186,7 +188,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                         throw new ExprValidationException("For context '" + validationEnv.getContextName() + "' property name '" + propertyName + "' not found on type " + eventType.getName());
                     }
                     getters[i] = getter;
-                    getterTypes[i] = eventType.getPropertyType(propertyName);
+                    getterTypes[i] = eventType.getPropertyEPType(propertyName);
                     serdes[i] = validationEnv.getServices().getSerdeResolver().serdeForFilter(getterTypes[i], validationEnv.getStatementRawInfo());
                 }
                 partition.setGetters(getters);

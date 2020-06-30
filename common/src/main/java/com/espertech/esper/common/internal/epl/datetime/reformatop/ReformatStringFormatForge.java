@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -43,7 +45,7 @@ public class ReformatStringFormatForge implements ReformatForge, ReformatOp {
     }
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return actionCodegen(newInstance(Date.class, inner));
+        return actionCodegen(newInstance(EPTypePremade.DATE.getEPType(), inner));
     }
 
     public Object evaluate(Date d, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -84,11 +86,11 @@ public class ReformatStringFormatForge implements ReformatForge, ReformatOp {
     }
 
     private CodegenExpression actionCodegen(CodegenExpression date) {
-        return exprDotMethod(newInstance(SimpleDateFormat.class), "format", date);
+        return exprDotMethod(newInstance(EPTypePremade.SIMPLEDATEFORMAT.getEPType()), "format", date);
     }
 
-    public Class getReturnType() {
-        return String.class;
+    public EPTypeClass getReturnType() {
+        return EPTypePremade.STRING.getEPType();
     }
 
     public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodDesc currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {

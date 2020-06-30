@@ -10,15 +10,22 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.ValueAndFieldDesc;
 
@@ -63,19 +70,23 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
         return new ExprDotNodeForgeStaticMethodEval(this, childEvals, ExprDotNodeUtility.getEvaluators(chainForges));
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
+        EPType type;
         if (chainForges.length == 0) {
-            return JavaClassHelper.getBoxedType(staticMethod.getReturnType());
+            type = ClassHelperGenericType.getMethodReturnEPType(staticMethod);
         } else {
-            return EPTypeHelper.getNormalizedClass(chainForges[chainForges.length - 1].getTypeInfo());
+            ExprDotForge lastInChain = chainForges[chainForges.length - 1];
+            EPChainableType chainableType = lastInChain.getTypeInfo();
+            type = EPChainableTypeHelper.getNormalizedEPType(chainableType);
         }
+        return JavaClassHelper.getBoxedType(type);
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprDotNodeForgeStaticMethodEval.codegenExprEval(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprDot", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 

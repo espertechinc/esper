@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.Serializable;
 
 /**
@@ -18,6 +20,8 @@ import java.io.Serializable;
  * and the first pair second object equals the second pair second object.
  */
 public final class UniformPair<T> implements Serializable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(UniformPair.class);
+
     public final static UniformPair EMPTY_PAIR = new UniformPair(null, null);
 
     private T first;

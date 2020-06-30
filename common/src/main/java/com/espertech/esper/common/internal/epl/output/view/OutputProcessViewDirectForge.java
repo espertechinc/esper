@@ -36,7 +36,7 @@ public class OutputProcessViewDirectForge implements OutputProcessViewFactoryFor
     public void provideCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpressionRef factory = ref("factory");
         method.getBlock()
-                .declareVar(OutputProcessViewDirectFactory.class, factory.getRef(), newInstance(OutputProcessViewDirectFactory.class))
+                .declareVarNewInstance(OutputProcessViewDirectFactory.EPTYPE, factory.getRef())
                 .exprDotMethod(factory, "setPostProcessFactory", outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope))
                 .methodReturn(factory);
     }

@@ -35,7 +35,7 @@ public class CodegenExpressionEnumOrPublicConstantValue implements CodegenExpres
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (enumType != null) {
-            appendClassName(builder, enumType, null, imports);
+            appendClassName(builder, enumType, imports);
         } else {
             builder.append(enumTypeString);
         }

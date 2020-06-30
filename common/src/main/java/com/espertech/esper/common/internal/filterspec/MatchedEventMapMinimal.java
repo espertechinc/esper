@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface MatchedEventMapMinimal {
+    EPTypeClass EPTYPE = new EPTypeClass(MatchedEventMapMinimal.class);
+
     /**
      * Returns a map containing the events where the key is the event tag string and the value is the event
      * instance.

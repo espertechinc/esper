@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -39,6 +41,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * @author pablo
  */
 public class XPathPropertyGetter implements EventPropertyGetterSPI {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(XPathPropertyGetter.class);
+
     private static final Logger log = LoggerFactory.getLogger(XPathPropertyGetter.class);
     private final BaseXMLEventType baseXMLEventType;
     private final XPathExpression expression;
@@ -46,11 +50,11 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
     private final String property;
     private final QName resultType;
     private final SimpleTypeParser simpleTypeParser;
-    private final Class optionalCastToType;
+    private final EPTypeClass optionalCastToType;
     private final boolean isCastToArray;
     private final FragmentFactory fragmentFactory;
 
-    public XPathPropertyGetter(BaseXMLEventType baseXMLEventType, String propertyName, String expressionText, XPathExpression xPathExpression, QName resultType, Class optionalCastToType, FragmentFactory fragmentFactory) {
+    public XPathPropertyGetter(BaseXMLEventType baseXMLEventType, String propertyName, String expressionText, XPathExpression xPathExpression, QName resultType, EPTypeClass optionalCastToType, FragmentFactory fragmentFactory) {
         this.expression = xPathExpression;
         this.expressionText = expressionText;
         this.property = propertyName;
@@ -58,22 +62,22 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
         this.fragmentFactory = fragmentFactory;
         this.baseXMLEventType = baseXMLEventType;
 
-        if ((optionalCastToType != null) && (optionalCastToType.isArray())) {
+        if ((optionalCastToType != null) && (optionalCastToType.getType().isArray())) {
             isCastToArray = true;
             if (!resultType.equals(XPathConstants.NODESET)) {
                 throw new IllegalArgumentException("Array cast-to types require XPathConstants.NODESET as the XPath result type");
             }
-            optionalCastToType = optionalCastToType.getComponentType();
+            optionalCastToType = JavaClassHelper.getArrayComponentType(optionalCastToType);
         } else {
             isCastToArray = false;
         }
 
         if (optionalCastToType != null) {
-            simpleTypeParser = SimpleTypeParserFactory.getParser(optionalCastToType);
+            simpleTypeParser = SimpleTypeParserFactory.getParser(optionalCastToType.getType());
         } else {
             simpleTypeParser = null;
         }
-        if (optionalCastToType == Node.class) {
+        if (optionalCastToType != null && optionalCastToType.getType() == Node.class) {
             this.optionalCastToType = null;
         } else {
             this.optionalCastToType = optionalCastToType;
@@ -108,7 +112,7 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
      * @param simpleTypeParser   parse
      * @return value
      */
-    public static Object evaluateXPathGet(Node und, XPathExpression expression, String expressionText, String property, Class optionalCastToType, QName resultType, boolean isCastToArray, SimpleTypeParser simpleTypeParser) {
+    public static Object evaluateXPathGet(Node und, XPathExpression expression, String expressionText, String property, EPTypeClass optionalCastToType, QName resultType, boolean isCastToArray, SimpleTypeParser simpleTypeParser) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Running XPath '" + expressionText + "' for property '" + property + "' against Node XML :" + SchemaUtil.serialize((Node) und));
@@ -134,7 +138,7 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
                 try {
                     return simpleTypeParser.parse(result.toString());
                 } catch (RuntimeException ex) {
-                    log.warn("Error parsing XPath property named '" + property + "' expression result '" + result + " as type " + optionalCastToType.getName());
+                    log.warn("Error parsing XPath property named '" + property + "' expression result '" + result + " as type " + optionalCastToType.getTypeName());
                     return null;
                 }
             }
@@ -142,17 +146,17 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
             // coercion
             if (result instanceof Double) {
                 try {
-                    return JavaClassHelper.coerceBoxed((Number) result, optionalCastToType);
+                    return JavaClassHelper.coerceBoxed((Number) result, optionalCastToType.getType());
                 } catch (RuntimeException ex) {
-                    log.warn("Error coercing XPath property named '" + property + "' expression result '" + result + " as type " + optionalCastToType.getName());
+                    log.warn("Error coercing XPath property named '" + property + "' expression result '" + result + " as type " + optionalCastToType.getTypeName());
                     return null;
                 }
             }
 
             // check boolean type
             if (result instanceof Boolean) {
-                if (optionalCastToType != Boolean.class) {
-                    log.warn("Error coercing XPath property named '" + property + "' expression result '" + result + " as type " + optionalCastToType.getName());
+                if (optionalCastToType.getType() != Boolean.class) {
+                    log.warn("Error coercing XPath property named '" + property + "' expression result '" + result + " as type " + optionalCastToType.getTypeName());
                     return null;
                 }
                 return result;
@@ -217,7 +221,7 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -225,12 +229,12 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(EPTypePremade.NODE.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField xpathGetter = codegenClassScope.addOrGetFieldSharable(new XPathPropertyGetterCodegenFieldSharable(baseXMLEventType, this));
-        return exprDotMethod(xpathGetter, "getFromUnderlying", cast(Node.class, underlyingExpression));
+        return exprDotMethod(xpathGetter, "getFromUnderlying", cast(EPTypePremade.NODE.getEPType(), underlyingExpression));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -245,13 +249,13 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
         return exprDotMethod(xpathGetter, "getFragmentFromUnderlying", underlyingExpression);
     }
 
-    private static Object castToArray(Object result, Class optionalCastToType, SimpleTypeParser simpleTypeParser, XPathExpression expression) {
+    private static Object castToArray(Object result, EPTypeClass optionalCastToType, SimpleTypeParser simpleTypeParser, XPathExpression expression) {
         if (!(result instanceof NodeList)) {
             return null;
         }
 
         NodeList nodeList = (NodeList) result;
-        Object array = Array.newInstance(optionalCastToType, nodeList.getLength());
+        Object array = Array.newInstance(optionalCastToType.getType(), nodeList.getLength());
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Object arrayItem = null;

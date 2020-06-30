@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.agg.access.linear;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateKey;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationForgeFactoryAccessBase;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
@@ -25,13 +27,13 @@ public class AggregationForgeFactoryAccessLinear extends AggregationForgeFactory
 
     private final ExprAggMultiFunctionLinearAccessNode parent;
     private final AggregationAccessorForge accessor;
-    private final Class accessorResultType;
+    private final EPTypeClass accessorResultType;
     private final AggregationMultiFunctionStateKey optionalStateKey;
     private final AggregationStateFactoryForge optionalStateFactory;
     private final AggregationAgentForge optionalAgent;
     private final EventType containedEventType;
 
-    public AggregationForgeFactoryAccessLinear(ExprAggMultiFunctionLinearAccessNode parent, AggregationAccessorForge accessor, Class accessorResultType, AggregationMultiFunctionStateKey optionalStateKey, AggregationStateFactoryForge optionalStateFactory, AggregationAgentForge optionalAgent, EventType containedEventType) {
+    public AggregationForgeFactoryAccessLinear(ExprAggMultiFunctionLinearAccessNode parent, AggregationAccessorForge accessor, EPTypeClass accessorResultType, AggregationMultiFunctionStateKey optionalStateKey, AggregationStateFactoryForge optionalStateFactory, AggregationAgentForge optionalAgent, EventType containedEventType) {
         this.parent = parent;
         this.accessor = accessor;
         this.accessorResultType = accessorResultType;
@@ -41,7 +43,7 @@ public class AggregationForgeFactoryAccessLinear extends AggregationForgeFactory
         this.containedEventType = containedEventType;
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return accessorResultType;
     }
 

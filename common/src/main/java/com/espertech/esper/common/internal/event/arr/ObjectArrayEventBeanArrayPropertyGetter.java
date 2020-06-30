@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.arr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,7 +27,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
-    private final Class underlyingType;
+    private final EPTypeClass underlyingType;
 
     /**
      * Ctor.
@@ -33,7 +35,7 @@ public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEvent
      * @param propertyIndex  property to get
      * @param underlyingType type of property
      */
-    public ObjectArrayEventBeanArrayPropertyGetter(int propertyIndex, Class underlyingType) {
+    public ObjectArrayEventBeanArrayPropertyGetter(int propertyIndex, EPTypeClass underlyingType) {
         this.propertyIndex = propertyIndex;
         this.underlyingType = underlyingType;
     }
@@ -44,9 +46,9 @@ public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEvent
     }
 
     private CodegenMethod getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "oa").getBlock()
-                .declareVar(Object.class, "inner", arrayAtIndex(ref("oa"), constant(propertyIndex)))
-                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope, codegenClassScope), cast(EventBean[].class, ref("inner"))));
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "oa").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "inner", arrayAtIndex(ref("oa"), constant(propertyIndex)))
+                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope, codegenClassScope), cast(EventBean.EPTYPEARRAY, ref("inner"))));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -68,7 +70,7 @@ public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEvent
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -76,7 +78,7 @@ public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEvent
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(EPTypePremade.OBJECTARRAY.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

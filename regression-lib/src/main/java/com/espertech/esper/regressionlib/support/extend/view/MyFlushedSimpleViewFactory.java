@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.support.extend.view;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.common.internal.view.core.View;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.view.core.ViewFactory;
 import com.espertech.esper.common.internal.view.core.ViewFactoryContext;
 
 public class MyFlushedSimpleViewFactory implements ViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MyFlushedSimpleViewFactory.class);
     private EventType eventType;
 
     public void setEventType(EventType eventType) {

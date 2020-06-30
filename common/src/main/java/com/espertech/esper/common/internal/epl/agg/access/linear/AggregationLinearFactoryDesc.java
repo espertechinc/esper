@@ -11,16 +11,17 @@
 package com.espertech.esper.common.internal.epl.agg.access.linear;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 
 public class AggregationLinearFactoryDesc {
 
     private final AggregationForgeFactory factory;
     private final EventType enumerationEventType;
-    private final Class scalarCollectionType;
+    private final EPTypeClass scalarCollectionType;
     private final int streamNum;
 
-    public AggregationLinearFactoryDesc(AggregationForgeFactory factory, EventType enumerationEventType, Class scalarCollectionType, int streamNum) {
+    public AggregationLinearFactoryDesc(AggregationForgeFactory factory, EventType enumerationEventType, EPTypeClass scalarCollectionType, int streamNum) {
         this.factory = factory;
         this.enumerationEventType = enumerationEventType;
         this.scalarCollectionType = scalarCollectionType;
@@ -35,7 +36,7 @@ public class AggregationLinearFactoryDesc {
         return enumerationEventType;
     }
 
-    public Class getScalarCollectionType() {
+    public EPTypeClass getScalarCollectionType() {
         return scalarCollectionType;
     }
 

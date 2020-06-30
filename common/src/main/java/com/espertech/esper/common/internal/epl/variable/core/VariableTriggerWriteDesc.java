@@ -12,9 +12,12 @@ package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventPropertyWriter;
 
 public class VariableTriggerWriteDesc extends VariableTriggerWrite {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableTriggerWriteDesc.class);
+
     private EventType type;
     private String variableName;
     private EventPropertyWriter writer;

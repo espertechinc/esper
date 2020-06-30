@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.minmax;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -34,12 +35,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class EnumMinMaxScalar extends ThreeFormScalar {
 
     protected final boolean max;
-    protected final Class innerTypeBoxed;
+    protected final EPTypeClass innerTypeBoxed;
 
     public EnumMinMaxScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, boolean max) {
         super(lambda, fieldEventType, numParameters);
         this.max = max;
-        this.innerTypeBoxed = JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
+        this.innerTypeBoxed = (EPTypeClass) JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
     }
 
     public EnumEval getEnumEvaluator() {
@@ -85,7 +86,7 @@ public class EnumMinMaxScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
+    public EPTypeClass returnTypeOfMethod() {
         return innerTypeBoxed;
     }
 
@@ -99,7 +100,7 @@ public class EnumMinMaxScalar extends ThreeFormScalar {
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
         block.declareVar(innerTypeBoxed, "value", innerExpression.evaluateCodegen(innerTypeBoxed, methodNode, scope, codegenClassScope));
-        if (!innerExpression.getEvaluationType().isPrimitive()) {
+        if (!((EPTypeClass) innerExpression.getEvaluationType()).getType().isPrimitive()) {
             block.ifRefNull("value").blockContinue();
         }
 

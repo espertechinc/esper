@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -34,14 +35,14 @@ public class FilterForEvalContextPropDoubleForge implements FilterSpecParamFilte
     }
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
 
         method.getBlock()
-                .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
+                .declareVar(EventBean.EPTYPE, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
                 .ifNullReturnNull(ref("props"))
-                .declareVar(Object.class, "result", getter.eventBeanGetCodegen(ref("props"), method, classScope))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", getter.eventBeanGetCodegen(ref("props"), method, classScope))
                 .ifRefNullReturnNull("result")
-                .methodReturn(exprDotMethod(cast(Number.class, ref("result")), "doubleValue"));
+                .methodReturn(exprDotMethod(cast(EPTypePremade.NUMBER.getEPType(), ref("result")), "doubleValue"));
 
         return localMethod(method, GET_FILTER_VALUE_REFS);
     }

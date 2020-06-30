@@ -10,10 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.nfa;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Base for states.
  */
 public abstract class RowRecogNFAStateBase implements RowRecogNFAState {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowRecogNFAStateBase.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(RowRecogNFAStateBase[].class);
+
     private String nodeNumNested;
     private String variableName;
     private int streamNum;

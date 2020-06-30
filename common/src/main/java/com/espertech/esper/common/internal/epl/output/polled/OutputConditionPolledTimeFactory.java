@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.output.polled;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 
 public final class OutputConditionPolledTimeFactory implements OutputConditionPolledFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionPolledTimeFactory.class);
+
     protected final TimePeriodCompute timePeriodCompute;
 
     public OutputConditionPolledTimeFactory(TimePeriodCompute timePeriodCompute) {

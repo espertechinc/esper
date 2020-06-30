@@ -33,8 +33,8 @@ public interface FireAndForgetProcessorForge {
     CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
     static CodegenExpression makeArray(FireAndForgetProcessorForge[] processors, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FireAndForgetProcessor[].class, FireAndForgetProcessorForge.class, classScope);
-        method.getBlock().declareVar(FireAndForgetProcessor[].class, "processors", newArrayByLength(FireAndForgetProcessor.class, constant(processors.length)));
+        CodegenMethod method = parent.makeChild(FireAndForgetProcessor.EPTYPEARRAY, FireAndForgetProcessorForge.class, classScope);
+        method.getBlock().declareVar(FireAndForgetProcessor.EPTYPEARRAY, "processors", newArrayByLength(FireAndForgetProcessor.EPTYPE, constant(processors.length)));
         for (int i = 0; i < processors.length; i++) {
             method.getBlock().assignArrayElement("processors", constant(i), processors[i].make(method, symbols, classScope));
         }

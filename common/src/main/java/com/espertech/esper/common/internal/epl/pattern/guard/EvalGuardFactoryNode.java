@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.guard;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
 
@@ -17,6 +18,8 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents a guard in the evaluation tree representing an event expressions.
  */
 public class EvalGuardFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalGuardFactoryNode.class
+    );
     protected GuardFactory guardFactory;
     protected EvalFactoryNode childNode;
 

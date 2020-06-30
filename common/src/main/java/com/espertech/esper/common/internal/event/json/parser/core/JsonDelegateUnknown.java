@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class JsonDelegateUnknown extends JsonDelegateBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateUnknown.class);
     protected JsonDelegateUnknown(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {
         super(baseHandler, parent);
     }

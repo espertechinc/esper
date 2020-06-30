@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.util;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -24,6 +27,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,16 +95,23 @@ public class EPLValidationUtil {
         }
     }
 
-    public static void validateParameterType(String invocableName, String invocableCategory, boolean isFunction, EPLExpressionParamType expectedTypeEnum, Class[] expectedTypeClasses, Class providedType, int parameterNum, ExprNode parameterExpression)
+    public static void validateParameterType(String invocableName, String invocableCategory, boolean isFunction, EPLExpressionParamType expectedTypeEnum, Class[] expectedTypeClasses, EPType providedTypeCanNull, int parameterNum, ExprNode parameterExpression)
             throws ExprValidationException {
-        if (expectedTypeEnum == EPLExpressionParamType.BOOLEAN && (!JavaClassHelper.isBoolean(providedType))) {
-            throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a boolean-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
+        if (expectedTypeEnum == EPLExpressionParamType.ANY) {
+            return;
+        }
+        if (providedTypeCanNull == null || providedTypeCanNull == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a non-null result for expression parameter " + parameterNum + " but received a null-typed expression");
+        }
+        EPTypeClass providedType = (EPTypeClass) providedTypeCanNull;
+        if (expectedTypeEnum == EPLExpressionParamType.BOOLEAN && (!JavaClassHelper.isTypeBoolean(providedType))) {
+            throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a boolean-type result for expression parameter " + parameterNum + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(providedType));
         }
         if (expectedTypeEnum == EPLExpressionParamType.NUMERIC && (!JavaClassHelper.isNumeric(providedType))) {
-            throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a number-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
+            throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a number-type result for expression parameter " + parameterNum + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(providedType));
         }
         if (expectedTypeEnum == EPLExpressionParamType.SPECIFIC) {
-            Class boxedProvidedType = JavaClassHelper.getBoxedType(providedType);
+            Class boxedProvidedType = JavaClassHelper.getBoxedType(providedType.getType());
             boolean found = false;
             for (Class expectedTypeClass : expectedTypeClasses) {
                 Class boxedExpectedType = JavaClassHelper.getBoxedType(expectedTypeClass);
@@ -112,11 +123,11 @@ public class EPLValidationUtil {
             if (!found) {
                 String expected;
                 if (expectedTypeClasses.length == 1) {
-                    expected = "a " + JavaClassHelper.getParameterAsString(expectedTypeClasses);
+                    expected = "a " + ClassHelperPrint.getParameterAsString(expectedTypeClasses);
                 } else {
-                    expected = "any of [" + JavaClassHelper.getParameterAsString(expectedTypeClasses) + "]";
+                    expected = "any of [" + ClassHelperPrint.getParameterAsString(expectedTypeClasses) + "]";
                 }
-                throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected " + expected + "-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
+                throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected " + expected + "-type result for expression parameter " + parameterNum + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(providedType));
             }
         }
         if (expectedTypeEnum == EPLExpressionParamType.TIME_PERIOD_OR_SEC) {
@@ -124,12 +135,12 @@ public class EPLValidationUtil {
                 return;
             }
             if (!(JavaClassHelper.isNumeric(providedType))) {
-                throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a time-period expression or a numeric-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
+                throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a time-period expression or a numeric-type result for expression parameter " + parameterNum + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(providedType));
             }
         }
         if (expectedTypeEnum == EPLExpressionParamType.DATETIME) {
-            if (!(JavaClassHelper.isDatetimeClass(providedType))) {
-                throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a long-typed, Date-typed or Calendar-typed result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
+            if (!(JavaClassHelper.isDatetimeClass(providedType.getType()))) {
+                throw new ExprValidationException(getInvokablePrefix(invocableName, invocableCategory, isFunction) + "expected a long-typed, Date-typed or Calendar-typed result for expression parameter " + parameterNum + " but received " + ClassHelperPrint.getClassNameFullyQualPretty(providedType));
             }
         }
     }

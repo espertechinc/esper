@@ -11,8 +11,9 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -55,35 +56,31 @@ public class EventXMLSchemaEventTransposeDOMGetter {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
 
         env.compileDeploy("@name('s0') insert into MyNestedStream select nested1 from " + eventTypeName + "#lastevent", path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, true),
-        }, env.statement("s0").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("nested1", Node.class).fragment());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
 
         env.compileDeploy("@name('s1') select nested1.attr1 as attr1, nested1.prop1 as prop1, nested1.prop2 as prop2, nested1.nested2.prop3 as prop3, nested1.nested2.prop3[0] as prop3_0, nested1.nested2 as nested2 from MyNestedStream#lastevent", path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("prop1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("prop2", Boolean.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("attr1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("prop3", Integer[].class, Integer.class, false, false, true, false, false),
-            new EventPropertyDescriptor("prop3_0", Integer.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("nested2", Node.class, null, false, false, false, false, true),
-        }, env.statement("s1").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("s1").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("prop1", String.class),
+            new SupportEventPropDesc("prop2", Boolean.class),
+            new SupportEventPropDesc("attr1", String.class),
+            new SupportEventPropDesc("prop3", Integer[].class).indexed(),
+            new SupportEventPropDesc("prop3_0", Integer.class),
+            new SupportEventPropDesc("nested2", Node.class).fragment());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s1").getEventType());
 
         env.compileDeploy("@name('sw') select * from MyNestedStream", path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, true),
-        }, env.statement("sw").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("sw").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("nested1", Node.class).fragment());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("sw").getEventType());
 
         env.compileDeploy("@name('iw') insert into MyNestedStreamTwo select nested1.* from " + eventTypeName + "#lastevent", path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("prop1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("prop2", Boolean.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("attr1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("nested2", Node.class, null, false, false, false, false, true),
-        }, env.statement("iw").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("iw").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("prop1", String.class),
+            new SupportEventPropDesc("prop2", Boolean.class),
+            new SupportEventPropDesc("attr1", String.class),
+            new SupportEventPropDesc("nested2", Node.class).fragment());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("iw").getEventType());
 
         SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);

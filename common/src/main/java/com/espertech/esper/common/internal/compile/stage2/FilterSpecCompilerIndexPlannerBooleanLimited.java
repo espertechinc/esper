@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
@@ -64,7 +65,7 @@ public class FilterSpecCompilerIndexPlannerBooleanLimited {
         // there is no value expression, i.e. "select * from SupportBean(theString regexp 'abc')"
         RewriteDescriptorWithValueExpr withValueExpr = (RewriteDescriptorWithValueExpr) desc;
         ExprNode valueExpression = withValueExpr.valueExpression;
-        Class valueExpressionType = valueExpression.getForge().getEvaluationType();
+        EPTypeClass valueExpressionType = (EPTypeClass) valueExpression.getForge().getEvaluationType();
         ExprFilterReboolValueNode replacement = new ExprFilterReboolValueNode(valueExpressionType);
         ExprNodeUtilityModify.replaceChildNode(withValueExpr.valueExpressionParent, valueExpression, replacement);
         ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, raw, services).withIsFilterExpression(true).build();

@@ -13,7 +13,7 @@ package com.espertech.esper.compiler.internal.parse;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
 import org.antlr.v4.runtime.tree.Tree;
 
@@ -38,7 +38,7 @@ public class ASTTableHelper {
             optExpression = ASTExprHelper.exprCollectSubNodes(ctx, 0, astExprNodeMap).get(0);
         }
 
-        ClassIdentifierWArray optType = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
+        ClassDescriptor optType = ASTClassIdentifierHelper.walk(ctx.classIdentifierWithDimensions());
 
         Boolean primaryKey = false;
         if (ctx.p != null) {

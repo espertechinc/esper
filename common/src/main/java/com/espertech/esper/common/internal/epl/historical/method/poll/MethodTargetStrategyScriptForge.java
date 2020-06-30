@@ -28,9 +28,9 @@ public class MethodTargetStrategyScriptForge implements MethodTargetStrategyForg
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(MethodTargetStrategyScript.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(MethodTargetStrategyScript.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(MethodTargetStrategyScript.class, "target", newInstance(MethodTargetStrategyScript.class))
+                .declareVarNewInstance(MethodTargetStrategyScript.EPTYPE, "target")
                 .exprDotMethod(ref("target"), "setScriptEvaluator", script.getField(classScope))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add("addReadyCallback", ref("target")))
                 .methodReturn(ref("target"));

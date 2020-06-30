@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -157,7 +161,7 @@ public class SerializerFactory {
         });
     }
 
-    public static Serializer[] getSerializers(Class[] classes) {
+    public static Serializer[] getSerializers(EPType[] classes) {
         Serializer[] serializers = new Serializer[classes.length];
         for (int i = 0; i < classes.length; i++) {
             serializers[i] = getSerializer(classes[i]);
@@ -165,12 +169,13 @@ public class SerializerFactory {
         return serializers;
     }
 
-    public static Serializer getSerializer(Class clazz) {
-        if (clazz == null) {
+    public static Serializer getSerializer(EPType clazz) {
+        if (clazz == null || clazz == EPTypeNull.INSTANCE) {
             return NULL_SERIALIZER;
         }
+        EPTypeClass boxed = JavaClassHelper.getBoxedType((EPTypeClass) clazz);
         for (Serializer serializer : SERIALIZERS) {
-            if (serializer.accepts(JavaClassHelper.getBoxedType(clazz))) {
+            if (serializer.accepts(boxed.getType())) {
                 return serializer;
             }
         }

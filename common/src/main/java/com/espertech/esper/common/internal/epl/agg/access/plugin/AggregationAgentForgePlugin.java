@@ -42,7 +42,7 @@ public class AggregationAgentForgePlugin implements AggregationAgentForge {
 
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationAgentFactory();
-        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationMultiFunctionAgentFactory.class, injectionStrategy.getInitializationExpression(classScope));
+        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationMultiFunctionAgentFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
         return exprDotMethod(factoryField, "newAgent", constantNull());
     }
 }

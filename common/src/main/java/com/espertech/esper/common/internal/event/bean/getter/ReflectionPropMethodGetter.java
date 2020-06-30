@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -19,7 +20,7 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGett
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.util.PropertyUtility;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,7 +34,7 @@ public final class ReflectionPropMethodGetter extends BaseNativePropertyGetter i
     private final Method method;
 
     public ReflectionPropMethodGetter(Method method, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, method.getReturnType(), JavaClassHelper.getGenericReturnType(method, false));
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, ClassHelperGenericType.getMethodReturnEPType(method));
         this.method = method;
     }
 
@@ -67,12 +68,8 @@ public final class ReflectionPropMethodGetter extends BaseNativePropertyGetter i
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Class getBeanPropType() {
-        return method.getReturnType();
-    }
-
-    public Class getTargetType() {
-        return method.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(method.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

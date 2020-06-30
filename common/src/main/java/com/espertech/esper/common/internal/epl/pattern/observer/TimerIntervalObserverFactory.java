@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.observer;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternAgentInstanceContext;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternDeltaCompute;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
  * Factory for making observer instances.
  */
 public class TimerIntervalObserverFactory implements ObserverFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimerIntervalObserverFactory.class);
 
     protected int scheduleCallbackId;
     protected PatternDeltaCompute deltaCompute;

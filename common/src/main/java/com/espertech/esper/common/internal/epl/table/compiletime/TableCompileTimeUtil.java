@@ -14,6 +14,9 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.chain.ChainableName;
@@ -46,10 +49,10 @@ public class TableCompileTimeUtil {
     }
 
     public static Pair<ExprTableAccessNode, List<Chainable>> checkTableNameGetLibFunc(
-        TableCompileTimeResolver tableService,
-        LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
-        String classIdent,
-        List<Chainable> chain) {
+            TableCompileTimeResolver tableService,
+            LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+            String classIdent,
+            List<Chainable> chain) {
 
         int index = StringValue.unescapedIndexOfDot(classIdent);
 
@@ -85,7 +88,7 @@ public class TableCompileTimeUtil {
                                                                         List<Chainable> chainSpec,
                                                                         boolean allowTableAggReset,
                                                                         TableCompileTimeResolver tableCompileTimeResolver)
-        throws ExprValidationException {
+            throws ExprValidationException {
         chainSpec = new ArrayList<>(chainSpec);
 
         String unresolvedPropertyName = chainSpec.get(0).getRootNameOrEmptyString();
@@ -113,7 +116,8 @@ public class TableCompileTimeUtil {
         StreamTableColPair pair = col.getPair();
         if (pair.getColumn() instanceof TableMetadataColumnAggregation) {
             TableMetadataColumnAggregation agg = (TableMetadataColumnAggregation) pair.getColumn();
-            Class returnType = pair.getTableMetadata().getPublicEventType().getPropertyType(pair.getColumn().getColumnName());
+            EPType propType = pair.getTableMetadata().getPublicEventType().getPropertyEPType(pair.getColumn().getColumnName());
+            EPTypeClass returnType = propType == null || propType == EPTypeNull.INSTANCE ? null : (EPTypeClass) propType;
             ExprTableIdentNode node = new ExprTableIdentNode(pair.tableMetadata, null, unresolvedPropertyName, returnType, pair.getStreamNum(), agg.getColumnName(), agg.getColumn());
             chainSpec.remove(0);
             return new Pair<>(node, chainSpec);
@@ -122,7 +126,7 @@ public class TableCompileTimeUtil {
     }
 
     public static ExprTableIdentNode getTableIdentNode(StreamTypeService streamTypeService, String unresolvedPropertyName, String streamOrPropertyName, TableCompileTimeResolver resolver)
-        throws ExprValidationException {
+            throws ExprValidationException {
         String propertyPrefixed = unresolvedPropertyName;
         if (streamOrPropertyName != null) {
             propertyPrefixed = streamOrPropertyName + "." + unresolvedPropertyName;
@@ -134,7 +138,8 @@ public class TableCompileTimeUtil {
         StreamTableColPair pair = col.getPair();
         if (pair.getColumn() instanceof TableMetadataColumnAggregation) {
             TableMetadataColumnAggregation agg = (TableMetadataColumnAggregation) pair.getColumn();
-            Class resultType = pair.tableMetadata.getPublicEventType().getPropertyType(agg.getColumnName());
+            EPType propertyType = pair.tableMetadata.getPublicEventType().getPropertyEPType(agg.getColumnName());
+            EPTypeClass resultType = (EPTypeClass) propertyType;
             return new ExprTableIdentNode(pair.tableMetadata, streamOrPropertyName, unresolvedPropertyName, resultType, pair.streamNum, agg.getColumnName(), agg.getColumn());
         }
         return null;
@@ -183,17 +188,17 @@ public class TableCompileTimeUtil {
     }
 
     public static Pair<ExprTableAccessNode, List<Chainable>> handleTableAccessNode(
-        LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
-        String tableName,
-        String sub,
-        List<Chainable> chain) {
+            LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+            String tableName,
+            String sub,
+            List<Chainable> chain) {
         ExprTableAccessNode node = new ExprTableAccessNodeSubprop(tableName, sub);
         List<Chainable> subchain = chain.subList(1, chain.size());
         return new Pair<>(node, subchain);
     }
 
     private static StreamTableColWStreamName findTableColumnMayByPrefixed(StreamTypeService streamTypeService, String streamAndPropName, TableCompileTimeResolver resolver)
-        throws ExprValidationException {
+            throws ExprValidationException {
         int indexDot = streamAndPropName.indexOf(".");
         if (indexDot == -1) {
             StreamTableColPair pair = findTableColumnAcrossStreams(streamTypeService, streamAndPropName, resolver);
@@ -216,7 +221,7 @@ public class TableCompileTimeUtil {
     }
 
     private static StreamTableColPair findTableColumnAcrossStreams(StreamTypeService streamTypeService, String columnName, TableCompileTimeResolver resolver)
-        throws ExprValidationException {
+            throws ExprValidationException {
         StreamTableColPair found = null;
         for (int i = 0; i < streamTypeService.getEventTypes().length; i++) {
             EventType type = streamTypeService.getEventTypes()[i];

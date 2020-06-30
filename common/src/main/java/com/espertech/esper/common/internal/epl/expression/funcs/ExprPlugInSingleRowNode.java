@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotStaticMethodWrap;
@@ -23,10 +25,11 @@ import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeFi
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeForgeStaticMethod;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeUtility;
 import com.espertech.esper.common.internal.epl.expression.visitor.*;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -72,7 +75,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
     }
 
     public boolean getFilterLookupEligible() {
-        boolean eligible = !forge.isReturnsConstantResult();
+        boolean eligible = !forge.isReturnsConstantResult() && !(forge.getEvaluationType() == null || forge.getEvaluationType() == EPTypeNull.INSTANCE);
         if (eligible) {
             eligible = chainSpec.size() == 1;
         }
@@ -112,8 +115,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
 
     public ExprFilterSpecLookupableForge getFilterLookupable() {
         checkValidated(forge);
-        DataInputOutputSerdeForge filterSerde = compileTimeServices.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), statementRawInfo);
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, null, forge.getEvaluationType(), true, filterSerde);
+        DataInputOutputSerdeForge filterSerde = compileTimeServices.getSerdeResolver().serdeForFilter((EPTypeClass) forge.getEvaluationType(), statementRawInfo);
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, null, (EPTypeClass) forge.getEvaluationType(), true, filterSerde);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
@@ -176,7 +179,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
 
         // this may return a pair of null if there is no lambda or the result cannot be wrapped for lambda-function use
         ExprDotStaticMethodWrap optionalLambdaWrap = ExprDotStaticMethodWrapFactory.make(staticMethodDesc.getReflectionMethod(), chainList, config.getOptionalEventTypeName(), validationContext);
-        EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(staticMethodDesc.getReflectionMethod().getReturnType());
+        EPTypeClass methodReturnClass = ClassHelperGenericType.getMethodReturnEPType(staticMethodDesc.getReflectionMethod());
+        EPChainableType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPChainableTypeHelper.singleValue(methodReturnClass);
 
         ExprDotForge[] eval = ExprDotNodeUtility.getChainEvaluators(-1, typeInfo, chainList, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic()).getChainWithUnpack();
         ExprDotNodeForgeStaticMethod staticMethodForge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, clazz.getName(), staticMethodDesc.getReflectionMethod(), staticMethodDesc.getChildForges(), allowValueCache && staticMethodDesc.isAllConstants(), eval, optionalLambdaWrap, config.isRethrowExceptions(), null, validationContext.getStatementName(), staticMethodDesc.isLocalInlinedClass());

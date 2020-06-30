@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * For events that are array of properties.
  */
 public interface ObjectArrayBackedEventBean extends EventBean {
+    EPTypeClass EPTYPE = new EPTypeClass(ObjectArrayBackedEventBean.class);
+
     /**
      * Returns property array.
      *

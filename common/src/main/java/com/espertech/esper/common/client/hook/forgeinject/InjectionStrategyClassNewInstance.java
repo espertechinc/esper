@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.client.hook.forgeinject;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +31,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * by using "new" and by using setters.
  */
 public class InjectionStrategyClassNewInstance implements InjectionStrategy {
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final String fullyQualifiedClassName;
     private final Map<String, Object> constants = new HashMap<>();
     private final Map<String, ExprNode> expressions = new HashMap<>();
@@ -40,11 +42,24 @@ public class InjectionStrategyClassNewInstance implements InjectionStrategy {
      *
      * @param clazz class
      */
-    public InjectionStrategyClassNewInstance(Class clazz) {
+    public InjectionStrategyClassNewInstance(EPTypeClass clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException("Invalid null value for class");
         }
         this.clazz = clazz;
+        this.fullyQualifiedClassName = null;
+    }
+
+    /**
+     * The class to be instantiated.
+     *
+     * @param clazz class
+     */
+    public InjectionStrategyClassNewInstance(Class clazz) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("Invalid null value for class");
+        }
+        this.clazz = ClassHelperGenericType.getClassEPType(clazz);
         this.fullyQualifiedClassName = null;
     }
 
@@ -66,7 +81,7 @@ public class InjectionStrategyClassNewInstance implements InjectionStrategy {
      *
      * @return class
      */
-    public Class getClazz() {
+    public EPTypeClass getClazz() {
         return clazz;
     }
 
@@ -127,10 +142,10 @@ public class InjectionStrategyClassNewInstance implements InjectionStrategy {
         SAIFFInitializeBuilder builder;
         CodegenMethod init;
         if (clazz != null) {
-            init = classScope.getPackageScope().getInitMethod().makeChildWithScope(clazz, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+            init = classScope.getPackageScope().getInitMethod().makeChildWithScope(clazz, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
             builder = new SAIFFInitializeBuilder(clazz, this.getClass(), "instance", init, symbols, classScope);
         } else {
-            init = classScope.getPackageScope().getInitMethod().makeChildWithScope(fullyQualifiedClassName, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+            init = classScope.getPackageScope().getInitMethod().makeChildWithScope(fullyQualifiedClassName, this.getClass(), symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
             builder = new SAIFFInitializeBuilder(fullyQualifiedClassName, this.getClass(), "instance", init, symbols, classScope);
         }
 

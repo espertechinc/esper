@@ -13,10 +13,12 @@ package com.espertech.esper.common.internal.event.arr;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventBeanSPI;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 
 public class ObjectArrayEventBean implements EventBeanSPI, ObjectArrayBackedEventBean {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ObjectArrayEventBean.class);
 
     private Object[] propertyValues;
     private EventType eventType;

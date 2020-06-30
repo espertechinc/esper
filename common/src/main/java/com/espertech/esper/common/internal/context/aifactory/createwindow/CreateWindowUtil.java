@@ -72,7 +72,7 @@ public class CreateWindowUtil {
         LinkedHashMap<String, Object> properties;
         boolean hasProperties = false;
         if ((columns != null) && (!columns.isEmpty())) {
-            properties = EventTypeUtility.buildType(columns, null, services.getClasspathImportServiceCompileTime(), services.getEventTypeCompileTimeResolver());
+            properties = EventTypeUtility.buildType(columns, null, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension(), services.getEventTypeCompileTimeResolver());
             hasProperties = true;
         } else {
             if (optionalSelectFrom == null) {

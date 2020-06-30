@@ -12,7 +12,10 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -28,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertPropEquals;
 import static com.espertech.esper.common.internal.util.CollectionUtil.twoEntryMap;
 import static com.espertech.esper.regressionlib.support.events.SupportEventInfra.*;
 import static org.junit.Assert.*;
@@ -122,8 +126,24 @@ public class EventInfraPropertyMappedIndexed implements RegressionExecution {
         assertEquals(underlying instanceof GenericData.Record ? Collection.class : String[].class, eventType.getPropertyType("indexed"));
         assertEquals(String.class, eventType.getPropertyType("indexed[0]"));
 
-        assertEquals(new EventPropertyDescriptor("indexed", underlying instanceof GenericData.Record ? Collection.class : String[].class, String.class, false, false, true, false, false), eventType.getPropertyDescriptor("indexed"));
-        assertEquals(new EventPropertyDescriptor("mapped", Map.class, mappedReturnsObject ? Object.class : String.class, false, false, false, true, false), eventType.getPropertyDescriptor("mapped"));
+        EPTypeClass indexedType;
+        if (typeName.equals(AVRO_TYPENAME)) {
+            indexedType = EPTypeClassParameterized.from(Collection.class, String.class);
+        } else {
+            indexedType = new EPTypeClass(String[].class);
+        }
+        assertPropEquals(new SupportEventPropDesc("indexed", indexedType).indexed().componentType(String.class), eventType.getPropertyDescriptor("indexed"));
+
+        EPTypeClass mappedType;
+        Class componentType;
+        if (typeName.equals(MAP_TYPENAME) || typeName.equals(OA_TYPENAME) || typeName.equals(JSON_TYPENAME)) {
+            componentType = Object.class;
+            mappedType = new EPTypeClass(Map.class);
+        } else {
+            componentType = String.class;
+            mappedType = EPTypeClassParameterized.from(Map.class, String.class, String.class);
+        }
+        assertPropEquals(new SupportEventPropDesc("mapped", mappedType).componentType(componentType).mapped(), eventType.getPropertyDescriptor("mapped"));
 
         assertNull(eventType.getFragmentType("indexed"));
         assertNull(eventType.getFragmentType("mapped"));

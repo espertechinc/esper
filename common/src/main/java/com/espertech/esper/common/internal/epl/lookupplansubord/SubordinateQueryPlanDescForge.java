@@ -37,14 +37,14 @@ public class SubordinateQueryPlanDescForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(SubordinateQueryPlanDesc.class, this.getClass(), "strategy", parent, symbols, classScope);
+        SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(SubordinateQueryPlanDesc.EPTYPE, this.getClass(), "strategy", parent, symbols, classScope);
         int numIndex = indexDescs == null ? 0 : indexDescs.length;
         CodegenExpression[] indexDescArray = new CodegenExpression[numIndex];
         for (int i = 0; i < numIndex; i++) {
             indexDescArray[i] = indexDescs[i].make(builder.getMethod(), symbols, classScope);
         }
         return builder.expression("lookupStrategyFactory", lookupStrategyFactory.make(builder.getMethod(), symbols, classScope))
-                .expression("indexDescs", newArrayWithInit(SubordinateQueryIndexDesc.class, indexDescArray))
+                .expression("indexDescs", newArrayWithInit(SubordinateQueryIndexDesc.EPTYPE, indexDescArray))
                 .build();
     }
 }

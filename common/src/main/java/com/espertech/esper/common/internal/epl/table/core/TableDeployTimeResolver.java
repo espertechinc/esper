@@ -26,10 +26,10 @@ public class TableDeployTimeResolver {
 
     public static CodegenExpressionField makeTableEventToPublicField(TableMetaData table, CodegenClassScope classScope, Class generator) {
         SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
-        CodegenMethod tableInit = classScope.getPackageScope().getInitMethod().makeChildWithScope(TableMetadataInternalEventToPublic.class, generator, symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+        CodegenMethod tableInit = classScope.getPackageScope().getInitMethod().makeChildWithScope(TableMetadataInternalEventToPublic.EPTYPE, generator, symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
         CodegenExpression tableResolve = makeResolveTable(table, EPStatementInitServices.REF);
         tableInit.getBlock().methodReturn(exprDotMethod(tableResolve, "getEventToPublic"));
-        return classScope.getPackageScope().addFieldUnshared(true, TableMetadataInternalEventToPublic.class, localMethod(tableInit, EPStatementInitServices.REF));
+        return classScope.getPackageScope().addFieldUnshared(true, TableMetadataInternalEventToPublic.EPTYPE, localMethod(tableInit, EPStatementInitServices.REF));
     }
 
     public static CodegenExpression makeResolveTable(TableMetaData table, CodegenExpression initSvc) {

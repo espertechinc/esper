@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.script.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -31,8 +32,8 @@ public class ScriptCodegenFieldSharable implements CodegenFieldSharable {
         this.classScope = classScope;
     }
 
-    public Class type() {
-        return ScriptEvaluator.class;
+    public EPTypeClass type() {
+        return ScriptEvaluator.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

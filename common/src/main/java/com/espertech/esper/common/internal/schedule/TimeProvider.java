@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.schedule;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -18,6 +20,8 @@ import java.time.format.DateTimeFormatter;
  * Internal system time is controlled either by a timer function or by external time events.
  */
 public interface TimeProvider {
+    EPTypeClass EPTYPE = new EPTypeClass(TimeProvider.class);
+
     /**
      * Returns the current runtime time.
      *

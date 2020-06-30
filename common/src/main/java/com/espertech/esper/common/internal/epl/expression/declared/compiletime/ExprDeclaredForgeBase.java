@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.epl.expression.declared.compiletime;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -72,7 +76,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         return this;
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return innerForge.getEvaluationType();
     }
 
@@ -118,11 +122,15 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         return innerEvaluatorLazy.evaluate(eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!audit) {
             return evaluateCodegenNoAudit(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
         }
-        Class evaluationType = requiredType == Object.class ? Object.class : innerForge.getEvaluationType();
+        EPType inner = innerForge.getEvaluationType();
+        if (inner == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass evaluationType = requiredType.getType() == Object.class ? EPTypePremade.OBJECT.getEPType() : (EPTypeClass) inner;
         CodegenMethod methodNode = codegenMethodScope.makeChild(evaluationType, ExprDeclaredForgeBase.class, codegenClassScope);
         methodNode.getBlock()
                 .declareVar(evaluationType, "result", evaluateCodegenNoAudit(requiredType, methodNode, exprSymbol, codegenClassScope))
@@ -135,7 +143,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprDeclared", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).qparams(getInstrumentationQParams(parent, codegenClassScope)).build();
     }
 
@@ -151,20 +159,25 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         };
     }
 
-    private CodegenExpression evaluateCodegenNoAudit(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class evaluationType = requiredType == Object.class ? Object.class : innerForge.getEvaluationType();
+    private CodegenExpression evaluateCodegenNoAudit(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPType inner = innerForge.getEvaluationType();
+        if (inner == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        EPTypeClass evaluationType = requiredType.getType() == Object.class ? EPTypePremade.OBJECT.getEPType() : (EPTypeClass) inner;
         CodegenMethod methodNode = codegenMethodScope.makeChild(evaluationType, ExprDeclaredForgeBase.class, codegenClassScope);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EventBean.EPTYPEARRAY, "rewritten", codegenEventsPerStreamRewritten(methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(localMethod(evaluateCodegenRewritten(requiredType, methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
         return localMethod(methodNode);
     }
 
-    private CodegenMethod evaluateCodegenRewritten(Class requiredType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+    private CodegenMethod evaluateCodegenRewritten(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField nodeObject = getNodeObject(codegenClassScope);
-        Class evaluationType = requiredType == Object.class ? Object.class : innerForge.getEvaluationType();
+        EPType inner = innerForge.getEvaluationType();
+        EPTypeClass evaluationType = requiredType.getType() == Object.class ? EPTypePremade.OBJECT.getEPType() : (EPTypeClass) inner;
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true, null);
         CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(evaluationType, ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
@@ -180,11 +193,11 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
 
         if (isCache) {
             CodegenExpression eval = exprDotMethod(ref("entry"), "getResult");
-            if (evaluationType != Object.class) {
-                eval = cast(JavaClassHelper.getBoxedType(innerForge.getEvaluationType()), eval);
+            if (evaluationType.getType() != Object.class) {
+                eval = cast((EPTypeClass) JavaClassHelper.getBoxedType(innerForge.getEvaluationType()), eval);
             }
-            block.declareVar(ExpressionResultCacheForDeclaredExprLastValue.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastValue"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndObj.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastValue", nodeObject, refEPS))
+            block.declareVar(ExpressionResultCacheForDeclaredExprLastValue.EPTYPE, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastValue"))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndObj.EPTYPE, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastValue", nodeObject, refEPS))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(eval)
                     .declareVar(evaluationType, "result", innerValue)
@@ -204,11 +217,11 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, ExprDeclaredForgeBase.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), ExprDeclaredForgeBase.class, codegenClassScope);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EventBean.EPTYPEARRAY, "rewritten", codegenEventsPerStreamRewritten(methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(localMethod(evaluateGetROCollectionEventsCodegenRewritten(methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
         return localMethod(methodNode);
     }
@@ -217,7 +230,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         CodegenExpressionField nodeObject = getNodeObject(codegenClassScope);
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Collection.class, ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.COLLECTION.getEPType(), ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression refEPS = scope.getAddEPS(methodNode);
         CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);
 
@@ -228,14 +241,14 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         scope.derivedSymbolsCodegen(methodNode, block, codegenClassScope);
 
         if (isCache) {
-            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", nodeObject, refEPS))
+            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.EPTYPE, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.EPTYPE, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", nodeObject, refEPS))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(exprDotMethod(ref("entry"), "getResult"))
-                    .declareVar(Collection.class, "result", innerValue)
+                    .declareVar(EPTypePremade.COLLECTION.getEPType(), "result", innerValue)
                     .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", nodeObject, refEPS, ref("result")));
         } else {
-            block.declareVar(Collection.class, "result", innerValue);
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "result", innerValue);
         }
         block.methodReturn(ref("result"));
         return methodNode;
@@ -248,11 +261,11 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, ExprDeclaredForgeBase.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), ExprDeclaredForgeBase.class, codegenClassScope);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EventBean.EPTYPEARRAY, "rewritten", codegenEventsPerStreamRewritten(methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(localMethod(evaluateGetROCollectionScalarCodegenRewritten(methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
         return localMethod(methodNode);
     }
@@ -260,7 +273,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
     private CodegenMethod evaluateGetROCollectionScalarCodegenRewritten(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpressionField nodeObject = getNodeObject(codegenClassScope);
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Collection.class, ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.COLLECTION.getEPType(), ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression refEPS = scope.getAddEPS(methodNode);
         CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);
 
@@ -272,20 +285,20 @@ public abstract class ExprDeclaredForgeBase implements ExprForgeInstrumentable, 
         scope.derivedSymbolsCodegen(methodNode, block, codegenClassScope);
 
         if (isCache) {
-            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", nodeObject, refEPS))
+            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.EPTYPE, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.EPTYPE, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", nodeObject, refEPS))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(exprDotMethod(ref("entry"), "getResult"))
-                    .declareVar(Collection.class, "result", innerValue)
+                    .declareVar(EPTypePremade.COLLECTION.getEPType(), "result", innerValue)
                     .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", nodeObject, refEPS, ref("result")));
         } else {
-            block.declareVar(Collection.class, "result", innerValue);
+            block.declareVar(EPTypePremade.COLLECTION.getEPType(), "result", innerValue);
         }
         block.methodReturn(ref("result"));
         return methodNode;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         if (innerForge instanceof ExprEnumerationForge) {
             return ((ExprEnumerationForge) innerForge).getComponentTypeCollection();
         }

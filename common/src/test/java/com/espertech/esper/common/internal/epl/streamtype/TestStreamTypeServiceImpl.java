@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.streamtype;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_A;
@@ -77,7 +78,7 @@ public class TestStreamTypeServiceImpl extends TestCase {
         // Test lookup by stream name and prop name
         PropertyResolutionDescriptor desc = service.resolveByStreamAndPropName("s4", "volume", false);
         assertEquals(3, (int) desc.getStreamNum());
-        assertEquals(Long.class, desc.getPropertyType());
+        assertEquals(EPTypePremade.LONGBOXED.getEPType(), desc.getPropertyType());
         assertEquals("volume", desc.getPropertyName());
         assertEquals("s4", desc.getStreamName());
         assertEquals(SupportMarketDataBean.class, desc.getStreamEventType().getUnderlyingType());
@@ -101,7 +102,7 @@ public class TestStreamTypeServiceImpl extends TestCase {
         // Test lookup by property name only
         PropertyResolutionDescriptor desc = service.resolveByPropertyName("volume", false);
         assertEquals(3, (int) (desc.getStreamNum()));
-        assertEquals(Long.class, desc.getPropertyType());
+        assertEquals(EPTypePremade.LONGBOXED.getEPType(), desc.getPropertyType());
         assertEquals("volume", desc.getPropertyName());
         assertEquals("s4", desc.getStreamName());
         assertEquals(SupportMarketDataBean.class, desc.getStreamEventType().getUnderlyingType());
@@ -125,7 +126,7 @@ public class TestStreamTypeServiceImpl extends TestCase {
         // Test lookup by stream name and prop name
         PropertyResolutionDescriptor desc = service.resolveByStreamAndPropName("s4.volume", false);
         assertEquals(3, (int) desc.getStreamNum());
-        assertEquals(Long.class, desc.getPropertyType());
+        assertEquals(EPTypePremade.LONGBOXED.getEPType(), desc.getPropertyType());
         assertEquals("volume", desc.getPropertyName());
         assertEquals("s4", desc.getStreamName());
         assertEquals(SupportMarketDataBean.class, desc.getStreamEventType().getUnderlyingType());

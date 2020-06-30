@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -27,12 +28,12 @@ public class TestExprCaseNode extends TestCase {
         // Template expression is:
         // case when (so.floatPrimitive>s1.shortBoxed) then count(5) when (so.LongPrimitive>s1.intPrimitive) then (25 + 130.5) else (3*3) end
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
-        assertEquals(String.class, caseNode.getForge().getEvaluationType());
+        assertEquals(EPTypePremade.STRING.getEPType(), caseNode.getForge().getEvaluationType());
 
         // case when (2.5>2) then count(5) when (1>3) then (25 + 130.5) else (3*3) end
         // First when node is true, case node type is the first when node type.
         caseNode = SupportExprNodeFactory.makeCaseSyntax2Node();
-        assertEquals(String.class, caseNode.getForge().getEvaluationType());
+        assertEquals(EPTypePremade.STRING.getEPType(), caseNode.getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {

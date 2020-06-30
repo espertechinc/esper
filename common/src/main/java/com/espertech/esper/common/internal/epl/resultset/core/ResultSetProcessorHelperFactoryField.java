@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -22,8 +23,8 @@ public class ResultSetProcessorHelperFactoryField implements CodegenFieldSharabl
     private ResultSetProcessorHelperFactoryField() {
     }
 
-    public Class type() {
-        return ResultSetProcessorHelperFactory.class;
+    public EPTypeClass type() {
+        return ResultSetProcessorHelperFactory.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {

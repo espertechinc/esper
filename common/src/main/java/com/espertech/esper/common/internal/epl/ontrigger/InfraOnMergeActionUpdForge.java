@@ -33,12 +33,12 @@ public class InfraOnMergeActionUpdForge extends InfraOnMergeActionForge {
     }
 
     protected CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InfraOnMergeActionUpd.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(InfraOnMergeActionUpd.EPTYPE, this.getClass(), classScope);
         if (table == null) {
-            method.getBlock().methodReturn(newInstance(InfraOnMergeActionUpd.class, makeFilter(method, classScope), updateHelper.makeWCopy(method, classScope)));
+            method.getBlock().methodReturn(newInstance(InfraOnMergeActionUpd.EPTYPE, makeFilter(method, classScope), updateHelper.makeWCopy(method, classScope)));
         } else {
             method.getBlock()
-                    .declareVar(InfraOnMergeActionUpd.class, "upd", newInstance(InfraOnMergeActionUpd.class, makeFilter(method, classScope), updateHelper.makeNoCopy(method, classScope),
+                    .declareVar(InfraOnMergeActionUpd.EPTYPE, "upd", newInstance(InfraOnMergeActionUpd.EPTYPE, makeFilter(method, classScope), updateHelper.makeNoCopy(method, classScope),
                             TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method))))
                     .exprDotMethod(symbols.getAddInitSvc(method), "addReadyCallback", ref("upd"))
                     .methodReturn(ref("upd"));

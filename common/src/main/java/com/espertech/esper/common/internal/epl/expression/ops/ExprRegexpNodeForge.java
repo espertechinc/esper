@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,7 +25,7 @@ public abstract class ExprRegexpNodeForge implements ExprForgeInstrumentable {
 
     public abstract ExprEvaluator getExprEvaluator();
 
-    public abstract CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
+    public abstract CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public ExprRegexpNodeForge(ExprRegexpNode parent, boolean isNumericValue) {
         this.parent = parent;
@@ -38,7 +40,7 @@ public abstract class ExprRegexpNodeForge implements ExprForgeInstrumentable {
         return isNumericValue;
     }
 
-    public Class getEvaluationType() {
-        return Boolean.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 }

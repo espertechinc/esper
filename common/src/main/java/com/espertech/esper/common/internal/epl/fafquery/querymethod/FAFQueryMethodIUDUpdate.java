@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -24,6 +25,8 @@ import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelpe
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperWCopy;
 
 public class FAFQueryMethodIUDUpdate extends FAFQueryMethodIUDBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodIUDUpdate.class);
+
     private QueryGraph queryGraph;
     private ExprEvaluator optionalWhereClause;
     private EventBeanUpdateHelperWCopy updateHelperNamedWindow;

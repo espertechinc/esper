@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.filterspec.ExprNodeAdapterBase;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 import com.espertech.esper.common.internal.schedule.ScheduleHandle;
 import com.espertech.esper.common.internal.type.BitWiseOpEnum;
 import com.espertech.esper.runtime.internal.filtersvcimpl.EventEvaluator;
@@ -190,7 +190,7 @@ public interface Instrumentation extends InstrumentationCommon {
 
     void aExprPlugInSingleRow(Object result);
 
-    void qExprDotChain(EPType targetTypeInfo, Object target, int numUnpacking);
+    void qExprDotChain(EPChainableType targetTypeInfo, Object target, int numUnpacking);
 
     void aExprDotChain();
 
@@ -204,7 +204,7 @@ public interface Instrumentation extends InstrumentationCommon {
 
     void qExprDotChainElement(int num, String methodType, String methodName);
 
-    void aExprDotChainElement(EPType typeInfo, Object result);
+    void aExprDotChainElement(EPChainableType typeInfo, Object result);
 
     void qExprPrev(String text, boolean newData);
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createcontext;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,13 +43,13 @@ public class StmtClassForgeableAIFactoryProviderCreateContext extends StmtClassF
         this.forge = forge;
     }
 
-    protected Class typeOfFactory() {
-        return StatementAgentInstanceFactoryCreateContext.class;
+    protected EPTypeClass typeOfFactory() {
+        return StatementAgentInstanceFactoryCreateContext.EPTYPE;
     }
 
     protected CodegenMethod codegenConstructorInit(CodegenMethodScope parent, CodegenClassScope classScope) {
         SAIFFInitializeSymbol saiffInitializeSymbol = new SAIFFInitializeSymbol();
-        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
+        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
         method.getBlock()
                 .exprDotMethod(REF_STMTINITSVC, "activateContext", constant(contextName), getDefinition(method, saiffInitializeSymbol, classScope))
                 .methodReturn(localMethod(forge.initializeCodegen(classScope, method, saiffInitializeSymbol)));
@@ -56,16 +57,16 @@ public class StmtClassForgeableAIFactoryProviderCreateContext extends StmtClassF
     }
 
     private CodegenExpression getDefinition(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextDefinition.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextDefinition.EPTYPE, this.getClass(), classScope);
 
         // controllers
-        method.getBlock().declareVar(ContextControllerFactory[].class, "controllers", newArrayByLength(ContextControllerFactory.class, constant(forges.length)));
+        method.getBlock().declareVar(ContextControllerFactory.EPTYPEARRAY, "controllers", newArrayByLength(ContextControllerFactory.EPTYPE, constant(forges.length)));
         for (int i = 0; i < forges.length; i++) {
             method.getBlock().assignArrayElement("controllers", constant(i), localMethod(forges[i].makeCodegen(classScope, method, symbols)))
                     .exprDotMethod(arrayAtIndex(ref("controllers"), constant(i)), "setFactoryEnv", forges[i].getFactoryEnv().toExpression());
         }
 
-        method.getBlock().declareVar(ContextDefinition.class, "def", newInstance(ContextDefinition.class))
+        method.getBlock().declareVarNewInstance(ContextDefinition.EPTYPE, "def")
                 .exprDotMethod(ref("def"), "setContextName", constant(contextName))
                 .exprDotMethod(ref("def"), "setControllerFactories", ref("controllers"))
                 .exprDotMethod(ref("def"), "setEventTypeContextProperties", EventTypeUtility.resolveTypeCodegen(eventTypeContextProperties, EPStatementInitServices.REF))

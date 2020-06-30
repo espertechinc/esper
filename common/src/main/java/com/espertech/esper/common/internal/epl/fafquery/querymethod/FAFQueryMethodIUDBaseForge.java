@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -68,7 +70,7 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
 
     protected abstract void initExec(String aliasName, StatementSpecCompiled spec, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException;
 
-    protected abstract Class typeOfMethod();
+    protected abstract EPTypeClass typeOfMethod();
 
     protected abstract void makeInlineSpecificSetter(CodegenExpressionRef queryMethod, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -150,7 +152,7 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
         CodegenExpressionRef queryMethod = ref("qm");
         method.getBlock()
             .declareVar(typeOfMethod(), queryMethod.getRef(), newInstance(typeOfMethod()))
-            .exprDotMethod(queryMethod, "setAnnotations", annotations == null ? constantNull() : localMethod(makeAnnotations(Annotation[].class, annotations, method, classScope)))
+            .exprDotMethod(queryMethod, "setAnnotations", annotations == null ? constantNull() : localMethod(makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), annotations, method, classScope)))
             .exprDotMethod(queryMethod, "setProcessor", processor.make(method, symbols, classScope))
             .exprDotMethod(queryMethod, "setQueryGraph", queryGraph == null ? constantNull() : queryGraph.make(method, symbols, classScope))
             .exprDotMethod(queryMethod, "setInternalEventRouteDest", exprDotMethod(symbols.getAddInitSvc(method), EPStatementInitServices.GETINTERNALEVENTROUTEDEST))

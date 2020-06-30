@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -23,7 +24,7 @@ public class CodegenStackGenerator {
             throw new IllegalArgumentException("Method node does not have symbol provider");
         }
 
-        Map<String, Class> currentSymbols = new HashMap<>();
+        Map<String, EPTypeClass> currentSymbols = new HashMap<>();
         methodNode.getOptionalSymbolProvider().provide(currentSymbols);
 
         if (!(methodNode instanceof CodegenCtor)) {
@@ -38,7 +39,7 @@ public class CodegenStackGenerator {
         }
     }
 
-    private static void recursiveAdd(CodegenMethod methodNode, Map<String, Class> currentSymbols, List<CodegenMethodWGraph> privateMethods, boolean isStatic) {
+    private static void recursiveAdd(CodegenMethod methodNode, Map<String, EPTypeClass> currentSymbols, List<CodegenMethodWGraph> privateMethods, boolean isStatic) {
         TreeSet<String> namesPassed = getNamesPassed(methodNode);
         methodNode.setDeepParameters(namesPassed);
 
@@ -52,7 +53,7 @@ public class CodegenStackGenerator {
         // add pass-thru for those methods that do not have their own scope
         if (methodNode.getOptionalSymbolProvider() == null) {
             for (String name : namesPassed) {
-                Class symbolType = currentSymbols.get(name);
+                EPTypeClass symbolType = currentSymbols.get(name);
                 if (symbolType == null) {
                     throw new IllegalStateException("Failed to find named parameter '" + name + "' for method from " + methodNode.getAdditionalDebugInfo());
                 }

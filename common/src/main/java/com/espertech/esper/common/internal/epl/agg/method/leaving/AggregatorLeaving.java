@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.leaving;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -31,7 +33,7 @@ public class AggregatorLeaving implements AggregatorMethod {
 
     public AggregatorLeaving(AggregationForgeFactoryLeaving factory, int col, CodegenMemberCol membersColumnized) {
         this.factory = factory;
-        this.leaving = membersColumnized.addMember(col, boolean.class, "leaving");
+        this.leaving = membersColumnized.addMember(col, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "leaving");
     }
 
     public void applyEvalEnterCodegen(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
@@ -44,10 +46,10 @@ public class AggregatorLeaving implements AggregatorMethod {
         method.getBlock().assignRef(leaving, constantTrue());
     }
 
-    public void applyTableEnterCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public void applyTableEnterCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
     }
 
-    public void applyTableLeaveCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    public void applyTableLeaveCodegen(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().assignRef(leaving, constantTrue());
     }
 

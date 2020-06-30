@@ -113,7 +113,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         StmtClassForgeableAIFactoryProviderUpdate aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderUpdate(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor(new Class[]{streamEventType.getUnderlyingType()},
-                new String[]{"*"}, false, null, null);
+            new String[]{"*"}, false, null, null);
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, Collections.emptyList(), Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);

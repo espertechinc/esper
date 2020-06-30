@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -17,6 +19,10 @@ import java.io.UnsupportedEncodingException;
  * to transform strings to byte-array and back.
  */
 public class CountMinSketchAgentStringUTF16 implements CountMinSketchAgent {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CountMinSketchAgentStringUTF16.class);
 
     public void add(CountMinSketchAgentContextAdd ctx) {
         String text = (String) ctx.getValue();

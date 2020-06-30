@@ -12,18 +12,23 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.avro.core.AvroEventType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import org.apache.avro.Schema;
 
 import java.nio.ByteBuffer;
 import java.util.*;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.BYTEBUFFER;
+import static com.espertech.esper.common.client.type.EPTypePremade.LONGBOXED;
 import static org.apache.avro.SchemaBuilder.*;
 import static org.junit.Assert.*;
 
@@ -44,6 +49,9 @@ public class EPLInsertIntoPopulateCreateStreamAvro {
                 EPLInsertIntoPopulateCreateStreamAvro.class.getName() + ".makeMapStringString() as myMap " +
                 "from SupportBean";
             env.compileDeploy(epl).addListener("s0");
+
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "myLong,myLongArray,myByteArray,myMap".split(","), new EPTypeClass[]{
+                LONGBOXED.getEPType(), EPTypeClassParameterized.from(Collection.class, LONGBOXED.getEPType()), BYTEBUFFER.getEPType(), EPTypeClassParameterized.from(Map.class, String.class, String.class)});
 
             env.sendEventBean(new SupportBean());
             EventBean event = env.listener("s0").assertOneGetNewAndReset();

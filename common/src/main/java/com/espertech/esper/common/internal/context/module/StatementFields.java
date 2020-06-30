@@ -10,5 +10,8 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface StatementFields {
+    EPTypeClass EPTYPE = new EPTypeClass(StatementFields.class);
 }

@@ -69,10 +69,6 @@ public class AggregationStateLinearForge implements AggregationStateFactoryForge
         return expr.getStreamType();
     }
 
-    public Class getClassType() {
-        return expr.getComponentTypeCollection();
-    }
-
     public ExprNode getExpression() {
         return expr;
     }

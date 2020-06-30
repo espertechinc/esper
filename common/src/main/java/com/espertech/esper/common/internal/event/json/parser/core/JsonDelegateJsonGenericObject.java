@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class JsonDelegateJsonGenericObject extends JsonDelegateJsonGenericBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateJsonGenericObject.class);
     private final Map<String, Object> jsonObject = new LinkedHashMap<>();
 
     public JsonDelegateJsonGenericObject(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {

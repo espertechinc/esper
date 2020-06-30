@@ -12,12 +12,14 @@ package com.espertech.esper.common.internal.event.json.serde;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 public class DIOJsonArraySerde implements DataInputOutputSerde<Object[]> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(DIOJsonArraySerde.class);
     public final static DIOJsonArraySerde INSTANCE = new DIOJsonArraySerde();
 
     private DIOJsonArraySerde() {

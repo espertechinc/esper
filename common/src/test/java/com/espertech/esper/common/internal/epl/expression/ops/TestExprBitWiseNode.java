@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityValidate;
@@ -65,7 +66,7 @@ public class TestExprBitWiseNode extends TestCase {
         _bitWiseNode.addChildNode(new SupportExprNode(Long.class));
         _bitWiseNode.addChildNode(new SupportExprNode(Long.class));
         ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.SELECT, _bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Long.class, _bitWiseNode.getForge().getEvaluationType());
+        assertEquals(EPTypePremade.LONGBOXED.getEPType(), _bitWiseNode.getForge().getEvaluationType());
     }
 
     public void testEvaluate() throws Exception {

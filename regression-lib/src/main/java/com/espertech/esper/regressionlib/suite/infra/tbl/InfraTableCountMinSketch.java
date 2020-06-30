@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.*;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -174,7 +175,7 @@ public class InfraTableCountMinSketch {
             tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({xxx:3}))",
                 "Failed to validate table-column expression 'countMinSketch({xxx=3})': Unrecognized parameter 'xxx' [");
             tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({epsOfTotalCount:'a'}))",
-                "Failed to validate table-column expression 'countMinSketch({epsOfTotalCount=a})': Property 'epsOfTotalCount' expects an java.lang.Double but receives a value of type java.lang.String [");
+                "Failed to validate table-column expression 'countMinSketch({epsOfTotalCount=a})': Property 'epsOfTotalCount' expects an Double but receives a value of type String [");
             tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({agent:'a'}))",
                 "Failed to validate table-column expression 'countMinSketch({agent=a})': Failed to instantiate agent provider: Could not load class by name 'a', please check imports [");
             tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({agent:'java.lang.String'}))",
@@ -187,9 +188,11 @@ public class InfraTableCountMinSketch {
             tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd() as wordcms from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketchAdd()': Count-min-sketch aggregation function 'countMinSketchAdd' requires a single parameter expression");
             tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd(body) as wordcms from SupportByteArrEventStringId",
-                "Incompatible aggregation function for table 'MyCMS' column 'wordcms', expecting 'countMinSketch()' and received 'countMinSketchAdd(body)': Mismatching parameter return type, expected any of [class java.lang.String] but received byte(Array) [");
+                "Incompatible aggregation function for table 'MyCMS' column 'wordcms', expecting 'countMinSketch()' and received 'countMinSketchAdd(body)': Mismatching parameter return type, expected any of [class java.lang.String] but received byte[] [");
             tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd(distinct 'abc') as wordcms from SupportByteArrEventStringId",
                 "Failed to validate select-clause expression 'countMinSketchAdd(distinct \"abc\")': Count-min-sketch aggregation function 'countMinSketchAdd' is not supported with distinct [");
+            tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd(null) as wordcms from SupportByteArrEventStringId",
+                "Failed to validate select-clause expression 'countMinSketchAdd(null)': Invalid null-type parameter");
 
             // invalid "countMinSketchFrequency" declarations
             //
@@ -259,11 +262,12 @@ public class InfraTableCountMinSketch {
         }
 
         public CodegenExpression codegenMake(CodegenMethod parent, CodegenClassScope classScope) {
-            return newInstance(MyBytesPassthruAgent.class);
+            return newInstance(MyBytesPassthruAgent.EPTYPE);
         }
     }
 
     public static class MyBytesPassthruAgent implements CountMinSketchAgent {
+        public final static EPTypeClass EPTYPE = new EPTypeClass(MyBytesPassthruAgent.class);
 
         public void add(CountMinSketchAgentContextAdd ctx) {
             if (ctx.getValue() == null) {

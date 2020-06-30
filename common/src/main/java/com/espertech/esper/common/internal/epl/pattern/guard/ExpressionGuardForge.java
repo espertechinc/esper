@@ -21,11 +21,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
 
 public class ExpressionGuardForge implements GuardForge {
 
@@ -39,7 +39,7 @@ public class ExpressionGuardForge implements GuardForge {
         }
         expression = parameters.get(0);
 
-        if (JavaClassHelper.getBoxedType(parameters.get(0).getForge().getEvaluationType()) != Boolean.class) {
+        if (!isTypeBoolean(parameters.get(0).getForge().getEvaluationType())) {
             throw new GuardParameterException(errorMessage);
         }
 
@@ -51,9 +51,9 @@ public class ExpressionGuardForge implements GuardForge {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ExpressionGuardFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ExpressionGuardFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExpressionGuardFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("guardWhile"))
+                .declareVar(ExpressionGuardFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("guardWhile"))
                 .exprDotMethod(ref("factory"), "setConvertor", convertor.makeAnonymous(method, classScope))
                 .exprDotMethod(ref("factory"), "setExpression", ExprNodeUtilityCodegen.codegenEvaluator(expression.getForge(), method, this.getClass(), classScope))
                 .methodReturn(ref("factory"));

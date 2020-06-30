@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -45,8 +47,8 @@ public class PropertyDotNonLambdaFragmentIndexedForge implements ExprForge, Expr
         return this;
     }
 
-    public Class getEvaluationType() {
-        return EventBean.class;
+    public EPTypeClass getEvaluationType() {
+        return EventBean.EPTYPE;
     }
 
     public ExprForgeConstantType getForgeConstantType() {
@@ -70,18 +72,18 @@ public class PropertyDotNonLambdaFragmentIndexedForge implements ExprForge, Expr
         return events[index];
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(EventBean.class, PropertyDotNonLambdaFragmentIndexedForge.class, classScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod method = parent.makeChild(EventBean.EPTYPE, PropertyDotNonLambdaFragmentIndexedForge.class, classScope);
         CodegenExpressionRef refEPS = symbols.getAddEPS(method);
         method.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .declareVar(EventBean[].class, "array", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), method, classScope)))
-                .declareVar(Integer.class, "index", indexExpr.getForge().evaluateCodegen(Integer.class, method, symbols, classScope))
+                .declareVar(EventBean.EPTYPEARRAY, "array", cast(EventBean.EPTYPEARRAY, getter.eventBeanFragmentCodegen(ref("event"), method, classScope)))
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "index", indexExpr.getForge().evaluateCodegen(EPTypePremade.INTEGERBOXED.getEPType(), method, symbols, classScope))
                 .ifRefNullReturnNull("index")
                 .ifCondition(relational(ref("index"), CodegenExpressionRelational.CodegenRelational.GE, arrayLength(ref("array"))))
-                .blockThrow(newInstance(EPException.class, concat(constant("Array length "), arrayLength(ref("array")), constant(" less than index "), ref("index"), constant(" for property '" + propertyName + "'"))))
-                .methodReturn(CodegenLegoCast.castSafeFromObjectType(EventBean.class, arrayAtIndex(ref("array"), cast(int.class, ref("index")))));
+                .blockThrow(newInstance(EPException.EPTYPE, concat(constant("Array length "), arrayLength(ref("array")), constant(" less than index "), ref("index"), constant(" for property '" + propertyName + "'"))))
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(EventBean.EPTYPE, arrayAtIndex(ref("array"), cast(EPTypePremade.INTEGERPRIMITIVE.getEPType(), ref("index")))));
         return localMethod(method);
     }
 

@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.epl.datetime.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -23,16 +27,16 @@ import com.espertech.esper.common.internal.epl.datetime.interval.IntervalForge;
 import com.espertech.esper.common.internal.epl.datetime.reformatop.ReformatForge;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEval;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalVisitor;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotForge;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
-import com.espertech.esper.common.internal.rettype.ClassEPType;
-import com.espertech.esper.common.internal.rettype.ClassMultiValuedEPType;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeClass;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.time.LocalDateTime;
@@ -43,21 +47,23 @@ import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.common.internal.rettype.EPChainableTypeHelper.singleValueNonNull;
 
 public class ExprDotDTForge implements ExprDotForge {
-    private final EPType returnType;
+    private final EPChainableTypeClass returnType;
     private final DTLocalForge forge;
 
-    ExprDotDTForge(List<CalendarForge> calendarForges, TimeAbacus timeAbacus, ReformatForge reformatForge, IntervalForge intervalForge, Class inputType, EventType inputEventType) {
+    ExprDotDTForge(List<CalendarForge> calendarForges, TimeAbacus timeAbacus, ReformatForge reformatForge, IntervalForge intervalForge, EPTypeClass inputType, EventType inputEventType)
+            throws ExprValidationException {
         if (intervalForge != null) {
-            returnType = EPTypeHelper.singleValue(Boolean.class);
+            returnType = singleValueNonNull(EPTypePremade.BOOLEANBOXED.getEPType());
         } else if (reformatForge != null) {
-            returnType = EPTypeHelper.singleValue(reformatForge.getReturnType());
+            returnType = singleValueNonNull(reformatForge.getReturnType());
         } else {  // only calendar op
             if (inputEventType != null) {
-                returnType = EPTypeHelper.singleValue(inputEventType.getPropertyType(inputEventType.getStartTimestampPropertyName()));
+                returnType = singleValueNonNull(inputEventType.getPropertyEPType(inputEventType.getStartTimestampPropertyName()));
             } else {
-                returnType = EPTypeHelper.singleValue(inputType == java.sql.Date.class ? Date.class : inputType);
+                returnType = singleValueNonNull(inputType == EPTypePremade.SQLDATE.getEPType() ? EPTypePremade.DATE.getEPType() : inputType);
             }
         }
 
@@ -81,19 +87,18 @@ public class ExprDotDTForge implements ExprDotForge {
         };
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        Class methodReturnType = returnType instanceof ClassEPType ? ((ClassEPType) returnType).getType() : ((ClassMultiValuedEPType) returnType).getContainer();
-        CodegenMethod methodNode = parent.makeChild(methodReturnType, ExprDotDTForge.class, classScope).addParam(innerType, "target");
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod methodNode = parent.makeChild(returnType.getType(), ExprDotDTForge.class, classScope).addParam(innerType, "target");
 
         CodegenBlock block = methodNode.getBlock();
-        if (!innerType.isPrimitive()) {
+        if (!innerType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
         block.methodReturn(forge.codegen(ref("target"), innerType, methodNode, symbols, classScope));
         return localMethod(methodNode, inner);
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return returnType;
     }
 
@@ -101,8 +106,10 @@ public class ExprDotDTForge implements ExprDotForge {
         visitor.visitDateTime();
     }
 
-    public DTLocalForge getForge(List<CalendarForge> calendarForges, TimeAbacus timeAbacus, Class inputType, EventType inputEventType, ReformatForge reformatForge, IntervalForge intervalForge) {
+    public DTLocalForge getForge(List<CalendarForge> calendarForges, TimeAbacus timeAbacus, EPTypeClass inputTypeClass, EventType inputEventType, ReformatForge reformatForge, IntervalForge intervalForge)
+            throws ExprValidationException {
         if (inputEventType == null) {
+            Class inputType = inputTypeClass.getType();
             if (reformatForge != null) {
                 if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Calendar.class)) {
                     if (calendarForges.isEmpty()) {
@@ -170,11 +177,14 @@ public class ExprDotDTForge implements ExprDotForge {
                     return new DTLocalCalOpsZonedDateTimeForge(calendarForges);
                 }
             }
-            throw new IllegalArgumentException("Invalid input type '" + inputType + "'");
+            throw new ExprValidationException("Invalid input type '" + inputType + "'");
         }
 
-        EventPropertyGetterSPI getter = ((EventTypeSPI) inputEventType).getGetterSPI(inputEventType.getStartTimestampPropertyName());
-        Class getterResultType = inputEventType.getPropertyType(inputEventType.getStartTimestampPropertyName());
+        String propertyNameStart = inputEventType.getStartTimestampPropertyName();
+        EventPropertyGetterSPI getter = ((EventTypeSPI) inputEventType).getGetterSPI(propertyNameStart);
+        EPType getterResultEPType = inputEventType.getPropertyEPType(propertyNameStart);
+        checkNotNull(getterResultEPType, propertyNameStart);
+        EPTypeClass getterResultType = (EPTypeClass) getterResultEPType;
 
         if (reformatForge != null) {
             DTLocalForge inner = getForge(calendarForges, timeAbacus, getterResultType, null, reformatForge, null);
@@ -182,19 +192,27 @@ public class ExprDotDTForge implements ExprDotForge {
         }
         if (intervalForge == null) {   // only calendar op
             DTLocalForge inner = getForge(calendarForges, timeAbacus, getterResultType, null, null, null);
-            return new DTLocalBeanCalOpsForge(getter, getterResultType, inner, EPTypeHelper.getNormalizedClass(returnType));
+            return new DTLocalBeanCalOpsForge(getter, getterResultType, inner, (EPTypeClass) EPChainableTypeHelper.getNormalizedEPType(returnType));
         }
 
         // have interval op but no end timestamp
         if (inputEventType.getEndTimestampPropertyName() == null) {
             DTLocalForge inner = getForge(calendarForges, timeAbacus, getterResultType, null, null, intervalForge);
-            return new DTLocalBeanIntervalNoEndTSForge(getter, getterResultType, inner, EPTypeHelper.getNormalizedClass(returnType));
+            return new DTLocalBeanIntervalNoEndTSForge(getter, getterResultType, inner, (EPTypeClass) EPChainableTypeHelper.getNormalizedEPType(returnType));
         }
 
         // interval op and have end timestamp
-        EventPropertyGetterSPI getterEndTimestamp = ((EventTypeSPI) inputEventType).getGetterSPI(inputEventType.getEndTimestampPropertyName());
-        Class getterEndType = inputEventType.getPropertyType(inputEventType.getEndTimestampPropertyName());
+        String propertyNameEnd = inputEventType.getEndTimestampPropertyName();
+        EventPropertyGetterSPI getterEndTimestamp = ((EventTypeSPI) inputEventType).getGetterSPI(propertyNameEnd);
+        EPType getterEndType = inputEventType.getPropertyEPType(propertyNameEnd);
+        checkNotNull(getterEndType, propertyNameEnd);
         DTLocalForgeIntervalComp inner = (DTLocalForgeIntervalComp) getForge(calendarForges, timeAbacus, getterResultType, null, null, intervalForge);
-        return new DTLocalBeanIntervalWithEndForge(getter, getterResultType, getterEndTimestamp, getterEndType, inner);
+        return new DTLocalBeanIntervalWithEndForge(getter, getterResultType, getterEndTimestamp, (EPTypeClass) getterEndType, inner);
+    }
+
+    private void checkNotNull(EPType getterResultEPType, String propertyName) throws ExprValidationException {
+        if (getterResultEPType == null || getterResultEPType == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Invalid null-type input for property '" + propertyName + "'");
+        }
     }
 }

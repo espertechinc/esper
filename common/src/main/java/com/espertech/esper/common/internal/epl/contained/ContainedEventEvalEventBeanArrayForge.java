@@ -30,8 +30,8 @@ public class ContainedEventEvalEventBeanArrayForge implements ContainedEventEval
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContainedEventEvalEventBeanArray.class, this.getClass(), classScope);
-        method.getBlock().methodReturn(newInstance(ContainedEventEvalEventBeanArray.class, ExprNodeUtilityCodegen.codegenEvaluator(evaluator, method, this.getClass(), classScope)));
+        CodegenMethod method = parent.makeChild(ContainedEventEvalEventBeanArray.EPTYPE, this.getClass(), classScope);
+        method.getBlock().methodReturn(newInstance(ContainedEventEvalEventBeanArray.EPTYPE, ExprNodeUtilityCodegen.codegenEvaluator(evaluator, method, this.getClass(), classScope)));
         return localMethod(method);
     }
 }

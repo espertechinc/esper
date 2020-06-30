@@ -52,10 +52,6 @@ public class ExprAppDotMethodImpl extends ExprNodeBase implements FilterSpecComp
         return desc.getForge().getExprEvaluator();
     }
 
-    public Class getEvaluationType() {
-        return desc.getForge().getEvaluationType();
-    }
-
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
     }

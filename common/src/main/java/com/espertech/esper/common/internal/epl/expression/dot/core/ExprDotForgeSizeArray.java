@@ -11,14 +11,16 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.lang.reflect.Array;
 
@@ -33,8 +35,8 @@ public class ExprDotForgeSizeArray implements ExprDotForge, ExprDotEval {
         return Array.getLength(target);
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.singleValue(Integer.class);
+    public EPChainableType getTypeInfo() {
+        return EPChainableTypeHelper.singleValue(EPTypePremade.INTEGERBOXED.getEPType());
     }
 
     public void visit(ExprDotEvalVisitor visitor) {
@@ -49,8 +51,8 @@ public class ExprDotForgeSizeArray implements ExprDotForge, ExprDotEval {
         return this;
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Integer.class, ExprDotForgeSizeArray.class, classScope).addParam(innerType, "target").getBlock()
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        CodegenMethod method = parent.makeChild(EPTypePremade.INTEGERBOXED.getEPType(), ExprDotForgeSizeArray.class, classScope).addParam(innerType, "target").getBlock()
                 .ifRefNullReturnNull("target")
                 .methodReturn(arrayLength(ref("target")));
         return localMethodBuild(method).pass(inner).call();

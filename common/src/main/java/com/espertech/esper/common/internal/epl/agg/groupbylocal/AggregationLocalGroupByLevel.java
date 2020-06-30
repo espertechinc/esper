@@ -11,19 +11,23 @@
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class AggregationLocalGroupByLevel {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationLocalGroupByLevel.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(AggregationLocalGroupByLevel[].class);
 
     private final AggregationRowFactory rowFactory;
     private final DataInputOutputSerde rowSerde;
-    private final Class[] groupKeyTypes;
+    private final EPType[] groupKeyTypes;
     private final ExprEvaluator groupKeyEval;
     private final boolean isDefaultLevel;
     private final DataInputOutputSerde<Object> keySerde;
 
-    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerde rowSerde, Class[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel, DataInputOutputSerde<Object> keySerde) {
+    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerde rowSerde, EPType[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel, DataInputOutputSerde<Object> keySerde) {
         this.rowFactory = rowFactory;
         this.rowSerde = rowSerde;
         this.groupKeyTypes = groupKeyTypes;
@@ -40,7 +44,7 @@ public class AggregationLocalGroupByLevel {
         return rowSerde;
     }
 
-    public Class[] getGroupKeyTypes() {
+    public EPType[] getGroupKeyTypes() {
         return groupKeyTypes;
     }
 

@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimAgedEvalFuncFactory;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public interface AggregationServiceFactoryService {
     AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory,
@@ -26,7 +27,7 @@ public interface AggregationServiceFactoryService {
                                       AggregationRowFactory rowFactory,
                                       AggregationUseFlags useFlags,
                                       DataInputOutputSerde<AggregationRow> serde,
-                                      Class[] groupByTypes,
+                                      EPType[] groupByTypes,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq,
                                       TimeAbacus timeAbacus,
@@ -37,7 +38,7 @@ public interface AggregationServiceFactoryService {
                                             AggregationRowFactory rowFactory,
                                             AggregationUseFlags useFlags,
                                             DataInputOutputSerde<AggregationRow> serde,
-                                            Class[] groupByTypes);
+                                            EPType[] groupByTypes);
 
     AggregationServiceFactory groupLocalGroupBy(AggregationServiceFactory nonHAFactory,
                                                 AggregationUseFlags useFlags,

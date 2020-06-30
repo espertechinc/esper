@@ -11,7 +11,10 @@
 package com.espertech.esper.common.internal.epl.index.base;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public interface EventTableFactoryFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(EventTableFactoryFactory.class);
+
     EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext);
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimeMatchRecognize;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAState;
@@ -27,6 +28,7 @@ import com.espertech.esper.common.internal.view.core.ViewFactoryContext;
  * View factory for match-recognize view.
  */
 public class RowRecogNFAViewFactory implements ViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowRecogNFAViewFactory.class);
 
     private RowRecogDesc desc;
 

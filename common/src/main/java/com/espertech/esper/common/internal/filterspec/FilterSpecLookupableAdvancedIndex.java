@@ -12,11 +12,14 @@ package com.espertech.esper.common.internal.filterspec;
 
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEventEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
 
 public class FilterSpecLookupableAdvancedIndex extends ExprFilterSpecLookupable {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecLookupableAdvancedIndex.class);
+
     private AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig;
     private EventPropertyValueGetter x;
     private EventPropertyValueGetter y;
@@ -24,7 +27,7 @@ public class FilterSpecLookupableAdvancedIndex extends ExprFilterSpecLookupable 
     private EventPropertyValueGetter height;
     private String indexType;
 
-    public FilterSpecLookupableAdvancedIndex(String expression, ExprEventEvaluator getter, Class returnType) {
+    public FilterSpecLookupableAdvancedIndex(String expression, ExprEventEvaluator getter, EPTypeClass returnType) {
         super(expression, getter, null, returnType, true, null);
     }
 

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -78,8 +80,8 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode {
         return relationalOp;
     }
 
-    public Class getEvaluationType() {
-        return Boolean.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
@@ -111,7 +113,7 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode {
         return constantNull();
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return null;
     }
 

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPType;
+
 public interface TypeWidenerCustomizer {
-    TypeWidenerSPI widenerFor(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, String statementName) throws TypeWidenerException;
+    TypeWidenerSPI widenerFor(String columnName, EPType columnType, EPType writeablePropertyType, String writeablePropertyName, String statementName) throws TypeWidenerException;
 }

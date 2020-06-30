@@ -17,6 +17,8 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -126,18 +128,18 @@ public class InfraOnMergeHelperForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(InfraOnMergeHelper.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(InfraOnMergeHelper.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(InfraOnMergeActionIns.class, "insertUnmatched", insertUnmatched == null ? constantNull() : insertUnmatched.make(method, symbols, classScope))
-                .declareVar(List.class, "matched", makeList(matched, method, symbols, classScope))
-                .declareVar(List.class, "unmatched", makeList(unmatched, method, symbols, classScope))
-                .methodReturn(newInstance(InfraOnMergeHelper.class, ref("insertUnmatched"), ref("matched"), ref("unmatched"), constant(requiresTableWriteLock)));
+                .declareVar(InfraOnMergeActionIns.EPTYPE, "insertUnmatched", insertUnmatched == null ? constantNull() : insertUnmatched.make(method, symbols, classScope))
+                .declareVar(EPTypePremade.LIST.getEPType(), "matched", makeList(matched, method, symbols, classScope))
+                .declareVar(EPTypePremade.LIST.getEPType(), "unmatched", makeList(unmatched, method, symbols, classScope))
+                .methodReturn(newInstance(InfraOnMergeHelper.EPTYPE, ref("insertUnmatched"), ref("matched"), ref("unmatched"), constant(requiresTableWriteLock)));
         return localMethod(method);
     }
 
     private CodegenExpression makeList(List<InfraOnMergeMatchForge> items, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(List.class, this.getClass(), classScope);
-        method.getBlock().declareVar(List.class, InfraOnMergeMatch.class, "list", newInstance(ArrayList.class, constant(items.size())));
+        CodegenMethod method = parent.makeChild(EPTypePremade.LIST.getEPType(), this.getClass(), classScope);
+        method.getBlock().declareVar(EPTypeClassParameterized.from(List.class, InfraOnMergeMatch.class), "list", newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(items.size())));
         for (InfraOnMergeMatchForge item : items) {
             method.getBlock().exprDotMethod(ref("list"), "add", item.make(method, symbols, classScope));
         }

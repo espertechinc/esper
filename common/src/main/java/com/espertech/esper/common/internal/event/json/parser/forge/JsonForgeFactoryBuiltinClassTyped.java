@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.event.json.parser.forge;
 
 import com.espertech.esper.common.client.annotation.JsonSchemaField;
 import com.espertech.esper.common.client.json.util.JsonFieldAdapterString;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonApplicationClassDelegateDesc;
@@ -23,308 +26,303 @@ import com.espertech.esper.common.internal.event.json.parser.delegates.endvalue.
 import com.espertech.esper.common.internal.event.json.write.*;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
-import com.espertech.esper.common.internal.util.ConstructorHelper;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.util.MethodResolver;
-import com.espertech.esper.common.internal.util.MethodResolverNoSuchMethodException;
+import com.espertech.esper.common.internal.util.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
 public class JsonForgeFactoryBuiltinClassTyped {
-    private final static Map<Class, JsonEndValueForge> END_VALUE_FORGES = new HashMap<>();
-    private final static Map<Class, Class> START_ARRAY_FORGES = new HashMap<>();
-    private final static Map<Class, Class> START_COLLECTION_FORGES = new HashMap<>();
-    private final static Map<Class, JsonWriteForge> WRITE_FORGES = new HashMap<>();
-    private final static Map<Class, JsonWriteForge> WRITE_ARRAY_FORGES = new HashMap<>();
-    private final static Map<Class, JsonWriteForge> WRITE_COLLECTION_FORGES = new HashMap<>();
+    private final static Map<EPTypeClass, JsonEndValueForge> END_VALUE_FORGES = new HashMap<>();
+    private final static Map<EPTypeClass, EPTypeClass> START_ARRAY_FORGES = new HashMap<>();
+    private final static Map<EPTypeClass, EPTypeClass> START_COLLECTION_FORGES = new HashMap<>();
+    private final static Map<EPTypeClass, JsonWriteForge> WRITE_FORGES = new HashMap<>();
+    private final static Map<EPTypeClass, JsonWriteForge> WRITE_ARRAY_FORGES = new HashMap<>();
+    private final static Map<EPTypeClass, JsonWriteForge> WRITE_COLLECTION_FORGES = new HashMap<>();
 
     static {
-        END_VALUE_FORGES.put(String.class, JsonEndValueForgeString.INSTANCE);
-        END_VALUE_FORGES.put(Character.class, JsonEndValueForgeCharacter.INSTANCE);
-        END_VALUE_FORGES.put(Boolean.class, JsonEndValueForgeBoolean.INSTANCE);
-        END_VALUE_FORGES.put(Byte.class, JsonEndValueForgeByte.INSTANCE);
-        END_VALUE_FORGES.put(Short.class, JsonEndValueForgeShort.INSTANCE);
-        END_VALUE_FORGES.put(Integer.class, JsonEndValueForgeInteger.INSTANCE);
-        END_VALUE_FORGES.put(Long.class, JsonEndValueForgeLong.INSTANCE);
-        END_VALUE_FORGES.put(Double.class, JsonEndValueForgeDouble.INSTANCE);
-        END_VALUE_FORGES.put(Float.class, JsonEndValueForgeFloat.INSTANCE);
-        END_VALUE_FORGES.put(BigDecimal.class, JsonEndValueForgeBigDecimal.INSTANCE);
-        END_VALUE_FORGES.put(BigInteger.class, JsonEndValueForgeBigInteger.INSTANCE);
+        END_VALUE_FORGES.put(STRING.getEPType(), JsonEndValueForgeString.INSTANCE);
+        END_VALUE_FORGES.put(CHARBOXED.getEPType(), JsonEndValueForgeCharacter.INSTANCE);
+        END_VALUE_FORGES.put(BOOLEANBOXED.getEPType(), JsonEndValueForgeBoolean.INSTANCE);
+        END_VALUE_FORGES.put(BYTEBOXED.getEPType(), JsonEndValueForgeByte.INSTANCE);
+        END_VALUE_FORGES.put(SHORTBOXED.getEPType(), JsonEndValueForgeShort.INSTANCE);
+        END_VALUE_FORGES.put(INTEGERBOXED.getEPType(), JsonEndValueForgeInteger.INSTANCE);
+        END_VALUE_FORGES.put(LONGBOXED.getEPType(), JsonEndValueForgeLong.INSTANCE);
+        END_VALUE_FORGES.put(DOUBLEBOXED.getEPType(), JsonEndValueForgeDouble.INSTANCE);
+        END_VALUE_FORGES.put(FLOATBOXED.getEPType(), JsonEndValueForgeFloat.INSTANCE);
+        END_VALUE_FORGES.put(BIGDECIMAL.getEPType(), JsonEndValueForgeBigDecimal.INSTANCE);
+        END_VALUE_FORGES.put(BIGINTEGER.getEPType(), JsonEndValueForgeBigInteger.INSTANCE);
 
-        END_VALUE_FORGES.put(UUID.class, JsonEndValueForgeUUID.INSTANCE);
-        END_VALUE_FORGES.put(OffsetDateTime.class, JsonEndValueForgeOffsetDateTime.INSTANCE);
-        END_VALUE_FORGES.put(LocalDate.class, JsonEndValueForgeLocalDate.INSTANCE);
-        END_VALUE_FORGES.put(LocalDateTime.class, JsonEndValueForgeLocalDateTime.INSTANCE);
-        END_VALUE_FORGES.put(ZonedDateTime.class, JsonEndValueForgeZonedDateTime.INSTANCE);
-        END_VALUE_FORGES.put(URL.class, JsonEndValueForgeURL.INSTANCE);
-        END_VALUE_FORGES.put(URI.class, JsonEndValueForgeURI.INSTANCE);
+        END_VALUE_FORGES.put(UUID.getEPType(), JsonEndValueForgeUUID.INSTANCE);
+        END_VALUE_FORGES.put(OFFSETDATETIME.getEPType(), JsonEndValueForgeOffsetDateTime.INSTANCE);
+        END_VALUE_FORGES.put(LOCALDATE.getEPType(), JsonEndValueForgeLocalDate.INSTANCE);
+        END_VALUE_FORGES.put(LOCALDATETIME.getEPType(), JsonEndValueForgeLocalDateTime.INSTANCE);
+        END_VALUE_FORGES.put(ZONEDDATETIME.getEPType(), JsonEndValueForgeZonedDateTime.INSTANCE);
+        END_VALUE_FORGES.put(NETURL.getEPType(), JsonEndValueForgeURL.INSTANCE);
+        END_VALUE_FORGES.put(NETURI.getEPType(), JsonEndValueForgeURI.INSTANCE);
 
-        WRITE_FORGES.put(String.class, JsonWriteForgeString.INSTANCE);
-        WRITE_FORGES.put(Character.class, JsonWriteForgeStringWithToString.INSTANCE);
-        WRITE_FORGES.put(Boolean.class, JsonWriteForgeBoolean.INSTANCE);
-        WRITE_FORGES.put(Byte.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        WRITE_FORGES.put(Short.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        WRITE_FORGES.put(Integer.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        WRITE_FORGES.put(Long.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        WRITE_FORGES.put(Double.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        WRITE_FORGES.put(Float.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        WRITE_FORGES.put(BigDecimal.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        WRITE_FORGES.put(BigInteger.class, JsonWriteForgeNumberWithToString.INSTANCE);
-        for (Class clazz : new Class[]{UUID.class, OffsetDateTime.class, LocalDate.class, LocalDateTime.class, ZonedDateTime.class,
-            URL.class, URI.class}) {
+        WRITE_FORGES.put(STRING.getEPType(), JsonWriteForgeString.INSTANCE);
+        WRITE_FORGES.put(CHARBOXED.getEPType(), JsonWriteForgeStringWithToString.INSTANCE);
+        WRITE_FORGES.put(BOOLEANBOXED.getEPType(), JsonWriteForgeBoolean.INSTANCE);
+        WRITE_FORGES.put(BYTEBOXED.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        WRITE_FORGES.put(SHORTBOXED.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        WRITE_FORGES.put(INTEGERBOXED.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        WRITE_FORGES.put(LONGBOXED.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        WRITE_FORGES.put(DOUBLEBOXED.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        WRITE_FORGES.put(FLOATBOXED.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        WRITE_FORGES.put(BIGDECIMAL.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        WRITE_FORGES.put(BIGINTEGER.getEPType(), JsonWriteForgeNumberWithToString.INSTANCE);
+        for (EPTypeClass clazz : new EPTypeClass[]{UUID.getEPType(), OFFSETDATETIME.getEPType(), LOCALDATE.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
+            NETURL.getEPType(), NETURI.getEPType()}) {
             WRITE_FORGES.put(clazz, JsonWriteForgeStringWithToString.INSTANCE);
         }
 
-        START_ARRAY_FORGES.put(String[].class, JsonDelegateArrayString.class);
-        START_ARRAY_FORGES.put(Character[].class, JsonDelegateArrayCharacter.class);
-        START_ARRAY_FORGES.put(Boolean[].class, JsonDelegateArrayBoolean.class);
-        START_ARRAY_FORGES.put(Byte[].class, JsonDelegateArrayByte.class);
-        START_ARRAY_FORGES.put(Short[].class, JsonDelegateArrayShort.class);
-        START_ARRAY_FORGES.put(Integer[].class, JsonDelegateArrayInteger.class);
-        START_ARRAY_FORGES.put(Long[].class, JsonDelegateArrayLong.class);
-        START_ARRAY_FORGES.put(Double[].class, JsonDelegateArrayDouble.class);
-        START_ARRAY_FORGES.put(Float[].class, JsonDelegateArrayFloat.class);
-        START_ARRAY_FORGES.put(char[].class, JsonDelegateArrayCharacterPrimitive.class);
-        START_ARRAY_FORGES.put(boolean[].class, JsonDelegateArrayBooleanPrimitive.class);
-        START_ARRAY_FORGES.put(byte[].class, JsonDelegateArrayBytePrimitive.class);
-        START_ARRAY_FORGES.put(short[].class, JsonDelegateArrayShortPrimitive.class);
-        START_ARRAY_FORGES.put(int[].class, JsonDelegateArrayIntegerPrimitive.class);
-        START_ARRAY_FORGES.put(long[].class, JsonDelegateArrayLongPrimitive.class);
-        START_ARRAY_FORGES.put(double[].class, JsonDelegateArrayDoublePrimitive.class);
-        START_ARRAY_FORGES.put(float[].class, JsonDelegateArrayFloatPrimitive.class);
-        START_ARRAY_FORGES.put(BigDecimal[].class, JsonDelegateArrayBigDecimal.class);
-        START_ARRAY_FORGES.put(BigInteger[].class, JsonDelegateArrayBigInteger.class);
-        START_ARRAY_FORGES.put(UUID[].class, JsonDelegateArrayUUID.class);
-        START_ARRAY_FORGES.put(OffsetDateTime[].class, JsonDelegateArrayOffsetDateTime.class);
-        START_ARRAY_FORGES.put(LocalDate[].class, JsonDelegateArrayLocalDate.class);
-        START_ARRAY_FORGES.put(LocalDateTime[].class, JsonDelegateArrayLocalDateTime.class);
-        START_ARRAY_FORGES.put(ZonedDateTime[].class, JsonDelegateArrayZonedDateTime.class);
-        START_ARRAY_FORGES.put(URL[].class, JsonDelegateArrayURL.class);
-        START_ARRAY_FORGES.put(URI[].class, JsonDelegateArrayURI.class);
+        START_ARRAY_FORGES.put(STRINGARRAY.getEPType(), JsonDelegateArrayString.EPTYPE);
+        START_ARRAY_FORGES.put(CHARBOXEDARRAY.getEPType(), JsonDelegateArrayCharacter.EPTYPE);
+        START_ARRAY_FORGES.put(BOOLEANBOXEDARRAY.getEPType(), JsonDelegateArrayBoolean.EPTYPE);
+        START_ARRAY_FORGES.put(BYTEBOXEDARRAY.getEPType(), JsonDelegateArrayByte.EPTYPE);
+        START_ARRAY_FORGES.put(SHORTBOXEDARRAY.getEPType(), JsonDelegateArrayShort.EPTYPE);
+        START_ARRAY_FORGES.put(INTEGERBOXEDARRAY.getEPType(), JsonDelegateArrayInteger.EPTYPE);
+        START_ARRAY_FORGES.put(LONGBOXEDARRAY.getEPType(), JsonDelegateArrayLong.EPTYPE);
+        START_ARRAY_FORGES.put(DOUBLEBOXEDARRAY.getEPType(), JsonDelegateArrayDouble.EPTYPE);
+        START_ARRAY_FORGES.put(FLOATBOXEDARRAY.getEPType(), JsonDelegateArrayFloat.EPTYPE);
+        START_ARRAY_FORGES.put(CHARPRIMITIVEARRAY.getEPType(), JsonDelegateArrayCharacterPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(BOOLEANPRIMITIVEARRAY.getEPType(), JsonDelegateArrayBooleanPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(BYTEPRIMITIVEARRAY.getEPType(), JsonDelegateArrayBytePrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(SHORTPRIMITIVEARRAY.getEPType(), JsonDelegateArrayShortPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(INTEGERPRIMITIVEARRAY.getEPType(), JsonDelegateArrayIntegerPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(LONGPRIMITIVEARRAY.getEPType(), JsonDelegateArrayLongPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(DOUBLEPRIMITIVEARRAY.getEPType(), JsonDelegateArrayDoublePrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(FLOATPRIMITIVEARRAY.getEPType(), JsonDelegateArrayFloatPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(BIGDECIMALARRAY.getEPType(), JsonDelegateArrayBigDecimal.EPTYPE);
+        START_ARRAY_FORGES.put(BIGINTEGERARRAY.getEPType(), JsonDelegateArrayBigInteger.EPTYPE);
+        START_ARRAY_FORGES.put(UUIDARRAY.getEPType(), JsonDelegateArrayUUID.EPTYPE);
+        START_ARRAY_FORGES.put(OFFSETDATETIMEARRAY.getEPType(), JsonDelegateArrayOffsetDateTime.EPTYPE);
+        START_ARRAY_FORGES.put(LOCALDATEARRAY.getEPType(), JsonDelegateArrayLocalDate.EPTYPE);
+        START_ARRAY_FORGES.put(LOCALDATETIMEARRAY.getEPType(), JsonDelegateArrayLocalDateTime.EPTYPE);
+        START_ARRAY_FORGES.put(ZONEDDATETIMEARRAY.getEPType(), JsonDelegateArrayZonedDateTime.EPTYPE);
+        START_ARRAY_FORGES.put(NETURLARRAY.getEPType(), JsonDelegateArrayURL.EPTYPE);
+        START_ARRAY_FORGES.put(NETURIARRAY.getEPType(), JsonDelegateArrayURI.EPTYPE);
 
-        START_ARRAY_FORGES.put(String[][].class, JsonDelegateArray2DimString.class);
-        START_ARRAY_FORGES.put(Character[][].class, JsonDelegateArray2DimCharacter.class);
-        START_ARRAY_FORGES.put(Boolean[][].class, JsonDelegateArray2DimBoolean.class);
-        START_ARRAY_FORGES.put(Byte[][].class, JsonDelegateArray2DimByte.class);
-        START_ARRAY_FORGES.put(Short[][].class, JsonDelegateArray2DimShort.class);
-        START_ARRAY_FORGES.put(Integer[][].class, JsonDelegateArray2DimInteger.class);
-        START_ARRAY_FORGES.put(Long[][].class, JsonDelegateArray2DimLong.class);
-        START_ARRAY_FORGES.put(Double[][].class, JsonDelegateArray2DimDouble.class);
-        START_ARRAY_FORGES.put(Float[][].class, JsonDelegateArray2DimFloat.class);
-        START_ARRAY_FORGES.put(char[][].class, JsonDelegateArray2DimCharacterPrimitive.class);
-        START_ARRAY_FORGES.put(boolean[][].class, JsonDelegateArray2DimBooleanPrimitive.class);
-        START_ARRAY_FORGES.put(byte[][].class, JsonDelegateArray2DimBytePrimitive.class);
-        START_ARRAY_FORGES.put(short[][].class, JsonDelegateArray2DimShortPrimitive.class);
-        START_ARRAY_FORGES.put(int[][].class, JsonDelegateArray2DimIntegerPrimitive.class);
-        START_ARRAY_FORGES.put(long[][].class, JsonDelegateArray2DimLongPrimitive.class);
-        START_ARRAY_FORGES.put(double[][].class, JsonDelegateArray2DimDoublePrimitive.class);
-        START_ARRAY_FORGES.put(float[][].class, JsonDelegateArray2DimFloatPrimitive.class);
-        START_ARRAY_FORGES.put(BigDecimal[][].class, JsonDelegateArray2DimBigDecimal.class);
-        START_ARRAY_FORGES.put(BigInteger[][].class, JsonDelegateArray2DimBigInteger.class);
-        START_ARRAY_FORGES.put(UUID[][].class, JsonDelegateArray2DimUUID.class);
-        START_ARRAY_FORGES.put(OffsetDateTime[][].class, JsonDelegateArray2DimOffsetDateTime.class);
-        START_ARRAY_FORGES.put(LocalDate[][].class, JsonDelegateArray2DimLocalDate.class);
-        START_ARRAY_FORGES.put(LocalDateTime[][].class, JsonDelegateArray2DimLocalDateTime.class);
-        START_ARRAY_FORGES.put(ZonedDateTime[][].class, JsonDelegateArray2DimZonedDateTime.class);
-        START_ARRAY_FORGES.put(URL[][].class, JsonDelegateArray2DimURL.class);
-        START_ARRAY_FORGES.put(URI[][].class, JsonDelegateArray2DimURI.class);
+        START_ARRAY_FORGES.put(STRINGARRAYARRAY.getEPType(), JsonDelegateArray2DimString.EPTYPE);
+        START_ARRAY_FORGES.put(CHARBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimCharacter.EPTYPE);
+        START_ARRAY_FORGES.put(BOOLEANBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimBoolean.EPTYPE);
+        START_ARRAY_FORGES.put(BYTEBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimByte.EPTYPE);
+        START_ARRAY_FORGES.put(SHORTBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimShort.EPTYPE);
+        START_ARRAY_FORGES.put(INTEGERBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimInteger.EPTYPE);
+        START_ARRAY_FORGES.put(LONGBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimLong.EPTYPE);
+        START_ARRAY_FORGES.put(DOUBLEBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimDouble.EPTYPE);
+        START_ARRAY_FORGES.put(FLOATBOXEDARRAYARRAY.getEPType(), JsonDelegateArray2DimFloat.EPTYPE);
+        START_ARRAY_FORGES.put(CHARPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimCharacterPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(BOOLEANPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimBooleanPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(BYTEPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimBytePrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(SHORTPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimShortPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(INTEGERPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimIntegerPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(LONGPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimLongPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(DOUBLEPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimDoublePrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(FLOATPRIMITIVEARRAYARRAY.getEPType(), JsonDelegateArray2DimFloatPrimitive.EPTYPE);
+        START_ARRAY_FORGES.put(BIGDECIMALARRAYARRAY.getEPType(), JsonDelegateArray2DimBigDecimal.EPTYPE);
+        START_ARRAY_FORGES.put(BIGINTEGERARRAYARRAY.getEPType(), JsonDelegateArray2DimBigInteger.EPTYPE);
+        START_ARRAY_FORGES.put(UUIDARRAYARRAY.getEPType(), JsonDelegateArray2DimUUID.EPTYPE);
+        START_ARRAY_FORGES.put(OFFSETDATETIMEARRAYARRAY.getEPType(), JsonDelegateArray2DimOffsetDateTime.EPTYPE);
+        START_ARRAY_FORGES.put(LOCALDATEARRAYARRAY.getEPType(), JsonDelegateArray2DimLocalDate.EPTYPE);
+        START_ARRAY_FORGES.put(LOCALDATETIMEARRAYARRAY.getEPType(), JsonDelegateArray2DimLocalDateTime.EPTYPE);
+        START_ARRAY_FORGES.put(ZONEDDATETIMEARRAYARRAY.getEPType(), JsonDelegateArray2DimZonedDateTime.EPTYPE);
+        START_ARRAY_FORGES.put(NETURLARRAYARRAY.getEPType(), JsonDelegateArray2DimURL.EPTYPE);
+        START_ARRAY_FORGES.put(NETURIARRAYARRAY.getEPType(), JsonDelegateArray2DimURI.EPTYPE);
 
-        WRITE_ARRAY_FORGES.put(String[].class, new JsonWriteForgeByMethod("writeArrayString"));
-        WRITE_ARRAY_FORGES.put(Character[].class, new JsonWriteForgeByMethod("writeArrayCharacter"));
-        WRITE_ARRAY_FORGES.put(Boolean[].class, new JsonWriteForgeByMethod("writeArrayBoolean"));
-        WRITE_ARRAY_FORGES.put(Byte[].class, new JsonWriteForgeByMethod("writeArrayByte"));
-        WRITE_ARRAY_FORGES.put(Short[].class, new JsonWriteForgeByMethod("writeArrayShort"));
-        WRITE_ARRAY_FORGES.put(Integer[].class, new JsonWriteForgeByMethod("writeArrayInteger"));
-        WRITE_ARRAY_FORGES.put(Long[].class, new JsonWriteForgeByMethod("writeArrayLong"));
-        WRITE_ARRAY_FORGES.put(Double[].class, new JsonWriteForgeByMethod("writeArrayDouble"));
-        WRITE_ARRAY_FORGES.put(Float[].class, new JsonWriteForgeByMethod("writeArrayFloat"));
-        WRITE_ARRAY_FORGES.put(char[].class, new JsonWriteForgeByMethod("writeArrayCharPrimitive"));
-        WRITE_ARRAY_FORGES.put(boolean[].class, new JsonWriteForgeByMethod("writeArrayBooleanPrimitive"));
-        WRITE_ARRAY_FORGES.put(byte[].class, new JsonWriteForgeByMethod("writeArrayBytePrimitive"));
-        WRITE_ARRAY_FORGES.put(short[].class, new JsonWriteForgeByMethod("writeArrayShortPrimitive"));
-        WRITE_ARRAY_FORGES.put(int[].class, new JsonWriteForgeByMethod("writeArrayIntPrimitive"));
-        WRITE_ARRAY_FORGES.put(long[].class, new JsonWriteForgeByMethod("writeArrayLongPrimitive"));
-        WRITE_ARRAY_FORGES.put(double[].class, new JsonWriteForgeByMethod("writeArrayDoublePrimitive"));
-        WRITE_ARRAY_FORGES.put(float[].class, new JsonWriteForgeByMethod("writeArrayFloatPrimitive"));
-        WRITE_ARRAY_FORGES.put(BigDecimal[].class, new JsonWriteForgeByMethod("writeArrayBigDecimal"));
-        WRITE_ARRAY_FORGES.put(BigInteger[].class, new JsonWriteForgeByMethod("writeArrayBigInteger"));
-        for (Class clazz : new Class[]{UUID[].class, OffsetDateTime[].class, LocalDate[].class, LocalDateTime[].class, ZonedDateTime[].class,
-            URL[].class, URI[].class}) {
+        WRITE_ARRAY_FORGES.put(STRINGARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayString"));
+        WRITE_ARRAY_FORGES.put(CHARBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayCharacter"));
+        WRITE_ARRAY_FORGES.put(BOOLEANBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayBoolean"));
+        WRITE_ARRAY_FORGES.put(BYTEBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayByte"));
+        WRITE_ARRAY_FORGES.put(SHORTBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayShort"));
+        WRITE_ARRAY_FORGES.put(INTEGERBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayInteger"));
+        WRITE_ARRAY_FORGES.put(LONGBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayLong"));
+        WRITE_ARRAY_FORGES.put(DOUBLEBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayDouble"));
+        WRITE_ARRAY_FORGES.put(FLOATBOXEDARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayFloat"));
+        WRITE_ARRAY_FORGES.put(CHARPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayCharPrimitive"));
+        WRITE_ARRAY_FORGES.put(BOOLEANPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayBooleanPrimitive"));
+        WRITE_ARRAY_FORGES.put(BYTEPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayBytePrimitive"));
+        WRITE_ARRAY_FORGES.put(SHORTPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayShortPrimitive"));
+        WRITE_ARRAY_FORGES.put(INTEGERPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayIntPrimitive"));
+        WRITE_ARRAY_FORGES.put(LONGPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayLongPrimitive"));
+        WRITE_ARRAY_FORGES.put(DOUBLEPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayDoublePrimitive"));
+        WRITE_ARRAY_FORGES.put(FLOATPRIMITIVEARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayFloatPrimitive"));
+        WRITE_ARRAY_FORGES.put(BIGDECIMALARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayBigDecimal"));
+        WRITE_ARRAY_FORGES.put(BIGINTEGERARRAY.getEPType(), new JsonWriteForgeByMethod("writeArrayBigInteger"));
+        for (EPTypeClass clazz : new EPTypeClass[]{UUIDARRAY.getEPType(), OFFSETDATETIMEARRAY.getEPType(), LOCALDATEARRAY.getEPType(), LOCALDATETIMEARRAY.getEPType(), ZONEDDATETIMEARRAY.getEPType(),
+            NETURLARRAY.getEPType(), NETURIARRAY.getEPType()}) {
             WRITE_ARRAY_FORGES.put(clazz, new JsonWriteForgeByMethod("writeArrayObjectToString"));
         }
 
-        WRITE_ARRAY_FORGES.put(String[][].class, new JsonWriteForgeByMethod("writeArray2DimString"));
-        WRITE_ARRAY_FORGES.put(Character[][].class, new JsonWriteForgeByMethod("writeArray2DimCharacter"));
-        WRITE_ARRAY_FORGES.put(Boolean[][].class, new JsonWriteForgeByMethod("writeArray2DimBoolean"));
-        WRITE_ARRAY_FORGES.put(Byte[][].class, new JsonWriteForgeByMethod("writeArray2DimByte"));
-        WRITE_ARRAY_FORGES.put(Short[][].class, new JsonWriteForgeByMethod("writeArray2DimShort"));
-        WRITE_ARRAY_FORGES.put(Integer[][].class, new JsonWriteForgeByMethod("writeArray2DimInteger"));
-        WRITE_ARRAY_FORGES.put(Long[][].class, new JsonWriteForgeByMethod("writeArray2DimLong"));
-        WRITE_ARRAY_FORGES.put(Double[][].class, new JsonWriteForgeByMethod("writeArray2DimDouble"));
-        WRITE_ARRAY_FORGES.put(Float[][].class, new JsonWriteForgeByMethod("writeArray2DimFloat"));
-        WRITE_ARRAY_FORGES.put(char[][].class, new JsonWriteForgeByMethod("writeArray2DimCharPrimitive"));
-        WRITE_ARRAY_FORGES.put(boolean[][].class, new JsonWriteForgeByMethod("writeArray2DimBooleanPrimitive"));
-        WRITE_ARRAY_FORGES.put(byte[][].class, new JsonWriteForgeByMethod("writeArray2DimBytePrimitive"));
-        WRITE_ARRAY_FORGES.put(short[][].class, new JsonWriteForgeByMethod("writeArray2DimShortPrimitive"));
-        WRITE_ARRAY_FORGES.put(int[][].class, new JsonWriteForgeByMethod("writeArray2DimIntPrimitive"));
-        WRITE_ARRAY_FORGES.put(long[][].class, new JsonWriteForgeByMethod("writeArray2DimLongPrimitive"));
-        WRITE_ARRAY_FORGES.put(double[][].class, new JsonWriteForgeByMethod("writeArray2DimDoublePrimitive"));
-        WRITE_ARRAY_FORGES.put(float[][].class, new JsonWriteForgeByMethod("writeArray2DimFloatPrimitive"));
-        WRITE_ARRAY_FORGES.put(BigDecimal[][].class, new JsonWriteForgeByMethod("writeArray2DimBigDecimal"));
-        WRITE_ARRAY_FORGES.put(BigInteger[][].class, new JsonWriteForgeByMethod("writeArray2DimBigInteger"));
-        for (Class clazz : new Class[]{UUID[][].class, OffsetDateTime[][].class, LocalDate[][].class, LocalDateTime[][].class, ZonedDateTime[][].class,
-            URL[][].class, URI[][].class}) {
+        WRITE_ARRAY_FORGES.put(STRINGARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimString"));
+        WRITE_ARRAY_FORGES.put(CHARBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimCharacter"));
+        WRITE_ARRAY_FORGES.put(BOOLEANBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimBoolean"));
+        WRITE_ARRAY_FORGES.put(BYTEBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimByte"));
+        WRITE_ARRAY_FORGES.put(SHORTBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimShort"));
+        WRITE_ARRAY_FORGES.put(INTEGERBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimInteger"));
+        WRITE_ARRAY_FORGES.put(LONGBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimLong"));
+        WRITE_ARRAY_FORGES.put(DOUBLEBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimDouble"));
+        WRITE_ARRAY_FORGES.put(FLOATBOXEDARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimFloat"));
+        WRITE_ARRAY_FORGES.put(CHARPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimCharPrimitive"));
+        WRITE_ARRAY_FORGES.put(BOOLEANPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimBooleanPrimitive"));
+        WRITE_ARRAY_FORGES.put(BYTEPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimBytePrimitive"));
+        WRITE_ARRAY_FORGES.put(SHORTPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimShortPrimitive"));
+        WRITE_ARRAY_FORGES.put(INTEGERPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimIntPrimitive"));
+        WRITE_ARRAY_FORGES.put(LONGPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimLongPrimitive"));
+        WRITE_ARRAY_FORGES.put(DOUBLEPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimDoublePrimitive"));
+        WRITE_ARRAY_FORGES.put(FLOATPRIMITIVEARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimFloatPrimitive"));
+        WRITE_ARRAY_FORGES.put(BIGDECIMALARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimBigDecimal"));
+        WRITE_ARRAY_FORGES.put(BIGINTEGERARRAYARRAY.getEPType(), new JsonWriteForgeByMethod("writeArray2DimBigInteger"));
+        for (EPTypeClass clazz : new EPTypeClass[]{UUIDARRAYARRAY.getEPType(), OFFSETDATETIMEARRAYARRAY.getEPType(), LOCALDATEARRAYARRAY.getEPType(), LOCALDATETIMEARRAYARRAY.getEPType(), ZONEDDATETIMEARRAYARRAY.getEPType(),
+            NETURLARRAYARRAY.getEPType(), NETURIARRAYARRAY.getEPType()}) {
             WRITE_ARRAY_FORGES.put(clazz, new JsonWriteForgeByMethod("writeArray2DimObjectToString"));
         }
 
-        START_COLLECTION_FORGES.put(String.class, JsonDelegateCollectionString.class);
-        START_COLLECTION_FORGES.put(Character.class, JsonDelegateCollectionCharacter.class);
-        START_COLLECTION_FORGES.put(Boolean.class, JsonDelegateCollectionBoolean.class);
-        START_COLLECTION_FORGES.put(Byte.class, JsonDelegateCollectionByte.class);
-        START_COLLECTION_FORGES.put(Short.class, JsonDelegateCollectionShort.class);
-        START_COLLECTION_FORGES.put(Integer.class, JsonDelegateCollectionInteger.class);
-        START_COLLECTION_FORGES.put(Long.class, JsonDelegateCollectionLong.class);
-        START_COLLECTION_FORGES.put(Double.class, JsonDelegateCollectionDouble.class);
-        START_COLLECTION_FORGES.put(Float.class, JsonDelegateCollectionFloat.class);
-        START_COLLECTION_FORGES.put(BigDecimal.class, JsonDelegateCollectionBigDecimal.class);
-        START_COLLECTION_FORGES.put(BigInteger.class, JsonDelegateCollectionBigInteger.class);
-        START_COLLECTION_FORGES.put(UUID.class, JsonDelegateCollectionUUID.class);
-        START_COLLECTION_FORGES.put(OffsetDateTime.class, JsonDelegateCollectionOffsetDateTime.class);
-        START_COLLECTION_FORGES.put(LocalDate.class, JsonDelegateCollectionLocalDate.class);
-        START_COLLECTION_FORGES.put(LocalDateTime.class, JsonDelegateCollectionLocalDateTime.class);
-        START_COLLECTION_FORGES.put(ZonedDateTime.class, JsonDelegateCollectionZonedDateTime.class);
-        START_COLLECTION_FORGES.put(URL.class, JsonDelegateCollectionURL.class);
-        START_COLLECTION_FORGES.put(URI.class, JsonDelegateCollectionURI.class);
+        START_COLLECTION_FORGES.put(STRING.getEPType(), JsonDelegateCollectionString.EPTYPE);
+        START_COLLECTION_FORGES.put(CHARBOXED.getEPType(), JsonDelegateCollectionCharacter.EPTYPE);
+        START_COLLECTION_FORGES.put(BOOLEANBOXED.getEPType(), JsonDelegateCollectionBoolean.EPTYPE);
+        START_COLLECTION_FORGES.put(BYTEBOXED.getEPType(), JsonDelegateCollectionByte.EPTYPE);
+        START_COLLECTION_FORGES.put(SHORTBOXED.getEPType(), JsonDelegateCollectionShort.EPTYPE);
+        START_COLLECTION_FORGES.put(INTEGERBOXED.getEPType(), JsonDelegateCollectionInteger.EPTYPE);
+        START_COLLECTION_FORGES.put(LONGBOXED.getEPType(), JsonDelegateCollectionLong.EPTYPE);
+        START_COLLECTION_FORGES.put(DOUBLEBOXED.getEPType(), JsonDelegateCollectionDouble.EPTYPE);
+        START_COLLECTION_FORGES.put(FLOATBOXED.getEPType(), JsonDelegateCollectionFloat.EPTYPE);
+        START_COLLECTION_FORGES.put(BIGDECIMAL.getEPType(), JsonDelegateCollectionBigDecimal.EPTYPE);
+        START_COLLECTION_FORGES.put(BIGINTEGER.getEPType(), JsonDelegateCollectionBigInteger.EPTYPE);
+        START_COLLECTION_FORGES.put(UUID.getEPType(), JsonDelegateCollectionUUID.EPTYPE);
+        START_COLLECTION_FORGES.put(OFFSETDATETIME.getEPType(), JsonDelegateCollectionOffsetDateTime.EPTYPE);
+        START_COLLECTION_FORGES.put(LOCALDATE.getEPType(), JsonDelegateCollectionLocalDate.EPTYPE);
+        START_COLLECTION_FORGES.put(LOCALDATETIME.getEPType(), JsonDelegateCollectionLocalDateTime.EPTYPE);
+        START_COLLECTION_FORGES.put(ZONEDDATETIME.getEPType(), JsonDelegateCollectionZonedDateTime.EPTYPE);
+        START_COLLECTION_FORGES.put(NETURL.getEPType(), JsonDelegateCollectionURL.EPTYPE);
+        START_COLLECTION_FORGES.put(NETURI.getEPType(), JsonDelegateCollectionURI.EPTYPE);
 
-        WRITE_COLLECTION_FORGES.put(String.class, new JsonWriteForgeByMethod("writeCollectionString"));
-        WRITE_COLLECTION_FORGES.put(Character.class, new JsonWriteForgeByMethod("writeCollectionWToString"));
-        WRITE_COLLECTION_FORGES.put(Boolean.class, new JsonWriteForgeByMethod("writeCollectionBoolean"));
-        WRITE_COLLECTION_FORGES.put(Byte.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        WRITE_COLLECTION_FORGES.put(Short.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        WRITE_COLLECTION_FORGES.put(Integer.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        WRITE_COLLECTION_FORGES.put(Long.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        WRITE_COLLECTION_FORGES.put(Double.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        WRITE_COLLECTION_FORGES.put(Float.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        WRITE_COLLECTION_FORGES.put(BigDecimal.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        WRITE_COLLECTION_FORGES.put(BigInteger.class, new JsonWriteForgeByMethod("writeCollectionNumber"));
-        for (Class clazz : new Class[]{UUID.class, OffsetDateTime.class, LocalDate.class, LocalDateTime.class, ZonedDateTime.class,
-            URL.class, URI.class}) {
+        WRITE_COLLECTION_FORGES.put(STRING.getEPType(), new JsonWriteForgeByMethod("writeCollectionString"));
+        WRITE_COLLECTION_FORGES.put(CHARBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionWToString"));
+        WRITE_COLLECTION_FORGES.put(BOOLEANBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionBoolean"));
+        WRITE_COLLECTION_FORGES.put(BYTEBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        WRITE_COLLECTION_FORGES.put(SHORTBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        WRITE_COLLECTION_FORGES.put(INTEGERBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        WRITE_COLLECTION_FORGES.put(LONGBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        WRITE_COLLECTION_FORGES.put(DOUBLEBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        WRITE_COLLECTION_FORGES.put(FLOATBOXED.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        WRITE_COLLECTION_FORGES.put(BIGDECIMAL.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        WRITE_COLLECTION_FORGES.put(BIGINTEGER.getEPType(), new JsonWriteForgeByMethod("writeCollectionNumber"));
+        for (EPTypeClass clazz : new EPTypeClass[]{UUID.getEPType(), OFFSETDATETIME.getEPType(), LOCALDATE.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
+            NETURL.getEPType(), NETURI.getEPType()}) {
             WRITE_COLLECTION_FORGES.put(clazz, new JsonWriteForgeByMethod("writeCollectionWToString"));
         }
     }
 
-    public static JsonForgeDesc forge(Class type, String fieldName, Field optionalField, Map<Class, JsonApplicationClassDelegateDesc> deepClasses, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
-        type = JavaClassHelper.getBoxedType(type);
+    public static JsonForgeDesc forge(EPTypeClass classType, String fieldName, Field optionalField, Map<EPTypeClass, JsonApplicationClassDelegateDesc> deepClasses, Annotation[] annotations, StatementCompileTimeServices services) throws ExprValidationException {
+        classType = JavaClassHelper.getBoxedType(classType);
         JsonDelegateForge startObject = null;
         JsonDelegateForge startArray = null;
-        JsonEndValueForge end = END_VALUE_FORGES.get(type);
-        JsonWriteForge write = WRITE_FORGES.get(type);
+        JsonEndValueForge end = END_VALUE_FORGES.get(classType);
+        JsonWriteForge write = WRITE_FORGES.get(classType);
 
         JsonSchemaField fieldAnnotation = findFieldAnnotation(fieldName, annotations);
+        EPTypeClass type = classType;
 
-        if (fieldAnnotation != null && type != null) {
-            Class clazz;
+        if (fieldAnnotation != null) {
+            EPTypeClass clazz;
             try {
-                clazz = services.getClasspathImportServiceCompileTime().resolveClass(fieldAnnotation.adapter(), true, ClasspathExtensionClassEmpty.INSTANCE);
+                Class resolved = services.getClasspathImportServiceCompileTime().resolveClass(fieldAnnotation.adapter(), true, ClasspathExtensionClassEmpty.INSTANCE);
+                clazz = ClassHelperGenericType.getClassEPType(resolved);
             } catch (ClasspathImportException e) {
                 throw new ExprValidationException("Failed to resolve Json schema field adapter class: " + e.getMessage(), e);
             }
             if (!JavaClassHelper.isImplementsInterface(clazz, JsonFieldAdapterString.class)) {
                 throw new ExprValidationException("Json schema field adapter class does not implement interface '" + JsonFieldAdapterString.class.getSimpleName());
             }
-            if (!ConstructorHelper.hasDefaultConstructor(clazz)) {
-                throw new ExprValidationException("Json schema field adapter class '" + clazz.getSimpleName() + "' does not have a default constructor");
+            if (!ConstructorHelper.hasDefaultConstructor(clazz.getType())) {
+                throw new ExprValidationException("Json schema field adapter class '" + clazz + "' does not have a default constructor");
             }
             Method writeMethod;
             try {
-                writeMethod = MethodResolver.resolveMethod(clazz, "parse", new Class[]{String.class}, true, new boolean[1], new boolean[1]);
+                writeMethod = MethodResolver.resolveMethod(clazz.getType(), "parse", new EPTypeClass[]{STRING.getEPType()}, true, new boolean[1], new boolean[1]);
             } catch (MethodResolverNoSuchMethodException e) {
                 throw new ExprValidationException("Failed to resolve write method of Json schema field adapter class: " + e.getMessage(), e);
             }
             if (!JavaClassHelper.isSubclassOrImplementsInterface(type, writeMethod.getReturnType())) {
-                throw new ExprValidationException("Json schema field adapter class '" + clazz.getSimpleName() + "' mismatches the return type of the parse method, expected '" + type.getSimpleName() + "' but found '" + writeMethod.getReturnType().getSimpleName() + "'");
+                throw new ExprValidationException("Json schema field adapter class '" + clazz + "' mismatches the return type of the parse method, expected '" + type + "' but found '" + writeMethod.getReturnType().getSimpleName() + "'");
             }
             end = new JsonEndValueForgeProvidedStringAdapter(clazz);
             write = new JsonWriteForgeProvidedStringAdapter(clazz);
-        } else if (type == Object.class) {
-            startObject = new JsonDelegateForgeByClass(JsonDelegateJsonGenericObject.class);
-            startArray = new JsonDelegateForgeByClass(JsonDelegateJsonGenericArray.class);
+        } else if (type.getType() == Object.class) {
+            startObject = new JsonDelegateForgeByClass(JsonDelegateJsonGenericObject.EPTYPE);
+            startArray = new JsonDelegateForgeByClass(JsonDelegateJsonGenericArray.EPTYPE);
             end = JsonEndValueForgeJsonValue.INSTANCE;
             write = new JsonWriteForgeByMethod("writeJsonValue");
-        } else if (type == Object[].class) {
-            startArray = new JsonDelegateForgeByClass(JsonDelegateJsonGenericArray.class);
-            end = new JsonEndValueForgeCast(type);
+        } else if (type.getType() == Object[].class) {
+            startArray = new JsonDelegateForgeByClass(JsonDelegateJsonGenericArray.EPTYPE);
+            end = new JsonEndValueForgeCast(EPTypePremade.OBJECTARRAY.getEPType());
             write = new JsonWriteForgeByMethod("writeJsonArray");
-        } else if (type == Map.class) {
-            startObject = new JsonDelegateForgeByClass(JsonDelegateJsonGenericObject.class);
-            end = new JsonEndValueForgeCast(type);
+        } else if (type.getType() == Map.class) {
+            startObject = new JsonDelegateForgeByClass(JsonDelegateJsonGenericObject.EPTYPE);
+            end = new JsonEndValueForgeCast(EPTypePremade.MAP.getEPType());
             write = new JsonWriteForgeByMethod("writeJsonMap");
-        } else if (type.isEnum()) {
-            end = new JsonEndValueForgeEnum(type);
+        } else if (type.getType().isEnum()) {
+            end = new JsonEndValueForgeEnum(classType);
             write = JsonWriteForgeStringWithToString.INSTANCE;
-        } else if (type.isArray()) {
-            if (type.getComponentType().isEnum()) {
-                startArray = new JsonDelegateForgeByClass(JsonDelegateArrayEnum.class, constant(type.getComponentType()));
+        } else if (type.getType().isArray()) {
+            if (type.getType().getComponentType().isEnum()) {
+                startArray = new JsonDelegateForgeByClass(JsonDelegateArrayEnum.EPTYPE, constant(JavaClassHelper.getArrayComponentType(type)));
                 write = new JsonWriteForgeByMethod("writeEnumArray");
-            } else if (type.getComponentType().isArray() && type.getComponentType().getComponentType().isEnum()) {
-                startArray = new JsonDelegateForgeByClass(JsonDelegateArray2DimEnum.class, constant(type.getComponentType().getComponentType()));
+            } else if (type.getType().getComponentType().isArray() && type.getType().getComponentType().getComponentType().isEnum()) {
+                startArray = new JsonDelegateForgeByClass(JsonDelegateArray2DimEnum.EPTYPE, constant(JavaClassHelper.getArrayComponentType(JavaClassHelper.getArrayComponentType(type))));
                 write = new JsonWriteForgeByMethod("writeEnumArray2Dim");
             } else {
-                Class arrayType = JavaClassHelper.getArrayComponentTypeInnermost(type);
-                JsonApplicationClassDelegateDesc classNames = deepClasses.get(arrayType);
-                if (classNames != null && JavaClassHelper.getArrayDimensions(arrayType) <= 2) {
-                    if (type.getComponentType().isArray()) {
-                        startArray = new JsonDelegateForgeWithDelegateFactoryArray2Dim(classNames.getDelegateFactoryClassName(), type.getComponentType());
+                EPTypeClass componentTypeInnermost = JavaClassHelper.getArrayComponentTypeInnermost(type);
+                JsonApplicationClassDelegateDesc classNames = deepClasses.get(componentTypeInnermost);
+                if (classNames != null && JavaClassHelper.getArrayDimensions(componentTypeInnermost.getType()) <= 2) {
+                    if (type.getType().getComponentType().isArray()) {
+                        startArray = new JsonDelegateForgeWithDelegateFactoryArray2Dim(classNames.getDelegateFactoryClassName(), JavaClassHelper.getArrayComponentType(type));
                         write = new JsonWriteForgeAppClass(classNames.getDelegateFactoryClassName(), "writeArray2DimAppClass");
                     } else {
-                        startArray = new JsonDelegateForgeWithDelegateFactoryArray(classNames.getDelegateFactoryClassName(), arrayType);
+                        startArray = new JsonDelegateForgeWithDelegateFactoryArray(classNames.getDelegateFactoryClassName(), componentTypeInnermost);
                         write = new JsonWriteForgeAppClass(classNames.getDelegateFactoryClassName(), "writeArrayAppClass");
                     }
                 } else {
-                    Class startArrayDelegateClass = START_ARRAY_FORGES.get(type);
+                    EPTypeClass startArrayDelegateClass = START_ARRAY_FORGES.get(type);
                     if (startArrayDelegateClass == null) {
-                        throw getUnsupported(type, fieldName);
+                        throw getUnsupported(type.getType(), fieldName);
                     }
                     startArray = new JsonDelegateForgeByClass(startArrayDelegateClass);
-                    write = WRITE_ARRAY_FORGES.get(type);
+                    write = WRITE_ARRAY_FORGES.get(classType);
                 }
             }
-            end = new JsonEndValueForgeCast(type);
-        } else if (type == List.class) {
+            end = new JsonEndValueForgeCast(classType);
+        } else if (type.getType() == List.class) {
             if (optionalField != null) {
-                Class genericType = JavaClassHelper.getGenericFieldType(optionalField, true);
-                if (genericType == null) {
+                EPTypeClass fieldType = ClassHelperGenericType.getFieldEPType(optionalField);
+                EPTypeClass genericTypeClass = fieldType instanceof EPTypeClassParameterized ? ((EPTypeClassParameterized) fieldType).getParameters()[0] : null; 
+                if (genericTypeClass == null) {
                     return null;
                 }
-                end = new JsonEndValueForgeCast(List.class); // we are casting to list
-                JsonApplicationClassDelegateDesc classNames = deepClasses.get(genericType);
+                end = new JsonEndValueForgeCast(EPTypePremade.LIST.getEPType()); // we are casting to list
+                JsonApplicationClassDelegateDesc classNames = deepClasses.get(genericTypeClass);
                 if (classNames != null) {
                     startArray = new JsonDelegateForgeWithDelegateFactoryCollection(classNames.getDelegateFactoryClassName());
                     write = new JsonWriteForgeAppClass(classNames.getDelegateFactoryClassName(), "writeCollectionAppClass");
                 } else {
-                    if (genericType.isEnum()) {
-                        startArray = new JsonDelegateForgeByClass(JsonDelegateCollectionEnum.class, constant(genericType));
+                    if (genericTypeClass.getType().isEnum()) {
+                        startArray = new JsonDelegateForgeByClass(JsonDelegateCollectionEnum.EPTYPE, constant(genericTypeClass));
                         write = new JsonWriteForgeByMethod("writeEnumCollection");
                     } else {
-                        Class startArrayDelegateClass = START_COLLECTION_FORGES.get(genericType);
+                        EPTypeClass startArrayDelegateClass = START_COLLECTION_FORGES.get(genericTypeClass);
                         if (startArrayDelegateClass == null) {
-                            throw getUnsupported(genericType, fieldName);
+                            throw getUnsupported(genericTypeClass.getType(), fieldName);
                         }
                         startArray = new JsonDelegateForgeByClass(startArrayDelegateClass);
-                        write = WRITE_COLLECTION_FORGES.get(genericType);
+                        write = WRITE_COLLECTION_FORGES.get(genericTypeClass);
                     }
                 }
             }
@@ -333,18 +331,19 @@ public class JsonForgeFactoryBuiltinClassTyped {
         if (end == null) {
             JsonApplicationClassDelegateDesc delegateDesc = deepClasses.get(type);
             if (delegateDesc == null) {
-                throw getUnsupported(type, fieldName);
+                throw getUnsupported(type.getType(), fieldName);
             }
-            end = new JsonEndValueForgeCast(type);
+            end = new JsonEndValueForgeCast(classType);
             write = new JsonWriteForgeDelegate(delegateDesc.getDelegateFactoryClassName());
             if (optionalField != null && optionalField.getDeclaringClass() == optionalField.getType()) {
-                startObject = new JsonDelegateForgeWithDelegateFactorySelf(delegateDesc.getDelegateClassName(), optionalField.getType());
+                EPTypeClass beanClass = ClassHelperGenericType.getFieldEPType(optionalField);
+                startObject = new JsonDelegateForgeWithDelegateFactorySelf(delegateDesc.getDelegateClassName(), beanClass);
             } else {
                 startObject = new JsonDelegateForgeWithDelegateFactory(delegateDesc.getDelegateFactoryClassName());
             }
         }
         if (write == null) {
-            throw getUnsupported(type, fieldName);
+            throw getUnsupported(type.getType(), fieldName);
         }
 
         return new JsonForgeDesc(fieldName, startObject, startArray, end, write);

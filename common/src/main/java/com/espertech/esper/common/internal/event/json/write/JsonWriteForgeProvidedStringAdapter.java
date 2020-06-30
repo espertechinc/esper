@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.json.write;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,9 +19,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class JsonWriteForgeProvidedStringAdapter implements JsonWriteForge {
-    private final Class adapterClass;
+    private final EPTypeClass adapterClass;
 
-    public JsonWriteForgeProvidedStringAdapter(Class adapterClass) {
+    public JsonWriteForgeProvidedStringAdapter(EPTypeClass adapterClass) {
         this.adapterClass = adapterClass;
     }
 

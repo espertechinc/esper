@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -38,9 +40,9 @@ public abstract class QueryGraphValueEntryRangeForge implements QueryGraphValueE
 
     public abstract ExprNode[] getExpressions();
 
-    protected abstract Class getResultType();
+    protected abstract EPType getResultType();
 
-    public abstract CodegenExpression make(Class optionalCoercionType, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
+    public abstract CodegenExpression make(EPTypeClass optionalCoercionType, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
     public static String toQueryPlan(List<QueryGraphValueEntryRangeForge> rangeKeyPairs) {
         StringWriter writer = new StringWriter();
@@ -58,11 +60,11 @@ public abstract class QueryGraphValueEntryRangeForge implements QueryGraphValueE
         for (int i = 0; i < ranges.length; i++) {
             expressions[i] = ranges[i].make(method, symbols, classScope);
         }
-        return newArrayWithInit(QueryGraphValueEntryRange.class, expressions);
+        return newArrayWithInit(QueryGraphValueEntryRange.EPTYPE, expressions);
     }
 
-    public static Class[] getRangeResultTypes(QueryGraphValueEntryRangeForge[] ranges) {
-        Class[] types = new Class[ranges.length];
+    public static EPType[] getRangeResultTypes(QueryGraphValueEntryRangeForge[] ranges) {
+        EPType[] types = new EPType[ranges.length];
         for (int i = 0; i < ranges.length; i++) {
             types[i] = ranges[i].getResultType();
         }

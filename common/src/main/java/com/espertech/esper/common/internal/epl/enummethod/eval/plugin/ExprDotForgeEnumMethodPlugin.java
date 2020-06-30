@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.epl.enummethod.eval.plugin;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.enummethod.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
@@ -33,7 +36,6 @@ import com.espertech.esper.common.internal.util.MethodResolverNoSuchMethodExcept
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class ExprDotForgeEnumMethodPlugin extends ExprDotForgeEnumMethodBase {
@@ -46,7 +48,7 @@ public class ExprDotForgeEnumMethodPlugin extends ExprDotForgeEnumMethodBase {
     }
 
     @Override
-    public void initialize(DotMethodFP footprint, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, List<ExprNode> parameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+    public void initialize(DotMethodFP footprint, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, List<ExprNode> parameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         // validate
         EnumMethodValidateContext ctx = new EnumMethodValidateContext(footprint, inputEventType, collectionComponentType, streamTypeService, enumMethod, parameters, statementRawInfo);
         EnumMethodMode enumMethodMode = forgeFactory.validate(ctx);
@@ -56,7 +58,7 @@ public class ExprDotForgeEnumMethodPlugin extends ExprDotForgeEnumMethodBase {
         this.mode = (EnumMethodModeStaticMethod) enumMethodMode;
     }
 
-    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext) {
+    public EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, ExprValidationContext validationContext) {
         if (mode == null) {
             throw new IllegalStateException("Initialize did not take place");
         }
@@ -73,11 +75,11 @@ public class ExprDotForgeEnumMethodPlugin extends ExprDotForgeEnumMethodBase {
         private final DotMethodFP footprint;
         private final List<ExprNode> parameters;
         private final EventType inputEventType;
-        private final Class collectionComponentType;
+        private final EPTypeClass collectionComponentType;
         private final StatementRawInfo raw;
         private final StatementCompileTimeServices services;
 
-        public EnumForgeDescFactoryPlugin(EnumMethodModeStaticMethod mode, String enumMethodUsedName, DotMethodFP footprint, List<ExprNode> parameters, EventType inputEventType, Class collectionComponentType, StatementRawInfo raw, StatementCompileTimeServices services) {
+        public EnumForgeDescFactoryPlugin(EnumMethodModeStaticMethod mode, String enumMethodUsedName, DotMethodFP footprint, List<ExprNode> parameters, EventType inputEventType, EPTypeClass collectionComponentType, StatementRawInfo raw, StatementCompileTimeServices services) {
             this.mode = mode;
             this.enumMethodUsedName = enumMethodUsedName;
             this.footprint = footprint;
@@ -114,7 +116,7 @@ public class ExprDotForgeEnumMethodPlugin extends ExprDotForgeEnumMethodBase {
                         types[i] = inputEventType;
                     }
                 } else if (lambdaParamType instanceof EnumMethodLambdaParameterTypeIndex || lambdaParamType instanceof EnumMethodLambdaParameterTypeSize) {
-                    types[i] = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(i), int.class, raw, services);
+                    types[i] = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(i), EPTypePremade.INTEGERPRIMITIVE.getEPType(), raw, services);
                 } else if (lambdaParamType instanceof EnumMethodLambdaParameterTypeStateGetter) {
                     EnumMethodLambdaParameterTypeStateGetter getter = (EnumMethodLambdaParameterTypeStateGetter) lambdaParamType;
                     types[i] = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(i), getter.getType(), raw, services);
@@ -134,14 +136,14 @@ public class ExprDotForgeEnumMethodPlugin extends ExprDotForgeEnumMethodBase {
         public EnumForgeDesc makeEnumForgeDesc(List<ExprDotEvalParam> bodiesAndParameters, int streamCountIncoming, StatementCompileTimeServices services)
             throws ExprValidationException {
             // determine static method
-            List<Class> parametersNext = new ArrayList<>();
+            List<EPType> parametersNext = new ArrayList<>();
 
             // first parameter is always the state
             parametersNext.add(mode.getStateClass());
 
             // second parameter is the value: EventBean for event collection or the collection component type
             if (inputEventType != null) {
-                parametersNext.add(EventBean.class);
+                parametersNext.add(EventBean.EPTYPE);
             } else {
                 parametersNext.add(collectionComponentType);
             }
@@ -157,32 +159,32 @@ public class ExprDotForgeEnumMethodPlugin extends ExprDotForgeEnumMethodBase {
             boolean[] noFlags = new boolean[parametersNext.size()];
             Method serviceMethod;
             try {
-                serviceMethod = MethodResolver.resolveMethod(mode.getServiceClass(), mode.getMethodName(), parametersNext.toArray(new Class[0]), false, noFlags, noFlags);
+                serviceMethod = MethodResolver.resolveMethod(mode.getServiceClass(), mode.getMethodName(), parametersNext.toArray(new EPTypeClass[0]), false, noFlags, noFlags);
             } catch (MethodResolverNoSuchMethodException ex) {
                 throw new ExprValidationException("Failed to find service method for enumeration-method '" + mode.getMethodName() + "': " + ex.getMessage(), ex);
             }
-            if (serviceMethod.getReturnType() != void.class) {
+            if (!JavaClassHelper.isTypeVoid(serviceMethod.getReturnType())) {
                 throw new ExprValidationException("Failed to validate service method for enumeration-method '" + mode.getMethodName() + "', expected void return type");
             }
 
             // obtain expected return type
-            EPType returnType = mode.getReturnType();
-            Class expectedStateReturnType;
-            if (returnType instanceof ClassEPType) {
-                expectedStateReturnType = ((ClassEPType) returnType).getType();
-            } else if (returnType instanceof EventEPType) {
-                expectedStateReturnType = EventBean.class;
-            } else if (returnType instanceof EventMultiValuedEPType) {
-                expectedStateReturnType = Collection.class;
-            } else if (returnType instanceof ClassMultiValuedEPType) {
-                expectedStateReturnType = ((ClassMultiValuedEPType) returnType).getComponent();
+            EPChainableType returnType = mode.getReturnType();
+            EPTypeClass expectedStateReturnType;
+            if (returnType instanceof EPChainableTypeClass) {
+                expectedStateReturnType = ((EPChainableTypeClass) returnType).getType();
+            } else if (returnType instanceof EPChainableTypeEventSingle) {
+                expectedStateReturnType = EventBean.EPTYPE;
+            } else if (returnType instanceof EPChainableTypeEventMulti) {
+                expectedStateReturnType = EPTypePremade.COLLECTION.getEPType();
+            } else if (returnType instanceof EPChainableTypeNull) {
+                expectedStateReturnType = null;
             } else {
                 throw new ExprValidationException("Unrecognized return type " + returnType);
             }
 
             // check state-class
-            if (!JavaClassHelper.isSubclassOrImplementsInterface(mode.getStateClass(), EnumMethodState.class)) {
-                throw new ExprValidationException("State class " + mode.getStateClass().getName() + " does implement the " + EnumMethodState.class.getName() + " interface");
+            if (!JavaClassHelper.isSubclassOrImplementsInterface(mode.getStateClass().getType(), EnumMethodState.class)) {
+                throw new ExprValidationException("State class " + mode.getStateClass().getTypeName() + " does implement the " + EnumMethodState.class.getName() + " interface");
             }
 
             EnumForgePlugin forge = new EnumForgePlugin(bodiesAndParameters, mode, expectedStateReturnType, streamCountIncoming, inputEventType);

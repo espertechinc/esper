@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.property;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
@@ -46,15 +47,14 @@ public class TestMappedProperty extends TestCase {
     }
 
     public void testGetPropertyType() {
-        Class[] expected = new Class[]{String.class, String.class};
         for (int i = 0; i < mapped.length; i++) {
-            assertEquals(expected[i], mapped[i].getPropertyType(eventType, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
+            assertEquals(EPTypePremade.STRING.getEPType(), mapped[i].getPropertyType(eventType, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
         }
 
         // try invalid case
         MappedProperty mpd = new MappedProperty("dummy", "dummy");
         assertNull(mpd.getPropertyType(eventType, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
         mpd = new MappedProperty("mapProperty", "dummy");
-        assertEquals(String.class, mpd.getPropertyType(eventType, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
+        assertEquals(EPTypePremade.STRING.getEPType(), mpd.getPropertyType(eventType, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY));
     }
 }

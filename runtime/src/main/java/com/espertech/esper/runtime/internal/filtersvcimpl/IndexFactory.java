@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.SettingsApplicationDotMethodPointInsideRectange;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.SettingsApplicationDotMethodRectangeIntersectsRectangle;
@@ -32,7 +33,7 @@ public class IndexFactory {
      */
     public static FilterParamIndexBase createIndex(ExprFilterSpecLookupable lookupable, FilterServiceGranularLockFactory lockFactory, FilterOperator filterOperator) {
         FilterParamIndexBase index;
-        Class returnValueType = lookupable.getReturnType();
+        EPTypeClass returnValueType = lookupable.getReturnType();
 
         // Handle all EQUAL comparisons
         if (filterOperator == FilterOperator.EQUAL) {
@@ -61,7 +62,7 @@ public class IndexFactory {
                 (filterOperator == FilterOperator.GREATER_OR_EQUAL) ||
                 (filterOperator == FilterOperator.LESS) ||
                 (filterOperator == FilterOperator.LESS_OR_EQUAL)) {
-            if (returnValueType != String.class) {
+            if (returnValueType.getType() != String.class) {
                 index = new FilterParamIndexCompare(lookupable, lockFactory.obtainNew(), filterOperator);
             } else {
                 index = new FilterParamIndexCompareString(lookupable, lockFactory.obtainNew(), filterOperator);
@@ -71,7 +72,7 @@ public class IndexFactory {
 
         // Handle all normal and inverted RANGE comparisons
         if (filterOperator.isRangeOperator()) {
-            if (returnValueType != String.class) {
+            if (returnValueType.getType() != String.class) {
                 index = new FilterParamIndexDoubleRange(lookupable, lockFactory.obtainNew(), filterOperator);
             } else {
                 index = new FilterParamIndexStringRange(lookupable, lockFactory.obtainNew(), filterOperator);
@@ -79,7 +80,7 @@ public class IndexFactory {
             return index;
         }
         if (filterOperator.isInvertedRangeOperator()) {
-            if (returnValueType != String.class) {
+            if (returnValueType.getType() != String.class) {
                 return new FilterParamIndexDoubleRangeInverted(lookupable, lockFactory.obtainNew(), filterOperator);
             } else {
                 return new FilterParamIndexStringRangeInverted(lookupable, lockFactory.obtainNew(), filterOperator);

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -33,7 +34,7 @@ public class DTLocalCalOpsIntervalForge extends DTLocalForgeCalOpsIntervalBase {
         return new DTLocalCalOpsIntervalEval(getCalendarOps(calendarForges), intervalForge.getOp(), TimeZone.getDefault());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return DTLocalCalOpsIntervalEval.codegenPointInTime(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

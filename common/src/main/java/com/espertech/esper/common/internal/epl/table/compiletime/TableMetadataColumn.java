@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.table.compiletime;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -18,7 +19,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -44,8 +44,8 @@ public abstract class TableMetadataColumn {
     }
 
     public static CodegenExpression makeColumns(Map<String, TableMetadataColumn> columns, CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, TableMetadataColumn.class, classScope);
-        method.getBlock().declareVar(Map.class, "cols", newInstance(HashMap.class));
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), TableMetadataColumn.class, classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "cols", newInstance(EPTypePremade.HASHMAP.getEPType()));
         for (Map.Entry<String, TableMetadataColumn> entry : columns.entrySet()) {
             method.getBlock().exprDotMethod(ref("cols"), "put", constant(entry.getKey()), entry.getValue().make(method, symbols, classScope));
         }

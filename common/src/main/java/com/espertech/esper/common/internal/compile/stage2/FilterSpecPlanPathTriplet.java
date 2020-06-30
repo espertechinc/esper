@@ -10,10 +10,14 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParam;
 
 public class FilterSpecPlanPathTriplet {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecPlanPathTriplet.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(FilterSpecPlanPathTriplet[].class);
+
     private FilterSpecParam param;
     private ExprEvaluator tripletConfirm;
 

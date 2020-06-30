@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 
-import java.util.Collection;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
@@ -40,9 +41,9 @@ public class ExprSubselectEvalMatchSymbol extends ExprForgeCodegenSymbol {
     }
 
     @Override
-    public void provide(Map<String, Class> symbols) {
+    public void provide(Map<String, EPTypeClass> symbols) {
         if (optionalMatchingEventRef != null) {
-            symbols.put(optionalMatchingEventRef.getRef(), Collection.class);
+            symbols.put(optionalMatchingEventRef.getRef(), EPTypePremade.COLLECTION.getEPType());
         }
         super.provide(symbols);
     }

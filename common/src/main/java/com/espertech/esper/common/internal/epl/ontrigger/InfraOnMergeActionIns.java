@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.ontrigger;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 
 public class InfraOnMergeActionIns extends InfraOnMergeAction {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InfraOnMergeActionIns.class);
+
     private final SelectExprProcessor insertHelper;
     private final Table insertIntoTable;
     private final boolean audit;

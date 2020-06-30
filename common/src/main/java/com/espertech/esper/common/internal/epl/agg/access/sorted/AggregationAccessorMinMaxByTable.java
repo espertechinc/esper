@@ -37,7 +37,7 @@ public class AggregationAccessorMinMaxByTable extends AggregationAccessorMinMaxB
     public void getValueCodegen(AggregationAccessorForgeGetCodegenContext context) {
         CodegenExpressionField eventToPublic = TableDeployTimeResolver.makeTableEventToPublicField(table, context.getClassScope(), this.getClass());
         AggregatorAccessSorted forge = (AggregatorAccessSorted) context.getAccessStateForge().getAggregator();
-        context.getMethod().getBlock().declareVar(EventBean.class, "event", max ? forge.getLastValueCodegen(context.getClassScope(), context.getMethod()) : forge.getFirstValueCodegen(context.getClassScope(), context.getMethod()))
+        context.getMethod().getBlock().declareVar(EventBean.EPTYPE, "event", max ? forge.getLastValueCodegen(context.getClassScope(), context.getMethod()) : forge.getFirstValueCodegen(context.getClassScope(), context.getMethod()))
             .ifRefNullReturnNull("event")
             .methodReturn(exprDotMethod(eventToPublic, "convertToUnd", ref("event"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
     }

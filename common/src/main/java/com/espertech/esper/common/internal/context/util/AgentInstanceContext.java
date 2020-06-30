@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.util;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.client.render.EPRenderEventService;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.mgr.ContextServiceFactory;
 import com.espertech.esper.common.internal.context.module.RuntimeExtensionServices;
@@ -55,6 +56,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 public class AgentInstanceContext implements ExprEvaluatorContext {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AgentInstanceContext.class);
     private final long filterVersionAfterAllocation;
     private final StatementContext statementContext;
     private final EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;

@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -44,9 +48,9 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object array = Array.newInstance(forge.getArrayReturnType(), evaluators.length);
+        Object array = Array.newInstance(forge.getArrayReturnType().getType(), evaluators.length);
         int index = 0;
-        boolean requiresPrimitive = forge.getParent().getOptionalRequiredType() != null && forge.getParent().getOptionalRequiredType().isPrimitive();
+        boolean requiresPrimitive = forge.getParent().getOptionalRequiredType() != null && forge.getParent().getOptionalRequiredType().getType().isPrimitive();
         for (ExprEvaluator child : evaluators) {
             Object result = child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             if (result != null) {
@@ -71,35 +75,40 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
         CodegenMethod methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprArrayNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(forge.getEvaluationType(), "array", newArrayByLength(forge.getArrayReturnType(), constant(forge.getForgeRenderable().getChildNodes().length)));
-        boolean requiresPrimitive = forge.getParent().getOptionalRequiredType() != null && forge.getParent().getOptionalRequiredType().isPrimitive();
+        boolean requiresPrimitive = forge.getParent().getOptionalRequiredType() != null && forge.getParent().getOptionalRequiredType().getType().isPrimitive();
         for (int i = 0; i < forge.getForgeRenderable().getChildNodes().length; i++) {
             ExprForge child = forge.getForgeRenderable().getChildNodes()[i].getForge();
-            Class childType = child.getEvaluationType();
-            String refname = "r" + i;
-            block.declareVar(childType, refname, child.evaluateCodegen(childType, methodNode, exprSymbol, codegenClassScope));
+            EPType childType = child.getEvaluationType();
 
-            if (child.getEvaluationType().isPrimitive()) {
-                if (!forge.isMustCoerce()) {
-                    block.assignArrayElement("array", constant(i), ref(refname));
-                } else {
-                    block.assignArrayElement("array", constant(i), forge.getCoercer().coerceCodegen(ref(refname), child.getEvaluationType()));
-                }
+            if (childType == null || childType == EPTypeNull.INSTANCE) {
+                // no action
             } else {
-                CodegenBlock ifNotNull = block.ifCondition(notEqualsNull(ref(refname)));
-                if (!forge.isMustCoerce()) {
-                    ifNotNull.assignArrayElement("array", constant(i), ref(refname));
+                EPTypeClass childTypeClass = (EPTypeClass) childType;
+                String refname = "r" + i;
+                block.declareVar(childTypeClass, refname, child.evaluateCodegen(childTypeClass, methodNode, exprSymbol, codegenClassScope));
+
+                if (childTypeClass.getType().isPrimitive()) {
+                    if (!forge.isMustCoerce()) {
+                        block.assignArrayElement("array", constant(i), ref(refname));
+                    } else {
+                        block.assignArrayElement("array", constant(i), forge.getCoercer().coerceCodegen(ref(refname), childTypeClass));
+                    }
                 } else {
-                    ifNotNull.assignArrayElement("array", constant(i), forge.getCoercer().coerceCodegen(ref(refname), child.getEvaluationType()));
-                }
-                if (requiresPrimitive) {
-                    block.ifCondition(equalsNull(ref(refname))).blockThrow(newInstance(EPException.class, constant(PRIMITIVE_ARRAY_NULL_MSG)));
+                    CodegenBlock ifNotNull = block.ifCondition(notEqualsNull(ref(refname)));
+                    if (!forge.isMustCoerce()) {
+                        ifNotNull.assignArrayElement("array", constant(i), ref(refname));
+                    } else {
+                        ifNotNull.assignArrayElement("array", constant(i), forge.getCoercer().coerceCodegen(ref(refname), childTypeClass));
+                    }
+                    if (requiresPrimitive) {
+                        block.ifCondition(equalsNull(ref(refname))).blockThrow(newInstance(EPException.EPTYPE, constant(PRIMITIVE_ARRAY_NULL_MSG)));
+                    }
                 }
             }
         }
         block.methodReturn(ref("array"));
         return localMethod(methodNode);
     }
-
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return null;
@@ -132,24 +141,25 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
         if (children.length == 0) {
             return staticMethod(Collections.class, "emptyList");
         }
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Collection.class, ExprArrayNodeForgeEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), ExprArrayNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(ArrayDeque.class, "resultList", newInstance(ArrayDeque.class, constant(children.length)));
+                .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "resultList", newInstance(EPTypePremade.ARRAYDEQUE.getEPType(), constant(children.length)));
         int count = -1;
         for (ExprNode child : children) {
             count++;
             String refname = "r" + count;
             ExprForge childForge = child.getForge();
-            Class returnType = childForge.getEvaluationType();
-            if (returnType == null) {
+            EPType returnType = childForge.getEvaluationType();
+            if (returnType == null || returnType == EPTypeNull.INSTANCE) {
                 continue;
             }
-            block.declareVar(returnType, refname, childForge.evaluateCodegen(returnType, methodNode, exprSymbol, codegenClassScope));
-            CodegenExpression nonNullTest = returnType.isPrimitive() ? constantTrue() : notEqualsNull(ref(refname));
+            EPTypeClass returnClass = (EPTypeClass) returnType;
+            block.declareVar(returnClass, refname, childForge.evaluateCodegen((EPTypeClass) returnType, methodNode, exprSymbol, codegenClassScope));
+            CodegenExpression nonNullTest = returnClass.getType().isPrimitive() ? constantTrue() : notEqualsNull(ref(refname));
             CodegenBlock blockIfNotNull = block.ifCondition(nonNullTest);
             CodegenExpression added = ref(refname);
             if (forge.isMustCoerce()) {
-                added = forge.getCoercer().coerceCodegen(ref(refname), childForge.getEvaluationType());
+                added = forge.getCoercer().coerceCodegen(ref(refname), (EPTypeClass) childForge.getEvaluationType());
             }
             blockIfNotNull.expression(exprDotMethod(ref("resultList"), "add", added));
         }

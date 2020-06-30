@@ -72,12 +72,12 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubSelectStrategyFactoryLocalViewPreloaded.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubSelectStrategyFactoryLocalViewPreloaded.EPTYPE, this.getClass(), classScope);
 
         CodegenExpression groupKeyEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(groupKeys, null, groupByMultiKeyClasses, method, classScope);
 
         method.getBlock()
-            .declareVar(SubSelectStrategyFactoryLocalViewPreloaded.class, "factory", newInstance(SubSelectStrategyFactoryLocalViewPreloaded.class))
+            .declareVarNewInstance(SubSelectStrategyFactoryLocalViewPreloaded.EPTYPE, "factory")
             .exprDotMethod(ref("factory"), "setSubqueryNumber", constant(subqueryNumber))
             .exprDotMethod(ref("factory"), "setViewFactories", ViewFactoryForgeUtil.codegenForgesWInit(viewForges, 0, subqueryNumber, method, symbols, classScope))
             .exprDotMethod(ref("factory"), "setViewResourceDelegate", viewResourceDelegateDesc.toExpression())

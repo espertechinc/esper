@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.epl.database;
 
 import com.espertech.esper.common.client.hook.type.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -53,7 +54,7 @@ public class EPLDatabaseHintHook {
             Assert.assertEquals("select myint from mytesttable where myint = ${myvariableOCC}", type.getSql());
             Assert.assertEquals("myint", type.getColumnName());
             Assert.assertEquals(1, type.getColumnNumber());
-            Assert.assertEquals(Integer.class, type.getColumnClassType());
+            Assert.assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), type.getColumnClassType());
 
             SQLColumnValueContext val = SupportSQLColumnTypeConversion.getValueContexts().get(0);
             Assert.assertEquals(10, val.getColumnValue());
@@ -102,7 +103,7 @@ public class EPLDatabaseHintHook {
             SQLOutputRowTypeContext type = SupportSQLOutputRowConversion.getTypeContexts().get(0);
             Assert.assertEquals("MyDBWithTxnIso1WithReadOnly", type.getDb());
             Assert.assertEquals("select * from mytesttable where myint = ${myvariableORC}", type.getSql());
-            Assert.assertEquals(Integer.class, type.getFields().get("myint"));
+            Assert.assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), type.getFields().get("myint"));
 
             SQLOutputRowValueContext val = SupportSQLOutputRowConversion.getValueContexts().get(0);
             Assert.assertEquals(10, val.getValues().get("myint"));

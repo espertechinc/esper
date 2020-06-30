@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * Implementations copy the event object for controlled modification (shallow copy).
  */
 public interface EventBeanCopyMethod {
+    EPTypeClass EPTYPE = new EPTypeClass(EventBeanCopyMethod.class);
+
     /**
      * Copy the event bean returning a shallow copy.
      *

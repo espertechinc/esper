@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.variant;
 
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ import java.util.Map;
  * fast lookup based on type.
  */
 public class VariantPropertyGetterCache {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariantPropertyGetterCache.class);
+
     private volatile EventType[] knownTypes;
     private volatile VariantPropertyGetterRow lastUsedGetters;
     private List<String> properties;

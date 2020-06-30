@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -75,20 +76,20 @@ public class ExprRegexpNodeForgeNonconstEval implements ExprEvaluator {
     }
 
     public static CodegenMethod codegen(ExprRegexpNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRegexpNodeForgeNonconstEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprRegexpNodeForgeNonconstEval.class, codegenClassScope);
         CodegenBlock blockMethod = methodNode.getBlock()
-                .declareVar(String.class, "patternText", pattern.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.STRING.getEPType(), "patternText", pattern.getForge().evaluateCodegen(EPTypePremade.STRING.getEPType(), methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("patternText");
 
         // initial like-setup
-        blockMethod.declareVar(Pattern.class, "pattern", staticMethod(ExprRegexpNodeForgeNonconstEval.class, "exprRegexNodeCompilePattern", ref("patternText")));
+        blockMethod.declareVar(EPTypePremade.PATTERN.getEPType(), "pattern", staticMethod(ExprRegexpNodeForgeNonconstEval.class, "exprRegexNodeCompilePattern", ref("patternText")));
 
         if (!forge.isNumericValue()) {
-            blockMethod.declareVar(String.class, "value", lhs.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(EPTypePremade.STRING.getEPType(), "value", lhs.getForge().evaluateCodegen(EPTypePremade.STRING.getEPType(), methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getRegexpCode(forge, ref("pattern"), ref("value")));
         } else {
-            blockMethod.declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(EPTypePremade.OBJECT.getEPType(), "value", lhs.getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getRegexpCode(forge, ref("pattern"), exprDotMethod(ref("value"), "toString")));
         }

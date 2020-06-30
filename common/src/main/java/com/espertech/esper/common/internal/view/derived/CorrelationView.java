@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
@@ -70,7 +71,7 @@ public class CorrelationView extends BaseBivariateStatisticsView {
 
     protected static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv viewForgeEnv, int streamNum) {
         LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<String, Object>();
-        eventTypeMap.put(ViewFieldEnum.CORRELATION__CORRELATION.getName(), Double.class);
+        eventTypeMap.put(ViewFieldEnum.CORRELATION__CORRELATION.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.CORRELATION__CORRELATION);
         return DerivedViewTypeUtil.newType("correlview", eventTypeMap, viewForgeEnv, streamNum);

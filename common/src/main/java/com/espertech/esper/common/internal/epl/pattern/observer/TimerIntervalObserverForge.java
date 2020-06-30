@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.observer;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -47,7 +48,7 @@ public class TimerIntervalObserverForge implements ObserverForge, ScheduleHandle
             throw new ObserverParameterException(errorMessage);
         }
         if (!(parameters.get(0) instanceof ExprTimePeriod)) {
-            Class returnType = parameters.get(0).getForge().getEvaluationType();
+            EPType returnType = parameters.get(0).getForge().getEvaluationType();
             if (!(JavaClassHelper.isNumeric(returnType))) {
                 throw new ObserverParameterException(errorMessage);
             }
@@ -71,14 +72,14 @@ public class TimerIntervalObserverForge implements ObserverForge, ScheduleHandle
             throw new IllegalStateException("Unassigned schedule callback id");
         }
 
-        CodegenMethod method = parent.makeChild(TimerIntervalObserverFactory.class, TimerIntervalObserverForge.class, classScope);
+        CodegenMethod method = parent.makeChild(TimerIntervalObserverFactory.EPTYPE, TimerIntervalObserverForge.class, classScope);
         CodegenExpression patternDelta = PatternDeltaComputeUtil.makePatternDeltaAnonymous(parameter, convertor, timeAbacus, method, classScope);
 
         method.getBlock()
-                .declareVar(TimerIntervalObserverFactory.class, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("observerTimerInterval"))
-                .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
-                .exprDotMethod(ref("factory"), "setDeltaCompute", patternDelta)
-                .methodReturn(ref("factory"));
+            .declareVar(TimerIntervalObserverFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add("observerTimerInterval"))
+            .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
+            .exprDotMethod(ref("factory"), "setDeltaCompute", patternDelta)
+            .methodReturn(ref("factory"));
         return localMethod(method);
     }
 }

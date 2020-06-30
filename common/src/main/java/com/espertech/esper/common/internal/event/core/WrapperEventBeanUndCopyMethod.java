@@ -11,11 +11,13 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 /**
  * Copy method for underlying events.
  */
 public class WrapperEventBeanUndCopyMethod implements EventBeanCopyMethod {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(WrapperEventBeanUndCopyMethod.class);
     private final WrapperEventType wrapperEventType;
     private final EventBeanTypedEventFactory eventAdapterService;
     private final EventBeanCopyMethod underlyingCopyMethod;

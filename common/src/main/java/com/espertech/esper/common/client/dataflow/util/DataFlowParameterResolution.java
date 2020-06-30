@@ -12,10 +12,12 @@ package com.espertech.esper.common.client.dataflow.util;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowOperatorParameterProviderContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpInitializeContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.ClassInstantiationException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
@@ -130,7 +132,9 @@ public class DataFlowParameterResolution {
             return result;
         }
         if (JavaClassHelper.isSubclassOrImplementsInterface(JavaClassHelper.getBoxedType(result.getClass()), Number.class)) {
-            return (T) SimpleNumberCoercerFactory.getCoercer(result.getClass(), JavaClassHelper.getBoxedType(clazz)).coerceBoxed((Number) result);
+            EPTypeClass classTypeBoxed = JavaClassHelper.getBoxedType(ClassHelperGenericType.getClassEPType(clazz));
+            EPTypeClass resultType = ClassHelperGenericType.getClassEPType(result.getClass());
+            return (T) SimpleNumberCoercerFactory.getCoercer(resultType, classTypeBoxed).coerceBoxed((Number) result);
         }
         return (T) result;
     }

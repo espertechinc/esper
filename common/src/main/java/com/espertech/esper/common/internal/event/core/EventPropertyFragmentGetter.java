@@ -12,7 +12,10 @@ package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public interface EventPropertyFragmentGetter {
+    EPTypeClass EPTYPE = new EPTypeClass(EventPropertyFragmentGetter.class);
+
     Object getFragment(EventBean eventBean) throws PropertyAccessException;
 }

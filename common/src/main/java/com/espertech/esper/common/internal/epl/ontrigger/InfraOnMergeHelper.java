@@ -10,12 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.ontrigger;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.List;
 
 /**
  * Factory for handles for updates/inserts/deletes/select
  */
 public class InfraOnMergeHelper {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InfraOnMergeHelper.class);
+
     private final InfraOnMergeActionIns insertUnmatched;
     private final List<InfraOnMergeMatch> matched;
     private final List<InfraOnMergeMatch> unmatched;

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,10 +28,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamForge {
     private final ExprNodeDeployTimeConst deployTimeConstant;
-    private final Class returnType;
+    private final EPType returnType;
     private final SimpleNumberCoercer numberCoercer;
 
-    public FilterSpecParamDeployTimeConstParamForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, ExprNodeDeployTimeConst deployTimeConstant, Class returnType, SimpleNumberCoercer numberCoercer) {
+    public FilterSpecParamDeployTimeConstParamForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, ExprNodeDeployTimeConst deployTimeConstant, EPType returnType, SimpleNumberCoercer numberCoercer) {
         super(lookupable, filterOperator);
         this.deployTimeConstant = deployTimeConstant;
         this.returnType = returnType;
@@ -38,14 +39,14 @@ public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamFor
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
-        CodegenMethod method = parent.makeChild(FilterSpecParam.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
-                .declareVar(FilterOperator.class, "op", enumValue(FilterOperator.class, filterOperator.name()));
+                .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
+                .declareVar(ExprFilterSpecLookupable.EPTYPE_FILTEROPERATOR, "op", enumValue(FilterOperator.class, filterOperator.name()));
 
-        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.class, Arrays.asList(ref("lookupable"), ref("op")));
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.class, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
+        CodegenExpressionNewAnonymousClass param = newAnonymousClass(method.getBlock(), FilterSpecParam.EPTYPE, Arrays.asList(ref("lookupable"), ref("op")));
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(FilterValueSetParam.EPTYPE, this.getClass(), classScope).addParam(FilterSpecParam.GET_FILTER_VALUE_FP);
         param.addMethod("getFilterValue", getFilterValue);
         CodegenExpression value = deployTimeConstant.codegenGetDeployTimeConstValue(classScope);
         if (numberCoercer != null) {

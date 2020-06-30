@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -39,7 +40,7 @@ public class ExprIdentNodeFragmentTypeEnumerationForge implements ExprEnumeratio
         this.getterSPI = getterSPI;
     }
 
-    public Class getComponentTypeCollection() throws ExprValidationException {
+    public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
         return null;
     }
 
@@ -60,11 +61,11 @@ public class ExprIdentNodeFragmentTypeEnumerationForge implements ExprEnumeratio
     }
 
     public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod method = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         method.getBlock()
-            .declareVar(EventBean.class, "event", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamId)))
-            .ifRefNullReturnNull("event")
-            .methodReturn(cast(EventBean.class, getterSPI.eventBeanFragmentCodegen(ref("event"), method, codegenClassScope)));
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(exprSymbol.getAddEPS(method), constant(streamId)))
+                .ifRefNullReturnNull("event")
+                .methodReturn(cast(EventBean.EPTYPE, getterSPI.eventBeanFragmentCodegen(ref("event"), method, codegenClassScope)));
         return localMethod(method);
     }
 

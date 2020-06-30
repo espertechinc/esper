@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.UniformPair;
 
 import java.util.Collections;
 import java.util.Map;
 
 public class QueryGraph {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(QueryGraph.class);
+
     private final Map<UniformPair<Integer>, QueryGraphValue> streamJoinMap;
 
     public QueryGraph(Map<UniformPair<Integer>, QueryGraphValue> streamJoinMap) {

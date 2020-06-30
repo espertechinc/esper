@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.ThreadingProfile;
 import com.espertech.esper.common.internal.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -65,7 +66,7 @@ public class TestExprConcatNode extends TestCase {
         concatNode.addChildNode(new SupportExprNode("x"));
         concatNode.addChildNode(new SupportExprNode("y"));
         SupportExprNodeUtil.validate(concatNode);
-        assertEquals(String.class, concatNode.getForge().getEvaluationType());
+        assertEquals(EPTypePremade.STRING.getEPType(), concatNode.getForge().getEvaluationType());
         assertEquals("xy", concatNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         concatNode.addChildNode(new SupportExprNode("z"));

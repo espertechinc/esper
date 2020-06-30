@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.arrayOf;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -31,9 +33,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EnumArrayOfEvent extends ThreeFormEventPlain {
 
-    private final Class arrayComponentType;
+    private final EPTypeClass arrayComponentType;
 
-    public EnumArrayOfEvent(ExprDotEvalParamLambda lambda, Class arrayComponentType) {
+    public EnumArrayOfEvent(ExprDotEvalParamLambda lambda, EPTypeClass arrayComponentType) {
         super(lambda);
         this.arrayComponentType = arrayComponentType;
     }
@@ -42,7 +44,7 @@ public class EnumArrayOfEvent extends ThreeFormEventPlain {
         ExprEvaluator inner = innerExpression.getExprEvaluator();
         return new EnumEval() {
             public Object evaluateEnumMethod(EventBean[] eventsLambda, Collection enumcoll, boolean isNewData, ExprEvaluatorContext context) {
-                Object array = Array.newInstance(arrayComponentType, enumcoll.size());
+                Object array = Array.newInstance(arrayComponentType.getType(), enumcoll.size());
                 if (enumcoll.isEmpty()) {
                     return array;
                 }
@@ -61,7 +63,7 @@ public class EnumArrayOfEvent extends ThreeFormEventPlain {
         };
     }
 
-    public Class returnType() {
+    public EPTypeClass returnTypeOfMethod() {
         return JavaClassHelper.getArrayType(arrayComponentType);
     }
 
@@ -70,13 +72,13 @@ public class EnumArrayOfEvent extends ThreeFormEventPlain {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        Class arrayType = JavaClassHelper.getArrayType(arrayComponentType);
+        EPTypeClass arrayType = returnTypeOfMethod();
         block.declareVar(arrayType, "result", newArrayByLength(arrayComponentType, exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size")))
-            .declareVar(int.class, "count", constant(0));
+            .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(0));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Object.class, "item", innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+        block.declareVar(EPTypePremade.OBJECT.getEPType(), "item", innerExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
             .assignArrayElement(ref("result"), ref("count"), cast(arrayComponentType, ref("item")))
             .incrementRef("count");
     }

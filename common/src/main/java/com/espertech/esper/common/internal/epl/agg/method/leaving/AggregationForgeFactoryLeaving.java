@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.method.leaving;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -31,8 +33,8 @@ public class AggregationForgeFactoryLeaving extends AggregationForgeFactoryBase 
         this.parent = parent;
     }
 
-    public Class getResultType() {
-        return Boolean.class;
+    public EPType getResultType() {
+        return EPTypePremade.BOOLEANBOXED.getEPType();
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -48,7 +50,7 @@ public class AggregationForgeFactoryLeaving extends AggregationForgeFactoryBase 
     }
 
     public AggregationPortableValidation getAggregationPortableValidation() {
-        return new AggregationPortableValidationLeaving(parent.isDistinct(), parent.getOptionalFilter() != null, boolean.class);
+        return new AggregationPortableValidationLeaving(parent.isDistinct(), parent.getOptionalFilter() != null, EPTypePremade.BOOLEANPRIMITIVE.getEPType());
     }
 
     public ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {

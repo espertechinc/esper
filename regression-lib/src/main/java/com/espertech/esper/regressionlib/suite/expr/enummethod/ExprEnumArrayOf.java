@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
@@ -21,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertEqualsExactOrder;
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container.make2Value;
 import static com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container.make2ValueNull;
 import static com.espertech.esper.regressionlib.support.bean.SupportCollection.makeString;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumArrayOf {
 
@@ -35,31 +39,33 @@ public class ExprEnumArrayOf {
         execs.add(new ExprEnumArrayOfWSelectFromEvent());
         execs.add(new ExprEnumArrayOfEvents());
         execs.add(new ExprEnumArrayOfScalar());
+        execs.add(new ExprArrayOfInvalid());
         return execs;
     }
 
     private static class ExprEnumArrayOfScalar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String[] fields = "c0,c1,c2,c3".split(",");
+            String[] fields = "c0,c1,c2,c3,c4".split(",");
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
             builder.expression(fields[0], "strvals.arrayOf()");
             builder.expression(fields[1], "strvals.arrayOf(v => v)");
             builder.expression(fields[2], "strvals.arrayOf( (v, i) => v || '_' || Integer.toString(i))");
             builder.expression(fields[3], "strvals.arrayOf( (v, i, s) => v || '_' || Integer.toString(i) || '_' || Integer.toString(s))");
+            builder.expression(fields[4], "strvals.arrayOf( (v, i) => i)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String[].class));
+            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.INTEGERBOXEDARRAY.getEPType()}));
 
             builder.assertion(SupportCollection.makeString("A,B,C"))
-                .expect(fields, csv("A,B,C"), csv("A,B,C"), csv("A_0,B_1,C_2"), csv("A_0_3,B_1_3,C_2_3"));
+                .expect(fields, csv("A,B,C"), csv("A,B,C"), csv("A_0,B_1,C_2"), csv("A_0_3,B_1_3,C_2_3"), new Integer[]{0, 1, 2});
 
             builder.assertion(SupportCollection.makeString(""))
-                .expect(fields, csv(""), csv(""), csv(""), csv(""));
+                .expect(fields, csv(""), csv(""), csv(""), csv(""), new Integer[]{});
 
             builder.assertion(SupportCollection.makeString("A"))
-                .expect(fields, csv("A"), csv("A"), csv("A_0"), csv("A_0_1"));
+                .expect(fields, csv("A"), csv("A"), csv("A_0"), csv("A_0_1"), new Integer[]{0});
 
             builder.assertion(SupportCollection.makeString(null))
-                .expect(fields, null, null, null, null);
+                .expect(fields, null, null, null, null, null);
 
             builder.run(env);
         }
@@ -73,7 +79,7 @@ public class ExprEnumArrayOf {
             builder.expression(fields[1], "contained.arrayOf((x, i) => x.p00 + i*10)");
             builder.expression(fields[2], "contained.arrayOf((x, i, s) => x.p00 + i*10 + s*100)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer[].class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.INTEGERBOXEDARRAY.getEPType()));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E2,2"))
                 .expect(fields, intArray(1, 9, 2), intArray(1, 19, 22), intArray(301, 319, 322));
@@ -97,7 +103,7 @@ public class ExprEnumArrayOf {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
             builder.expression(fields[0], "contained.selectFrom(v => v.id).arrayOf()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String[].class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.STRINGARRAY.getEPType()));
 
             builder.assertion(make2Value("E1,12", "E2,11", "E3,2"))
                 .verify(fields[0], val -> assertArrayEquals(new String[]{"E1", "E2", "E3"}, val));
@@ -121,7 +127,7 @@ public class ExprEnumArrayOf {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
             builder.expression(fields[0], "strvals.selectfrom((v, i) => v || '-' || Integer.toString(i)).arrayOf()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String[].class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.STRINGARRAY.getEPType()));
 
             builder.assertion(makeString("E1,E2,E3"))
                 .verify(fields[0], val -> assertArrayEquals(new String[]{"E1-0", "E2-1", "E3-2"}, val));
@@ -145,7 +151,7 @@ public class ExprEnumArrayOf {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
             builder.expression(fields[0], "strvals.selectfrom(v => Integer.parseInt(v)).arrayOf()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer[].class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.INTEGERBOXEDARRAY.getEPType()));
 
             builder.assertion(makeString("1,2,3"))
                 .verify(fields[0], val -> assertArrayEquals(new Integer[]{1, 2, 3}, val));
@@ -180,5 +186,14 @@ public class ExprEnumArrayOf {
             return new String[0];
         }
         return csv.split(",");
+    }
+
+    private static class ExprArrayOfInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl;
+
+            epl = "select strvals.arrayOf(v => null) from SupportCollection";
+            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.arrayOf()': Null-type is not allowed");
+        }
     }
 }

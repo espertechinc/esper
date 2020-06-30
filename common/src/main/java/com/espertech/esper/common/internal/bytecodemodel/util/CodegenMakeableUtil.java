@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -18,15 +20,14 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenMakeableUtil {
 
-    public static <T extends CodegenMakeable> CodegenExpression makeArray(String name, Class clazz, T[] forges, Class generator, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        Class arrayType = JavaClassHelper.getArrayType(clazz);
+    public static <T extends CodegenMakeable> CodegenExpression makeArray(String name, EPTypeClass clazz, T[] forges, Class generator, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+        EPTypeClass arrayType = JavaClassHelper.getArrayType(clazz);
         if (forges == null || forges.length == 0) {
             return newArrayByLength(clazz, constant(0));
         }
@@ -39,11 +40,11 @@ public class CodegenMakeableUtil {
         return localMethod(method);
     }
 
-    public static <K extends CodegenMakeable, V extends CodegenMakeable> CodegenExpression makeMap(String name, Class clazzKey, Class clazzValue, Map<K, V> map, Class generator, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+    public static <K extends CodegenMakeable, V extends CodegenMakeable> CodegenExpression makeMap(String name, EPTypeClass clazzKey, EPTypeClass clazzValue, Map<K, V> map, Class generator, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         if (map.isEmpty()) {
             return staticMethod(Collections.class, "emptyMap");
         }
-        CodegenMethod method = parent.makeChild(Map.class, generator, classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), generator, classScope);
         int count = 0;
         for (Map.Entry<K, V> entry : map.entrySet()) {
             String nameKey = "key" + count;
@@ -56,7 +57,7 @@ public class CodegenMakeableUtil {
         if (map.size() == 1) {
             method.getBlock().methodReturn(staticMethod(Collections.class, "singletonMap", ref("key0"), ref("value0")));
         } else {
-            method.getBlock().declareVar(Map.class, name, newInstance(LinkedHashMap.class, constant(map.size())));
+            method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), name, newInstance(EPTypePremade.LINKEDHASHMAP.getEPType(), constant(map.size())));
             for (int i = 0; i < map.size(); i++) {
                 method.getBlock().exprDotMethod(ref(name), "put", ref("key" + i), ref("value" + i));
             }

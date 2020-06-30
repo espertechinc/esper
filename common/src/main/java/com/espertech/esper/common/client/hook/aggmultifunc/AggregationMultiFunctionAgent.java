@@ -11,6 +11,7 @@
 package com.espertech.esper.common.client.hook.aggmultifunc;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
@@ -18,6 +19,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
  * Agents change mult-function aggregation state.
  */
 public interface AggregationMultiFunctionAgent {
+    /**
+     * Type information.
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationMultiFunctionAgent.class);
+
     /**
      * Enter-into (add to) an aggregation
      *

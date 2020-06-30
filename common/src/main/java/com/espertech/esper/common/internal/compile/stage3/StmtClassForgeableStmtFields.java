@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage3;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -62,8 +63,8 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
         }
 
         // assignment methods
-        CodegenMethod assignMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.class, "assignments").setStatic(true);
-        CodegenMethod unassignMethod = CodegenMethod.makeParentNode(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).setStatic(true);
+        CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments").setStatic(true);
+        CodegenMethod unassignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).setStatic(true);
         generateAssignAndUnassign(numStreams, assignMethod, unassignMethod, packageScope.getFieldsNamed());
 
         // build methods
@@ -72,7 +73,7 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
         CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", methods);
         CodegenStackGenerator.recursiveBuildStack(unassignMethod, "unassign", methods);
 
-        return new CodegenClass(CodegenClassType.STATEMENTFIELDS, StatementFields.class, className, classScope, members, ctor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.STATEMENTFIELDS, StatementFields.EPTYPE, className, classScope, members, ctor, methods, Collections.emptyList());
     }
 
     private void generateSubstitutionParamMembers(List<CodegenTypedParam> members) {
@@ -190,14 +191,14 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
     }
 
     public static void makeSubstitutionSetter(CodegenPackageScope packageScope, CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass assignerSetterClass = newAnonymousClass(method.getBlock(), FAFQueryMethodAssignerSetter.class);
+        CodegenExpressionNewAnonymousClass assignerSetterClass = newAnonymousClass(method.getBlock(), FAFQueryMethodAssignerSetter.EPTYPE);
         method.getBlock().methodReturn(assignerSetterClass);
 
-        CodegenMethod assignMethod = CodegenMethod.makeParentNode(void.class, StmtClassForgeableStmtFields.class, classScope).addParam(StatementAIFactoryAssignments.class, "assignments");
+        CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtFields.class, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments");
         assignerSetterClass.addMethod("assign", assignMethod);
         assignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "assign", ref("assignments"));
 
-        CodegenMethod setValueMethod = CodegenMethod.makeParentNode(void.class, StmtClassForgeableStmtFields.class, classScope).addParam(int.class, "index").addParam(Object.class, "value");
+        CodegenMethod setValueMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtFields.class, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").addParam(EPTypePremade.OBJECT.getEPType(), "value");
         assignerSetterClass.addMethod("setValue", setValueMethod);
         CodegenSubstitutionParamEntry.codegenSetterMethod(classScope, setValueMethod);
     }

@@ -41,9 +41,9 @@ public class AggregationServiceFactoryForgeTable implements AggregationServiceFa
     }
 
     public CodegenExpression makeProvider(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationServiceFactoryTable.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationServiceFactoryTable.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationServiceFactoryTable.class, "factory", newInstance(AggregationServiceFactoryTable.class))
+            .declareVarNewInstance(AggregationServiceFactoryTable.EPTYPE, "factory")
             .exprDotMethod(ref("factory"), "setTable", TableDeployTimeResolver.makeResolveTable(metadata, symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("factory"), "setMethodPairs", TableColumnMethodPairForge.makeArray(methodPairs, method, symbols, classScope))
             .exprDotMethod(ref("factory"), "setAccessColumnsZeroOffset", constant(accessColumnsZeroOffset))

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,12 +19,12 @@ import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
 public class DTLocalBeanIntervalWithEndForge implements DTLocalForge {
     protected final EventPropertyGetterSPI getterStartTimestamp;
-    protected final Class getterStartReturnType;
+    protected final EPTypeClass getterStartReturnType;
     protected final EventPropertyGetterSPI getterEndTimestamp;
-    protected final Class getterEndReturnType;
+    protected final EPTypeClass getterEndReturnType;
     protected final DTLocalForgeIntervalComp inner;
 
-    public DTLocalBeanIntervalWithEndForge(EventPropertyGetterSPI getterStartTimestamp, Class getterStartReturnType, EventPropertyGetterSPI getterEndTimestamp, Class getterEndReturnType, DTLocalForgeIntervalComp inner) {
+    public DTLocalBeanIntervalWithEndForge(EventPropertyGetterSPI getterStartTimestamp, EPTypeClass getterStartReturnType, EventPropertyGetterSPI getterEndTimestamp, EPTypeClass getterEndReturnType, DTLocalForgeIntervalComp inner) {
         this.getterStartTimestamp = getterStartTimestamp;
         this.getterStartReturnType = getterStartReturnType;
         this.getterEndTimestamp = getterEndTimestamp;
@@ -35,7 +36,7 @@ public class DTLocalBeanIntervalWithEndForge implements DTLocalForge {
         return new DTLocalBeanIntervalWithEndEval(getterStartTimestamp, getterEndTimestamp, inner.makeEvaluatorComp());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return DTLocalBeanIntervalWithEndEval.codegen(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

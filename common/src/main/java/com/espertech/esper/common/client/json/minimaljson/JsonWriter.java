@@ -36,10 +36,13 @@
  */
 package com.espertech.esper.common.client.json.minimaljson;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.IOException;
 import java.io.Writer;
 
 public class JsonWriter {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonWriter.class);
 
     private static final int CONTROL_CHARACTERS_END = 0x001f;
 

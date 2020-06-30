@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.dot;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -32,8 +33,9 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.util.EPLExpressionParamType;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeEventSingle;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -49,17 +51,17 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
     protected int streamCountIncoming;
     protected EnumForge enumForge;
     protected int enumEvalNumRequiredEvents;
-    protected EPType typeInfo;
+    protected EPChainableType typeInfo;
     protected boolean cache;
 
     protected ExprDotForgeEnumMethodBase() {
     }
 
-    public void initialize(DotMethodFP footprint, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, List<ExprNode> parameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+    public void initialize(DotMethodFP footprint, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, List<ExprNode> parameters, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         // override as required
     }
 
-    public abstract EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, Class collectionComponentType, ExprValidationContext validationContext) throws ExprValidationException;
+    public abstract EnumForgeDescFactory getForgeFactory(DotMethodFP footprint, List<ExprNode> parameters, EnumMethodEnum enumMethod, String enumMethodUsedName, EventType inputEventType, EPTypeClass collectionComponentType, ExprValidationContext validationContext) throws ExprValidationException;
 
     public void visit(ExprDotEvalVisitor visitor) {
         visitor.visitEnumeration(enumMethodDesc.getEnumMethodName());
@@ -69,22 +71,22 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         return new ExprDotForgeEnumMethodEval(this, enumForge.getEnumEvaluator(), enumEvalNumRequiredEvents);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return ExprDotForgeEnumMethodEval.codegen(this, inner, innerType, parent, symbols, classScope);
     }
 
-    public void init(Integer streamOfProviderIfApplicable, EnumMethodDesc enumMethodDesc, String enumMethodUsedName, EPType typeInfo, List<ExprNode> parameters, ExprValidationContext validationContext) throws ExprValidationException {
+    public void init(Integer streamOfProviderIfApplicable, EnumMethodDesc enumMethodDesc, String enumMethodUsedName, EPChainableType typeInfo, List<ExprNode> parameters, ExprValidationContext validationContext) throws ExprValidationException {
 
-        final EventType eventTypeColl = EPTypeHelper.getEventTypeMultiValued(typeInfo);
-        final EventType eventTypeBean = EPTypeHelper.getEventTypeSingleValued(typeInfo);
-        final Class collectionComponentType = EPTypeHelper.getClassMultiValued(typeInfo);
+        final EventType eventTypeColl = EPChainableTypeHelper.getEventTypeMultiValued(typeInfo);
+        final EventType eventTypeBean = EPChainableTypeEventSingle.fromInputOrNull(typeInfo);
+        final EPTypeClass collectionComponentType = EPChainableTypeHelper.getCollectionOrArrayComponentTypeOrNull(typeInfo);
 
         this.enumMethodDesc = enumMethodDesc;
         this.enumMethodUsedName = enumMethodUsedName;
         this.streamCountIncoming = validationContext.getStreamTypeService().getEventTypes().length;
 
         if (eventTypeColl == null && collectionComponentType == null && eventTypeBean == null) {
-            throw new ExprValidationException("Invalid input for built-in enumeration method '" + enumMethodUsedName + "', expecting collection of event-type or scalar values as input, received " + EPTypeHelper.toTypeDescriptive(typeInfo));
+            throw new ExprValidationException("Invalid input for built-in enumeration method '" + enumMethodUsedName + "', expecting collection of event-type or scalar values as input, received " + EPChainableTypeHelper.toTypeDescriptive(typeInfo));
         }
 
         // compile parameter abstract for validation against available footprints
@@ -107,7 +109,7 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         // validate input criteria met for this footprint
         if (footprint.getInput() != DotMethodFPInputEnum.ANY) {
             String message = "Invalid input for built-in enumeration method '" + enumMethodUsedName + "' and " + footprint.getParameters().length + "-parameter footprint, expecting collection of ";
-            String received = " as input, received " + EPTypeHelper.toTypeDescriptive(typeInfo);
+            String received = " as input, received " + EPChainableTypeHelper.toTypeDescriptive(typeInfo);
             if (footprint.getInput() == DotMethodFPInputEnum.EVENTCOLL && eventTypeColl == null) {
                 throw new ExprValidationException(message + "events" + received);
             }
@@ -179,7 +181,7 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         }
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return typeInfo;
     }
 
@@ -229,7 +231,7 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
 
         int numStreamsIncoming = validationContext.getStreamTypeService().getEventTypes().length;
         return new ExprDotEvalParamLambda(parameterNum, filter, filterForge,
-                numStreamsIncoming, goesNode.getGoesToNames(), lambdaDesc);
+            numStreamsIncoming, goesNode.getGoesToNames(), lambdaDesc);
     }
 
     private void validateDuplicateStreamNames(String[] streamNames, List<String> goesToNames) throws ExprValidationException {
@@ -245,6 +247,6 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
 
     public String toString() {
         return this.getClass().getSimpleName() +
-                " lambda=" + enumMethodDesc;
+            " lambda=" + enumMethodDesc;
     }
 }

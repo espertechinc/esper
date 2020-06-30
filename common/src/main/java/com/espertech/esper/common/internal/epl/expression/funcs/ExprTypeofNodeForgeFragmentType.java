@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -64,21 +66,21 @@ public class ExprTypeofNodeForgeFragmentType extends ExprTypeofNodeForge impleme
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprTypeof", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeFragmentType.class, codegenClassScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.STRING.getEPType(), ExprTypeofNodeForgeFragmentType.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .declareVar(Object.class, "fragment", getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "fragment", getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope))
                 .ifRefNullReturnNull("fragment")
-                .ifInstanceOf("fragment", EventBean.class)
-                .blockReturn(exprDotMethodChain(cast(EventBean.class, ref("fragment"))).add("getEventType").add("getName"))
+                .ifInstanceOf("fragment", EventBean.EPTYPE)
+                .blockReturn(exprDotMethodChain(cast(EventBean.EPTYPE, ref("fragment"))).add("getEventType").add("getName"))
                 .ifCondition(exprDotMethodChain(ref("fragment")).add("getClass").add("isArray"))
                 .blockReturn(constant(fragmentType + "[]"))
                 .methodReturn(constantNull());

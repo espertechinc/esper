@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.cache;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /*
  * On the level of enumeration method:
  *     If a enumeration method expression is invoked within another enumeration method expression (not counting expression declarations),
@@ -19,6 +21,7 @@ package com.espertech.esper.common.internal.epl.enummethod.cache;
  * NOTE: ExpressionResultCacheForEnumerationMethod should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForEnumerationMethod {
+    EPTypeClass EPTYPE = new EPTypeClass(ExpressionResultCacheForEnumerationMethod.class);
 
     ExpressionResultCacheEntryLongArrayAndObj getEnumerationMethodLastValue(Object node);
 

@@ -32,6 +32,6 @@ public class AggregationAgentRewriteStreamForge implements AggregationAgentForge
     }
 
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(AggregationAgentRewriteStream.class, constant(streamNum));
+        return newInstance(AggregationAgentRewriteStream.EPTYPE, constant(streamNum));
     }
 }

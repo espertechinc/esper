@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.historical.database.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,7 +30,6 @@ import com.espertech.esper.common.internal.epl.historical.common.HistoricalEvent
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,11 +50,11 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
     }
 
     public List<StmtClassForgeableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         int count = 0;
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services)
-            .withAllowBindingConsumption(true).build();
+                .withAllowBindingConsumption(true).build();
         ExprNode[] inputParamNodes = new ExprNode[inputParameters.length];
         for (String inputParam : inputParameters) {
             ExprNode raw = findSQLExpressionNode(streamNum, count, base.getStatementSpec().getRaw().getSqlParameters());
@@ -81,21 +82,21 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
         return multiKeyPlan.getMultiKeyForgeables();
     }
 
-    public Class typeOfImplementation() {
-        return HistoricalEventViewableDatabaseFactory.class;
+    public EPTypeClass typeOfImplementation() {
+        return HistoricalEventViewableDatabaseFactory.EPTYPE;
     }
 
     public void codegenSetter(CodegenExpressionRef ref, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock()
-            .exprDotMethod(ref, "setDatabaseName", constant(databaseName))
-            .exprDotMethod(ref, "setInputParameters", constant(inputParameters))
-            .exprDotMethod(ref, "setPreparedStatementText", constant(preparedStatementText))
-            .exprDotMethod(ref, "setOutputTypes", makeOutputTypes(method, symbols, classScope));
+                .exprDotMethod(ref, "setDatabaseName", constant(databaseName))
+                .exprDotMethod(ref, "setInputParameters", constant(inputParameters))
+                .exprDotMethod(ref, "setPreparedStatementText", constant(preparedStatementText))
+                .exprDotMethod(ref, "setOutputTypes", makeOutputTypes(method, symbols, classScope));
     }
 
     private CodegenExpression makeOutputTypes(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Map.class, this.getClass(), classScope);
-        method.getBlock().declareVar(Map.class, "types", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(outputTypes.size()))));
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), this.getClass(), classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "types", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(outputTypes.size()))));
         for (Map.Entry<String, DBOutputTypeDesc> entry : outputTypes.entrySet()) {
             method.getBlock().exprDotMethod(ref("types"), "put", constant(entry.getKey()), entry.getValue().make());
         }

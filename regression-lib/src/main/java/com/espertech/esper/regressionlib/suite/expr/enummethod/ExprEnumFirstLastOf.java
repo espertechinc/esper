@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
@@ -20,7 +21,7 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertTypesAllSame;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 import static org.junit.Assert.assertEquals;
 
 public class ExprEnumFirstLastOf {
@@ -47,7 +48,7 @@ public class ExprEnumFirstLastOf {
             builder.expression(fields[6], "strvals.firstOf((x, i, s) => x like '%1%' and i >= 1 and s > 2)");
             builder.expression(fields[7], "strvals.lastOf((x, i, s) => x like '%1%' and i >= 1 and s > 2)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, String.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.STRING.getEPType()));
             
             builder.assertion(SupportCollection.makeString("E1,E2,E3")).expect(fields, "E1", "E3", "E1", "E1", null, null, null, null);
 
@@ -76,7 +77,7 @@ public class ExprEnumFirstLastOf {
             builder.expression(fields[0], "contained.firstOf().p00");
             builder.expression(fields[1], "contained.lastOf().p00");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Integer.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, EPTypePremade.INTEGERBOXED.getEPType()));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E3,3")).expect(fields, 1, 3);
 
@@ -97,7 +98,7 @@ public class ExprEnumFirstLastOf {
             builder.expression(fields[0], "contained.firstOf()");
             builder.expression(fields[1], "contained.lastOf()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, SupportBean_ST0.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, SupportBean_ST0.EPTYPE));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E3,9", "E2,9"))
                 .verify("c0", value -> assertId(value, "E1"))
@@ -126,7 +127,7 @@ public class ExprEnumFirstLastOf {
             builder.expression(fields[4], "contained.firstOf( (x, i, s) => p00 = 9 and i >= 1 and s > 2)");
             builder.expression(fields[5], "contained.lastOf((x, i, s) => p00 = 9 and i >= 1 and s > 2)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, SupportBean_ST0.class));
+            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, SupportBean_ST0.EPTYPE));
 
             SupportBean_ST0_Container beanOne = SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E2,9");
             builder.assertion(beanOne).expect(fields, beanOne.getContained().get(1), beanOne.getContained().get(2),

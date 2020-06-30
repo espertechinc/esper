@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,13 +33,13 @@ public class QueryGraphValueEntryCustomOperationForge implements QueryGraphValue
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(QueryGraphValueEntryCustomOperation.class, this.getClass(), classScope);
-        method.getBlock().declareVar(Map.class, "map", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(positionalExpressions.size()))));
+        CodegenMethod method = parent.makeChild(QueryGraphValueEntryCustomOperation.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(positionalExpressions.size()))));
         for (Map.Entry<Integer, ExprNode> entry : positionalExpressions.entrySet()) {
             method.getBlock().exprDotMethod(ref("map"), "put", constant(entry.getKey()), ExprNodeUtilityCodegen.codegenEvaluator(entry.getValue().getForge(), method, this.getClass(), classScope));
         }
         method.getBlock()
-                .declareVar(QueryGraphValueEntryCustomOperation.class, "op", newInstance(QueryGraphValueEntryCustomOperation.class))
+                .declareVarNewInstance(QueryGraphValueEntryCustomOperation.EPTYPE, "op")
                 .exprDotMethod(ref("op"), "setPositionalExpressions", ref("map"))
                 .methodReturn(ref("op"));
         return localMethod(method);

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -30,12 +31,12 @@ public class SubselectForgeNRExistsAggregated implements SubselectForgeNR {
     }
 
     public CodegenExpression evaluateMatchesCodegen(CodegenMethodScope parent, ExprSubselectEvalMatchSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(boolean.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), classScope);
         CodegenMethod havingMethod = CodegenLegoMethodExpression.codegenExpression(havingEval, method, classScope);
         CodegenExpression having = localMethod(havingMethod, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method));
 
         method.getBlock().applyTri(DECLARE_EVENTS_SHIFTED, method, symbols);
-        CodegenLegoBooleanExpression.codegenReturnValueIfNullOrNotPass(method.getBlock(), Boolean.class, having, constantFalse());
+        CodegenLegoBooleanExpression.codegenReturnValueIfNullOrNotPass(method.getBlock(), EPTypePremade.BOOLEANBOXED.getEPType(), having, constantFalse());
         method.getBlock().methodReturn(constantTrue());
         return localMethod(method);
     }

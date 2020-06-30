@@ -38,13 +38,13 @@ public class OrderByProcessorOrderedLimitForge implements OrderByProcessorFactor
     }
 
     public void instantiateCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionField rowLimitFactory = classScope.addFieldUnshared(true, RowLimitProcessorFactory.class, rowLimitProcessorFactoryForge.make(classScope.getPackageScope().getInitMethod(), classScope));
-        method.getBlock().declareVar(RowLimitProcessor.class, REF_ROWLIMITPROCESSOR.getRef(), exprDotMethod(rowLimitFactory, "instantiate", MEMBER_AGENTINSTANCECONTEXT))
+        CodegenExpressionField rowLimitFactory = classScope.addFieldUnshared(true, RowLimitProcessorFactory.EPTYPE, rowLimitProcessorFactoryForge.make(classScope.getPackageScope().getInitMethod(), classScope));
+        method.getBlock().declareVar(RowLimitProcessor.EPTYPE, REF_ROWLIMITPROCESSOR.getRef(), exprDotMethod(rowLimitFactory, "instantiate", MEMBER_AGENTINSTANCECONTEXT))
                 .methodReturn(CodegenExpressionBuilder.newInstance(CLASSNAME_ORDERBYPROCESSOR, ref("o"), REF_ROWLIMITPROCESSOR));
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> members, CodegenClassScope classScope) {
-        ctor.getCtorParams().add(new CodegenTypedParam(RowLimitProcessor.class, REF_ROWLIMITPROCESSOR.getRef()));
+        ctor.getCtorParams().add(new CodegenTypedParam(RowLimitProcessor.EPTYPE, REF_ROWLIMITPROCESSOR.getRef()));
     }
 
     public void sortPlainCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {

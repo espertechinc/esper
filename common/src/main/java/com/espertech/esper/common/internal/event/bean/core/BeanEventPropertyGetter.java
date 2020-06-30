@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.event.bean.core;
 
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
 /**
@@ -34,7 +35,7 @@ public interface BeanEventPropertyGetter extends EventPropertyGetterSPI {
      */
     public boolean isBeanExistsProperty(Object object);
 
-    public Class getBeanPropType();
+    public EPTypeClass getBeanPropType();
 
-    public Class getTargetType();
+    public EPTypeClass getTargetType();
 }

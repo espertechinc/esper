@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.CoercionException;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -78,56 +79,60 @@ public class ExprEqualsAllAnyNode extends ExprNodeBase {
         }
 
         // Must be the same boxed type returned by expressions under this
-        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        EPType typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        ExprNodeUtilityValidate.validateLHSTypeAnyAllSomeIn(typeOne);
 
-        // collections, array or map not supported
-        if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
-            throw new ExprValidationException("Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
-        }
-
-        List<Class> comparedTypes = new ArrayList<Class>();
+        List<EPType> comparedTypes = new ArrayList<>();
         comparedTypes.add(typeOne);
         boolean hasCollectionOrArray = false;
         for (int i = 0; i < this.getChildNodes().length - 1; i++) {
-            Class propType = getChildNodes()[i + 1].getForge().getEvaluationType();
-            if (propType == null) {
+            EPType propType = getChildNodes()[i + 1].getForge().getEvaluationType();
+            if (propType == null || propType == EPTypeNull.INSTANCE) {
                 // no action
-            } else if (propType.isArray()) {
-                hasCollectionOrArray = true;
-                if (propType.getComponentType() != Object.class) {
-                    comparedTypes.add(propType.getComponentType());
-                }
-            } else if (JavaClassHelper.isImplementsInterface(propType, Collection.class)) {
-                hasCollectionOrArray = true;
-            } else if (JavaClassHelper.isImplementsInterface(propType, Map.class)) {
-                hasCollectionOrArray = true;
             } else {
-                comparedTypes.add(propType);
+                EPTypeClass propClass = (EPTypeClass) propType;
+                if (propClass.getType().isArray()) {
+                    hasCollectionOrArray = true;
+                    if (propClass.getType().getComponentType() != Object.class) {
+                        EPTypeClass component = JavaClassHelper.getArrayComponentType(propClass);
+                        comparedTypes.add(component);
+                    }
+                } else if (JavaClassHelper.isImplementsInterface(propClass, Collection.class)) {
+                    hasCollectionOrArray = true;
+                } else if (JavaClassHelper.isImplementsInterface(propClass, Map.class)) {
+                    hasCollectionOrArray = true;
+                } else {
+                    comparedTypes.add(propClass);
+                }
             }
         }
 
         // Determine common denominator type
-        Class coercionTypeBoxed;
+        EPType coercionType;
         try {
-            coercionTypeBoxed = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
+            coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new EPType[comparedTypes.size()]));
         } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
         }
+        if (coercionType == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Implicit conversion to null-type is not allowed");
+        }
+        EPTypeClass coercionClass = JavaClassHelper.getBoxedType((EPTypeClass) coercionType);
 
         // Check if we need to coerce
         boolean mustCoerce = false;
         SimpleNumberCoercer coercer = null;
-        if (JavaClassHelper.isNumeric(coercionTypeBoxed)) {
-            for (Class compareType : comparedTypes) {
-                if (coercionTypeBoxed != JavaClassHelper.getBoxedType(compareType)) {
+        if (JavaClassHelper.isNumeric(coercionClass)) {
+            for (EPType compareType : comparedTypes) {
+                if (!(coercionClass.equals(JavaClassHelper.getBoxedType(compareType)))) {
                     mustCoerce = true;
                 }
             }
             if (mustCoerce) {
-                coercer = SimpleNumberCoercerFactory.getCoercer(null, JavaClassHelper.getBoxedType(coercionTypeBoxed));
+                coercer = SimpleNumberCoercerFactory.getCoercer(null, coercionClass);
             }
         }
-        forge = new ExprEqualsAllAnyNodeForge(this, mustCoerce, coercer, coercionTypeBoxed, hasCollectionOrArray);
+        forge = new ExprEqualsAllAnyNodeForge(this, mustCoerce, coercer, coercionClass, hasCollectionOrArray);
         return null;
     }
 

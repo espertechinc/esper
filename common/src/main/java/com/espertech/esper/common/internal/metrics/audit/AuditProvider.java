@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.internal.metrics.audit;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface AuditProvider extends AuditProviderView, AuditProviderStream, AuditProviderSchedule, AuditProviderProperty, AuditProviderInsert,
         AuditProviderExpression, AuditProviderPattern, AuditProviderPatternInstances, AuditProviderExprDef, AuditProviderDataflowTransition,
         AuditProviderDataflowSource, AuditProviderDataflowOp, AuditProviderContextPartition {
+    EPTypeClass EPTYPE = new EPTypeClass(AuditProvider.class);
     boolean activated();
 }

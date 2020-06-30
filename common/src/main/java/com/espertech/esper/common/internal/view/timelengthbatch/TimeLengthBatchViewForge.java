@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timelengthbatch;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -68,8 +69,8 @@ public class TimeLengthBatchViewForge extends ViewFactoryForgeBase implements Da
         this.scheduleCallbackId = id;
     }
 
-    protected Class typeOfFactory() {
-        return TimeLengthBatchViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return TimeLengthBatchViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {
@@ -81,7 +82,7 @@ public class TimeLengthBatchViewForge extends ViewFactoryForgeBase implements Da
             throw new IllegalStateException("No schedule callback id");
         }
         method.getBlock()
-                .declareVar(TimePeriodCompute.class, "eval", timePeriodCompute.makeEvaluator(method, classScope))
+                .declareVar(TimePeriodCompute.EPTYPE, "eval", timePeriodCompute.makeEvaluator(method, classScope))
                 .exprDotMethod(factory, "setSize", codegenEvaluator(sizeForge, method, this.getClass(), classScope))
                 .exprDotMethod(factory, "setTimePeriodCompute", ref("eval"))
                 .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))

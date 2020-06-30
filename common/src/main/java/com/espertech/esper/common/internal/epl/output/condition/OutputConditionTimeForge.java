@@ -38,9 +38,9 @@ public class OutputConditionTimeForge implements OutputConditionFactoryForge, Sc
         if (scheduleCallbackId == -1) {
             throw new IllegalStateException("Unassigned callback id");
         }
-        CodegenMethod method = parent.makeChild(OutputConditionFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(OutputConditionFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(TimePeriodCompute.class, "delta", timePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope))
+                .declareVar(TimePeriodCompute.EPTYPE, "delta", timePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope))
                 .methodReturn(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY)
                         .add("makeOutputConditionTime", constant(timePeriod.hasVariable()), ref("delta"), constant(isStartConditionOnCreation), constant(scheduleCallbackId)));
         return localMethod(method);

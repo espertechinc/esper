@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.List;
 
 public class CodegenInnerClass {
@@ -19,10 +21,10 @@ public class CodegenInnerClass {
     private final List<CodegenTypedParam> explicitMembers;
     private final CodegenClassMethods methods;
 
-    public CodegenInnerClass(String className, Class optionalInterfaceImplemented, CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassMethods methods) {
+    public CodegenInnerClass(String className, EPTypeClass optionalInterfaceImplemented, CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassMethods methods) {
         this(className, ctor, explicitMembers, methods);
         if (optionalInterfaceImplemented != null) {
-            if (optionalInterfaceImplemented.isInterface()) {
+            if (optionalInterfaceImplemented.getType().isInterface()) {
                 supers.addInterfaceImplemented(optionalInterfaceImplemented);
             } else {
                 supers.setClassExtended(optionalInterfaceImplemented);

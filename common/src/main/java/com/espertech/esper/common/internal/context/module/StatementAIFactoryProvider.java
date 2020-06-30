@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
 
 public interface StatementAIFactoryProvider {
+    EPTypeClass EPTYPE = new EPTypeClass(StatementAIFactoryProvider.class);
+
     StatementAgentInstanceFactory getFactory();
 
     void assign(StatementAIFactoryAssignments assignments);

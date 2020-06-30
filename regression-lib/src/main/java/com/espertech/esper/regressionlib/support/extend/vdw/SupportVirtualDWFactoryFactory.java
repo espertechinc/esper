@@ -13,8 +13,11 @@ package com.espertech.esper.regressionlib.support.extend.vdw;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowFactory;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowFactoryFactory;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowFactoryFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class SupportVirtualDWFactoryFactory implements VirtualDataWindowFactoryFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportVirtualDWFactoryFactory.class);
+
     public VirtualDataWindowFactory createFactory(VirtualDataWindowFactoryFactoryContext ctx) {
         return new SupportVirtualDWFactory();
     }

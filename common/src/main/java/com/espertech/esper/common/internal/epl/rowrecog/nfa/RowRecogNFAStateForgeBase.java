@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.nfa;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -34,7 +35,7 @@ public abstract class RowRecogNFAStateForgeBase implements RowRecogNFAStateForge
     private final boolean exprRequiresMultimatchState;
     private int nodeNumFlat;
 
-    protected abstract Class getEvalClass();
+    protected abstract EPTypeClass getEvalClass();
 
     protected abstract void assignInline(CodegenExpression eval, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -51,7 +52,7 @@ public abstract class RowRecogNFAStateForgeBase implements RowRecogNFAStateForge
     public final CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(getEvalClass(), this.getClass(), classScope);
         method.getBlock()
-                .declareVar(getEvalClass(), "eval", newInstance(getEvalClass()))
+                .declareVarNewInstance(getEvalClass(), "eval")
                 .exprDotMethod(ref("eval"), "setNodeNumNested", constant(nodeNumNested))
                 .exprDotMethod(ref("eval"), "setVariableName", constant(variableName))
                 .exprDotMethod(ref("eval"), "setStreamNum", constant(streamNum))

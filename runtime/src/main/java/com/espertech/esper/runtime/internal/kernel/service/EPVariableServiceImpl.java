@@ -38,7 +38,7 @@ public class EPVariableServiceImpl implements EPVariableServiceSPI {
         Map<DeploymentIdNamePair, VariableReader> variables = services.getVariableManagementService().getVariableReadersNonCP();
         Map<DeploymentIdNamePair, Class> values = new HashMap<>();
         for (Map.Entry<DeploymentIdNamePair, VariableReader> entry : variables.entrySet()) {
-            Class type = entry.getValue().getMetaData().getType();
+            Class type = entry.getValue().getMetaData().getType().getType();
             values.put(entry.getKey(), type);
         }
         return values;
@@ -49,7 +49,7 @@ public class EPVariableServiceImpl implements EPVariableServiceSPI {
         if (metaData == null) {
             return null;
         }
-        return metaData.getMetaData().getType();
+        return metaData.getMetaData().getType().getType();
     }
 
     public Object getVariableValue(String deploymentId, String variableName) throws VariableNotFoundException {

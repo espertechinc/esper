@@ -86,7 +86,7 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
 
             // invalid type incompatible
             tryInvalidCompileFAF(env, path, "select ?:p0:int as c0, ?:p0:long from MyWindow",
-                "Substitution parameter 'p0' incompatible type assignment between types 'java.lang.Integer' and 'java.lang.Long'");
+                "Substitution parameter 'p0' incompatible type assignment between types 'Integer' and 'Long'");
 
             env.undeployAll();
         }

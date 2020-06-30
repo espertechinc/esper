@@ -36,10 +36,10 @@ public class SubordInKeywordMultiTableLookupStrategyFactoryForge implements Subo
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordInKeywordMultiTableLookupStrategyFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordInKeywordMultiTableLookupStrategyFactory.EPTYPE, this.getClass(), classScope);
         String expression = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(exprNode);
         CodegenExpression eval = ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(exprNode.getForge(), method, this.getClass(), classScope);
-        method.getBlock().methodReturn(newInstance(SubordInKeywordMultiTableLookupStrategyFactory.class, constant(isNWOnTrigger),
+        method.getBlock().methodReturn(newInstance(SubordInKeywordMultiTableLookupStrategyFactory.EPTYPE, constant(isNWOnTrigger),
                 constant(streamCountOuter), eval, constant(expression)));
         return localMethod(method);
     }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.client.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -17,6 +19,11 @@ import java.util.Arrays;
  * Multi-key made up of multiple values providing hashcode and equals semantics using {@link Arrays#hashCode()} and {@link Arrays#equals(Object[], Object[])}
  */
 public final class HashableMultiKey implements Serializable, MultiKey {
+    /**
+     * Type information
+     */
+    public final static EPTypeClass EPTYPE = new EPTypeClass(HashableMultiKey.class);
+
     private static final long serialVersionUID = -7019971786796246533L;
     private final Object[] keys;
 

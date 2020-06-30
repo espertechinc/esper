@@ -10,17 +10,21 @@
  */
 package com.espertech.esper.common.internal.epl.expression.table;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 public class ExprTableNodeUtil {
     public static void validateExpressions(String tableName,
-                                           Class[] providedTypes,
+                                           EPType[] providedTypes,
                                            String providedName,
                                            ExprNode[] providedExpr,
-                                           Class[] expectedTypes,
+                                           EPTypeClass[] expectedTypes,
                                            String expectedName
     ) throws ExprValidationException {
         if (expectedTypes.length != providedTypes.length) {
@@ -39,17 +43,17 @@ public class ExprTableNodeUtil {
         }
 
         for (int i = 0; i < expectedTypes.length; i++) {
-            Class actual = JavaClassHelper.getBoxedType(providedTypes[i]);
-            Class expected = JavaClassHelper.getBoxedType(expectedTypes[i]);
-            if (!JavaClassHelper.isSubclassOrImplementsInterface(actual, expected)) {
+            EPType actual = JavaClassHelper.getBoxedType(providedTypes[i]);
+            EPTypeClass expected = JavaClassHelper.getBoxedType(expectedTypes[i]);
+            if (actual == null || actual == EPTypeNull.INSTANCE || !JavaClassHelper.isSubclassOrImplementsInterface(actual, expected)) {
                 throw new ExprValidationException("Incompatible type returned by a " +
                         providedName +
                         " expression for use with table '" +
                         tableName +
                         "', the " + providedName + " expression '" +
                         ExprNodeUtilityPrint.toExpressionStringMinPrecedenceAsList(providedExpr) + "' returns '" +
-                        JavaClassHelper.getClassNameFullyQualPretty(actual) + "' but the table expects '" +
-                        JavaClassHelper.getClassNameFullyQualPretty(expected) + "'");
+                        ClassHelperPrint.getClassNameFullyQualPretty(actual) + "' but the table expects '" +
+                        ClassHelperPrint.getClassNameFullyQualPretty(expected) + "'");
             }
         }
     }

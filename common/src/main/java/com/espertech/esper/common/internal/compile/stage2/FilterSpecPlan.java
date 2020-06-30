@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementContextFilterEvalEnv;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMap;
 
 public class FilterSpecPlan {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FilterSpecPlan.class);
+
     public final static FilterSpecPlan EMPTY_PLAN;
     static {
         EMPTY_PLAN = new FilterSpecPlan(FilterSpecPlanPath.EMPTY_ARRAY, null, null);

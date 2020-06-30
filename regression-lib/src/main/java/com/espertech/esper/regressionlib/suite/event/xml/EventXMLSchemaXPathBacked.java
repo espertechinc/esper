@@ -11,9 +11,9 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -63,12 +63,11 @@ public class EventXMLSchemaXPathBacked {
         EventType type = env.statement("s0").getEventType();
         SupportEventTypeAssertionUtil.assertConsistency(type);
 
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, !xpath),
-            new EventPropertyDescriptor("prop4", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("nested3", Node.class, null, false, false, false, false, !xpath),
-            new EventPropertyDescriptor("customProp", Double.class, null, false, false, false, false, false),
-        }, type.getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+            new SupportEventPropDesc("nested1", Node.class).fragment(!xpath),
+            new SupportEventPropDesc("prop4", String.class),
+            new SupportEventPropDesc("nested3", Node.class).fragment(!xpath),
+            new SupportEventPropDesc("customProp", Double.class));
         env.undeployModuleContaining("s0");
 
         String stmt = "@name('s0') select nested1 as nodeProp," +
@@ -84,16 +83,15 @@ public class EventXMLSchemaXPathBacked {
         env.compileDeploy(stmt, path).addListener("s0");
         type = env.statement("s0").getEventType();
         SupportEventTypeAssertionUtil.assertConsistency(type);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nodeProp", Node.class, null, false, false, false, false, !xpath),
-            new EventPropertyDescriptor("nested1Prop", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("nested2Prop", Boolean.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("complexProp", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("indexedProp", Integer.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("customProp", Double.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("attrOneProp", Boolean.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("attrTwoProp", String.class, null, false, false, false, false, false),
-        }, type.getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+            new SupportEventPropDesc("nodeProp", Node.class).fragment(!xpath),
+            new SupportEventPropDesc("nested1Prop", String.class),
+            new SupportEventPropDesc("nested2Prop", Boolean.class),
+            new SupportEventPropDesc("complexProp", String.class),
+            new SupportEventPropDesc("indexedProp", Integer.class),
+            new SupportEventPropDesc("customProp", Double.class),
+            new SupportEventPropDesc("attrOneProp", Boolean.class),
+            new SupportEventPropDesc("attrTwoProp", String.class));
 
         Document eventDoc = SupportXML.sendDefaultEvent(env.eventService(), "test", typeName);
 

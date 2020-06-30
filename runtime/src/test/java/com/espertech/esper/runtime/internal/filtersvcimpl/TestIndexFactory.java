@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.filtersvcimpl;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -77,7 +78,7 @@ public class TestIndexFactory extends TestCase {
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
         SupportExprEventEvaluator eval = new SupportExprEventEvaluator(eventType.getGetter(fieldName));
-        return new ExprFilterSpecLookupable(fieldName, eval, null, eventType.getPropertyType(fieldName), false, null);
+        return new ExprFilterSpecLookupable(fieldName, eval, null, (EPTypeClass) eventType.getPropertyEPType(fieldName), false, null);
     }
 }
 

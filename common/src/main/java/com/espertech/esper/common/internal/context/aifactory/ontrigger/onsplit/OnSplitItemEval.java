@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.onsplit;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.filterspec.PropertyEvaluator;
 
 public class OnSplitItemEval {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OnSplitItemEval.class);
+
     private ExprEvaluator whereClause;
     private boolean isNamedWindowInsert;
     private Table insertIntoTable;

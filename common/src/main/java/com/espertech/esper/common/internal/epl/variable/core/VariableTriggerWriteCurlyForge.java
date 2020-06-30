@@ -30,9 +30,9 @@ public class VariableTriggerWriteCurlyForge extends VariableTriggerWriteForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(VariableTriggerWriteCurly.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(VariableTriggerWriteCurly.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(VariableTriggerWriteCurly.class, "desc", newInstance(VariableTriggerWriteCurly.class))
+            .declareVarNewInstance(VariableTriggerWriteCurly.EPTYPE, "desc")
             .exprDotMethod(ref("desc"), "setVariableName", constant(variableName))
             .exprDotMethod(ref("desc"), "setExpression", ExprNodeUtilityCodegen.codegenEvaluator(expression, method, VariableTriggerWriteCurlyForge.class, classScope))
             .methodReturn(ref("desc"));

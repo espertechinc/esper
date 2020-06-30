@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.datetime.reformatop;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -70,7 +72,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     public static CodegenExpression codegenDate(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(Date.class, "d");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(EPTypePremade.DATE.getEPType(), "d");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("d")
@@ -86,7 +88,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     public static CodegenExpression codegenCal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(Calendar.class, "cal");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(EPTypePremade.CALENDAR.getEPType(), "cal");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("cal")
@@ -191,7 +193,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     private static CodegenExpression codegenLongInternal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(long.class, "ts");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "ts");
 
         CodegenBlock block = methodNode.getBlock();
         codegenLongCoercion(block, "first", forge.start, forge.startCoercer, methodNode, exprSymbol, codegenClassScope);
@@ -217,30 +219,30 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
 
     private static void codegenBooleanEval(CodegenBlock block, String variable, Boolean preset, ExprForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (preset != null) {
-            block.declareVar(boolean.class, variable, constant(preset));
+            block.declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), variable, constant(preset));
             return;
         }
-        if (forge.getEvaluationType() == boolean.class) {
-            block.declareVar(boolean.class, variable, forge.evaluateCodegen(boolean.class, codegenMethodScope, exprSymbol, codegenClassScope));
+        if (((EPTypeClass) forge.getEvaluationType()).getType() == boolean.class) {
+            block.declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), variable, forge.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
         String refname = variable + "Obj";
-        block.declareVar(Boolean.class, refname, forge.evaluateCodegen(Boolean.class, codegenMethodScope, exprSymbol, codegenClassScope))
+        block.declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), refname, forge.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), codegenMethodScope, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull(refname)
-                .declareVar(boolean.class, variable, ref(refname));
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), variable, ref(refname));
     }
 
     private static void codegenLongCoercion(CodegenBlock block, String variable, ExprNode assignment, DatetimeLongCoercer coercer, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class evaluationType = assignment.getForge().getEvaluationType();
-        if (evaluationType == long.class) {
-            block.declareVar(long.class, variable, assignment.getForge().evaluateCodegen(long.class, codegenMethodScope, exprSymbol, codegenClassScope));
+        EPTypeClass evaluationType = (EPTypeClass) assignment.getForge().getEvaluationType();
+        if (evaluationType.getType() == long.class) {
+            block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), variable, assignment.getForge().evaluateCodegen(EPTypePremade.LONGPRIMITIVE.getEPType(), codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
         String refname = variable + "Obj";
         block.declareVar(evaluationType, refname, assignment.getForge().evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));
-        if (!evaluationType.isPrimitive()) {
+        if (!evaluationType.getType().isPrimitive()) {
             block.ifRefNullReturnNull(refname);
         }
-        block.declareVar(long.class, variable, coercer.codegen(ref(refname), evaluationType, codegenClassScope));
+        block.declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), variable, coercer.codegen(ref(refname), evaluationType, codegenClassScope));
     }
 }

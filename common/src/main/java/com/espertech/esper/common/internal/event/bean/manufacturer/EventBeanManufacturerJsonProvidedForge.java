@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -25,12 +27,14 @@ import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.event.json.compiletime.JsonUnderlyingField;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.SimpleTypeCaster;
 import com.espertech.esper.common.internal.util.SimpleTypeCasterFactory;
 
 import java.lang.reflect.Field;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypePrimitive;
 
 /**
  * Factory for event beans created and populate anew from a set of values.
@@ -60,7 +64,7 @@ public class EventBeanManufacturerJsonProvidedForge implements EventBeanManufact
         this.properties = properties;
         this.classpathImportService = classpathImportService;
 
-        beanInstantiator = new BeanInstantiatorForgeByNewInstanceReflection(jsonEventType.getUnderlyingType());
+        beanInstantiator = new BeanInstantiatorForgeByNewInstanceReflection(jsonEventType.getUnderlyingEPType());
 
         writeFieldReflection = new Field[properties.length];
 
@@ -69,7 +73,7 @@ public class EventBeanManufacturerJsonProvidedForge implements EventBeanManufact
             String propertyName = properties[i].getPropertyName();
             JsonUnderlyingField field = jsonEventType.getDetail().getFieldDescriptors().get(propertyName);
             writeFieldReflection[i] = field.getOptionalField();
-            primitiveType[i] = properties[i].getType().isPrimitive();
+            primitiveType[i] = isTypePrimitive(properties[i].getType());
         }
     }
 
@@ -81,36 +85,36 @@ public class EventBeanManufacturerJsonProvidedForge implements EventBeanManufact
         CodegenMethod init = codegenClassScope.getPackageScope().getInitMethod();
 
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField beanType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(jsonEventType, EPStatementInitServices.REF));
+        CodegenExpressionField beanType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(jsonEventType, EPStatementInitServices.REF));
 
-        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.class);
+        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.EPTYPE);
 
-        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("makeUnderlying", makeUndMethod);
         makeUnderlyingCodegen(makeUndMethod, codegenClassScope);
 
-        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("make", makeMethod);
         makeMethod.getBlock()
-                .declareVar(Object.class, "und", localMethod(makeUndMethod, ref("properties")))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "und", localMethod(makeUndMethod, ref("properties")))
                 .methodReturn(exprDotMethod(factory, "adapterForTypedJson", ref("und"), beanType));
 
-        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, manufacturer);
+        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, manufacturer);
     }
 
     private void makeUnderlyingCodegen(CodegenMethod method, CodegenClassScope codegenClassScope) {
         method.getBlock()
-                .declareVar(jsonEventType.getUnderlyingType(), "und", cast(jsonEventType.getUnderlyingType(), beanInstantiator.make(method, codegenClassScope)))
-                .declareVar(Object.class, "value", constantNull());
+                .declareVar(jsonEventType.getUnderlyingEPType(), "und", cast(jsonEventType.getUnderlyingEPType(), beanInstantiator.make(method, codegenClassScope)))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", constantNull());
 
         for (int i = 0; i < writeFieldReflection.length; i++) {
             method.getBlock().assignRef("value", arrayAtIndex(ref("properties"), constant(i)));
 
-            Class targetType = writeFieldReflection[i].getType();
+            EPTypeClass targetType = ClassHelperGenericType.getFieldEPType(writeFieldReflection[i]);
             CodegenExpression value;
-            if (targetType.isPrimitive()) {
-                SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(Object.class, targetType);
-                value = caster.codegen(ref("value"), Object.class, method, codegenClassScope);
+            if (targetType.getType().isPrimitive()) {
+                SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(EPTypePremade.OBJECT.getEPType(), targetType);
+                value = caster.codegen(ref("value"), EPTypePremade.OBJECT.getEPType(), method, codegenClassScope);
             } else {
                 value = cast(targetType, ref("value"));
             }

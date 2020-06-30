@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.or;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.pattern.core.*;
 
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents an 'or' operator in the evaluation tree representing any event expressions.
  */
 public class EvalOrFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalOrFactoryNode.class);
 
     protected EvalFactoryNode[] children;
 

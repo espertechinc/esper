@@ -29,10 +29,10 @@ public class SubordWMatchExprLookupStrategyIndexedUnfilteredForge implements Sub
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordWMatchExprLookupStrategyIndexedUnfilteredFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordWMatchExprLookupStrategyIndexedUnfilteredFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(SubordTableLookupStrategyFactory.class, "lookup", lookupStrategyFactory.make(method, symbols, classScope))
-                .methodReturn(newInstance(SubordWMatchExprLookupStrategyIndexedUnfilteredFactory.class, ref("lookup")));
+                .declareVar(SubordTableLookupStrategyFactory.EPTYPE, "lookup", lookupStrategyFactory.make(method, symbols, classScope))
+                .methodReturn(newInstance(SubordWMatchExprLookupStrategyIndexedUnfilteredFactory.EPTYPE, ref("lookup")));
         return localMethod(method);
     }
 

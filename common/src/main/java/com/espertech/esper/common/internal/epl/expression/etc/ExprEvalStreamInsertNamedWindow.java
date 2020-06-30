@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -31,9 +32,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprEvalStreamInsertNamedWindow implements ExprForge, ExprEvaluator, ExprNodeRenderable {
     private final int streamNum;
     private final EventType namedWindowAsType;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public ExprEvalStreamInsertNamedWindow(int streamNum, EventType namedWindowAsType, Class returnType) {
+    public ExprEvalStreamInsertNamedWindow(int streamNum, EventType namedWindowAsType, EPTypeClass returnType) {
         this.streamNum = streamNum;
         this.namedWindowAsType = namedWindowAsType;
         this.returnType = returnType;
@@ -52,18 +53,18 @@ public class ExprEvalStreamInsertNamedWindow implements ExprForge, ExprEvaluator
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField eventSvc = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField namedWindowType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(namedWindowAsType, EPStatementInitServices.REF));
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, ExprEvalStreamInsertNamedWindow.class, codegenClassScope);
+        CodegenExpressionField namedWindowType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(namedWindowAsType, EPStatementInitServices.REF));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, ExprEvalStreamInsertNamedWindow.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         String method = EventTypeUtility.getAdapterForMethodName(namedWindowAsType);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(exprDotMethod(eventSvc, method, cast(namedWindowAsType.getUnderlyingType(), exprDotUnderlying(ref("event"))), namedWindowType));
+                .methodReturn(exprDotMethod(eventSvc, method, cast(namedWindowAsType.getUnderlyingEPType(), exprDotUnderlying(ref("event"))), namedWindowType));
         return localMethod(methodNode);
     }
 
@@ -71,7 +72,7 @@ public class ExprEvalStreamInsertNamedWindow implements ExprForge, ExprEvaluator
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

@@ -29,6 +29,6 @@ public class IndexDetailForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, ModuleIndexesInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(IndexDetail.class, indexMultiKey.make(parent, classScope), queryPlanIndexItem.make(parent, classScope));
+        return newInstance(IndexDetail.EPTYPE, indexMultiKey.make(parent, classScope), queryPlanIndexItem.make(parent, classScope));
     }
 }

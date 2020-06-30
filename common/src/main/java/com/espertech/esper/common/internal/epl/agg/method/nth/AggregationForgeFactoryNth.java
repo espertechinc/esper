@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.method.nth;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -26,13 +28,13 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 
 public class AggregationForgeFactoryNth extends AggregationForgeFactoryBase {
     protected final ExprNthAggNode parent;
-    protected final Class childType;
+    protected final EPTypeClass childType;
     protected final DataInputOutputSerdeForge serde;
     protected final DataInputOutputSerdeForge distinctSerde;
     protected final int size;
     protected AggregatorNth aggregator;
 
-    public AggregationForgeFactoryNth(ExprNthAggNode parent, Class childType, DataInputOutputSerdeForge serde, DataInputOutputSerdeForge distinctSerde, int size) {
+    public AggregationForgeFactoryNth(ExprNthAggNode parent, EPTypeClass childType, DataInputOutputSerdeForge serde, DataInputOutputSerdeForge distinctSerde, int size) {
         this.parent = parent;
         this.childType = childType;
         this.serde = serde;
@@ -40,12 +42,12 @@ public class AggregationForgeFactoryNth extends AggregationForgeFactoryBase {
         this.size = size;
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return childType;
     }
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        Class distinctValueType = !parent.isDistinct() ? null : childType;
+        EPTypeClass distinctValueType = !parent.isDistinct() ? null : childType;
         aggregator = new AggregatorNth(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, false, parent.getOptionalFilter());
     }
 
@@ -69,7 +71,7 @@ public class AggregationForgeFactoryNth extends AggregationForgeFactoryBase {
         return ExprMethodAggUtil.getDefaultForges(parent.getPositionalParams(), join, typesPerStream);
     }
 
-    public Class getChildType() {
+    public EPTypeClass getChildType() {
         return childType;
     }
 

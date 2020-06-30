@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.virtualdw;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -25,13 +26,15 @@ import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategyF
  * events properties, and returning a set of matched events.
  */
 public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStrategyFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SubordTableLookupStrategyFactoryVDW.class);
+
     private IndexedPropDesc[] indexHashedProps;
     private IndexedPropDesc[] indexBtreeProps;
     private boolean nwOnTrigger;
     private ExprEvaluator[] hashEvals;
-    private Class[] hashCoercionTypes;
+    private EPTypeClass[] hashCoercionTypes;
     private QueryGraphValueEntryRange[] rangeEvals;
-    private Class[] rangeCoercionTypes;
+    private EPTypeClass[] rangeCoercionTypes;
     private int numOuterStreams;
 
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, AgentInstanceContext agentInstanceContext, VirtualDWView vdw) {
@@ -70,11 +73,11 @@ public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStr
         this.hashEvals = hashEvals;
     }
 
-    public Class[] getHashCoercionTypes() {
+    public EPTypeClass[] getHashCoercionTypes() {
         return hashCoercionTypes;
     }
 
-    public void setHashCoercionTypes(Class[] hashCoercionTypes) {
+    public void setHashCoercionTypes(EPTypeClass[] hashCoercionTypes) {
         this.hashCoercionTypes = hashCoercionTypes;
     }
 
@@ -86,11 +89,11 @@ public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStr
         this.rangeEvals = rangeEvals;
     }
 
-    public Class[] getRangeCoercionTypes() {
+    public EPTypeClass[] getRangeCoercionTypes() {
         return rangeCoercionTypes;
     }
 
-    public void setRangeCoercionTypes(Class[] rangeCoercionTypes) {
+    public void setRangeCoercionTypes(EPTypeClass[] rangeCoercionTypes) {
         this.rangeCoercionTypes = rangeCoercionTypes;
     }
 

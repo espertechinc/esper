@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -31,9 +33,9 @@ public class FilterForEvalContextPropForge implements FilterSpecParamInValueForg
     private final String propertyName;
     private transient final EventPropertyGetterSPI getter;
     private transient final SimpleNumberCoercer numberCoercer;
-    private transient final Class returnType;
+    private transient final EPType returnType;
 
-    public FilterForEvalContextPropForge(String propertyName, EventPropertyGetterSPI getter, SimpleNumberCoercer coercer, Class returnType) {
+    public FilterForEvalContextPropForge(String propertyName, EventPropertyGetterSPI getter, SimpleNumberCoercer coercer, EPType returnType) {
         this.propertyName = propertyName;
         this.getter = getter;
         this.numberCoercer = coercer;
@@ -41,21 +43,21 @@ public class FilterForEvalContextPropForge implements FilterSpecParamInValueForg
     }
 
     public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(GET_FILTER_VALUE_FP);
 
         method.getBlock()
-                .declareVar(EventBean.class, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
+                .declareVar(EventBean.EPTYPE, "props", exprDotMethod(REF_EXPREVALCONTEXT, "getContextProperties"))
                 .ifNullReturnNull(ref("props"))
-                .declareVar(Object.class, "result", getter.eventBeanGetCodegen(ref("props"), method, classScope));
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", getter.eventBeanGetCodegen(ref("props"), method, classScope));
         if (numberCoercer != null) {
-            method.getBlock().assignRef("result", numberCoercer.coerceCodegenMayNullBoxed(cast(Number.class, ref("result")), Number.class, method, classScope));
+            method.getBlock().assignRef("result", numberCoercer.coerceCodegenMayNullBoxed(cast(EPTypePremade.NUMBER.getEPType(), ref("result")), EPTypePremade.NUMBER.getEPType(), method, classScope));
         }
         method.getBlock().methodReturn(ref("result"));
 
         return localMethod(method, GET_FILTER_VALUE_REFS);
     }
 
-    public Class getReturnType() {
+    public EPType getReturnType() {
         return returnType;
     }
 

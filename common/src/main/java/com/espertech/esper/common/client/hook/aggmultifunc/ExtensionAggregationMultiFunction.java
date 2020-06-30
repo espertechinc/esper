@@ -18,5 +18,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExtensionAggregationMultiFunction {
+    /**
+     * List of comma-separated aggregation function names.
+     * @return names
+     */
     String names();
 }

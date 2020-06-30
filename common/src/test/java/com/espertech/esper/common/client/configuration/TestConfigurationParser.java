@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.configuration.runtime.ConfigurationRunt
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimePluginLoader;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.StreamSelector;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.*;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.type.StringPatternSet;
@@ -201,7 +202,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals("default-name-space", schemaDesc.getDefaultNamespace());
         assertEquals("/myevent/element2", schemaDesc.getXPathProperties().get("element2").getXpath());
         assertEquals(XPathConstants.STRING, schemaDesc.getXPathProperties().get("element2").getType());
-        assertEquals(Long.class, schemaDesc.getXPathProperties().get("element2").getOptionalCastToType());
+        assertEquals(EPTypePremade.LONGBOXED.getEPType(), schemaDesc.getXPathProperties().get("element2").getOptionalCastToType());
         assertEquals("/bookstore/book", schemaDesc.getXPathProperties().get("element3").getXpath());
         assertEquals(XPathConstants.NODESET, schemaDesc.getXPathProperties().get("element3").getType());
         assertNull(schemaDesc.getXPathProperties().get("element3").getOptionalCastToType());

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -30,10 +33,10 @@ public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
     public ExprEvaluator getExprEvaluator() {
         ExprForge lhs = getForgeRenderable().getChildNodes()[0].getForge();
         ExprForge rhs = getForgeRenderable().getChildNodes()[1].getForge();
-        Class lhsType = lhs.getEvaluationType();
+        EPType lhsType = lhs.getEvaluationType();
         if (!getForgeRenderable().isIs()) {
-            if (lhsType != null && lhsType.isArray()) {
-                Class componentType = lhsType.getComponentType();
+            if (lhsType != null && lhsType != EPTypeNull.INSTANCE && ((EPTypeClass) lhsType).getType().isArray()) {
+                Class componentType = ((EPTypeClass) lhsType).getType().getComponentType();
                 if (componentType == boolean.class) {
                     return new ExprEqualsNodeForgeNCEvalEqualsArrayBoolean(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
                 } else if (componentType == byte.class) {
@@ -56,8 +59,8 @@ public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
             return new ExprEqualsNodeForgeNCEvalEqualsNonArray(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
         }
 
-        if (lhsType != null && lhsType.isArray()) {
-            Class componentType = lhsType.getComponentType();
+        if (lhsType != null && lhsType != EPTypeNull.INSTANCE && ((EPTypeClass) lhsType).getType().isArray()) {
+            Class componentType = ((EPTypeClass) lhsType).getType().getComponentType();
             if (componentType == boolean.class) {
                 return new ExprEqualsNodeForgeNCEvalIsArrayBoolean(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
             } else if (componentType == byte.class) {
@@ -80,15 +83,17 @@ public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
         return new ExprEqualsNodeForgeNCEvalIsNonArray(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, getForgeRenderable().isIs() ? "ExprIs" : "ExprEquals", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge lhs = getForgeRenderable().getChildNodes()[0].getForge();
         ExprForge rhs = getForgeRenderable().getChildNodes()[1].getForge();
         if (!getForgeRenderable().isIs()) {
-            if (lhs.getEvaluationType() == null || rhs.getEvaluationType() == null) {
+            EPType lhsType = lhs.getEvaluationType();
+            EPType rhsType = rhs.getEvaluationType();
+            if (lhsType == null || lhsType == EPTypeNull.INSTANCE || rhsType == null || rhsType == EPTypeNull.INSTANCE) {
                 return constantNull();
             }
             return localMethod(ExprEqualsNodeForgeNCForgeEquals.codegen(ExprEqualsNodeForgeNC.this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs));

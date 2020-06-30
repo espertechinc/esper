@@ -93,7 +93,7 @@ public class EPLOtherUpdateIStream {
 
             // type incompatible cannot assign
             tryInvalidCompile(env, path, "update istream MySchema set intarray[notAnArray]='x'",
-                "Failed to validate assignment expression 'intarray[notAnArray]=\"x\"': Invalid assignment of column '\"x\"' of type 'java.lang.String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
+                "Failed to validate assignment expression 'intarray[notAnArray]=\"x\"': Invalid assignment of column '\"x\"' of type 'String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
 
             // not-an-array
             tryInvalidCompile(env, path, "update istream MySchema set notAnArray[notAnArray]=1",
@@ -282,7 +282,7 @@ public class EPLOtherUpdateIStream {
             env.compileDeploy("insert into SupportBeanStreamRO select * from SupportBeanReadOnly", path);
 
             tryInvalidCompile(env, path, "update istream SupportBeanStream set intPrimitive=longPrimitive",
-                "Failed to validate assignment expression 'intPrimitive=longPrimitive': Invalid assignment of column 'longPrimitive' of type 'java.lang.Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
+                "Failed to validate assignment expression 'intPrimitive=longPrimitive': Invalid assignment of column 'longPrimitive' of type 'Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
             tryInvalidCompile(env, path, "update istream SupportBeanStream set xxx='abc'",
                 "Failed to validate assignment expression 'xxx=\"abc\"': Property 'xxx' is not available for write access [update istream SupportBeanStream set xxx='abc']");
             tryInvalidCompile(env, path, "update istream SupportBeanStream set intPrimitive=null",

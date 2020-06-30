@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,21 +43,21 @@ public class EventBeanManufacturerJsonForge implements EventBeanManufacturerForg
         CodegenMethod init = codegenClassScope.getPackageScope().getInitMethod();
 
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(jsonEventType, EPStatementInitServices.REF));
+        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(jsonEventType, EPStatementInitServices.REF));
 
-        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.class);
+        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.EPTYPE);
 
-        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("makeUnderlying", makeUndMethod);
         makeUnderlyingCodegen(makeUndMethod, codegenClassScope);
 
-        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("make", makeMethod);
         makeMethod.getBlock()
-            .declareVar(Object.class, "und", localMethod(makeUndMethod, ref("properties")))
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "und", localMethod(makeUndMethod, ref("properties")))
             .methodReturn(exprDotMethod(factory, "adapterForTypedJson", ref("und"), eventType));
 
-        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, manufacturer);
+        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, manufacturer);
     }
 
     public EventBeanManufacturer getManufacturer(EventBeanTypedEventFactory eventBeanTypedEventFactory) {
@@ -65,11 +66,11 @@ public class EventBeanManufacturerJsonForge implements EventBeanManufacturerForg
     }
 
     private void makeUnderlyingCodegen(CodegenMethod method, CodegenClassScope codegenClassScope) {
-        method.getBlock().declareVar(jsonEventType.getUnderlyingType(), "und", newInstance(jsonEventType.getUnderlyingType()));
+        method.getBlock().declareVar(jsonEventType.getUnderlyingEPType(), "und", newInstance(jsonEventType.getUnderlyingEPType()));
         for (int i = 0; i < writables.length; i++) {
             JsonUnderlyingField field = jsonEventType.getDetail().getFieldDescriptors().get(writables[i].getPropertyName());
             CodegenExpression rhs = arrayAtIndex(ref("properties"), constant(i));
-            if (field.getPropertyType().isPrimitive()) {
+            if (field.getPropertyType().getType().isPrimitive()) {
                 method.getBlock()
                     .ifCondition(notEqualsNull(rhs))
                     .assignRef(ref("und." + field.getFieldName()), cast(JavaClassHelper.getBoxedType(field.getPropertyType()), rhs));

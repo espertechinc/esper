@@ -32,8 +32,8 @@ public class JsonEventBeanCopyMethodForge implements EventBeanCopyMethodForge {
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        return newInstance(JsonEventBeanCopyMethod.class,
-            cast(JsonEventType.class, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)),
+        return newInstance(JsonEventBeanCopyMethod.EPTYPE,
+            cast(JsonEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)),
             factory);
     }
 

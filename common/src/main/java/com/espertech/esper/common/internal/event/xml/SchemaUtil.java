@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.event.xml;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
 import org.w3c.dom.*;
 
@@ -20,7 +23,6 @@ import javax.xml.xpath.XPathConstants;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,34 +33,34 @@ import java.util.Map;
  */
 public class SchemaUtil {
 
-    private static Map<String, Class> typeMap;
+    private static Map<String, EPTypeClass> typeMap;
 
     static {
-        typeMap = new HashMap<String, Class>();
+        typeMap = new HashMap<>();
         Object[][] types = new Object[][]{
-                {"nonPositiveInteger", Integer.class},
-                {"nonNegativeInteger", Integer.class},
-                {"negativeInteger", Integer.class},
-                {"positiveInteger", Integer.class},
-                {"long", Long.class},
-                {"unsignedLong", Long.class},
-                {"int", Integer.class},
-                {"unsignedInt", Integer.class},
-                {"decimal", Double.class},
-                {"integer", Integer.class},
-                {"float", Float.class},
-                {"double", Double.class},
-                {"string", String.class},
-                {"short", Short.class},
-                {"unsignedShort", Short.class},
-                {"byte", Byte.class},
-                {"unsignedByte", Byte.class},
-                {"boolean", Boolean.class},
-                {"dateTime", String.class},
-                {"date", String.class},
-                {"time", String.class}};
+                {"nonPositiveInteger", EPTypePremade.INTEGERBOXED.getEPType()},
+                {"nonNegativeInteger", EPTypePremade.INTEGERBOXED.getEPType()},
+                {"negativeInteger", EPTypePremade.INTEGERBOXED.getEPType()},
+                {"positiveInteger", EPTypePremade.INTEGERBOXED.getEPType()},
+                {"long", EPTypePremade.LONGBOXED.getEPType()},
+                {"unsignedLong", EPTypePremade.LONGBOXED.getEPType()},
+                {"int", EPTypePremade.INTEGERBOXED.getEPType()},
+                {"unsignedInt", EPTypePremade.INTEGERBOXED.getEPType()},
+                {"decimal", EPTypePremade.DOUBLEBOXED.getEPType()},
+                {"integer", EPTypePremade.INTEGERBOXED.getEPType()},
+                {"float", EPTypePremade.FLOATBOXED.getEPType()},
+                {"double", EPTypePremade.DOUBLEBOXED.getEPType()},
+                {"string", EPTypePremade.STRING.getEPType()},
+                {"short", EPTypePremade.SHORTBOXED.getEPType()},
+                {"unsignedShort", EPTypePremade.SHORTBOXED.getEPType()},
+                {"byte", EPTypePremade.BYTEBOXED.getEPType()},
+                {"unsignedByte", EPTypePremade.BYTEBOXED.getEPType()},
+                {"boolean", EPTypePremade.BOOLEANBOXED.getEPType()},
+                {"dateTime", EPTypePremade.STRING.getEPType()},
+                {"date", EPTypePremade.STRING.getEPType()},
+                {"time", EPTypePremade.STRING.getEPType()}};
         for (int i = 0; i < types.length; i++) {
-            typeMap.put(types[i][0].toString(), (Class) types[i][1]);
+            typeMap.put(types[i][0].toString(), (EPTypeClass) types[i][1]);
         }
     }
 
@@ -68,15 +70,15 @@ public class SchemaUtil {
      * @param item to to determine type for
      * @return type
      */
-    public static Class toReturnType(SchemaItem item) {
+    public static EPTypeClass toReturnType(SchemaItem item) {
         if (item instanceof SchemaItemAttribute) {
             SchemaItemAttribute att = (SchemaItemAttribute) item;
             return SchemaUtil.toReturnType(att.getXsSimpleType(), att.getTypeName(), null);
         } else if (item instanceof SchemaElementSimple) {
             SchemaElementSimple simple = (SchemaElementSimple) item;
-            Class returnType = SchemaUtil.toReturnType(simple.getXsSimpleType(), simple.getTypeName(), simple.getFractionDigits());
+            EPTypeClass returnType = SchemaUtil.toReturnType(simple.getXsSimpleType(), simple.getTypeName(), simple.getFractionDigits());
             if (simple.isArray()) {
-                returnType = Array.newInstance(returnType, 0).getClass();
+                returnType = JavaClassHelper.getArrayType(returnType);
             }
             return returnType;
         } else if (item instanceof SchemaElementComplex) {
@@ -85,9 +87,9 @@ public class SchemaUtil {
                 return SchemaUtil.toReturnType(complex.getOptionalSimpleType(), complex.getOptionalSimpleTypeName(), null);
             }
             if (complex.isArray()) {
-                return NodeList.class;
+                return EPTypePremade.NODELIST.getEPType();
             }
-            return Node.class;
+            return EPTypePremade.NODE.getEPType();
         } else {
             throw new PropertyAccessException("Invalid schema return type:" + item);
         }
@@ -101,9 +103,9 @@ public class SchemaUtil {
      * @param optionalFractionDigits fraction digits if any are defined
      * @return equivalent native type
      */
-    public static Class toReturnType(short xsType, String typeName, Integer optionalFractionDigits) {
+    public static EPTypeClass toReturnType(short xsType, String typeName, Integer optionalFractionDigits) {
         if (typeName != null) {
-            Class result = typeMap.get(typeName);
+            EPTypeClass result = typeMap.get(typeName);
             if (result != null) {
                 return result;
             }
@@ -111,20 +113,20 @@ public class SchemaUtil {
 
         switch (xsType) {
             case XSSimpleType.PRIMITIVE_BOOLEAN:
-                return Boolean.class;
+                return EPTypePremade.BOOLEANBOXED.getEPType();
             case XSSimpleType.PRIMITIVE_STRING:
-                return String.class;
+                return EPTypePremade.STRING.getEPType();
             case XSSimpleType.PRIMITIVE_DECIMAL:
                 if ((optionalFractionDigits != null) && (optionalFractionDigits > 0)) {
-                    return Double.class;
+                    return EPTypePremade.DOUBLEBOXED.getEPType();
                 }
-                return Integer.class;
+                return EPTypePremade.INTEGERBOXED.getEPType();
             case XSSimpleType.PRIMITIVE_FLOAT:
-                return Float.class;
+                return EPTypePremade.FLOATBOXED.getEPType();
             case XSSimpleType.PRIMITIVE_DOUBLE:
-                return Double.class;
+                return EPTypePremade.DOUBLEBOXED.getEPType();
             default:
-                return String.class;
+                return EPTypePremade.STRING.getEPType();
         }
     }
 
@@ -135,23 +137,23 @@ public class SchemaUtil {
      * @param optionalCastToType null or cast-to type
      * @return return type
      */
-    public static Class toReturnType(QName resultType, Class optionalCastToType) {
+    public static EPTypeClass toReturnType(QName resultType, EPTypeClass optionalCastToType) {
         if (optionalCastToType != null) {
             return optionalCastToType;
         }
 
         if (resultType.equals(XPathConstants.NODESET))
-            return NodeList.class;
+            return EPTypePremade.NODELIST.getEPType();
         if (resultType.equals(XPathConstants.NODE))
-            return Node.class;
+            return EPTypePremade.NODE.getEPType();
         if (resultType.equals(XPathConstants.BOOLEAN))
-            return Boolean.class;
+            return EPTypePremade.BOOLEANBOXED.getEPType();
         if (resultType.equals(XPathConstants.NUMBER))
-            return Double.class;
+            return EPTypePremade.DOUBLEBOXED.getEPType();
         if (resultType.equals(XPathConstants.STRING))
-            return String.class;
+            return EPTypePremade.STRING.getEPType();
 
-        return String.class;
+        return EPTypePremade.STRING.getEPType();
     }
 
     /**

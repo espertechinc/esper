@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.map;
 
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGetter;
@@ -42,12 +43,12 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return new MapEntryPropertyGetter(name, nativeFragmentType, eventBeanTypedEventFactory);
     }
 
-    public MapEventPropertyGetter getGetterEventBean(String name, Class underlyingType) {
+    public MapEventPropertyGetter getGetterEventBean(String name, EPTypeClass underlyingType) {
         return new MapEventBeanPropertyGetter(name, underlyingType);
     }
 
     public MapEventPropertyGetter getGetterEventBeanArray(String name, EventType eventType) {
-        return new MapEventBeanArrayPropertyGetter(name, eventType.getUnderlyingType());
+        return new MapEventBeanArrayPropertyGetter(name, eventType.getUnderlyingEPType());
     }
 
     public MapEventPropertyGetter getGetterBeanNestedArray(String name, EventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
@@ -62,7 +63,7 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return new MapArrayPropertyGetter(propertyNameAtomic, index, eventBeanTypedEventFactory, innerType);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedClassArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, Class componentType, BeanEventTypeFactory beanEventTypeFactory) {
+    public EventPropertyGetterSPI getGetterIndexedClassArray(String propertyNameAtomic, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, EPTypeClass componentType, BeanEventTypeFactory beanEventTypeFactory) {
         return new MapArrayPOJOEntryIndexedPropertyGetter(propertyNameAtomic, index, eventBeanTypedEventFactory, beanEventTypeFactory, componentType);
     }
 
@@ -74,7 +75,7 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return new MapEventBeanArrayIndexedElementPropertyGetter(propertyNameAtomic, index, nestedGetter);
     }
 
-    public EventPropertyGetterSPI getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class propertyTypeGetter) {
+    public EventPropertyGetterSPI getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass propertyTypeGetter) {
         return new MapArrayPOJOBeanEntryIndexedPropertyGetter(propertyNameAtomic, index, nestedGetter, eventBeanTypedEventFactory, beanEventTypeFactory, propertyTypeGetter);
     }
 
@@ -82,8 +83,8 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return new MapMapPropertyGetter(propertyName, getterNestedMap);
     }
 
-    public EventPropertyGetterSPI getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class nestedReturnType, Class nestedComponentType) {
-        return new MapPOJOEntryPropertyGetter(propertyName, nestedGetter, eventBeanTypedEventFactory, nestedReturnType, nestedComponentType, beanEventTypeFactory);
+    public EventPropertyGetterSPI getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass nestedValueType) {
+        return new MapPOJOEntryPropertyGetter(propertyName, nestedGetter, eventBeanTypedEventFactory, nestedValueType, beanEventTypeFactory);
     }
 
     public EventPropertyGetterSPI getGetterNestedEventBean(String propertyName, EventPropertyGetterSPI nestedGetter) {

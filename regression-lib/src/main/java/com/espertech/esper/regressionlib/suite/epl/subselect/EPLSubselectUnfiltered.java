@@ -219,7 +219,7 @@ public class EPLSubselectUnfiltered {
                 "Failed to plan subquery number 1 querying SupportBean_S1: Failed to validate filter expression 'id=p00': Property named 'p00' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [select (select id from SupportBean_S1#lastevent where id = p00) from SupportBean_S0]");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select id in (select * from SupportBean_S1#length(1000)) as value from SupportBean_S0",
-                "Failed to validate select-clause expression subquery number 1 querying SupportBean_S1: Implicit conversion from datatype 'SupportBean_S1' to 'Integer' is not allowed [select id in (select * from SupportBean_S1#length(1000)) as value from SupportBean_S0]");
+                "Failed to validate select-clause expression subquery number 1 querying SupportBean_S1: Implicit conversion from datatype '" + SupportBean_S1.class.getName() + "' to 'Integer' is not allowed [select id in (select * from SupportBean_S1#length(1000)) as value from SupportBean_S0]");
         }
     }
 

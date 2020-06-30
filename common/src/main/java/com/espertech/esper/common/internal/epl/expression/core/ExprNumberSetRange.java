@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -54,8 +56,8 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
         return this;
     }
 
-    public Class getEvaluationType() {
-        return RangeParameter.class;
+    public EPTypeClass getEvaluationType() {
+        return RangeParameter.EPTYPE;
     }
 
     public ExprForge getForge() {
@@ -76,8 +78,8 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         evaluators = ExprNodeUtilityQuery.getEvaluatorsNoCompile(this.getChildNodes());
-        Class typeOne = this.getChildNodes()[0].getForge().getEvaluationType();
-        Class typeTwo = this.getChildNodes()[1].getForge().getEvaluationType();
+        EPType typeOne = this.getChildNodes()[0].getForge().getEvaluationType();
+        EPType typeTwo = this.getChildNodes()[1].getForge().getEvaluationType();
         if ((!(JavaClassHelper.isNumericNonFP(typeOne))) || (!(JavaClassHelper.isNumericNonFP(typeTwo)))) {
             throw new ExprValidationException("Range operator requires integer-type parameters");
         }
@@ -114,29 +116,31 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
         log.warn("Null value returned for upper bounds value in range parameter, using max as upper bounds");
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        ExprForge valueLower = this.getChildNodes()[0].getForge();
-        ExprForge valueUpper = this.getChildNodes()[1].getForge();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(RangeParameter.class, ExprNumberSetRange.class, codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        ExprForge lowerValue = this.getChildNodes()[0].getForge();
+        ExprForge upperValue = this.getChildNodes()[1].getForge();
+        EPTypeClass lowerType = (EPTypeClass) lowerValue.getEvaluationType();
+        EPTypeClass upperType = (EPTypeClass) upperValue.getEvaluationType();
+        CodegenMethod methodNode = codegenMethodScope.makeChild(RangeParameter.EPTYPE, ExprNumberSetRange.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(valueLower.getEvaluationType(), "valueLower", valueLower.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
-                .declareVar(valueUpper.getEvaluationType(), "valueUpper", valueUpper.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
-        if (!valueLower.getEvaluationType().isPrimitive()) {
+                .declareVar(lowerType, "valueLower", lowerValue.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(upperType, "valueUpper", upperValue.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
+        if (!lowerType.getType().isPrimitive()) {
             block.ifRefNull("valueLower")
                     .staticMethod(ExprNumberSetRange.class, METHOD_HANDLENUMBERSETRANGELOWERNULL)
                     .assignRef("valueLower", constant(0))
                     .blockEnd();
 
         }
-        if (!valueUpper.getEvaluationType().isPrimitive()) {
+        if (!upperType.getType().isPrimitive()) {
             block.ifRefNull("valueUpper")
                     .staticMethod(ExprNumberSetRange.class, METHOD_HANDLENUMBERSETRANGEUPPERNULL)
                     .assignRef("valueUpper", enumValue(Integer.class, "MAX_VALUE"))
                     .blockEnd();
         }
-        block.methodReturn(newInstance(RangeParameter.class,
-                SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueLower"), valueLower.getEvaluationType()),
-                SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueUpper"), valueUpper.getEvaluationType())
+        block.methodReturn(newInstance(RangeParameter.EPTYPE,
+                SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueLower"), lowerType),
+                SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueUpper"), upperType)
         ));
         return localMethod(methodNode);
     }

@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
 public interface AggSvcGroupByReclaimAgedEvalFunc {
+    EPTypeClass EPTYPE = new EPTypeClass(AggSvcGroupByReclaimAgedEvalFunc.class);
+
     public Double getLongValue();
 }

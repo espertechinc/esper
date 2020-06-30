@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.event.util;
 
 import com.espertech.esper.common.client.PropertyAccessException;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,22 +28,22 @@ public class PropertyUtility {
 
     private static PropertyAccessException getAccessExceptionField(Field field, Exception e) {
         Class declaring = field.getDeclaringClass();
-        String message = "Failed to obtain field value for field " + field.getName() + " on class " + JavaClassHelper.getClassNameFullyQualPretty(declaring) + ": " + e.getMessage();
+        String message = "Failed to obtain field value for field " + field.getName() + " on class " + ClassHelperPrint.getClassNameFullyQualPretty(declaring) + ": " + e.getMessage();
         throw new PropertyAccessException(message, e);
     }
 
     private static PropertyAccessException getMismatchException(Class declared, Object object, ClassCastException e) {
-        String classNameExpected = JavaClassHelper.getClassNameFullyQualPretty(declared);
+        String classNameExpected = ClassHelperPrint.getClassNameFullyQualPretty(declared);
         String classNameReceived;
         if (object != null) {
-            classNameReceived = JavaClassHelper.getClassNameFullyQualPretty(object.getClass());
+            classNameReceived = ClassHelperPrint.getClassNameFullyQualPretty(object.getClass());
         } else {
             classNameReceived = "null";
         }
 
         if (classNameExpected.equals(classNameReceived)) {
-            classNameExpected = JavaClassHelper.getClassNameFullyQualPrettyWithClassloader(declared);
-            classNameReceived = object != null ? JavaClassHelper.getClassNameFullyQualPrettyWithClassloader(object.getClass()) : "null";
+            classNameExpected = ClassHelperPrint.getClassNameFullyQualPrettyWithClassloader(declared);
+            classNameReceived = object != null ? ClassHelperPrint.getClassNameFullyQualPrettyWithClassloader(object.getClass()) : "null";
         }
 
         String message = "Mismatched getter instance to event bean type, expected " + classNameExpected + " but received " + classNameReceived;
@@ -60,7 +60,7 @@ public class PropertyUtility {
 
     private static PropertyAccessException getAccessExceptionMethod(Method method, Exception e) {
         Class declaring = method.getDeclaringClass();
-        String message = "Failed to invoke method " + method.getName() + " on class " + JavaClassHelper.getClassNameFullyQualPretty(declaring) + ": " + e.getMessage();
+        String message = "Failed to invoke method " + method.getName() + " on class " + ClassHelperPrint.getClassNameFullyQualPretty(declaring) + ": " + e.getMessage();
         throw new PropertyAccessException(message, e);
     }
 
@@ -74,19 +74,19 @@ public class PropertyUtility {
 
     public static PropertyAccessException getInvocationTargetException(Method method, InvocationTargetException e) {
         Class declaring = method.getDeclaringClass();
-        String message = "Failed to invoke method " + method.getName() + " on class " + JavaClassHelper.getClassNameFullyQualPretty(declaring) + ": " + e.getTargetException().getMessage();
+        String message = "Failed to invoke method " + method.getName() + " on class " + ClassHelperPrint.getClassNameFullyQualPretty(declaring) + ": " + e.getTargetException().getMessage();
         throw new PropertyAccessException(message, e);
     }
 
     public static PropertyAccessException getGeneralException(Method method, Throwable t) {
         Class declaring = method.getDeclaringClass();
-        String message = "Failed to invoke method " + method.getName() + " on class " + JavaClassHelper.getClassNameFullyQualPretty(declaring) + ": " + t.getMessage();
+        String message = "Failed to invoke method " + method.getName() + " on class " + ClassHelperPrint.getClassNameFullyQualPretty(declaring) + ": " + t.getMessage();
         throw new PropertyAccessException(message, t);
     }
 
     public static PropertyAccessException getGeneralException(Field field, Throwable t) {
         Class declaring = field.getDeclaringClass();
-        String message = "Failed to obtain field value for field " + field.getName() + " on class " + JavaClassHelper.getClassNameFullyQualPretty(declaring) + ": " + t.getMessage();
+        String message = "Failed to obtain field value for field " + field.getName() + " on class " + ClassHelperPrint.getClassNameFullyQualPretty(declaring) + ": " + t.getMessage();
         throw new PropertyAccessException(message, t);
     }
 }

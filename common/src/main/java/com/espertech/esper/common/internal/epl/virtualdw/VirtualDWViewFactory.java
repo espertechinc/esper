@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.hook.vdw.VirtualDataWindow;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowContext;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowFactory;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindowFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
@@ -28,6 +29,8 @@ import com.espertech.esper.common.internal.view.core.ViewFactoryContext;
 import java.io.Serializable;
 
 public class VirtualDWViewFactory implements DataWindowViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VirtualDWViewFactory.class);
+
     private EventType eventType;
     private VirtualDataWindowFactory factory;
     private Object[] parameters;

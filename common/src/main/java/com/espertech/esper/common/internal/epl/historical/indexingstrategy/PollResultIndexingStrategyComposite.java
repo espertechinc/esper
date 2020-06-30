@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.composite.PropertyCompositeEventTableFactory;
@@ -19,12 +20,14 @@ import com.espertech.esper.common.internal.epl.index.composite.PropertyComposite
 import java.util.List;
 
 public class PollResultIndexingStrategyComposite implements PollResultIndexingStrategy {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(PollResultIndexingStrategyComposite.class);
+
     private int streamNum;
     private String[] optionalKeyedProps;
-    private Class[] optKeyCoercedTypes;
+    private EPTypeClass[] optKeyCoercedTypes;
     private EventPropertyValueGetter hashGetter;
     private String[] rangeProps;
-    private Class[] optRangeCoercedTypes;
+    private EPTypeClass[] optRangeCoercedTypes;
     private EventPropertyValueGetter[] rangeGetters;
     private PropertyCompositeEventTableFactory factory;
 
@@ -52,7 +55,7 @@ public class PollResultIndexingStrategyComposite implements PollResultIndexingSt
         this.optionalKeyedProps = optionalKeyedProps;
     }
 
-    public void setOptKeyCoercedTypes(Class[] optKeyCoercedTypes) {
+    public void setOptKeyCoercedTypes(EPTypeClass[] optKeyCoercedTypes) {
         this.optKeyCoercedTypes = optKeyCoercedTypes;
     }
 
@@ -64,7 +67,7 @@ public class PollResultIndexingStrategyComposite implements PollResultIndexingSt
         this.rangeProps = rangeProps;
     }
 
-    public void setOptRangeCoercedTypes(Class[] optRangeCoercedTypes) {
+    public void setOptRangeCoercedTypes(EPTypeClass[] optRangeCoercedTypes) {
         this.optRangeCoercedTypes = optRangeCoercedTypes;
     }
 

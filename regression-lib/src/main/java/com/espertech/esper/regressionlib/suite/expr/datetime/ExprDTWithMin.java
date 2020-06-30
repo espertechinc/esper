@@ -11,17 +11,16 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
+
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
 
 public class ExprDTWithMin {
 
@@ -45,7 +44,7 @@ public class ExprDTWithMin {
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             String startTime = "2002-05-30T09:00:00.000";
             String expectedTime = "2002-01-30T09:00:00.000";
@@ -71,7 +70,7 @@ public class ExprDTWithMin {
                 "utildate.withMin('week') as val7" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), fields, new Class[]{Date.class, Date.class, Date.class, Date.class, Date.class, Date.class, Date.class, Date.class});
+            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T09:01:02.000",

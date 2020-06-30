@@ -30,9 +30,9 @@ public class VariableDeployTimeResolver {
 
     public static CodegenExpressionField makeVariableField(VariableMetaData variableMetaData, CodegenClassScope classScope, Class generator) {
         SAIFFInitializeSymbol symbols = new SAIFFInitializeSymbol();
-        CodegenMethod variableInit = classScope.getPackageScope().getInitMethod().makeChildWithScope(Variable.class, generator, symbols, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+        CodegenMethod variableInit = classScope.getPackageScope().getInitMethod().makeChildWithScope(Variable.EPTYPE, generator, symbols, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
         variableInit.getBlock().methodReturn(VariableDeployTimeResolver.makeResolveVariable(variableMetaData, EPStatementInitServices.REF));
-        return classScope.getPackageScope().addFieldUnshared(true, Variable.class, localMethod(variableInit, EPStatementInitServices.REF));
+        return classScope.getPackageScope().addFieldUnshared(true, Variable.EPTYPE, localMethod(variableInit, EPStatementInitServices.REF));
     }
 
     public static CodegenExpression makeResolveVariable(VariableMetaData variable, CodegenExpression initSvc) {
@@ -49,7 +49,7 @@ public class VariableDeployTimeResolver {
         for (VariableMetaData variable : variables) {
             expressions[count++] = makeResolveVariable(variable, initSvc);
         }
-        return newArrayWithInit(Variable.class, expressions);
+        return newArrayWithInit(Variable.EPTYPE, expressions);
     }
 
     public static Variable resolveVariable(String variableName,

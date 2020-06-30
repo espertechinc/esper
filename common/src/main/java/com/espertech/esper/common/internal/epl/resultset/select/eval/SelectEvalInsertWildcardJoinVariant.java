@@ -40,7 +40,7 @@ public class SelectEvalInsertWildcardJoinVariant extends SelectEvalBase implemen
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionField variantType = VariantEventTypeUtil.getField(variantEventType, codegenClassScope);
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenMethod jw = joinWildcardProcessorForge.processCodegen(resultEventType, eventBeanFactory, methodNode, selectSymbol, exprSymbol, codegenClassScope);
         methodNode.getBlock().methodReturn(exprDotMethod(variantType, "getValueAddEventBean", localMethod(jw)));
         return methodNode;

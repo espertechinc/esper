@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.cache;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Collection;
 
@@ -22,6 +23,7 @@ import java.util.Collection;
  * NOTE: ExpressionResultCacheForDeclaredExprLastColl should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForDeclaredExprLastColl {
+    EPTypeClass EPTYPE = new EPTypeClass(ExpressionResultCacheForDeclaredExprLastColl.class);
 
     ExpressionResultCacheEntryEventBeanArrayAndCollBean getDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream);
 

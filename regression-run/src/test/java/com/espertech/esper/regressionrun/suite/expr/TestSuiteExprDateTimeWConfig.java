@@ -52,7 +52,7 @@ public class TestSuiteExprDateTimeWConfig extends TestCase {
 
         configBean.setEndTimestampPropertyName(null);
         configBean.setStartTimestampPropertyName("theString");
-        tryInvalidConfig(SupportBean.class, configBean, "Declared start timestamp property 'theString' is expected to return a Date, Calendar or long-typed value but returns 'java.lang.String'");
+        tryInvalidConfig(SupportBean.class, configBean, "Declared start timestamp property 'theString' is expected to return a Date, Calendar or long-typed value but returns 'String'");
 
         configBean.setStartTimestampPropertyName("longPrimitive");
         configBean.setEndTimestampPropertyName("theString");

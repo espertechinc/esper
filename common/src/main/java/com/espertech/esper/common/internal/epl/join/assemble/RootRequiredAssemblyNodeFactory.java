@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.assemble;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,6 +24,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Assembly node factory for an event stream that is a root with a one required child node below it.
  */
 public class RootRequiredAssemblyNodeFactory extends BaseAssemblyNodeFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RootRequiredAssemblyNodeFactory.class);
+
     /**
      * Ctor.
      *
@@ -42,6 +45,6 @@ public class RootRequiredAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(RootRequiredAssemblyNodeFactory.class, constant(streamNum), constant(numStreams));
+        return newInstance(RootRequiredAssemblyNodeFactory.EPTYPE, constant(streamNum), constant(numStreams));
     }
 }

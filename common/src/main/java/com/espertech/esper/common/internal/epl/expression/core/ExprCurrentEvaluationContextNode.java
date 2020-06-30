@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EPLExpressionEvaluationContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -45,7 +46,7 @@ public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements Ex
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
         return staticMethod(ExprCurrentEvaluationContextNode.class, "exprCurrentEvaluationContextMake", refExprEvalCtx);
     }
@@ -54,8 +55,8 @@ public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements Ex
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
-        return EPLExpressionEvaluationContext.class;
+    public EPTypeClass getEvaluationType() {
+        return EPLExpressionEvaluationContext.EPTYPE;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {

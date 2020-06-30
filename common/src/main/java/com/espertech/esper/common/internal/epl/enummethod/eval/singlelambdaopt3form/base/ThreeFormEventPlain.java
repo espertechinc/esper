@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.base;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,7 +26,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public abstract class ThreeFormEventPlain extends EnumForgeBasePlain {
-    public abstract Class returnType();
+    public abstract EPTypeClass returnTypeOfMethod();
 
     public abstract CodegenExpression returnIfEmptyOptional();
 
@@ -45,7 +46,7 @@ public abstract class ThreeFormEventPlain extends EnumForgeBasePlain {
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnTypeOfMethod(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
         CodegenBlock block = methodNode.getBlock();
 
         CodegenExpression returnEmpty = returnIfEmptyOptional();
@@ -57,7 +58,7 @@ public abstract class ThreeFormEventPlain extends EnumForgeBasePlain {
         initBlock(block, methodNode, scope, codegenClassScope);
 
         if (hasForEachLoop()) {
-            CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+            CodegenBlock forEach = block.forEach(EventBean.EPTYPE, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("next"));
             forEachBlock(forEach, methodNode, scope, codegenClassScope);
         }

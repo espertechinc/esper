@@ -65,17 +65,17 @@ public class ContextSpecHashItem {
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextControllerDetailHashItem.class, this.getClass(), classScope);
-        method.getBlock().declareVar(EventType.class, "eventType", EventTypeUtility.resolveTypeCodegen(filterSpecCompiled.getFilterForEventType(), symbols.getAddInitSvc(method)));
+        CodegenMethod method = parent.makeChild(ContextControllerDetailHashItem.EPTYPE, this.getClass(), classScope);
+        method.getBlock().declareVar(EventType.EPTYPE, "eventType", EventTypeUtility.resolveTypeCodegen(filterSpecCompiled.getFilterForEventType(), symbols.getAddInitSvc(method)));
 
         SAIFFInitializeSymbolWEventType symbolsWithType = new SAIFFInitializeSymbolWEventType();
-        CodegenMethod methodLookupableMake = parent.makeChildWithScope(ExprFilterSpecLookupable.class, this.getClass(), symbolsWithType, classScope).addParam(EventType.class, "eventType").addParam(EPStatementInitServices.class, SAIFFInitializeSymbolWEventType.REF_STMTINITSVC.getRef());
+        CodegenMethod methodLookupableMake = parent.makeChildWithScope(ExprFilterSpecLookupable.EPTYPE, this.getClass(), symbolsWithType, classScope).addParam(EventType.EPTYPE, "eventType").addParam(EPStatementInitServices.EPTYPE, SAIFFInitializeSymbolWEventType.REF_STMTINITSVC.getRef());
         CodegenMethod methodLookupable = lookupable.makeCodegen(methodLookupableMake, symbolsWithType, classScope);
         methodLookupableMake.getBlock().methodReturn(localMethod(methodLookupable));
 
         method.getBlock()
-                .declareVar(ContextControllerDetailHashItem.class, "item", newInstance(ContextControllerDetailHashItem.class))
-                .declareVar(ExprFilterSpecLookupable.class, "lookupable", localMethod(methodLookupableMake, ref("eventType"), symbols.getAddInitSvc(method)))
+                .declareVarNewInstance(ContextControllerDetailHashItem.EPTYPE, "item")
+                .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(methodLookupableMake, ref("eventType"), symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("item"), "setFilterSpecActivatable", localMethod(filterSpecCompiled.makeCodegen(method, symbols, classScope)))
                 .exprDotMethod(ref("item"), "setLookupable", ref("lookupable"))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", ref("eventType"), ref("lookupable")))

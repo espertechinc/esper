@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.avro.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -49,26 +50,26 @@ public class AvroEventBeanGetterNestedPoly implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingFragmentCodegen(castUnderlying(AvroConstant.EPTYPE_RECORD, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(AvroEventBeanGetterDynamicPoly.getAvroFieldValuePolyCodegen(codegenMethodScope, codegenClassScope, getters), cast(GenericData.Record.class, exprDotMethod(underlyingExpression, "get", constant(top))));
+        return localMethod(AvroEventBeanGetterDynamicPoly.getAvroFieldValuePolyCodegen(codegenMethodScope, codegenClassScope, getters), cast(AvroConstant.EPTYPE_RECORD, exprDotMethod(underlyingExpression, "get", constant(top))));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(AvroEventBeanGetterDynamicPoly.getAvroFieldValuePolyExistsCodegen(codegenMethodScope, codegenClassScope, getters), cast(GenericData.Record.class, exprDotMethod(underlyingExpression, "get", constant(top))));
+        return localMethod(AvroEventBeanGetterDynamicPoly.getAvroFieldValuePolyExistsCodegen(codegenMethodScope, codegenClassScope, getters), cast(AvroConstant.EPTYPE_RECORD, exprDotMethod(underlyingExpression, "get", constant(top))));
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(AvroEventBeanGetterDynamicPoly.getAvroFieldFragmentPolyCodegen(codegenMethodScope, codegenClassScope, getters), cast(GenericData.Record.class, exprDotMethod(underlyingExpression, "get", constant(top))));
+        return localMethod(AvroEventBeanGetterDynamicPoly.getAvroFieldFragmentPolyCodegen(codegenMethodScope, codegenClassScope, getters), cast(AvroConstant.EPTYPE_RECORD, exprDotMethod(underlyingExpression, "get", constant(top))));
     }
 }

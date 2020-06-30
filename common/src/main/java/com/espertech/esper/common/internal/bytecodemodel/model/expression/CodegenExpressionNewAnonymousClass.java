@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
@@ -30,11 +31,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class CodegenExpressionNewAnonymousClass extends CodegenStatementWBlockBase implements CodegenExpression {
 
-    private final Class interfaceOrSuperClass;
+    private final EPTypeClass interfaceOrSuperClass;
     private final List<CodegenExpression> ctorParams;
     private final List<Pair<String, CodegenMethod>> methods = new ArrayList<>(2);
 
-    public CodegenExpressionNewAnonymousClass(CodegenBlock parentBlock, Class interfaceOrSuperClass, List<CodegenExpression> ctorParams) {
+    public CodegenExpressionNewAnonymousClass(CodegenBlock parentBlock, EPTypeClass interfaceOrSuperClass, List<CodegenExpression> ctorParams) {
         super(parentBlock);
         this.interfaceOrSuperClass = interfaceOrSuperClass;
         this.ctorParams = ctorParams;
@@ -42,7 +43,7 @@ public class CodegenExpressionNewAnonymousClass extends CodegenStatementWBlockBa
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         builder.append("new ");
-        appendClassName(builder, interfaceOrSuperClass, null, imports);
+        appendClassName(builder, interfaceOrSuperClass, imports);
         builder.append("(");
         renderExpressions(builder, ctorParams.toArray(new CodegenExpression[ctorParams.size()]), imports, isInnerClass);
         builder.append(") {\n");
@@ -76,7 +77,7 @@ public class CodegenExpressionNewAnonymousClass extends CodegenStatementWBlockBa
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(interfaceOrSuperClass);
+        interfaceOrSuperClass.traverseClasses(classes::add);
         for (CodegenExpression expr : ctorParams) {
             expr.mergeClasses(classes);
         }

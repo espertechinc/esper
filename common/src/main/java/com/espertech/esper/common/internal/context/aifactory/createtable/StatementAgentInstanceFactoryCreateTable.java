@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.aifactory.createtable;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyFromMultiKey;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
@@ -27,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StatementAgentInstanceFactoryCreateTable implements StatementAgentInstanceFactory, StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryCreateTable.class);
+
     private static final Logger log = LoggerFactory.getLogger(StatementAgentInstanceFactoryCreateTable.class);
 
     private EventType publicEventType;

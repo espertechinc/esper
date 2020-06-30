@@ -11,12 +11,14 @@
 package com.espertech.esper.common.internal.epl.rowrecog.nfa;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 
 /**
  * Any-quantifier.
  */
 public class RowRecogNFAStateAnyOneEval extends RowRecogNFAStateBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowRecogNFAStateAnyOneEval.class);
 
     public boolean matches(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext) {
         return true;

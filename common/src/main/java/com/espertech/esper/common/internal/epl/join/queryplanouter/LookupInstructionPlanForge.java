@@ -98,12 +98,12 @@ public class LookupInstructionPlanForge implements CodegenMakeable<SAIFFInitiali
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(LookupInstructionPlan.class,
+        return newInstance(LookupInstructionPlan.EPTYPE,
                 constant(fromStream),
                 constant(fromStreamName),
                 constant(toStreams),
-                CodegenMakeableUtil.makeArray("lookupPlans", TableLookupPlan.class, lookupPlans, this.getClass(), parent, symbols, classScope),
-                CodegenMakeableUtil.makeArray("historicalPlans", HistoricalDataPlanNode.class, historicalPlans, this.getClass(), parent, symbols, classScope),
+                CodegenMakeableUtil.makeArray("lookupPlans", TableLookupPlan.EPTYPE, lookupPlans, this.getClass(), parent, symbols, classScope),
+                CodegenMakeableUtil.makeArray("historicalPlans", HistoricalDataPlanNode.EPTYPE, historicalPlans, this.getClass(), parent, symbols, classScope),
                 constant(requiredPerStream));
     }
 

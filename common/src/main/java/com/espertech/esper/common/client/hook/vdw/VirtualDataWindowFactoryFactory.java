@@ -10,10 +10,17 @@
  */
 package com.espertech.esper.common.client.hook.vdw;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * A factory that the runtime invokes at deployment time to obtain the virtual data window factory.
  */
 public interface VirtualDataWindowFactoryFactory {
+    /**
+     * Type information
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(VirtualDataWindowFactoryFactory.class);
+
     /**
      * Return the virtual data window factory
      *

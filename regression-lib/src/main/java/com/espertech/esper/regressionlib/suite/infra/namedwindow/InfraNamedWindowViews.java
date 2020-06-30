@@ -263,7 +263,7 @@ public class InfraNamedWindowViews {
             }
 
             String epl = EventRepresentationChoice.AVRO.getAnnotationText() + " @name('create') create window MyWindowBC#keepall as (bean SupportBean_S0)";
-            tryInvalidCompile(env, epl, "Property 'bean' type 'class " + SupportBean_S0.class.getName() + "' does not have a mapping to an Avro type ");
+            tryInvalidCompile(env, epl, "Property 'bean' type '" + SupportBean_S0.class.getName() + "' does not have a mapping to an Avro type ");
         }
     }
 

@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MixedEventBeanAndCollectionIteratorBase;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class AggregationStateSortedIterator extends MixedEventBeanAndCollectionIteratorBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationStateSortedIterator.class);
+
     private final SortedMap<Object, Object> window;
 
     /**

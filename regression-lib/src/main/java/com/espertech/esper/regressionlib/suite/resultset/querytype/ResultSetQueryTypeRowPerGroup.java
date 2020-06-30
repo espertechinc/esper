@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -51,7 +52,33 @@ public class ResultSetQueryTypeRowPerGroup {
         execs.add(new ResultSetQueryTypeRowPerGrpMultikeyWArray(false, false));
         execs.add(new ResultSetQueryTypeRowPerGrpMultikeyWArray(true, false));
         execs.add(new ResultSetQueryTypeRowPerGrpMultikeyWReclaim());
+        execs.add(new ResultSetQueryTypeRowPerGrpNullGroupKey());
         return execs;
+    }
+
+    public static class ResultSetQueryTypeRowPerGrpNullGroupKey implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyEventWNullType(id string, value int, groupkey null);\n" +
+                "@name('s0') select sum(value) as thesum from MyEventWNullType group by groupkey;\n" +
+                "@name('s1') select sum(value) as thesum from MyEventWNullType group by groupkey output snapshot every 5 events;\n" +
+                "@name('s2') select sum(value) as thesum from MyEventWNullType group by id, groupkey;\n" +
+                "@name('s3') select sum(value) as thesum from MyEventWNullType group by id, groupkey output snapshot every 5 events;\n";
+            env.compileDeploy(epl).addListener("s0").addListener("s2");
+
+            sendEventAssert(env, "G1", 10, 10);
+
+            env.milestone(0);
+
+            sendEventAssert(env, "G1", 11, 21);
+
+            env.undeployAll();
+        }
+
+        private void sendEventAssert(RegressionEnvironment env, String id, int value, int expected) {
+            env.sendEventMap(CollectionUtil.buildMap("id", id, "value", value), "MyEventWNullType");
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("thesum"));
+            assertEquals(expected, env.listener("s2").assertOneGetNewAndReset().get("thesum"));
+        }
     }
 
     public static class ResultSetQueryTypeRowPerGrpMultikeyWReclaim implements RegressionExecution {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.OuterJoinDesc;
@@ -58,7 +59,7 @@ public class JoinSetComposerPrototypeForgeFactory {
                                                                      boolean hasAggregations,
                                                                      StatementRawInfo statementRawInfo,
                                                                      StatementCompileTimeServices compileTimeServices)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         EventType[] streamTypes = typeService.getEventTypes();
         String[] streamNames = typeService.getStreamNames();
@@ -119,8 +120,8 @@ public class JoinSetComposerPrototypeForgeFactory {
         HistoricalStreamIndexListForge[] historicalStreamIndexLists = new HistoricalStreamIndexListForge[streamTypes.length];
 
         QueryPlanForgeDesc queryPlanDesc = QueryPlanBuilder.getPlan(streamTypes, outerJoinDescs, queryGraph, typeService.getStreamNames(),
-            historicalViewableDesc, historicalDependencyGraph, historicalStreamIndexLists,
-            joinAnalysisResult, queryPlanLogging, statementRawInfo, compileTimeServices);
+                historicalViewableDesc, historicalDependencyGraph, historicalStreamIndexLists,
+                joinAnalysisResult, queryPlanLogging, statementRawInfo, compileTimeServices);
         QueryPlanForge queryPlan = queryPlanDesc.getForge();
         additionalForgeables.addAll(queryPlanDesc.getAdditionalForgeables());
 
@@ -203,7 +204,7 @@ public class JoinSetComposerPrototypeForgeFactory {
                                                                                                boolean queryPlanLogging,
                                                                                                StatementRawInfo statementRawInfo,
                                                                                                StatementCompileTimeServices services)
-        throws ExprValidationException {
+            throws ExprValidationException {
         int polledViewNum = 0;
         int streamViewNum = 1;
         if (historicalViewableDesc.getHistorical()[1]) {
@@ -262,11 +263,11 @@ public class JoinSetComposerPrototypeForgeFactory {
                     outerJoinPerStream[0] = true;
                     outerJoinPerStream[1] = true;
                 } else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.LEFT)) &&
-                    (streamViewNum == 0)) {
+                        (streamViewNum == 0)) {
                     isOuterJoin = true;
                     outerJoinPerStream[0] = true;
                 } else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.RIGHT)) &&
-                    (streamViewNum == 1)) {
+                        (streamViewNum == 1)) {
                     isOuterJoin = true;
                     outerJoinPerStream[1] = true;
                 }
@@ -289,7 +290,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         JoinSetComposerPrototypeHistoricalDesc indexStrategies =
-            determineIndexing(filterForIndexing, streamTypes[polledViewNum], streamTypes[streamViewNum], polledViewNum, streamViewNum, streamNames, statementRawInfo, services);
+                determineIndexing(filterForIndexing, streamTypes[polledViewNum], streamTypes[streamViewNum], polledViewNum, streamViewNum, streamNames, statementRawInfo, services);
 
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementRawInfo.getAnnotations(), services.getClasspathImportServiceCompileTime());
         if (queryPlanLogging && (QUERY_PLAN_LOG.isInfoEnabled() || hook != null)) {
@@ -301,7 +302,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         JoinSetComposerPrototypeHistorical2StreamForge forge = new JoinSetComposerPrototypeHistorical2StreamForge(streamTypes, whereClause, isOuterJoin, polledViewNum, streamViewNum, outerJoinEqualsNode,
-            indexStrategies.getLookupForge(), indexStrategies.getIndexingForge(), isAllHistoricalNoSubordinate, outerJoinPerStream);
+                indexStrategies.getLookupForge(), indexStrategies.getIndexingForge(), isAllHistoricalNoSubordinate, outerJoinPerStream);
         return new JoinSetComposerPrototypeHistorical2StreamDesc(forge, indexStrategies.getAdditionalForgeables());
     }
 
@@ -347,7 +348,7 @@ public class JoinSetComposerPrototypeForgeFactory {
                                                                             String[] streamNames,
                                                                             StatementRawInfo rawInfo,
                                                                             StatementCompileTimeServices services)
-        throws ExprValidationException {
+            throws ExprValidationException {
         // No filter means unindexed event tables
         if (filterForIndexing == null) {
             return new JoinSetComposerPrototypeHistoricalDesc(HistoricalIndexLookupStrategyNoIndexForge.INSTANCE, PollResultIndexingStrategyNoIndexForge.INSTANCE, Collections.emptyList());
@@ -372,8 +373,8 @@ public class JoinSetComposerPrototypeForgeFactory {
      * @param streamViewType      the event type of the stream looking up in indexes
      * @param polledViewStreamNum the stream number of the historical that is indexed
      * @param streamViewStreamNum the stream number of the historical that is looking up
-     * @param raw raw info
-     * @param serdeResolver serde resolver
+     * @param raw                 raw info
+     * @param serdeResolver       serde resolver
      * @return indexing and lookup strategy pair
      */
     public static JoinSetComposerPrototypeHistoricalDesc determineIndexing(QueryGraphForge queryGraph,
@@ -413,8 +414,8 @@ public class JoinSetComposerPrototypeForgeFactory {
             }
 
             return new JoinSetComposerPrototypeHistoricalDesc(
-                HistoricalIndexLookupStrategyNoIndexForge.INSTANCE, PollResultIndexingStrategyNoIndexForge.INSTANCE,
-                Collections.emptyList());
+                    HistoricalIndexLookupStrategyNoIndexForge.INSTANCE, PollResultIndexingStrategyNoIndexForge.INSTANCE,
+                    Collections.emptyList());
         }
 
         CoercionDesc keyCoercionTypes = CoercionUtil.getCoercionTypesHash(new EventType[]{streamViewType, polledViewType}, 0, 1, hashKeys, hashIndexes);
@@ -424,13 +425,13 @@ public class JoinSetComposerPrototypeForgeFactory {
             MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashEvals, false, raw, serdeResolver);
             HistoricalIndexLookupStrategyHashForge lookup = new HistoricalIndexLookupStrategyHashForge(streamViewStreamNum, hashEvals, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
             PollResultIndexingStrategyHashForge indexing = new PollResultIndexingStrategyHashForge(polledViewStreamNum, polledViewType,
-                hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
+                    hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
             return new JoinSetComposerPrototypeHistoricalDesc(lookup, indexing, multiKeyPlan.getMultiKeyForgeables());
         } else {
             CoercionDesc rangeCoercionTypes = CoercionUtil.getCoercionTypesRange(new EventType[]{streamViewType, polledViewType}, 1, rangeIndexes, rangeKeys);
 
             if (rangeKeys.size() == 1 && hashKeys.size() == 0) {
-                Class rangeCoercionType = rangeCoercionTypes.getCoercionTypes()[0];
+                EPTypeClass rangeCoercionType = rangeCoercionTypes.getCoercionTypes()[0];
                 PollResultIndexingStrategySortedForge indexing = new PollResultIndexingStrategySortedForge(polledViewStreamNum, polledViewType, rangeIndexes[0], rangeCoercionType);
                 HistoricalIndexLookupStrategySortedForge lookup = new HistoricalIndexLookupStrategySortedForge(streamViewStreamNum, rangeKeys.get(0), rangeCoercionType);
                 return new JoinSetComposerPrototypeHistoricalDesc(lookup, indexing, Collections.emptyList());

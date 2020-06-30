@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunction;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionFactory;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeManaged;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -35,30 +36,30 @@ public class AggregatorPlugInManaged extends AggregatorMethodWDistinctWFilterWVa
     protected CodegenExpressionMember plugin;
     private final AggregationFunctionModeManaged mode;
 
-    public AggregatorPlugInManaged(AggregationForgeFactoryPlugin factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, AggregationFunctionModeManaged mode) {
+    public AggregatorPlugInManaged(AggregationForgeFactoryPlugin factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPType optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, AggregationFunctionModeManaged mode) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.mode = mode;
 
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationFunctionFactory();
-        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationFunctionFactory.class, injectionStrategy.getInitializationExpression(classScope));
+        CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationFunctionFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
 
-        plugin = membersColumnized.addMember(col, AggregationFunction.class, "plugin");
+        plugin = membersColumnized.addMember(col, AggregationFunction.EPTYPE, "plugin");
         rowCtor.getBlock().assignRef(plugin, exprDotMethod(factoryField, "newAggregator", constantNull()));
     }
 
-    protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(plugin, "enter", value);
     }
 
-    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    protected void applyEvalLeaveNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(plugin, "leave", value);
     }
 
-    protected void applyTableEnterNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableEnterNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(plugin, "enter", value);
     }
 
-    protected void applyTableLeaveNonNull(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
+    protected void applyTableLeaveNonNull(CodegenExpressionRef value, EPType[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(plugin, "leave", value);
     }
 

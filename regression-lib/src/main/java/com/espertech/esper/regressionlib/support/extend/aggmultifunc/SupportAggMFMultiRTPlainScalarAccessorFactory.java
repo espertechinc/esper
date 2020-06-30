@@ -13,8 +13,11 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAccessor;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAccessorFactory;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAccessorFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class SupportAggMFMultiRTPlainScalarAccessorFactory implements AggregationMultiFunctionAccessorFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportAggMFMultiRTPlainScalarAccessorFactory.class);
+
     public AggregationMultiFunctionAccessor newAccessor(AggregationMultiFunctionAccessorFactoryContext ctx) {
         return new SupportAggMFMultiRTPlainScalarAccessor();
     }

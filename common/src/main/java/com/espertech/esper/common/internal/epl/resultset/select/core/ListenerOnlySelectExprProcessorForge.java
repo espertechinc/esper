@@ -37,16 +37,16 @@ public class ListenerOnlySelectExprProcessorForge implements SelectExprProcessor
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod processMethod = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod processMethod = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
 
         CodegenExpressionRef isSythesize = selectSymbol.getAddSynthesize(processMethod);
         CodegenMethod syntheticMethod = syntheticProcessorForge.processCodegen(resultEventType, eventBeanFactory, processMethod, selectSymbol, exprSymbol, codegenClassScope);
 
-        CodegenExpressionField stmtResultSvc = codegenClassScope.addFieldUnshared(true, StatementResultService.class, exprDotMethod(EPStatementInitServices.REF, GETSTATEMENTRESULTSERVICE));
+        CodegenExpressionField stmtResultSvc = codegenClassScope.addFieldUnshared(true, StatementResultService.EPTYPE, exprDotMethod(EPStatementInitServices.REF, GETSTATEMENTRESULTSERVICE));
         processMethod.getBlock()
-            .ifCondition(or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
-            .blockReturn(localMethod(syntheticMethod))
-            .methodReturn(constantNull());
+                .ifCondition(or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
+                .blockReturn(localMethod(syntheticMethod))
+                .methodReturn(constantNull());
 
         return processMethod;
     }

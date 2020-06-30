@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -37,7 +40,7 @@ public class ExprEnumReverse {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportBean_ST0_Container");
             builder.expression(fields[0], "contained.reverse()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)));
 
             builder.assertion(SupportBean_ST0_Container.make2Value("E1,1", "E2,9", "E3,1"))
                 .verify("c0", val -> assertST0Id(val, "E3,E2,E1"));
@@ -64,7 +67,7 @@ public class ExprEnumReverse {
             SupportEvalBuilder builder = new SupportEvalBuilder("SupportCollection");
             builder.expression(fields[0], "strvals.reverse()");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4"))
                 .verify("c0", val -> assertValuesArrayScalar(val, "E4", "E5", "E1", "E2"));

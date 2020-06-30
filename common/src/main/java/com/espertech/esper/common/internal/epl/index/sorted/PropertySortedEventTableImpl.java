@@ -35,9 +35,9 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
     protected final HashSet<EventBean> nullKeyedValues;
 
     protected Object coerce(Object value) {
-        if (value != null && !value.getClass().equals(factory.valueType)) {
+        if (value != null && factory.valueType != null && !value.getClass().equals(factory.valueType.getType())) {
             if (value instanceof Number) {
-                return JavaClassHelper.coerceBoxed((Number) value, factory.valueType);
+                return JavaClassHelper.coerceBoxed((Number) value, factory.valueType.getType());
             }
         }
         return value;

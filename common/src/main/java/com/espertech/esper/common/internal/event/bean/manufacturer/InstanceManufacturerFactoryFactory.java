@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.bean.manufacturer;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -20,7 +21,7 @@ import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompil
 import java.lang.reflect.Constructor;
 
 public class InstanceManufacturerFactoryFactory {
-    public static InstanceManufacturerFactory getManufacturer(Class targetClass, ClasspathImportServiceCompileTime classpathImportService, ExprNode[] childNodes)
+    public static InstanceManufacturerFactory getManufacturer(EPTypeClass targetClass, ClasspathImportServiceCompileTime classpathImportService, ExprNode[] childNodes)
             throws ExprValidationException {
         ExprForge[] forgesUnmodified = ExprNodeUtilityQuery.getForges(childNodes);
         Object[] returnTypes = new Object[forgesUnmodified.length];

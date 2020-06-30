@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifierPartitioned;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.context.airegistry.*;
 import com.espertech.esper.common.internal.context.controller.core.ContextController;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ContextControllerKeyedFactory extends ContextControllerFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextControllerKeyedFactory.class);
+
     protected ContextControllerDetailKeyed keyedSpec;
 
     public ContextControllerDetailKeyed getKeyedSpec() {

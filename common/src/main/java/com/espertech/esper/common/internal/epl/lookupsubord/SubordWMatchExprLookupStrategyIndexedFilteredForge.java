@@ -35,11 +35,11 @@ public class SubordWMatchExprLookupStrategyIndexedFilteredForge implements Subor
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordWMatchExprLookupStrategyFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordWMatchExprLookupStrategyFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ExprEvaluator.class, "eval", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(exprForge, method, this.getClass(), classScope))
-                .declareVar(SubordTableLookupStrategyFactory.class, "lookup", lookupStrategyFactory.make(method, symbols, classScope))
-                .methodReturn(newInstance(SubordWMatchExprLookupStrategyIndexedFilteredFactory.class, ref("eval"), ref("lookup")));
+                .declareVar(ExprEvaluator.EPTYPE, "eval", ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(exprForge, method, this.getClass(), classScope))
+                .declareVar(SubordTableLookupStrategyFactory.EPTYPE, "lookup", lookupStrategyFactory.make(method, symbols, classScope))
+                .methodReturn(newInstance(SubordWMatchExprLookupStrategyIndexedFilteredFactory.EPTYPE, ref("eval"), ref("lookup")));
         return localMethod(method);
     }
 

@@ -15,8 +15,8 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,8 +30,8 @@ public class ExprDotStaticMethodWrapEventBeanArr implements ExprDotStaticMethodW
         this.type = type;
     }
 
-    public EPType getTypeInfo() {
-        return EPTypeHelper.collectionOfEvents(type);
+    public EPChainableType getTypeInfo() {
+        return EPChainableTypeHelper.collectionOfEvents(type);
     }
 
     public Collection convertNonNull(Object result) {

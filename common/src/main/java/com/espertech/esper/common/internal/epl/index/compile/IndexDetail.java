@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.index.compile;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
 
 public class IndexDetail {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(IndexDetail.class);
+
     private final IndexMultiKey indexMultiKey;
     private final QueryPlanIndexItem queryPlanIndexItem;
 

@@ -18,11 +18,17 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -35,9 +41,6 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.core.WrapperEventTypeUtil;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.view.util.ViewMultiKeyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,8 +134,8 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
         return desc.getMultiKeyForgeables();
     }
 
-    protected Class typeOfFactory() {
-        return GroupByViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return GroupByViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {
@@ -191,12 +194,16 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
         return groupeds;
     }
 
-    private static EventType determineEventType(EventType groupedEventType, ExprNode[] criteriaExpressions, int streamNum, ViewForgeEnv viewForgeEnv) {
+    private static EventType determineEventType(EventType groupedEventType, ExprNode[] criteriaExpressions, int streamNum, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
 
         // determine types of fields
-        Class[] fieldTypes = new Class[criteriaExpressions.length];
+        EPTypeClass[] fieldTypes = new EPTypeClass[criteriaExpressions.length];
         for (int i = 0; i < fieldTypes.length; i++) {
-            fieldTypes[i] = criteriaExpressions[i].getForge().getEvaluationType();
+            EPType type = criteriaExpressions[i].getForge().getEvaluationType();
+            if (type == null || type == EPTypeNull.INSTANCE) {
+                throw new ViewParameterException("Group-window received a null-typed criteria expression");
+            }
+            fieldTypes[i] = (EPTypeClass) type;
         }
 
         // Determine the final event type that the merge view generates

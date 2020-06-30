@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.aggregate;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -29,6 +33,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
 
@@ -78,10 +83,10 @@ public class EnumAggregateScalar extends EnumForgeBasePlain {
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField typeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.class, cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)));
+        CodegenExpressionField typeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF)));
 
-        Class initializationType = initialization.getEvaluationType();
-        Class innerType = innerExpression.getEvaluationType();
+        EPTypeClass initializationType = JavaClassHelper.getBoxedType((EPTypeClass) initialization.getEvaluationType());
+        EPType innerType = innerExpression.getEvaluationType();
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(initializationType, EnumAggregateScalar.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
@@ -90,17 +95,17 @@ public class EnumAggregateScalar extends EnumForgeBasePlain {
         block.declareVar(initializationType, "value", initialization.evaluateCodegen(initializationType, methodNode, scope, codegenClassScope))
             .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
             .blockReturn(ref("value"));
-        block.declareVar(ObjectArrayEventBean.class, "event", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(numParameters)), typeMember))
+        block.declareVar(ObjectArrayEventBean.EPTYPE, "event", newInstance(ObjectArrayEventBean.EPTYPE, newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(numParameters)), typeMember))
             .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(getStreamNumLambda()), ref("event"))
-            .declareVar(Object[].class, "props", exprDotMethod(ref("event"), "getProperties"));
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", exprDotMethod(ref("event"), "getProperties"));
         if (numParameters > 3) {
             block.assignArrayElement("props", constant(3), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"));
         }
         if (numParameters > 2) {
-            block.declareVar(int.class, "count", constant(-1));
+            block.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "count", constant(-1));
         }
 
-        CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+        CodegenBlock forEach = block.forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL)
             .assignArrayElement("props", constant(0), ref("value"))
             .assignArrayElement("props", constant(1), ref("next"));
         if (numParameters > 2) {
@@ -108,8 +113,13 @@ public class EnumAggregateScalar extends EnumForgeBasePlain {
                 .assignArrayElement("props", constant(2), ref("count"));
         }
 
-        forEach.assignRef("value", innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope))
-            .blockEnd();
+        if (innerType == EPTypeNull.INSTANCE) {
+            forEach.assignRef("value", constantNull());
+        } else {
+            forEach.assignRef("value", innerExpression.evaluateCodegen((EPTypeClass) innerType, methodNode, scope, codegenClassScope));
+        }
+        forEach.blockEnd();
+
         block.methodReturn(ref("value"));
         return localMethod(methodNode, premade.getEps(), premade.getEnumcoll(), premade.getIsNewData(), premade.getExprCtx());
     }

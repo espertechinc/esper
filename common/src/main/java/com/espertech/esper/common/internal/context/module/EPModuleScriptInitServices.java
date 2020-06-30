@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleContextInitializeSymbol;
 import com.espertech.esper.common.internal.epl.script.core.ScriptCollector;
 
 public interface EPModuleScriptInitServices {
+    EPTypeClass EPTYPE = new EPTypeClass(EPModuleScriptInitServices.class);
+
     CodegenExpressionRef REF = ModuleContextInitializeSymbol.REF_INITSVC;
 
     String GETSCRIPTCOLLECTOR = "getScriptCollector";

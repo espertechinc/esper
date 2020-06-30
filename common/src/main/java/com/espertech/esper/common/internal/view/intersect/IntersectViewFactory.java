@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.intersect;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.view.core.*;
 
@@ -22,6 +23,8 @@ import java.util.List;
  * Factory for union-views.
  */
 public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(IntersectViewFactory.class);
+
     protected EventType eventType;
     protected ViewFactory[] intersecteds;
     protected int batchViewIndex;

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.nth.AggregationForgeFactoryNth;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -52,7 +53,7 @@ public class ExprNthAggNode extends ExprAggregateNodeBase {
             this.positionalParams = ExprNodeUtilityMake.addExpression(positionalParams, optionalFilter);
         }
 
-        Class childType = first.getForge().getEvaluationType();
+        EPTypeClass childType = (EPTypeClass) first.getForge().getEvaluationType();
         DataInputOutputSerdeForge serde = validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo());
         DataInputOutputSerdeForge distinctValueSerde = isDistinct ? serde : null;
         return new AggregationForgeFactoryNth(this, childType, serde, distinctValueSerde, size);

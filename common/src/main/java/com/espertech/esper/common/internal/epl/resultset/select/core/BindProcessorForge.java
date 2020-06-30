@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -44,14 +48,14 @@ public class BindProcessorForge {
                               TableCompileTimeResolver tableService)
             throws ExprValidationException {
         ArrayList<ExprForge> expressions = new ArrayList<>();
-        ArrayList<Class> types = new ArrayList<Class>();
+        ArrayList<Class> types = new ArrayList<>();
         ArrayList<String> columnNames = new ArrayList<String>();
 
         for (SelectClauseElementCompiled element : selectionList) {
             // handle wildcards by outputting each stream's underlying event
             if (element instanceof SelectClauseElementWildcard) {
                 for (int i = 0; i < typesPerStream.length; i++) {
-                    Class returnType = typesPerStream[i].getUnderlyingType();
+                    EPTypeClass returnType = typesPerStream[i].getUnderlyingEPType();
                     TableMetaData tableMetadata = tableService.resolveTableFromEventType(typesPerStream[i]);
                     ExprForge forge;
                     if (tableMetadata != null) {
@@ -60,15 +64,14 @@ public class BindProcessorForge {
                         forge = new BindProcessorStream(i, returnType);
                     }
                     expressions.add(forge);
-                    types.add(returnType);
+                    types.add(returnType.getType());
                     columnNames.add(streamNames[i]);
                 }
             } else if (element instanceof SelectClauseStreamCompiledSpec) {
                 // handle stream wildcards by outputting the stream underlying event
                 final SelectClauseStreamCompiledSpec streamSpec = (SelectClauseStreamCompiledSpec) element;
                 EventType type = typesPerStream[streamSpec.getStreamNumber()];
-                final Class returnType = type.getUnderlyingType();
-
+                EPTypeClass returnType = type.getUnderlyingEPType();
                 TableMetaData tableMetadata = tableService.resolveTableFromEventType(type);
                 ExprForge forge;
                 if (tableMetadata != null) {
@@ -77,14 +80,15 @@ public class BindProcessorForge {
                     forge = new BindProcessorStream(streamSpec.getStreamNumber(), returnType);
                 }
                 expressions.add(forge);
-                types.add(returnType);
+                types.add(returnType.getType());
                 columnNames.add(streamNames[streamSpec.getStreamNumber()]);
             } else if (element instanceof SelectClauseExprCompiledSpec) {
                 // handle expressions
                 SelectClauseExprCompiledSpec expr = (SelectClauseExprCompiledSpec) element;
                 ExprForge forge = expr.getSelectExpression().getForge();
                 expressions.add(forge);
-                types.add(forge.getEvaluationType());
+                EPType evaluationType = forge.getEvaluationType();
+                types.add(evaluationType == null || evaluationType == EPTypeNull.INSTANCE ? null : ((EPTypeClass) evaluationType).getType());
                 if (expr.getAssignedName() != null) {
                     columnNames.add(expr.getAssignedName());
                 } else {
@@ -113,11 +117,11 @@ public class BindProcessorForge {
     }
 
     public CodegenMethod processCodegen(CodegenMethod processMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = processMethod.makeChild(Object[].class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = processMethod.makeChild(EPTypePremade.OBJECTARRAY.getEPType(), this.getClass(), codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "parameters", newArrayByLength(Object.class, constant(expressionForges.length)));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "parameters", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(expressionForges.length)));
         for (int i = 0; i < expressionForges.length; i++) {
-            block.assignArrayElement("parameters", constant(i), CodegenLegoMayVoid.expressionMayVoid(Object.class, expressionForges[i], methodNode, exprSymbol, codegenClassScope));
+            block.assignArrayElement("parameters", constant(i), CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), expressionForges[i], methodNode, exprSymbol, codegenClassScope));
         }
         block.methodReturn(ref("parameters"));
         return methodNode;

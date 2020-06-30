@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -21,7 +22,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public abstract class AggregationPortableValidationWFilterWInputType extends AggregationPortableValidationBase {
     protected boolean hasFilter;
-    protected Class inputValueType;
+    protected EPTypeClass inputValueType;
 
     public AggregationPortableValidationWFilterWInputType() {
     }
@@ -30,7 +31,7 @@ public abstract class AggregationPortableValidationWFilterWInputType extends Agg
 
     protected abstract void validateIntoTableWFilterWInputType(String tableExpression, AggregationPortableValidation intoTableAgg, String intoExpression, AggregationForgeFactory factory) throws ExprValidationException;
 
-    public AggregationPortableValidationWFilterWInputType(boolean distinct, boolean hasFilter, Class inputValueType) {
+    public AggregationPortableValidationWFilterWInputType(boolean distinct, boolean hasFilter, EPTypeClass inputValueType) {
         super(distinct);
         this.hasFilter = hasFilter;
         this.inputValueType = inputValueType;
@@ -54,7 +55,7 @@ public abstract class AggregationPortableValidationWFilterWInputType extends Agg
         this.hasFilter = hasFilter;
     }
 
-    public void setInputValueType(Class inputValueType) {
+    public void setInputValueType(EPTypeClass inputValueType) {
         this.inputValueType = inputValueType;
     }
 }

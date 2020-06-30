@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -28,8 +29,8 @@ public class ExpressionWindowViewForge extends ExpressionViewForgeBase {
         expiryExpression = parameters.get(0);
     }
 
-    public Class typeOfFactory() {
-        return ExpressionWindowViewFactory.class;
+    public EPTypeClass typeOfFactory() {
+        return ExpressionWindowViewFactory.EPTYPE;
     }
 
     protected void makeSetters(CodegenExpressionRef factory, CodegenBlock block) {

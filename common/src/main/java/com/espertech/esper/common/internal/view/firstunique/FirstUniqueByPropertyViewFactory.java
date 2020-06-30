@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.view.firstunique;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -20,8 +22,10 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link FirstUniqueByPropertyView} instances.
  */
 public class FirstUniqueByPropertyViewFactory implements ViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FirstUniqueByPropertyViewFactory.class);
+
     protected ExprEvaluator criteriaEval;
-    protected Class[] criteriaTypes;
+    protected EPType[] criteriaTypes;
     protected DataInputOutputSerde<Object> keySerde;
     protected EventType eventType;
 
@@ -48,7 +52,7 @@ public class FirstUniqueByPropertyViewFactory implements ViewFactory {
         this.criteriaEval = criteriaEval;
     }
 
-    public void setCriteriaTypes(Class[] criteriaTypes) {
+    public void setCriteriaTypes(EPType[] criteriaTypes) {
         this.criteriaTypes = criteriaTypes;
     }
 

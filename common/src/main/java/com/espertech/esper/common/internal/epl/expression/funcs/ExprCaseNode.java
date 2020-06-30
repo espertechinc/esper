@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.map.MapEventType;
@@ -23,6 +27,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeOrNull;
 
 /**
  * Represents the case-when-then-else control flow function is an expression tree.
@@ -67,8 +74,7 @@ public class ExprCaseNode extends ExprNodeBase {
 
         for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
             if (!isCase2) {
-                Class returnType = pair.getFirst().getForge().getEvaluationType();
-                if (returnType != boolean.class && returnType != Boolean.class) {
+                if (!isTypeBoolean(pair.getFirst().getForge().getEvaluationType())) {
                     throw new ExprValidationException("Case node 'when' expressions must return a boolean value");
                 }
             }
@@ -78,26 +84,31 @@ public class ExprCaseNode extends ExprNodeBase {
         SimpleNumberCoercer coercer = null;
         if (isCase2) {
             // validate we can compare result types
-            List<Class> comparedTypes = new LinkedList<>();
-            comparedTypes.add(analysis.getOptionalCompareExprNode().getForge().getEvaluationType());
+            List<EPType> comparedTypes = new LinkedList<>();
+            EPType epType = analysis.getOptionalCompareExprNode().getForge().getEvaluationType();
+            comparedTypes.add(epType);
             for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
-                comparedTypes.add(pair.getFirst().getForge().getEvaluationType());
+                EPType pairType = pair.getFirst().getForge().getEvaluationType();
+                comparedTypes.add(pairType);
             }
 
             // Determine common denominator type
             try {
-                Class coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
+                EPType coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new EPType[comparedTypes.size()]));
 
                 // Determine if we need to coerce numbers when one type doesn't match any other type
-                if (JavaClassHelper.isNumeric(coercionType)) {
-                    mustCoerce = false;
-                    for (Class comparedType : comparedTypes) {
-                        if (comparedType != coercionType) {
-                            mustCoerce = true;
+                if (coercionType != EPTypeNull.INSTANCE) {
+                    EPTypeClass coercionClass = (EPTypeClass) coercionType;
+                    if (JavaClassHelper.isNumeric(coercionClass)) {
+                        for (EPType comparedType : comparedTypes) {
+                            if (!(comparedType.equals(coercionType))) {
+                                mustCoerce = true;
+                                break;
+                            }
                         }
-                    }
-                    if (mustCoerce) {
-                        coercer = SimpleNumberCoercerFactory.getCoercer(null, coercionType);
+                        if (mustCoerce) {
+                            coercer = SimpleNumberCoercerFactory.getCoercer(null, coercionClass);
+                        }
                     }
                 }
             } catch (CoercionException ex) {
@@ -106,7 +117,7 @@ public class ExprCaseNode extends ExprNodeBase {
         }
 
         // Determine type of each result (then-node and else node) child node expression
-        List<Class> childTypes = new LinkedList<>();
+        List<EPType> childTypes = new LinkedList<>();
         List<LinkedHashMap<String, Object>> childMapTypes = new LinkedList<>();
         for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
             if (pair.getSecond().getForge() instanceof ExprTypableReturnForge) {
@@ -117,8 +128,8 @@ public class ExprCaseNode extends ExprNodeBase {
                     continue;
                 }
             }
-            childTypes.add(pair.getSecond().getForge().getEvaluationType());
-
+            EPType type = pair.getSecond().getForge().getEvaluationType();
+            childTypes.add(type);
         }
         if (analysis.getOptionalElseExprNode() != null) {
             if (analysis.getOptionalElseExprNode().getForge() instanceof ExprTypableReturnForge) {
@@ -127,10 +138,12 @@ public class ExprCaseNode extends ExprNodeBase {
                 if (rowProps != null) {
                     childMapTypes.add(rowProps);
                 } else {
-                    childTypes.add(analysis.getOptionalElseExprNode().getForge().getEvaluationType());
+                    EPType type = analysis.getOptionalElseExprNode().getForge().getEvaluationType();
+                    childTypes.add(type);
                 }
             } else {
-                childTypes.add(analysis.getOptionalElseExprNode().getForge().getEvaluationType());
+                EPType type = analysis.getOptionalElseExprNode().getForge().getEvaluationType();
+                childTypes.add(type);
             }
         }
 
@@ -140,13 +153,15 @@ public class ExprCaseNode extends ExprNodeBase {
             int count = -1;
             for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
                 count++;
-                if (pair.getSecond().getForge().getEvaluationType() != Map.class && pair.getSecond().getForge().getEvaluationType() != null) {
+                EPType type = pair.getSecond().getForge().getEvaluationType();
+                if (!isTypeOrNull(type, Map.class)) {
                     check = ", check when-condition number " + count;
                     throw new ExprValidationException(message + check);
                 }
             }
             if (analysis.getOptionalElseExprNode() != null) {
-                if (analysis.getOptionalElseExprNode().getForge().getEvaluationType() != Map.class && analysis.getOptionalElseExprNode().getForge().getEvaluationType() != null) {
+                EPType type = analysis.getOptionalElseExprNode().getForge().getEvaluationType();
+                if (!isTypeOrNull(type, Map.class)) {
                     check = ", check the else-condition";
                     throw new ExprValidationException(message + check);
                 }
@@ -155,12 +170,16 @@ public class ExprCaseNode extends ExprNodeBase {
         }
 
         LinkedHashMap<String, Object> mapResultType = null;
-        Class resultType = null;
+        EPTypeClass resultType;
         boolean isNumericResult = false;
         if (childMapTypes.isEmpty()) {
             // Determine common denominator type
             try {
-                resultType = JavaClassHelper.getCommonCoercionType(childTypes.toArray(new Class[childTypes.size()]));
+                EPType coercionType = JavaClassHelper.getCommonCoercionType(childTypes.toArray(new EPType[childTypes.size()]));
+                if (coercionType == EPTypeNull.INSTANCE) {
+                    throw new ExprValidationException("Null-type return value is not allowed");
+                }
+                resultType = (EPTypeClass) coercionType;
                 if (JavaClassHelper.isNumeric(resultType)) {
                     isNumericResult = true;
                 }
@@ -168,7 +187,7 @@ public class ExprCaseNode extends ExprNodeBase {
                 throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
             }
         } else {
-            resultType = Map.class;
+            resultType = EPTypePremade.MAP.getEPType();
             mapResultType = childMapTypes.get(0);
             for (int i = 1; i < childMapTypes.size(); i++) {
                 Map<String, Object> other = childMapTypes.get(i);

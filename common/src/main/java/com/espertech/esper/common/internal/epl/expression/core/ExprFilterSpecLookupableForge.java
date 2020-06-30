@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,11 +30,11 @@ public class ExprFilterSpecLookupableForge {
     protected final String expression;
     protected final ExprEventEvaluatorForge optionalEventEvalForge;
     protected final ExprForge optionalExprForge;
-    protected final Class returnType;
+    protected final EPTypeClass returnType;
     protected final boolean isNonPropertyGetter;
     protected final DataInputOutputSerdeForge valueSerde;
 
-    public ExprFilterSpecLookupableForge(String expression, ExprEventEvaluatorForge optionalEventEvalForge, ExprForge optionalExprForge, Class returnType, boolean isNonPropertyGetter, DataInputOutputSerdeForge valueSerde) {
+    public ExprFilterSpecLookupableForge(String expression, ExprEventEvaluatorForge optionalEventEvalForge, ExprForge optionalExprForge, EPTypeClass returnType, boolean isNonPropertyGetter, DataInputOutputSerdeForge valueSerde) {
         // prefixing the expression ensures the expression resolves to either the event-eval or the expr-eval
         if (optionalExprForge != null) {
             this.expression = "." + expression;
@@ -46,7 +48,7 @@ public class ExprFilterSpecLookupableForge {
         this.valueSerde = valueSerde;
     }
 
-    public Class getReturnType() {
+    public EPTypeClass getReturnType() {
         return returnType;
     }
 
@@ -55,12 +57,12 @@ public class ExprFilterSpecLookupableForge {
     }
 
     public CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ExprFilterSpecLookupable.class, ExprFilterSpecLookupableForge.class, classScope);
+        CodegenMethod method = parent.makeChild(ExprFilterSpecLookupable.EPTYPE, ExprFilterSpecLookupableForge.class, classScope);
 
         CodegenExpression singleEventEvalExpr = constantNull();
         if (optionalEventEvalForge != null) {
-            CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), ExprEventEvaluator.class);
-            CodegenMethod eval = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(CodegenNamedParam.from(EventBean.class, "bean", ExprEvaluatorContext.class, "ctx"));
+            CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), ExprEventEvaluator.EPTYPE);
+            CodegenMethod eval = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(CodegenNamedParam.from(EventBean.EPTYPE, "bean", ExprEvaluatorContext.EPTYPE, "ctx"));
             anonymous.addMethod("eval", eval);
             eval.getBlock().methodReturn(optionalEventEvalForge.eventBeanWithCtxGet(ref("bean"), ref("ctx"), method, classScope));
             singleEventEvalExpr = anonymous;
@@ -72,12 +74,12 @@ public class ExprFilterSpecLookupableForge {
         }
 
         CodegenExpression serdeExpr = valueSerde == null ? constantNull() : valueSerde.codegen(method, classScope, null);
-        CodegenExpression returnTypeExpr = returnType == null ? constantNull() : enumValue(returnType, "class");
+        CodegenExpression returnTypeExpr = returnType == null ? constantNull() : constant(returnType);
 
         method.getBlock()
-            .declareVar(ExprEventEvaluator.class, "eval", singleEventEvalExpr)
-            .declareVar(ExprEvaluator.class, "expr", epsEvalExpr)
-            .declareVar(ExprFilterSpecLookupable.class, "lookupable", newInstance(ExprFilterSpecLookupable.class,
+            .declareVar(ExprEventEvaluator.EPTYPE, "eval", singleEventEvalExpr)
+            .declareVar(ExprEvaluator.EPTYPE, "expr", epsEvalExpr)
+            .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", newInstance(ExprFilterSpecLookupable.EPTYPE,
                 constant(expression), ref("eval"), ref("expr"), returnTypeExpr, constant(isNonPropertyGetter), serdeExpr))
             .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", symbols.getAddEventType(method), ref("lookupable")))
             .methodReturn(ref("lookupable"));

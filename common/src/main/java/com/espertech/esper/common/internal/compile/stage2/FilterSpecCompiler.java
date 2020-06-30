@@ -32,6 +32,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
+
 /**
  * Helper to compile (validate and optimize) filter expressions as used in pattern and filter-based streams.
  */
@@ -118,8 +120,7 @@ public final class FilterSpecCompiler {
                                                                 LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
                                                                 LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
                                                                 StatementRawInfo statementRawInfo,
-                                                                StatementCompileTimeServices services)
-        throws ExprValidationException {
+                                                                StatementCompileTimeServices services) throws ExprValidationException {
         List<ExprNode> validatedNodes = new ArrayList<ExprNode>();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
@@ -148,8 +149,7 @@ public final class FilterSpecCompiler {
 
             ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(exprNodeOrigin, node, validationContext);
             validatedNodes.add(validated);
-
-            if ((validated.getForge().getEvaluationType() != Boolean.class) && ((validated.getForge().getEvaluationType() != boolean.class))) {
+            if (!isTypeBoolean(validated.getForge().getEvaluationType())) {
                 throw new ExprValidationException("Filter expression not returning a boolean value: '" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(validated) + "'");
             }
         }

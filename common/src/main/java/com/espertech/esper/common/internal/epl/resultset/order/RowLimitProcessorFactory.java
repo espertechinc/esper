@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.order;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
  * A factory for row-limit processor instances.
  */
 public class RowLimitProcessorFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RowLimitProcessorFactory.class);
 
     private Variable numRowsVariable;
     private Variable offsetVariable;

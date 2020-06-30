@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.avro.core;
 
 import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.avro.getter.AvroEventBeanGetterIndexedRuntimeKeyed;
 import com.espertech.esper.common.internal.avro.getter.AvroEventBeanGetterMappedRuntimeKeyed;
 import com.espertech.esper.common.internal.avro.getter.AvroEventBeanGetterSimple;
@@ -31,9 +34,12 @@ import org.apache.avro.generic.GenericData;
 
 import java.util.*;
 
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
 import static com.espertech.esper.common.internal.avro.core.AvroFragmentTypeUtil.getFragmentEventTypeForField;
 
 public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AvroEventType.class);
+
     private EventTypeMetadata metadata;
     private final Schema avroSchema;
     private final Map<String, PropertySetDescriptorItem> propertyItems;
@@ -81,10 +87,18 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         return GenericData.Record.class;
     }
 
-    public Class getPropertyType(String propertyName) {
+    public EPTypeClass getUnderlyingEPType() {
+        return AvroConstant.EPTYPE_RECORD;
+    }
+
+    public final Class getPropertyType(String propertyName) {
+        return getPropertyTypeAsClass(getPropertyEPType(propertyName));
+    }
+
+    public EPType getPropertyEPType(String propertyName) {
         PropertySetDescriptorItem item = propertyItems.get(StringValue.unescapeDot(propertyName));
         if (item != null) {
-            return item.getSimplePropertyType();
+            return item.getPropertyDescriptor().getPropertyEPType();
         }
 
         Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
@@ -243,7 +257,7 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
                 return null;
             }
             MappedProperty mapProp = (MappedProperty) property;
-            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), Object.class, null, false, true, false, true, false);
+            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), false, true, false, true, false);
         }
         if (property instanceof IndexedProperty) {
             EventPropertyWriter writer = getWriter(propertyName);
@@ -251,7 +265,7 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
                 return null;
             }
             IndexedProperty indexedProp = (IndexedProperty) property;
-            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), Object.class, null, true, false, true, false, false);
+            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), true, false, true, false, false);
         }
         return null;
     }
@@ -321,28 +335,25 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         for (Schema.Field field : avroSchema.getFields()) {
             propertyNames[fieldNum] = field.name();
 
-            Class propertyType = AvroTypeUtil.propertyType(field.schema());
-            Class componentType = null;
+            EPType propertyType = AvroTypeUtil.propertyType(field.schema());
             boolean indexed = false;
             boolean mapped = false;
             FragmentEventType fragmentEventType = null;
 
             if (field.schema().getType() == Schema.Type.ARRAY) {
-                componentType = AvroTypeUtil.propertyType(field.schema().getElementType());
                 indexed = true;
                 if (field.schema().getElementType().getType() == Schema.Type.RECORD) {
                     fragmentEventType = getFragmentEventTypeForField(field.schema(), metadata.getModuleName(), eventBeanTypedEventFactory, eventTypeAvroHandler, fragmentTypeCache);
                 }
             } else if (field.schema().getType() == Schema.Type.MAP) {
                 mapped = true;
-                componentType = AvroTypeUtil.propertyType(field.schema().getValueType());
             } else {
                 fragmentEventType = getFragmentEventTypeForField(field.schema(), metadata.getModuleName(), eventBeanTypedEventFactory, eventTypeAvroHandler, fragmentTypeCache);
             }
             AvroEventBeanGetterSimple getter = new AvroEventBeanGetterSimple(field.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventBeanTypedEventFactory, propertyType);
 
-            EventPropertyDescriptor descriptor = new EventPropertyDescriptor(field.name(), propertyType, componentType, false, false, indexed, mapped, fragmentEventType != null);
-            PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, propertyType, getter, fragmentEventType);
+            EventPropertyDescriptor descriptor = new EventPropertyDescriptor(field.name(), propertyType, false, false, indexed, mapped, fragmentEventType != null);
+            PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
             propertyItems.put(field.name(), item);
             propertyDescriptors[fieldNum] = descriptor;
 

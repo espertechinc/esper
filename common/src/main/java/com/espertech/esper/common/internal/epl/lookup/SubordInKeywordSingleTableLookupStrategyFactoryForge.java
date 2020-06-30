@@ -34,17 +34,17 @@ public class SubordInKeywordSingleTableLookupStrategyFactoryForge implements Sub
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(SubordInKeywordSingleTableLookupStrategyFactory.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(SubordInKeywordSingleTableLookupStrategyFactory.EPTYPE, this.getClass(), classScope);
 
         String[] expressions = new String[exprNodes.length];
-        method.getBlock().declareVar(ExprEvaluator[].class, "evals", newArrayByLength(ExprEvaluator.class, constant(exprNodes.length)));
+        method.getBlock().declareVar(ExprEvaluator.EPTYPEARRAY, "evals", newArrayByLength(ExprEvaluator.EPTYPE, constant(exprNodes.length)));
         for (int i = 0; i < exprNodes.length; i++) {
             CodegenExpression eval = ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(exprNodes[i].getForge(), method, this.getClass(), classScope);
             method.getBlock().assignArrayElement(ref("evals"), constant(i), eval);
             expressions[i] = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(exprNodes[i]);
         }
 
-        method.getBlock().methodReturn(newInstance(SubordInKeywordSingleTableLookupStrategyFactory.class,
+        method.getBlock().methodReturn(newInstance(SubordInKeywordSingleTableLookupStrategyFactory.EPTYPE,
                 constant(isNWOnTrigger), constant(streamCountOuter), ref("evals"), constant(expressions)));
         return localMethod(method);
     }

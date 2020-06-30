@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.historical.common;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Arrays;
 
 /**
@@ -20,8 +23,8 @@ import java.util.Arrays;
  */
 public class HistoricalStreamIndexDesc {
     private final String[] indexProperties;
-    private final Class[] indexPropTypes;
-    private final Class[] keyPropTypes;
+    private final EPTypeClass[] indexPropTypes;
+    private final EPType[] keyPropTypes;
 
     /**
      * Ctor.
@@ -30,7 +33,7 @@ public class HistoricalStreamIndexDesc {
      * @param indexPropTypes  index property types
      * @param keyPropTypes    key property types
      */
-    public HistoricalStreamIndexDesc(String[] indexProperties, Class[] indexPropTypes, Class[] keyPropTypes) {
+    public HistoricalStreamIndexDesc(String[] indexProperties, EPTypeClass[] indexPropTypes, EPType[] keyPropTypes) {
         this.indexProperties = indexProperties;
         this.indexPropTypes = indexPropTypes;
         this.keyPropTypes = keyPropTypes;
@@ -50,7 +53,7 @@ public class HistoricalStreamIndexDesc {
      *
      * @return index property types
      */
-    public Class[] getIndexPropTypes() {
+    public EPTypeClass[] getIndexPropTypes() {
         return indexPropTypes;
     }
 
@@ -59,7 +62,7 @@ public class HistoricalStreamIndexDesc {
      *
      * @return key property types
      */
-    public Class[] getKeyPropTypes() {
+    public EPType[] getKeyPropTypes() {
         return keyPropTypes;
     }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.nth;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -22,10 +23,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
 public class AggregationPortableValidationNth extends AggregationPortableValidationWFilterWInputType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationNth.class);
 
     private int size;
 
-    public AggregationPortableValidationNth(boolean distinct, boolean hasFilter, Class inputValueType, int size) {
+    public AggregationPortableValidationNth(boolean distinct, boolean hasFilter, EPTypeClass inputValueType, int size) {
         super(distinct, hasFilter, inputValueType);
         this.size = size;
     }
@@ -33,8 +35,8 @@ public class AggregationPortableValidationNth extends AggregationPortableValidat
     public AggregationPortableValidationNth() {
     }
 
-    protected Class typeOf() {
-        return AggregationPortableValidationNth.class;
+    protected EPTypeClass typeOf() {
+        return AggregationPortableValidationNth.EPTYPE;
     }
 
     protected void codegenInlineSetWFilterWInputType(CodegenExpressionRef ref, CodegenMethod method, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {

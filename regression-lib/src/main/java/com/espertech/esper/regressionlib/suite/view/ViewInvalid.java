@@ -207,15 +207,15 @@ public class ViewInvalid implements RegressionExecution {
 
         // mismatched type on coalesce columns
         exception = getStatementExceptionView(env, "select coalesce(boolBoxed, theString) from SupportBean#length(1) as aStr");
-        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate select-clause expression 'coalesce(boolBoxed,theString)': Implicit conversion not allowed: Cannot coerce to Boolean type java.lang.String");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate select-clause expression 'coalesce(boolBoxed,theString)': Implicit conversion not allowed: Cannot coerce to Boolean type String");
 
         // mismatched case compare type
         exception = getStatementExceptionView(env, "select case boolPrimitive when 1 then true end from SupportBean#length(1) as aStr");
-        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate select-clause expression 'case boolPrimitive when 1 then true end': Implicit conversion not allowed: Cannot coerce to Boolean type java.lang.Integer");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate select-clause expression 'case boolPrimitive when 1 then true end': Implicit conversion not allowed: Cannot coerce to Boolean type Integer");
 
         // mismatched case result type
         exception = getStatementExceptionView(env, "select case when 1=2 then 1 when 1=3 then true end from SupportBean#length(1) as aStr");
-        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate select-clause expression 'case when 1=2 then 1 when 1=3 then ...(43 chars)': Implicit conversion not allowed: Cannot coerce types java.lang.Integer and java.lang.Boolean");
+        SupportMessageAssertUtil.assertMessage(exception, "Failed to validate select-clause expression 'case when 1=2 then 1 when 1=3 then ...(43 chars)': Implicit conversion not allowed: Cannot coerce types Integer and Boolean");
 
         // case expression not returning bool
         exception = getStatementExceptionView(env, "select case when 3 then 1 end from SupportBean#length(1) as aStr");

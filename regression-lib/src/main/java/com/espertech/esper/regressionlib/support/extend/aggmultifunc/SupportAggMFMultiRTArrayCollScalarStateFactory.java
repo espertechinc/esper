@@ -13,11 +13,14 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionState;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateFactory;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateFactoryContext;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class SupportAggMFMultiRTArrayCollScalarStateFactory implements AggregationMultiFunctionStateFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(SupportAggMFMultiRTArrayCollScalarStateFactory.class);
+
     private ExprEvaluator evaluator;
-    private Class evaluationType;
+    private EPTypeClass evaluationType;
 
     public AggregationMultiFunctionState newState(AggregationMultiFunctionStateFactoryContext ctx) {
         return new SupportAggMFMultiRTArrayCollScalarState(this);
@@ -31,11 +34,11 @@ public class SupportAggMFMultiRTArrayCollScalarStateFactory implements Aggregati
         this.evaluator = evaluator;
     }
 
-    public void setEvaluationType(Class evaluationType) {
+    public void setEvaluationType(EPTypeClass evaluationType) {
         this.evaluationType = evaluationType;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return evaluationType;
     }
 }

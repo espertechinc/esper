@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.exttimedwin;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -57,8 +58,8 @@ public class ExternallyTimedWindowViewForge extends ViewFactoryForgeBase impleme
         this.eventType = parentEventType;
     }
 
-    protected Class typeOfFactory() {
-        return ExternallyTimedWindowViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return ExternallyTimedWindowViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {
@@ -67,7 +68,7 @@ public class ExternallyTimedWindowViewForge extends ViewFactoryForgeBase impleme
 
     protected void assign(CodegenMethod method, CodegenExpressionRef factory, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock()
-                .declareVar(TimePeriodCompute.class, "eval", timePeriodComputeForge.makeEvaluator(method, classScope))
+                .declareVar(TimePeriodCompute.EPTYPE, "eval", timePeriodComputeForge.makeEvaluator(method, classScope))
                 .exprDotMethod(factory, "setTimePeriodCompute", ref("eval"))
                 .exprDotMethod(factory, "setTimestampEval", codegenEvaluator(timestampExpression.getForge(), method, this.getClass(), classScope));
     }

@@ -11,13 +11,18 @@
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.*;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.*;
@@ -25,10 +30,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQu
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacusField;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
@@ -36,8 +38,8 @@ import static com.espertech.esper.common.internal.context.module.EPStatementInit
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_AGGVISITOR;
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_GROUPKEY;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 /**
@@ -61,7 +63,7 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
     }
 
     public void providerCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
-        Class[] groupByTypes = ExprNodeUtilityQuery.getExprResultTypes(aggGroupByDesc.getGroupByNodes());
+        EPType[] groupByTypes = ExprNodeUtilityQuery.getExprResultTypes(aggGroupByDesc.getGroupByNodes());
 
         if (aggGroupByDesc.isReclaimAged()) {
             reclaimAge = aggGroupByDesc.getReclaimEvaluationFunctionMaxAge().make(classScope);
@@ -74,10 +76,10 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
         CodegenExpressionField timeAbacus = classScope.addOrGetFieldSharable(TimeAbacusField.INSTANCE);
 
         method.getBlock()
-            .declareVar(AggregationRowFactory.class, "rowFactory", CodegenExpressionBuilder.newInstance(classNames.getRowFactoryTop(), ref("this")))
-            .declareVar(DataInputOutputSerde.class, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
-            .declareVar(AggregationServiceFactory.class, "svcFactory", CodegenExpressionBuilder.newInstance(classNames.getServiceFactory(), ref("this")))
-            .declareVar(DataInputOutputSerde.class, "serde", aggGroupByDesc.getGroupByMultiKey().getExprMKSerde(method, classScope))
+            .declareVar(AggregationRowFactory.EPTYPE, "rowFactory", CodegenExpressionBuilder.newInstance(classNames.getRowFactoryTop(), ref("this")))
+            .declareVar(DataInputOutputSerde.EPTYPE, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
+            .declareVar(AggregationServiceFactory.EPTYPE, "svcFactory", CodegenExpressionBuilder.newInstance(classNames.getServiceFactory(), ref("this")))
+            .declareVar(DataInputOutputSerde.EPTYPE, "serde", aggGroupByDesc.getGroupByMultiKey().getExprMKSerde(method, classScope))
             .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add(
                 "groupBy", ref("svcFactory"), ref("rowFactory"), aggGroupByDesc.getRowStateForgeDescs().getUseFlags().toExpression(),
                 ref("rowSerde"), constant(groupByTypes), reclaimAge, reclaimFreq, timeAbacus, ref("serde")));
@@ -110,17 +112,17 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
-        ctor.getCtorParams().add(new CodegenTypedParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT));
-        explicitMembers.add(new CodegenTypedParam(Map.class, MEMBER_AGGREGATORSPERGROUP.getRef()));
-        explicitMembers.add(new CodegenTypedParam(Object.class, MEMBER_CURRENTGROUPKEY.getRef()));
+        ctor.getCtorParams().add(new CodegenTypedParam(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.MAP.getEPType(), MEMBER_AGGREGATORSPERGROUP.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.OBJECT.getEPType(), MEMBER_CURRENTGROUPKEY.getRef()));
         explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), MEMBER_CURRENTROW.getRef()));
-        ctor.getBlock().assignRef(MEMBER_AGGREGATORSPERGROUP, newInstance(HashMap.class));
+        ctor.getBlock().assignRef(MEMBER_AGGREGATORSPERGROUP, newInstance(EPTypePremade.HASHMAP.getEPType()));
         if (aggGroupByDesc.isReclaimAged()) {
             AggSvcGroupByReclaimAgedImpl.ctorCodegenReclaim(ctor, explicitMembers, classScope, reclaimAge, reclaimFreq);
         }
         if (hasRefCounting()) {
-            explicitMembers.add(new CodegenTypedParam(List.class, MEMBER_REMOVEDKEYS.getRef()));
-            ctor.getBlock().assignRef(MEMBER_REMOVEDKEYS, newInstance(ArrayList.class, constant(4)));
+            explicitMembers.add(new CodegenTypedParam(EPTypePremade.LIST.getEPType(), MEMBER_REMOVEDKEYS.getRef()));
+            ctor.getBlock().assignRef(MEMBER_REMOVEDKEYS, newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(4)));
         }
     }
 
@@ -234,7 +236,7 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
     public void acceptGroupDetailCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitGrouped", exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "size"))
-            .forEach(Map.Entry.class, "entry", exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "entrySet"))
+            .forEach(EPTypePremade.MAPENTRY.getEPType(), "entry", exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "entrySet"))
             .exprDotMethod(REF_AGGVISITOR, "visitGroup", exprDotMethod(ref("entry"), "getKey"), exprDotMethod(ref("entry"), "getValue"));
     }
 
@@ -251,9 +253,9 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
     }
 
     private CodegenMethod handleRemovedKeysCodegen(CodegenMethod scope, CodegenClassScope classScope) {
-        CodegenMethod method = scope.makeChild(void.class, AggregationServiceGroupByForge.class, classScope);
+        CodegenMethod method = scope.makeChild(EPTypePremade.VOID.getEPType(), AggregationServiceGroupByForge.class, classScope);
         method.getBlock().ifCondition(not(exprDotMethod(MEMBER_REMOVEDKEYS, "isEmpty")))
-            .forEach(Object.class, "removedKey", MEMBER_REMOVEDKEYS)
+            .forEach(EPTypePremade.OBJECT.getEPType(), "removedKey", MEMBER_REMOVEDKEYS)
             .exprDotMethod(MEMBER_AGGREGATORSPERGROUP, "remove", ref("removedKey"))
             .blockEnd()
             .exprDotMethod(MEMBER_REMOVEDKEYS, "clear");

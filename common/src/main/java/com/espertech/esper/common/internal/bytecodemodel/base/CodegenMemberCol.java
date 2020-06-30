@@ -10,15 +10,16 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMemberWCol;
 
 import java.util.LinkedHashMap;
 
 public class CodegenMemberCol {
-    private final LinkedHashMap<CodegenExpressionMemberWCol, Class> members = new LinkedHashMap<>();
+    private final LinkedHashMap<CodegenExpressionMemberWCol, EPTypeClass> members = new LinkedHashMap<>();
 
-    public CodegenExpressionMember addMember(int column, Class type, String name) {
+    public CodegenExpressionMember addMember(int column, EPTypeClass type, String name) {
         if (type == null) {
             throw new IllegalArgumentException("Null type");
         }
@@ -27,7 +28,7 @@ public class CodegenMemberCol {
         return ref;
     }
 
-    public LinkedHashMap<CodegenExpressionMemberWCol, Class> getMembers() {
+    public LinkedHashMap<CodegenExpressionMemberWCol, EPTypeClass> getMembers() {
         return members;
     }
 }

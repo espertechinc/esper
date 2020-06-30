@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.event.json.parser.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class JsonDelegateJsonGenericArray extends JsonDelegateJsonGenericBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonDelegateJsonGenericArray.class);
     private final Collection collection = new ArrayList();
 
     public JsonDelegateJsonGenericArray(JsonHandlerDelegator baseHandler, JsonDelegateBase parent) {

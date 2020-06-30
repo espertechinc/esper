@@ -49,9 +49,9 @@ public class ContextSpecConditionFilter implements ContextSpecCondition {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ContextConditionDescriptorFilter.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(ContextConditionDescriptorFilter.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextConditionDescriptorFilter.class, "condition", newInstance(ContextConditionDescriptorFilter.class))
+                .declareVarNewInstance(ContextConditionDescriptorFilter.EPTYPE, "condition")
                 .exprDotMethod(ref("condition"), "setFilterSpecActivatable", localMethod(filterSpecCompiled.makeCodegen(method, symbols, classScope)))
                 .exprDotMethod(ref("condition"), "setOptionalFilterAsName", constant(optionalFilterAsName))
                 .methodReturn(ref("condition"));

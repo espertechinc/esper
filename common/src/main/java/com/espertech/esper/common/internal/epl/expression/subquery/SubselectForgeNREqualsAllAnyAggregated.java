@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -35,7 +39,10 @@ public class SubselectForgeNREqualsAllAnyAggregated extends SubselectForgeNREqua
     }
 
     protected CodegenExpression codegenEvaluateInternal(CodegenMethodScope parent, SubselectForgeNRSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Boolean.class, this.getClass(), classScope);
+        if (selectEval.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), this.getClass(), classScope);
         CodegenExpressionRef eps = symbols.getAddEPS(method);
         CodegenExpressionRef evalCtx = symbols.getAddExprEvalCtx(method);
         CodegenExpressionRef left = symbols.getAddLeftResult(method);
@@ -47,22 +54,22 @@ public class SubselectForgeNREqualsAllAnyAggregated extends SubselectForgeNREqua
         }
 
         CodegenExpression select = localMethod(CodegenLegoMethodExpression.codegenExpression(selectEval, method, classScope), eps, constantTrue(), evalCtx);
-        Class rightEvalType = JavaClassHelper.getBoxedType(selectEval.getEvaluationType());
+        EPType rightEvalType = JavaClassHelper.getBoxedType(selectEval.getEvaluationType());
         method.getBlock()
-                .declareVar(rightEvalType, "rhs", select)
+                .declareVar((EPTypeClass) rightEvalType, "rhs", select)
                 .ifRefNullReturnNull("rhs");
 
         if (coercer == null) {
-            method.getBlock().declareVar(boolean.class, "eq", exprDotMethod(left, "equals", ref("rhs")));
+            method.getBlock().declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "eq", exprDotMethod(left, "equals", ref("rhs")));
             if (isNot) {
                 method.getBlock().ifCondition(ref("eq")).blockReturn(constantFalse());
             } else {
                 method.getBlock().ifCondition(not(ref("eq"))).blockReturn(constantFalse());
             }
         } else {
-            method.getBlock().declareVar(Number.class, "left", coercer.coerceCodegen(left, symbols.getLeftResultType()))
-                    .declareVar(Number.class, "right", coercer.coerceCodegen(ref("rhs"), rightEvalType))
-                    .declareVar(boolean.class, "eq", exprDotMethod(ref("left"), "equals", ref("right")));
+            method.getBlock().declareVar(EPTypePremade.NUMBER.getEPType(), "left", coercer.coerceCodegen(left, symbols.getLeftResultType()))
+                    .declareVar(EPTypePremade.NUMBER.getEPType(), "right", coercer.coerceCodegen(ref("rhs"), (EPTypeClass) rightEvalType))
+                    .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "eq", exprDotMethod(ref("left"), "equals", ref("right")));
             if (isNot) {
                 method.getBlock().ifCondition(ref("eq")).blockReturn(constantFalse());
             } else {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timewin;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -23,6 +24,8 @@ import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
  * Factory for {@link TimeWindowView}.
  */
 public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TimeWindowViewFactory.class);
+
     protected TimePeriodCompute timePeriodCompute;
     protected int scheduleCallbackId;
     protected EventType eventType;

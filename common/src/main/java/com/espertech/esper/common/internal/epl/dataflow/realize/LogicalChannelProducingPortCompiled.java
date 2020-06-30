@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.dataflow.realize;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.dataflow.util.GraphTypeDesc;
 
 public class LogicalChannelProducingPortCompiled {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(LogicalChannelProducingPortCompiled.class);
+
     private int producingOpNum;
     private String producingOpPrettyPrint;
     private String streamName;
@@ -38,7 +41,7 @@ public class LogicalChannelProducingPortCompiled {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(LogicalChannelProducingPortCompiled.class, this.getClass(), "c", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(LogicalChannelProducingPortCompiled.EPTYPE, this.getClass(), "c", parent, symbols, classScope)
                 .constant("producingOpNum", producingOpNum)
                 .constant("producingOpPrettyPrint", producingOpPrettyPrint)
                 .constant("streamName", streamName)

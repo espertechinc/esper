@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.ops;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -67,26 +68,26 @@ public class ExprLikeNodeFormNonconstEval implements ExprEvaluator {
     }
 
     public static CodegenMethod codegen(ExprLikeNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, ExprNode optionalEscape, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprLikeNodeFormNonconstEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), ExprLikeNodeFormNonconstEval.class, codegenClassScope);
         CodegenBlock blockMethod = methodNode.getBlock()
-                .declareVar(String.class, "pattern", pattern.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.STRING.getEPType(), "pattern", pattern.getForge().evaluateCodegen(EPTypePremade.STRING.getEPType(), methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("pattern");
 
         // initial like-setup
-        blockMethod.declareVar(Character.class, "es", constant('\\'));
+        blockMethod.declareVar(EPTypePremade.CHARBOXED.getEPType(), "es", constant('\\'));
         if (optionalEscape != null) {
-            blockMethod.declareVar(String.class, "escapeString", optionalEscape.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope));
+            blockMethod.declareVar(EPTypePremade.STRING.getEPType(), "escapeString", optionalEscape.getForge().evaluateCodegen(EPTypePremade.STRING.getEPType(), methodNode, exprSymbol, codegenClassScope));
             blockMethod.ifCondition(and(notEqualsNull(ref("escapeString")), not(exprDotMethod(ref("escapeString"), "isEmpty"))))
                     .assignRef("es", exprDotMethod(ref("escapeString"), "charAt", constant(0)));
         }
-        blockMethod.declareVar(LikeUtil.class, "likeUtil", newInstance(LikeUtil.class, ref("pattern"), ref("es"), constant(false)));
+        blockMethod.declareVar(LikeUtil.EPTYPE, "likeUtil", newInstance(LikeUtil.EPTYPE, ref("pattern"), ref("es"), constant(false)));
 
         if (!forge.isNumericValue()) {
-            blockMethod.declareVar(String.class, "value", lhs.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(EPTypePremade.STRING.getEPType(), "value", lhs.getForge().evaluateCodegen(EPTypePremade.STRING.getEPType(), methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getLikeCode(forge, ref("likeUtil"), ref("value")));
         } else {
-            blockMethod.declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(EPTypePremade.OBJECT.getEPType(), "value", lhs.getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getLikeCode(forge, ref("likeUtil"), exprDotMethod(ref("value"), "toString")));
         }

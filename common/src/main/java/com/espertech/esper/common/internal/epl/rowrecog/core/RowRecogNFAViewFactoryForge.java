@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -47,8 +48,8 @@ public class RowRecogNFAViewFactoryForge extends ViewFactoryForgeBase implements
         // no action
     }
 
-    protected Class typeOfFactory() {
-        return RowRecogNFAViewFactory.class;
+    protected EPTypeClass typeOfFactory() {
+        return RowRecogNFAViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {

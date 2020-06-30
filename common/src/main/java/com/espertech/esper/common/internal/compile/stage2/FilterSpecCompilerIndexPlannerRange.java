@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -64,7 +68,11 @@ public class FilterSpecCompilerIndexPlannerRange {
 
         if (endpoint instanceof ExprContextPropertyNode) {
             ExprContextPropertyNode node = (ExprContextPropertyNode) endpoint;
-            if (JavaClassHelper.isImplementsCharSequence(node.getType())) {
+            if (node.getValueType() == EPTypeNull.INSTANCE) {
+                return null;
+            }
+            EPTypeClass type = (EPTypeClass) node.getValueType();
+            if (JavaClassHelper.isImplementsCharSequence(type)) {
                 return new FilterForEvalContextPropStringForge(node.getGetter(), node.getPropertyName());
             } else {
                 return new FilterForEvalContextPropDoubleForge(node.getGetter(), node.getPropertyName());
@@ -73,7 +81,8 @@ public class FilterSpecCompilerIndexPlannerRange {
 
         if (endpoint.getForge().getForgeConstantType().isDeployTimeTimeConstant() && endpoint instanceof ExprNodeDeployTimeConst) {
             ExprNodeDeployTimeConst node = (ExprNodeDeployTimeConst) endpoint;
-            if (JavaClassHelper.isImplementsCharSequence(endpoint.getForge().getEvaluationType())) {
+            EPTypeClass type = (EPTypeClass) endpoint.getForge().getEvaluationType();
+            if (JavaClassHelper.isImplementsCharSequence(type)) {
                 return new FilterForEvalDeployTimeConstStringForge(node);
             } else {
                 return new FilterForEvalDeployTimeConstDoubleForge(node);
@@ -87,12 +96,16 @@ public class FilterSpecCompilerIndexPlannerRange {
 
         // or limited expression
         if (FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.VALUECOMPOSITE, raw, services) && isLimitedValueExpression(endpoint)) {
-            Class returnType = endpoint.getForge().getEvaluationType();
+            EPType returnType = endpoint.getForge().getEvaluationType();
+            if (returnType == EPTypeNull.INSTANCE || returnType == null) {
+                return null;
+            }
+            EPTypeClass returnClass = (EPTypeClass) returnType;
             MatchedEventConvertorForge convertor = getMatchEventConvertor(endpoint, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
-            if (JavaClassHelper.isImplementsCharSequence(returnType)) {
+            if (JavaClassHelper.isImplementsCharSequence(returnClass)) {
                 return new FilterForEvalLimitedExprForge(endpoint, convertor, null);
             }
-            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(returnType, Double.class);
+            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(returnClass, EPTypePremade.DOUBLEBOXED.getEPType());
             return new FilterForEvalLimitedExprForge(endpoint, convertor, coercer);
         }
 

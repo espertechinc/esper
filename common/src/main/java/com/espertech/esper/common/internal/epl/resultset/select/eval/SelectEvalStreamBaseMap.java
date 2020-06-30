@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -30,9 +31,7 @@ import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolve
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -47,17 +46,17 @@ public abstract class SelectEvalStreamBaseMap extends SelectEvalStreamBase imple
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         int size = this.context.getExprForges().length + namedStreams.size() + (isUsingWildcard && this.context.getNumStreams() > 1 ? this.context.getNumStreams() : 0);
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
-        CodegenExpression init = size == 0 ? staticMethod(Collections.class, "emptyMap") : newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(size)));
+        CodegenExpression init = size == 0 ? staticMethod(Collections.class, "emptyMap") : newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(size)));
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Map.class, "props", init);
+                .declareVar(EPTypePremade.MAP.getEPType(), "props", init);
         int count = 0;
         for (ExprForge forge : this.context.getExprForges()) {
-            block.expression(exprDotMethod(ref("props"), "put", constant(this.context.getColumnNames()[count]), CodegenLegoMayVoid.expressionMayVoid(Object.class, forge, methodNode, exprSymbol, codegenClassScope)));
+            block.expression(exprDotMethod(ref("props"), "put", constant(this.context.getColumnNames()[count]), CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), forge, methodNode, exprSymbol, codegenClassScope)));
             count++;
         }
         for (SelectClauseStreamCompiledSpec element : namedStreams) {

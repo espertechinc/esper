@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
@@ -29,6 +30,7 @@ import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFacto
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.common.internal.supportunit.bean.*;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 
 import java.util.Map;
@@ -103,6 +105,6 @@ public class SupportEventTypeFactory {
     }
 
     private static BeanEventType makeType(Class clazz) {
-        return new BeanEventType(STEM_BUILDER.make(clazz), METADATA_CLASS.apply(clazz.getSimpleName()), BEAN_EVENT_TYPE_FACTORY, null, null, null, null);
+        return new BeanEventType(STEM_BUILDER.make(ClassHelperGenericType.getClassEPType(clazz)), METADATA_CLASS.apply(clazz.getSimpleName()), BEAN_EVENT_TYPE_FACTORY, null, null, null, null);
     }
 }

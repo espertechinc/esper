@@ -23,6 +23,7 @@ import com.espertech.esper.common.client.hook.exception.ExceptionHandler;
 import com.espertech.esper.common.client.hook.exception.ExceptionHandlerFactory;
 import com.espertech.esper.common.client.hook.exception.ExceptionHandlerFactoryContext;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.common.client.util.TimeSourceType;
@@ -205,7 +206,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         EPServicesHA epServicesHA = initHA(epRuntime.getURI(), configs, runtimeEnvContext, eventProcessingRWLock, runtimeSettingsService);
 
         EventTypeAvroHandler eventTypeAvroHandler = makeEventTypeAvroHandler(classpathImportServiceRuntime, configs.getCommon().getEventMeta().getAvroSettings(), epServicesHA.getRuntimeExtensionServices());
-        Map<String, Class> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configs.getCommon().getEventTypeNames(), classpathImportServiceRuntime);
+        Map<String, EPTypeClass> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configs.getCommon().getEventTypeNames(), classpathImportServiceRuntime);
         EventBeanTypedEventFactory eventBeanTypedEventFactory = makeEventBeanTypedEventFactory(eventTypeAvroHandler);
         BeanEventTypeStemService beanEventTypeStemService = BeanEventTypeRepoUtil.makeBeanEventTypeStemService(configs, resolvedBeanEventTypes, eventBeanTypedEventFactory);
         EventTypeRepositoryImpl eventTypeRepositoryPreconfigured = new EventTypeRepositoryImpl(false);

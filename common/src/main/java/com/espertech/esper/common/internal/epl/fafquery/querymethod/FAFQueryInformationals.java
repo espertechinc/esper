@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,6 +28,8 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class FAFQueryInformationals {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(FAFQueryInformationals.class);
+
     private final Class[] substitutionParamsTypes;
     private final Map<String, Integer> substitutionParamsNames;
 
@@ -40,7 +44,7 @@ public class FAFQueryInformationals {
         if (!paramsByNumber.isEmpty()) {
             types = new Class[paramsByNumber.size()];
             for (int i = 0; i < paramsByNumber.size(); i++) {
-                types[i] = paramsByNumber.get(i).getType();
+                types[i] = paramsByNumber.get(i).getType().getType();
             }
             names = null;
         } else if (!paramsByName.isEmpty()) {
@@ -48,7 +52,7 @@ public class FAFQueryInformationals {
             names = new HashMap<>();
             int index = 0;
             for (Map.Entry<String, CodegenSubstitutionParamEntry> entry : paramsByName.entrySet()) {
-                types[index] = entry.getValue().getType();
+                types[index] = entry.getValue().getType().getType();
                 names.put(entry.getKey(), index + 1);
                 index++;
             }
@@ -68,15 +72,15 @@ public class FAFQueryInformationals {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        return newInstance(FAFQueryInformationals.class, constant(substitutionParamsTypes), makeNames(parent, classScope));
+        return newInstance(FAFQueryInformationals.EPTYPE, constant(substitutionParamsTypes), makeNames(parent, classScope));
     }
 
     private CodegenExpression makeNames(CodegenMethodScope parent, CodegenClassScope classScope) {
         if (substitutionParamsNames == null) {
             return constantNull();
         }
-        CodegenMethod method = parent.makeChild(Map.class, this.getClass(), classScope);
-        method.getBlock().declareVar(Map.class, "names", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(substitutionParamsNames.size()))));
+        CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), this.getClass(), classScope);
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "names", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(substitutionParamsNames.size()))));
         for (Map.Entry<String, Integer> entry : substitutionParamsNames.entrySet()) {
             method.getBlock().exprDotMethod(ref("names"), "put", constant(entry.getKey()), constant(entry.getValue()));
         }

@@ -10,35 +10,38 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static com.espertech.esper.common.client.type.EPTypePremade.*;
+
 public class TestSimpleNumberCoercion extends TestCase {
     public void testGetCoercer() {
-        assertEquals(1d, SimpleNumberCoercerFactory.getCoercer(null, Double.class).coerceBoxed(1d));
-        assertEquals(1d, SimpleNumberCoercerFactory.getCoercer(Double.class, Double.class).coerceBoxed(1d));
-        assertEquals(5d, SimpleNumberCoercerFactory.getCoercer(Integer.class, Double.class).coerceBoxed(5));
-        assertEquals(6d, SimpleNumberCoercerFactory.getCoercer(Byte.class, Double.class).coerceBoxed((byte) 6));
-        assertEquals(3f, SimpleNumberCoercerFactory.getCoercer(Long.class, Float.class).coerceBoxed((long) 3));
-        assertEquals((short) 2, SimpleNumberCoercerFactory.getCoercer(Long.class, Short.class).coerceBoxed((long) 2));
-        assertEquals(4, SimpleNumberCoercerFactory.getCoercer(Long.class, Integer.class).coerceBoxed((long) 4));
-        assertEquals((byte) 5, SimpleNumberCoercerFactory.getCoercer(Long.class, Byte.class).coerceBoxed((long) 5));
-        assertEquals(8l, SimpleNumberCoercerFactory.getCoercer(Long.class, Long.class).coerceBoxed((long) 8));
-        assertEquals(BigInteger.valueOf(8), SimpleNumberCoercerFactory.getCoercer(int.class, BigInteger.class).coerceBoxed(8));
-        assertEquals(new BigDecimal(9), SimpleNumberCoercerFactory.getCoercer(int.class, BigDecimal.class).coerceBoxed(9));
-        assertEquals(new BigDecimal(9.0d), SimpleNumberCoercerFactory.getCoercer(double.class, BigDecimal.class).coerceBoxed(9.0));
+        assertEquals(1d, SimpleNumberCoercerFactory.getCoercer(null, DOUBLEBOXED.getEPType()).coerceBoxed(1d));
+        assertEquals(1d, SimpleNumberCoercerFactory.getCoercer(DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType()).coerceBoxed(1d));
+        assertEquals(5d, SimpleNumberCoercerFactory.getCoercer(INTEGERBOXED.getEPType(), DOUBLEBOXED.getEPType()).coerceBoxed(5));
+        assertEquals(6d, SimpleNumberCoercerFactory.getCoercer(BYTEBOXED.getEPType(), DOUBLEBOXED.getEPType()).coerceBoxed((byte) 6));
+        assertEquals(3f, SimpleNumberCoercerFactory.getCoercer(LONGBOXED.getEPType(), FLOATBOXED.getEPType()).coerceBoxed((long) 3));
+        assertEquals((short) 2, SimpleNumberCoercerFactory.getCoercer(LONGBOXED.getEPType(), SHORTBOXED.getEPType()).coerceBoxed((long) 2));
+        assertEquals(4, SimpleNumberCoercerFactory.getCoercer(LONGBOXED.getEPType(), INTEGERBOXED.getEPType()).coerceBoxed((long) 4));
+        assertEquals((byte) 5, SimpleNumberCoercerFactory.getCoercer(LONGBOXED.getEPType(), BYTEBOXED.getEPType()).coerceBoxed((long) 5));
+        assertEquals(8l, SimpleNumberCoercerFactory.getCoercer(LONGBOXED.getEPType(), LONGBOXED.getEPType()).coerceBoxed((long) 8));
+        assertEquals(BigInteger.valueOf(8), SimpleNumberCoercerFactory.getCoercer(INTEGERPRIMITIVE.getEPType(), BIGINTEGER.getEPType()).coerceBoxed(8));
+        assertEquals(new BigDecimal(9), SimpleNumberCoercerFactory.getCoercer(INTEGERPRIMITIVE.getEPType(), BIGDECIMAL.getEPType()).coerceBoxed(9));
+        assertEquals(new BigDecimal(9.0d), SimpleNumberCoercerFactory.getCoercer(DOUBLEPRIMITIVE.getEPType(), BIGDECIMAL.getEPType()).coerceBoxed(9.0));
 
-        assertEquals(new BigDecimal(9.0d), SimpleNumberCoercerFactory.getCoercerBigDecimal(double.class).coerceBoxedBigDec(9.0));
-        assertEquals(new BigDecimal(9), SimpleNumberCoercerFactory.getCoercerBigDecimal(long.class).coerceBoxedBigDec(9));
-        assertEquals(BigDecimal.TEN, SimpleNumberCoercerFactory.getCoercerBigDecimal(BigDecimal.class).coerceBoxedBigDec(BigDecimal.TEN));
+        assertEquals(new BigDecimal(9.0d), SimpleNumberCoercerFactory.getCoercerBigDecimal(DOUBLEPRIMITIVE.getEPType()).coerceBoxedBigDec(9.0));
+        assertEquals(new BigDecimal(9), SimpleNumberCoercerFactory.getCoercerBigDecimal(LONGPRIMITIVE.getEPType()).coerceBoxedBigDec(9));
+        assertEquals(BigDecimal.TEN, SimpleNumberCoercerFactory.getCoercerBigDecimal(BIGDECIMAL.getEPType()).coerceBoxedBigDec(BigDecimal.TEN));
 
-        assertEquals(BigInteger.valueOf(9), SimpleNumberCoercerFactory.getCoercerBigInteger(long.class).coerceBoxedBigInt(9));
-        assertEquals(BigInteger.TEN, SimpleNumberCoercerFactory.getCoercerBigInteger(BigInteger.class).coerceBoxedBigInt(BigInteger.TEN));
+        assertEquals(BigInteger.valueOf(9), SimpleNumberCoercerFactory.getCoercerBigInteger(LONGPRIMITIVE.getEPType()).coerceBoxedBigInt(9));
+        assertEquals(BigInteger.TEN, SimpleNumberCoercerFactory.getCoercerBigInteger(BIGINTEGER.getEPType()).coerceBoxedBigInt(BigInteger.TEN));
 
         try {
-            JavaClassHelper.coerceBoxed(10, int.class);
+            JavaClassHelper.coerceBoxed(10, INTEGERPRIMITIVE.getEPType().getType());
             fail();
         } catch (IllegalArgumentException ex) {
             // Expected

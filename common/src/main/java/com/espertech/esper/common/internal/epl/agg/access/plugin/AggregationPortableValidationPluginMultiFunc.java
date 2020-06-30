@@ -13,6 +13,9 @@ package com.espertech.esper.common.internal.epl.agg.access.plugin;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,13 +26,15 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationValidationUtil;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class AggregationPortableValidationPluginMultiFunc implements AggregationPortableValidation {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationPortableValidationPluginMultiFunc.class);
+
     private String aggregationFunctionName;
     private ConfigurationCompilerPlugInAggregationMultiFunction config;
     private AggregationMultiFunctionHandler handler;
@@ -40,9 +45,9 @@ public class AggregationPortableValidationPluginMultiFunc implements Aggregation
     }
 
     public CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(AggregationPortableValidationPluginMultiFunc.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(AggregationPortableValidationPluginMultiFunc.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationPortableValidationPluginMultiFunc.class, "portable", newInstance(AggregationPortableValidationPluginMultiFunc.class))
+            .declareVarNewInstance(AggregationPortableValidationPluginMultiFunc.EPTYPE, "portable")
             .exprDotMethod(ref("portable"), "setAggregationFunctionName", constant(aggregationFunctionName))
             .exprDotMethod(ref("portable"), "setConfig", config == null ? constantNull() : config.toExpression())
             .methodReturn(ref("portable"));
@@ -73,12 +78,15 @@ public class AggregationPortableValidationPluginMultiFunc implements Aggregation
         validateParamsUnless(validationContext, params);
 
         // set of reader
-        EPType epType = handler.getReturnType();
-        Class returnType = EPTypeHelper.getNormalizedClass(epType);
-        AggregationMethodForgePlugIn forge = new AggregationMethodForgePlugIn(returnType, (AggregationMultiFunctionAggregationMethodModeManaged) handler.getAggregationMethodMode(new AggregationMultiFunctionAggregationMethodContext(aggMethodName, params, validationContext)));
-        EventType eventTypeCollection = EPTypeHelper.optionalIsEventTypeColl(epType);
-        EventType eventTypeSingle = EPTypeHelper.optionalIsEventTypeSingle(epType);
-        Class componentTypeCollection = EPTypeHelper.optionalIsComponentTypeColl(epType);
+        EPChainableType epType = handler.getReturnType();
+        EPType returnType = EPChainableTypeHelper.getNormalizedEPType(epType);
+        if (returnType == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Null-type value returned by aggregation function '" + aggMethodName + "' is not allowed");
+        }
+        AggregationMethodForgePlugIn forge = new AggregationMethodForgePlugIn((EPTypeClass) returnType, (AggregationMultiFunctionAggregationMethodModeManaged) handler.getAggregationMethodMode(new AggregationMultiFunctionAggregationMethodContext(aggMethodName, params, validationContext)));
+        EventType eventTypeCollection = EPChainableTypeHelper.optionalIsEventTypeColl(epType);
+        EventType eventTypeSingle = EPChainableTypeHelper.optionalIsEventTypeSingle(epType);
+        EPTypeClass componentTypeCollection = EPChainableTypeHelper.getCollectionOrArrayComponentTypeOrNull(epType);
         return new AggregationMultiFunctionMethodDesc(forge, eventTypeCollection, componentTypeCollection, eventTypeSingle);
     }
 

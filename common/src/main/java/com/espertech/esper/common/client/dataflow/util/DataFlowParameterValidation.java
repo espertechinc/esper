@@ -11,11 +11,15 @@
 package com.espertech.esper.common.client.dataflow.util;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpForgeInitializeContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 /**
@@ -61,12 +65,20 @@ public class DataFlowParameterValidation {
     }
 
     private static void validateReturnType(String name, ExprNode validated, Class expectedReturnType) throws ExprValidationException {
-        Class returnType = validated.getForge().getEvaluationType();
-        if (!JavaClassHelper.isAssignmentCompatible(JavaClassHelper.getBoxedType(returnType), expectedReturnType)) {
-            String message = "Failed to validate return type of parameter '" + name +
-                    "', expected '" + JavaClassHelper.getClassNameFullyQualPretty(expectedReturnType) +
-                    "' but received '" + JavaClassHelper.getClassNameFullyQualPretty(returnType) + "'";
-            throw new ExprValidationException(message);
+        EPType returnType = validated.getForge().getEvaluationType();
+        if (returnType == null || returnType == EPTypeNull.INSTANCE) {
+            throw makeValidateReturnTypeEx(name, "null", expectedReturnType);
         }
+        EPTypeClass typeClass = (EPTypeClass) returnType;
+        if (!JavaClassHelper.isAssignmentCompatible(JavaClassHelper.getBoxedType(typeClass), expectedReturnType)) {
+            throw makeValidateReturnTypeEx(name, typeClass.getTypeName(), expectedReturnType);
+        }
+    }
+
+    private static ExprValidationException makeValidateReturnTypeEx(String name, String received, Class expected) {
+        String message = "Failed to validate return type of parameter '" + name +
+            "', expected '" + ClassHelperPrint.getClassNameFullyQualPretty(expected) +
+            "' but received '" + received + "'";
+        return new ExprValidationException(message);
     }
 }

@@ -10,16 +10,18 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.List;
 import java.util.Set;
 
 public class CodegenMethodFootprint {
-    private final Class returnType;
+    private final EPTypeClass returnType;
     private final String returnTypeName;
     private final List<CodegenNamedParam> params;
     private final String optionalComment;
 
-    public CodegenMethodFootprint(Class returnType, String returnTypeName, List<CodegenNamedParam> params, String optionalComment) {
+    public CodegenMethodFootprint(EPTypeClass returnType, String returnTypeName, List<CodegenNamedParam> params, String optionalComment) {
         if (returnType == null && returnTypeName == null) {
             throw new IllegalArgumentException("Invalid null return type");
         }
@@ -29,7 +31,7 @@ public class CodegenMethodFootprint {
         this.optionalComment = optionalComment;
     }
 
-    public Class getReturnType() {
+    public EPTypeClass getReturnType() {
         return returnType;
     }
 
@@ -46,7 +48,9 @@ public class CodegenMethodFootprint {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(returnType);
+        if (returnType != null) {
+            returnType.traverseClasses(classes::add);
+        }
         for (CodegenNamedParam param : params) {
             param.mergeClasses(classes);
         }

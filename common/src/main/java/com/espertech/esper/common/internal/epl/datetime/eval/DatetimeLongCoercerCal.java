@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.eval;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
@@ -22,8 +23,8 @@ public class DatetimeLongCoercerCal implements DatetimeLongCoercer {
         return ((Calendar) date).getTimeInMillis();
     }
 
-    public CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenClassScope codegenClassScope) {
-        if (valueType != Calendar.class) {
+    public CodegenExpression codegen(CodegenExpression value, EPTypeClass valueType, CodegenClassScope codegenClassScope) {
+        if (valueType.getType() != Calendar.class) {
             throw new IllegalStateException("Expected a Calendar type");
         }
         return exprDotMethod(value, "getTimeInMillis");

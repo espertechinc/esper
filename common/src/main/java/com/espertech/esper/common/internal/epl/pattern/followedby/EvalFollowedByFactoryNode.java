@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.followedby;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
@@ -21,6 +22,8 @@ import com.espertech.esper.common.internal.epl.pattern.core.*;
  * This class represents a followed-by operator in the evaluation tree representing any event expressions.
  */
 public class EvalFollowedByFactoryNode extends EvalFactoryNodeBase implements StatementReadyCallback {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalFollowedByFactoryNode.class);
+
     protected EvalFactoryNode[] children;
     private ExprEvaluator[] maxPerChildEvals;
 

@@ -11,12 +11,15 @@
 package com.espertech.esper.regressionlib.support.extend.view;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeBuilder;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
@@ -42,15 +45,14 @@ public class MyTrendSpotterViewForge implements ViewFactoryForge {
         if (validated.length != 1) {
             throw new ViewParameterException(message);
         }
-        Class resultType = validated[0].getForge().getEvaluationType();
-        if ((resultType != Integer.class) && (resultType != int.class) &&
-            (resultType != Double.class) && (resultType != double.class)) {
+        EPType resultEPType = validated[0].getForge().getEvaluationType();
+        if (!JavaClassHelper.isTypeInteger(resultEPType) && !JavaClassHelper.isTypeDouble(resultEPType)) {
             throw new ViewParameterException(message);
         }
         parameter = validated[0];
 
-        LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<String, Object>();
-        eventTypeMap.put("trendcount", Long.class);
+        LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<>();
+        eventTypeMap.put("trendcount", EPTypePremade.LONGBOXED.getEPType());
 
         eventType = DerivedViewTypeUtil.newType("trendview", eventTypeMap, viewForgeEnv, streamNumber);
     }
@@ -64,7 +66,7 @@ public class MyTrendSpotterViewForge implements ViewFactoryForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return new SAIFFInitializeBuilder(MyTrendSpotterViewFactory.class, this.getClass(), "factory", parent, symbols, classScope)
+        return new SAIFFInitializeBuilder(MyTrendSpotterViewFactory.EPTYPE, this.getClass(), "factory", parent, symbols, classScope)
             .eventtype("eventType", eventType)
             .exprnode("parameter", parameter)
             .build();

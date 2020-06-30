@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.cache;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.Collection;
 
@@ -18,6 +19,8 @@ import java.util.Collection;
  * Cache entry bean-to-collection-of-bean.
  */
 public class ExpressionResultCacheEntryBeanAndCollBean {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ExpressionResultCacheEntryBeanAndCollBean.class);
+
     private EventBean reference;
     private Collection<EventBean> result;
 

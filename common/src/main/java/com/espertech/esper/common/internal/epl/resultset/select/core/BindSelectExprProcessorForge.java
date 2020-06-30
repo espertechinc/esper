@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,7 +41,7 @@ public class BindSelectExprProcessorForge implements SelectExprProcessorForge {
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod processMethod = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenMethod processMethod = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
 
         CodegenExpressionRef isSythesize = selectSymbol.getAddSynthesize(processMethod);
         CodegenMethod syntheticMethod = syntheticProcessorForge.processCodegen(resultEventType, eventBeanFactory, processMethod, selectSymbol, exprSymbol, codegenClassScope);
@@ -48,21 +49,21 @@ public class BindSelectExprProcessorForge implements SelectExprProcessorForge {
         CodegenExpression isNewData = exprSymbol.getAddIsNewData(processMethod);
         CodegenExpression exprCtx = exprSymbol.getAddExprEvalCtx(processMethod);
 
-        CodegenExpressionField stmtResultSvc = codegenClassScope.addFieldUnshared(true, StatementResultService.class, exprDotMethod(EPStatementInitServices.REF, GETSTATEMENTRESULTSERVICE));
+        CodegenExpressionField stmtResultSvc = codegenClassScope.addFieldUnshared(true, StatementResultService.EPTYPE, exprDotMethod(EPStatementInitServices.REF, GETSTATEMENTRESULTSERVICE));
         processMethod.getBlock()
-                .declareVar(boolean.class, "makeNatural", exprDotMethod(stmtResultSvc, "isMakeNatural"))
-                .declareVar(boolean.class, "synthesize", or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "makeNatural", exprDotMethod(stmtResultSvc, "isMakeNatural"))
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "synthesize", or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
                 .ifCondition(not(ref("makeNatural")))
                 .ifCondition(ref("synthesize"))
-                .declareVar(EventBean.class, "synthetic", localMethod(syntheticMethod))
+                .declareVar(EventBean.EPTYPE, "synthetic", localMethod(syntheticMethod))
                 .blockReturn(ref("synthetic"))
                 .blockReturn(constantNull())
-                .declareVar(EventBean.class, "syntheticEvent", constantNull())
+                .declareVar(EventBean.EPTYPE, "syntheticEvent", constantNull())
                 .ifCondition(ref("synthesize"))
                 .assignRef("syntheticEvent", localMethod(syntheticMethod))
                 .blockEnd()
-                .declareVar(Object[].class, "parameters", localMethod(bindMethod))
-                .methodReturn(newInstance(NaturalEventBean.class, resultEventType, ref("parameters"), ref("syntheticEvent")));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "parameters", localMethod(bindMethod))
+                .methodReturn(newInstance(NaturalEventBean.EPTYPE, resultEventType, ref("parameters"), ref("syntheticEvent")));
 
         return processMethod;
     }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -18,11 +19,11 @@ import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
 public class DTLocalBeanIntervalNoEndTSForge implements DTLocalForge {
     protected final EventPropertyGetterSPI getter;
-    protected final Class getterResultType;
+    protected final EPTypeClass getterResultType;
     protected final DTLocalForge inner;
-    protected final Class returnType;
+    protected final EPTypeClass returnType;
 
-    public DTLocalBeanIntervalNoEndTSForge(EventPropertyGetterSPI getter, Class getterResultType, DTLocalForge inner, Class returnType) {
+    public DTLocalBeanIntervalNoEndTSForge(EventPropertyGetterSPI getter, EPTypeClass getterResultType, DTLocalForge inner, EPTypeClass returnType) {
         this.getter = getter;
         this.getterResultType = getterResultType;
         this.inner = inner;
@@ -33,7 +34,7 @@ public class DTLocalBeanIntervalNoEndTSForge implements DTLocalForge {
         return new DTLocalBeanIntervalNoEndTSEval(getter, inner.getDTEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return DTLocalBeanIntervalNoEndTSEval.codegen(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

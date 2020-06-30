@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.filterspec;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -22,13 +23,13 @@ import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.*;
 public interface FilterSpecParamFilterForEvalDoubleForge extends FilterSpecParamFilterForEvalForge {
 
     static CodegenExpression makeAnonymous(FilterSpecParamFilterForEvalDoubleForge eval, Class originator, CodegenClassScope classScope, CodegenMethod method) {
-        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), FilterSpecParamFilterForEvalDouble.class);
+        CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), FilterSpecParamFilterForEvalDouble.EPTYPE);
 
-        CodegenMethod getFilterValueDouble = CodegenMethod.makeParentNode(Double.class, originator, classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValueDouble = CodegenMethod.makeParentNode(EPTypePremade.DOUBLEBOXED.getEPType(), originator, classScope).addParam(GET_FILTER_VALUE_FP);
         anonymousClass.addMethod("getFilterValueDouble", getFilterValueDouble);
-        getFilterValueDouble.getBlock().methodReturn(cast(Double.class, eval.makeCodegen(classScope, getFilterValueDouble)));
+        getFilterValueDouble.getBlock().methodReturn(cast(EPTypePremade.DOUBLEBOXED.getEPType(), eval.makeCodegen(classScope, getFilterValueDouble)));
 
-        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(Object.class, originator, classScope).addParam(GET_FILTER_VALUE_FP);
+        CodegenMethod getFilterValue = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), originator, classScope).addParam(GET_FILTER_VALUE_FP);
         anonymousClass.addMethod("getFilterValue", getFilterValue);
         getFilterValue.getBlock().methodReturn(exprDotMethod(ref("this"), "getFilterValueDouble", REF_MATCHEDEVENTMAP, REF_EXPREVALCONTEXT, REF_STMTCTXFILTEREVALENV));
 

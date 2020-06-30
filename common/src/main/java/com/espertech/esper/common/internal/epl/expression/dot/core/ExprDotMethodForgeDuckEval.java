@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -19,7 +22,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.rettype.EPType;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.MethodResolver;
 import org.slf4j.Logger;
@@ -64,18 +67,18 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
         return dotMethodDuckInvokeMethod(method, target, args, forge.getStatementName());
     }
 
-    public static CodegenExpression codegen(ExprDotMethodForgeDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpression mCache = codegenClassScope.addFieldUnshared(true, Map.class, newInstance(HashMap.class));
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Object.class, ExprDotMethodForgeDuckEval.class, codegenClassScope).addParam(innerType, "target");
+    public static CodegenExpression codegen(ExprDotMethodForgeDuck forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpression mCache = codegenClassScope.addFieldUnshared(true, EPTypePremade.MAP.getEPType(), newInstance(EPTypePremade.HASHMAP.getEPType()));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), ExprDotMethodForgeDuckEval.class, codegenClassScope).addParam(innerType, "target");
 
         CodegenBlock block = methodNode.getBlock()
-                .ifRefNullReturnNull("target")
-                .declareVar(Method.class, "method", staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckGetMethod", exprDotMethod(ref("target"), "getClass"),
-                        mCache, constant(forge.getMethodName()), constant(forge.getParameterTypes()), constant(new boolean[forge.getParameterTypes().length])))
-                .ifRefNullReturnNull("method")
-                .declareVar(Object[].class, "args", newArrayByLength(Object.class, constant(forge.getParameters().length)));
+            .ifRefNullReturnNull("target")
+            .declareVar(EPTypePremade.METHOD.getEPType(), "method", staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckGetMethod", exprDotMethod(ref("target"), "getClass"),
+                mCache, constant(forge.getMethodName()), constant(forge.getParameterTypes()), constant(new boolean[forge.getParameterTypes().length])))
+            .ifRefNullReturnNull("method")
+            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "args", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forge.getParameters().length)));
         for (int i = 0; i < forge.getParameters().length; i++) {
-            block.assignArrayElement("args", constant(i), forge.getParameters()[i].evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
+            block.assignArrayElement("args", constant(i), forge.getParameters()[i].evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope));
         }
         CodegenExpression statementName = exprDotMethod(exprSymbol.getAddExprEvalCtx(methodNode), "getStatementName");
         block.methodReturn(staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckInvokeMethod", ref("method"), ref("target"), ref("args"), statementName));
@@ -92,7 +95,7 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
      * @param allFalse    all-false boolean same size as params
      * @return method
      */
-    public static Method dotMethodDuckGetMethod(Class targetClass, Map<Class, Method> cache, String methodName, Class[] paramTypes, boolean[] allFalse) {
+    public static Method dotMethodDuckGetMethod(Class targetClass, Map<Class, Method> cache, String methodName, EPType[] paramTypes, boolean[] allFalse) {
         Method method;
         synchronized (cache) {
             if (cache.containsKey(targetClass)) {
@@ -124,7 +127,7 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
         return null;
     }
 
-    private static Method getMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allFalse) {
+    private static Method getMethod(Class clazz, String methodName, EPType[] paramTypes, boolean[] allFalse) {
         try {
             return MethodResolver.resolveMethod(clazz, methodName, paramTypes, true, allFalse, allFalse);
         } catch (Exception e) {
@@ -133,7 +136,7 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
         return null;
     }
 
-    public EPType getTypeInfo() {
+    public EPChainableType getTypeInfo() {
         return forge.getTypeInfo();
     }
 

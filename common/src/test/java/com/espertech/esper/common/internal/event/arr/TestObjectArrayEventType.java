@@ -16,11 +16,14 @@ import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBeanComplexProps;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import junit.framework.TestCase;
 
 import java.util.LinkedHashMap;
@@ -37,7 +40,8 @@ public class TestObjectArrayEventType extends TestCase {
 
         Map<String, Object> namesAndTypes = new LinkedHashMap<String, Object>();
         for (int i = 0; i < names.length; i++) {
-            namesAndTypes.put(names[i], types[i]);
+            Object type = types[i];
+            namesAndTypes.put(names[i], type == null ? EPTypeNull.INSTANCE : ClassHelperGenericType.getClassEPType((Class) types[i]));
         }
 
         eventType = new ObjectArrayEventType(metadata, namesAndTypes, null, null, null, null, SupportEventTypeFactory.BEAN_EVENT_TYPE_FACTORY);

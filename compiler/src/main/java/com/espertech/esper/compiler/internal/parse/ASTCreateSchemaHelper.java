@@ -13,7 +13,7 @@ package com.espertech.esper.compiler.internal.parse;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.internal.compile.stage1.spec.ColumnDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateSchemaDesc;
-import com.espertech.esper.common.internal.type.ClassIdentifierWArray;
+import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
 import org.antlr.v4.runtime.Token;
 
@@ -80,7 +80,7 @@ public class ASTCreateSchemaHelper {
         for (EsperEPL2GrammarParser.CreateColumnListElementContext colctx : ctx.createColumnListElement()) {
             EsperEPL2GrammarParser.ClassIdentifierContext colname = colctx.classIdentifier();
             String name = ASTUtil.unescapeClassIdent(colname);
-            ClassIdentifierWArray classIdent = ASTClassIdentifierHelper.walk(colctx.classIdentifierWithDimensions());
+            ClassDescriptor classIdent = ASTClassIdentifierHelper.walk(colctx.classIdentifierWithDimensions());
             result.add(new ColumnDesc(name, classIdent == null ? null : classIdent.toEPL()));
         }
         return result;
@@ -88,8 +88,8 @@ public class ASTCreateSchemaHelper {
 
     protected static boolean validateIsPrimitiveArray(Token p) {
         if (p != null) {
-            if (!p.getText().toLowerCase(Locale.ENGLISH).equals(ClassIdentifierWArray.PRIMITIVE_KEYWORD)) {
-                throw ASTWalkException.from("Column type keyword '" + p.getText() + "' not recognized, expecting '[" + ClassIdentifierWArray.PRIMITIVE_KEYWORD + "]'");
+            if (!p.getText().toLowerCase(Locale.ENGLISH).equals(ClassDescriptor.PRIMITIVE_KEYWORD)) {
+                throw ASTWalkException.from("Column type keyword '" + p.getText() + "' not recognized, expecting '[" + ClassDescriptor.PRIMITIVE_KEYWORD + "]'");
             }
             return true;
         }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.ontrigger;
 
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -18,7 +20,6 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -38,8 +39,8 @@ public abstract class InfraOnMergeActionForge {
     }
 
     public static CodegenExpression makeActions(List<InfraOnMergeActionForge> actions, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(List.class, InfraOnMergeActionForge.class, classScope);
-        method.getBlock().declareVar(List.class, InfraOnMergeAction.class, "list", newInstance(ArrayList.class, constant(actions.size())));
+        CodegenMethod method = parent.makeChild(EPTypePremade.LIST.getEPType(), InfraOnMergeActionForge.class, classScope);
+        method.getBlock().declareVar(EPTypeClassParameterized.from(List.class, InfraOnMergeAction.class), "list", newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(actions.size())));
         for (InfraOnMergeActionForge item : actions) {
             method.getBlock().exprDotMethod(ref("list"), "add", item.make(method, symbols, classScope));
         }

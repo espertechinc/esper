@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,6 +21,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class TableLookupIndexReqKey implements CodegenMakeable<SAIFFInitializeSymbol> {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(TableLookupIndexReqKey.class);
+
     private final String indexName;
     private final String indexModuleName;
     private final String tableName;
@@ -55,7 +58,7 @@ public class TableLookupIndexReqKey implements CodegenMakeable<SAIFFInitializeSy
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(TableLookupIndexReqKey.class, constant(indexName), constant(indexModuleName), constant(tableName));
+        return newInstance(TableLookupIndexReqKey.EPTYPE, constant(indexName), constant(indexModuleName), constant(tableName));
     }
 
     public boolean equals(Object o) {

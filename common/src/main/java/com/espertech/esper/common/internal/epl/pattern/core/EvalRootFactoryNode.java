@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * This class is always the root node in the evaluation tree representing an event expression.
  * It hold the handle to the EPStatement implementation for notifying when matches are found.
  */
 public class EvalRootFactoryNode extends EvalFactoryNodeBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EvalRootFactoryNode.class);
 
     protected EvalFactoryNode childNode;
 

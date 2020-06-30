@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.avro.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.core.AvroBackedBean;
 import org.apache.avro.generic.GenericData;
 
@@ -18,5 +19,7 @@ import org.apache.avro.generic.GenericData;
  * For events that are array of properties.
  */
 public interface AvroGenericDataBackedEventBean extends EventBean, AvroBackedBean {
+    EPTypeClass EPTYPE = new EPTypeClass(AvroGenericDataBackedEventBean.class);
+
     GenericData.Record getProperties();
 }

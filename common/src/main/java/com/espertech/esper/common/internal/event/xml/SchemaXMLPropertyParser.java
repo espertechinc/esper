@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.xml;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
@@ -19,7 +21,6 @@ import com.espertech.esper.common.internal.event.property.*;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.*;
@@ -150,11 +151,11 @@ public class SchemaXMLPropertyParser {
             return null;
         }
 
-        Class resultType;
+        EPTypeClass resultType;
         if (!isDynamic) {
             resultType = SchemaUtil.toReturnType(item);
         } else {
-            resultType = Node.class;
+            resultType = EPTypePremade.NODE.getEPType();
         }
 
         FragmentFactory fragmentFactory = null;

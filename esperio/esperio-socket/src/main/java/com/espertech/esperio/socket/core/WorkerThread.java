@@ -12,6 +12,8 @@ package com.espertech.esperio.socket.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.util.SimpleTypeParser;
 import com.espertech.esper.common.internal.util.SimpleTypeParserFactory;
@@ -232,7 +234,11 @@ public class WorkerThread extends Thread {
         List<SimpleTypeParser> parserList = new ArrayList<SimpleTypeParser>();
 
         for (WriteablePropertyDescriptor writableDesc : writablesSet) {
-            SimpleTypeParser parser = SimpleTypeParserFactory.getParser(writableDesc.getType());
+            if (writableDesc.getType() == EPTypeNull.INSTANCE) {
+                continue;
+            }
+            EPTypeClass typeClass = (EPTypeClass) writableDesc.getType();
+            SimpleTypeParser parser = SimpleTypeParserFactory.getParser(typeClass.getType());
             if (parser == null) {
                 log.debug("No parser found for type '" + writableDesc.getType() + "'");
                 continue;

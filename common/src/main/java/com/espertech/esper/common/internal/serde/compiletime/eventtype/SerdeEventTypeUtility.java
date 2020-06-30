@@ -53,7 +53,7 @@ public class SerdeEventTypeUtility {
         // there is also no need to register a serde when using a public object
         StatementType statementType = raw.getStatementType();
         if ((typeClass == EventTypeTypeClass.NAMED_WINDOW && statementType != StatementType.CREATE_WINDOW) ||
-            (typeClass == EventTypeTypeClass.TABLE_PUBLIC && statementType != StatementType.CREATE_TABLE)) {
+            typeClass.isTable()) {
             return Collections.emptyList();
         }
         List<StmtClassForgeableFactory> forgeables = new ArrayList<>(2);
@@ -151,7 +151,7 @@ public class SerdeEventTypeUtility {
     }
 
     private static SerdeAndForgeables planBean(BeanEventType eventType, StatementRawInfo raw, SerdeCompileTimeResolver resolver) {
-        DataInputOutputSerdeForge forge = resolver.serdeForBeanEventType(raw, eventType.getUnderlyingType(), eventType.getName(), eventType.getSuperTypes());
+        DataInputOutputSerdeForge forge = resolver.serdeForBeanEventType(raw, eventType.getUnderlyingEPType(), eventType.getName(), eventType.getSuperTypes());
         return new SerdeAndForgeables(forge, Collections.emptyList());
     }
 

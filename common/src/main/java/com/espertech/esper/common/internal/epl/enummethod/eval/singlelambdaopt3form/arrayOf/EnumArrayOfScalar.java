@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.arrayOf;
 
-import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -26,15 +27,14 @@ import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class EnumArrayOfScalar extends ThreeFormScalar {
 
-    private final Class arrayComponentType;
+    private final EPTypeClass arrayComponentType;
 
-    public EnumArrayOfScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, Class arrayComponentType) {
+    public EnumArrayOfScalar(ExprDotEvalParamLambda lambda, ObjectArrayEventType fieldEventType, int numParameters, EPTypeClass arrayComponentType) {
         super(lambda, fieldEventType, numParameters);
         this.arrayComponentType = arrayComponentType;
     }
@@ -43,12 +43,11 @@ public class EnumArrayOfScalar extends ThreeFormScalar {
         final ExprEvaluator inner = innerExpression.getExprEvaluator();
         return (eventsLambda, enumcoll, isNewData, context) -> {
 
-            Object array = Array.newInstance(arrayComponentType, enumcoll.size());
+            Object array = Array.newInstance(arrayComponentType.getType(), enumcoll.size());
             if (enumcoll.isEmpty()) {
                 return array;
             }
 
-            Collection<EventBean> beans = (Collection<EventBean>) enumcoll;
             ObjectArrayEventBean evalEvent = new ObjectArrayEventBean(new Object[3], fieldEventType);
             eventsLambda[getStreamNumLambda()] = evalEvent;
             Object[] evalProps = evalEvent.getProperties();
@@ -66,7 +65,7 @@ public class EnumArrayOfScalar extends ThreeFormScalar {
         };
     }
 
-    public Class returnType() {
+    public EPTypeClass returnTypeOfMethod() {
         return JavaClassHelper.getArrayType(arrayComponentType);
     }
 
@@ -75,13 +74,13 @@ public class EnumArrayOfScalar extends ThreeFormScalar {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        Class arrayType = JavaClassHelper.getArrayType(arrayComponentType);
+        EPTypeClass arrayType = returnTypeOfMethod();
         block.declareVar(arrayType, "result", newArrayByLength(arrayComponentType, exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size")))
-            .declareVar(int.class, "index", constant(0));
+            .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", constant(0));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(Object.class, "item", innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+        block.declareVar(EPTypePremade.OBJECT.getEPType(), "item", innerExpression.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, scope, codegenClassScope))
             .assignArrayElement(ref("result"), ref("index"), cast(arrayComponentType, ref("item")))
             .incrementRef("index");
     }

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.firstlastever.AggregationForgeFactoryFirstLastEver;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -46,12 +49,16 @@ public class ExprFirstLastEverNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
 
-        Class resultType;
+        EPTypeClass resultType;
         boolean isWildcard = positionalParams.length == 0 || positionalParams.length > 0 && positionalParams[0] instanceof ExprWildcard;
         if (isWildcard) {
-            resultType = validationContext.getStreamTypeService().getEventTypes()[0].getUnderlyingType();
+            resultType = validationContext.getStreamTypeService().getEventTypes()[0].getUnderlyingEPType();
         } else {
-            resultType = positionalParams[0].getForge().getEvaluationType();
+            EPType type = positionalParams[0].getForge().getEvaluationType();
+            if (type == null || type == EPTypeNull.INSTANCE) {
+                throw new ExprValidationException("Null-type is not allowed");
+            }
+            resultType = (EPTypeClass) type;
         }
         DataInputOutputSerdeForge serde = validationContext.getSerdeResolver().serdeForAggregation(resultType, validationContext.getStatementRawInfo());
         return new AggregationForgeFactoryFirstLastEver(this, resultType, serde);

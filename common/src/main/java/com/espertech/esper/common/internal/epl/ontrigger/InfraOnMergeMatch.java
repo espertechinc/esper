@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.ontrigger;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -21,6 +22,8 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 import java.util.List;
 
 public class InfraOnMergeMatch {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(InfraOnMergeMatch.class);
+
     private ExprEvaluator optionalCond;
     private List<InfraOnMergeAction> actions;
 

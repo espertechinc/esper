@@ -10,13 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForge;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class QueryPlanIndexUniqueHelper {
-    public static ReducedHashKeys reduceToUniqueIfPossible(String[] hashPropsProvided, Class[] hashCoercionTypes, List<QueryGraphValueEntryHashKeyedForge> hashFunctions, String[][] hashPropsRequiredPerIndex) {
+    public static ReducedHashKeys reduceToUniqueIfPossible(String[] hashPropsProvided, EPTypeClass[] hashCoercionTypes, List<QueryGraphValueEntryHashKeyedForge> hashFunctions, String[][] hashPropsRequiredPerIndex) {
         if (hashPropsRequiredPerIndex == null || hashPropsRequiredPerIndex.length == 0) {
             return null;
         }
@@ -24,7 +25,7 @@ public class QueryPlanIndexUniqueHelper {
             int[] indexes = checkSufficientGetAssignment(hashPropsRequired, hashPropsProvided);
             if (indexes != null) {
                 String[] props = new String[indexes.length];
-                Class[] types = new Class[indexes.length];
+                EPTypeClass[] types = new EPTypeClass[indexes.length];
                 List<QueryGraphValueEntryHashKeyedForge> functions = new ArrayList<QueryGraphValueEntryHashKeyedForge>();
                 for (int i = 0; i < indexes.length; i++) {
                     props[i] = hashPropsProvided[indexes[i]];
@@ -73,10 +74,10 @@ public class QueryPlanIndexUniqueHelper {
 
     public static class ReducedHashKeys {
         private final String[] propertyNames;
-        private final Class[] coercionTypes;
+        private final EPTypeClass[] coercionTypes;
         private final List<QueryGraphValueEntryHashKeyedForge> hashKeyFunctions;
 
-        private ReducedHashKeys(String[] propertyNames, Class[] coercionTypes, List<QueryGraphValueEntryHashKeyedForge> hashKeyFunctions) {
+        private ReducedHashKeys(String[] propertyNames, EPTypeClass[] coercionTypes, List<QueryGraphValueEntryHashKeyedForge> hashKeyFunctions) {
             this.propertyNames = propertyNames;
             this.coercionTypes = coercionTypes;
             this.hashKeyFunctions = hashKeyFunctions;
@@ -86,7 +87,7 @@ public class QueryPlanIndexUniqueHelper {
             return propertyNames;
         }
 
-        public Class[] getCoercionTypes() {
+        public EPTypeClass[] getCoercionTypes() {
             return coercionTypes;
         }
 

@@ -11,30 +11,32 @@
 package com.espertech.esper.common.internal.serde.compiletime.sharable;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenFieldSharable;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.serdeset.additional.DIORefCountedSet;
 import com.espertech.esper.common.internal.serde.serdeset.additional.DIOSortedRefCountedSet;
-import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class CodegenSharableSerdeClassTyped implements CodegenFieldSharable {
     private final CodegenSharableSerdeName name;
-    private final Class valueType;
+    private final EPType valueType;
     private final DataInputOutputSerdeForge forge;
     private final CodegenClassScope classScope;
 
-    public CodegenSharableSerdeClassTyped(CodegenSharableSerdeName name, Class valueType, DataInputOutputSerdeForge forge, CodegenClassScope classScope) {
+    public CodegenSharableSerdeClassTyped(CodegenSharableSerdeName name, EPType valueType, DataInputOutputSerdeForge forge, CodegenClassScope classScope) {
         this.name = name;
         this.valueType = valueType;
         this.forge = forge;
         this.classScope = classScope;
     }
 
-    public Class type() {
-        return DataInputOutputSerde.class;
+    public EPTypeClass type() {
+        return DataInputOutputSerde.EPTYPE;
     }
 
     public CodegenExpression initCtorScoped() {
@@ -42,9 +44,9 @@ public class CodegenSharableSerdeClassTyped implements CodegenFieldSharable {
         if (name == CodegenSharableSerdeName.VALUE_NULLABLE) {
             return serde;
         } else if (name == CodegenSharableSerdeName.REFCOUNTEDSET) {
-            return newInstance(DIORefCountedSet.class, serde);
+            return newInstance(DIORefCountedSet.EPTYPE, serde);
         } else if (name == CodegenSharableSerdeName.SORTEDREFCOUNTEDSET) {
-            return newInstance(DIOSortedRefCountedSet.class, serde);
+            return newInstance(DIOSortedRefCountedSet.EPTYPE, serde);
         } else {
             throw new IllegalArgumentException("Unrecognized name " + name);
         }

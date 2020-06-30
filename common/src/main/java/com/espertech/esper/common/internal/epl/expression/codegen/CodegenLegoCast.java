@@ -11,6 +11,10 @@
 package com.espertech.esper.common.internal.epl.expression.codegen;
 
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,34 +26,55 @@ import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenLegoCast {
-    public static CodegenExpression castSafeFromObjectType(Class targetType, CodegenExpression value) {
+    public static CodegenExpression castSafeFromObjectType(EPTypeClass targetType, CodegenExpression value) {
         if (targetType == null) {
             return constantNull();
         }
-        if (targetType == Object.class) {
+        if (targetType.getType() == Object.class) {
             return value;
         }
-        if (targetType == void.class) {
+        if (JavaClassHelper.isTypeVoid(targetType)) {
             throw new IllegalArgumentException("Invalid void target type for cast");
         }
-        if (targetType.isPrimitive()) {
+        if (targetType.getType().isPrimitive()) {
             return cast(JavaClassHelper.getBoxedType(targetType), value);
         }
         return cast(targetType, value);
     }
 
-    public static void asDoubleNullReturnNull(CodegenBlock block, String variable, ExprForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class type = forge.getEvaluationType();
-        if (type == double.class) {
-            block.declareVar(type, variable, forge.evaluateCodegen(type, codegenMethodScope, exprSymbol, codegenClassScope));
-            return;
+    public static CodegenExpression castSafeFromObjectType(EPType targetType, CodegenExpression value) {
+        if (targetType == null || targetType == EPTypeNull.INSTANCE) {
+            return constantNull();
         }
+        EPTypeClass typeClass = (EPTypeClass) targetType;
+        if (typeClass.getType() == Object.class) {
+            return value;
+        }
+        if (JavaClassHelper.isTypeVoid(typeClass)) {
+            throw new IllegalArgumentException("Invalid void target type for cast");
+        }
+        if (typeClass.getType().isPrimitive()) {
+            return cast(JavaClassHelper.getBoxedType(typeClass), value);
+        }
+        return cast(typeClass, value);
+    }
 
-        String holder = variable + "_";
-        block.declareVar(type, holder, forge.evaluateCodegen(type, codegenMethodScope, exprSymbol, codegenClassScope));
-        if (!type.isPrimitive()) {
-            block.ifRefNullReturnNull(holder);
+    public static void asDoubleNullReturnNull(CodegenBlock block, String variable, ExprForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPType type = forge.getEvaluationType();
+        if (type == EPTypeNull.INSTANCE) {
+            block.declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), variable, constant(0));
+        } else {
+            EPTypeClass typeClass = (EPTypeClass) type;
+            if (typeClass.getType() == double.class) {
+                block.declareVar(typeClass, variable, forge.evaluateCodegen(typeClass, codegenMethodScope, exprSymbol, codegenClassScope));
+            } else {
+                String holder = variable + "_";
+                block.declareVar(typeClass, holder, forge.evaluateCodegen(typeClass, codegenMethodScope, exprSymbol, codegenClassScope));
+                if (!typeClass.getType().isPrimitive()) {
+                    block.ifRefNullReturnNull(holder);
+                }
+                block.declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), variable, SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(ref(holder), typeClass));
+            }
         }
-        block.declareVar(double.class, variable, SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(ref(holder), type));
     }
 }

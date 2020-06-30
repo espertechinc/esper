@@ -11,12 +11,14 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 
 import java.util.Collections;
 import java.util.List;
 
 public class MethodConversionStrategyPlainOA extends MethodConversionStrategyBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(MethodConversionStrategyPlainOA.class);
 
     public List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, AgentInstanceContext agentInstanceContext) {
         return Collections.singletonList(agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedObjectArray((Object[]) invocationResult, eventType));

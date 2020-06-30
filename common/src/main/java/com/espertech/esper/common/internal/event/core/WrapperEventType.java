@@ -14,6 +14,9 @@ import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -34,6 +37,7 @@ import com.espertech.esper.common.internal.util.CRC32Util;
 
 import java.util.*;
 
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
 import static com.espertech.esper.common.client.util.NameAccessModifier.PRIVATE;
 import static com.espertech.esper.common.client.util.NameAccessModifier.TRANSIENT;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -51,6 +55,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * can also be beans or complex types and the Map event type handles these nicely.
  */
 public class WrapperEventType implements EventTypeSPI {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(WrapperEventType.class);
+
     /**
      * event type metadata
      */
@@ -205,11 +211,11 @@ public class WrapperEventType implements EventTypeSPI {
 
                 public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
                     CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-                    CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(underlyingEventType, EPStatementInitServices.REF));
-                    CodegenMethod method = codegenMethodScope.makeChild(Object.class, WrapperEventType.class, codegenClassScope).addParam(EventBean.class, "theEvent").addParam(String.class, "mapKey").getBlock()
-                            .declareVar(DecoratingEventBean.class, "wrapperEvent", cast(DecoratingEventBean.class, ref("theEvent")))
-                            .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
-                            .declareVar(EventBean.class, "wrapped", exprDotMethod(factory, "adapterForTypedMap", ref("map"), eventType))
+                    CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(underlyingEventType, EPStatementInitServices.REF));
+                    CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), WrapperEventType.class, codegenClassScope).addParam(EventBean.EPTYPE, "theEvent").addParam(EPTypePremade.STRING.getEPType(), "mapKey").getBlock()
+                            .declareVar(DecoratingEventBean.EPTYPE, "wrapperEvent", cast(DecoratingEventBean.EPTYPE, ref("theEvent")))
+                            .declareVar(EPTypePremade.MAP.getEPType(), "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
+                            .declareVar(EventBean.EPTYPE, "wrapped", exprDotMethod(factory, "adapterForTypedMap", ref("map"), eventType))
                             .methodReturn(decoMapped.eventBeanGetMappedCodegen(codegenMethodScope, codegenClassScope, ref("wrapped"), ref("mapKey")));
                     return localMethodBuild(method).pass(beanExpression).pass(key).call();
                 }
@@ -246,11 +252,11 @@ public class WrapperEventType implements EventTypeSPI {
 
                 public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
                     CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-                    CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(underlyingEventType, EPStatementInitServices.REF));
-                    CodegenMethod method = codegenMethodScope.makeChild(Object.class, WrapperEventType.class, codegenClassScope).addParam(EventBean.class, "theEvent").addParam(int.class, "index").getBlock()
-                            .declareVar(DecoratingEventBean.class, "wrapperEvent", cast(DecoratingEventBean.class, ref("theEvent")))
-                            .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
-                            .declareVar(EventBean.class, "wrapped", exprDotMethod(factory, "adapterForTypedMap", ref("map"), eventType))
+                    CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(underlyingEventType, EPStatementInitServices.REF));
+                    CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), WrapperEventType.class, codegenClassScope).addParam(EventBean.EPTYPE, "theEvent").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+                            .declareVar(DecoratingEventBean.EPTYPE, "wrapperEvent", cast(DecoratingEventBean.EPTYPE, ref("theEvent")))
+                            .declareVar(EPTypePremade.MAP.getEPType(), "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
+                            .declareVar(EventBean.EPTYPE, "wrapped", exprDotMethod(factory, "adapterForTypedMap", ref("map"), eventType))
                             .methodReturn(decoIndexed.eventBeanGetIndexedCodegen(codegenMethodScope, codegenClassScope, ref("wrapped"), ref("index")));
                     return localMethodBuild(method).pass(beanExpression).pass(key).call();
                 }
@@ -264,11 +270,15 @@ public class WrapperEventType implements EventTypeSPI {
         return propertyNames;
     }
 
-    public Class getPropertyType(String property) {
+    public final Class getPropertyType(String propertyName) {
+        return getPropertyTypeAsClass(getPropertyEPType(propertyName));
+    }
+
+    public EPType getPropertyEPType(String property) {
         if (underlyingEventType.isProperty(property)) {
-            return underlyingEventType.getPropertyType(property);
+            return underlyingEventType.getPropertyEPType(property);
         } else if (underlyingMapType.isProperty(property)) {
-            return underlyingMapType.getPropertyType(property);
+            return underlyingMapType.getPropertyEPType(property);
         } else {
             return null;
         }
@@ -279,12 +289,16 @@ public class WrapperEventType implements EventTypeSPI {
     }
 
     public Class getUnderlyingType() {
+        return getUnderlyingEPType().getType();
+    }
+
+    public EPTypeClass getUnderlyingEPType() {
         // If the additional properties are empty, such as when wrapping a native event by means of wildcard-only select
         // then the underlying type is simply the wrapped type.
         if (isNoMapProperties) {
-            return underlyingEventType.getUnderlyingType();
+            return underlyingEventType.getUnderlyingEPType();
         } else {
-            return Pair.class;
+            return EPTypePremade.PAIR.getEPType();
         }
     }
 
@@ -411,7 +425,7 @@ public class WrapperEventType implements EventTypeSPI {
                 }
 
                 public CodegenExpression writeCodegen(CodegenExpression assigned, CodegenExpression und, CodegenExpression target, CodegenMethodScope parent, CodegenClassScope classScope) {
-                    CodegenExpression decorated = cast(DecoratingEventBean.class, target);
+                    CodegenExpression decorated = cast(DecoratingEventBean.EPTYPE, target);
                     CodegenExpression decoratingProps = exprDotMethod(decorated, "getDecoratingProperties");
                     return exprDotMethod(decoratingProps, "put", constant(propertyName), assigned);
                 }
@@ -436,10 +450,10 @@ public class WrapperEventType implements EventTypeSPI {
                     }
 
                     public CodegenExpression writeCodegen(CodegenExpression assigned, CodegenExpression und, CodegenExpression target, CodegenMethodScope parent, CodegenClassScope classScope) {
-                        CodegenExpression decorated = cast(DecoratingEventBean.class, target);
+                        CodegenExpression decorated = cast(DecoratingEventBean.EPTYPE, target);
                         CodegenExpression underlyingBean = exprDotMethod(decorated, "getUnderlyingEvent");
                         CodegenExpression underlying = exprDotMethod(underlyingBean, "getUnderlying");
-                        CodegenExpression casted = cast(underlyingEventType.getUnderlyingType(), underlying);
+                        CodegenExpression casted = cast(underlyingEventType.getUnderlyingEPType(), underlying);
                         return ((EventPropertyWriterSPI) innerWriter).writeCodegen(assigned, casted, target, parent, classScope);
                     }
                 };

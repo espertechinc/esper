@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.lookupplansubord;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateIndexItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateIndexType;
@@ -129,15 +132,18 @@ public class EventTableIndexUtil {
         }
 
         String columnName = identNode.getFullUnresolvedName();
-        Class type = JavaClassHelper.getBoxedType(eventType.getPropertyType(columnName));
+        EPType type = JavaClassHelper.getBoxedType(eventType.getPropertyEPType(columnName));
         if (type == null) {
             throw new ExprValidationException("Property named '" + columnName + "' not found");
+        }
+        if (type == EPTypeNull.INSTANCE) {
+            throw new ExprValidationException("Property named '" + columnName + "' is null-typed");
         }
         if (!indexedColumns.add(columnName)) {
             throw new ExprValidationException("Property named '" + columnName + "' has been declared more then once");
         }
 
-        IndexedPropDesc desc = new IndexedPropDesc(columnName, type);
+        IndexedPropDesc desc = new IndexedPropDesc(columnName, (EPTypeClass) type);
         String indexType = columnDesc.getType().toLowerCase(Locale.ENGLISH);
         if (indexType.equals(CreateIndexType.HASH.getNameLower())) {
             hashProps.add(desc);

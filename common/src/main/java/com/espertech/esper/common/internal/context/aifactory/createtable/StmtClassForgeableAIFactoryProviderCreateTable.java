@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.createtable;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,13 +33,13 @@ public class StmtClassForgeableAIFactoryProviderCreateTable extends StmtClassFor
         this.tableName = tableName;
     }
 
-    protected Class typeOfFactory() {
-        return StatementAgentInstanceFactoryCreateTable.class;
+    protected EPTypeClass typeOfFactory() {
+        return StatementAgentInstanceFactoryCreateTable.EPTYPE;
     }
 
     protected CodegenMethod codegenConstructorInit(CodegenMethodScope parent, CodegenClassScope classScope) {
         SAIFFInitializeSymbol saiffInitializeSymbol = new SAIFFInitializeSymbol();
-        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.class, REF_STMTINITSVC.getRef());
+        CodegenMethod method = parent.makeChildWithScope(typeOfFactory(), this.getClass(), saiffInitializeSymbol, classScope).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
         method.getBlock()
                 .exprDotMethod(REF_STMTINITSVC, "activateTable", constant(tableName))
                 .methodReturn(localMethod(forge.initializeCodegen(method, saiffInitializeSymbol, classScope)));

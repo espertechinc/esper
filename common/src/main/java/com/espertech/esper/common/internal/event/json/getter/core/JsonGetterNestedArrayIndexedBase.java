@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.json.getter.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -26,7 +28,7 @@ public abstract class JsonGetterNestedArrayIndexedBase implements JsonEventPrope
     protected final String underlyingClassName;
 
     public abstract String getFieldName();
-    public abstract Class getFieldType();
+    public abstract EPTypeClass getFieldType();
 
     public JsonGetterNestedArrayIndexedBase(int index, JsonEventPropertyGetter innerGetter, String underlyingClassName) {
         this.index = index;
@@ -43,7 +45,7 @@ public abstract class JsonGetterNestedArrayIndexedBase implements JsonEventPrope
     }
 
     public final CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
         method.getBlock()
             .declareVar(getFieldType(), "inner", exprDotName(ref("und"), getFieldName()))
             .ifRefNullReturnNull("inner")
@@ -58,7 +60,7 @@ public abstract class JsonGetterNestedArrayIndexedBase implements JsonEventPrope
     }
 
     public final CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
         method.getBlock()
             .declareVar(getFieldType(), "inner", exprDotName(ref("und"), getFieldName()))
             .ifRefNullReturnFalse("inner")
@@ -73,7 +75,7 @@ public abstract class JsonGetterNestedArrayIndexedBase implements JsonEventPrope
     }
 
     public final CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(underlyingClassName, "und");
         method.getBlock()
             .declareVar(getFieldType(), "inner", exprDotName(ref("und"), getFieldName()))
             .ifRefNullReturnNull("inner")

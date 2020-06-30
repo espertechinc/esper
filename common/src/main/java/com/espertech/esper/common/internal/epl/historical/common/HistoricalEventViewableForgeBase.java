@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.common;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.*;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -37,7 +39,7 @@ public abstract class HistoricalEventViewableForgeBase implements HistoricalEven
     protected final TreeSet<Integer> subordinateStreams = new TreeSet<>();
     protected int scheduleCallbackId = -1;
 
-    public abstract Class typeOfImplementation();
+    public abstract EPTypeClass typeOfImplementation();
 
     public abstract void codegenSetter(CodegenExpressionRef ref, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -57,7 +59,7 @@ public abstract class HistoricalEventViewableForgeBase implements HistoricalEven
         CodegenExpression evaluator = codegenEvaluatorReturnObjectOrArray(inputParamEvaluators, method, this.getClass(), classScope);
         CodegenExpression transform = getHistoricalLookupValueToMultiKey(method, classScope);
 
-        method.getBlock().declareVar(typeOfImplementation(), ref.getRef(), newInstance(typeOfImplementation()))
+        method.getBlock().declareVarNewInstance(typeOfImplementation(), ref.getRef())
             .exprDotMethod(ref, "setStreamNumber", constant(streamNum))
             .exprDotMethod(ref, "setEventType", EventTypeUtility.resolveTypeCodegen(eventType, symbols.getAddInitSvc(method)))
             .exprDotMethod(ref, "setHasRequiredStreams", constant(!subordinateStreams.isEmpty()))
@@ -72,26 +74,28 @@ public abstract class HistoricalEventViewableForgeBase implements HistoricalEven
     }
 
     private CodegenExpression getHistoricalLookupValueToMultiKey(CodegenMethod method, CodegenClassScope classScope) {
-
-        CodegenExpressionNewAnonymousClass transformer = newAnonymousClass(method.getBlock(), HistoricalEventViewableLookupValueToMultiKey.class);
-        CodegenMethod transform = CodegenMethod.makeParentNode(Object.class, this.getClass(), classScope).addParam(Object.class, "lv");
+        CodegenExpressionNewAnonymousClass transformer = newAnonymousClass(method.getBlock(), HistoricalEventViewableLookupValueToMultiKey.EPTYPE);
+        CodegenMethod transform = CodegenMethod.makeParentNode(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EPTypePremade.OBJECT.getEPType(), "lv");
         transformer.addMethod("transform", transform);
 
         if (inputParamEvaluators.length == 0) {
             transform.getBlock().methodReturn(constantNull());
         } else if (inputParamEvaluators.length == 1) {
-            Class paramType = inputParamEvaluators[0].getEvaluationType();
-            if (paramType == null || !paramType.isArray()) {
+            EPType paramType = inputParamEvaluators[0].getEvaluationType();
+            if (paramType == null || paramType == EPTypeNull.INSTANCE || !((EPTypeClass) paramType).getType().isArray()) {
                 transform.getBlock().methodReturn(ref("lv"));
             } else {
-                Class mktype = MultiKeyPlanner.getMKClassForComponentType(paramType.getComponentType());
-                transform.getBlock().methodReturn(newInstance(mktype, cast(paramType, ref("lv"))));
+                EPTypeClass paramClass = (EPTypeClass) paramType;
+                EPTypeClass componentType = JavaClassHelper.getArrayComponentType(paramClass);
+                EPTypeClass mktype = MultiKeyPlanner.getMKClassForComponentType(componentType);
+                transform.getBlock().methodReturn(newInstance(mktype, cast(paramClass, ref("lv"))));
             }
         } else {
-            transform.getBlock().declareVar(Object[].class, "values", cast(Object[].class, ref("lv")));
+            transform.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "values", cast(EPTypePremade.OBJECTARRAY.getEPType(), ref("lv")));
             CodegenExpression[] expressions = new CodegenExpression[multiKeyClassRef.getMKTypes().length];
             for (int i = 0; i < expressions.length; i++) {
-                expressions[i] = cast(multiKeyClassRef.getMKTypes()[i], arrayAtIndex(ref("values"), constant(i)));
+                EPType type = multiKeyClassRef.getMKTypes()[i];
+                expressions[i] = type == EPTypeNull.INSTANCE ? constantNull() : cast((EPTypeClass) type, arrayAtIndex(ref("values"), constant(i)));
             }
             transform.getBlock().methodReturn(newInstance(multiKeyClassRef.getClassNameMK(), expressions));
         }

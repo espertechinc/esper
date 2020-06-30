@@ -11,8 +11,10 @@
 package com.espertech.esper.common.internal.event.json.getter.provided;
 
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.json.getter.core.JsonEventPropertyGetter;
 import com.espertech.esper.common.internal.event.json.getter.core.JsonGetterNestedArrayIndexedBase;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.lang.reflect.Field;
 
@@ -28,8 +30,8 @@ public final class JsonGetterNestedArrayIndexedProvided extends JsonGetterNested
         return field.getName();
     }
 
-    public Class getFieldType() {
-        return field.getType();
+    public EPTypeClass getFieldType() {
+        return ClassHelperGenericType.getFieldEPType(field);
     }
 
     public Object getJsonProp(Object object) throws PropertyAccessException {

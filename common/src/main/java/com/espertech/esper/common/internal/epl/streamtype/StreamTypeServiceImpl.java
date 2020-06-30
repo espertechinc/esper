@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.streamtype;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
-import com.espertech.esper.common.client.meta.EventTypeTypeClass;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.util.LevenshteinDistance;
@@ -105,7 +105,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
         for (EventType type : eventTypes) {
             if (type instanceof EventTypeSPI) {
                 EventTypeSPI typeSPI = (EventTypeSPI) type;
-                if (typeSPI.getMetadata().getTypeClass() == EventTypeTypeClass.TABLE_PUBLIC || typeSPI.getMetadata().getTypeClass() == EventTypeTypeClass.TABLE_INTERNAL) {
+                if (typeSPI.getMetadata().getTypeClass().isTable()) {
                     return true;
                 }
             }
@@ -151,7 +151,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
     }
 
     public PropertyResolutionDescriptor resolveByPropertyName(String propertyName, boolean obtainFragment)
-            throws DuplicatePropertyException, PropertyNotFoundException {
+        throws DuplicatePropertyException, PropertyNotFoundException {
         if (propertyName == null) {
             throw new IllegalArgumentException("Null property name");
         }
@@ -174,7 +174,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
     }
 
     public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamName, String propertyName, boolean obtainFragment)
-            throws PropertyNotFoundException, StreamNotFoundException {
+        throws PropertyNotFoundException, StreamNotFoundException {
         if (streamName == null) {
             throw new IllegalArgumentException("Null property name");
         }
@@ -233,7 +233,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
     }
 
     private PropertyResolutionDescriptor findByPropertyName(String propertyName, boolean obtainFragment)
-            throws DuplicatePropertyException, PropertyNotFoundException {
+        throws DuplicatePropertyException, PropertyNotFoundException {
         int index = 0;
         int foundIndex = 0;
         int foundCount = 0;
@@ -241,12 +241,12 @@ public class StreamTypeServiceImpl implements StreamTypeService {
 
         for (int i = 0; i < eventTypes.length; i++) {
             if (eventTypes[i] != null) {
-                Class propertyType = null;
+                EPType propertyType = null;
                 boolean found = false;
                 FragmentEventType fragmentEventType = null;
 
                 if (eventTypes[i].isProperty(propertyName)) {
-                    propertyType = eventTypes[i].getPropertyType(propertyName);
+                    propertyType = eventTypes[i].getPropertyEPType(propertyName);
                     if (obtainFragment) {
                         fragmentEventType = eventTypes[i].getFragmentType(propertyName);
                     }
@@ -256,7 +256,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
                     EventPropertyDescriptor descriptor = eventTypes[i].getPropertyDescriptor(propertyName);
                     if (descriptor != null) {
                         found = true;
-                        propertyType = descriptor.getPropertyType();
+                        propertyType = descriptor.getPropertyEPType();
                         if (descriptor.isFragment() && obtainFragment) {
                             fragmentEventType = eventTypes[i].getFragmentType(propertyName);
                         }
@@ -284,11 +284,11 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             fragmentEventType = streamType.getFragmentType(propertyName);
         }
 
-        return new PropertyResolutionDescriptor(streamNames[foundIndex], eventTypes[foundIndex], propertyName, foundIndex, streamType.getPropertyType(propertyName), fragmentEventType);
+        return new PropertyResolutionDescriptor(streamNames[foundIndex], eventTypes[foundIndex], propertyName, foundIndex, streamType.getPropertyEPType(propertyName), fragmentEventType);
     }
 
     private PropertyResolutionDescriptor findByPropertyNameExplicitProps(String propertyName, boolean obtainFragment)
-            throws DuplicatePropertyException, PropertyNotFoundException {
+        throws DuplicatePropertyException, PropertyNotFoundException {
         int index = 0;
         int foundIndex = 0;
         int foundCount = 0;
@@ -297,13 +297,13 @@ public class StreamTypeServiceImpl implements StreamTypeService {
         for (int i = 0; i < eventTypes.length; i++) {
             if (eventTypes[i] != null) {
                 EventPropertyDescriptor[] descriptors = eventTypes[i].getPropertyDescriptors();
-                Class propertyType = null;
+                EPType propertyType = null;
                 boolean found = false;
                 FragmentEventType fragmentEventType = null;
 
                 for (EventPropertyDescriptor desc : descriptors) {
                     if (desc.getPropertyName().equals(propertyName)) {
-                        propertyType = desc.getPropertyType();
+                        propertyType = desc.getPropertyEPType();
                         found = true;
                         if (obtainFragment && desc.isFragment()) {
                             fragmentEventType = eventTypes[i].getFragmentType(propertyName);
@@ -332,7 +332,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             fragmentEventType = streamType.getFragmentType(propertyName);
         }
 
-        return new PropertyResolutionDescriptor(streamNames[foundIndex], eventTypes[foundIndex], propertyName, foundIndex, streamType.getPropertyType(propertyName), fragmentEventType);
+        return new PropertyResolutionDescriptor(streamNames[foundIndex], eventTypes[foundIndex], propertyName, foundIndex, streamType.getPropertyEPType(propertyName), fragmentEventType);
     }
 
     private void handleFindExceptions(String propertyName, int foundCount, EventType streamType) throws DuplicatePropertyException, PropertyNotFoundException {
@@ -348,7 +348,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
     }
 
     private PropertyResolutionDescriptor findByStreamName(String propertyName, String streamName, boolean explicitPropertiesOnly, boolean obtainFragment)
-            throws PropertyNotFoundException, StreamNotFoundException {
+        throws PropertyNotFoundException, StreamNotFoundException {
         return findByStreamNameOnly(propertyName, streamName, explicitPropertiesOnly, obtainFragment);
     }
 
@@ -365,7 +365,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
     }
 
     private PropertyResolutionDescriptor findByStreamNameOnly(String propertyName, String streamName, boolean explicitPropertiesOnly, boolean obtainFragment)
-            throws PropertyNotFoundException, StreamNotFoundException {
+        throws PropertyNotFoundException, StreamNotFoundException {
         int index = 0;
         EventType streamType = null;
 
@@ -397,17 +397,17 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             throw new StreamNotFoundException(message, msgGen);
         }
 
-        Class propertyType = null;
+        EPType propertyType = null;
         FragmentEventType fragmentEventType = null;
 
         if (!explicitPropertiesOnly) {
-            propertyType = streamType.getPropertyType(propertyName);
+            propertyType = streamType.getPropertyEPType(propertyName);
             if (propertyType == null) {
                 EventPropertyDescriptor desc = streamType.getPropertyDescriptor(propertyName);
                 if (desc == null) {
                     throw handlePropertyNotFound(propertyName, streamName, streamType);
                 }
-                propertyType = desc.getPropertyType();
+                propertyType = desc.getPropertyEPType();
                 if (obtainFragment && desc.isFragment()) {
                     fragmentEventType = streamType.getFragmentType(propertyName);
                 }
@@ -421,7 +421,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             boolean found = false;
             for (EventPropertyDescriptor prop : explicitProps) {
                 if (prop.getPropertyName().equals(propertyName)) {
-                    propertyType = prop.getPropertyType();
+                    propertyType = prop.getPropertyEPType();
                     if (obtainFragment && prop.isFragment()) {
                         fragmentEventType = streamType.getFragmentType(propertyName);
                     }

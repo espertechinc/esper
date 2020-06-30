@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.mostleastfreq;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -33,9 +35,9 @@ import static com.espertech.esper.common.internal.epl.enummethod.eval.singlelamb
 public class EnumMostLeastFrequentScalarNoParam extends EnumForgeBasePlain implements EnumEval {
 
     private final boolean isMostFrequent;
-    private final Class returnType;
+    private final EPTypeClass returnType;
 
-    public EnumMostLeastFrequentScalarNoParam(int streamCountIncoming, boolean isMostFrequent, Class returnType) {
+    public EnumMostLeastFrequentScalarNoParam(int streamCountIncoming, boolean isMostFrequent, EPTypeClass returnType) {
         super(streamCountIncoming);
         this.isMostFrequent = isMostFrequent;
         this.returnType = returnType;
@@ -70,9 +72,9 @@ public class EnumMostLeastFrequentScalarNoParam extends EnumForgeBasePlain imple
         CodegenBlock block = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(returnType), EnumMostLeastFrequentScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(constantNull())
-                .declareVar(Map.class, "items", newInstance(LinkedHashMap.class));
-        CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .declareVar(Integer.class, "existing", cast(Integer.class, exprDotMethod(ref("items"), "get", ref("next"))))
+                .declareVar(EPTypePremade.MAP.getEPType(), "items", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));
+        CodegenBlock forEach = block.forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "existing", cast(EPTypePremade.INTEGERBOXED.getEPType(), exprDotMethod(ref("items"), "get", ref("next"))))
                 .ifCondition(equalsNull(ref("existing")))
                 .assignRef("existing", constant(1))
                 .ifElse()

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface AggregationRowRemovedCallback {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationRowRemovedCallback.class);
     void removedAggregationGroupKey(Object groupRowKey);
 }

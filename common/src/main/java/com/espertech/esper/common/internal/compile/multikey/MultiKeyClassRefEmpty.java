@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.multikey;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -26,8 +27,8 @@ public class MultiKeyClassRefEmpty implements MultiKeyClassRef {
         return null;
     }
 
-    public Class[] getMKTypes() {
-        return new Class[0];
+    public EPType[] getMKTypes() {
+        return new EPType[0];
     }
 
     public CodegenExpression getExprMKSerde(CodegenMethod method, CodegenClassScope classScope) {

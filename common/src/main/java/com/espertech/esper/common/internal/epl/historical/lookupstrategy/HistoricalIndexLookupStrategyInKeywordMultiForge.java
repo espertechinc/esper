@@ -35,10 +35,10 @@ public class HistoricalIndexLookupStrategyInKeywordMultiForge implements Histori
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyInKeywordMulti.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(HistoricalIndexLookupStrategyInKeywordMulti.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
-                .declareVar(HistoricalIndexLookupStrategyInKeywordMulti.class, "strat", newInstance(HistoricalIndexLookupStrategyInKeywordMulti.class))
+                .declareVarNewInstance(HistoricalIndexLookupStrategyInKeywordMulti.EPTYPE, "strat")
                 .exprDotMethod(ref("strat"), "setLookupStream", constant(lookupStream))
                 .exprDotMethod(ref("strat"), "setEvaluator", ExprNodeUtilityCodegen.codegenEvaluator(evaluator.getForge(), method, this.getClass(), classScope))
                 .methodReturn(ref("strat"));

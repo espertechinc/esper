@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.FragmentEventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,23 +29,23 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ExprEvalByGetterFragment implements ExprForge, ExprNodeRenderable {
     private final int streamNum;
     private final EventPropertyGetterSPI getter;
-    private final Class returnType;
+    private final EPTypeClass returnType;
     private final FragmentEventType fragmentType;
 
-    public ExprEvalByGetterFragment(int streamNum, EventPropertyGetterSPI getter, Class returnType, FragmentEventType fragmentType) {
+    public ExprEvalByGetterFragment(int streamNum, EventPropertyGetterSPI getter, EPTypeClass returnType, FragmentEventType fragmentType) {
         this.streamNum = streamNum;
         this.getter = getter;
         this.returnType = returnType;
         this.fragmentType = fragmentType;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class result = fragmentType.isIndexed() ? EventBean[].class : EventBean.class;
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPTypeClass result = fragmentType.isIndexed() ? EventBean.EPTYPEARRAY : EventBean.EPTYPE;
         CodegenMethod methodNode = codegenMethodScope.makeChild(result, ExprEvalByGetterFragment.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(cast(result, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
         return localMethod(methodNode);
@@ -58,7 +59,7 @@ public class ExprEvalByGetterFragment implements ExprForge, ExprNodeRenderable {
         return streamNum;
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return returnType;
     }
 

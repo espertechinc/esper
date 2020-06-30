@@ -15,16 +15,14 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeLambdaDesc;
-import com.espertech.esper.common.internal.rettype.EPType;
-
-import java.util.function.Function;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
 
 public class ThreeFormEventPlainFactory extends ThreeFormBaseFactory {
     private final EventType eventType;
     private final String streamName;
     private final ForgeFunction function;
 
-    public ThreeFormEventPlainFactory(Function<ExprDotEvalParamLambda, EPType> returnType, EventType eventType, String streamName, ForgeFunction function) {
+    public ThreeFormEventPlainFactory(ThreeFormInitFunction returnType, EventType eventType, String streamName, ForgeFunction function) {
         super(returnType);
         this.eventType = eventType;
         this.streamName = streamName;
@@ -35,12 +33,12 @@ public class ThreeFormEventPlainFactory extends ThreeFormBaseFactory {
         return new EnumForgeLambdaDesc(new EventType[]{eventType}, new String[]{streamName});
     }
 
-    protected EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPType typeInfo, StatementCompileTimeServices services) {
+    protected EnumForge makeForgeWithParam(ExprDotEvalParamLambda lambda, EPChainableType typeInfo, StatementCompileTimeServices services) {
         return function.apply(lambda, typeInfo, services);
     }
 
     @FunctionalInterface
     public interface ForgeFunction {
-        EnumForge apply(ExprDotEvalParamLambda lambda, EPType typeInfo, StatementCompileTimeServices services);
+        EnumForge apply(ExprDotEvalParamLambda lambda, EPChainableType typeInfo, StatementCompileTimeServices services);
     }
 }

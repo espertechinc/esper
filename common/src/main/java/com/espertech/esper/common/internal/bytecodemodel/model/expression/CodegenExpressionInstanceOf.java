@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.model.expression;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -18,10 +20,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerat
 
 public class CodegenExpressionInstanceOf implements CodegenExpression {
     private final CodegenExpression lhs;
-    private final Class clazz;
+    private final EPTypeClass clazz;
     private final boolean not;
 
-    public CodegenExpressionInstanceOf(CodegenExpression lhs, Class clazz, boolean not) {
+    public CodegenExpressionInstanceOf(CodegenExpression lhs, EPTypeClass clazz, boolean not) {
         this.lhs = lhs;
         this.clazz = clazz;
         this.not = not;
@@ -33,7 +35,7 @@ public class CodegenExpressionInstanceOf implements CodegenExpression {
         }
         lhs.render(builder, imports, isInnerClass);
         builder.append(" ").append("instanceof ");
-        appendClassName(builder, clazz, null, imports);
+        appendClassName(builder, clazz, imports);
         if (not) {
             builder.append(")");
         }
@@ -41,7 +43,7 @@ public class CodegenExpressionInstanceOf implements CodegenExpression {
 
     public void mergeClasses(Set<Class> classes) {
         lhs.mergeClasses(classes);
-        classes.add(clazz);
+        clazz.traverseClasses(classes::add);
     }
 
     public void traverseExpressions(Consumer<CodegenExpression> consumer) {

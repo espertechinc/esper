@@ -11,10 +11,13 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.List;
 
 public class EventArrayAndSortKeyArray {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(EventArrayAndSortKeyArray.class);
+
     private final List<EventBean>[] eventsPerLevel;
     private final List<Object>[] sortKeyPerLevel;
 

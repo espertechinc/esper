@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.base;
 
-import com.espertech.esper.common.internal.epl.expression.core.ExprNamedParameterNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeInnerNodeProvider;
-import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -21,7 +19,7 @@ import java.util.*;
 
 public class ExprAggregateNodeUtil {
     public static ExprAggregateNodeParamDesc getValidatePositionalParams(ExprNode[] childNodes, boolean builtinAggregationFunc)
-            throws ExprValidationException {
+        throws ExprValidationException {
         ExprAggregateLocalGroupByDesc optionalLocalGroupBy = null;
         ExprNode optionalFilter = null;
         int count = 0;
@@ -34,7 +32,8 @@ public class ExprAggregateNodeUtil {
                 if (paramNameLower.equals("group_by")) {
                     optionalLocalGroupBy = new ExprAggregateLocalGroupByDesc(namedParameterNode.getChildNodes());
                 } else if (paramNameLower.equals("filter")) {
-                    if (namedParameterNode.getChildNodes().length != 1 | JavaClassHelper.getBoxedType(namedParameterNode.getChildNodes()[0].getForge().getEvaluationType()) != Boolean.class) {
+                    EPType evalType = namedParameterNode.getChildNodes()[0].getForge().getEvaluationType();
+                    if (namedParameterNode.getChildNodes().length != 1 || !JavaClassHelper.isTypeBoolean(evalType)) {
                         throw new ExprValidationException("Filter named parameter requires a single expression returning a boolean-typed value");
                     }
                     optionalFilter = namedParameterNode.getChildNodes()[0];

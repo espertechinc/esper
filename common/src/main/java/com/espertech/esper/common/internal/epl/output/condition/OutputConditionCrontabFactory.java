@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.condition;
 
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.schedule.ScheduleExpressionUtil;
@@ -20,6 +21,7 @@ import com.espertech.esper.common.internal.schedule.ScheduleSpec;
  * Output condition handling crontab-at schedule output.
  */
 public class OutputConditionCrontabFactory implements OutputConditionFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionCrontabFactory.class);
     protected final ExprEvaluator[] scheduleSpecEvaluators;
     protected final boolean isStartConditionOnCreation;
     private final int scheduleCallbackId;

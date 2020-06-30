@@ -56,7 +56,7 @@ public class TableLookupNodeForge extends QueryPlanNodeForge {
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        return newInstance(TableLookupNode.class, tableLookupPlan.make(parent, symbols, classScope));
+        return newInstance(TableLookupNode.EPTYPE, tableLookupPlan.make(parent, symbols, classScope));
     }
 
     public void addIndexes(HashSet<TableLookupIndexReqKey> usedIndexes) {

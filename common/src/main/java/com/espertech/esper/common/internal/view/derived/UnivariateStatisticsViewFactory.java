@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link UnivariateStatisticsView} instances.
  */
 public class UnivariateStatisticsViewFactory implements ViewFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(UnivariateStatisticsViewFactory.class);
+
     protected ExprEvaluator fieldEval;
     protected StatViewAdditionalPropsEval additionalProps;
     protected EventType eventType;

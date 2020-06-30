@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.util;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -25,7 +27,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Cast implementation for non-numeric values that caches allowed casts assuming there is a small set of casts allowed.
  */
 public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
-    private final Class typeToCastTo;
+    private final EPTypeClass typeToCastTo;
     private CopyOnWriteArraySet<Pair<Class, Boolean>> pairs = new CopyOnWriteArraySet<Pair<Class, Boolean>>();
 
     /**
@@ -33,7 +35,7 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
      *
      * @param typeToCastTo is the target type
      */
-    public SimpleTypeCasterAnyType(Class typeToCastTo) {
+    public SimpleTypeCasterAnyType(EPTypeClass typeToCastTo) {
         this.typeToCastTo = typeToCastTo;
     }
 
@@ -49,14 +51,14 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
      * @param pairs        cache
      * @return null or object
      */
-    public static Object simpleTypeCasterCast(Object object, Class typeToCastTo, CopyOnWriteArraySet<Pair<Class, Boolean>> pairs) {
-        if (object.getClass() == typeToCastTo) {
+    public static Object simpleTypeCasterCast(Object object, EPTypeClass typeToCastTo, CopyOnWriteArraySet<Pair<Class, Boolean>> pairs) {
+        if (object.getClass() == typeToCastTo.getType()) {
             return object;
         }
 
         // check cache to see if this is cast-able
         for (Pair<Class, Boolean> pair : pairs) {
-            if (pair.getFirst() == typeToCastTo) {
+            if (pair.getFirst() == typeToCastTo.getType()) {
                 if (!pair.getSecond()) {
                     return null;
                 }
@@ -68,7 +70,7 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
         synchronized (pairs) {
             // search cache once more
             for (Pair<Class, Boolean> pair : pairs) {
-                if (pair.getFirst() == typeToCastTo) {
+                if (pair.getFirst() == typeToCastTo.getType()) {
                     if (!pair.getSecond()) {
                         return null;
                     }
@@ -78,7 +80,7 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
 
             // Determine if any of the super-types and interfaces that the object implements or extends
             // is the same as any of the target types
-            boolean passed = JavaClassHelper.isSubclassOrImplementsInterface(object.getClass(), typeToCastTo);
+            boolean passed = JavaClassHelper.isSubclassOrImplementsInterface(object.getClass(), typeToCastTo.getType());
 
             if (passed) {
                 pairs.add(new Pair<>(object.getClass(), true));
@@ -93,11 +95,11 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
         return simpleTypeCasterCast(object, typeToCastTo, pairs);
     }
 
-    public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, typeToCastTo)) {
             return input;
         }
-        CodegenExpressionField cache = codegenClassScope.addFieldUnshared(true, CopyOnWriteArraySet.class, newInstance(CopyOnWriteArraySet.class));
+        CodegenExpressionField cache = codegenClassScope.addFieldUnshared(true, EPTypePremade.COPYONWRITEARRAYSET.getEPType(), newInstance(EPTypePremade.COPYONWRITEARRAYSET.getEPType()));
         return CodegenExpressionBuilder.cast(typeToCastTo, staticMethod(SimpleTypeCasterAnyType.class, "simpleTypeCasterCast", input,
                 constant(typeToCastTo), cache));
     }

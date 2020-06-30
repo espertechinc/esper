@@ -112,4 +112,11 @@ public class TestSuiteEventBeanWConfig extends TestCase {
         RegressionRunner.run(session, new EventBeanExplicitOnly());
         session.destroy();
     }
+
+    public void testEventBeanSchemaGenericTypeWFields() {
+        RegressionSession session = RegressionRunner.session();
+        session.getConfiguration().getCommon().getEventMeta().setDefaultAccessorStyle(AccessorStyle.PUBLIC);
+        RegressionRunner.run(session, EventBeanSchemaGenericTypeWFields.executions());
+        session.destroy();
+    }
 }

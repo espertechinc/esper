@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -526,7 +527,7 @@ public class QueryGraphForge {
     }
 
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        method.getBlock().declareVar(Map.class, "map", newInstance(HashMap.class));
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "map", newInstance(EPTypePremade.HASHMAP.getEPType()));
         for (Map.Entry<QueryGraphKey, QueryGraphValueForge> entry : streamJoinMap.entrySet()) {
             UniformPair<Integer> streams = entry.getKey().getStreams();
             if (streams.getFirst() != QueryGraphForge.SELF_STREAM || streams.getSecond() != 0) {
@@ -534,9 +535,9 @@ public class QueryGraphForge {
             }
             UniformPair<Integer> key = entry.getKey().getStreams();
             method.getBlock().exprDotMethod(ref("map"), "put",
-                    newInstance(UniformPair.class, constant(key.getFirst()), constant(key.getSecond())),
+                    newInstance(UniformPair.EPTYPE, constant(key.getFirst()), constant(key.getSecond())),
                     entry.getValue().make(method, symbols, classScope));
         }
-        return newInstance(QueryGraph.class, ref("map"));
+        return newInstance(QueryGraph.EPTYPE, ref("map"));
     }
 }

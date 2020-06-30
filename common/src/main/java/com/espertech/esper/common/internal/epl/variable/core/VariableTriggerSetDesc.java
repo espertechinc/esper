@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 public class VariableTriggerSetDesc {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(VariableTriggerSetDesc.class);
+    public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(VariableTriggerSetDesc[].class);
+
     private final String variableName;
     private final ExprEvaluator evaluator;
 

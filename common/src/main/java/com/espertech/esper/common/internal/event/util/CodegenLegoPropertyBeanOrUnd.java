@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.event.util;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -30,12 +32,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * return getter.getXXXX(value);
  */
 public class CodegenLegoPropertyBeanOrUnd {
-    public static CodegenMethod from(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, Class expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(accessType == AccessType.EXISTS ? boolean.class : Object.class, generator, codegenClassScope).addParam(Object.class, "value");
+    public static CodegenMethod from(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, EPTypeClass expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(accessType == AccessType.EXISTS ? EPTypePremade.BOOLEANPRIMITIVE.getEPType() : EPTypePremade.OBJECT.getEPType(), generator, codegenClassScope).addParam(EPTypePremade.OBJECT.getEPType(), "value");
         CodegenBlock block = methodNode.getBlock()
                 .ifNotInstanceOf("value", expectedUnderlyingType)
-                .ifInstanceOf("value", EventBean.class)
-                .declareVarWCast(EventBean.class, "bean", "value");
+                .ifInstanceOf("value", EventBean.EPTYPE)
+                .declareVarWCast(EventBean.EPTYPE, "bean", "value");
 
         if (accessType == AccessType.GET) {
             block = block.blockReturn(innerGetter.eventBeanGetCodegen(ref("bean"), codegenMethodScope, codegenClassScope));

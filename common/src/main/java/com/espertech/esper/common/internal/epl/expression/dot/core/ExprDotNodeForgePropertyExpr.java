@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -22,7 +23,7 @@ import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAf
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterIndexedSPI;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterMappedSPI;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 public class ExprDotNodeForgePropertyExpr extends ExprDotNodeForge {
 
@@ -31,11 +32,11 @@ public class ExprDotNodeForgePropertyExpr extends ExprDotNodeForge {
     private final String propertyName;
     private final int streamNum;
     private final ExprForge exprForge;
-    private final Class propertyType;
+    private final EPTypeClass propertyType;
     private final EventPropertyGetterIndexedSPI indexedGetter;
     private final EventPropertyGetterMappedSPI mappedGetter;
 
-    protected ExprDotNodeForgePropertyExpr(ExprDotNodeImpl parent, String statementName, String propertyName, int streamNum, ExprForge exprForge, Class propertyType, EventPropertyGetterIndexedSPI indexedGetter, EventPropertyGetterMappedSPI mappedGetter) {
+    protected ExprDotNodeForgePropertyExpr(ExprDotNodeImpl parent, String statementName, String propertyName, int streamNum, ExprForge exprForge, EPTypeClass propertyType, EventPropertyGetterIndexedSPI indexedGetter, EventPropertyGetterMappedSPI mappedGetter) {
         this.parent = parent;
         this.statementName = statementName;
         this.propertyName = propertyName;
@@ -57,28 +58,28 @@ public class ExprDotNodeForgePropertyExpr extends ExprDotNodeForge {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (indexedGetter != null) {
             return ExprDotNodeForgePropertyExprEvalIndexed.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
         return ExprDotNodeForgePropertyExprEvalMapped.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprDot", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public Class getEvaluationType() {
+    public EPTypeClass getEvaluationType() {
         return propertyType;
     }
 
-    public Class getType() {
+    public EPTypeClass getType() {
         return getEvaluationType();
     }
 
     protected String getWarningText(String expectedType, Object received) {
         return "Statement '" + statementName + "' property " + propertyName + " parameter expression expected a value of " +
-                expectedType + " but received " + received == null ? "null" : JavaClassHelper.getClassNameFullyQualPretty(received.getClass());
+            expectedType + " but received " + received == null ? "null" : ClassHelperPrint.getClassNameFullyQualPretty(received.getClass());
     }
 
     public int getStreamNum() {

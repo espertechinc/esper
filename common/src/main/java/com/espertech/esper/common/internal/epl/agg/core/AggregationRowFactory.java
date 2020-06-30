@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public interface AggregationRowFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationRowFactory.class);
+
     AggregationRow make();
 }

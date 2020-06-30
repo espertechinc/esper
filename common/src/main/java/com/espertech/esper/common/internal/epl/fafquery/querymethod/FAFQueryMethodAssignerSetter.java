@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryAssignments;
 
 public interface FAFQueryMethodAssignerSetter {
+    EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodAssignerSetter.class);
+
     void assign(StatementAIFactoryAssignments assignments);
 
     void setValue(int number, Object value);

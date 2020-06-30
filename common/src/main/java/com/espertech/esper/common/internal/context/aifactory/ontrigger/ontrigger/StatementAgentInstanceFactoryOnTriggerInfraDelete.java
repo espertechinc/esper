@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindow;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.epl.ontrigger.InfraOnExprBaseViewFact
 import com.espertech.esper.common.internal.epl.table.core.Table;
 
 public class StatementAgentInstanceFactoryOnTriggerInfraDelete extends StatementAgentInstanceFactoryOnTriggerInfraBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(StatementAgentInstanceFactoryOnTriggerInfraDelete.class);
+
     protected boolean isSelect() {
         return false;
     }

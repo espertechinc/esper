@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -34,13 +36,13 @@ public class ExprEvaluatorWildcard implements ExprEvaluator {
         return event.getUnderlying();
     }
 
-    public static CodegenExpression codegen(Class requiredType, Class underlyingType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(requiredType == Object.class ? Object.class : underlyingType, ExprEvaluatorWildcard.class, codegenClassScope);
+    public static CodegenExpression codegen(EPTypeClass requiredType, EPTypeClass underlyingType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(requiredType.getType() == Object.class ? EPTypePremade.OBJECT.getEPType() : underlyingType, ExprEvaluatorWildcard.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(0)))
+                .declareVar(EventBean.EPTYPE, "event", arrayAtIndex(refEPS, constant(0)))
                 .ifRefNullReturnNull("event");
-        if (requiredType == Object.class) {
+        if (requiredType.getType() == Object.class) {
             methodNode.getBlock().methodReturn(exprDotMethod(ref("event"), "getUnderlying"));
         } else {
             methodNode.getBlock().methodReturn(cast(underlyingType, exprDotMethod(ref("event"), "getUnderlying")));

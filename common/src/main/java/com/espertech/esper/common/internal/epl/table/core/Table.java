@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.table.core;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyFromMultiKey;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.util.StatementContext;
@@ -28,6 +29,8 @@ import com.espertech.esper.common.internal.epl.table.update.TableUpdateStrategyR
 import java.util.Collection;
 
 public interface Table {
+    EPTypeClass EPTYPE = new EPTypeClass(Table.class);
+
     void setEventToPublic(TableMetadataInternalEventToPublic eventToPublic);
 
     void setStatementContextCreateTable(StatementContext statementContextCreateTable);

@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.agg.method.firstlastever;
 
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -27,17 +29,17 @@ import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOu
 
 public class AggregationForgeFactoryFirstLastEver extends AggregationForgeFactoryBase {
     protected final ExprFirstLastEverNode parent;
-    protected final Class childType;
+    protected final EPTypeClass childType;
     protected final DataInputOutputSerdeForge serde;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryFirstLastEver(ExprFirstLastEverNode parent, Class childType, DataInputOutputSerdeForge serde) {
+    public AggregationForgeFactoryFirstLastEver(ExprFirstLastEverNode parent, EPTypeClass childType, DataInputOutputSerdeForge serde) {
         this.parent = parent;
         this.childType = childType;
         this.serde = serde;
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return childType;
     }
 

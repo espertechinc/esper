@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.every;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
@@ -46,8 +47,8 @@ public class EvalEveryForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.UNARY;
     }
 
-    protected Class typeOfFactory() {
-        return EvalEveryFactoryNode.class;
+    protected EPTypeClass typeOfFactory() {
+        return EvalEveryFactoryNode.EPTYPE;
     }
 
     protected String nameOfFactory() {

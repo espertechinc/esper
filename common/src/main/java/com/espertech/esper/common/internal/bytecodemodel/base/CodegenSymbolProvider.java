@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 
 public interface CodegenSymbolProvider {
-    void provide(Map<String, Class> symbols);
+    void provide(Map<String, EPTypeClass> symbols);
 }

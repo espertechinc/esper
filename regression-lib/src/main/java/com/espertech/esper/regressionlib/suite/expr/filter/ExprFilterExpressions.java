@@ -1011,7 +1011,7 @@ public class ExprFilterExpressions {
                 "Filter expression not returning a boolean value: '5-10' [");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBeanWithEnum(theString=" + SupportEnum.class.getName() + ".ENUM_VALUE_1)",
-                "Failed to validate filter expression 'theString=ENUM_VALUE_1': Implicit conversion from datatype 'SupportEnum' to 'String' is not allowed [");
+                "Failed to validate filter expression 'theString=ENUM_VALUE_1': Implicit conversion from datatype '" + SupportEnum.class.getName() + "' to 'String' is not allowed [");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBeanWithEnum(supportEnum=A.b)",
                 "Failed to validate filter expression 'supportEnum=A.b': Failed to resolve property 'A.b' to a stream or nested property in a stream [");

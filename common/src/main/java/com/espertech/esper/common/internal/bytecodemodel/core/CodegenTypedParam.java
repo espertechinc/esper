@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -17,14 +19,14 @@ import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerat
 
 public class CodegenTypedParam {
     private final String typeName;
-    private final Class type;
+    private final EPTypeClass type;
     private final String name;
     private final boolean memberWhenCtorParam;
     private final boolean isPublic;
     private boolean isFinal = true;
     private boolean isStatic = false;
 
-    public CodegenTypedParam(String typeName, Class type, String name, boolean memberWhenCtorParam, boolean isPublic) {
+    public CodegenTypedParam(String typeName, EPTypeClass type, String name, boolean memberWhenCtorParam, boolean isPublic) {
         if (type == null && typeName == null) {
             throw new IllegalArgumentException("Invalid null type");
         }
@@ -35,19 +37,19 @@ public class CodegenTypedParam {
         this.isPublic = isPublic;
     }
 
-    public CodegenTypedParam(String typeName, Class type, String name) {
+    public CodegenTypedParam(String typeName, EPTypeClass type, String name) {
         this(typeName, type, name, true, false);
     }
 
-    public CodegenTypedParam(Class type, String name) {
+    public CodegenTypedParam(EPTypeClass type, String name) {
         this(null, type, name);
     }
 
-    public CodegenTypedParam(Class type, String name, boolean memberWhenCtorParam) {
+    public CodegenTypedParam(EPTypeClass type, String name, boolean memberWhenCtorParam) {
         this(null, type, name, memberWhenCtorParam, false);
     }
 
-    public CodegenTypedParam(Class type, String name, boolean memberWhenCtorParam, boolean isPublic) {
+    public CodegenTypedParam(EPTypeClass type, String name, boolean memberWhenCtorParam, boolean isPublic) {
         this(null, type, name, memberWhenCtorParam, isPublic);
     }
 
@@ -75,7 +77,7 @@ public class CodegenTypedParam {
 
     public void renderAsParameter(StringBuilder builder, Map<Class, String> imports) {
         if (type != null) {
-            appendClassName(builder, type, null, imports);
+            appendClassName(builder, type, imports);
         } else {
             builder.append(typeName);
         }
@@ -84,13 +86,13 @@ public class CodegenTypedParam {
 
     public void mergeClasses(Set<Class> classes) {
         if (type != null) {
-            classes.add(type);
+            type.traverseClasses(classes::add);
         }
     }
 
     public void renderAsMember(StringBuilder builder, Map<Class, String> imports) {
         if (type != null) {
-            appendClassName(builder, type, null, imports);
+            appendClassName(builder, type, imports);
         } else {
             builder.append(typeName);
         }
@@ -100,7 +102,7 @@ public class CodegenTypedParam {
 
     public void renderType(StringBuilder builder, Map<Class, String> imports) {
         if (type != null) {
-            appendClassName(builder, type, null, imports);
+            appendClassName(builder, type, imports);
         } else {
             builder.append(typeName);
         }

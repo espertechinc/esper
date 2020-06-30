@@ -133,7 +133,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
             // typable - selected column type is incompatible
             tryInvalidCompile(env, path, "insert into N1_2 select new {p0='a'} as p1 from SupportBean",
-                "Invalid assignment of column 'p0' of type 'java.lang.String' to event property 'p0' typed as 'java.lang.Integer', column and parameter types mismatch");
+                "Invalid assignment of column 'p0' of type 'String' to event property 'p0' typed as 'Integer', column and parameter types mismatch");
 
             // typable - selected column type is not matching anything
             tryInvalidCompile(env, path, "insert into N1_2 select new {xxx='a'} as p1 from SupportBean",

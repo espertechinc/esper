@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.compile.stage2;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -28,6 +30,7 @@ import java.util.LinkedHashSet;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerHelper.*;
 
 public class FilterSpecCompilerIndexPlannerEquals {
+
     protected static FilterSpecParamForge handleEqualsAndRelOp(ExprNode constituent,
                                                                LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
                                                                LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
@@ -107,7 +110,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
             ExprContextPropertyNode ctxNode = (ExprContextPropertyNode) right;
             ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
-                SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
+                SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getValueType(), lookupable.getExpression());
                 return new FilterSpecParamContextPropForge(lookupable, op, ctxNode.getPropertyName(), ctxNode.getGetter(), numberCoercer);
             }
         }
@@ -117,7 +120,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
             ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 op = getReversedOperator(constituent, op); // reverse operators, as the expression is "stream1.prop xyz stream0.prop"
-                SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
+                SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getValueType(), lookupable.getExpression());
                 return new FilterSpecParamContextPropForge(lookupable, op, ctxNode.getPropertyName(), ctxNode.getGetter(), numberCoercer);
             }
         }
@@ -127,7 +130,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
             ExprNodeDeployTimeConst deployTimeConst = (ExprNodeDeployTimeConst) right;
             ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
-                Class returnType = right.getForge().getEvaluationType();
+                EPType returnType = right.getForge().getEvaluationType();
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), returnType, lookupable.getExpression());
                 return new FilterSpecParamDeployTimeConstParamForge(lookupable, op, deployTimeConst, returnType, numberCoercer);
             }
@@ -137,7 +140,7 @@ public class FilterSpecCompilerIndexPlannerEquals {
             ExprNodeDeployTimeConst deployTimeConst = (ExprNodeDeployTimeConst) left;
             ExprFilterSpecLookupableForge lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
-                Class returnType = left.getForge().getEvaluationType();
+                EPType returnType = left.getForge().getEvaluationType();
                 op = getReversedOperator(constituent, op); // reverse operators, as the expression is "stream1.prop xyz stream0.prop"
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), returnType, lookupable.getExpression());
                 return new FilterSpecParamDeployTimeConstParamForge(lookupable, op, deployTimeConst, returnType, numberCoercer);
@@ -166,8 +169,8 @@ public class FilterSpecCompilerIndexPlannerEquals {
     private static FilterSpecParamForge handleLimitedExpr(FilterOperator op, ExprNode lookupable, ExprNode value, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, StatementRawInfo raw,
                                                           StatementCompileTimeServices services) throws ExprValidationException {
         ExprFilterSpecLookupableForge lookupableForge;
-        Class lookupableType = lookupable.getForge().getEvaluationType();
-        Class valueType = value.getForge().getEvaluationType();
+        EPType lookupableType = lookupable.getForge().getEvaluationType();
+        EPType valueType = value.getForge().getEvaluationType();
         if (lookupable instanceof ExprIdentNode) {
             if (!FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.VALUECOMPOSITE, raw, services)) {
                 return null;
@@ -215,12 +218,12 @@ public class FilterSpecCompilerIndexPlannerEquals {
         throws ExprValidationException {
         String propertyName = identNodeLeft.getResolvedPropertyName();
 
-        Class leftType = identNodeLeft.getForge().getEvaluationType();
-        Class rightType = identNodeRight.getForge().getEvaluationType();
+        EPType leftType = identNodeLeft.getForge().getEvaluationType();
+        EPType rightType = identNodeRight.getForge().getEvaluationType();
 
         SimpleNumberCoercer numberCoercer = getNumberCoercer(leftType, rightType, propertyName);
         boolean isMustCoerce = numberCoercer != null;
-        Class numericCoercionType = JavaClassHelper.getBoxedType(leftType);
+        EPTypeClass numericCoercionType = JavaClassHelper.getBoxedType((EPTypeClass) leftType);
 
         String streamName = identNodeRight.getResolvedStreamName();
         if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(streamName)) {

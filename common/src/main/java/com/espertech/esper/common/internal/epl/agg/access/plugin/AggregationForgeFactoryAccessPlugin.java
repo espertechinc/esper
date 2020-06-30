@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.agg.access.plugin;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationForgeFactoryAccessBase;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
@@ -19,15 +21,16 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValid
 import com.espertech.esper.common.internal.epl.agg.core.AggregationStateFactoryForge;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprPlugInMultiFunctionAggNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeEventSingle;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 
 public class AggregationForgeFactoryAccessPlugin extends AggregationForgeFactoryAccessBase {
 
     private final ExprPlugInMultiFunctionAggNode parent;
     private final AggregationMultiFunctionHandler handler;
-    private EPType returnType;
+    private EPChainableType returnType;
 
     public AggregationForgeFactoryAccessPlugin(ExprPlugInMultiFunctionAggNode parent, AggregationMultiFunctionHandler handler) {
         this.parent = parent;
@@ -68,9 +71,9 @@ public class AggregationForgeFactoryAccessPlugin extends AggregationForgeFactory
         }
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         obtainReturnType();
-        return EPTypeHelper.getNormalizedClass(returnType);
+        return EPChainableTypeHelper.getNormalizedEPType(returnType);
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -86,17 +89,17 @@ public class AggregationForgeFactoryAccessPlugin extends AggregationForgeFactory
 
     public EventType getEventTypeCollection() {
         obtainReturnType();
-        return EPTypeHelper.getEventTypeMultiValued(returnType);
+        return EPChainableTypeHelper.getEventTypeMultiValued(returnType);
     }
 
     public EventType getEventTypeSingle() {
         obtainReturnType();
-        return EPTypeHelper.getEventTypeSingleValued(returnType);
+        return EPChainableTypeEventSingle.fromInputOrNull(returnType);
     }
 
-    public Class getComponentTypeCollection() {
+    public EPTypeClass getComponentTypeCollection() {
         obtainReturnType();
-        return EPTypeHelper.getClassMultiValued(returnType);
+        return EPChainableTypeHelper.getCollectionOrArrayComponentTypeOrNull(returnType);
     }
 
     private void obtainReturnType() {

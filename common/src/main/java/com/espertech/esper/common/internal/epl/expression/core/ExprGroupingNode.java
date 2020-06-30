@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -33,8 +35,8 @@ public class ExprGroupingNode extends ExprNodeBase implements ExprForge, ExprEva
         return this;
     }
 
-    public Class getEvaluationType() {
-        return Integer.class;
+    public EPTypeClass getEvaluationType() {
+        return EPTypePremade.INTEGERBOXED.getEPType();
     }
 
     public ExprForge getForge() {
@@ -69,7 +71,7 @@ public class ExprGroupingNode extends ExprNodeBase implements ExprForge, ExprEva
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 }

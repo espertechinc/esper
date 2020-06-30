@@ -10,12 +10,16 @@
  */
 package com.espertech.esper.common.client;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 /**
  * Get property values from an event instance for a given event property.
  * Instances that implement this interface are usually bound to a particular {@link EventType} and cannot
  * be used to access {@link EventBean} instances of a different type.
  */
 public interface EventPropertyValueGetter {
+    EPTypeClass EPTYPE = new EPTypeClass(EventPropertyValueGetter.class);
+    EPTypeClass EPTYPEARRAY = new EPTypeClass(EventPropertyValueGetter[].class);
 
     /**
      * Return the value for the property in the event object specified when the instance was obtained.

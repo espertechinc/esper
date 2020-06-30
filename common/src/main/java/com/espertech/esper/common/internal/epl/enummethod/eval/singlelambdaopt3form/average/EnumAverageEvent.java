@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.average;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -60,8 +62,8 @@ public class EnumAverageEvent extends ThreeFormEventPlain {
         };
     }
 
-    public Class returnType() {
-        return Double.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EPTypePremade.DOUBLEBOXED.getEPType();
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -69,14 +71,14 @@ public class EnumAverageEvent extends ThreeFormEventPlain {
     }
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        block.declareVar(double.class, "sum", constant(0d))
-            .declareVar(int.class, "rowcount", constant(0));
+        block.declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "sum", constant(0d))
+            .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "rowcount", constant(0));
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
-        Class innerType = innerExpression.getEvaluationType();
+        EPTypeClass innerType = (EPTypeClass) innerExpression.getEvaluationType();
         block.declareVar(innerType, "num", innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope));
-        if (!innerType.isPrimitive()) {
+        if (!innerType.getType().isPrimitive()) {
             block.ifRefNull("num").blockContinue();
         }
         block.incrementRef("rowcount")

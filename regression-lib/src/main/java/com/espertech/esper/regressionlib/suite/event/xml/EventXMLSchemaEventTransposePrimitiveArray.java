@@ -11,9 +11,10 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -60,9 +61,8 @@ public class EventXMLSchemaEventTransposePrimitiveArray {
         // try array property in select
         env.compileDeploy("@name('s0') select * from " + eventTypeNameNested + "#lastevent", path).addListener("s0");
 
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("prop3", Integer[].class, null, false, false, true, false, false),
-        }, env.statement("s0").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("prop3", Integer[].class).indexed());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
 
         EventSender sender = env.eventService().getEventSender(eventTypeNameNested);

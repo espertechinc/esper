@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.settings;
 
 import com.espertech.esper.common.client.configuration.compiler.*;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionForge;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.agg.access.linear.AggregationAccessorLinearType;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggType;
@@ -119,7 +120,7 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
         return clazz;
     }
 
-    public Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType) throws ClasspathImportException {
+    public Method resolveMethod(Class clazz, String methodName, EPType[] paramTypes, boolean[] allowEventBeanType) throws ClasspathImportException {
         try {
             return MethodResolver.resolveMethod(clazz, methodName, paramTypes, true, allowEventBeanType, allowEventBeanType);
         } catch (MethodResolverNoSuchMethodException e) {

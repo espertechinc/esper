@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -19,7 +22,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
-import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 
 import java.util.*;
 
@@ -66,7 +68,7 @@ public class ExprEnumExceptIntersectUnion {
             builder.expression(fields[1], "contained.intersect(containedTwo)");
             builder.expression(fields[2], "contained.union(containedTwo)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)));
 
             List<SupportBean_ST0> first = SupportBean_ST0_Container.make2ValueList("E1,1", "E2,10", "E3,1", "E4,10", "E5,11");
             List<SupportBean_ST0> second = SupportBean_ST0_Container.make2ValueList("E1,1", "E3,1", "E4,10");
@@ -95,7 +97,7 @@ public class ExprEnumExceptIntersectUnion {
                     "last10A().union(last10NonZero()) as val2 " +
                     "from SupportBean";
             env.compileDeploy(epl).addListener("s0");
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Collection.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
 
             env.sendEventBean(new SupportBean_ST0("E1", "A1", 10));    // in both
             env.sendEventBean(new SupportBean());
@@ -152,7 +154,7 @@ public class ExprEnumExceptIntersectUnion {
             builder.expression(fields[1], "strvals.intersect(strvalstwo)");
             builder.expression(fields[2], "strvals.union(strvalstwo)");
 
-            builder.statementConsumer(stmt -> assertTypesAllSame(stmt.getEventType(), fields, Collection.class));
+            builder.statementConsumer(stmt -> SupportEventPropUtil.assertTypesAllSame(stmt.getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             builder.assertion(SupportCollection.makeString("E1,E2", "E3,E4"))
                 .verify("c0", val -> assertValuesArrayScalar(val, "E1", "E2"))
@@ -210,7 +212,7 @@ public class ExprEnumExceptIntersectUnion {
                 "select one(bean).union(two(bean)) as val0 from SupportBean_ST0_Container as bean";
             env.compileDeploy(epl).addListener("s0");
 
-            LambdaAssertionUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new Class[]{Collection.class});
+            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,10", "E3,1", "E4,10", "E5,11"));
             assertST0Id(env.listener("s0"), "val0", "E2,E4,E5");

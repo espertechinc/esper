@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -48,15 +49,15 @@ public class DTLocalBeanIntervalWithEndEval implements DTLocalEvaluator {
     }
 
     public static CodegenExpression codegen(DTLocalBeanIntervalWithEndForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalBeanIntervalWithEndEval.class, codegenClassScope).addParam(EventBean.class, "target");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalBeanIntervalWithEndEval.class, codegenClassScope).addParam(EventBean.EPTYPE, "target");
 
         CodegenBlock block = methodNode.getBlock();
         block.declareVar(forge.getterStartReturnType, "start", CodegenLegoCast.castSafeFromObjectType(forge.getterStartReturnType, forge.getterStartTimestamp.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)));
-        if (!forge.getterStartReturnType.isPrimitive()) {
+        if (!forge.getterStartReturnType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("start");
         }
         block.declareVar(forge.getterEndReturnType, "end", CodegenLegoCast.castSafeFromObjectType(forge.getterEndReturnType, forge.getterEndTimestamp.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)));
-        if (!forge.getterEndReturnType.isPrimitive()) {
+        if (!forge.getterEndReturnType.getType().isPrimitive()) {
             block.ifRefNullReturnNull("end");
         }
         block.methodReturn(forge.inner.codegen(ref("start"), ref("end"), methodNode, exprSymbol, codegenClassScope));

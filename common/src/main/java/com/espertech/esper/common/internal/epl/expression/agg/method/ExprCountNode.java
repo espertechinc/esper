@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.count.AggregationForgeFactoryCount;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -39,7 +42,7 @@ public class ExprCountNode extends ExprAggregateNodeBase {
             throw makeExceptionExpectedParamNum(1, 2);
         }
 
-        Class childType = null;
+        EPType childType = null;
         boolean ignoreNulls = false;
 
         if (positionalParams.length == 1 && positionalParams[0] instanceof ExprWildcard) {
@@ -48,7 +51,7 @@ public class ExprCountNode extends ExprAggregateNodeBase {
         } else if (positionalParams.length == 1) {
             childType = positionalParams[0].getForge().getEvaluationType();
             ignoreNulls = true;
-        } else if (positionalParams.length == 2) {
+        } else {
             hasFilter = true;
             if (!(positionalParams[0] instanceof ExprWildcard)) {
                 childType = positionalParams[0].getForge().getEvaluationType();
@@ -60,7 +63,8 @@ public class ExprCountNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
 
-        DataInputOutputSerdeForge distinctValueSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo()) : null;
+        EPTypeClass serdeType = childType == EPTypeNull.INSTANCE ? null : (EPTypeClass) childType;
+        DataInputOutputSerdeForge distinctValueSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(serdeType, validationContext.getStatementRawInfo()) : null;
         return new AggregationForgeFactoryCount(this, ignoreNulls, childType, distinctValueSerde);
     }
 

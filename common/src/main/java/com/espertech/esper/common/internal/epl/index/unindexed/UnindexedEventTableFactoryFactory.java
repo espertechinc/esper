@@ -11,11 +11,13 @@
 package com.espertech.esper.common.internal.epl.index.unindexed;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
 
 public class UnindexedEventTableFactoryFactory extends EventTableFactoryFactoryBase {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(UnindexedEventTableFactoryFactory.class);
 
     public UnindexedEventTableFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);

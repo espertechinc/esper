@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,14 +42,14 @@ public class ExprTypeofNodeForgeInnerEval extends ExprTypeofNodeForge {
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprTypeof", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeInnerEval.class, codegenClassScope);
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.STRING.getEPType(), ExprTypeofNodeForgeInnerEval.class, codegenClassScope);
         methodNode.getBlock()
-                .declareVar(Object.class, "result", parent.getChildNodes()[0].getForge().evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", parent.getChildNodes()[0].getForge().evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethodChain(ref("result")).add("getClass").add("getSimpleName"));
         return localMethod(methodNode);

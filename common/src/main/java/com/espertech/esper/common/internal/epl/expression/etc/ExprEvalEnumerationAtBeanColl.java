@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.expression.etc;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -38,14 +41,14 @@ public class ExprEvalEnumerationAtBeanColl implements ExprForge, SelectExprProce
         throw new IllegalStateException("Evaluator not available");
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean[].class, this.getClass(), codegenClassScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, this.getClass(), codegenClassScope);
         methodNode.getBlock()
-                .declareVar(Object.class, "result", enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
-                .ifCondition(and(notEqualsNull(ref("result")), instanceOf(ref("result"), Collection.class)))
-                .declareVar(Collection.class, EventBean.class, "events", cast(Collection.class, ref("result")))
-                .blockReturn(cast(EventBean[].class, exprDotMethod(ref("events"), "toArray", newArrayByLength(EventBean.class, exprDotMethod(ref("events"), "size")))))
-                .methodReturn(cast(EventBean[].class, ref("result")));
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
+                .ifCondition(and(notEqualsNull(ref("result")), instanceOf(ref("result"), EPTypePremade.COLLECTION.getEPType())))
+                .declareVar(EPTypeClassParameterized.from(Collection.class, EventBean.class), "events", cast(EPTypePremade.COLLECTION.getEPType(), ref("result")))
+                .blockReturn(cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("events"), "toArray", newArrayByLength(EventBean.EPTYPE, exprDotMethod(ref("events"), "size")))))
+                .methodReturn(cast(EventBean.EPTYPEARRAY, ref("result")));
         return localMethod(methodNode);
     }
 
@@ -53,12 +56,12 @@ public class ExprEvalEnumerationAtBeanColl implements ExprForge, SelectExprProce
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
-        return EventBean[].class;
+    public EPTypeClass getEvaluationType() {
+        return EventBean.EPTYPEARRAY;
     }
 
-    public Class getUnderlyingEvaluationType() {
-        return JavaClassHelper.getArrayType(eventTypeColl.getUnderlyingType());
+    public EPTypeClass getUnderlyingEvaluationType() {
+        return JavaClassHelper.getArrayType(eventTypeColl.getUnderlyingEPType());
     }
 
     public ExprNodeRenderable getForgeRenderable() {

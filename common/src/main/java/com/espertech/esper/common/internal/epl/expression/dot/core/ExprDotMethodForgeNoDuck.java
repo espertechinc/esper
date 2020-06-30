@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -17,8 +18,10 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Method;
 
@@ -26,21 +29,25 @@ public class ExprDotMethodForgeNoDuck implements ExprDotForge {
 
     private final String optionalStatementName;
     private final Method method;
+    private final EPTypeClass methodTargetType;
     private final ExprForge[] parameters;
-    private final Type type;
+    private final WrapType wrapType;
 
-    public ExprDotMethodForgeNoDuck(String optionalStatementName, Method method, ExprForge[] parameters, Type type) {
+    public ExprDotMethodForgeNoDuck(String optionalStatementName, Method method, EPTypeClass methodTargetType, ExprForge[] parameters, WrapType wrapType) {
         this.optionalStatementName = optionalStatementName;
         this.method = method;
+        this.methodTargetType = methodTargetType;
         this.parameters = parameters;
-        this.type = type;
+        this.wrapType = wrapType;
     }
 
-    public EPType getTypeInfo() {
-        if (type == Type.WRAPARRAY) {
-            return EPTypeHelper.collectionOfSingleValue(method.getReturnType().getComponentType());
+    public EPChainableType getTypeInfo() {
+        if (wrapType == WrapType.WRAPARRAY) {
+            EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(method);
+            EPTypeClass componentType = JavaClassHelper.getArrayComponentType(returnType);
+            return EPChainableTypeHelper.collectionOfSingleValue(componentType);
         } else {
-            return EPTypeHelper.fromMethod(method);
+            return EPChainableTypeHelper.fromMethod(method, methodTargetType);
         }
     }
 
@@ -50,19 +57,19 @@ public class ExprDotMethodForgeNoDuck implements ExprDotForge {
 
     public ExprDotEval getDotEvaluator() {
         ExprEvaluator[] evaluators = ExprNodeUtilityQuery.getEvaluatorsNoCompile(parameters);
-        if (type == Type.WRAPARRAY) {
+        if (wrapType == WrapType.WRAPARRAY) {
             return new ExprDotMethodForgeNoDuckEvalWrapArray(this, evaluators);
-        } else if (type == Type.PLAIN) {
+        } else if (wrapType == WrapType.PLAIN) {
             return new ExprDotMethodForgeNoDuckEvalPlain(this, evaluators);
         } else {
             return new ExprDotMethodForgeNoDuckEvalUnderlying(this, evaluators);
         }
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        if (type == Type.WRAPARRAY) {
+    public CodegenExpression codegen(CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        if (wrapType == WrapType.WRAPARRAY) {
             return ExprDotMethodForgeNoDuckEvalWrapArray.codegenWrapArray(this, inner, innerType, parent, symbols, classScope);
-        } else if (type == Type.PLAIN) {
+        } else if (wrapType == WrapType.PLAIN) {
             return ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(this, inner, innerType, parent, symbols, classScope);
         } else {
             return ExprDotMethodForgeNoDuckEvalUnderlying.codegenUnderlying(this, inner, innerType, parent, symbols, classScope);
@@ -81,7 +88,11 @@ public class ExprDotMethodForgeNoDuck implements ExprDotForge {
         return parameters;
     }
 
-    public enum Type {
+    public WrapType getWrapType() {
+        return wrapType;
+    }
+
+    public enum WrapType {
         WRAPARRAY,
         UNDERLYING,
         PLAIN

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 
 public class ExprMethodAggUtil {
@@ -23,7 +24,7 @@ public class ExprMethodAggUtil {
         for (int i = 0; i < childNodes.length; i++) {
             if (childNodes[i] instanceof ExprWildcard) {
                 validateWildcard(typesPerStream, join);
-                forges[i] = new ExprForgeWildcard(typesPerStream[0].getUnderlyingType());
+                forges[i] = new ExprForgeWildcard(typesPerStream[0].getUnderlyingEPType());
             } else {
                 forges[i] = childNodes[i].getForge();
             }
@@ -62,7 +63,7 @@ public class ExprMethodAggUtil {
     }
 
     private static void validateWildcard(EventType[] typesPerStream, boolean isJoin) throws ExprValidationException {
-        final Class returnType = typesPerStream != null && typesPerStream.length > 0 ? typesPerStream[0].getUnderlyingType() : null;
+        final EPTypeClass returnType = typesPerStream != null && typesPerStream.length > 0 ? typesPerStream[0].getUnderlyingEPType() : null;
         if (isJoin || returnType == null) {
             throw new ExprValidationException("Invalid use of wildcard (*) for stream selection in a join or an empty from-clause, please use the stream-alias syntax to select a specific stream instead");
         }

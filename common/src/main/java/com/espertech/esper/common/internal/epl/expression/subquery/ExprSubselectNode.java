@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -31,8 +35,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.localMethod;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectEvalMatchSymbol.NAME_MATCHINGEVENTS;
 import static com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectEvalMatchSymbol.REF_MATCHINGEVENTS;
 import static com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode.SubselectEvaluationType.*;
@@ -144,32 +147,32 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return makeEvaluate(PLAIN, this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprSubselect", requiredType, parent, exprSymbol, codegenClassScope).build();
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(GETEVENTCOLL, this, Collection.class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(GETEVENTCOLL, this, EPTypePremade.COLLECTION.getEPType(), parent, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(GETSCALARCOLL, this, Collection.class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(GETSCALARCOLL, this, EPTypePremade.COLLECTION.getEPType(), parent, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(GETEVENT, this, EventBean.class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(GETEVENT, this, EventBean.EPTYPE, parent, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateTypableSingleCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(TYPABLESINGLE, this, Object[].class, codegenMethodScope, exprSymbol, codegenClassScope);
+        return makeEvaluate(TYPABLESINGLE, this, EPTypePremade.OBJECTARRAY.getEPType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateTypableMultiCodegen(CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return makeEvaluate(TYPABLEMULTI, this, Object[][].class, parent, exprSymbol, codegenClassScope);
+        return makeEvaluate(TYPABLEMULTI, this, EPTypePremade.OBJECTARRAYARRAY.getEPType(), parent, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeConstantType getForgeConstantType() {
@@ -327,7 +330,11 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         TYPABLEMULTI
     }
 
-    private static CodegenExpression makeEvaluate(SubselectEvaluationType evaluationType, ExprSubselectNode subselectNode, Class resultType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+    private static CodegenExpression makeEvaluate(SubselectEvaluationType evaluationType, ExprSubselectNode subselectNode, EPType resultTypeMayNull, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        if (resultTypeMayNull == null) {
+            return constantNull();
+        }
+        EPTypeClass resultType = (EPTypeClass) resultTypeMayNull;
         CodegenMethod method = parent.makeChild(resultType, ExprSubselectNode.class, classScope);
 
         CodegenExpression eps = symbols.getAddEPS(method);
@@ -335,13 +342,13 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         CodegenExpression evalCtx = symbols.getAddExprEvalCtx(method);
 
         // get matching events
-        CodegenExpression future = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryResult(subselectNode.subselectNumber), SubordTableLookupStrategy.class);
+        CodegenExpression future = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameSubqueryResult(subselectNode.subselectNumber), SubordTableLookupStrategy.EPTYPE);
         CodegenExpression evalMatching = exprDotMethod(future, "lookup", eps, evalCtx);
-        method.getBlock().declareVar(Collection.class, EventBean.class, NAME_MATCHINGEVENTS, evalMatching);
+        method.getBlock().declareVar(EPTypeClassParameterized.from(Collection.class, EventBean.class), NAME_MATCHINGEVENTS, evalMatching);
 
         // process matching events
         ExprSubselectEvalMatchSymbol evalMatchSymbol = new ExprSubselectEvalMatchSymbol();
-        CodegenMethod processMethod = method.makeChildWithScope(resultType, ExprSubselectNode.class, evalMatchSymbol, classScope).addParam(Collection.class, NAME_MATCHINGEVENTS).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod processMethod = method.makeChildWithScope(resultType, ExprSubselectNode.class, evalMatchSymbol, classScope).addParam(EPTypePremade.COLLECTION.getEPType(), NAME_MATCHINGEVENTS).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression process;
         if (evaluationType == PLAIN) {
             process = subselectNode.evalMatchesPlainCodegen(processMethod, evalMatchSymbol, classScope);

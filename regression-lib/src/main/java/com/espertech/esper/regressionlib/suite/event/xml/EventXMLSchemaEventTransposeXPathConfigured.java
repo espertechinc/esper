@@ -11,10 +11,11 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.event.xml.XPathNamespaceContext;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -102,41 +103,37 @@ public class EventXMLSchemaEventTransposeXPathConfigured {
         env.compileDeploy("@name('sw') select * from " + eventTypeName + "#lastevent", path);
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("insert").getEventType());
         SupportEventTypeAssertionUtil.assertConsistency(env.statement("sw").getEventType());
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("nested1simple", Node.class, null, false, false, false, false, true),
-            new EventPropertyDescriptor("nested4array", Node[].class, Node.class, false, false, true, false, true),
-        }, env.statement("insert").getEventType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
+            new SupportEventPropDesc("nested1simple", Node.class).fragment(),
+            new SupportEventPropDesc("nested4array", Node[].class).componentType(Node.class).indexed().fragment());
 
         FragmentEventType fragmentTypeNested1 = env.statement("insert").getEventType().getFragmentType("nested1simple");
         assertFalse(fragmentTypeNested1.isIndexed());
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("prop1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("prop2", Boolean.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("attr1", String.class, null, false, false, false, false, false),
-            new EventPropertyDescriptor("nested2", Node.class, null, false, false, false, false, false),
-        }, fragmentTypeNested1.getFragmentType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(fragmentTypeNested1.getFragmentType().getPropertyDescriptors(),
+            new SupportEventPropDesc("prop1", String.class),
+            new SupportEventPropDesc("prop2", Boolean.class),
+            new SupportEventPropDesc("attr1", String.class),
+            new SupportEventPropDesc("nested2", Node.class));
         SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested1.getFragmentType());
 
         FragmentEventType fragmentTypeNested4 = env.statement("insert").getEventType().getFragmentType("nested4array");
         assertTrue(fragmentTypeNested4.isIndexed());
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("prop5", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("prop6", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("prop7", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("prop8", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("id", String.class, null, false, false, false, false, false),
-        }, fragmentTypeNested4.getFragmentType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(fragmentTypeNested4.getFragmentType().getPropertyDescriptors(),
+            new SupportEventPropDesc("prop5", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("prop6", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("prop7", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("prop8", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("id", String.class));
         SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested4.getFragmentType());
 
         FragmentEventType fragmentTypeNested4Item = env.statement("insert").getEventType().getFragmentType("nested4array[0]");
         assertFalse(fragmentTypeNested4Item.isIndexed());
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
-            new EventPropertyDescriptor("prop5", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("prop6", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("prop7", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("prop8", String[].class, null, false, false, true, false, false),
-            new EventPropertyDescriptor("id", String.class, null, false, false, false, false, false),
-        }, fragmentTypeNested4Item.getFragmentType().getPropertyDescriptors());
+        SupportEventPropUtil.assertPropsEquals(fragmentTypeNested4Item.getFragmentType().getPropertyDescriptors(),
+            new SupportEventPropDesc("prop5", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("prop6", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("prop7", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("prop8", String[].class).componentType(String.class).indexed(),
+            new SupportEventPropDesc("id", String.class));
         SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested4Item.getFragmentType());
 
         SupportXML.sendDefaultEvent(env.eventService(), "ABC", eventTypeName);

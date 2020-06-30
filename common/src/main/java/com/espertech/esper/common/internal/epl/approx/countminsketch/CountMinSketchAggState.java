@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.approx.countminsketch;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionState;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
@@ -19,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 
 public class CountMinSketchAggState implements AggregationMultiFunctionState {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(CountMinSketchAggState.class);
 
     protected final CountMinSketchState state;
     private final CountMinSketchAgent agent;

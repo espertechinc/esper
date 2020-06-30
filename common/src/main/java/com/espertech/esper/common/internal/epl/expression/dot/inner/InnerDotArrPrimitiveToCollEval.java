@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.inner;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -36,7 +37,7 @@ public class InnerDotArrPrimitiveToCollEval implements ExprDotEvalRootChildInner
     }
 
     public static CodegenExpression codegen(InnerDotArrPrimitiveToCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class evaluationType = forge.rootForge.getEvaluationType();
+        EPTypeClass evaluationType = (EPTypeClass) forge.rootForge.getEvaluationType();
         return CollectionUtil.arrayToCollectionAllowNullCodegen(codegenMethodScope, evaluationType, forge.rootForge.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), codegenClassScope);
     }
 

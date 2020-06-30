@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.avro.selectexprrep;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.avro.core.AvroConstant;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -42,9 +43,9 @@ public class SelectExprJoinWildcardProcessorAvro implements SelectExprProcessorF
 
     public CodegenMethod processCodegen(CodegenExpression resultEventTypeOuter, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         // NOTE: Maintaining result-event-type as out own field as we may be an "inner" select-expr-processor
-        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(resultEventTypeAvro, EPStatementInitServices.REF));
-        CodegenExpressionField schema = codegenClassScope.getPackageScope().addFieldUnshared(true, Schema.class, staticMethod(AvroSchemaUtil.class, "resolveAvroSchema", EventTypeUtility.resolveTypeCodegen(resultEventTypeAvro, EPStatementInitServices.REF)));
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenExpressionField mType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(resultEventTypeAvro, EPStatementInitServices.REF));
+        CodegenExpressionField schema = codegenClassScope.getPackageScope().addFieldUnshared(true, AvroConstant.EPTYPE_SCHEMA, staticMethod(AvroSchemaUtil.class, "resolveAvroSchema", EventTypeUtility.resolveTypeCodegen(resultEventTypeAvro, EPStatementInitServices.REF)));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock().methodReturn(staticMethod(SelectExprJoinWildcardProcessorAvro.class, "processSelectExprJoinWildcardAvro", refEPS, schema, eventBeanFactory, mType));
         return methodNode;

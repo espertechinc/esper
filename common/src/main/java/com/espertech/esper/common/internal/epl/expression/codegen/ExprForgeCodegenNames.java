@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.codegen;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -30,9 +31,9 @@ public class ExprForgeCodegenNames {
     public final static CodegenExpressionRef REF_ISNEWDATA = ref(NAME_ISNEWDATA);
     public final static CodegenExpressionRef REF_EXPREVALCONTEXT = ref(NAME_EXPREVALCONTEXT);
 
-    public final static CodegenNamedParam FP_EPS = new CodegenNamedParam(EventBean[].class, NAME_EPS);
-    public final static CodegenNamedParam FP_ISNEWDATA = new CodegenNamedParam(boolean.class, NAME_ISNEWDATA);
-    public final static CodegenNamedParam FP_EXPREVALCONTEXT = new CodegenNamedParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+    public final static CodegenNamedParam FP_EPS = new CodegenNamedParam(EventBean.EPTYPEARRAY, NAME_EPS);
+    public final static CodegenNamedParam FP_ISNEWDATA = new CodegenNamedParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA);
+    public final static CodegenNamedParam FP_EXPREVALCONTEXT = new CodegenNamedParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
 
     public final static List<CodegenNamedParam> PARAMS = Arrays.asList(FP_EPS, FP_ISNEWDATA, FP_EXPREVALCONTEXT);
 }

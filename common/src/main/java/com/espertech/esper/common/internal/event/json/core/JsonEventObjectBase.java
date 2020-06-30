@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.json.minimaljson.JsonWriter;
 import com.espertech.esper.common.client.json.minimaljson.WriterConfig;
 import com.espertech.esper.common.client.json.minimaljson.WritingBuffer;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -26,6 +27,8 @@ import java.util.function.BiFunction;
 import static com.espertech.esper.common.internal.event.json.write.JsonWriteUtil.writeJsonValue;
 
 public abstract class JsonEventObjectBase implements JsonEventObject {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonEventObjectBase.class);
+
     /**
      * Add a dynamic property value that the json parser encounters.
      * Dynamic property values are not predefined and are catch-all in nature.

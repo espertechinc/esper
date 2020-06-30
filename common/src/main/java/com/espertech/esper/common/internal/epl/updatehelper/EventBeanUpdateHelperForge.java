@@ -13,6 +13,10 @@ package com.espertech.esper.common.internal.epl.updatehelper;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.*;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
@@ -20,6 +24,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethodForge;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +34,7 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypePrimitive;
 
 public class EventBeanUpdateHelperForge {
     private final EventType eventType;
@@ -42,26 +48,26 @@ public class EventBeanUpdateHelperForge {
     }
 
     public CodegenExpression makeWCopy(CodegenMethodScope scope, CodegenClassScope classScope) {
-        CodegenExpressionField copyMethodField = classScope.addFieldUnshared(true, EventBeanCopyMethod.class, copyMethod.makeCopyMethodClassScoped(classScope));
+        CodegenExpressionField copyMethodField = classScope.addFieldUnshared(true, EventBeanCopyMethod.EPTYPE, copyMethod.makeCopyMethodClassScoped(classScope));
 
-        CodegenMethod method = scope.makeChild(EventBeanUpdateHelperWCopy.class, this.getClass(), classScope);
+        CodegenMethod method = scope.makeChild(EventBeanUpdateHelperWCopy.EPTYPE, this.getClass(), classScope);
         CodegenMethod updateInternal = makeUpdateInternal(method, classScope);
 
-        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), EventBeanUpdateHelperWCopy.class);
-        CodegenMethod updateWCopy = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), classScope)
-                .addParam(EventBean.class, "matchingEvent")
-                .addParam(EventBean[].class, NAME_EPS)
-                .addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), EventBeanUpdateHelperWCopy.EPTYPE);
+        CodegenMethod updateWCopy = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), classScope)
+            .addParam(EventBean.EPTYPE, "matchingEvent")
+            .addParam(EventBean.EPTYPEARRAY, NAME_EPS)
+            .addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         clazz.addMethod("updateWCopy", updateWCopy);
 
         updateWCopy.getBlock()
-                .apply(instblock(classScope, "qInfraUpdate", ref("matchingEvent"), REF_EPS, constant(updateItems.length), constantTrue()))
-                .declareVar(EventBean.class, "copy", exprDotMethod(copyMethodField, "copy", ref("matchingEvent")))
-                .assignArrayElement(REF_EPS, constant(0), ref("copy"))
-                .assignArrayElement(REF_EPS, constant(2), ref("matchingEvent"))
-                .localMethod(updateInternal, REF_EPS, REF_EXPREVALCONTEXT, ref("copy"))
-                .apply(instblock(classScope, "aInfraUpdate", ref("copy")))
-                .methodReturn(ref("copy"));
+            .apply(instblock(classScope, "qInfraUpdate", ref("matchingEvent"), REF_EPS, constant(updateItems.length), constantTrue()))
+            .declareVar(EventBean.EPTYPE, "copy", exprDotMethod(copyMethodField, "copy", ref("matchingEvent")))
+            .assignArrayElement(REF_EPS, constant(0), ref("copy"))
+            .assignArrayElement(REF_EPS, constant(2), ref("matchingEvent"))
+            .localMethod(updateInternal, REF_EPS, REF_EXPREVALCONTEXT, ref("copy"))
+            .apply(instblock(classScope, "aInfraUpdate", ref("copy")))
+            .methodReturn(ref("copy"));
 
         method.getBlock().methodReturn(clazz);
 
@@ -69,26 +75,26 @@ public class EventBeanUpdateHelperForge {
     }
 
     public CodegenExpression makeNoCopy(CodegenMethodScope scope, CodegenClassScope classScope) {
-        CodegenMethod method = scope.makeChild(EventBeanUpdateHelperNoCopy.class, this.getClass(), classScope);
+        CodegenMethod method = scope.makeChild(EventBeanUpdateHelperNoCopy.EPTYPE, this.getClass(), classScope);
         CodegenMethod updateInternal = makeUpdateInternal(method, classScope);
 
-        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), EventBeanUpdateHelperNoCopy.class);
+        CodegenExpressionNewAnonymousClass clazz = newAnonymousClass(method.getBlock(), EventBeanUpdateHelperNoCopy.EPTYPE);
 
-        CodegenMethod updateNoCopy = CodegenMethod.makeParentNode(void.class, this.getClass(), classScope)
-                .addParam(EventBean.class, "matchingEvent")
-                .addParam(EventBean[].class, NAME_EPS)
-                .addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        CodegenMethod updateNoCopy = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), classScope)
+            .addParam(EventBean.EPTYPE, "matchingEvent")
+            .addParam(EventBean.EPTYPEARRAY, NAME_EPS)
+            .addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         clazz.addMethod("updateNoCopy", updateNoCopy);
         updateNoCopy.getBlock()
-                .apply(instblock(classScope, "qInfraUpdate", ref("matchingEvent"), REF_EPS, constant(updateItems.length), constantFalse()))
-                .localMethod(updateInternal, REF_EPS, REF_EXPREVALCONTEXT, ref("matchingEvent"))
-                .apply(instblock(classScope, "aInfraUpdate", ref("matchingEvent")));
+            .apply(instblock(classScope, "qInfraUpdate", ref("matchingEvent"), REF_EPS, constant(updateItems.length), constantFalse()))
+            .localMethod(updateInternal, REF_EPS, REF_EXPREVALCONTEXT, ref("matchingEvent"))
+            .apply(instblock(classScope, "aInfraUpdate", ref("matchingEvent")));
 
-        CodegenMethod getUpdatedProperties = CodegenMethod.makeParentNode(String[].class, this.getClass(), classScope);
+        CodegenMethod getUpdatedProperties = CodegenMethod.makeParentNode(EPTypePremade.STRINGARRAY.getEPType(), this.getClass(), classScope);
         clazz.addMethod("getUpdatedProperties", getUpdatedProperties);
         getUpdatedProperties.getBlock().methodReturn(constant(getUpdateItemsPropertyNames()));
 
-        CodegenMethod isRequiresStream2InitialValueEvent = CodegenMethod.makeParentNode(boolean.class, this.getClass(), classScope);
+        CodegenMethod isRequiresStream2InitialValueEvent = CodegenMethod.makeParentNode(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), classScope);
         clazz.addMethod("isRequiresStream2InitialValueEvent", isRequiresStream2InitialValueEvent);
         isRequiresStream2InitialValueEvent.getBlock().methodReturn(constant(isRequiresStream2InitialValueEvent()));
 
@@ -102,31 +108,31 @@ public class EventBeanUpdateHelperForge {
     }
 
     private CodegenMethod makeUpdateInternal(CodegenMethodScope scope, CodegenClassScope classScope) {
-        CodegenMethod method = scope.makeChildWithScope(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(EventBean[].class, NAME_EPS)
-                .addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT)
-                .addParam(EventBean.class, "target");
+        CodegenMethod method = scope.makeChildWithScope(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
+            .addParam(EventBean.EPTYPEARRAY, NAME_EPS)
+            .addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT)
+            .addParam(EventBean.EPTYPE, "target");
 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, true);
-        CodegenMethod exprMethod = method.makeChildWithScope(void.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(PARAMS);
+        CodegenMethod exprMethod = method.makeChildWithScope(EPTypePremade.VOID.getEPType(), CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(PARAMS);
 
-        Class[] types = new Class[updateItems.length];
+        EPType[] types = new EPType[updateItems.length];
         for (int i = 0; i < updateItems.length; i++) {
             types[i] = updateItems[i].getExpression().getEvaluationType();
         }
 
         EventBeanUpdateItemForgeWExpressions[] forgeExpressions = new EventBeanUpdateItemForgeWExpressions[updateItems.length];
         for (int i = 0; i < updateItems.length; i++) {
-            Class targetType = updateItems[i].isUseUntypedAssignment() ? Object.class : types[i];
+            EPTypeClass nullableType = types[i] == null || types[i] == EPTypeNull.INSTANCE ? null : (EPTypeClass) types[i];
+            EPTypeClass targetType = updateItems[i].isUseUntypedAssignment() ? EPTypePremade.OBJECT.getEPType() : nullableType;
             forgeExpressions[i] = updateItems[i].toExpression(targetType, exprMethod, exprSymbol, classScope);
         }
 
         exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
 
-        method.getBlock().declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("target"))));
+        method.getBlock().declareVar(eventType.getUnderlyingEPType(), "und", cast(eventType.getUnderlyingEPType(), exprDotUnderlying(ref("target"))));
 
         for (int i = 0; i < updateItems.length; i++) {
-            Class targetType = updateItems[i].isUseUntypedAssignment() ? Object.class : types[i];
             EventBeanUpdateItemForge updateItem = updateItems[i];
             CodegenExpression rhs = forgeExpressions[i].getRhsExpression();
             if (updateItems[i].isUseTriggeringEvent()) {
@@ -134,16 +140,22 @@ public class EventBeanUpdateHelperForge {
             }
             method.getBlock().apply(instblock(classScope, "qInfraUpdateRHSExpr", constant(i)));
 
-            if (types[i] == null && updateItem.getOptionalWriter() != null) {
+            EPType type = types[i];
+            if ((type == null || type == EPTypeNull.INSTANCE) && updateItem.getOptionalWriter() != null) {
                 method.getBlock().expression(updateItem.getOptionalWriter().writeCodegen(constantNull(), ref("und"), ref("target"), method, classScope));
                 continue;
             }
 
-            if (types[i] == void.class || (updateItem.getOptionalWriter() == null && updateItem.getOptionalArray() == null)) {
+            if (type != null && (JavaClassHelper.isTypeVoid(type) || (updateItem.getOptionalWriter() == null && updateItem.getOptionalArray() == null))) {
                 method.getBlock()
-                        .expression(rhs)
-                        .apply(instblock(classScope, "aInfraUpdateRHSExpr", constantNull()));
+                    .expression(rhs)
+                    .apply(instblock(classScope, "aInfraUpdateRHSExpr", constantNull()));
                 continue;
+            }
+
+            EPTypeClass targetType = EPTypePremade.OBJECT.getEPType();
+            if (!updateItems[i].isUseUntypedAssignment() && type instanceof EPTypeClass) {
+                targetType = (EPTypeClass) type;
             }
 
             CodegenExpressionRef ref = ref("r" + i);
@@ -160,7 +172,7 @@ public class EventBeanUpdateHelperForge {
                 CodegenExpressionRef array = ref("a" + i);
                 EventBeanUpdateItemArray arraySet = updateItem.getOptionalArray();
                 CodegenBlock arrayBlock;
-                boolean arrayOfPrimitiveNullRHS = arraySet.getArrayType().getComponentType().isPrimitive() && (types[i] == null || !types[i].isPrimitive());
+                boolean arrayOfPrimitiveNullRHS = arraySet.getArrayType().getType().getComponentType().isPrimitive() && (type == null || type == EPTypeNull.INSTANCE || !isTypePrimitive(type));
                 if (arrayOfPrimitiveNullRHS) {
                     arrayBlock = method.getBlock()
                         .ifNull(ref)
@@ -169,22 +181,22 @@ public class EventBeanUpdateHelperForge {
                 } else {
                     arrayBlock = method.getBlock();
                 }
-                arrayBlock.declareVar(Integer.class, index.getRef(), forgeExpressions[i].getOptionalArrayExpressions().getIndex())
+                arrayBlock.declareVar(EPTypePremade.INTEGERBOXED.getEPType(), index.getRef(), forgeExpressions[i].getOptionalArrayExpressions().getIndex())
                     .ifRefNotNull(index.getRef())
-                        .declareVar(arraySet.getArrayType(), array.getRef(), forgeExpressions[i].getOptionalArrayExpressions().getArrayGet())
-                        .ifRefNotNull(array.getRef())
-                            .ifCondition(relational(index, CodegenExpressionRelational.CodegenRelational.LT, arrayLength(array)))
-                                .assignArrayElement(array, cast(int.class, index), assigned)
-                            .ifElse()
-                            .blockThrow(newInstance(EPException.class, concat(constant("Array length "), arrayLength(array), constant(" less than index "), index, constant(" for property '" + updateItems[i].getOptionalArray().getPropertyName() + "'"))))
-                        .blockEnd()
+                    .declareVar(arraySet.getArrayType(), array.getRef(), forgeExpressions[i].getOptionalArrayExpressions().getArrayGet())
+                    .ifRefNotNull(array.getRef())
+                    .ifCondition(relational(index, CodegenExpressionRelational.CodegenRelational.LT, arrayLength(array)))
+                    .assignArrayElement(array, cast(EPTypePremade.INTEGERPRIMITIVE.getEPType(), index), assigned)
+                    .ifElse()
+                    .blockThrow(newInstance(EPException.EPTYPE, concat(constant("Array length "), arrayLength(array), constant(" less than index "), index, constant(" for property '" + updateItems[i].getOptionalArray().getPropertyName() + "'"))))
+                    .blockEnd()
                     .blockEnd();
                 if (arrayOfPrimitiveNullRHS) {
                     arrayBlock.blockEnd();
                 }
             } else {
                 // handle regular values
-                if (!types[i].isPrimitive() && updateItem.isNotNullableField()) {
+                if (!isTypePrimitive(type) && updateItem.isNotNullableField()) {
                     method.getBlock()
                         .ifNull(ref)
                         .staticMethod(EventBeanUpdateHelperForge.class, "logWarnWhenNullAndNotNullable", constant(updateItem.getOptionalPropertyName()))

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.dot.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -18,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +45,13 @@ public class ExprDotMethodForgeNoDuckEvalUnderlying extends ExprDotMethodForgeNo
         return super.evaluate(bean.getUnderlying(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenUnderlying(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        Class underlyingType = forge.getMethod().getDeclaringClass();
-        Class returnType = forge.getMethod().getReturnType();
-        CodegenMethod methodNode = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(returnType), ExprDotMethodForgeNoDuckEvalUnderlying.class, codegenClassScope).addParam(EventBean.class, "target");
+    public static CodegenExpression codegenUnderlying(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        EPTypeClass underlyingType = ClassHelperGenericType.getClassEPType(forge.getMethod().getDeclaringClass());
+        EPTypeClass returnType = ClassHelperGenericType.getMethodReturnEPType(forge.getMethod());
+        CodegenMethod methodNode = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(returnType), ExprDotMethodForgeNoDuckEvalUnderlying.class, codegenClassScope).addParam(EventBean.EPTYPE, "target");
 
         CodegenExpression eval = ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("underlying"), innerType, methodNode, exprSymbol, codegenClassScope);
-        if (returnType != void.class) {
+        if (!JavaClassHelper.isTypeVoid(returnType)) {
             methodNode.getBlock()
                 .ifRefNullReturnNull("target")
                 .declareVar(underlyingType, "underlying", cast(underlyingType, exprDotMethod(ref("target"), "getUnderlying")))

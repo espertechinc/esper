@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.countminsketch;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateKey;
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationForgeFactoryAccessBase;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
@@ -29,7 +30,7 @@ public class AggregationForgeFactoryAccessCountMinSketchState extends Aggregatio
         this.stateFactory = stateFactory;
     }
 
-    public Class getResultType() {
+    public EPType getResultType() {
         return null;
     }
 

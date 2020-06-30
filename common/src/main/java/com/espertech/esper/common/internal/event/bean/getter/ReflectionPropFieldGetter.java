@@ -12,13 +12,14 @@ package com.espertech.esper.common.internal.event.bean.getter;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventPropertyGetter;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 
 import java.lang.reflect.Field;
 
@@ -31,7 +32,7 @@ public final class ReflectionPropFieldGetter extends BaseNativePropertyGetter im
     private final Field field;
 
     public ReflectionPropFieldGetter(Field field, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, field.getType(), JavaClassHelper.getGenericFieldType(field, true));
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, ClassHelperGenericType.getFieldEPType(field));
         this.field = field;
     }
 
@@ -57,12 +58,8 @@ public final class ReflectionPropFieldGetter extends BaseNativePropertyGetter im
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Class getBeanPropType() {
-        return field.getType();
-    }
-
-    public Class getTargetType() {
-        return field.getDeclaringClass();
+    public EPTypeClass getTargetType() {
+        return ClassHelperGenericType.getClassEPType(field.getDeclaringClass());
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

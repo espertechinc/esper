@@ -39,8 +39,8 @@ public class ObjectArrayEventBeanCopyMethodForge implements EventBeanCopyMethodF
 
     public CodegenExpression makeCopyMethodClassScoped(CodegenClassScope classScope) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        return newInstance(ObjectArrayEventBeanCopyMethod.class,
-                cast(ObjectArrayEventType.class, EventTypeUtility.resolveTypeCodegen(objectArrayEventType, EPStatementInitServices.REF)),
+        return newInstance(ObjectArrayEventBeanCopyMethod.EPTYPE,
+                cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(objectArrayEventType, EPStatementInitServices.REF)),
                 factory);
     }
 

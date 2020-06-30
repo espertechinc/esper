@@ -11,11 +11,14 @@
 package com.espertech.esper.common.internal.context.module;
 
 import com.espertech.esper.common.client.module.ModuleProperty;
+import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.util.List;
 import java.util.Map;
 
 public interface ModuleProvider {
+    EPTypeClass EPTYPE = new EPTypeClass(ModuleProvider.class);
+
     String getModuleName();
 
     Map<ModuleProperty, Object> getModuleProperties();

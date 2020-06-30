@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.util.ThreadingProfile;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 
 import java.io.StringWriter;
+
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
 
 /**
  * Represents a string concatenation.
@@ -37,11 +40,10 @@ public class ExprConcatNode extends ExprNodeBase {
         }
 
         for (int i = 0; i < getChildNodes().length; i++) {
-            Class childType = getChildNodes()[i].getForge().getEvaluationType();
-            String childTypeName = childType == null ? "null" : childType.getSimpleName();
-            if (childType != String.class) {
+            EPType childType = getChildNodes()[i].getForge().getEvaluationType();
+            if (!isTypeString(childType)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
-                        childTypeName +
+                    (childType == null ? "null" : childType.getTypeName()) +
                         "' to string is not allowed");
             }
         }

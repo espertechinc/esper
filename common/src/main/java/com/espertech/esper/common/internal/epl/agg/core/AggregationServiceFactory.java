@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
@@ -20,5 +21,6 @@ import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntim
  * no re-evaluation of the same result occurs.
  */
 public interface AggregationServiceFactory {
+    EPTypeClass EPTYPE = new EPTypeClass(AggregationServiceFactory.class);
     AggregationService makeService(AgentInstanceContext agentInstanceContext, ClasspathImportServiceRuntime classpathImportService, boolean isSubquery, Integer subqueryNumber, int[] groupId);
 }

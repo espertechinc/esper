@@ -27,9 +27,9 @@ public class JsonDelegateForgeWithDelegateFactory implements JsonDelegateForge {
     }
 
     public CodegenExpression newDelegate(JsonDelegateRefs fields, CodegenMethod parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(JsonDelegateBase.class, JsonForgeFactoryEventTypeTyped.class, classScope);
+        CodegenMethod method = parent.makeChild(JsonDelegateBase.EPTYPE, JsonForgeFactoryEventTypeTyped.class, classScope);
         method.getBlock()
-            .declareVar(JsonDelegateFactory.class, "factory", newInstance(delegateFactoryClassName))
+            .declareVar(JsonDelegateFactory.EPTYPE, "factory", newInstance(delegateFactoryClassName))
             .methodReturn(exprDotMethod(ref("factory"), "make", fields.getBaseHandler(), fields.getThis()));
         return localMethod(method);
     }

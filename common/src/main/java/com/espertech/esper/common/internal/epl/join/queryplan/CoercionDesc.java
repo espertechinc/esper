@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class CoercionDesc {
 
     private boolean coerce;
-    private Class[] coercionTypes;
+    private EPTypeClass[] coercionTypes;
 
-    public CoercionDesc(boolean coerce, Class[] coercionTypes) {
+    public CoercionDesc(boolean coerce, EPTypeClass[] coercionTypes) {
         this.coerce = coerce;
         this.coercionTypes = coercionTypes;
     }
@@ -24,7 +26,7 @@ public class CoercionDesc {
         return coerce;
     }
 
-    public Class[] getCoercionTypes() {
+    public EPTypeClass[] getCoercionTypes() {
         return coercionTypes;
     }
 }

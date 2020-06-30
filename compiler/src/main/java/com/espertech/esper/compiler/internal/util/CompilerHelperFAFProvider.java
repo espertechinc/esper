@@ -12,6 +12,7 @@ package com.espertech.esper.compiler.internal.util;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPCompiledManifest;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -152,18 +153,18 @@ public class CompilerHelperFAFProvider {
         CodegenClassMethods methods = new CodegenClassMethods();
 
         // provide module dependencies
-        CodegenMethod getModuleDependenciesMethod = CodegenMethod.makeParentNode(ModuleDependenciesRuntime.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getModuleDependenciesMethod = CodegenMethod.makeParentNode(ModuleDependenciesRuntime.EPTYPE, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getModuleDependenciesMethod.getBlock().methodReturn(compileTimeServices.getModuleDependencies().make(getModuleDependenciesMethod, classScope));
 
         // initialize-event-types
         CodegenMethod initializeEventTypesMethod = makeInitEventTypes(classScope, compileTimeServices);
 
         // initialize-query
-        CodegenMethod initializeQueryMethod = CodegenMethod.makeParentNode(void.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPStatementInitServices.class, EPStatementInitServices.REF.getRef());
+        CodegenMethod initializeQueryMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
         initializeQueryMethod.getBlock().assignMember(MEMBERNAME_QUERY_METHOD_PROVIDER, newInstance(queryMethodProviderClassName, EPStatementInitServices.REF));
 
         // get-execute
-        CodegenMethod getQueryMethodProviderMethod = CodegenMethod.makeParentNode(FAFQueryMethodProvider.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        CodegenMethod getQueryMethodProviderMethod = CodegenMethod.makeParentNode(FAFQueryMethodProvider.EPTYPE, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getQueryMethodProviderMethod.getBlock().methodReturn(ref(MEMBERNAME_QUERY_METHOD_PROVIDER));
 
         // build stack
@@ -173,9 +174,9 @@ public class CompilerHelperFAFProvider {
         CodegenStackGenerator.recursiveBuildStack(getQueryMethodProviderMethod, "getQueryMethodProvider", methods);
 
         List<CodegenTypedParam> members = new ArrayList<>();
-        members.add(new CodegenTypedParam(FAFQueryMethodProvider.class, MEMBERNAME_QUERY_METHOD_PROVIDER).setFinal(false));
+        members.add(new CodegenTypedParam(FAFQueryMethodProvider.EPTYPE, MEMBERNAME_QUERY_METHOD_PROVIDER).setFinal(false));
 
-        CodegenClass clazz = new CodegenClass(CodegenClassType.FAFPROVIDER, FAFProvider.class, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
+        CodegenClass clazz = new CodegenClass(CodegenClassType.FAFPROVIDER, FAFProvider.EPTYPE, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
         JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), FAFProvider.class, classPostfix);

@@ -11,12 +11,13 @@
 package com.espertech.esper.regressionlib.suite.event.infra;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.support.SupportEventPropDesc;
+import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -159,7 +160,7 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
         assertNotNull(eventType.getGetter("myInt"));
         assertTrue(eventType.isProperty("myInt"));
         assertEquals(boxed ? Integer.class : int.class, eventType.getPropertyType("myInt"));
-        assertEquals(new EventPropertyDescriptor("myString", String.class, null, false, false, false, false, false), eventType.getPropertyDescriptor("myString"));
+        SupportEventPropUtil.assertPropEquals(new SupportEventPropDesc("myString", String.class), eventType.getPropertyDescriptor("myString"));
     }
 
     private void runAssertionTypeInvalidProp(RegressionEnvironment env, String typeName, boolean xml) {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.ops;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityValidate;
@@ -31,7 +32,7 @@ public class TestExprMathNode extends TestCase {
         arithNode.addChildNode(new SupportExprNode(Double.class));
         arithNode.addChildNode(new SupportExprNode(Integer.class));
         arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Double.class, arithNode.getForge().getEvaluationType());
+        assertEquals(EPTypePremade.DOUBLEBOXED.getEPType(), arithNode.getForge().getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {

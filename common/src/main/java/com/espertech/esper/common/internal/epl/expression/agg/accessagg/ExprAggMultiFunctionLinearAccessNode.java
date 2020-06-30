@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.agg.accessagg;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -40,12 +43,13 @@ import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeInteger;
 
 public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase implements ExprEnumerationForge, ExprAggMultiFunctionNode {
     private final AggregationAccessorLinearType stateType;
     private AggregationForgeFactory aggregationForgeFactory;
     private EventType containedType;
-    private Class scalarCollectionComponentType;
+    private EPTypeClass scalarCollectionComponentType;
     private EventType streamType;
 
     public ExprAggMultiFunctionLinearAccessNode(AggregationAccessorLinearType stateType) {
@@ -102,15 +106,14 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     }
 
     private AggregationLinearFactoryDesc handleNonIntoTable(ExprNode[] childNodes, AggregationAccessorLinearType stateType, ExprValidationContext validationContext) throws ExprValidationException {
-
         StreamTypeService streamTypeService = validationContext.getStreamTypeService();
         int streamNum;
-        Class resultType;
+        EPTypeClass resultType;
         ExprForge forge;
         ExprNode evaluatorIndex = null;
         boolean istreamOnly;
         EventType containedType;
-        Class scalarCollectionComponentType = null;
+        EPTypeClass scalarCollectionComponentType = null;
 
         // validate wildcard use
         boolean isWildcard = childNodes.length == 0 || childNodes.length > 0 && childNodes[0] instanceof ExprWildcard;
@@ -118,9 +121,10 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             ExprAggMultiFunctionUtil.validateWildcardStreamNumbers(validationContext.getStreamTypeService(), stateType.toString().toLowerCase(Locale.ENGLISH));
             streamNum = 0;
             containedType = streamTypeService.getEventTypes()[0];
-            resultType = containedType.getUnderlyingType();
+            EPTypeClass resultTypeStream = containedType.getUnderlyingEPType();
+            resultType = resultTypeStream;
             TableMetaData tableMetadata = validationContext.getTableCompileTimeResolver().resolveTableFromEventType(containedType);
-            forge = ExprNodeUtilityMake.makeUnderlyingForge(0, resultType, tableMetadata);
+            forge = ExprNodeUtilityMake.makeUnderlyingForge(0, resultTypeStream, tableMetadata);
             istreamOnly = getIstreamOnly(streamTypeService, 0);
             if ((stateType == AggregationAccessorLinearType.WINDOW) && istreamOnly && !streamTypeService.isOnDemandStreams()) {
                 throw makeUnboundValidationEx(stateType);
@@ -134,7 +138,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             }
             EventType type = streamTypeService.getEventTypes()[streamNum];
             containedType = type;
-            resultType = type.getUnderlyingType();
+            resultType = type.getUnderlyingEPType();
             TableMetaData tableMetadata = validationContext.getTableCompileTimeResolver().resolveTableFromEventType(type);
             forge = ExprNodeUtilityMake.makeUnderlyingForge(streamNum, resultType, tableMetadata);
         } else {
@@ -149,7 +153,11 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             if ((stateType == AggregationAccessorLinearType.WINDOW) && istreamOnly && !streamTypeService.isOnDemandStreams()) {
                 throw makeUnboundValidationEx(stateType);
             }
-            resultType = childNodes[0].getForge().getEvaluationType();
+            EPType childType = childNodes[0].getForge().getEvaluationType();
+            if (childType == EPTypeNull.INSTANCE) {
+                throw new ExprValidationException("Null-type is not allowed");
+            }
+            resultType = (EPTypeClass) childType;
             forge = childNodes[0].getForge();
             if (streamNum >= streamTypeService.getEventTypes().length) {
                 containedType = streamTypeService.getEventTypes()[0];
@@ -164,8 +172,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
                 throw new ExprValidationException(getErrorPrefix(stateType) + " does not accept an index expression; Use 'first' or 'last' instead");
             }
             evaluatorIndex = childNodes[1];
-            Class indexResultType = evaluatorIndex.getForge().getEvaluationType();
-            if (indexResultType != Integer.class && indexResultType != int.class) {
+            if (!isTypeInteger(evaluatorIndex.getForge().getEvaluationType())) {
                 throw new ExprValidationException(getErrorPrefix(stateType) + " requires an index expression that returns an integer value");
             }
         }
@@ -195,7 +202,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             }
         }
 
-        Class accessorResultType = resultType;
+        EPTypeClass accessorResultType = resultType;
         if (stateType == AggregationAccessorLinearType.WINDOW) {
             accessorResultType = JavaClassHelper.getArrayType(resultType);
         }
@@ -239,7 +246,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             throw new ExprValidationException(getErrorPrefix(stateType) + " requires that the event type is provided");
         }
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[0];
-        Class componentType = containedType.getUnderlyingType();
+        EPTypeClass componentType = containedType.getUnderlyingEPType();
         AggregationAccessorForge accessor = new AggregationAccessorWindowNoEvalForge(componentType);
         AggregationStateFactoryForge stateFactory = new AggregationStateLinearForge(this, 0, null);
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, JavaClassHelper.getArrayType(componentType), null, stateFactory, null, containedType);
@@ -274,7 +281,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             throw new ExprValidationException(message);
         }
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
-        Class componentType = containedType.getUnderlyingType();
+        EPTypeClass componentType = containedType.getUnderlyingEPType();
         AggregationAccessorForge accessor = new AggregationAccessorWindowNoEvalForge(componentType);
         AggregationAgentForge agent = AggregationAgentForgeFactory.make(streamNum, optionalFilter, validationContext.getClasspathImportService(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, JavaClassHelper.getArrayType(componentType), null, null, agent, containedType);
@@ -310,7 +317,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         return containedType;
     }
 
-    public Class getComponentTypeCollection() {
+    public EPTypeClass getComponentTypeCollection() {
         return scalarCollectionComponentType;
     }
 

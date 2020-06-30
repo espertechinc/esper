@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.type;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +19,8 @@ import java.util.Set;
  * Represents a range of numbers as a parameter.
  */
 public class RangeParameter implements NumberSetParameter {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(RangeParameter.class);
+
     private int low;
     private int high;
     private static final long serialVersionUID = 8495531153029613902L;

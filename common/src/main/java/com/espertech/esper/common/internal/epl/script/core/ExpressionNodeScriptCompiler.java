@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.script.core;
 
 import com.espertech.esper.common.client.hook.expr.EPLScriptContext;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.script.jsr223.JSR223Helper;
 import com.espertech.esper.common.internal.epl.script.mvel.MVELHelper;
@@ -23,14 +26,22 @@ import java.util.Map;
 import static com.espertech.esper.common.internal.epl.script.core.ExprNodeScript.CONTEXT_BINDING_NAME;
 
 public class ExpressionNodeScriptCompiler {
-    public static ExpressionScriptCompiled compileScript(String dialect, String scriptName, String expression, String[] parameterNames, Class[] evaluationTypes, ExpressionScriptCompiled optionalPrecompiled, ClasspathImportService classpathImportService)
+    public static ExpressionScriptCompiled compileScript(String dialect, String scriptName, String expression, String[] parameterNames, EPType[] evaluationTypes, ExpressionScriptCompiled optionalPrecompiled, ClasspathImportService classpathImportService)
             throws ExprValidationException {
         ExpressionScriptCompiled compiled;
         if (dialect.toLowerCase(Locale.ENGLISH).trim().equals("mvel")) {
             Map<String, Class> mvelInputParamTypes = new HashMap<String, Class>();
             for (int i = 0; i < parameterNames.length; i++) {
                 String mvelParamName = parameterNames[i];
-                mvelInputParamTypes.put(mvelParamName, evaluationTypes[i]);
+
+                EPType type = evaluationTypes[i];
+                Class parameterClass;
+                if (type == null || type == EPTypeNull.INSTANCE) {
+                    parameterClass = Object.class;
+                } else {
+                    parameterClass = ((EPTypeClass) type).getClass();
+                }
+                mvelInputParamTypes.put(mvelParamName, parameterClass);
             }
             mvelInputParamTypes.put(CONTEXT_BINDING_NAME, EPLScriptContext.class);
             compiled = MVELHelper.compile(scriptName, expression, mvelInputParamTypes, classpathImportService);

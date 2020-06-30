@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.client.EventPropertyGetter;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -35,7 +37,7 @@ public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookup
     private final EventPropertyGetterSPI height;
     private final String indexType;
 
-    public FilterSpecLookupableAdvancedIndexForge(String expression, EventPropertyGetterSPI getter, Class returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetterSPI x, EventPropertyGetterSPI y, EventPropertyGetterSPI width, EventPropertyGetterSPI height, String indexType) {
+    public FilterSpecLookupableAdvancedIndexForge(String expression, EventPropertyGetterSPI getter, EPTypeClass returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetterSPI x, EventPropertyGetterSPI y, EventPropertyGetterSPI width, EventPropertyGetterSPI height, String indexType) {
         super(expression, new ExprEventEvaluatorForgeFromProp(getter), null, returnType, true, null);
         this.quadTreeConfig = quadTreeConfig;
         this.x = x;
@@ -47,11 +49,11 @@ public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookup
 
     @Override
     public CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(FilterSpecLookupableAdvancedIndex.class, FilterSpecLookupableAdvancedIndexForge.class, classScope);
-        Function<EventPropertyGetterSPI, CodegenExpression> toEval = getter -> EventTypeUtility.codegenGetterWCoerce(getter, Double.class, null, method, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(FilterSpecLookupableAdvancedIndex.EPTYPE, FilterSpecLookupableAdvancedIndexForge.class, classScope);
+        Function<EventPropertyGetterSPI, CodegenExpression> toEval = getter -> EventTypeUtility.codegenGetterWCoerce(getter, EPTypePremade.DOUBLEBOXED.getEPType(), null, method, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(FilterSpecLookupableAdvancedIndex.class, "lookupable", newInstance(FilterSpecLookupableAdvancedIndex.class,
-                        constant(expression), constantNull(), enumValue(returnType, "class")))
+                .declareVar(FilterSpecLookupableAdvancedIndex.EPTYPE, "lookupable", newInstance(FilterSpecLookupableAdvancedIndex.EPTYPE,
+                        constant(expression), constantNull(), constant(returnType)))
                 .exprDotMethod(ref("lookupable"), "setQuadTreeConfig", quadTreeConfig.make())
                 .exprDotMethod(ref("lookupable"), "setX", toEval.apply(x))
                 .exprDotMethod(ref("lookupable"), "setY", toEval.apply(y))

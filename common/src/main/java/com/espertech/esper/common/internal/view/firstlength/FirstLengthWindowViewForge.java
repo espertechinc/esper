@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.firstlength;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
@@ -42,8 +43,8 @@ public class FirstLengthWindowViewForge extends ViewFactoryForgeBase implements 
         this.eventType = parentEventType;
     }
 
-    public Class typeOfFactory() {
-        return FirstLengthWindowViewFactory.class;
+    public EPTypeClass typeOfFactory() {
+        return FirstLengthWindowViewFactory.EPTYPE;
     }
 
     public String factoryMethod() {

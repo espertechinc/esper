@@ -18,7 +18,7 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -239,7 +239,7 @@ public class EPRuntimeCompileReflectiveService {
         try {
             return clazz.getConstructor(args);
         } catch (NoSuchMethodException ex) {
-            message = "Failed to find constructor of class " + clazz.getName() + " taking parameters " + JavaClassHelper.getParameterAsString(args) + ": " + ex.getMessage();
+            message = "Failed to find constructor of class " + clazz.getName() + " taking parameters " + ClassHelperPrint.getParameterAsString(args) + ": " + ex.getMessage();
         }
         return null;
     }
@@ -248,7 +248,7 @@ public class EPRuntimeCompileReflectiveService {
         try {
             return clazz.getMethod(name, args);
         } catch (NoSuchMethodException ex) {
-            message = "Failed to find method '" + name + "' of class " + clazz.getName() + " taking parameters " + JavaClassHelper.getParameterAsString(args) + ": " + ex.getMessage();
+            message = "Failed to find method '" + name + "' of class " + clazz.getName() + " taking parameters " + ClassHelperPrint.getParameterAsString(args) + ": " + ex.getMessage();
         }
         return null;
     }

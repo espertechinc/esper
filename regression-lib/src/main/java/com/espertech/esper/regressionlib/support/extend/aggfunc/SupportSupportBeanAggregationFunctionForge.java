@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionMode;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeManaged;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.support.SupportBean;
 
 public class SupportSupportBeanAggregationFunctionForge implements AggregationFunctionForge {
@@ -26,11 +27,11 @@ public class SupportSupportBeanAggregationFunctionForge implements AggregationFu
 
     }
 
-    public Class getValueType() {
-        return SupportBean.class;
+    public EPTypeClass getValueType() {
+        return new EPTypeClass(SupportBean.class);
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {
-        return new AggregationFunctionModeManaged().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportSupportBeanAggregationFunctionFactory.class));
+        return new AggregationFunctionModeManaged().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportSupportBeanAggregationFunctionFactory.EPTYPE));
     }
 }

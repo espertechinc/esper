@@ -11,9 +11,12 @@
 package com.espertech.esper.common.internal.epl.table.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface TableMetadataInternalEventToPublic {
+    EPTypeClass EPTYPE = new EPTypeClass(TableMetadataInternalEventToPublic.class);
+
     EventBean convert(EventBean event, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     Object[] convertToUnd(EventBean event, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);

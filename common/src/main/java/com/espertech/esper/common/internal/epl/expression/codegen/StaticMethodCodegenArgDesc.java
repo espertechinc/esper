@@ -10,14 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.expression.codegen;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 public class StaticMethodCodegenArgDesc {
     private final String blockRefName;
-    private final Class declareType;
+    private final EPTypeClass declareType;
     private final CodegenExpression argExpression;
 
-    public StaticMethodCodegenArgDesc(String blockRefName, Class declareType, CodegenExpression argExpression) {
+    public StaticMethodCodegenArgDesc(String blockRefName, EPTypeClass declareType, CodegenExpression argExpression) {
         this.blockRefName = blockRefName;
         this.declareType = declareType;
         this.argExpression = argExpression;
@@ -27,7 +28,7 @@ public class StaticMethodCodegenArgDesc {
         return blockRefName;
     }
 
-    public Class getDeclareType() {
+    public EPTypeClass getDeclareType() {
         return declareType;
     }
 

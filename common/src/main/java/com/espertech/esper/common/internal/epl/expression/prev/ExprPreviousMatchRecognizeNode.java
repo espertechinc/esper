@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.prev;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,7 +36,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Represents the 'prev' previous event function in match-recognize "define" item.
  */
 public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
-    private Class resultType;
+    private EPType resultType;
     private int streamNumber;
     private Integer constantIndexNumber;
 
@@ -75,7 +78,7 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         return ExprForgeConstantType.NONCONST;
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         return resultType;
     }
 
@@ -113,23 +116,26 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(resultType, this.getClass(), classScope);
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
+        if (resultType == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod method = parent.makeChild((EPTypeClass) resultType, this.getClass(), classScope);
         CodegenExpressionRef eps = symbols.getAddEPS(method);
 
-        CodegenExpressionField strategy = classScope.getPackageScope().addOrGetFieldWellKnown(previousStrategyFieldName, RowRecogPreviousStrategy.class);
+        CodegenExpressionField strategy = classScope.getPackageScope().addOrGetFieldWellKnown(previousStrategyFieldName, RowRecogPreviousStrategy.EPTYPE);
 
         CodegenMethod innerEval = CodegenLegoMethodExpression.codegenExpression(getChildNodes()[0].getForge(), method, classScope);
 
         method.getBlock()
-                .declareVar(RowRecogStateRandomAccess.class, "access", exprDotMethod(strategy, "getAccess", symbols.getAddExprEvalCtx(method)))
-                .declareVar(EventBean.class, "substituteEvent", exprDotMethod(ref("access"), "getPreviousEvent", constant(assignedIndex)))
-                .ifRefNullReturnNull("substituteEvent")
-                .declareVar(EventBean.class, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
-                .assignArrayElement(eps, constant(streamNumber), ref("substituteEvent"))
-                .declareVar(resultType, "evalResult", localMethod(innerEval, eps, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)))
-                .assignArrayElement(eps, constant(streamNumber), ref("originalEvent"))
-                .methodReturn(ref("evalResult"));
+            .declareVar(RowRecogStateRandomAccess.EPTYPE, "access", exprDotMethod(strategy, "getAccess", symbols.getAddExprEvalCtx(method)))
+            .declareVar(EventBean.EPTYPE, "substituteEvent", exprDotMethod(ref("access"), "getPreviousEvent", constant(assignedIndex)))
+            .ifRefNullReturnNull("substituteEvent")
+            .declareVar(EventBean.EPTYPE, "originalEvent", arrayAtIndex(eps, constant(streamNumber)))
+            .assignArrayElement(eps, constant(streamNumber), ref("substituteEvent"))
+            .declareVar((EPTypeClass) resultType, "evalResult", localMethod(innerEval, eps, symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method)))
+            .assignArrayElement(eps, constant(streamNumber), ref("originalEvent"))
+            .methodReturn(ref("evalResult"));
 
         return localMethod(method);
     }

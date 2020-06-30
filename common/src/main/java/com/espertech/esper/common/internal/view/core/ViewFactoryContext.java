@@ -10,7 +10,11 @@
  */
 package com.espertech.esper.common.internal.view.core;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
+
 public class ViewFactoryContext {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ViewFactoryContext.class);
+
     private boolean isGrouped;
     private int streamNum;
     private Integer subqueryNumber;

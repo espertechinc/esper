@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.compile;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -20,6 +21,8 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ContextMetaData {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(ContextMetaData.class);
+
     private final String contextName;
     private final String contextModuleName;
     private final NameAccessModifier contextVisibility;
@@ -59,11 +62,11 @@ public class ContextMetaData {
         for (int i = 0; i < validationInfos.length; i++) {
             validationInfos[i] = this.validationInfos[i].make(addInitSvc);
         }
-        return newInstance(ContextMetaData.class,
+        return newInstance(ContextMetaData.EPTYPE,
                 constant(contextName),
                 constant(contextModuleName),
                 constant(contextVisibility),
                 EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc),
-                newArrayWithInit(ContextControllerPortableInfo.class, validationInfos));
+                newArrayWithInit(ContextControllerPortableInfo.EPTYPE, validationInfos));
     }
 }

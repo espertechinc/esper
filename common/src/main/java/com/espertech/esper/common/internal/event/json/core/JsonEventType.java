@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonParser;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
@@ -28,6 +30,7 @@ import com.espertech.esper.common.internal.event.property.IndexedProperty;
 import com.espertech.esper.common.internal.event.property.MappedProperty;
 import com.espertech.esper.common.internal.event.property.Property;
 import com.espertech.esper.common.internal.event.property.PropertyParser;
+import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
@@ -36,15 +39,17 @@ import java.util.*;
  * Implementation of the EventType interface for handling JavaBean-type classes.
  */
 public class JsonEventType extends BaseNestableEventType {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(JsonEventType.class);
+
     private final JsonEventTypeDetail detail;
 
     private Class delegateType;
     private JsonDelegateFactory delegateFactory;
-    private Class underlyingType;
+    private EPTypeClass underlyingType;
     protected EventPropertyDescriptor[] writablePropertyDescriptors;
     protected Map<String, Pair<EventPropertyDescriptor, JsonEventBeanPropertyWriter>> propertyWriters;
 
-    public JsonEventType(EventTypeMetadata metadata, Map<String, Object> propertyTypes, EventType[] optionalSuperTypes, Set<EventType> optionalDeepSupertypes, String startTimestampPropertyName, String endTimestampPropertyName, EventTypeNestableGetterFactory getterFactory, BeanEventTypeFactory beanEventTypeFactory, JsonEventTypeDetail detail, Class underlyingStandInClass) {
+    public JsonEventType(EventTypeMetadata metadata, Map<String, Object> propertyTypes, EventType[] optionalSuperTypes, Set<EventType> optionalDeepSupertypes, String startTimestampPropertyName, String endTimestampPropertyName, EventTypeNestableGetterFactory getterFactory, BeanEventTypeFactory beanEventTypeFactory, JsonEventTypeDetail detail, EPTypeClass underlyingStandInClass) {
         super(metadata, propertyTypes, optionalSuperTypes, optionalDeepSupertypes, startTimestampPropertyName, endTimestampPropertyName, getterFactory, beanEventTypeFactory, true);
         this.detail = detail;
         this.underlyingType = underlyingStandInClass;
@@ -104,7 +109,7 @@ public class JsonEventType extends BaseNestableEventType {
                 return null;
             }
             MappedProperty mapProp = (MappedProperty) property;
-            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), Object.class, null, false, true, false, true, false);
+            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), false, true, false, true, false);
         }
         if (property instanceof IndexedProperty) {
             EventPropertyWriter writer = getWriter(propertyName);
@@ -112,7 +117,7 @@ public class JsonEventType extends BaseNestableEventType {
                 return null;
             }
             IndexedProperty indexedProp = (IndexedProperty) property;
-            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), Object.class, null, true, false, true, false, false);
+            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), EPTypePremade.OBJECT.getEPType(), true, false, true, false, false);
         }
         return null;
     }
@@ -140,13 +145,21 @@ public class JsonEventType extends BaseNestableEventType {
         if (underlyingType == null) {
             throw new EPException("Underlying type has not been set");
         }
+        return underlyingType.getType();
+    }
+
+    public EPTypeClass getUnderlyingEPType() {
+        if (underlyingType == null) {
+            throw new EPException("Underlying type has not been set");
+        }
         return underlyingType;
     }
 
     public void initialize(ClassLoader classLoader) {
         // resolve underlying type
         try {
-            underlyingType = Class.forName(detail.getUnderlyingClassName(), true, classLoader);
+            Class clazz = Class.forName(detail.getUnderlyingClassName(), true, classLoader);
+            this.underlyingType = ClassHelperGenericType.getClassEPType(clazz);
         } catch (ClassNotFoundException ex) {
             throw new EPException("Failed to load Json underlying class: " + ex.getMessage(), ex);
         }

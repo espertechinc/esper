@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.firstoflastof;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,8 +23,8 @@ import com.espertech.esper.common.internal.epl.enummethod.eval.EnumEval;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForge;
 import com.espertech.esper.common.internal.epl.enummethod.eval.EnumForgeBasePlain;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.rettype.EPChainableType;
+import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
@@ -31,9 +33,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EnumLastOf extends EnumForgeBasePlain implements EnumForge, EnumEval {
 
-    private final EPType resultType;
+    private final EPChainableType resultType;
 
-    public EnumLastOf(int streamCountIncoming, EPType resultType) {
+    public EnumLastOf(int streamCountIncoming, EPChainableType resultType) {
         super(streamCountIncoming);
         this.resultType = resultType;
     }
@@ -51,10 +53,10 @@ public class EnumLastOf extends EnumForgeBasePlain implements EnumForge, EnumEva
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        Class type = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
+        EPTypeClass type = JavaClassHelper.getBoxedType(EPChainableTypeHelper.getCodegenReturnType(resultType));
         CodegenMethod method = codegenMethodScope.makeChild(type, EnumLastOf.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
-                .declareVar(Object.class, "result", constantNull())
-                .forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "result", constantNull())
+                .forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignRef("result", ref("next"))
                 .blockEnd()
                 .methodReturn(cast(type, ref("result")));

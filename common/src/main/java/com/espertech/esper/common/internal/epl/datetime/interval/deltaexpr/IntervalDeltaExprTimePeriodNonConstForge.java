@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.interval.deltaexpr;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -45,10 +46,9 @@ public class IntervalDeltaExprTimePeriodNonConstForge implements IntervalDeltaEx
     }
 
     public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(long.class, IntervalDeltaExprTimePeriodNonConstForge.class, codegenClassScope).addParam(long.class, "reference");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.LONGPRIMITIVE.getEPType(), IntervalDeltaExprTimePeriodNonConstForge.class, codegenClassScope).addParam(EPTypePremade.LONGPRIMITIVE.getEPType(), "reference");
 
-
-        methodNode.getBlock().declareVar(double.class, "sec", timePeriod.evaluateAsSecondsCodegen(methodNode, exprSymbol, codegenClassScope))
+        methodNode.getBlock().declareVar(EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "sec", timePeriod.evaluateAsSecondsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(timeAbacus.deltaForSecondsDoubleCodegen(ref("sec"), codegenClassScope));
         return localMethod(methodNode, reference);
     }

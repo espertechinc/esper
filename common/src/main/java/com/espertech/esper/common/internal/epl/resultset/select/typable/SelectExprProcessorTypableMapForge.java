@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.select.typable;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -20,8 +22,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstantType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeRenderable;
-
-import java.util.Map;
 
 public class SelectExprProcessorTypableMapForge implements SelectExprProcessorTypableForge {
     protected final EventType mapType;
@@ -40,16 +40,16 @@ public class SelectExprProcessorTypableMapForge implements SelectExprProcessorTy
         return ExprForgeConstantType.NONCONST;
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return SelectExprProcessorTypableMapEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public Class getUnderlyingEvaluationType() {
-        return Map.class;
+    public EPTypeClass getUnderlyingEvaluationType() {
+        return EPTypePremade.MAP.getEPType();
     }
 
-    public Class getEvaluationType() {
-        return EventBean.class;
+    public EPTypeClass getEvaluationType() {
+        return EventBean.EPTYPE;
     }
 
     public ExprForge getInnerForge() {

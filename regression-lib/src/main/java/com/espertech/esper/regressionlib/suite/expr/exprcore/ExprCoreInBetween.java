@@ -574,7 +574,7 @@ public class ExprCoreInBetween {
         public void run(RegressionEnvironment env) {
             String epl = "select intArr in (1, 2, 3) as r1 from SupportBeanArrayCollMap";
             SupportMessageAssertUtil.tryInvalidCompile(env, epl,
-                "Failed to validate select-clause expression 'intArr in (1,2,3)': Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
+                "Failed to validate select-clause expression 'intArr in (1,2,3)': Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
         }
     }
 

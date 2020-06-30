@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.hash;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -42,25 +43,25 @@ public class ContextControllerHashedGetterHashMultiple implements EventPropertyV
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Object.class, this.getClass(), classScope).addParam(EventBean.class, "eventBean");
-        method.getBlock().declareVar(EventBean[].class, "events", newArrayWithInit(EventBean.class, ref("eventBean")));
+        CodegenMethod method = parent.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "eventBean");
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "events", newArrayWithInit(EventBean.EPTYPE, ref("eventBean")));
 
         // method to evaluate expressions and compute hash
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, true);
-        CodegenMethod exprMethod = method.makeChildWithScope(Object.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod exprMethod = method.makeChildWithScope(EPTypePremade.OBJECT.getEPType(), CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
 
         CodegenExpression[] expressions = new CodegenExpression[nodes.length];
         for (int i = 0; i < nodes.length; i++) {
-            expressions[i] = nodes[i].getForge().evaluateCodegen(Object.class, exprMethod, exprSymbol, classScope);
+            expressions[i] = nodes[i].getForge().evaluateCodegen(EPTypePremade.OBJECT.getEPType(), exprMethod, exprSymbol, classScope);
         }
         exprSymbol.derivedSymbolsCodegen(method, exprMethod.getBlock(), classScope);
 
         CodegenExpressionRef hashCode = ref("hashCode");
-        exprMethod.getBlock().declareVar(int.class, hashCode.getRef(), constant(0));
+        exprMethod.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), hashCode.getRef(), constant(0));
         for (int i = 0; i < nodes.length; i++) {
             CodegenExpressionRef result = ref("result" + i);
             exprMethod.getBlock()
-                    .declareVar(Object.class, result.getRef(), expressions[i])
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), result.getRef(), expressions[i])
                     .ifRefNotNull(result.getRef())
                     .assignRef(hashCode, op(op(constant(31), "*", hashCode), "+", exprDotMethod(result, "hashCode")))
                     .blockEnd();

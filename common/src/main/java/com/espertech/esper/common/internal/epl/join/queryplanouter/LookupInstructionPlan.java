@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplanouter;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.join.exec.base.JoinExecTableLookupStrategy;
@@ -31,6 +32,8 @@ import java.util.Map;
  * to-stream.
  */
 public class LookupInstructionPlan {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(LookupInstructionPlan.class);
+
     private final int fromStream;
     private final String fromStreamName;
     private final int[] toStreams;

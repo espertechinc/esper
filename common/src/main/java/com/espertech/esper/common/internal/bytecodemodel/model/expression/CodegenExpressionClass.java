@@ -31,7 +31,7 @@ public class CodegenExpressionClass implements CodegenExpression {
     }
 
     public static void renderClass(Class clazz, StringBuilder builder, Map<Class, String> imports) {
-        appendClassName(builder, clazz, null, imports);
+        appendClassName(builder, clazz, imports);
         builder.append(".");
         builder.append("class");
     }

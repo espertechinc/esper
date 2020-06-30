@@ -31,7 +31,7 @@ public interface DataInputOutputSerdeForge {
         for (int i = 0; i < serdes.length; i++) {
             expressions[i] = serdes[i].codegen(method, classScope, optionalEventTypeResolver);
         }
-        return newArrayWithInit(DataInputOutputSerde.class, expressions);
+        return newArrayWithInit(DataInputOutputSerde.EPTYPE, expressions);
     }
 
     String forgeClassName();

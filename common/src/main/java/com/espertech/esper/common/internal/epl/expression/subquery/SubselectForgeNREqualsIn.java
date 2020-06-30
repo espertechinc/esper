@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -37,23 +40,26 @@ public class SubselectForgeNREqualsIn extends SubselectForgeNREqualsInBase {
     }
 
     protected CodegenExpression codegenEvaluateInternal(CodegenMethodScope parent, SubselectForgeNRSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(Boolean.class, this.getClass(), classScope);
+        if (subselect.getEvaluationType() == EPTypeNull.INSTANCE) {
+            return constantNull();
+        }
+        CodegenMethod method = parent.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), this.getClass(), classScope);
         CodegenExpressionRef left = symbols.getAddLeftResult(method);
-        method.getBlock().declareVar(boolean.class, "hasNullRow", constantFalse());
-        CodegenBlock foreach = method.getBlock().forEach(EventBean.class, "theEvent", symbols.getAddMatchingEvents(method));
+        method.getBlock().declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "hasNullRow", constantFalse());
+        CodegenBlock foreach = method.getBlock().forEach(EventBean.EPTYPE, "theEvent", symbols.getAddMatchingEvents(method));
         {
             foreach.assignArrayElement(NAME_EPS, constant(0), ref("theEvent"));
             if (filterEval != null) {
-                CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(foreach, filterEval.getEvaluationType(), filterEval.evaluateCodegen(Boolean.class, method, symbols, classScope));
+                CodegenLegoBooleanExpression.codegenContinueIfNotNullAndNotPass(foreach, filterEval.getEvaluationType(), filterEval.evaluateCodegen(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), method, symbols, classScope));
             }
             foreach.ifNullReturnNull(left);
 
-            Class valueRightType;
+            EPTypeClass valueRightType;
             if (selectEval != null) {
-                valueRightType = JavaClassHelper.getBoxedType(selectEval.getEvaluationType());
+                valueRightType = JavaClassHelper.getBoxedType((EPTypeClass) selectEval.getEvaluationType());
                 foreach.declareVar(valueRightType, "valueRight", selectEval.evaluateCodegen(valueRightType, method, symbols, classScope));
             } else {
-                valueRightType = subselect.rawEventType.getUnderlyingType();
+                valueRightType = subselect.rawEventType.getUnderlyingEPType();
                 foreach.declareVar(valueRightType, "valueRight", cast(valueRightType, exprDotUnderlying(arrayAtIndex(symbols.getAddEPS(method), constant(0)))));
             }
 
@@ -62,9 +68,9 @@ public class SubselectForgeNREqualsIn extends SubselectForgeNREqualsInBase {
                 if (coercer == null) {
                     ifRight.ifCondition(exprDotMethod(left, "equals", ref("valueRight"))).blockReturn(constant(!isNotIn));
                 } else {
-                    ifRight.declareVar(Number.class, "left", coercer.coerceCodegen(left, symbols.getLeftResultType()))
-                            .declareVar(Number.class, "right", coercer.coerceCodegen(ref("valueRight"), valueRightType))
-                            .declareVar(boolean.class, "eq", exprDotMethod(ref("left"), "equals", ref("right")))
+                    ifRight.declareVar(EPTypePremade.NUMBER.getEPType(), "left", coercer.coerceCodegen(left, symbols.getLeftResultType()))
+                            .declareVar(EPTypePremade.NUMBER.getEPType(), "right", coercer.coerceCodegen(ref("valueRight"), valueRightType))
+                            .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "eq", exprDotMethod(ref("left"), "equals", ref("right")))
                             .ifCondition(ref("eq")).blockReturn(constant(!isNotIn));
                 }
             }

@@ -30,9 +30,9 @@ public class MethodTargetStrategyStaticMethodForge implements MethodTargetStrate
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(MethodTargetStrategyStaticMethod.class, this.getClass(), classScope);
+        CodegenMethod method = parent.makeChild(MethodTargetStrategyStaticMethod.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(MethodTargetStrategyStaticMethod.class, "target", newInstance(MethodTargetStrategyStaticMethod.class))
+                .declareVarNewInstance(MethodTargetStrategyStaticMethod.EPTYPE, "target")
                 .exprDotMethod(ref("target"), "setClazz", constant(clazz))
                 .exprDotMethod(ref("target"), "setMethodName", constant(reflectionMethod.getName()))
                 .exprDotMethod(ref("target"), "setMethodParameters", constant(reflectionMethod.getParameterTypes()))

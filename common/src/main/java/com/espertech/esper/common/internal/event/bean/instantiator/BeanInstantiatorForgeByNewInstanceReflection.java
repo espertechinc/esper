@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.bean.instantiator;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -21,15 +22,15 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class BeanInstantiatorForgeByNewInstanceReflection implements BeanInstantiatorForge, BeanInstantiator {
     private final static Logger log = LoggerFactory.getLogger(BeanInstantiatorForgeByNewInstanceReflection.class);
 
-    private final Class clazz;
+    private final EPTypeClass clazz;
 
-    public BeanInstantiatorForgeByNewInstanceReflection(Class clazz) {
+    public BeanInstantiatorForgeByNewInstanceReflection(EPTypeClass clazz) {
         this.clazz = clazz;
     }
 
     public Object instantiate() {
         try {
-            return clazz.newInstance();
+            return clazz.getType().newInstance();
         } catch (IllegalAccessException e) {
             return handle(e);
         } catch (InstantiationException e) {
@@ -46,7 +47,7 @@ public class BeanInstantiatorForgeByNewInstanceReflection implements BeanInstant
     }
 
     private Object handle(Exception e) {
-        String message = "Unexpected exception encountered invoking newInstance on class '" + clazz.getName() + "': " + e.getMessage();
+        String message = "Unexpected exception encountered invoking newInstance on class '" + clazz.getTypeName() + "': " + e.getMessage();
         log.error(message, e);
         return null;
     }

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.bean.manufacturer;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,9 +22,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.event.map.MapEventType;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -43,21 +41,21 @@ public class EventBeanManufacturerMapForge implements EventBeanManufacturerForge
         CodegenMethod init = codegenClassScope.getPackageScope().getInitMethod();
 
         CodegenExpressionField factory = codegenClassScope.addOrGetFieldSharable(EventBeanTypedEventFactoryCodegenField.INSTANCE);
-        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(mapEventType, EPStatementInitServices.REF));
+        CodegenExpressionField eventType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(mapEventType, EPStatementInitServices.REF));
 
-        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.class);
+        CodegenExpressionNewAnonymousClass manufacturer = newAnonymousClass(init.getBlock(), EventBeanManufacturer.EPTYPE);
 
-        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(Map.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeUndMethod = CodegenMethod.makeParentNode(EPTypePremade.MAP.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("makeUnderlying", makeUndMethod);
         makeUnderlyingCodegen(makeUndMethod, codegenClassScope);
 
-        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "properties");
+        CodegenMethod makeMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), codegenClassScope).addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties");
         manufacturer.addMethod("make", makeMethod);
         makeMethod.getBlock()
-                .declareVar(Map.class, "und", localMethod(makeUndMethod, ref("properties")))
+                .declareVar(EPTypePremade.MAP.getEPType(), "und", localMethod(makeUndMethod, ref("properties")))
                 .methodReturn(exprDotMethod(factory, "adapterForTypedMap", ref("und"), eventType));
 
-        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.class, manufacturer);
+        return codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, manufacturer);
     }
 
     public EventBeanManufacturer getManufacturer(EventBeanTypedEventFactory eventBeanTypedEventFactory) {
@@ -65,7 +63,7 @@ public class EventBeanManufacturerMapForge implements EventBeanManufacturerForge
     }
 
     private void makeUnderlyingCodegen(CodegenMethod method, CodegenClassScope codegenClassScope) {
-        method.getBlock().declareVar(Map.class, "values", newInstance(HashMap.class));
+        method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "values", newInstance(EPTypePremade.HASHMAP.getEPType()));
         for (int i = 0; i < writables.length; i++) {
             method.getBlock().exprDotMethod(ref("values"), "put", constant(writables[i].getPropertyName()), arrayAtIndex(ref("properties"), constant(i)));
         }

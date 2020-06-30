@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.event.map;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -33,8 +35,8 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
     private final String propertyMap;
     private final int index;
 
-    public MapArrayPOJOEntryIndexedPropertyGetter(String propertyMap, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, Class returnType) {
-        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType, null);
+    public MapArrayPOJOEntryIndexedPropertyGetter(String propertyMap, int index, EventBeanTypedEventFactory eventBeanTypedEventFactory, BeanEventTypeFactory beanEventTypeFactory, EPTypeClass returnType) {
+        super(eventBeanTypedEventFactory, beanEventTypeFactory, returnType);
         this.propertyMap = propertyMap;
         this.index = index;
     }
@@ -50,14 +52,14 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
     }
 
     private CodegenMethod getMapInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").addParam(int.class, "index").getBlock()
-                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+        return codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "map").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), ref("index")));
     }
 
     private CodegenMethod existsMapInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").addParam(int.class, "index").getBlock()
-            .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+        return codegenMethodScope.makeChild(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), this.getClass(), codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "map").addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").getBlock()
+            .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
             .methodReturn(staticMethod(CollectionUtil.class, "arrayExistsAtIndex", ref("value"), ref("index")));
     }
 
@@ -81,11 +83,11 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingGetCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
+        return underlyingExistsCodegen(castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -97,14 +99,15 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getMapInternalCodegen(codegenMethodScope, codegenClassScope), castUnderlying(Map.class, beanExpression), key);
+        return localMethod(getMapInternalCodegen(codegenMethodScope, codegenClassScope), castUnderlying(EPTypePremade.MAP.getEPType(), beanExpression), key);
     }
 
-    public Class getTargetType() {
-        return Map.class;
+    public EPTypeClass getTargetType() {
+        return EPTypePremade.MAP.getEPType();
     }
 
-    public Class getBeanPropType() {
-        return Object.class;
+    @Override
+    public EPTypeClass getBeanPropType() {
+        return EPTypePremade.OBJECT.getEPType();
     }
 }

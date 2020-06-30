@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -39,7 +40,7 @@ public class DTLocalCalOpsZonedDateTimeEval extends DTLocalEvaluatorCalOpsCalBas
     }
 
     public static CodegenExpression codegen(DTLocalCalOpsZonedDateTimeForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, DTLocalCalOpsZonedDateTimeEval.class, codegenClassScope).addParam(ZonedDateTime.class, "zdt");
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.ZONEDDATETIME.getEPType(), DTLocalCalOpsZonedDateTimeEval.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "zdt");
 
         CodegenBlock block = methodNode.getBlock();
         evaluateCalOpsZDTCodegen(block, "zdt", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);

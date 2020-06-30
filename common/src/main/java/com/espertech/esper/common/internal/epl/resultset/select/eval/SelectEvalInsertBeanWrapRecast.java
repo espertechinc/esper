@@ -54,12 +54,12 @@ public class SelectEvalInsertBeanWrapRecast implements SelectExprProcessorForge 
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenExpressionField memberUndType = codegenClassScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(eventType.getUnderlyingEventType(), EPStatementInitServices.REF));
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
+        CodegenExpressionField memberUndType = codegenClassScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType.getUnderlyingEventType(), EPStatementInitServices.REF));
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(streamNumber)))
-                .declareVar(EventBean.class, "recast", exprDotMethod(eventBeanFactory, "adapterForTypedBean", exprDotUnderlying(ref("theEvent")), memberUndType))
+                .declareVar(EventBean.EPTYPE, "theEvent", arrayAtIndex(refEPS, constant(streamNumber)))
+                .declareVar(EventBean.EPTYPE, "recast", exprDotMethod(eventBeanFactory, "adapterForTypedBean", exprDotUnderlying(ref("theEvent")), memberUndType))
                 .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedWrapper", ref("recast"), staticMethod(Collections.class, "emptyMap"), resultEventType));
         return methodNode;
     }

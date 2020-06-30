@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.minmaxby;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -34,12 +35,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class EnumMinMaxByEventsPlus extends ThreeFormEventPlus {
 
     protected final boolean max;
-    private final Class innerTypeBoxed;
+    private final EPTypeClass innerTypeBoxed;
 
     public EnumMinMaxByEventsPlus(ExprDotEvalParamLambda lambda, ObjectArrayEventType indexEventType, int numParameters, boolean max) {
         super(lambda, indexEventType, numParameters);
         this.max = max;
-        this.innerTypeBoxed = JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
+        this.innerTypeBoxed = (EPTypeClass) JavaClassHelper.getBoxedType(innerExpression.getEvaluationType());
     }
 
     public EnumEval getEnumEvaluator() {
@@ -89,8 +90,8 @@ public class EnumMinMaxByEventsPlus extends ThreeFormEventPlus {
         };
     }
 
-    public Class returnType() {
-        return EventBean.class;
+    public EPTypeClass returnTypeOfMethod() {
+        return EventBean.EPTYPE;
     }
 
     public CodegenExpression returnIfEmptyOptional() {
@@ -99,19 +100,19 @@ public class EnumMinMaxByEventsPlus extends ThreeFormEventPlus {
 
     public void initBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
         block.declareVar(innerTypeBoxed, "minKey", constantNull())
-            .declareVar(EventBean.class, "result", constantNull());
+                .declareVar(EventBean.EPTYPE, "result", constantNull());
     }
 
     public void forEachBlock(CodegenBlock block, CodegenMethod methodNode, ExprForgeCodegenSymbol scope, CodegenClassScope codegenClassScope) {
         block.declareVar(innerTypeBoxed, "value", innerExpression.evaluateCodegen(innerTypeBoxed, methodNode, scope, codegenClassScope))
-            .ifRefNull("value").blockContinue()
-            .ifCondition(equalsNull(ref("minKey")))
-            .assignRef("minKey", ref("value"))
-            .assignRef("result", ref("next"))
-            .ifElse()
-            .ifCondition(relational(exprDotMethod(ref("minKey"), "compareTo", ref("value")), max ? LT : GT, constant(0)))
-            .assignRef("minKey", ref("value"))
-            .assignRef("result", ref("next"));
+                .ifRefNull("value").blockContinue()
+                .ifCondition(equalsNull(ref("minKey")))
+                .assignRef("minKey", ref("value"))
+                .assignRef("result", ref("next"))
+                .ifElse()
+                .ifCondition(relational(exprDotMethod(ref("minKey"), "compareTo", ref("value")), max ? LT : GT, constant(0)))
+                .assignRef("minKey", ref("value"))
+                .assignRef("result", ref("next"));
     }
 
     public void returnResult(CodegenBlock block) {

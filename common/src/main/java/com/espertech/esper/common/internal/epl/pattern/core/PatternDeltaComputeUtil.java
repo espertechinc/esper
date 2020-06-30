@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.pattern.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
@@ -30,20 +32,20 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class PatternDeltaComputeUtil {
     public static CodegenExpression makePatternDeltaAnonymous(ExprNode parameter, MatchedEventConvertorForge convertor, TimeAbacus timeAbacus,
                                                               CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass compute = newAnonymousClass(method.getBlock(), PatternDeltaCompute.class);
-        CodegenMethod computeDelta = CodegenMethod.makeParentNode(long.class, PatternDeltaComputeUtil.class, classScope).addParam(CodegenNamedParam.from(MatchedEventMap.class, "beginState", PatternAgentInstanceContext.class, "context"));
+        CodegenExpressionNewAnonymousClass compute = newAnonymousClass(method.getBlock(), PatternDeltaCompute.EPTYPE);
+        CodegenMethod computeDelta = CodegenMethod.makeParentNode(EPTypePremade.LONGPRIMITIVE.getEPType(), PatternDeltaComputeUtil.class, classScope).addParam(CodegenNamedParam.from(MatchedEventMap.EPTYPE, "beginState", PatternAgentInstanceContext.EPTYPE, "context"));
         compute.addMethod("computeDelta", computeDelta);
 
         if (parameter instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) parameter;
             CodegenExpression time = exprDotMethod(ref("context"), "getTime");
             if (timePeriod.isConstantResult()) {
-                CodegenExpressionField delta = classScope.addFieldUnshared(true, TimePeriodCompute.class, timePeriod.getTimePeriodComputeForge().makeEvaluator(classScope.getPackageScope().getInitMethod(), classScope));
+                CodegenExpressionField delta = classScope.addFieldUnshared(true, TimePeriodCompute.EPTYPE, timePeriod.getTimePeriodComputeForge().makeEvaluator(classScope.getPackageScope().getInitMethod(), classScope));
                 computeDelta.getBlock().methodReturn(exprDotMethod(delta, "deltaAdd", time, constantNull(), constantTrue(), exprDotMethod(ref("context"), "getAgentInstanceContext")));
             } else {
-                CodegenExpressionField delta = classScope.addFieldUnshared(true, TimePeriodCompute.class, timePeriod.getTimePeriodComputeForge().makeEvaluator(classScope.getPackageScope().getInitMethod(), classScope));
+                CodegenExpressionField delta = classScope.addFieldUnshared(true, TimePeriodCompute.EPTYPE, timePeriod.getTimePeriodComputeForge().makeEvaluator(classScope.getPackageScope().getInitMethod(), classScope));
                 computeDelta.getBlock()
-                        .declareVar(EventBean[].class, "events", localMethod(convertor.make(computeDelta, classScope), ref("beginState")))
+                        .declareVar(EventBean.EPTYPEARRAY, "events", localMethod(convertor.make(computeDelta, classScope), ref("beginState")))
                         .methodReturn(exprDotMethod(delta, "deltaAdd", time, ref("events"), constantTrue(), exprDotMethod(ref("context"), "getAgentInstanceContext")));
             }
         } else {
@@ -55,10 +57,10 @@ public class PatternDeltaComputeUtil {
                 events = localMethod(convertor.make(computeDelta, classScope), ref("beginState"));
             }
             computeDelta.getBlock()
-                    .declareVar(EventBean[].class, "events", events)
-                    .declareVar(parameter.getForge().getEvaluationType(), "result", localMethod(eval, ref("events"), constantTrue(), exprDotMethod(ref("context"), "getAgentInstanceContext")));
-            if (!parameter.getForge().getEvaluationType().isPrimitive()) {
-                computeDelta.getBlock().ifRefNull("result").blockThrow(newInstance(EPException.class, constant("Null value returned for guard expression")));
+                    .declareVar(EventBean.EPTYPEARRAY, "events", events)
+                    .declareVar((EPTypeClass) parameter.getForge().getEvaluationType(), "result", localMethod(eval, ref("events"), constantTrue(), exprDotMethod(ref("context"), "getAgentInstanceContext")));
+            if (!((EPTypeClass) parameter.getForge().getEvaluationType()).getType().isPrimitive()) {
+                computeDelta.getBlock().ifRefNull("result").blockThrow(newInstance(EPException.EPTYPE, constant("Null value returned for guard expression")));
             }
             computeDelta.getBlock().methodReturn(timeAbacus.deltaForSecondsDoubleCodegen(ref("result"), classScope));
         }

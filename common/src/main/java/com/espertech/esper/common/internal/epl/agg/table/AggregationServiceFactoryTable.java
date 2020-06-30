@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.table;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAgent;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
@@ -19,6 +20,8 @@ import com.espertech.esper.common.internal.epl.table.core.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
 public class AggregationServiceFactoryTable implements AggregationServiceFactory {
+    public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationServiceFactoryTable.class);
+
     private Table table;
     private TableColumnMethodPairEval[] methodPairs;
     private AggregationMultiFunctionAgent[] accessAgents;

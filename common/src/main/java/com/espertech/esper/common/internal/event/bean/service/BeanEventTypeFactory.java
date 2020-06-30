@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.event.bean.service;
 
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactory;
@@ -18,7 +19,7 @@ import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFacto
  * Interface for a factory for obtaining {@link BeanEventType} instances.
  */
 public interface BeanEventTypeFactory {
-    BeanEventType getCreateBeanType(Class clazz, boolean publicFields);
+    BeanEventType getCreateBeanType(EPTypeClass clazz, boolean publicFields);
 
     EventBeanTypedEventFactory getEventBeanTypedEventFactory();
 

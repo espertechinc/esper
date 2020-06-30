@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.hook.expr.EPLScriptContext;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.core.AvroEventType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroArrayEvent;
+import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.regressionlib.support.bean.SupportJsonArrayEvent;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
@@ -286,16 +287,16 @@ public class EPLContainedEventSplitExpr {
         // invalid type assignment to event type
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
-                "Event type 'WordEvent' underlying type [Ljava.lang.Object; cannot be assigned a value of type");
+                "Event type 'WordEvent' underlying type Object[] cannot be assigned a value of type");
         } else if (eventRepresentationEnum.isMapEvent()) {
             tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
-                "Event type 'WordEvent' underlying type java.util.Map cannot be assigned a value of type");
+                "Event type 'WordEvent' underlying type java.util.Map<String,Object> cannot be assigned a value of type");
         } else if (eventRepresentationEnum.isAvroEvent()) {
             tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' underlying type " + JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME + " cannot be assigned a value of type");
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
-                "Event type 'WordEvent' requires string-type array and cannot be assigned from value of type " + JavaClassHelper.getClassNameFullyQualPretty(SupportBean[].class));
+                "Event type 'WordEvent' requires string-type array and cannot be assigned from value of type " + ClassHelperPrint.getClassNameFullyQualPretty(SupportBean[].class));
         } else {
             fail();
         }

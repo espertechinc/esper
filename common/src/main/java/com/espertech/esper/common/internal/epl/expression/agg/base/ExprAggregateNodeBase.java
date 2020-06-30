@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.expression.agg.base;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -22,12 +25,12 @@ import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCas
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
 
 /**
  * Base expression node that represents an aggregation function such as 'sum' or 'count'.
@@ -80,7 +83,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
      * @throws ExprValidationException when expression validation failed
      */
     protected abstract AggregationForgeFactory validateAggregationChild(ExprValidationContext validationContext)
-            throws ExprValidationException;
+        throws ExprValidationException;
 
     public ExprForgeConstantType getForgeConstantType() {
         return ExprForgeConstantType.NONCONST;
@@ -127,7 +130,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     public void validatePositionals(ExprValidationContext validationContext) throws ExprValidationException {
         ExprAggregateNodeParamDesc paramDesc = ExprAggregateNodeUtil.getValidatePositionalParams(this.getChildNodes(), true);
         if (validationContext.getStatementRawInfo().getStatementType() == StatementType.CREATE_TABLE &&
-                (paramDesc.getOptLocalGroupBy() != null || paramDesc.getOptionalFilter() != null)) {
+            (paramDesc.getOptLocalGroupBy() != null || paramDesc.getOptionalFilter() != null)) {
             throw new ExprValidationException("The 'group_by' and 'filter' parameter is not allowed in create-table statements");
         }
         this.optionalAggregateLocalGroupByDesc = paramDesc.getOptLocalGroupBy();
@@ -168,24 +171,25 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegenUninstrumented(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression future = getAggFuture(codegenClassScope);
         CodegenExpression eval = exprDotMethod(future, "getValue", constant(column), exprDotMethod(exprSymbol.getAddExprEvalCtx(parent), "getAgentInstanceId"), exprSymbol.getAddEPS(parent), exprSymbol.getAddIsNewData(parent), exprSymbol.getAddExprEvalCtx(parent));
-        if (requiredType == Object.class) {
+        if (requiredType.getType() == Object.class) {
             return eval;
         }
         return CodegenLegoCast.castSafeFromObjectType(getEvaluationType(), eval);
     }
 
-    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprAggValue", requiredType, parent, exprSymbol, codegenClassScope).build();
     }
 
-    public Class getEvaluationType() {
+    public EPType getEvaluationType() {
         if (aggregationForgeFactory == null) {
             throw new IllegalStateException("Aggregation method has not been set");
         }
-        return aggregationForgeFactory.getResultType();
+        EPType resultType = aggregationForgeFactory.getResultType();
+        return resultType == null ? EPTypeNull.INSTANCE : resultType;
     }
 
     public ExprForge getForge() {
@@ -220,8 +224,8 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return column;
     }
 
-    protected final Class validateNumericChildAllowFilter(boolean hasFilter)
-            throws ExprValidationException {
+    protected final EPTypeClass validateNumericChildAllowFilter(boolean hasFilter)
+        throws ExprValidationException {
         if (positionalParams.length == 0 || positionalParams.length > 2) {
             throw makeExceptionExpectedParamNum(1, 2);
         }
@@ -232,14 +236,13 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
             validateFilter(positionalParams[1]);
         }
 
-        Class childType = child.getForge().getEvaluationType();
-        if (!JavaClassHelper.isNumeric(childType)) {
-            throw new ExprValidationException("Implicit conversion from datatype '" +
-                    (childType == null ? "null" : childType.getSimpleName()) +
-                    "' to numeric is not allowed for aggregation function '" + getAggregationFunctionName() + "'");
-        }
+        EPType childType = child.getForge().getEvaluationType();
+        ExprNodeUtilityValidate.validateReturnsNumeric(child.getForge(), () ->
+                "Implicit conversion from datatype '" +
+                (childType == null ? "null" : childType.getTypeName()) +
+                "' to numeric is not allowed for aggregation function '" + getAggregationFunctionName() + "'");
 
-        return childType;
+        return (EPTypeClass) childType;
     }
 
     protected ExprValidationException makeExceptionExpectedParamNum(int lower, int upper) {
@@ -285,10 +288,10 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     }
 
     public void validateFilter(ExprNode filterEvaluator) throws ExprValidationException {
-        if (JavaClassHelper.getBoxedType(filterEvaluator.getForge().getEvaluationType()) != Boolean.class) {
+        if (!isTypeBoolean(filterEvaluator.getForge().getEvaluationType())) {
             throw new ExprValidationException("Invalid filter expression parameter to the aggregation function '" +
-                    getAggregationFunctionName() +
-                    "' is expected to return a boolean value but returns " + JavaClassHelper.getClassNameFullyQualPretty(filterEvaluator.getForge().getEvaluationType()));
+                getAggregationFunctionName() +
+                "' is expected to return a boolean value but returns " + filterEvaluator.getForge().getEvaluationType().getTypeName());
         }
     }
 
@@ -305,6 +308,6 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     }
 
     public CodegenExpression getAggFuture(CodegenClassScope codegenClassScope) {
-        return codegenClassScope.getPackageScope().addOrGetFieldWellKnown(aggregationResultFutureMemberName, AggregationResultFuture.class);
+        return codegenClassScope.getPackageScope().addOrGetFieldWellKnown(aggregationResultFutureMemberName, AggregationResultFuture.EPTYPE);
     }
 }

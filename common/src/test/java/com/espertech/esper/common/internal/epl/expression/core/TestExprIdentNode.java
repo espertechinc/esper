@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportExprValidationContextFactory;
@@ -67,22 +68,22 @@ public class TestExprIdentNode extends TestCase {
     public void testValidate() throws Exception {
         identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[0].getStreamId());
-        assertEquals(String.class, identNodes[0].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.STRING.getEPType(), identNodes[0].getForge().getEvaluationType());
         assertEquals("mapped('a')", identNodes[0].getResolvedPropertyName());
 
         identNodes[1].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[1].getStreamId());
-        assertEquals(String.class, identNodes[1].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.STRING.getEPType(), identNodes[1].getForge().getEvaluationType());
         assertEquals("nested.nestedValue", identNodes[1].getResolvedPropertyName());
 
         identNodes[2].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[2].getStreamId());
-        assertEquals(Integer.class, identNodes[2].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), identNodes[2].getForge().getEvaluationType());
         assertEquals("indexed[1]", identNodes[2].getResolvedPropertyName());
 
         identNodes[3].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(0, identNodes[3].getStreamId());
-        assertEquals(Integer.class, identNodes[3].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), identNodes[3].getForge().getEvaluationType());
         assertEquals("intPrimitive", identNodes[3].getResolvedPropertyName());
 
         tryInvalidValidate(new ExprIdentNodeImpl(""));
@@ -96,7 +97,7 @@ public class TestExprIdentNode extends TestCase {
     public void testGetType() throws Exception {
         // test success
         identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
-        assertEquals(String.class, identNodes[0].getForge().getEvaluationType());
+        assertEquals(EPTypePremade.STRING.getEPType(), identNodes[0].getForge().getEvaluationType());
     }
 
     public void testEvaluate() throws Exception {
