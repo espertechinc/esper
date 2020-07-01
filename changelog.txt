@@ -1,6 +1,13 @@
 Esper Changelog
 ===================
 
+Changes in version 8.6.0
+------------------------
+  - Support for parameterized types
+  - There are minor changes to some of the extension APIs due to support for parameterized types. 
+    Extension APIs now use EPType (in replacement of java.lang.Class) and EPChainableType (in replacement of EPType). Please review the extension SPI interfaces and examples. 
+    The changes only affect parameter and return type information that are provided to extensions and that extensions may return as result types.   
+
 Changes in version 8.5.0
 ------------------------
   - Support for all enumeration methods to have an index and size formal parameter
