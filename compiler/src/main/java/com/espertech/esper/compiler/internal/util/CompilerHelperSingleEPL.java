@@ -22,15 +22,19 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.util.ValidationException;
+import com.espertech.esper.compiler.client.option.InlinedClassInspectionContext;
+import com.espertech.esper.compiler.client.option.InlinedClassInspectionOption;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.compiler.internal.parse.*;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.Tree;
+import org.codehaus.janino.util.ClassFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileUtil.compileClassProvided;
 
@@ -47,7 +51,7 @@ public class CompilerHelperSingleEPL {
         };
     }
 
-    protected static CompilerHelperSingleResult parseCompileInlinedClassesWalk(Compilable compilable, StatementCompileTimeServices compileTimeServices)
+    protected static CompilerHelperSingleResult parseCompileInlinedClassesWalk(Compilable compilable, InlinedClassInspectionOption inlinedClassConsumer, StatementCompileTimeServices compileTimeServices)
         throws StatementSpecCompileException {
         CompilerHelperSingleResult result;
         try {
@@ -58,7 +62,7 @@ public class CompilerHelperSingleEPL {
                 ParseResult parseResult = parse(compilableEPL.getEpl());
 
                 // compile application-provided classes (both create-class as well as just class-keyword)
-                ClassProvidedPrecompileResult classesInlined = compileAddExtensions(parseResult.getClasses(), compilable, compileTimeServices);
+                ClassProvidedPrecompileResult classesInlined = compileAddExtensions(parseResult.getClasses(), compilable, inlinedClassConsumer, compileTimeServices);
 
                 // walk - this may use the new classes already such as for extension-single-row-function
                 StatementSpecRaw raw = walk(parseResult, compilableEPL.getEpl(), compileTimeServices.getStatementSpecMapEnv());
@@ -78,7 +82,7 @@ public class CompilerHelperSingleEPL {
                     if (soda.getCreateClass() != null) {
                         classTexts.add(soda.getCreateClass().getClassProvidedExpression().getClassText());
                     }
-                    classesInlined = compileAddExtensions(classTexts, compilable, compileTimeServices);
+                    classesInlined = compileAddExtensions(classTexts, compilable, inlinedClassConsumer, compileTimeServices);
                 } else {
                     classesInlined = ClassProvidedPrecompileResult.EMPTY;
                 }
@@ -103,10 +107,18 @@ public class CompilerHelperSingleEPL {
         return walk(parseResult, epl, mapEnv);
     }
 
-    private static ClassProvidedPrecompileResult compileAddExtensions(List<String> classes, Compilable compilable, StatementCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
+    private static ClassProvidedPrecompileResult compileAddExtensions(List<String> classes, Compilable compilable, InlinedClassInspectionOption option, StatementCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
+        Consumer<Object> classFileConsumer = null;
+        if (option != null) {
+            classFileConsumer = compilerResult -> {
+                ClassFile[] files = (ClassFile[]) compilerResult;
+                option.visit(new InlinedClassInspectionContext(files));
+            };
+        }
+
         ClassProvidedPrecompileResult classesInlined;
         try {
-            classesInlined = compileClassProvided(classes, compileTimeServices, null);
+            classesInlined = compileClassProvided(classes, classFileConsumer, compileTimeServices, null);
             // add inlined classes including create-class
             compileTimeServices.getClassProvidedClasspathExtension().add(classesInlined.getClasses(), classesInlined.getBytes());
         } catch (ExprValidationException ex) {

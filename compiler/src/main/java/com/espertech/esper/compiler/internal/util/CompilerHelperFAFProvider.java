@@ -59,7 +59,7 @@ public class CompilerHelperFAFProvider {
 
     public static EPCompiled compile(Compilable compilable, ModuleCompileTimeServices services, CompilerArguments args) throws ExprValidationException, StatementSpecCompileException, EPCompileException {
         StatementCompileTimeServices compileTimeServices = new StatementCompileTimeServices(0, services);
-        CompilerHelperSingleResult walkResult = CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(compilable, compileTimeServices);
+        CompilerHelperSingleResult walkResult = CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(compilable, args.getOptions() == null ? null : args.getOptions().getInlinedClassInspection(), compileTimeServices);
         StatementSpecRaw raw = walkResult.getStatementSpecRaw();
 
         StatementType statementType = StatementTypeUtil.getStatementType(raw);

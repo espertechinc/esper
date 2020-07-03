@@ -87,7 +87,7 @@ public class CompilerHelperStatementProvider {
         StatementCompileTimeServices compileTimeServices = new StatementCompileTimeServices(statementNumber, moduleCompileTimeServices);
 
         // Stage 0 - parse and compile-inline-classes and walk statement
-        CompilerHelperSingleResult walked = parseCompileInlinedClassesWalk(compilable, compileTimeServices);
+        CompilerHelperSingleResult walked = parseCompileInlinedClassesWalk(compilable, compilerOptions.getInlinedClassInspection(), compileTimeServices);
         StatementSpecRaw raw = walked.getStatementSpecRaw();
         String classNameCreateClass = null;
         if (raw.getCreateClassProvided() != null) {

@@ -36,6 +36,7 @@ import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.compiler.client.option.InlinedClassInspectionOption;
 import com.espertech.esper.compiler.client.option.ModuleNameContext;
 import com.espertech.esper.compiler.client.option.ModuleUsesContext;
 import org.slf4j.Logger;
@@ -214,10 +215,11 @@ public class EPCompilerImpl implements EPCompilerSPI {
                 if (item.getExpression() != null && item.getModel() != null) {
                     throw new EPCompileException("Module item has both an EPL expression and a statement object model");
                 }
+                InlinedClassInspectionOption inlinedClassInspection = arguments.getOptions() == null ? null : arguments.getOptions().getInlinedClassInspection();
                 if (item.getExpression() != null) {
-                    CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(new CompilableEPL(item.getExpression(), item.getLineNumber()), services);
+                    CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(new CompilableEPL(item.getExpression(), item.getLineNumber()), inlinedClassInspection, services);
                 } else if (item.getModel() != null) {
-                    CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(new CompilableSODA(item.getModel(), item.getLineNumber()), services);
+                    CompilerHelperSingleEPL.parseCompileInlinedClassesWalk(new CompilableSODA(item.getModel(), item.getLineNumber()), inlinedClassInspection, services);
                     item.getModel().toEPL();
                 } else {
                     throw new EPCompileException("Module item has neither an EPL expression nor a statement object model");

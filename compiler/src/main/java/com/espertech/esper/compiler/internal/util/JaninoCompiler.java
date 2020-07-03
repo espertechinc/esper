@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.compiler.internal.util.CodeGenerationUtil.codeWithLineNum;
 
@@ -32,15 +33,15 @@ public class JaninoCompiler {
     protected static void compile(CodegenClass clazz, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices compileTimeServices) {
         boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
         String code = CodegenClassGenerator.compile(clazz);
-        compileInternal(code, clazz.getClassName(), classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), true);
+        compileInternal(code, clazz.getClassName(), classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), true, null);
     }
 
-    protected static void compile(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices compileTimeServices) {
+    protected static void compile(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, Consumer<Object> compileResultConsumer, ModuleCompileTimeServices compileTimeServices) {
         boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
-        compileInternal(code, filenameWithoutExtension, classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), false);
+        compileInternal(code, filenameWithoutExtension, classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), false, compileResultConsumer);
     }
 
-    private static void compileInternal(String code, String classNameForFile, Map<String, byte[]> classpath, Map<String, byte[]> output, boolean withCodeLogging, ClassLoader classLoader, boolean withErrorLogging) {
+    private static void compileInternal(String code, String classNameForFile, Map<String, byte[]> classpath, Map<String, byte[]> output, boolean withCodeLogging, ClassLoader classLoader, boolean withErrorLogging, Consumer<Object> compileResultConsumer) {
         try {
 
             String optionalFileName = null;
@@ -85,6 +86,9 @@ public class JaninoCompiler {
             ClassFile[] classFiles = unitCompiler.compileUnit(true, true, true);
             for (int i = 0; i < classFiles.length; i++) {
                 output.put(classFiles[i].getThisClassName(), classFiles[i].toByteArray());
+            }
+            if (compileResultConsumer != null) {
+                compileResultConsumer.accept(classFiles);
             }
 
             if (withCodeLogging) {

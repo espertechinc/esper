@@ -16,10 +16,14 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class ClassProvidedPrecompileUtil {
-    public static ClassProvidedPrecompileResult compileClassProvided(List<String> classTexts, StatementCompileTimeServices compileTimeServices, ClassProvidedPrecompileResult optionalPrior)
+    public static ClassProvidedPrecompileResult compileClassProvided(List<String> classTexts, Consumer<Object> compileResultConsumer, StatementCompileTimeServices compileTimeServices, ClassProvidedPrecompileResult optionalPrior)
         throws ExprValidationException {
         if (classTexts == null || classTexts.isEmpty()) {
             return ClassProvidedPrecompileResult.EMPTY;
@@ -46,7 +50,7 @@ public class ClassProvidedPrecompileUtil {
             Map<String, byte[]> output = new HashMap<>();
 
             try {
-                compileTimeServices.getCompilerServices().compileClass(classText, className, allBytes, output, compileTimeServices.getServices());
+                compileTimeServices.getCompilerServices().compileClass(classText, className, allBytes, output, compileResultConsumer, compileTimeServices.getServices());
             } catch (CompilerServicesCompileException ex) {
                 throw handleException(ex, "Failed to compile class", classText);
             }

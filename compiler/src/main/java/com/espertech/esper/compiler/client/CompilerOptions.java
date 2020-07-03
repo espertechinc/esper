@@ -30,6 +30,7 @@ public class CompilerOptions {
     private StatementNameOption statementName;
     private ModuleNameOption moduleName;
     private ModuleUsesOption moduleUses;
+    private InlinedClassInspectionOption inlinedClassInspection;
 
     /**
      * Returns the callback that determines the access modifier of a given event type
@@ -273,5 +274,21 @@ public class CompilerOptions {
     public CompilerOptions setModuleUses(ModuleUsesOption moduleUses) {
         this.moduleUses = moduleUses;
         return this;
+    }
+
+    /**
+     * Returns the classback for inlined-class compilation wherein the callback receives class output
+     * @return callback
+     */
+    public InlinedClassInspectionOption getInlinedClassInspection() {
+        return inlinedClassInspection;
+    }
+
+    /**
+     * Sets the classback for inlined-class compilation wherein the callback receives class output
+     * @param  inlinedClassInspection callback
+     */
+    public void setInlinedClassInspection(InlinedClassInspectionOption inlinedClassInspection) {
+        this.inlinedClassInspection = inlinedClassInspection;
     }
 }

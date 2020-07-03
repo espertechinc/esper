@@ -13,6 +13,8 @@ package com.espertech.esper.regressionlib.suite.expr.clazz;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.compiler.client.option.InlinedClassInspectionContext;
+import com.espertech.esper.compiler.client.option.InlinedClassInspectionOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -20,6 +22,7 @@ import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
@@ -41,7 +44,30 @@ public class ExprClassStaticMethod {
         executions.add(new ExprClassStaticMethodLocalAndCreateClassTogether());
         executions.add(new ExprClassInvalidCompile());
         executions.add(new ExprClassDocSamples());
+        executions.add(new ExprClassCompilerInlinedClassInspectionOption());
         return executions;
+    }
+
+    private static class ExprClassCompilerInlinedClassInspectionOption implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "inlined_class \"\"\"\n" +
+                "  import java.io.File;" +
+                "  import java.util.Arrays;" +
+                "  public class MyUtility {\n" +
+                "    public static void fib(int n) {\n" +
+                "      System.out.println(Arrays.asList(new File(\".\").list()));\n" +
+                "    }\n" +
+                "  }\n" +
+                "\"\"\"\n" +
+                "@name('s0') select MyUtility.fib(intPrimitive) from SupportBean";
+
+            MySupportInlinedClassInspection support = new MySupportInlinedClassInspection();
+            env.compile(epl, compilerOptions -> compilerOptions.setInlinedClassInspection(support));
+
+            assertEquals(1, support.contexts.size());
+            InlinedClassInspectionContext ctx = support.contexts.get(0);
+            assertEquals("MyUtility", ctx.getJaninoClassFiles()[0].getThisClassName());
+        }
     }
 
     private static class ExprClassDocSamples implements RegressionExecution {
@@ -321,6 +347,14 @@ public class ExprClassStaticMethod {
     private static class MyClass {
         public String doIt(String parameter) {
             return "|" + parameter + "|";
+        }
+    }
+
+    private static class MySupportInlinedClassInspection implements InlinedClassInspectionOption {
+        private List<InlinedClassInspectionContext> contexts = new ArrayList<>();
+
+        public void visit(InlinedClassInspectionContext env) {
+            contexts.add(env);
         }
     }
 }

@@ -31,6 +31,7 @@ import org.codehaus.commons.compiler.CompileException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class CompilerServicesImpl implements CompilerServices {
 
@@ -72,9 +73,9 @@ public class CompilerServicesImpl implements CompilerServices {
         }
     }
 
-    public void compileClass(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices services) throws CompilerServicesCompileException {
+    public void compileClass(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, Consumer<Object> compileResultConsumer, ModuleCompileTimeServices services) throws CompilerServicesCompileException {
         try {
-            JaninoCompiler.compile(code, filenameWithoutExtension, classpath, output, services);
+            JaninoCompiler.compile(code, filenameWithoutExtension, classpath, output, compileResultConsumer, services);
         } catch (RuntimeException ex) {
             String message = ex.getMessage().replace(CompileException.class.getName() + ": ", "");
             throw new CompilerServicesCompileException(message, ex);
