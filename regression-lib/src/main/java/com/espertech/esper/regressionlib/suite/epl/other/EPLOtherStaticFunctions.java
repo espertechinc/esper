@@ -64,7 +64,20 @@ public class EPLOtherStaticFunctions {
         execs.add(new EPLOtherPrimitiveConversion());
         execs.add(new EPLOtherStaticFuncWCurrentTimeStamp());
         execs.add(new EPLOtherStaticFuncEnumConstant());
+        execs.add(new EPLOtherStaticFuncVariadic());
         return execs;
+    }
+
+    private static class EPLOtherStaticFuncVariadic implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select String.format('%s %s', 'test', e0) as c0 from SupportBean e0";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("a", 123));
+            assertEquals("test SupportBean(a, 123)", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherStaticFuncEnumConstant implements RegressionExecution {

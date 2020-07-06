@@ -121,7 +121,7 @@ public class ExprNodeUtilityResolve {
         // rewrite those evaluator that should return the event itself
         if (CollectionUtil.isAnySet(allowEventBeanType)) {
             for (int i = 0; i < parameters.size(); i++) {
-                if (allowEventBeanType[i] && method.getParameterTypes()[i] == EventBean.class) {
+                if (allowEventBeanType[i] && getMethodParameterType(method, i) == EventBean.class) {
                     childForges[i] = childEvalsEventBeanReturnTypesForges[i];
                 }
             }
@@ -130,7 +130,7 @@ public class ExprNodeUtilityResolve {
         // rewrite those evaluators that should return the event collection
         if (CollectionUtil.isAnySet(allowEventBeanCollType)) {
             for (int i = 0; i < parameters.size(); i++) {
-                if (allowEventBeanCollType[i] && method.getParameterTypes()[i] == Collection.class) {
+                if (allowEventBeanCollType[i] && getMethodParameterType(method, i) == Collection.class) {
                     childForges[i] = childEvalsEventBeanReturnTypesForges[i];
                 }
             }
@@ -162,4 +162,13 @@ public class ExprNodeUtilityResolve {
         boolean localInlinedClass = services.getClassProvidedClasspathExtension().isLocalInlinedClass(method.getDeclaringClass());
         return new ExprNodeUtilMethodDesc(allConstants, childForges, method, optionalClass, localInlinedClass);
     }
+
+    private static Class<?> getMethodParameterType(Method method, int i) {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        if (method.isVarArgs() && paramTypes.length <= i) {
+            return paramTypes[paramTypes.length - 1].getComponentType();
+        }
+        return paramTypes[i];
+    }
+
 }
